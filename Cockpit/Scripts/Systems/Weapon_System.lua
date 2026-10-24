@@ -283,16 +283,15 @@ end
     -- User-operated pickle switch sets a request. DCS receives PickleON
     -- only after the selected weapon bay has finished opening.
     if command == 10026 then
-        if weapon_release_state == 1 then
-            weapon_release_state = 0
-            pickle_pos = 0
-        elseif master_arm_state == 1 and parameters.MAIN_POWER:get() == 1
-                and parameters.WoW:get() < 0.5 then
-            weapon_release_state = 1
-            pickle_pos = 1
-        else
-            pickle_pos = 0
-        end
+        -- Value-based press/release for a real momentary input. Nil remains a
+        -- backwards-compatible toggle for a legacy action with no value.
+        local requested = (value == nil) and (weapon_release_state == 0)
+            or (value ~= nil and value > 0)
+        local permitted = master_arm_state == 1 and
+            parameters.MAIN_POWER:get() >= 0.5 and
+            parameters.WoW:get() < 0.5
+        weapon_release_state = (requested and permitted) and 1 or 0
+        pickle_pos = weapon_release_state
     end
 
 	--ecm_state JAMMER
@@ -356,20 +355,21 @@ function update()
 
     -- Normal actuator model [normalized travel/second]. True real rates
     -- depend on hydraulics and are not available in the public documents.
-    local function stepDoor(current, open, rate)
+    local function stepDoor(current, open, rate, powered)
         current = math.max(0, math.min(1, current))
-        if not mainPower and not groundCrewLeft then return current end
+        if not powered then return current end
         local target = open and 1 or 0
         local maximum = rate * update_time_step
         return math.max(0, math.min(1,
             current + math.max(-maximum, math.min(maximum, target-current))))
     end
     local bay_door_pos = stepDoor(get_aircraft_draw_argument_value(600),
-        openMain, groundContact and 0.11 or 2.5)
+        openMain, groundContact and 0.11 or 2.5, mainPower)
     local left_door_pos = stepDoor(get_aircraft_draw_argument_value(601),
-        openLeft, groundContact and (groundCrewLeft and 0.25 or 0.11) or 2.5)
+        openLeft, groundContact and (groundCrewLeft and 0.25 or 0.11) or 2.5,
+        mainPower or groundCrewLeft)
     local right_door_pos = stepDoor(get_aircraft_draw_argument_value(602),
-        openRight, groundContact and 0.11 or 2.5)
+        openRight, groundContact and 0.11 or 2.5, mainPower)
     set_aircraft_draw_argument_value(600,bay_door_pos)
     set_aircraft_draw_argument_value(601,left_door_pos)
     set_aircraft_draw_argument_value(602,right_door_pos)
@@ -401,7 +401,7 @@ function update()
         and not groundContact and master_arm_state == 1
         and (first_state == 1 or fire_z_weapons == 1)
     local canon_door_pos = stepDoor(get_aircraft_draw_argument_value(614),
-        cannon_request, 4.5)
+        cannon_request, 4.5, mainPower)
     set_aircraft_draw_argument_value(614, canon_door_pos)
     local canon_rotate = get_aircraft_draw_argument_value(615)
     if cannon_request then
