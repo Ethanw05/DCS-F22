@@ -80,7 +80,7 @@ local PFD_MASK_BASE1 	= MakeMaterial(nil,{255,0,0,255})--Clipping Masks
 local PFD_MASK_BASE2 	= MakeMaterial(nil,{0,255,0,255})--Clipping Masks
 --Clipping Masks
 local total_field_of_view           = CreateElement "ceMeshPoly"
-total_field_of_view.name            = "total_field_of_view"
+total_field_of_view.name = "MFD_RIGHT_fcs_page_total_field_of_view_1"
 total_field_of_view.primitivetype   = "triangles"
 total_field_of_view.vertices        = {
 										{-1 * ClippingWidth,-1 * ClippingPlaneSize},
@@ -99,7 +99,7 @@ total_field_of_view.isvisible       = false
 Add(total_field_of_view)
 --Clipping Masks
 local clipPoly               = CreateElement "ceMeshPoly"
-clipPoly.name                = "clipPoly-1"
+clipPoly.name = "MFD_RIGHT_fcs_page_clipPoly_1"
 clipPoly.primitivetype       = "triangles"
 clipPoly.init_pos            = {0, 0, 0}
 clipPoly.init_rot            = { 0, 0 , 0} -- degree NOT rad
@@ -118,7 +118,7 @@ clipPoly.isvisible           = false
 Add(clipPoly)
 ------------------------------------------------------------------------------------------------CLIPPING-END----------------------------------------------------------------------------------------------
 BGROUND                     = CreateElement "ceTexPoly"
-BGROUND.name    			= "BackGround"
+BGROUND.name = "MFD_RIGHT_fcs_page_BGROUND_1"
 BGROUND.material			= MASK_BOX
 BGROUND.change_opacity 		= false
 BGROUND.collimated 			= false
@@ -134,7 +134,7 @@ Add(BGROUND)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --FCS PAGE
 FCSP                        = CreateElement "ceTexPoly"
-FCSP.name    			    = "menu"
+FCSP.name = "MFD_RIGHT_fcs_page_FCSP_1"
 FCSP.material			    = FCS_PAGE
 FCSP.change_opacity 		= false
 FCSP.collimated 			= false
@@ -151,7 +151,7 @@ Add(FCSP)
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
 --FCS INDICATORS
 FCSIND                        = CreateElement "ceTexPoly"
-FCSIND.name    			    = "menu"
+FCSIND.name = "MFD_RIGHT_fcs_page_FCSIND_1"
 FCSIND.material			    = FCS_IND
 FCSIND.change_opacity 		= false
 FCSIND.collimated 			= false
@@ -167,7 +167,7 @@ vertices(FCSIND,2)
 Add(FCSIND)
 -----------------------------------------------------------------------------------------------RIGHT RUDDER
 FCS_RR                    = CreateElement "ceTexPoly"
-FCS_RR.name    			    = "menu"
+FCS_RR.name = "MFD_RIGHT_fcs_page_FCS_RR_1"
 FCS_RR.material			    = MASK_BOX_IND
 FCS_RR.change_opacity 		= false
 FCS_RR.collimated 			= false
@@ -187,7 +187,7 @@ vertices(FCS_RR,0.06,true)
 Add(FCS_RR)
 -----------------------------------------------------------------------------------------------LEFT RUDDER
 FCS_LR                    = CreateElement "ceTexPoly"
-FCS_LR.name    			    = "menu"
+FCS_LR.name = "MFD_RIGHT_fcs_page_FCS_LR_1"
 FCS_LR.material			    = MASK_BOX_IND
 FCS_LR.change_opacity 		= false
 FCS_LR.collimated 			= false
@@ -207,7 +207,7 @@ vertices(FCS_LR,0.06,true)
 Add(FCS_LR)
 ---------------------------------------------------------------------------------------------------LEFT AILERON
 FCS_LA                    = CreateElement "ceTexPoly"
-FCS_LA.name    			    = "BG"
+FCS_LA.name = "MFD_RIGHT_fcs_page_FCS_LA_1"
 FCS_LA.material			    = MASK_BOX_IND
 FCS_LA.change_opacity 		= false
 FCS_LA.collimated 			= false
@@ -225,7 +225,7 @@ vertices(FCS_LA,0.06,true)
 Add(FCS_LA)
 --------------------------------------------------------------------------------------------------- RIGHT AILERON
 FCS_RA                    = CreateElement "ceTexPoly"
-FCS_RA.name    			    = "BG"
+FCS_RA.name = "MFD_RIGHT_fcs_page_FCS_RA_1"
 FCS_RA.material			    = MASK_BOX_IND
 FCS_RA.change_opacity 		= false
 FCS_RA.collimated 			= false
@@ -243,7 +243,7 @@ vertices(FCS_RA,0.06,true)
 Add(FCS_RA)
 ---------------------------------------------------------------------------------------------------LEFT ELEVATOR
 FCS_LE                    = CreateElement "ceTexPoly"
-FCS_LE.name    			    = "BG"
+FCS_LE.name = "MFD_RIGHT_fcs_page_FCS_LE_1"
 FCS_LE.material			    = MASK_BOX_IND
 FCS_LE.change_opacity 		= false
 FCS_LE.collimated 			= false
@@ -261,7 +261,7 @@ vertices(FCS_LE,0.06,true)
 Add(FCS_LE)
 --------------------------------------------------------------------------------------------------- RIGHT ELEVATOR
 FCS_RE                    = CreateElement "ceTexPoly"
-FCS_RE.name    			    = "BG"
+FCS_RE.name = "MFD_RIGHT_fcs_page_FCS_RE_1"
 FCS_RE.material			    = MASK_BOX_IND
 FCS_RE.change_opacity 		= false
 FCS_RE.collimated 			= false
@@ -279,7 +279,7 @@ vertices(FCS_RE,0.06,true)
 Add(FCS_RE)
 ---------------------------------------------------------------------------------------------------LEFT FLAPS
 FCS_LF                    = CreateElement "ceTexPoly"
-FCS_LF.name    			    = "BG"
+FCS_LF.name = "MFD_RIGHT_fcs_page_FCS_LF_1"
 FCS_LF.material			    = MASK_BOX_IND
 FCS_LF.change_opacity 		= false
 FCS_LF.collimated 			= false
@@ -297,7 +297,7 @@ vertices(FCS_LF,0.06,true)
 Add(FCS_LF)
 --------------------------------------------------------------------------------------------------- RIGHT FLAPS
 FCS_RF                    = CreateElement "ceTexPoly"
-FCS_RF.name    			    = "BG"
+FCS_RF.name = "MFD_RIGHT_fcs_page_FCS_RF_1"
 FCS_RF.material			    = MASK_BOX_IND
 FCS_RF.change_opacity 		= false
 FCS_RF.collimated 			= false
@@ -315,7 +315,7 @@ vertices(FCS_RF,0.06,true)
 Add(FCS_RF)
 ---------------------------------------------------------------------------------------------------LEFT LEF
 FCS_L_LEF                       = CreateElement "ceTexPoly"
-FCS_L_LEF.name    			    = "BG"
+FCS_L_LEF.name = "MFD_RIGHT_fcs_page_FCS_L_LEF_1"
 FCS_L_LEF.material			    = MASK_BOX_IND
 FCS_L_LEF.change_opacity 		= false
 FCS_L_LEF.collimated 			= false
@@ -333,7 +333,7 @@ vertices(FCS_L_LEF,0.06,true)
 Add(FCS_L_LEF)
 --------------------------------------------------------------------------------------------------- RIGHT LEF
 FCS_R_LEF                       = CreateElement "ceTexPoly"
-FCS_R_LEF.name    			    = "BG"
+FCS_R_LEF.name = "MFD_RIGHT_fcs_page_FCS_R_LEF_1"
 FCS_R_LEF.material			    = MASK_BOX_IND
 FCS_R_LEF.change_opacity 		= false
 FCS_R_LEF.collimated 			= false
@@ -352,7 +352,7 @@ Add(FCS_R_LEF)
 --------------------------------------------------------------------------------------------------- MENU TEXT
 --MENU TEXT
 MENU_CHK_TEXT 					    = CreateElement "ceStringPoly"
-MENU_CHK_TEXT.name 				    = "menu"
+MENU_CHK_TEXT.name = "MFD_RIGHT_fcs_page_MENU_CHK_TEXT_1"
 MENU_CHK_TEXT.material 			    = UFD_FONT
 MENU_CHK_TEXT.value 				= "MENU"
 MENU_CHK_TEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
@@ -370,7 +370,7 @@ MENU_CHK_TEXT.controllers		    =   {
 Add(MENU_CHK_TEXT)
 --------------------------------------------------------------------------------------------------- NAV
 MENU_TEXT1 					        = CreateElement "ceStringPoly"
-MENU_TEXT1.name 				    = "menu"
+MENU_TEXT1.name = "MFD_RIGHT_fcs_page_MENU_TEXT1_1"
 MENU_TEXT1.material 			    = UFD_GRN
 MENU_TEXT1.value 				    = "RWR"
 MENU_TEXT1.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -385,7 +385,7 @@ MENU_TEXT1.controllers		        =   {{"opacity_using_parameter",0},{"parameter_i
 Add(MENU_TEXT1)
 --------------------------------------------------------------------------------------------------- NAV
 MENU_TEXT2 					        = CreateElement "ceStringPoly"
-MENU_TEXT2.name 				    = "menu"
+MENU_TEXT2.name = "MFD_RIGHT_fcs_page_MENU_TEXT2_1"
 MENU_TEXT2.material 			    = UFD_GRN
 MENU_TEXT2.value 				    = "ENG"
 MENU_TEXT2.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -400,7 +400,7 @@ MENU_TEXT2.controllers		        =   {{"opacity_using_parameter",0},{"parameter_i
 Add(MENU_TEXT2)
 --------------------------------------------------------------------------------------------------- NAV
 MENU_TEXT3 					        = CreateElement "ceStringPoly"
-MENU_TEXT3.name 				    = "menu"
+MENU_TEXT3.name = "MFD_RIGHT_fcs_page_MENU_TEXT3_1"
 MENU_TEXT3.material 			    = UFD_GRN
 MENU_TEXT3.value 				    = "FUEL"
 MENU_TEXT3.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -574,7 +574,7 @@ Add(MENU_TEXT3)
 --local fcs_mode = 0 -- 0 = AUTO - 1 = AOA ORIDE - 2 = G ORIDE - 3 = OFF
 ----------------------------------
 AOA_NUM				    = CreateElement "ceStringPoly"
-AOA_NUM.name				= "AOA_NUM"
+AOA_NUM.name = "MFD_RIGHT_fcs_page_AOA_NUM_1"
 AOA_NUM.material			= UFD_FONT
 AOA_NUM.init_pos			= {-0.42, 0.1, 0} --L-R,U-D,F-B
 AOA_NUM.alignment			= "RightCenter"
@@ -597,7 +597,7 @@ AOA_NUM.controllers		    =   {
 Add(AOA_NUM)
 ------
 AOA_TXT 					    = CreateElement "ceStringPoly"
-AOA_TXT.name 				    = "pitch"
+AOA_TXT.name = "MFD_RIGHT_fcs_page_AOA_TXT_1"
 AOA_TXT.material 			    = UFD_GRN
 AOA_TXT.value 				    = "AOA:"
 AOA_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -613,7 +613,7 @@ AOA_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_ran
 Add(AOA_TXT)
 --------------
 G_NUM				    = CreateElement "ceStringPoly"
-G_NUM.name				= "G_NUM"
+G_NUM.name = "MFD_RIGHT_fcs_page_G_NUM_1"
 G_NUM.material			= UFD_FONT
 G_NUM.init_pos			= {-0.42, 0.2, 0} --L-R,U-D,F-B
 G_NUM.alignment			= "RightCenter"
@@ -635,7 +635,7 @@ G_NUM.controllers		=   {
 Add(G_NUM)
 ---------------------------------------------------------------------
 G_TXT 					    = CreateElement "ceStringPoly"
-G_TXT.name 				    = "G_TXT"
+G_TXT.name = "MFD_RIGHT_fcs_page_G_TXT_1"
 G_TXT.material 			    = UFD_GRN
 G_TXT.value 				    = "G:"
 G_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}

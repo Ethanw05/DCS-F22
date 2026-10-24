@@ -147,7 +147,7 @@ declare_loadout(
 		wsTypeOfWeapon	= AIM9X_BLKII.wsTypeOfWeapon,
 		Count			= 1,
 		Picture			= "AIM-9XX.png",
-		displayName		= _("AIM9X-BLKII Sidewinder IR AAM"),
+		displayName		= _("[APPROX] AIM9X-BLKII Sidewinder IR AAM"),
 		Weight			= 85.5,
 		Elements		={
 			[1] =
@@ -170,7 +170,7 @@ declare_loadout({
 	attribute		= {4,4,32,WSTYPE_PLACEHOLDER},	
     Count           = 2,
     Picture         = "AIM-9XX.png",
-    displayName     = _("2x AIM9X-BLKII Sidewinder IR AAM"),
+    displayName     = _("[APPROX] 2x AIM9X-BLKII Sidewinder IR AAM"),
     Weight          = 85.5 * 2 + 50,
 	Elements = {
 	

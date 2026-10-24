@@ -83,7 +83,7 @@ local PFD_MASK_BASE2 	= MakeMaterial(nil,{0,255,0,255})--Clipping Masks
 
 --Clipping Masks
 local total_field_of_view           = CreateElement "ceMeshPoly"
-total_field_of_view.name            = "total_field_of_view"
+total_field_of_view.name = "PMFD_CENTER_config_page_total_field_of_view_1"
 total_field_of_view.primitivetype   = "triangles"
 total_field_of_view.vertices        = {
 										{-1 * ClippingWidth,-1 * ClippingPlaneSize},
@@ -102,7 +102,7 @@ total_field_of_view.isvisible       = false
 Add(total_field_of_view)
 --Clipping Masks
 local clipPoly               = CreateElement "ceMeshPoly"
-clipPoly.name                = "clipPoly-1"
+clipPoly.name = "PMFD_CENTER_config_page_clipPoly_1"
 clipPoly.primitivetype       = "triangles"
 clipPoly.init_pos            = {0, 0, 0}
 clipPoly.init_rot            = { 0, 0 , 0} -- degree NOT rad
@@ -121,7 +121,7 @@ clipPoly.isvisible           = false
 Add(clipPoly)
 ------------------------------------------------------------------------------------------------CLIPPING-END----------------------------------------------------------------------------------------------
 BGROUND                    = CreateElement "ceTexPoly"
-BGROUND.name    			= "BG"
+BGROUND.name = "PMFD_CENTER_config_page_BGROUND_1"
 BGROUND.material			= MASK_BOX
 BGROUND.change_opacity 		= false
 BGROUND.collimated 			= false
@@ -136,7 +136,7 @@ vertices(BGROUND,3)
 Add(BGROUND)
 -------------------------------------------------------------------------------------------------------------------------------------------------
 BLOG                    = CreateElement "ceTexPoly"
-BLOG.name    			= "BG"
+BLOG.name = "PMFD_CENTER_config_page_BLOG_1"
 BLOG.material			= LOGO
 BLOG.change_opacity 	= false
 BLOG.collimated 		= false
@@ -151,7 +151,7 @@ vertices(BLOG,2.2)
 Add(BLOG)
 ----------------------------------------------------------------------------------------------------------------
 MENUTEXT 					    = CreateElement "ceStringPoly"
-MENUTEXT.name 				    = "menu"
+MENUTEXT.name = "PMFD_CENTER_config_page_MENUTEXT_1"
 MENUTEXT.material 			    = UFD_FONT
 MENUTEXT.value 				    = "MENU"
 MENUTEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
@@ -166,7 +166,7 @@ MENUTEXT.controllers		    =   {{"opacity_using_parameter",0},{"parameter_in_rang
 Add(MENUTEXT)
 ----------------------------------------------------------------------------------------------------------------
 PH_TEXT 					    = CreateElement "ceStringPoly"
-PH_TEXT.name 				    = "menu"
+PH_TEXT.name = "PMFD_CENTER_config_page_PH_TEXT_1"
 PH_TEXT.material 			    = UFD_GRN
 PH_TEXT.value 				    = "CONFIG MENU"
 PH_TEXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -181,7 +181,7 @@ PH_TEXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_ran
 Add(PH_TEXT)
 ----------------------------------------------------------------------------------------------------------------
 PH1_TEXT 					    = CreateElement "ceStringPoly"
-PH1_TEXT.name 				    = "menu"
+PH1_TEXT.name = "PMFD_CENTER_config_page_PH1_TEXT_1"
 PH1_TEXT.material 			    = UFD_RED
 PH1_TEXT.value 				    = "WEIGHT ON WHEELS REQUIRED TO USE CONFIG MENU"
 PH1_TEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
@@ -196,7 +196,7 @@ PH1_TEXT.controllers		    = {{"opacity_using_parameter",0},{"parameter_in_range"
 Add(PH1_TEXT)
 ----------------------------------------------------------------------------------------------------------------
 C1_TXT 					        = CreateElement "ceStringPoly"
-C1_TXT.name 				    = "menu"
+C1_TXT.name = "PMFD_CENTER_config_page_C1_TXT_1"
 C1_TXT.material 			    = UFD_GRN
 C1_TXT.value 				    = "CANOPY GOLD TINT "
 --C1_TXT.value 				    = "CANOPY NO TINT   "
@@ -213,7 +213,7 @@ C1_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_rang
 Add(C1_TXT)
 ----------------------------------------------------------------------------------------------------------------
 C5_TXT 					        = CreateElement "ceStringPoly"
-C5_TXT.name 				    = "menu"
+C5_TXT.name = "PMFD_CENTER_config_page_C5_TXT_1"
 C5_TXT.material 			    = UFD_GRN
 C5_TXT.value 				    = "CANOPY BLACK TINT"
 C5_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -228,7 +228,7 @@ C5_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_rang
 Add(C5_TXT)
 ----------------------------------------------------------------------------------------------------------------
 C6_TXT 					        = CreateElement "ceStringPoly"
-C6_TXT.name 				    = "menu"
+C6_TXT.name = "PMFD_CENTER_config_page_C6_TXT_1"
 C6_TXT.material 			    = UFD_GRN
 --C6_TXT.value 				    = "CANOPY BLACK TINT"
 C6_TXT.value 				    = "CANOPY NO TINT   "
@@ -244,7 +244,7 @@ C6_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_rang
 Add(C6_TXT)
 ----------------------------------------------------------------------------------------------------------------
 V1_TXT 					        = CreateElement "ceStringPoly"
-V1_TXT.name 				    = "menu"
+V1_TXT.name = "PMFD_CENTER_config_page_V1_TXT_1"
 V1_TXT.material 			    = UFD_GRN
 V1_TXT.value 				    = "VISOR MIRROR TINT" --= "FLOOD COLOR GREEN"
 V1_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -259,7 +259,7 @@ V1_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_rang
 Add(V1_TXT)
 ----------------------------------------------------------------------------------------------------------------
 V2_TXT 					        = CreateElement "ceStringPoly"
-V2_TXT.name 				    = "menu"
+V2_TXT.name = "PMFD_CENTER_config_page_V2_TXT_1"
 V2_TXT.material 			    = UFD_GRN
 V2_TXT.value 				    = "VISOR GOLD TINT  " --= "FLOOD COLOR GREEN"
 V2_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -274,7 +274,7 @@ V2_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_rang
 Add(V2_TXT)
 ----------------------------------------------------------------------------------------------------------------
 V3_TXT 					        = CreateElement "ceStringPoly"
-V3_TXT.name 				    = "menu"
+V3_TXT.name = "PMFD_CENTER_config_page_V3_TXT_1"
 V3_TXT.material 			    = UFD_GRN
 V3_TXT.value 				    = "VISOR BLACK TINT " --= "FLOOD COLOR GREEN"
 V3_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -289,7 +289,7 @@ V3_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_rang
 Add(V3_TXT)
 ----------------------------------------------------------------------------------------------------------------
 V4_TXT 					        = CreateElement "ceStringPoly"
-V4_TXT.name 				    = "menu"
+V4_TXT.name = "PMFD_CENTER_config_page_V4_TXT_1"
 V4_TXT.material 			    = UFD_GRN
 V4_TXT.value 				    = "VISOR CLEAR GLASS" --= "FLOOD COLOR GREEN"
 V4_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -304,7 +304,7 @@ V4_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_rang
 Add(V4_TXT)
 ----------------------------------------------------------------------------------------------------------------
 V5_TXT 					        = CreateElement "ceStringPoly"
-V5_TXT.name 				    = "menu"
+V5_TXT.name = "PMFD_CENTER_config_page_V5_TXT_1"
 V5_TXT.material 			    = UFD_GRN
 V5_TXT.value 				    = "AVIATOR GLASSES  " --= "FLOOD COLOR GREEN"  VISOR CLEAR GLASS AVIATOR GLASSES
 V5_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -319,7 +319,7 @@ V5_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_rang
 Add(V5_TXT)
 ----------------------------------------------------------------------------------------------------------------
 F1_TXT 					        = CreateElement "ceStringPoly"
-F1_TXT.name 				    = "menu"
+F1_TXT.name = "PMFD_CENTER_config_page_F1_TXT_1"
 F1_TXT.material 			    = UFD_GRN
 F1_TXT.value 				    = "FLOOD COLOR GREEN"
 F1_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -334,7 +334,7 @@ F1_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_rang
 Add(F1_TXT)
 ----------------------------------------------------------------------------------------------------------------
 F2_TXT 					        = CreateElement "ceStringPoly"
-F2_TXT.name 				    = "menu"
+F2_TXT.name = "PMFD_CENTER_config_page_F2_TXT_1"
 F2_TXT.material 			    = UFD_BLUE
 F2_TXT.value 				    = "FLOOD COLOR BLUE "
 F2_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -349,7 +349,7 @@ F2_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_rang
 Add(F2_TXT)
 ----------------------------------------------------------------------------------------------------------------
 F3_TXT 					        = CreateElement "ceStringPoly"
-F3_TXT.name 				    = "menu"
+F3_TXT.name = "PMFD_CENTER_config_page_F3_TXT_1"
 F3_TXT.material 			    = UFD_RED
 F3_TXT.value 				    = "FLOOD COLOR RED  "
 F3_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -364,7 +364,7 @@ F3_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_rang
 Add(F3_TXT)
 ----------------------------------------------------------------------------------------------------------------
 F4_TXT 					        = CreateElement "ceStringPoly"
-F4_TXT.name 				    = "menu"
+F4_TXT.name = "PMFD_CENTER_config_page_F4_TXT_1"
 F4_TXT.material 			    = UFD_FONT
 F4_TXT.value 				    = "FLOOD COLOR WHITE"
 F4_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -380,7 +380,7 @@ Add(F4_TXT)
 
 ----------------------------------------------------------------------------------------------------------------
 P1_TXT 					        = CreateElement "ceStringPoly"
-P1_TXT.name 				    = "menu"
+P1_TXT.name = "PMFD_CENTER_config_page_P1_TXT_1"
 P1_TXT.material 			    = UFD_YEL
 P1_TXT.value 				    = "FAMILY PHOTO OFF"
 P1_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -395,7 +395,7 @@ P1_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_rang
 Add(P1_TXT)
 ----------------------------------------------------------------------------------------------------------------
 P2_TXT 					        = CreateElement "ceStringPoly"
-P2_TXT.name 				    = "menu"
+P2_TXT.name = "PMFD_CENTER_config_page_P2_TXT_1"
 P2_TXT.material 			    = UFD_GRN
 P2_TXT.value 				    = "FAMILY PHOTO ON "
 P2_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -410,7 +410,7 @@ P2_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_rang
 Add(P2_TXT)
 ----------------------------------------------------------------------------------------------------------------
 C2_TXT 					        = CreateElement "ceStringPoly"
-C2_TXT.name 				    = "menu"
+C2_TXT.name = "PMFD_CENTER_config_page_C2_TXT_1"
 C2_TXT.material 			    = UFD_YEL
 C2_TXT.value 				    = "WINDOW CLING OFF"
 C2_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -425,7 +425,7 @@ C2_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_rang
 Add(C2_TXT)
 ----------------------------------------------------------------------------------------------------------------
 C3_TXT 					        = CreateElement "ceStringPoly"
-C3_TXT.name 				    = "menu"
+C3_TXT.name = "PMFD_CENTER_config_page_C3_TXT_1"
 C3_TXT.material 			    = UFD_GRN
 C3_TXT.value 				    = "WINDOW CLING ON "
 C3_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}

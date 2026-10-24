@@ -25,5 +25,7 @@ dofile(current_mod_path.."/Weapons/AIM_120_C8.lua")
 dofile(current_mod_path.."/Weapons/AIM_120_D3.lua")
 dofile(current_mod_path.."/Weapons/AIM_260A.lua")
 dofile(current_mod_path.."/Weapons/MAKO_A2A_C.lua")
-dofile(current_mod_path.."/Weapons/MAKO_A2G_C.lua")
-dofile(current_mod_path.."/Weapons/GBU_32.lua")
+-- Quarantined: inconsistent propellant/launch mass and unverified host ARM integration.
+-- dofile(current_mod_path.."/Weapons/MAKO_A2G_C.lua")
+-- Quarantined: registered as an AAM, not an INS/GPS guided bomb (R172).
+-- dofile(current_mod_path.."/Weapons/GBU_32.lua")

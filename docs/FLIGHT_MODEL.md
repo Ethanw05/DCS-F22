@@ -85,3 +85,7 @@ Both changed Lua files pass Lua 5.1 syntax checking. [GitHub Actions run 4007966
 3. Obtain legitimate quantitative data with mass/configuration/atmosphere and uncertainty. Fit thrust and drag jointly to several acceleration, climb and steady-flight points. Public supercruise/Mach/ceiling labels alone cannot identify the model. No calibrated top speed, climb, sustained-turn, takeoff/landing, fuel range or full post-stall accuracy is claimed.
 4. Replace coefficient/engine assumptions as evidence improves. Detailed high-alpha/beta, departure/spin, compressibility/buffet, asymmetric stores/drag, inlet effects, hydraulic failures and ground performance remain substantial work.
 5. Complete the independent avionics path separately. The replacement physics has no F-15 code dependency, but the normal aircraft still registers with `MAC_flyable`; that avionics dependency is **not removed by this EFM rewrite**. See [standalone investigation](STANDALONE_FOLLOWUP.md).
+
+## Cockpit-system integration follow-up
+
+The later [systems pass](OVERNIGHT_OVERHAUL.md) supplies hydraulic authority to configuration/flight-control actuator rates, inhibits ground start without modeled start supply, gates tanker acceptance on achieved AAR door position, and publishes fuel, lever/run state and ground-velocity validity for cockpit consumers. Its supply/pressure parameters are additional disclosed assumptions. Existing aerodynamic/engine/control coefficients are otherwise unchanged by that pass. DCS validation remains pending.

@@ -1,4 +1,4 @@
-name: EFM Build Check
+name: F-22 Overhaul Check
 
 on:
   pull_request:
@@ -15,6 +15,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
+        ref: ${{ github.event.pull_request.head.sha }}
         submodules: 'recursive'
     
     - name: Configure CMake Project
@@ -25,6 +26,16 @@ jobs:
 
     - name: Test Physics and Callbacks
       run: ctest --preset x64-release
+
+    - name: Package Install Overlay
+      run: python tools/package_overlay.py
+
+    - name: Upload Overhaul Install Overlay
+      uses: actions/upload-artifact@v4
+      with:
+        name: f22-overhaul-install-overlay-win64
+        if-no-files-found: error
+        path: dist/f22-overhaul-overlay-win64.zip
 
     - name: Upload Experimental Windows EFM
       uses: actions/upload-artifact@v4
@@ -42,6 +53,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+    - name: Install Lua 5.1
+      run: sudo apt-get update && sudo apt-get install -y lua5.1
     - name: Configure
       run: cmake -S . -B out/test -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
     - name: Build

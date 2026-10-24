@@ -101,7 +101,7 @@ local PFD_MASK_BASE1 	= MakeMaterial(nil,{255,0,0,255})--Clipping Masks
 local PFD_MASK_BASE2 	= MakeMaterial(nil,{0,255,0,255})--Clipping Masks
 --Clipping Masks
 local total_field_of_view           = CreateElement "ceMeshPoly"
-total_field_of_view.name            = "total_field_of_view"
+total_field_of_view.name = "MFD_LEFT_bay_page_total_field_of_view_1"
 total_field_of_view.primitivetype   = "triangles"
 total_field_of_view.vertices        = {
 										{-1 * ClippingWidth,-1 * ClippingPlaneSize},
@@ -120,7 +120,7 @@ total_field_of_view.isvisible       = false
 Add(total_field_of_view)
 --Clipping Masks
 local clipPoly               = CreateElement "ceMeshPoly"
-clipPoly.name                = "clipPoly-1"
+clipPoly.name = "MFD_LEFT_bay_page_clipPoly_1"
 clipPoly.primitivetype       = "triangles"
 clipPoly.init_pos            = {0, 0, 0}
 clipPoly.init_rot            = { 0, 0 , 0} -- degree NOT rad
@@ -139,7 +139,7 @@ clipPoly.isvisible           = false
 Add(clipPoly)
 ------------------------------------------------------------------------------------------------CLIPPING-END----------------------------------------------------------------------------------------------
 BGROUND                    = CreateElement "ceTexPoly"
-BGROUND.name    			= "LMFD_PAGE"
+BGROUND.name = "MFD_LEFT_bay_page_BGROUND_1"
 BGROUND.material			= MASK_BOX
 BGROUND.change_opacity 		= false
 BGROUND.collimated 			= false
@@ -154,7 +154,7 @@ vertices(BGROUND,3)
 ---------------------
 Add(BGROUND)
 LABLES                    = CreateElement "ceTexPoly"
-LABLES.name    			= "Lables"
+LABLES.name = "MFD_LEFT_bay_page_LABLES_1"
 LABLES.material			= LABLE
 LABLES.change_opacity 		= false
 LABLES.collimated 			= false
@@ -169,7 +169,7 @@ vertices(LABLES,2)
 Add(LABLES)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BAYFRAME                        = CreateElement "ceTexPoly"
-BAYFRAME.name    			    = "BG"
+BAYFRAME.name = "MFD_LEFT_bay_page_BAYFRAME_1"
 BAYFRAME.material			    = BAY
 BAYFRAME.change_opacity 		= false
 BAYFRAME.collimated 			= false
@@ -184,7 +184,7 @@ vertices(BAYFRAME,2)
 Add(BAYFRAME)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BAYBOX                          = CreateElement "ceTexPoly"
-BAYBOX.name    			        = "BG"
+BAYBOX.name = "MFD_LEFT_bay_page_BAYBOX_1"
 BAYBOX.material			        = BAY_BOX
 BAYBOX.change_opacity 		    = false
 BAYBOX.collimated 			    = false
@@ -199,7 +199,7 @@ vertices(BAYBOX,2)
 Add(BAYBOX)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BAYSQC                           = CreateElement "ceTexPoly"
-BAYSQC.name    			        = "BG"
+BAYSQC.name = "MFD_LEFT_bay_page_BAYSQC_1"
 BAYSQC.material			        = BAY_SQ
 BAYSQC.change_opacity 		    = false
 BAYSQC.collimated 			    = false
@@ -214,7 +214,7 @@ vertices(BAYSQC,2)
 Add(BAYSQC)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BAYXC                           = CreateElement "ceTexPoly"
-BAYXC.name    			        = "BG"
+BAYXC.name = "MFD_LEFT_bay_page_BAYXC_1"
 BAYXC.material			        = BAY_X
 BAYXC.change_opacity 		    = false
 BAYXC.collimated 			    = false
@@ -229,7 +229,7 @@ vertices(BAYXC,2)
 Add(BAYXC)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BAYSQL                           = CreateElement "ceTexPoly"
-BAYSQL.name    			        = "BG"
+BAYSQL.name = "MFD_LEFT_bay_page_BAYSQL_1"
 BAYSQL.material			        = BAY_SQ
 BAYSQL.change_opacity 		    = false
 BAYSQL.collimated 			    = false
@@ -244,7 +244,7 @@ vertices(BAYSQL,2)
 Add(BAYSQL)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BAYXL                           = CreateElement "ceTexPoly"
-BAYXL.name    			        = "BG"
+BAYXL.name = "MFD_LEFT_bay_page_BAYXL_1"
 BAYXL.material			        = BAY_X
 BAYXL.change_opacity 		    = false
 BAYXL.collimated 			    = false
@@ -259,7 +259,7 @@ vertices(BAYXL,2)
 Add(BAYXL)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BAYSQR                           = CreateElement "ceTexPoly"
-BAYSQR.name    			        = "BG"
+BAYSQR.name = "MFD_LEFT_bay_page_BAYSQR_1"
 BAYSQR.material			        = BAY_SQ
 BAYSQR.change_opacity 		    = false
 BAYSQR.collimated 			    = false
@@ -274,7 +274,7 @@ vertices(BAYSQR,2)
 Add(BAYSQR)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BAYXR                           = CreateElement "ceTexPoly"
-BAYXR.name    			        = "BG"
+BAYXR.name = "MFD_LEFT_bay_page_BAYXR_1"
 BAYXR.material			        = BAY_X
 BAYXR.change_opacity 		    = false
 BAYXR.collimated 			    = false
@@ -289,7 +289,7 @@ vertices(BAYXR,2)
 Add(BAYXR)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BAYL                            = CreateElement "ceTexPoly"
-BAYL.name    			        = "BG"
+BAYL.name = "MFD_LEFT_bay_page_BAYL_1"
 BAYL.material			        = BAY_L
 BAYL.change_opacity 		    = false
 BAYL.collimated 			    = false
@@ -304,7 +304,7 @@ vertices(BAYL,2)
 Add(BAYL)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BAYR                            = CreateElement "ceTexPoly"
-BAYR.name    			        = "BG"
+BAYR.name = "MFD_LEFT_bay_page_BAYR_1"
 BAYR.material			        = BAY_R
 BAYR.change_opacity 		    = false
 BAYR.collimated 			    = false
@@ -319,7 +319,7 @@ vertices(BAYR,2)
 Add(BAYR)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BAYC                            = CreateElement "ceTexPoly"
-BAYC.name    			        = "BG"
+BAYC.name = "MFD_LEFT_bay_page_BAYC_1"
 BAYC.material			        = BAY_C
 BAYC.change_opacity 		    = false
 BAYC.collimated 			    = false
@@ -334,7 +334,7 @@ vertices(BAYC,2)
 Add(BAYC)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BAYLOPEN                            = CreateElement "ceTexPoly"
-BAYLOPEN.name    			        = "BG"
+BAYLOPEN.name = "MFD_LEFT_bay_page_BAYLOPEN_1"
 BAYLOPEN.material			        = BAY_L_OPEN
 BAYLOPEN.change_opacity 		    = false
 BAYLOPEN.collimated 			    = false
@@ -349,7 +349,7 @@ vertices(BAYLOPEN,2)
 Add(BAYLOPEN)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BAYROPEN                            = CreateElement "ceTexPoly"
-BAYROPEN.name    			        = "BG"
+BAYROPEN.name = "MFD_LEFT_bay_page_BAYROPEN_1"
 BAYROPEN.material			        = BAY_R_OPEN
 BAYROPEN.change_opacity 		    = false
 BAYROPEN.collimated 			    = false
@@ -364,7 +364,7 @@ vertices(BAYROPEN,2)
 Add(BAYROPEN)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BAYCOPEN                            = CreateElement "ceTexPoly"
-BAYCOPEN.name    			        = "BG"
+BAYCOPEN.name = "MFD_LEFT_bay_page_BAYCOPEN_1"
 BAYCOPEN.material			        = BAY_C_OPEN
 BAYCOPEN.change_opacity 		    = false
 BAYCOPEN.collimated 			    = false
@@ -379,7 +379,7 @@ vertices(BAYCOPEN,2)
 Add(BAYCOPEN)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BAYLSEL                             = CreateElement "ceTexPoly"
-BAYLSEL.name    			        = "BG"
+BAYLSEL.name = "MFD_LEFT_bay_page_BAYLSEL_1"
 BAYLSEL.material			        = BAY_L_SEL
 BAYLSEL.change_opacity 		        = false
 BAYLSEL.collimated 			        = false
@@ -394,7 +394,7 @@ vertices(BAYLSEL,2)
 Add(BAYLSEL)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BAYRSEL                             = CreateElement "ceTexPoly"
-BAYRSEL.name    			        = "BG"
+BAYRSEL.name = "MFD_LEFT_bay_page_BAYRSEL_1"
 BAYRSEL.material			        = BAY_R_SEL
 BAYRSEL.change_opacity 		        = false
 BAYRSEL.collimated 			        = false
@@ -409,7 +409,7 @@ vertices(BAYRSEL,2)
 Add(BAYRSEL)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BAYCSEL                             = CreateElement "ceTexPoly"
-BAYCSEL.name    			        = "BG"
+BAYCSEL.name = "MFD_LEFT_bay_page_BAYCSEL_1"
 BAYCSEL.material			        = BAY_C_SEL
 BAYCSEL.change_opacity 		        = false
 BAYCSEL.collimated 			        = false
@@ -424,7 +424,7 @@ vertices(BAYCSEL,2)
 Add(BAYCSEL)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BAYASEL                             = CreateElement "ceTexPoly"
-BAYASEL.name    			        = "BG"
+BAYASEL.name = "MFD_LEFT_bay_page_BAYASEL_1"
 BAYASEL.material			        = BAY_A_SEL
 BAYASEL.change_opacity 		        = false
 BAYASEL.collimated 			        = false
@@ -439,7 +439,7 @@ vertices(BAYASEL,2)
 Add(BAYASEL)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ORIDE                           = CreateElement "ceTexPoly"
-ORIDE.name    			        = "BG"
+ORIDE.name = "MFD_LEFT_bay_page_ORIDE_1"
 ORIDE.material			        = BAY_ORIDE
 ORIDE.change_opacity 		    = false
 ORIDE.collimated 			    = false
@@ -454,7 +454,7 @@ vertices(ORIDE,2)
 Add(ORIDE)
 ---------------------------------------------------------------------------------------------------GROUND OVERRIDE TEXT GREEN
 GORIDE_GRN 					            = CreateElement "ceStringPoly"
-GORIDE_GRN.name 				        = "menu"
+GORIDE_GRN.name = "MFD_LEFT_bay_page_GORIDE_GRN_1"
 GORIDE_GRN.material 			        = UFD_GRN
 GORIDE_GRN.value 				        = "GROUND"
 GORIDE_GRN.stringdefs 		            = {0.005, 0.005, 0.0004, 0.001}
@@ -474,7 +474,7 @@ GORIDE_GRN.controllers		            =   {
 Add(GORIDE_GRN)
 ---------------------------------------------------------------------------------------------------GROUND OVERRIDE TEXT YELLOW
 GORIDE_YEL 					            = CreateElement "ceStringPoly"
-GORIDE_YEL.name 				        = "menu"
+GORIDE_YEL.name = "MFD_LEFT_bay_page_GORIDE_YEL_1"
 GORIDE_YEL.material 			        = UFD_YEL
 GORIDE_YEL.value 				        = "GROUND"
 GORIDE_YEL.stringdefs 		            = {0.005, 0.005, 0.0004, 0.001}
@@ -494,7 +494,7 @@ GORIDE_YEL.controllers		            =   {
 Add(GORIDE_YEL)
 ---------------------------------------------------------------------------------------------------GROUND OVERRIDE TEXT GREEN
 GORIDE_GRN1 					            = CreateElement "ceStringPoly"
-GORIDE_GRN1.name 				        = "menu"
+GORIDE_GRN1.name = "MFD_LEFT_bay_page_GORIDE_GRN1_1"
 GORIDE_GRN1.material 			        = UFD_GRN
 GORIDE_GRN1.value 				        = "OVRIDE"
 GORIDE_GRN1.stringdefs 		            = {0.005, 0.005, 0.0004, 0.001}
@@ -514,7 +514,7 @@ GORIDE_GRN1.controllers		            =   {
 Add(GORIDE_GRN1)
 ---------------------------------------------------------------------------------------------------GROUND OVERRIDE TEXT YELLOW
 GORIDE_YEL1 					            = CreateElement "ceStringPoly"
-GORIDE_YEL1.name 				        = "menu"
+GORIDE_YEL1.name = "MFD_LEFT_bay_page_GORIDE_YEL1_1"
 GORIDE_YEL1.material 			        = UFD_YEL
 GORIDE_YEL1.value 				        = "OVRIDE"
 GORIDE_YEL1.stringdefs 		            = {0.005, 0.005, 0.0004, 0.001}
@@ -534,7 +534,7 @@ GORIDE_YEL1.controllers		            =   {
 Add(GORIDE_YEL1)
 ------------------------------------------------------------------------------------------------------------------------------------------------------THRUST SHIT
 R_RING_EGT_G                    = CreateElement "ceTexPoly"
-R_RING_EGT_G.name    			= "ring green"
+R_RING_EGT_G.name = "MFD_LEFT_bay_page_R_RING_EGT_G_1"
 R_RING_EGT_G.material			= RING_EGT_G
 R_RING_EGT_G.change_opacity 	= false
 R_RING_EGT_G.collimated 		= false
@@ -552,7 +552,7 @@ vertices(R_RING_EGT_G,0.3)
 Add(R_RING_EGT_G)
 ------------------------------------------------------------------------------------------------THRUST SHIT
 R_NEEDLE_EGT_G                      = CreateElement "ceTexPoly"
-R_NEEDLE_EGT_G .name    			= "needle g"
+R_NEEDLE_EGT_G.name = "MFD_LEFT_bay_page_R_NEEDLE_EGT_G_1"
 R_NEEDLE_EGT_G .material			= RING_NEEDLE_G
 R_NEEDLE_EGT_G .change_opacity 	    = false
 R_NEEDLE_EGT_G .collimated 		    = false
@@ -571,7 +571,7 @@ vertices(R_NEEDLE_EGT_G,0.3)
 Add(R_NEEDLE_EGT_G)
 ------------------------------------------------------------------------------------------------THRUST SHIT
 L_RING_EGT_G                    = CreateElement "ceTexPoly"
-L_RING_EGT_G.name    			= "ring green"
+L_RING_EGT_G.name = "MFD_LEFT_bay_page_L_RING_EGT_G_1"
 L_RING_EGT_G.material			= RING_EGT_G
 L_RING_EGT_G.change_opacity 	= false
 L_RING_EGT_G.collimated 		= false
@@ -590,7 +590,7 @@ vertices(L_RING_EGT_G,0.3)
 Add(L_RING_EGT_G)
 ------------------------------------------------------------------------------------------------THRUST SHIT
 L_NEEDLE_EGT_G                      = CreateElement "ceTexPoly"
-L_NEEDLE_EGT_G .name    			= "needle g"
+L_NEEDLE_EGT_G.name = "MFD_LEFT_bay_page_L_NEEDLE_EGT_G_1"
 L_NEEDLE_EGT_G .material			= RING_NEEDLE_G
 L_NEEDLE_EGT_G .change_opacity 	    = false
 L_NEEDLE_EGT_G .collimated 		    = false
@@ -609,7 +609,7 @@ vertices(L_NEEDLE_EGT_G,0.3)
 Add(L_NEEDLE_EGT_G)
 -----------------------------------------------------------------------------------------------------------THRUST SHIT
 R_RPM_NUM_G				        = CreateElement "ceStringPoly"
-R_RPM_NUM_G.name				= "rad Alt"
+R_RPM_NUM_G.name = "MFD_LEFT_bay_page_R_RPM_NUM_G_1"
 R_RPM_NUM_G.material			= UFD_GRN
 R_RPM_NUM_G.init_pos			= {0.20, 0.75, 0} --L-R,U-D,F-B
 R_RPM_NUM_G.alignment			= "RightCenter"
@@ -631,7 +631,7 @@ R_RPM_NUM_G.controllers		    =   {
 Add(R_RPM_NUM_G)
 -----------------------------------------------------------------------------------------------------------THRUST SHIT
 L_RPM_NUM_G				        = CreateElement "ceStringPoly"
-L_RPM_NUM_G.name				= "rad Alt"
+L_RPM_NUM_G.name = "MFD_LEFT_bay_page_L_RPM_NUM_G_1"
 L_RPM_NUM_G.material			= UFD_GRN
 L_RPM_NUM_G.init_pos			= {-0.36, 0.75, 0} --L-R,U-D,F-B
 L_RPM_NUM_G.alignment			= "RightCenter"
@@ -653,7 +653,7 @@ L_RPM_NUM_G.controllers		    =   {
 Add(L_RPM_NUM_G)
 --------------------------------------------------------------------------------------------------- NAV
 MENU_TEXT 					        = CreateElement "ceStringPoly"
-MENU_TEXT.name 				        = "menu"
+MENU_TEXT.name = "MFD_LEFT_bay_page_MENU_TEXT_1"
 MENU_TEXT.material 			        = UFD_FONT
 MENU_TEXT.value 				    = "MENU"
 MENU_TEXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -671,7 +671,7 @@ MENU_TEXT.controllers		        =   {
 Add(MENU_TEXT)
 --------------------------------------------------------------------------------------------------- NAV
 MENU_TEXT1 					        = CreateElement "ceStringPoly"
-MENU_TEXT1.name 				    = "menu"
+MENU_TEXT1.name = "MFD_LEFT_bay_page_MENU_TEXT1_1"
 MENU_TEXT1.material 			    = UFD_GRN
 MENU_TEXT1.value 				    = "ENG"
 MENU_TEXT1.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -686,7 +686,7 @@ MENU_TEXT1.controllers		        =   {{"opacity_using_parameter",0},{"parameter_i
 Add(MENU_TEXT1)
 --------------------------------------------------------------------------------------------------- NAV
 MENU_TEXT2 					        = CreateElement "ceStringPoly"
-MENU_TEXT2.name 				        = "menu"
+MENU_TEXT2.name = "MFD_LEFT_bay_page_MENU_TEXT2_1"
 MENU_TEXT2.material 			        = UFD_GRN
 MENU_TEXT2.value 				    = "SMS"
 MENU_TEXT2.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -704,7 +704,7 @@ MENU_TEXT2.controllers		        =   {
 Add(MENU_TEXT2)
 --------------------------------------------------------------------------------------------------- NAV
 MENU_TEXT4 					        = CreateElement "ceStringPoly"
-MENU_TEXT4.name 				        = "menu"
+MENU_TEXT4.name = "MFD_LEFT_bay_page_MENU_TEXT4_1"
 MENU_TEXT4.material 			        = UFD_GRN
 MENU_TEXT4.value 				    = "FUEL"
 MENU_TEXT4.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -722,7 +722,7 @@ MENU_TEXT4.controllers		        =   {
 Add(MENU_TEXT4)
 --------------------------------------------------------------------------------------------------- NAV
 MENU_TEXT44 					        = CreateElement "ceStringPoly"
-MENU_TEXT44.name 				        = "menu"
+MENU_TEXT44.name = "MFD_LEFT_bay_page_MENU_TEXT44_1"
 MENU_TEXT44.material 			        = UFD_GRN
 MENU_TEXT44.value 				        = "FCS"
 MENU_TEXT44.stringdefs 		            = {0.0050, 0.0050, 0.0004, 0.001}
@@ -740,7 +740,7 @@ MENU_TEXT44.controllers		            =   {
 Add(MENU_TEXT44)
 --------------------------------------------------------------------------------------------------- NAV
 THRUST_TEXT 					    = CreateElement "ceStringPoly"
-THRUST_TEXT.name 				    = "menu"
+THRUST_TEXT.name = "MFD_LEFT_bay_page_THRUST_TEXT_1"
 THRUST_TEXT.material 			    = UFD_GRN
 THRUST_TEXT.value 				    = "THRUST"
 THRUST_TEXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -758,7 +758,7 @@ THRUST_TEXT.controllers		        =   {
 Add(THRUST_TEXT)
 --------------------------------------------------------------------------------------------------- NAV
 CENTER_TEXT 					    = CreateElement "ceStringPoly"
-CENTER_TEXT.name 				    = "menu"
+CENTER_TEXT.name = "MFD_LEFT_bay_page_CENTER_TEXT_1"
 CENTER_TEXT.material 			    = UFD_GRN
 CENTER_TEXT.value 				    = "CENTER"
 CENTER_TEXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -773,7 +773,7 @@ CENTER_TEXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in
 Add(CENTER_TEXT)
 --------------------------------------------------------------------------------------------------- NAV
 LEFT_TEXT 					        = CreateElement "ceStringPoly"
-LEFT_TEXT.name 				        = "menu"
+LEFT_TEXT.name = "MFD_LEFT_bay_page_LEFT_TEXT_1"
 LEFT_TEXT.material 			        = UFD_GRN
 LEFT_TEXT.value 				    = "LEFT"
 LEFT_TEXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -788,7 +788,7 @@ LEFT_TEXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_r
 Add(LEFT_TEXT)
 --------------------------------------------------------------------------------------------------- NAV
 RIGHT_TEXT 					            = CreateElement "ceStringPoly"
-RIGHT_TEXT.name 				        = "menu"
+RIGHT_TEXT.name = "MFD_LEFT_bay_page_RIGHT_TEXT_1"
 RIGHT_TEXT.material 			        = UFD_GRN
 RIGHT_TEXT.value 				        = "RIGHT"
 RIGHT_TEXT.stringdefs 		            = {0.0050, 0.0050, 0.0004, 0.001}
@@ -803,7 +803,7 @@ RIGHT_TEXT.controllers		            = {{"opacity_using_parameter",0},{"parameter
 Add(RIGHT_TEXT)
 --------------------------------------------------------------------------------------------------- NAV
 ALL_TEXT 					            = CreateElement "ceStringPoly"
-ALL_TEXT.name 				            = "menu"
+ALL_TEXT.name = "MFD_LEFT_bay_page_ALL_TEXT_1"
 ALL_TEXT.material 			            = UFD_GRN
 ALL_TEXT.value 				            = "ALL"
 ALL_TEXT.stringdefs 		            = {0.0050, 0.0050, 0.0004, 0.001}
@@ -818,7 +818,7 @@ ALL_TEXT.controllers		            = {{"opacity_using_parameter",0},{"parameter_i
 Add(ALL_TEXT)
 --------------------------------------------------------------------------------------------------- NAV
 AORIDE_TEXT 					            = CreateElement "ceStringPoly"
-AORIDE_TEXT.name 				            = "menu"
+AORIDE_TEXT.name = "MFD_LEFT_bay_page_AORIDE_TEXT_1"
 AORIDE_TEXT.material 			            = UFD_RED
 AORIDE_TEXT.value 				            = "AIR OVERRIDE"
 AORIDE_TEXT.stringdefs 		                = {0.0050, 0.0050, 0.0004, 0.001}
@@ -834,7 +834,7 @@ AORIDE_TEXT.controllers		                =   {
 Add(AORIDE_TEXT)
 --------------------------------------------------------------------------------------------------- NAV
 ECM_TEXT 					            = CreateElement "ceStringPoly"
-ECM_TEXT.name 				            = "menu"
+ECM_TEXT.name = "MFD_LEFT_bay_page_ECM_TEXT_1"
 ECM_TEXT.material 			            = UFD_YEL
 ECM_TEXT.value 				            = "ECM"
 ECM_TEXT.stringdefs 		            = {0.0040, 0.0040, 0.0004, 0.001}
@@ -852,7 +852,7 @@ ECM_TEXT.controllers		            =   {
 Add(ECM_TEXT)
 --------------------------------------------------------------------------------------------------- NAV
 CHAFF_TEXT 					            = CreateElement "ceStringPoly"
-CHAFF_TEXT.name 				        = "menu"
+CHAFF_TEXT.name = "MFD_LEFT_bay_page_CHAFF_TEXT_1"
 CHAFF_TEXT.material 			        = UFD_GRN
 CHAFF_TEXT.value 				        = "CHAFF"
 CHAFF_TEXT.stringdefs 		            = {0.0040, 0.0040, 0.0004, 0.001}
@@ -870,7 +870,7 @@ CHAFF_TEXT.controllers		            =   {
 Add(CHAFF_TEXT)
 --------------------------------------------------------------------------------------------------- NAV
 FLARE_TEXT 					            = CreateElement "ceStringPoly"
-FLARE_TEXT.name 				        = "menu"
+FLARE_TEXT.name = "MFD_LEFT_bay_page_FLARE_TEXT_1"
 FLARE_TEXT.material 			        = UFD_GRN
 FLARE_TEXT.value 				        = "FLARE"
 FLARE_TEXT.stringdefs 		            = {0.0040, 0.0040, 0.0004, 0.001}
@@ -888,7 +888,7 @@ FLARE_TEXT.controllers		            =   {
 Add(FLARE_TEXT)
 --------------------------------------------------------------------------------------------------- NAV
 WEAPONSARM_TEXT 					            = CreateElement "ceStringPoly"
-WEAPONSARM_TEXT.name 				            = "menu"
+WEAPONSARM_TEXT.name = "MFD_LEFT_bay_page_WEAPONSARM_TEXT_1"
 WEAPONSARM_TEXT.material 			            = UFD_GRN
 WEAPONSARM_TEXT.value 				            = "WEAPONS ARMED"
 WEAPONSARM_TEXT.stringdefs 		            = {0.0080, 0.0080, 0.0004, 0.001}
@@ -907,7 +907,7 @@ WEAPONSARM_TEXT.controllers		            =   {
 Add(WEAPONSARM_TEXT)
 --------------------------------------------------------------------------------------------------- NAV
 WEAPONSSAFE_TEXT 					            = CreateElement "ceStringPoly"
-WEAPONSSAFE_TEXT.name 				            = "menu"
+WEAPONSSAFE_TEXT.name = "MFD_LEFT_bay_page_WEAPONSSAFE_TEXT_1"
 WEAPONSSAFE_TEXT.material 			            = UFD_FONT
 WEAPONSSAFE_TEXT.value 				        = "WEAPONS SAFE"
 WEAPONSSAFE_TEXT.stringdefs 		            = {0.0080, 0.0080, 0.0004, 0.001}
@@ -926,7 +926,7 @@ WEAPONSSAFE_TEXT.controllers		            =   {
 Add(WEAPONSSAFE_TEXT)
 --------------------------------------------------------------------------------------------------- NAV
 GROUNDSAFE_TEXT 					        = CreateElement "ceStringPoly"
-GROUNDSAFE_TEXT.name 				        = "menu"
+GROUNDSAFE_TEXT.name = "MFD_LEFT_bay_page_GROUNDSAFE_TEXT_1"
 GROUNDSAFE_TEXT.material 			        = UFD_YEL
 GROUNDSAFE_TEXT.value 				        = "GROUND SAFE"
 GROUNDSAFE_TEXT.stringdefs 		            = {0.0080, 0.0080, 0.0004, 0.001}

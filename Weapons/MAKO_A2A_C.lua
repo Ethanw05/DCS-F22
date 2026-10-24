@@ -22,7 +22,7 @@ local MAKO_A2A_C =
 {
 	category		= CAT_AIR_TO_AIR,
 	name			= "MAKO_A2A_C",
-	displayName		= _("Mako Multi-Mission Hypersonic Missile - Active Radar AAM"),
+	displayName		= _("[APPROX] Mako Multi-Mission Hypersonic Missile - Active Radar AAM"),
 	user_name		= _("MAKO-C"),
 	display_name_short = "MAKO-C",
 	scheme			= "aa_missile_amraam2",
@@ -283,7 +283,7 @@ declare_loadout({
     category    	= CAT_AIR_TO_AIR,
     CLSID       	= "{MAKO_A2A_C}",	
     Picture     	= "MAKO_A2A_C.png",
-    displayName 	= _("Mako Multi-Mission Hypersonic Missile - Active Radar AAM"),
+    displayName 	= _("[APPROX] Mako Multi-Mission Hypersonic Missile - Active Radar AAM"),
 	attribute		= MAKO_A2A_C.wsTypeOfWeapon,
     Count       	= 1,
     Weight      	= 160.0,

@@ -102,7 +102,7 @@ local PFD_MASK_BASE1 	= MakeMaterial(nil,{255,0,0,255})--Clipping Masks
 local PFD_MASK_BASE2 	= MakeMaterial(nil,{0,255,0,255})--Clipping Masks
 --Clipping Masks
 local total_field_of_view           = CreateElement "ceMeshPoly"
-total_field_of_view.name            = "total_field_of_view"
+total_field_of_view.name = "MFD_CENTER_eng_page_total_field_of_view_1"
 total_field_of_view.primitivetype   = "triangles"
 total_field_of_view.vertices        = {
 										{-1 * ClippingWidth,-1 * ClippingPlaneSize},
@@ -121,7 +121,7 @@ total_field_of_view.isvisible       = false
 Add(total_field_of_view)
 --Clipping Masks
 local clipPoly               = CreateElement "ceMeshPoly"
-clipPoly.name                = "clipPoly-1"
+clipPoly.name = "MFD_CENTER_eng_page_clipPoly_1"
 clipPoly.primitivetype       = "triangles"
 clipPoly.init_pos            = {0, 0, 0}
 clipPoly.init_rot            = { 0, 0 , 0} -- degree NOT rad
@@ -140,7 +140,7 @@ clipPoly.isvisible           = false
 Add(clipPoly)
 ------------------------------------------------------------------------------------------------CLIPPING-END----------------------------------------------------------------------------------------------
 BGROUND                    = CreateElement "ceTexPoly"
-BGROUND.name    			= "BG"
+BGROUND.name = "MFD_CENTER_eng_page_BGROUND_1"
 BGROUND.material			= MASK_BOX
 BGROUND.change_opacity 		= false
 BGROUND.collimated 			= false
@@ -170,7 +170,7 @@ Add(BGROUND)
 -- Add(TEMPLATEENG)
 ------------------------------------------------------------------------------------------------RPM-RING-YELLOW-R
 R_RING_RPM_G                    = CreateElement "ceTexPoly"
-R_RING_RPM_G.name    			= "ring green"
+R_RING_RPM_G.name = "MFD_CENTER_eng_page_R_RING_RPM_G_1"
 R_RING_RPM_G.material			= RING_RPM_G
 R_RING_RPM_G.change_opacity 	= false
 R_RING_RPM_G.collimated 		= false
@@ -190,7 +190,7 @@ vertices(R_RING_RPM_G,0.3)
 Add(R_RING_RPM_G)
 ------------------------------------------------------------------------------------------------RPM-RING-ORANGE-R
 R_RING_RPM_O                    = CreateElement "ceTexPoly"
-R_RING_RPM_O.name    			= "ring green"
+R_RING_RPM_O.name = "MFD_CENTER_eng_page_R_RING_RPM_O_1"
 R_RING_RPM_O.material			= RING_RPM_O
 R_RING_RPM_O.change_opacity 	= false
 R_RING_RPM_O.collimated 		= false
@@ -210,7 +210,7 @@ vertices(R_RING_RPM_O,0.3)
 Add(R_RING_RPM_O)
 ------------------------------------------------------------------------------------------------RPM-NEEDLE-YELLOW-R
 R_NEEDLE_RPM_G                     = CreateElement "ceTexPoly"
-R_NEEDLE_RPM_G.name    			= "needle y"
+R_NEEDLE_RPM_G.name = "MFD_CENTER_eng_page_R_NEEDLE_RPM_G_1"
 R_NEEDLE_RPM_G.material			= RING_NEEDLE_G
 R_NEEDLE_RPM_G.change_opacity 	    = false
 R_NEEDLE_RPM_G.collimated 		    = false
@@ -230,7 +230,7 @@ vertices(R_NEEDLE_RPM_G ,0.3)
 Add(R_NEEDLE_RPM_G )
 ------------------------------------------------------------------------------------------------RPM-NEEDLE-ORANGE-R
 R_NEEDLE_RPM_O                      = CreateElement "ceTexPoly"
-R_NEEDLE_RPM_O .name    			= "needle y"
+R_NEEDLE_RPM_O.name = "MFD_CENTER_eng_page_R_NEEDLE_RPM_O_1"
 R_NEEDLE_RPM_O .material			= RING_NEEDLE_O
 R_NEEDLE_RPM_O .change_opacity 	    = false
 R_NEEDLE_RPM_O .collimated 		    = false
@@ -250,7 +250,7 @@ vertices(R_NEEDLE_RPM_O ,0.3)
 Add(R_NEEDLE_RPM_O)
 ------------------------------------------------------------------------------------------------EGT-RING-GREEN
 R_RING_EGT_G                    = CreateElement "ceTexPoly"
-R_RING_EGT_G.name    			= "ring green"
+R_RING_EGT_G.name = "MFD_CENTER_eng_page_R_RING_EGT_G_1"
 R_RING_EGT_G.material			= RING_EGT_G
 R_RING_EGT_G.change_opacity 	= false
 R_RING_EGT_G.collimated 		= false
@@ -270,7 +270,7 @@ vertices(R_RING_EGT_G,0.3)
 Add(R_RING_EGT_G)
 ------------------------------------------------------------------------------------------------EGT-NEEDLE-GREEN
 R_NEEDLE_EGT_G                      = CreateElement "ceTexPoly"
-R_NEEDLE_EGT_G .name    			= "needle g"
+R_NEEDLE_EGT_G.name = "MFD_CENTER_eng_page_R_NEEDLE_EGT_G_1"
 R_NEEDLE_EGT_G .material			= RING_NEEDLE_G
 R_NEEDLE_EGT_G .change_opacity 	    = false
 R_NEEDLE_EGT_G .collimated 		    = false
@@ -290,7 +290,7 @@ vertices(R_NEEDLE_EGT_G ,0.3)
 Add(R_NEEDLE_EGT_G )
 ------------------------------------------------------------------------------------------------EGT-RING-YELLOW
 R_RING_EGT_Y                    = CreateElement "ceTexPoly"
-R_RING_EGT_Y.name    			= "ring y"
+R_RING_EGT_Y.name = "MFD_CENTER_eng_page_R_RING_EGT_Y_1"
 R_RING_EGT_Y.material			= RING_EGT_Y
 R_RING_EGT_Y.change_opacity 	= false
 R_RING_EGT_Y.collimated 		= false
@@ -310,7 +310,7 @@ vertices(R_RING_EGT_Y,0.3)
 Add(R_RING_EGT_Y)
 ------------------------------------------------------------------------------------------------EGT-NEEDLE-YELLOW
 R_NEEDLE_EGT_Y                      = CreateElement "ceTexPoly"
-R_NEEDLE_EGT_Y .name    			= "needle y"
+R_NEEDLE_EGT_Y.name = "MFD_CENTER_eng_page_R_NEEDLE_EGT_Y_1"
 R_NEEDLE_EGT_Y .material			= RING_NEEDLE_Y
 R_NEEDLE_EGT_Y .change_opacity 	    = false
 R_NEEDLE_EGT_Y .collimated 		    = false
@@ -330,7 +330,7 @@ vertices(R_NEEDLE_EGT_Y ,0.3)
 Add(R_NEEDLE_EGT_Y)
 ------------------------------------------------------------------------------------------------EGT-RING-RED
 R_RING_EGT_R                    = CreateElement "ceTexPoly"
-R_RING_EGT_R.name    			= "ring r"
+R_RING_EGT_R.name = "MFD_CENTER_eng_page_R_RING_EGT_R_1"
 R_RING_EGT_R.material			= RING_EGT_R
 R_RING_EGT_R.change_opacity 	= false
 R_RING_EGT_R.collimated 		= false
@@ -350,7 +350,7 @@ vertices(R_RING_EGT_R,0.3)
 Add(R_RING_EGT_R)
 ------------------------------------------------------------------------------------------------EGT-NEEDLE-RED
 R_NEEDLE_EGT_R                      = CreateElement "ceTexPoly"
-R_NEEDLE_EGT_R.name    			    = "needle r"
+R_NEEDLE_EGT_R.name = "MFD_CENTER_eng_page_R_NEEDLE_EGT_R_1"
 R_NEEDLE_EGT_R.material			    = RING_NEEDLE_R
 R_NEEDLE_EGT_R.change_opacity 	    = false
 R_NEEDLE_EGT_R.collimated 		    = false
@@ -370,7 +370,7 @@ vertices(R_NEEDLE_EGT_R ,0.3)
 Add(R_NEEDLE_EGT_R)
 ------------------------------------------------------------------------------------------------OIL-RING-RED
 R_RING_OIL_R                    = CreateElement "ceTexPoly"
-R_RING_OIL_R.name    			= "ring green"
+R_RING_OIL_R.name = "MFD_CENTER_eng_page_R_RING_OIL_R_1"
 R_RING_OIL_R.material			= RING_OIL_R
 R_RING_OIL_R.change_opacity 	= false
 R_RING_OIL_R.collimated 		= false
@@ -390,7 +390,7 @@ vertices(R_RING_OIL_R,0.20)
 Add(R_RING_OIL_R)
 ------------------------------------------------------------------------------------------------OIL-NEEDLE-RED
 R_NEEDLE_OIL_R                      = CreateElement "ceTexPoly"
-R_NEEDLE_OIL_R.name    			    = "needle r"
+R_NEEDLE_OIL_R.name = "MFD_CENTER_eng_page_R_NEEDLE_OIL_R_1"
 R_NEEDLE_OIL_R.material			    = RING_NEEDLE_R
 R_NEEDLE_OIL_R.change_opacity 	    = false
 R_NEEDLE_OIL_R.collimated 		    = false
@@ -410,7 +410,7 @@ vertices(R_NEEDLE_OIL_R,0.20)
 Add(R_NEEDLE_OIL_R)
 -------------------------------------------------------------------------------------------------OIL-RING-GREEN
 R_RING_OIL_G                    = CreateElement "ceTexPoly"
-R_RING_OIL_G.name    			= "ring green"
+R_RING_OIL_G.name = "MFD_CENTER_eng_page_R_RING_OIL_G_1"
 R_RING_OIL_G.material			= RING_OIL_G
 R_RING_OIL_G.change_opacity 	= false
 R_RING_OIL_G.collimated 		= false
@@ -430,7 +430,7 @@ vertices(R_RING_OIL_G,0.20)
 Add(R_RING_OIL_G)
 ------------------------------------------------------------------------------------------------OIL-NEEDLE-GREEN--RIGHT
 R_NEEDLE_OIL_G                      = CreateElement "ceTexPoly"
-R_NEEDLE_OIL_G.name    			    = "needle r"
+R_NEEDLE_OIL_G.name = "MFD_CENTER_eng_page_R_NEEDLE_OIL_G_1"
 R_NEEDLE_OIL_G.material			    = RING_NEEDLE_G
 R_NEEDLE_OIL_G.change_opacity 	    = false
 R_NEEDLE_OIL_G.collimated 		    = false
@@ -450,7 +450,7 @@ vertices(R_NEEDLE_OIL_G ,0.20)
 Add(R_NEEDLE_OIL_G)-----END RIGHT
 ------------------------------------------------------------------------------------------------RPM-RING-YELLOW-R
 L_RING_RPM_G                    = CreateElement "ceTexPoly"
-L_RING_RPM_G.name    			= "ring green"
+L_RING_RPM_G.name = "MFD_CENTER_eng_page_L_RING_RPM_G_1"
 L_RING_RPM_G.material			= RING_RPM_G
 L_RING_RPM_G.change_opacity 	= false
 L_RING_RPM_G.collimated 		= false
@@ -470,7 +470,7 @@ vertices(L_RING_RPM_G,0.3)
 Add(L_RING_RPM_G)
 ------------------------------------------------------------------------------------------------RPM-RING-ORANGE-R
 L_RING_RPM_O                    = CreateElement "ceTexPoly"
-L_RING_RPM_O.name    			= "ring green"
+L_RING_RPM_O.name = "MFD_CENTER_eng_page_L_RING_RPM_O_1"
 L_RING_RPM_O.material			= RING_RPM_O
 L_RING_RPM_O.change_opacity 	= false
 L_RING_RPM_O.collimated 		= false
@@ -490,7 +490,7 @@ vertices(L_RING_RPM_O,0.3)
 Add(L_RING_RPM_O)
 ------------------------------------------------------------------------------------------------RPM-NEEDLE-YELLOW-R
 L_NEEDLE_RPM_G                     = CreateElement "ceTexPoly"
-L_NEEDLE_RPM_G.name    			= "needle y"
+L_NEEDLE_RPM_G.name = "MFD_CENTER_eng_page_L_NEEDLE_RPM_G_1"
 L_NEEDLE_RPM_G.material			= RING_NEEDLE_G
 L_NEEDLE_RPM_G.change_opacity 	    = false
 L_NEEDLE_RPM_G.collimated 		    = false
@@ -510,7 +510,7 @@ vertices(L_NEEDLE_RPM_G ,0.3)
 Add(L_NEEDLE_RPM_G )
 ------------------------------------------------------------------------------------------------RPM-NEEDLE-ORANGE-R
 L_NEEDLE_RPM_O                      = CreateElement "ceTexPoly"
-L_NEEDLE_RPM_O .name    			= "needle y"
+L_NEEDLE_RPM_O.name = "MFD_CENTER_eng_page_L_NEEDLE_RPM_O_1"
 L_NEEDLE_RPM_O .material			= RING_NEEDLE_O
 L_NEEDLE_RPM_O .change_opacity 	    = false
 L_NEEDLE_RPM_O .collimated 		    = false
@@ -530,7 +530,7 @@ vertices(L_NEEDLE_RPM_O ,0.3)
 Add(L_NEEDLE_RPM_O)
 ------------------------------------------------------------------------------------------------OIL-RING-RED--LEF
 L_RING_OIL_R                    = CreateElement "ceTexPoly"
-L_RING_OIL_R.name    			= "ring green"
+L_RING_OIL_R.name = "MFD_CENTER_eng_page_L_RING_OIL_R_1"
 L_RING_OIL_R.material			= RING_OIL_R
 L_RING_OIL_R.change_opacity 	= false
 L_RING_OIL_R.collimated 		= false
@@ -550,7 +550,7 @@ vertices(L_RING_OIL_R,0.2)
 Add(L_RING_OIL_R)
 ------------------------------------------------------------------------------------------------OIL-NEEDLE-RED--LEFT
 L_NEEDLE_OIL_L                      = CreateElement "ceTexPoly"
-L_NEEDLE_OIL_L.name    			    = "needle r"
+L_NEEDLE_OIL_L.name = "MFD_CENTER_eng_page_L_NEEDLE_OIL_L_1"
 L_NEEDLE_OIL_L.material			    = RING_NEEDLE_R
 L_NEEDLE_OIL_L.change_opacity 	    = false
 L_NEEDLE_OIL_L.collimated 		    = false
@@ -570,7 +570,7 @@ vertices(L_NEEDLE_OIL_L,0.2)
 Add(L_NEEDLE_OIL_L)
 -------------------------------------------------------------------------------------------------OIL-RING-GREEN--LEFT
 L_RING_OIL_G                    = CreateElement "ceTexPoly"
-L_RING_OIL_G.name    			= "ring green"
+L_RING_OIL_G.name = "MFD_CENTER_eng_page_L_RING_OIL_G_1"
 L_RING_OIL_G.material			= RING_OIL_G
 L_RING_OIL_G.change_opacity 	= false
 L_RING_OIL_G.collimated 		= false
@@ -590,7 +590,7 @@ vertices(L_RING_OIL_G,0.2)
 Add(L_RING_OIL_G)
 ------------------------------------------------------------------------------------------------OIL-NEEDLE-GREEN--LEFT
 L_NEEDLE_OIL_G                      = CreateElement "ceTexPoly"
-L_NEEDLE_OIL_G.name    			    = "needle r"
+L_NEEDLE_OIL_G.name = "MFD_CENTER_eng_page_L_NEEDLE_OIL_G_1"
 L_NEEDLE_OIL_G.material			    = RING_NEEDLE_G
 L_NEEDLE_OIL_G.change_opacity 	    = false
 L_NEEDLE_OIL_G.collimated 		    = false
@@ -610,7 +610,7 @@ vertices(L_NEEDLE_OIL_G ,0.2)
 Add(L_NEEDLE_OIL_G)
 ------------------------------------------------------------------------------------------------EGT-RING-GREEN--LEFT
 L_RING_EGT_G                    = CreateElement "ceTexPoly"
-L_RING_EGT_G.name    			= "ring green"
+L_RING_EGT_G.name = "MFD_CENTER_eng_page_L_RING_EGT_G_1"
 L_RING_EGT_G.material			= RING_EGT_G
 L_RING_EGT_G.change_opacity 	= false
 L_RING_EGT_G.collimated 		= false
@@ -630,7 +630,7 @@ vertices(L_RING_EGT_G,0.3)
 Add(L_RING_EGT_G)
 ------------------------------------------------------------------------------------------------EGT-NEEDLE-GREEN
 L_NEEDLE_EGT_G                      = CreateElement "ceTexPoly"
-L_NEEDLE_EGT_G .name    			= "needle g"
+L_NEEDLE_EGT_G.name = "MFD_CENTER_eng_page_L_NEEDLE_EGT_G_1"
 L_NEEDLE_EGT_G .material			= RING_NEEDLE_G
 L_NEEDLE_EGT_G .change_opacity 	    = false
 L_NEEDLE_EGT_G .collimated 		    = false
@@ -650,7 +650,7 @@ vertices(L_NEEDLE_EGT_G ,0.3)
 Add(L_NEEDLE_EGT_G )
 ------------------------------------------------------------------------------------------------EGT-RING-YELLOW
 L_RING_EGT_Y                    = CreateElement "ceTexPoly"
-L_RING_EGT_Y.name    			= "ring y"
+L_RING_EGT_Y.name = "MFD_CENTER_eng_page_L_RING_EGT_Y_1"
 L_RING_EGT_Y.material			= RING_EGT_Y
 L_RING_EGT_Y.change_opacity 	= false
 L_RING_EGT_Y.collimated 		= false
@@ -670,7 +670,7 @@ vertices(L_RING_EGT_Y,0.3)
 Add(L_RING_EGT_Y)
 ------------------------------------------------------------------------------------------------EGT-NEEDLE-YELLOW
 L_NEEDLE_EGT_Y                      = CreateElement "ceTexPoly"
-L_NEEDLE_EGT_Y .name    			= "needle y"
+L_NEEDLE_EGT_Y.name = "MFD_CENTER_eng_page_L_NEEDLE_EGT_Y_1"
 L_NEEDLE_EGT_Y .material			= RING_NEEDLE_Y
 L_NEEDLE_EGT_Y .change_opacity 	    = false
 L_NEEDLE_EGT_Y .collimated 		    = false
@@ -690,7 +690,7 @@ vertices(L_NEEDLE_EGT_Y ,0.3)
 Add(L_NEEDLE_EGT_Y)
 ------------------------------------------------------------------------------------------------EGT-RING-RED
 L_RING_EGT_R                    = CreateElement "ceTexPoly"
-L_RING_EGT_R.name    			= "ring r"
+L_RING_EGT_R.name = "MFD_CENTER_eng_page_L_RING_EGT_R_1"
 L_RING_EGT_R.material			= RING_EGT_R
 L_RING_EGT_R.change_opacity 	= false
 L_RING_EGT_R.collimated 		= false
@@ -710,7 +710,7 @@ vertices(L_RING_EGT_R,0.3)
 Add(L_RING_EGT_R)
 ------------------------------------------------------------------------------------------------EGT-NEEDLE-RED
 L_NEEDLE_EGT_R                      = CreateElement "ceTexPoly"
-L_NEEDLE_EGT_R.name    			    = "needle r"
+L_NEEDLE_EGT_R.name = "MFD_CENTER_eng_page_L_NEEDLE_EGT_R_1"
 L_NEEDLE_EGT_R.material			    = RING_NEEDLE_R
 L_NEEDLE_EGT_R.change_opacity 	    = false
 L_NEEDLE_EGT_R.collimated 		    = false
@@ -730,7 +730,7 @@ vertices(L_NEEDLE_EGT_R ,0.3)
 Add(L_NEEDLE_EGT_R)
 ------------------------------------------------------------------------------------------------NOZ-BOX-L
 NOZBOXL                       = CreateElement "ceTexPoly"
-NOZBOXL.name    			    = "box"
+NOZBOXL.name = "MFD_CENTER_eng_page_NOZBOXL_1"
 NOZBOXL.material			    = RING_BOX
 NOZBOXL.change_opacity 	    = false
 NOZBOXL.collimated 		    = false
@@ -748,7 +748,7 @@ vertices(NOZBOXL,0.2)
 Add(NOZBOXL)
 ------------------------------------------------------------------------------------------------NOZ-BOX-R
 NOZBOXR                       = CreateElement "ceTexPoly"
-NOZBOXR.name    			    = "box"
+NOZBOXR.name = "MFD_CENTER_eng_page_NOZBOXR_1"
 NOZBOXR.material			    = RING_BOX
 NOZBOXR.change_opacity 	    = false
 NOZBOXR.collimated 		    = false
@@ -766,7 +766,7 @@ vertices(NOZBOXR,0.2)
 Add(NOZBOXR)
 ------------------------------------------------------------------------------------------------NOZ-BOX-R-LINE
 NOZBOXRL                       = CreateElement "ceTexPoly"
-NOZBOXRL.name    			    = "box"
+NOZBOXRL.name = "MFD_CENTER_eng_page_NOZBOXRL_1"
 NOZBOXRL.material			    = RING_LINE
 NOZBOXRL.change_opacity 	    = false
 NOZBOXRL.collimated 		    = false
@@ -784,7 +784,7 @@ vertices(NOZBOXRL,0.225)
 Add(NOZBOXRL)
 ------------------------------------------------------------------------------------------------NOZ-BOX-L-LINE
 NOZBOXLL                       = CreateElement "ceTexPoly"
-NOZBOXLL.name    			    = "box"
+NOZBOXLL.name = "MFD_CENTER_eng_page_NOZBOXLL_1"
 NOZBOXLL.material			    = RING_LINE
 NOZBOXLL.change_opacity 	    = false
 NOZBOXLL.collimated 		    = false
@@ -802,7 +802,7 @@ vertices(NOZBOXLL,0.225)
 Add(NOZBOXLL)
 ----------------------------------------------------------------------------------------------------------------FUEL FLOW NUMBERS RIGHT
 NOZR		                = CreateElement "ceStringPoly"
-NOZR.name				    = "rad Alt"
+NOZR.name = "MFD_CENTER_eng_page_NOZR_1"
 NOZR.material			    = UFD_GRN
 NOZR.init_pos			    = {0.40,-0.29, 0} --L-R,U-D,F-B
 NOZR.alignment			    = "RightCenter"
@@ -819,7 +819,7 @@ NOZR.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0}
 Add(NOZR)
 ----------------------------------------------------------------------------------------------------------------FUEL FLOW NUMBERS RIGHT
 NOZL		                = CreateElement "ceStringPoly"
-NOZL.name				    = "rad Alt"
+NOZL.name = "MFD_CENTER_eng_page_NOZL_1"
 NOZL.material			    = UFD_GRN
 NOZL.init_pos			    = {-0.28,-0.29, 0} --L-R,U-D,F-B
 NOZL.alignment			    = "RightCenter"
@@ -836,7 +836,7 @@ NOZL.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0}
 Add(NOZL)
 ----------------------------------------------------------------------------------------------------------------FUEL FLOW NUMBERS RIGHT
 FUELFR		                = CreateElement "ceStringPoly"
-FUELFR.name				    = "rad Alt"
+FUELFR.name = "MFD_CENTER_eng_page_FUELFR_1"
 FUELFR.material			    = UFD_GRN
 FUELFR.init_pos			    = {0.34, -0.43, 0} --L-R,U-D,F-B
 FUELFR.alignment			= "CenterCenter"
@@ -853,7 +853,7 @@ FUELFR.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,
 Add(FUELFR)
 ----------------------------------------------------------------------------------------------------------------FUEL FLOW NUMBERS LEFT
 FUELFL		                = CreateElement "ceStringPoly"
-FUELFL.name				    = "rad Alt"
+FUELFL.name = "MFD_CENTER_eng_page_FUELFL_1"
 FUELFL.material			    = UFD_GRN
 FUELFL.init_pos			    = {-0.34, -0.43, 0} --L-R,U-D,F-B
 FUELFL.alignment			= "CenterCenter"
@@ -890,7 +890,7 @@ Add(FUELFL)
     --Add(RPM_Y)
 --RPM ORANGE TEXT
 RPM_O 					    = CreateElement "ceStringPoly"
-RPM_O.name 				    = "menu"
+RPM_O.name = "MFD_CENTER_eng_page_RPM_O_1"
 RPM_O.material 			    = UFD_GRN
 RPM_O.value 				= "RPM"
 RPM_O.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
@@ -908,7 +908,7 @@ RPM_O.controllers		    =   {
 Add(RPM_O)
 --EGT GREEN TEXT
 EGT_G 					    = CreateElement "ceStringPoly"
-EGT_G.name 				    = "menu"
+EGT_G.name = "MFD_CENTER_eng_page_EGT_G_1"
 EGT_G.material 			    = UFD_GRN
 EGT_G.value 				= "EGT"
 EGT_G.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
@@ -964,7 +964,7 @@ Add(EGT_G)
     --Add(EGT_R)
 --OIL GREEN TEXT
 OIL_G_L 					    = CreateElement "ceStringPoly"
-OIL_G_L.name 				    = "menu"
+OIL_G_L.name = "MFD_CENTER_eng_page_OIL_G_L_1"
 OIL_G_L.material 			    = UFD_GRN
 OIL_G_L.value 				    = "OIL"
 OIL_G_L.stringdefs 		         = {0.0050, 0.0050, 0.0004, 0.001}
@@ -984,7 +984,7 @@ Add(OIL_G_L)
 --[[
     --OIL RED TEXT
     OIL_R_L 					    = CreateElement "ceStringPoly"
-    OIL_R_L.name 				    = "menu"
+    OIL_R_L.name = "MFD_CENTER_eng_page_OIL_R_L_1"
     OIL_R_L.material 			    = UFD_RED
     OIL_R_L.value 				= "OIL"
     OIL_R_L.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
@@ -1003,7 +1003,7 @@ Add(OIL_G_L)
     Add(OIL_R_L)--end left side
     --OIL GREEN TEXT
     OIL_G_R 					    = CreateElement "ceStringPoly"
-    OIL_G_R.name 				    = "menu"
+    OIL_G_R.name = "MFD_CENTER_eng_page_OIL_G_R_1"
     OIL_G_R.material 			    = UFD_GRN
     OIL_G_R.value 				= "OIL"
     OIL_G_R.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
@@ -1022,7 +1022,7 @@ Add(OIL_G_L)
     Add(OIL_G_R)
     --OIL RED TEXT
     OIL_R_R 					    = CreateElement "ceStringPoly"
-    OIL_R_R.name 				    = "menu"
+    OIL_R_R.name = "MFD_CENTER_eng_page_OIL_R_R_1"
     OIL_R_R.material 			    = UFD_RED
     OIL_R_R.value 				    = "OIL"
     OIL_R_R.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -1042,7 +1042,7 @@ Add(OIL_G_L)
 ]]
 --NOZ TEXT
 NOZ 					    = CreateElement "ceStringPoly"
-NOZ.name 				    = "menu"
+NOZ.name = "MFD_CENTER_eng_page_NOZ_1"
 NOZ.material 			    = UFD_GRN
 NOZ.value 				    = "NOZ"
 NOZ.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -1060,7 +1060,7 @@ NOZ.controllers		        =   {
 Add(NOZ)
 --FF TEXT
 FF 					    = CreateElement "ceStringPoly"
-FF.name 				    = "menu"
+FF.name = "MFD_CENTER_eng_page_FF_1"
 FF.material 			    = UFD_GRN
 FF.value 				    = "FF"
 FF.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -1078,7 +1078,7 @@ FF.controllers		        =   {
 Add(FF)
 --CABIN PRESS TEXT
 CABIN 					    = CreateElement "ceStringPoly"
-CABIN.name 				    = "menu"
+CABIN.name = "MFD_CENTER_eng_page_CABIN_1"
 CABIN.material 			    = UFD_GRN
 CABIN.value 				    = "CABIN PRESS"
 CABIN.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -1096,7 +1096,7 @@ CABIN.controllers		        =   {
 Add(CABIN)
 --HYD TEXT
 HYD 					    = CreateElement "ceStringPoly"
-HYD.name 				    = "menu"
+HYD.name = "MFD_CENTER_eng_page_HYD_1"
 HYD.material 			    = UFD_GRN
 HYD.value 				    = "HYD"
 HYD.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -1114,7 +1114,7 @@ HYD.controllers		        =   {
 Add(HYD)
 --MENU TEXT
 MENUTEXT 					    = CreateElement "ceStringPoly"
-MENUTEXT.name 				    = "menu"
+MENUTEXT.name = "MFD_CENTER_eng_page_MENUTEXT_1"
 MENUTEXT.material 			    = UFD_FONT
 MENUTEXT.value 				    = "MENU"
 MENUTEXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -1133,7 +1133,7 @@ Add(MENUTEXT)
 ------------------------------------------------------------------------------------------------HYD-RING-RED--LEFT
 --------------------------------------------------------------------------------------------------- NAV
 MENU_TEXT1 					        = CreateElement "ceStringPoly"
-MENU_TEXT1.name 				    = "menu"
+MENU_TEXT1.name = "MFD_CENTER_eng_page_MENU_TEXT1_1"
 MENU_TEXT1.material 			    = UFD_GRN
 MENU_TEXT1.value 				    = "ADI"
 MENU_TEXT1.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -1148,7 +1148,7 @@ MENU_TEXT1.controllers		        =   {{"opacity_using_parameter",0},{"parameter_i
 Add(MENU_TEXT1)
 --------------------------------------------------------------------------------------------------- NAV
 MENU_TEXT2 					        = CreateElement "ceStringPoly"
-MENU_TEXT2.name 				    = "menu"
+MENU_TEXT2.name = "MFD_CENTER_eng_page_MENU_TEXT2_1"
 MENU_TEXT2.material 			    = UFD_GRN
 MENU_TEXT2.value 				    = "FCS"
 MENU_TEXT2.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -1163,7 +1163,7 @@ MENU_TEXT2.controllers		        =   {{"opacity_using_parameter",0},{"parameter_i
 Add(MENU_TEXT2)
 --------------------------------------------------------------------------------------------------- NAV
 MENU_TEXT3 					        = CreateElement "ceStringPoly"
-MENU_TEXT3.name 				    = "menu"
+MENU_TEXT3.name = "MFD_CENTER_eng_page_MENU_TEXT3_1"
 MENU_TEXT3.material 			    = UFD_GRN
 MENU_TEXT3.value 				    = "BAY"
 MENU_TEXT3.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -1179,7 +1179,7 @@ Add(MENU_TEXT3)
 -----------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------- NAV
 MENU_TEXT4 					        = CreateElement "ceStringPoly"
-MENU_TEXT4.name 				    = "menu"
+MENU_TEXT4.name = "MFD_CENTER_eng_page_MENU_TEXT4_1"
 MENU_TEXT4.material 			    = UFD_GRN
 MENU_TEXT4.value 				    = "FUEL"
 MENU_TEXT4.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -1194,7 +1194,7 @@ MENU_TEXT4.controllers		        =   {{"opacity_using_parameter",0},{"parameter_i
 Add(MENU_TEXT4)
 ----------------------------------------------------------------------------------------------------------
 L_RING_HYD_R                    = CreateElement "ceTexPoly"
-L_RING_HYD_R.name    			= "ring green"
+L_RING_HYD_R.name = "MFD_CENTER_eng_page_L_RING_HYD_R_1"
 L_RING_HYD_R.material			= RING_HYD_R
 L_RING_HYD_R.change_opacity 	= false
 L_RING_HYD_R.collimated 		= false
@@ -1214,7 +1214,7 @@ vertices(L_RING_HYD_R,0.20)
 Add(L_RING_HYD_R)
 ------------------------------------------------------------------------------------------------OIL-NEEDLE-RED--LEFT
 L_NEEDLE_HYD_R                      = CreateElement "ceTexPoly"
-L_NEEDLE_HYD_R.name    			    = "needle r"
+L_NEEDLE_HYD_R.name = "MFD_CENTER_eng_page_L_NEEDLE_HYD_R_1"
 L_NEEDLE_HYD_R.material			    = RING_NEEDLE_R
 L_NEEDLE_HYD_R.change_opacity 	    = false
 L_NEEDLE_HYD_R.collimated 		    = false
@@ -1234,7 +1234,7 @@ vertices(L_NEEDLE_HYD_R,0.2)
 Add(L_NEEDLE_HYD_R)
 -------------------------------------------------------------------------------------------------HDY-RING-GREEN--LEFT
 L_RING_HYD_G                    = CreateElement "ceTexPoly"
-L_RING_HYD_G.name    			= "ring green"
+L_RING_HYD_G.name = "MFD_CENTER_eng_page_L_RING_HYD_G_1"
 L_RING_HYD_G.material			= RING_HYD_G
 L_RING_HYD_G.change_opacity 	= false
 L_RING_HYD_G.collimated 		= false
@@ -1254,7 +1254,7 @@ vertices(L_RING_HYD_G,0.20)
 Add(L_RING_HYD_G)
 ------------------------------------------------------------------------------------------------HDY-NEEDLE-GREEN--LEFT
 L_NEEDLE_HYD_G                      = CreateElement "ceTexPoly"
-L_NEEDLE_HYD_G.name    			    = "needle r"
+L_NEEDLE_HYD_G.name = "MFD_CENTER_eng_page_L_NEEDLE_HYD_G_1"
 L_NEEDLE_HYD_G.material			    = RING_NEEDLE_G
 L_NEEDLE_HYD_G.change_opacity 	    = false
 L_NEEDLE_HYD_G.collimated 		    = false
@@ -1274,7 +1274,7 @@ vertices(L_NEEDLE_HYD_G ,0.20)
 Add(L_NEEDLE_HYD_G)
 -------------------------------------------------------------------------------------------------HDY-RING-GREEN--RIGHT
 R_RING_HYD_G                    = CreateElement "ceTexPoly"
-R_RING_HYD_G.name    			= "ring green"
+R_RING_HYD_G.name = "MFD_CENTER_eng_page_R_RING_HYD_G_1"
 R_RING_HYD_G.material			= RING_HYD_G
 R_RING_HYD_G.change_opacity 	= false
 R_RING_HYD_G.collimated 		= false
@@ -1294,7 +1294,7 @@ vertices(R_RING_HYD_G,0.20)
 Add(R_RING_HYD_G)
 ------------------------------------------------------------------------------------------------HDY-NEEDLE-GREEN--RIGHT
 R_NEEDLE_HYD_G                      = CreateElement "ceTexPoly"
-R_NEEDLE_HYD_G.name    			    = "needle r"
+R_NEEDLE_HYD_G.name = "MFD_CENTER_eng_page_R_NEEDLE_HYD_G_1"
 R_NEEDLE_HYD_G.material			    = RING_NEEDLE_G
 R_NEEDLE_HYD_G.change_opacity 	    = false
 R_NEEDLE_HYD_G.collimated 		    = false
@@ -1314,7 +1314,7 @@ vertices(R_NEEDLE_HYD_G ,0.20)
 Add(R_NEEDLE_HYD_G)
 ------------------------------------------------------------------------------------------------HDY-NEEDLE-RED--RIGHT
 R_RING_HYD_R                    = CreateElement "ceTexPoly"
-R_RING_HYD_R.name    			= "ring red"
+R_RING_HYD_R.name = "MFD_CENTER_eng_page_R_RING_HYD_R_1"
 R_RING_HYD_R.material			= RING_HYD_R
 R_RING_HYD_R.change_opacity 	= false
 R_RING_HYD_R.collimated 		= false
@@ -1334,7 +1334,7 @@ vertices(R_RING_HYD_R,0.20)
 Add(R_RING_HYD_R)
 ------------------------------------------------------------------------------------------------HDY-NEEDLE-RED--RIGHT
 R_NEEDLE_HYD_R                      = CreateElement "ceTexPoly"
-R_NEEDLE_HYD_R.name    			    = "needle r"
+R_NEEDLE_HYD_R.name = "MFD_CENTER_eng_page_R_NEEDLE_HYD_R_1"
 R_NEEDLE_HYD_R.material			    = RING_NEEDLE_R
 R_NEEDLE_HYD_R.change_opacity 	    = false
 R_NEEDLE_HYD_R.collimated 		    = false
@@ -1354,7 +1354,7 @@ vertices(R_NEEDLE_HYD_R ,0.20)
 Add(R_NEEDLE_HYD_R)
 -----------------------------------------------------------------------------------------------------------TEXT NUMBERS R RPM YEL
 R_RPM_TEXT_G				    = CreateElement "ceStringPoly"
-R_RPM_TEXT_G.name				= "rad Alt"
+R_RPM_TEXT_G.name = "MFD_CENTER_eng_page_R_RPM_TEXT_G_1"
 R_RPM_TEXT_G.material			= UFD_GRN
 R_RPM_TEXT_G.init_pos			= {0.28, 0.69, 0} --L-R,U-D,F-B
 R_RPM_TEXT_G.alignment			= "RightCenter"
@@ -1377,7 +1377,7 @@ R_RPM_TEXT_G.controllers		=   {
 Add(R_RPM_TEXT_G)
 -----------------------------------------------------------------------------------------------------------R RPM ORANGE
 R_RPM_TEXT_O				    = CreateElement "ceStringPoly"
-R_RPM_TEXT_O.name				= "rad Alt"
+R_RPM_TEXT_O.name = "MFD_CENTER_eng_page_R_RPM_TEXT_O_1"
 R_RPM_TEXT_O.material			= UFD_ORG
 R_RPM_TEXT_O.init_pos			= {0.28, 0.69, 0} --L-R,U-D,F-B
 R_RPM_TEXT_O.alignment			= "RightCenter"
@@ -1400,7 +1400,7 @@ R_RPM_TEXT_O.controllers		=   {
 Add(R_RPM_TEXT_O)
 -----------------------------------------------------------------------------------------------------------L RPM YEL
 L_RPM_TEXT_G				    = CreateElement "ceStringPoly"
-L_RPM_TEXT_G.name				= "rad Alt"
+L_RPM_TEXT_G.name = "MFD_CENTER_eng_page_L_RPM_TEXT_G_1"
 L_RPM_TEXT_G.material			= UFD_GRN
 L_RPM_TEXT_G.init_pos			= {-0.41, 0.69, 0} --L-R,U-D,F-B
 L_RPM_TEXT_G.alignment			= "RightCenter"
@@ -1423,7 +1423,7 @@ L_RPM_TEXT_G.controllers		=   {
 Add(L_RPM_TEXT_G)
 -----------------------------------------------------------------------------------------------------------L RPM ORANGE
 L_RPM_TEXT_O				    = CreateElement "ceStringPoly"
-L_RPM_TEXT_O.name				= "rad Alt"
+L_RPM_TEXT_O.name = "MFD_CENTER_eng_page_L_RPM_TEXT_O_1"
 L_RPM_TEXT_O.material			= UFD_ORG
 L_RPM_TEXT_O.init_pos			= {-0.41, 0.69, 0} --L-R,U-D,F-B
 L_RPM_TEXT_O.alignment			= "RightCenter"
@@ -1446,7 +1446,7 @@ L_RPM_TEXT_O.controllers		=   {
 Add(L_RPM_TEXT_O)
 -----------------------------------------------------------------------------------------------------------TEXT NUMBERS R EGT YEL
 R_EGT_TEXT_G				    = CreateElement "ceStringPoly"
-R_EGT_TEXT_G.name				= "rad Alt"
+R_EGT_TEXT_G.name = "MFD_CENTER_eng_page_R_EGT_TEXT_G_1"
 R_EGT_TEXT_G.material			= UFD_GRN
 R_EGT_TEXT_G.init_pos			= {0.28, 0.39, 0} --L-R,U-D,F-B
 R_EGT_TEXT_G.alignment			= "RightCenter"
@@ -1469,7 +1469,7 @@ R_EGT_TEXT_G.controllers		=   {
 Add(R_EGT_TEXT_G)
 -----------------------------------------------------------------------------------------------------------R EGT YELLOW
 R_EGT_TEXT_Y				    = CreateElement "ceStringPoly"
-R_EGT_TEXT_Y.name				= "rad Alt"
+R_EGT_TEXT_Y.name = "MFD_CENTER_eng_page_R_EGT_TEXT_Y_1"
 R_EGT_TEXT_Y.material			= UFD_YEL
 R_EGT_TEXT_Y.init_pos			= {0.28, 0.39, 0} --L-R,U-D,F-B
 R_EGT_TEXT_Y.alignment			= "RightCenter"
@@ -1492,7 +1492,7 @@ R_EGT_TEXT_Y.controllers		=   {
 Add(R_EGT_TEXT_Y)
 -----------------------------------------------------------------------------------------------------------R EGT RED
 R_EGT_TEXT_R				    = CreateElement "ceStringPoly"
-R_EGT_TEXT_R.name				= "rad Alt"
+R_EGT_TEXT_R.name = "MFD_CENTER_eng_page_R_EGT_TEXT_R_1"
 R_EGT_TEXT_R.material			= UFD_RED
 R_EGT_TEXT_R.init_pos			= {0.28, 0.39, 0} --L-R,U-D,F-B
 R_EGT_TEXT_R.alignment			= "RightCenter"
@@ -1515,7 +1515,7 @@ R_EGT_TEXT_R.controllers		=   {
 Add(R_EGT_TEXT_R)
 -----------------------------------------------------------------------------------------------------------L EGT YEL
 L_EGT_TEXT_G				    = CreateElement "ceStringPoly"
-L_EGT_TEXT_G.name				= "rad Alt"
+L_EGT_TEXT_G.name = "MFD_CENTER_eng_page_L_EGT_TEXT_G_1"
 L_EGT_TEXT_G.material			= UFD_GRN
 L_EGT_TEXT_G.init_pos			= {-0.41, 0.39, 0} --L-R,U-D,F-B
 L_EGT_TEXT_G.alignment			= "RightCenter"
@@ -1538,7 +1538,7 @@ L_EGT_TEXT_G.controllers		=   {
 Add(L_EGT_TEXT_G)
 -----------------------------------------------------------------------------------------------------------R EGT YELLOW
 L_EGT_TEXT_Y				    = CreateElement "ceStringPoly"
-L_EGT_TEXT_Y.name				= "rad Alt"
+L_EGT_TEXT_Y.name = "MFD_CENTER_eng_page_L_EGT_TEXT_Y_1"
 L_EGT_TEXT_Y.material			= UFD_YEL
 L_EGT_TEXT_Y.init_pos			= {-0.41, 0.39, 0} --L-R,U-D,F-B
 L_EGT_TEXT_Y.alignment			= "RightCenter"
@@ -1561,7 +1561,7 @@ L_EGT_TEXT_Y.controllers		=   {
 Add(L_EGT_TEXT_Y)
 -----------------------------------------------------------------------------------------------------------L EGT RED
 L_EGT_TEXT_R				    = CreateElement "ceStringPoly"
-L_EGT_TEXT_R.name				= "rad Alt"
+L_EGT_TEXT_R.name = "MFD_CENTER_eng_page_L_EGT_TEXT_R_1"
 L_EGT_TEXT_R.material			= UFD_RED
 L_EGT_TEXT_R.init_pos			= {-0.41, 0.39, 0} --L-R,U-D,F-B
 L_EGT_TEXT_R.alignment			= "RightCenter"
@@ -1584,7 +1584,7 @@ L_EGT_TEXT_R.controllers		=   {
 Add(L_EGT_TEXT_R)
 -----------------------------------------------------------------------------------------------------------L OIL GRN
 L_OIL_TEXT_G				    = CreateElement "ceStringPoly"
-L_OIL_TEXT_G.name				= "rad Alt"
+L_OIL_TEXT_G.name = "MFD_CENTER_eng_page_L_OIL_TEXT_G_1"
 L_OIL_TEXT_G.material			= UFD_GRN
 L_OIL_TEXT_G.init_pos			= {-0.40, 0.10, 0} --L-R,U-D,F-B
 L_OIL_TEXT_G.alignment			= "RightCenter"
@@ -1607,7 +1607,7 @@ L_OIL_TEXT_G.controllers		=   {
 Add(L_OIL_TEXT_G)
 -----------------------------------------------------------------------------------------------------------L OIL RED
 L_OIL_TEXT_R				    = CreateElement "ceStringPoly"
-L_OIL_TEXT_R.name				= "rad Alt"
+L_OIL_TEXT_R.name = "MFD_CENTER_eng_page_L_OIL_TEXT_R_1"
 L_OIL_TEXT_R.material			= UFD_RED
 L_OIL_TEXT_R.init_pos			= {-0.40, 0.10, 0} --L-R,U-D,F-B
 L_OIL_TEXT_R.alignment			= "RightCenter"
@@ -1630,7 +1630,7 @@ L_OIL_TEXT_R.controllers		=   {
 Add(L_OIL_TEXT_R)
 -----------------------------------------------------------------------------------------------------------R OIL GRN
 R_OIL_TEXT_G				    = CreateElement "ceStringPoly"
-R_OIL_TEXT_G.name				= "rad Alt"
+R_OIL_TEXT_G.name = "MFD_CENTER_eng_page_R_OIL_TEXT_G_1"
 R_OIL_TEXT_G.material			= UFD_GRN
 R_OIL_TEXT_G.init_pos			= {0.26, 0.10, 0} --L-R,U-D,F-B
 R_OIL_TEXT_G.alignment			= "RightCenter"
@@ -1653,7 +1653,7 @@ R_OIL_TEXT_G.controllers		=   {
 Add(R_OIL_TEXT_G)
 -----------------------------------------------------------------------------------------------------------R OIL RED
 R_OIL_TEXT_R				    = CreateElement "ceStringPoly"
-R_OIL_TEXT_R.name				= "rad Alt"
+R_OIL_TEXT_R.name = "MFD_CENTER_eng_page_R_OIL_TEXT_R_1"
 R_OIL_TEXT_R.material			= UFD_RED
 R_OIL_TEXT_R.init_pos			= {0.26, 0.10, 0} --L-R,U-D,F-B
 R_OIL_TEXT_R.alignment			= "RightCenter"
@@ -1676,7 +1676,7 @@ R_OIL_TEXT_R.controllers		=   {
 Add(R_OIL_TEXT_R)
 -------------------------------------------------------------------------------------------------------------L HYD GREEN
 L_HYD_TEXT_G				    = CreateElement "ceStringPoly"
-L_HYD_TEXT_G.name				= "rad Alt"
+L_HYD_TEXT_G.name = "MFD_CENTER_eng_page_L_HYD_TEXT_G_1"
 L_HYD_TEXT_G.material			= UFD_GRN
 L_HYD_TEXT_G.init_pos			= {-0.70, -0.61, 0} --L-R,U-D,F-B
 L_HYD_TEXT_G.alignment			= "RightCenter"
@@ -1699,7 +1699,7 @@ L_HYD_TEXT_G.controllers		=   {
 Add(L_HYD_TEXT_G)
 -----------------------------------------------------------------------------------------------------------L HYD RED
 L_HYD_TEXT_R				    = CreateElement "ceStringPoly"
-L_HYD_TEXT_R.name				= "rad Alt"
+L_HYD_TEXT_R.name = "MFD_CENTER_eng_page_L_HYD_TEXT_R_1"
 L_HYD_TEXT_R.material			= UFD_RED
 L_HYD_TEXT_R.init_pos			= {-0.70, -0.61, 0} --L-R,U-D,F-B
 L_HYD_TEXT_R.alignment			= "RightCenter"
@@ -1722,7 +1722,7 @@ L_HYD_TEXT_R.controllers		=   {
 Add(L_HYD_TEXT_R)
 -------------------------------------------------------------------------------------------------------------R HYD GREEN
 R_HYD_TEXT_G				    = CreateElement "ceStringPoly"
-R_HYD_TEXT_G.name				= "rad Alt"
+R_HYD_TEXT_G.name = "MFD_CENTER_eng_page_R_HYD_TEXT_G_1"
 R_HYD_TEXT_G.material			= UFD_GRN
 R_HYD_TEXT_G.init_pos			= {-0.25, -0.61, 0} --L-R,U-D,F-B
 R_HYD_TEXT_G.alignment			= "RightCenter"
@@ -1745,7 +1745,7 @@ R_HYD_TEXT_G.controllers		=   {
 Add(R_HYD_TEXT_G)
 -----------------------------------------------------------------------------------------------------------R HYD RED
 R_HYD_TEXT_R				    = CreateElement "ceStringPoly"
-R_HYD_TEXT_R.name				= "rad Alt"
+R_HYD_TEXT_R.name = "MFD_CENTER_eng_page_R_HYD_TEXT_R_1"
 R_HYD_TEXT_R.material			= UFD_RED
 R_HYD_TEXT_R.init_pos			= {-0.25, -0.61, 0} --L-R,U-D,F-B
 R_HYD_TEXT_R.alignment			= "RightCenter"
@@ -1769,7 +1769,7 @@ Add(R_HYD_TEXT_R)
 
 -------------------------------------------------------------------------CABIN PRESS SLUT
 CABIN_BOX                       = CreateElement "ceTexPoly" --top center box
-CABIN_BOX.name    			    = "BG"
+CABIN_BOX.name = "MFD_CENTER_eng_page_CABIN_BOX_1"
 CABIN_BOX.material			    = BOX_CABIN
 CABIN_BOX.change_opacity 		= false
 CABIN_BOX.collimated 			= false
@@ -1814,7 +1814,7 @@ CABIN_BOX.vertices =
 Add(CABIN_BOX)
 -------------------------------------------------------------------------CABIN PRESS SLUT BOTTOM
 CABIN_BOTTOM                       = CreateElement "ceTexPoly" --top center box
-CABIN_BOTTOM.name    			    = "BG"
+CABIN_BOTTOM.name = "MFD_CENTER_eng_page_CABIN_BOTTOM_1"
 CABIN_BOTTOM.material			    = RING_CABIN
 CABIN_BOTTOM.change_opacity 		= false
 CABIN_BOTTOM.collimated 			= false

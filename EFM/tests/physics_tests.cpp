@@ -113,6 +113,13 @@ void controls() {
     trim.health.actuator[data::TailLeft]=0;
     const double jam=trim.surface[data::TailLeft]; trim.input.pitch=1; trim.step(.5,e);
     near(trim.surface[data::TailLeft],jam,0,"failed actuator holds achieved position");
+    FlightModel hydraulic; hydraulic.fuel.unlimited=true; hydraulic.reset(Start::AirHot);
+    hydraulic.health.hydraulic=0;hydraulic.health.actuator.fill(0);
+    hydraulic.input.gearDown=true;hydraulic.input.speedBrake=true;hydraulic.input.pitch=1;
+    hydraulic.step(1,e);
+    near(hydraulic.config.gear,0,0,"lost hydraulic supply cannot move gear");
+    near(hydraulic.config.speedBrake,0,0,"lost hydraulic supply cannot move speed-brake actuators");
+    near(hydraulic.surface[data::TailLeft],0,0,"lost hydraulic supply holds flight-control actuator");
     FlightModel slow,fast; slow.fuel.unlimited=fast.fuel.unlimited=true;
     slow.reset(Start::AirHot);fast.reset(Start::AirHot);
     slow.input.pitch=fast.input.pitch=.2;

@@ -280,12 +280,12 @@ std::array<double,data::Count> FlightModel::allocate(const Environment& e,Vec3 r
 }
 void FlightModel::substep(double dt,const Environment& e) {
     air=airData(e);
-    config.gear=approach(config.gear,input.gearDown ? 1 : 0,.25,dt);
-    config.speedBrake=approach(config.speedBrake,input.speedBrake ? 1 : 0,.7,dt);
+    config.gear=approach(config.gear,input.gearDown ? 1 : 0,.25*health.hydraulic,dt);
+    config.speedBrake=approach(config.speedBrake,input.speedBrake ? 1 : 0,.7*health.hydraulic,dt);
     const double leadingTarget=clamp((degrees(air.alpha)-5)/25,0,1)*(1-smoothStep(.8,1.2,air.mach));
-    config.leadingEdge=approach(config.leadingEdge,leadingTarget,30.0/35.0,dt);
+    config.leadingEdge=approach(config.leadingEdge,leadingTarget,30.0/35.0*health.hydraulic,dt);
     const double flapTarget=(input.manualFlaps||input.gearDown) ? 1-smoothStep(220,300,air.eas*1.943844) : 0;
-    config.flaps=approach(config.flaps,flapTarget,2,dt);
+    config.flaps=approach(config.flaps,flapTarget,2*health.hydraulic,dt);
     for(std::size_t i=0;i<2;++i)
         engines[i].advance(dt,input.throttle[i],input.engineRun[i],fuel.usable()>0,health.engine[i],e,air);
     const double requestedFuel=(engines[0].fuelFlow+engines[1].fuelFlow)*dt;

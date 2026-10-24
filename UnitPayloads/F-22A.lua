@@ -1037,4 +1037,13 @@ local unitPayloads = {
 	},
 	["unitType"] = "F-22A",
 }
+-- Do not advertise presets that depend on quarantined legacy weapons.
+local valid={}
+local blocked={["{GBU32_JDAM}"]=true,["{MAKO_A2G_C}"]=true}
+for _,payload in ipairs(unitPayloads.payloads) do
+ local supported=true
+ for _,station in pairs(payload.pylons or {}) do if blocked[station.CLSID] then supported=false end end
+ if supported then valid[#valid+1]=payload end
+end
+unitPayloads.payloads=valid
 return unitPayloads		

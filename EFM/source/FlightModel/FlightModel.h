@@ -57,7 +57,7 @@ private:
     void changed(double removed,Vec3 position);
 };
 struct Health {
-    double leftWing=1, rightWing=1, tail=1;
+    double leftWing=1, rightWing=1, tail=1, hydraulic=1;
     std::array<double,2> engine{1,1};
     std::array<double,data::Count> actuator{1,1,1,1,1,1,1,1,1,1};
     std::array<double,data::Count> surface{1,1,1,1,1,1,1,1,1,1};

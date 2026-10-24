@@ -76,7 +76,7 @@ local PFD_MASK_BASE1 	= MakeMaterial(nil,{255,0,0,255})--Clipping Masks
 local PFD_MASK_BASE2 	= MakeMaterial(nil,{0,255,0,255})--Clipping Masks
 --Clipping Masks
 local total_field_of_view           = CreateElement "ceMeshPoly"
-total_field_of_view.name            = "total_field_of_view"
+total_field_of_view.name = "MFD_RIGHT_blank_page_total_field_of_view_1"
 total_field_of_view.primitivetype   = "triangles"
 total_field_of_view.vertices        = {
 										{-1 * ClippingWidth,-1 * ClippingPlaneSize},
@@ -95,7 +95,7 @@ total_field_of_view.isvisible       = false
 Add(total_field_of_view)
 --Clipping Masks
 local clipPoly               = CreateElement "ceMeshPoly"
-clipPoly.name                = "clipPoly-1"
+clipPoly.name = "MFD_RIGHT_blank_page_clipPoly_1"
 clipPoly.primitivetype       = "triangles"
 clipPoly.init_pos            = {0, 0, 0}
 clipPoly.init_rot            = { 0, 0 , 0} -- degree NOT rad
@@ -114,7 +114,7 @@ clipPoly.isvisible           = false
 Add(clipPoly)
 ------------------------------------------------------------------------------------------------CLIPPING-END----------------------------------------------------------------------------------------------
 BGROUND                    = CreateElement "ceTexPoly"
-BGROUND.name    			= "BG"
+BGROUND.name = "MFD_RIGHT_blank_page_BGROUND_1"
 BGROUND.material			= MASK_BOX
 BGROUND.change_opacity 		= false
 BGROUND.collimated 			= false

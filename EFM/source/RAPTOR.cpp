@@ -37,6 +37,8 @@ namespace {
 using namespace f22;
 FlightModel model;
 Environment environment;
+Vec3 groundVelocityBody;
+bool bodyStateReceived=false;
 std::array<double,111> integrity=[] { std::array<double,111> a{}; a.fill(1); return a; }();
 std::array<bool,3> contact{};
 bool contactReceived=false, groundStart=true, immortal=false;
@@ -89,16 +91,32 @@ void start(Start mode) {
     commonBrake=leftBrake=rightBrake=elapsed=0;
     keyboard.fill(0); keyboardActive.fill(false);
     environment.weightOnWheels=groundStart;
+    groundVelocityBody={}; bodyStateReceived=false;
+    parameters.write("F22_EFM_VALID",0);
 }
 void publish() {
     parameters.write("WoW",environment.weightOnWheels ? 1 : 0);
+    parameters.write("F22_EFM_VALID",bodyStateReceived ? 1 : 0);
+    parameters.write("F22_VEL_BODY_X",groundVelocityBody.x);
+    parameters.write("F22_VEL_BODY_Y",groundVelocityBody.y);
+    parameters.write("F22_VEL_BODY_Z",groundVelocityBody.z);
     parameters.write("F22_NORMAL_G",model.normalLoad);
+    parameters.write("F22_FUEL_VALID",1);
+    parameters.write("F22_FUEL_TOTAL_KG",model.fuel.total());
+    parameters.write("F22_FUEL_INTERNAL_KG",model.fuel.internal);
+    parameters.write("F22_FUEL_EXTERNAL_KG",model.fuel.externalQuantity());
+    for(std::size_t i=0;i<2;++i) {
+        parameters.write(i==0 ? "F22_FUEL_FLOW_LEFT_KGS" : "F22_FUEL_FLOW_RIGHT_KGS",model.engines[i].fuelFlow);
+        parameters.write(i==0 ? "F22_THROTTLE_LEFT_RAW" : "F22_THROTTLE_RIGHT_RAW",1-2*model.input.throttle[i]);
+        parameters.write(i==0 ? "F22_ENGINE_LEFT_RUN" : "F22_ENGINE_RIGHT_RUN",model.input.engineRun[i] ? 1 : 0);
+    }
     parameters.write("F22_NOZZLE_LEFT_DEG",degrees(model.surface[data::NozzleLeft]));
     parameters.write("F22_NOZZLE_RIGHT_DEG",degrees(model.surface[data::NozzleRight]));
     parameters.write("F22_TAIL_LEFT_DEG",degrees(model.surface[data::TailLeft]));
     parameters.write("F22_TAIL_RIGHT_DEG",degrees(model.surface[data::TailRight]));
-    const double gearLight=model.config.gear>.99 &&
-        std::max(parameters.read("MAIN_POWER"),parameters.read("BATTERY_POWER"))>.5 ? 1 : 0;
+    const double gearLight=model.config.gear>.99 && (parameters.read("F22_SYSTEMS_VALID")>.5 ?
+        parameters.read("F22_DC_AVAILABLE")>.5 :
+        std::max(parameters.read("MAIN_POWER"),parameters.read("BATTERY_POWER"))>.5) ? 1 : 0;
     for(const char* name:{"N_GEAR_LIGHT","R_GEAR_LIGHT","L_GEAR_LIGHT"}) parameters.write(name,gearLight);
 }
 }
@@ -110,6 +128,12 @@ EXPORT_ED_FM_PHYSICS_IMP void ed_fm_simulate(double dt) {
     double* axes[]={&model.input.pitch,&model.input.roll,&model.input.yaw};
     for(std::size_t i=0;i<3;++i) if(keyboardActive[i])
         *axes[i]=approach(*axes[i],keyboard[i],1.33,dt);
+    if(parameters.read("F22_SYSTEMS_VALID")>.5) {
+        const double supply=clamp((std::max(parameters.read("F22_HYD_LEFT_PSI"),
+            parameters.read("F22_HYD_RIGHT_PSI"))-500)/3500,0,1);
+        model.health.hydraulic=supply;
+        model.health.actuator.fill(supply);
+    }
     model.input.refueling=parameters.read("AAR")>.5;
     model.step(dt,environment); elapsed+=dt; publish();
 }
@@ -139,6 +163,7 @@ EXPORT_ED_FM_PHYSICS_IMP void ed_fm_set_current_state(double,double,double,doubl
 EXPORT_ED_FM_PHYSICS_IMP void ed_fm_set_current_state_body_axis(double,double,double,double vx,double vy,double vz,
     double wx,double wy,double wz,double,double,double,double ox,double oy,double oz,
     double,double pitch,double roll,double,double) {
+    groundVelocityBody={vx,vy,vz}; bodyStateReceived=true;
     environment.airVelocity={vx-wx,vy-wy,vz-wz};
     environment.angularVelocity={ox,oy,oz}; environment.pitch=pitch; environment.roll=roll;
 }
@@ -154,6 +179,8 @@ EXPORT_ED_FM_PHYSICS_IMP void ed_fm_set_command(int command,float value) {
     const double axis=clamp(static_cast<double>(value),-1,1);
     auto discrete=[](std::size_t i,double v) { keyboardActive[i]=true; keyboard[i]=v; };
     auto throttle=[&](std::size_t i,double v) { p.throttle[i]=clamp(v,0,1); };
+    const bool mayStart=!onGround() || parameters.read("F22_SYSTEMS_VALID")<.5 ||
+        parameters.read("F22_START_AVAILABLE")>.5;
     switch(command) {
     case JoystickPitch: p.pitch=axis; keyboardActive[0]=false; break;
     case JoystickRoll: p.roll=axis; keyboardActive[1]=false; break;
@@ -174,10 +201,10 @@ EXPORT_ED_FM_PHYSICS_IMP void ed_fm_set_command(int command,float value) {
     case ruddertrimLeft: p.yawTrim=clamp(p.yawTrim+.01,-1,1); break;
     case ruddertrimRight: p.yawTrim=clamp(p.yawTrim-.01,-1,1); break;
     case resetTrim: p.pitchTrim=p.rollTrim=p.yawTrim=0; break;
-    case EnginesOn: p.engineRun={true,true}; break;
+    case EnginesOn: if(mayStart) p.engineRun={true,true}; break;
     case EnginesOff: p.engineRun={false,false}; break;
-    case LeftEngineOn: p.engineRun[0]=true; break;
-    case RightEngineOn: p.engineRun[1]=true; break;
+    case LeftEngineOn: if(mayStart) p.engineRun[0]=true; break;
+    case RightEngineOn: if(mayStart) p.engineRun[1]=true; break;
     case LeftEngineOff: p.engineRun[0]=false; break;
     case RightEngineOff: p.engineRun[1]=false; break;
     case ThrottleAxis: throttle(0,(1-axis)*.5); throttle(1,(1-axis)*.5); break;
@@ -277,7 +304,9 @@ EXPORT_ED_FM_PHYSICS_IMP double ed_fm_get_param(unsigned param) {
     case ED_FM_FC3_STICK_PITCH_LIMITER: case ED_FM_FC3_STICK_ROLL_L_LIMITER:
     case ED_FM_FC3_PEDAL_L_LIMITER: case ED_FM_FC3_PEDAL_R_LIMITER: return 1;
     case ED_FM_STICK_FORCE_FACTOR_PITCH: case ED_FM_STICK_FORCE_FACTOR_ROLL: return 1;
-    case ED_FM_CAN_ACCEPT_FUEL_FROM_TANKER: return parameters.read("AAR")>.5&&model.fuel.internal<data::internalCapacity ? 1 : 0;
+    case ED_FM_CAN_ACCEPT_FUEL_FROM_TANKER: return parameters.read("AAR")>.5&&
+        (parameters.read("F22_ELECTRICAL_VALID")<.5||parameters.read("AAR_READY")>.5)&&
+        model.fuel.internal<data::internalCapacity ? 1 : 0;
     case ED_FM_INTERRUPT_REFUEL: return model.fuel.internal>=data::internalCapacity ? 1 : 0;
     case ED_FM_FC3_AR_DOOR_PROBE_HANDLE_POS: return parameters.read("AAR");
     default: return 0;
@@ -300,9 +329,10 @@ EXPORT_ED_FM_PHYSICS_IMP void ed_fm_set_draw_args_v2(float* array,std::size_t si
         set(i==0 ? 90 : 89,clamp(1-smoothStep(.67,.9,e.fan)+e.afterburner,0,1));
         set(i==0 ? 325 : 324,e.fanPhase);
     }
-    const double power=parameters.read("MAIN_POWER")>.5 ? 1 : 0;
+    const double power=parameters.read("MAIN_POWER")>.5 &&
+        (parameters.read("F22_ELECTRICAL_VALID")<.5||parameters.read("F22_EXTERNAL_LIGHTS_MASTER")>.5) ? 1 : 0;
     const double taxi=parameters.read("TAXI_SWITCH");
-    set(604,power*(taxi>.1&&taxi<.9 ? 1 : 0)); set(605,power*(taxi>=.9 ? 1 : 0));
+    set(604,power*(taxi<-.5 ? 1 : 0)); set(605,power*(taxi>.5 ? 1 : 0));
     set(606,power*parameters.read("FORM_KNOB"));
     const double nav=parameters.read("NAV_LIGHT_SWITCH");
     const double blink=std::fmod(elapsed,1)<.5 ? 1 : 0;
@@ -310,7 +340,7 @@ EXPORT_ED_FM_PHYSICS_IMP void ed_fm_set_draw_args_v2(float* array,std::size_t si
     set(608,power*(nav>.1&&nav<.3 ? blink : 0));
     set(612,power*(nav>.1 ? 1 : 0)); set(613,power*(nav>.1 ? 1 : 0));
     set(609,power*parameters.read("AAR")*parameters.read("AAR_KNOB"));
-    // Clamshell doors 610/611 remain owned by Gear_System.lua.
+    // Clamshell doors 610/611 remain owned by Engine_System.lua.
 }
 EXPORT_ED_FM_PHYSICS_IMP void ed_fm_set_fc3_cockpit_draw_args_v2(float* array,std::size_t size) {
     if(!array) return;
@@ -322,7 +352,8 @@ EXPORT_ED_FM_PHYSICS_IMP void ed_fm_cold_start() { start(Start::Cold); }
 EXPORT_ED_FM_PHYSICS_IMP void ed_fm_hot_start() { start(Start::GroundHot); }
 EXPORT_ED_FM_PHYSICS_IMP void ed_fm_hot_start_in_air() { start(Start::AirHot); }
 EXPORT_ED_FM_PHYSICS_IMP void ed_fm_release() {
-    model=FlightModel{}; environment=Environment{}; parameters.clear();
+    parameters.write("F22_EFM_VALID",0);parameters.write("F22_FUEL_VALID",0);
+    model=FlightModel{}; environment=Environment{}; groundVelocityBody={}; bodyStateReceived=false; parameters.clear();
     integrity.fill(1); contact.fill(false); contactReceived=false; groundStart=true;
     keyboard.fill(0); keyboardActive.fill(false); commonBrake=leftBrake=rightBrake=elapsed=0;
     surfaceHeight=0; immortal=false;

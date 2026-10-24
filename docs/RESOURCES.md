@@ -2,7 +2,7 @@
 
 Checked 24 October 2026.
 
-**181 numbered entries.** Start with the [focused reading guide](RESEARCH_GUIDE.md) for avionics, HUD and flight performance. R88–R147 are the 60 additions from the expanded aircraft research pass; R148–R153 add standalone-mod implementation references and an official performance-summary lead. R154–R171 add 18 Chinese-language journal, university and CAAC records; R172 adds official JDAM descriptions. R173–R176 extend the Chinese forum/citation-trail follow-up, which also improves access to R65. R177–R181 add the user-provided cockpit lead, primary equation references and two independent fighter-mod precedents. Supporting methods and access-limited leads are labelled.
+**185 numbered entries.** Start with the [focused reading guide](RESEARCH_GUIDE.md) for avionics, HUD and flight performance. R88–R147 are the 60 additions from the expanded aircraft research pass; R148–R153 add standalone-mod implementation references and an official performance-summary lead. R154–R171 add 18 Chinese-language journal, university and CAAC records; R172 adds official JDAM descriptions. R173–R176 extend the Chinese forum/citation-trail follow-up, which also improves access to R65. R177–R181 add the user-provided cockpit lead, primary equation references and two independent fighter-mod precedents. R182–R185 add the C-130J photograph and game-HUD comparison sources. Supporting methods and access-limited leads are labelled.
 
 The [overhaul assessment](OVERHAUL_ASSESSMENT.md) connects the references to the current code. The [standalone design](STANDALONE_DESIGN.md) and [roadmap](OVERHAUL_ROADMAP.md) separate implementable improvements from host-interface uncertainties.
 
@@ -2030,3 +2030,45 @@ DOI: 10.1109/DASC.1996.559202. [Publisher PDF lead](https://ieeexplore.ieee.org/
 **Access/review:** README via GitHub connector, blob `f56d02d8c8ff96672e23b83cf568679c932c8b77`; forum's highlighted author announcement dated 19 June 2025. Installed archive, complete avionics source and runtime behavior not reviewed.
 
 **Study use and limits:** Additional independent-fighter precedent; author credits radar/RWR examples and radio integration. Distinguish the standalone C early-access version from older FC3-dependent G packages and historical text retained in its README. EFM reuse statements and package restrictions are not treated as blanket permission to copy the mod. No code/assets imported.
+
+## HUD picture-comparison additions
+
+<a id="r182"></a>
+
+### R182 — Telstar Logistics — C-130J copilot HUD photograph
+
+[Attribution/metadata and original image](https://commons.wikimedia.org/wiki/File:C-130J_Co_Pilot%27s_Head-up_display.jpg)
+
+**Access/review:** Original 1,600 × 1,200 photograph visually inspected, with Commons description and licensing. Author identifies C-130J at former Castle AFB. CC BY 2.0. Page date and camera EXIF differ; no precise capture date assumed.
+
+**Study use and limits:** Direct visual comparison of dotted counter-pointers, heading, ladder, flight path and lower bank scale with R03 Fig.3. A single transport HUD image does not define F-22 modes, scale changes, flight director or combat cues. No claim of identical aircraft software. No image copied into this repository.
+
+<a id="r183"></a>
+
+### R183 — Top Mach Studios — F-22A Premium Edition MSFS user manual, release 1.0.0, 2022
+
+[Developer manual through Just Flight](https://downloads.justflight.com/support/manuals/TMS_F-22A_PremiumEdition_UserManual.pdf) · [Developer product](https://topmachstudios.com/service/raptor/)
+
+**Access/review:** Public manual retrieved; printed pp.17–18 HUD screenshot and annotations visually/textually reviewed, together with the fiction/approximation disclaimer. Other sections not treated as real-aircraft instructions.
+
+**Study use and limits:** Clear reference for another game's visual implementation, particularly gauges, heading, ladder and bank display. Not independent evidence for F-22 performance, exact production symbology, autopilot or navigation behavior. No code/assets/manual reproduced in the mod.
+
+<a id="r184"></a>
+
+### R184 — Crusader / CombatACE — SF2 F-22 avionics update and later cockpit project trail
+
+[2014 avionics update for Julhelm cockpit](https://combatace.com/files/file/15086-sf2_f-22a_new_avionics_10/) · [2019 Operation Darius HUD gallery](https://combatace.com/gallery/image/42291-f-22-cockpit-close-up-of-hud/) · [Menrva project updates, page 3](https://combatace.com/forums/topic/93287-heberths-f-22a-raptor-project/page/3/)
+
+**Access/review:** Public listings, author descriptions and later project history read. Legacy screenshot links returned placeholders; a HUD image could not be reliably retrieved. Download archives not accessed. The 2021 author post says planned new cockpit work was incomplete at that release.
+
+**Study use and limits:** User-requested reference-only lead related to R177. Distinguish Julhelm 2012, Crusader 2014 and later projects; do not assume a promised cockpit was shipped. No actual visual comparison claimed from unavailable screenshots and no restricted code/assets reused.
+
+<a id="r185"></a>
+
+### R185 — F-22 Lightning 3 — public gameplay screenshot collection
+
+[Screenshot collection](https://www.mobygames.com/game/3743/f-22-lightning-3/screenshots/) · [Public review screenshot](https://www.combatsim.com/htm/july99/jpg/l3-6.jpg)
+
+**Access/review:** Public screenshot images inspected through image retrieval. Generated image-search captions are not aircraft evidence. No game archive/source obtained.
+
+**Study use and limits:** Another game's distinct presentation, including screen-edge game UI. Its differing HUD is useful evidence that games disagree; it is not authority for F-22 symbology or for copying a combat/guidance implementation.

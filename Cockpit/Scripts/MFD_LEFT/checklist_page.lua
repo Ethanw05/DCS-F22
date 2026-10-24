@@ -77,7 +77,7 @@ local PFD_MASK_BASE1 	= MakeMaterial(nil,{255,0,0,255})--Clipping Masks
 local PFD_MASK_BASE2 	= MakeMaterial(nil,{0,255,0,255})--Clipping Masks
 --Clipping Masks
 local total_field_of_view           = CreateElement "ceMeshPoly"
-total_field_of_view.name            = "total_field_of_view"
+total_field_of_view.name = "MFD_LEFT_checklist_page_total_field_of_view_1"
 total_field_of_view.primitivetype   = "triangles"
 total_field_of_view.vertices        = {
 										{-1 * ClippingWidth,-1 * ClippingPlaneSize},
@@ -96,7 +96,7 @@ total_field_of_view.isvisible       = false
 Add(total_field_of_view)
 --Clipping Masks
 local clipPoly               = CreateElement "ceMeshPoly"
-clipPoly.name                = "clipPoly-1"
+clipPoly.name = "MFD_LEFT_checklist_page_clipPoly_1"
 clipPoly.primitivetype       = "triangles"
 clipPoly.init_pos            = {0, 0, 0}
 clipPoly.init_rot            = { 0, 0 , 0} -- degree NOT rad
@@ -115,7 +115,7 @@ clipPoly.isvisible           = false
 Add(clipPoly)
 ------------------------------------------------------------------------------------------------CLIPPING-END----------------------------------------------------------------------------------------------
 BGROUND                     = CreateElement "ceTexPoly"
-BGROUND.name    			= "BG"
+BGROUND.name = "MFD_LEFT_checklist_page_BGROUND_1"
 BGROUND.material			= MASK_BOX
 BGROUND.change_opacity 		= false
 BGROUND.collimated 			= false
@@ -130,7 +130,7 @@ vertices(BGROUND,3)
 Add(BGROUND)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 COLD                    = CreateElement "ceTexPoly"
-COLD.name    			= "BG"
+COLD.name = "MFD_LEFT_checklist_page_COLD_1"
 COLD.material			= COLD_PAGE
 COLD.change_opacity 		= false
 COLD.collimated 			= false
@@ -146,7 +146,7 @@ Add(COLD)
 ----------------------------------------------------------------------------
 --MENU TEXT
 MENU_CHK_TEXT 					    = CreateElement "ceStringPoly"
-MENU_CHK_TEXT.name 				    = "menu"
+MENU_CHK_TEXT.name = "MFD_LEFT_checklist_page_MENU_CHK_TEXT_1"
 MENU_CHK_TEXT.material 			    = UFD_FONT
 MENU_CHK_TEXT.value 				= "MENU"
 MENU_CHK_TEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
@@ -164,7 +164,7 @@ MENU_CHK_TEXT.controllers		    =   {
 Add(MENU_CHK_TEXT)
 --------------------------------------------------------------------------------------------------- NAV
 MENU_TEXT1 					        = CreateElement "ceStringPoly"
-MENU_TEXT1.name 				    = "menu"
+MENU_TEXT1.name = "MFD_LEFT_checklist_page_MENU_TEXT1_1"
 MENU_TEXT1.material 			    = UFD_GRN
 MENU_TEXT1.value 				    = "ENG"
 MENU_TEXT1.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -179,7 +179,7 @@ MENU_TEXT1.controllers		        =   {{"opacity_using_parameter",0},{"parameter_i
 Add(MENU_TEXT1)
 --------------------------------------------------------------------------------------------------- NAV
 MENU_TEXT2 					        = CreateElement "ceStringPoly"
-MENU_TEXT2.name 				    = "menu"
+MENU_TEXT2.name = "MFD_LEFT_checklist_page_MENU_TEXT2_1"
 MENU_TEXT2.material 			    = UFD_GRN
 MENU_TEXT2.value 				    = "FCS"
 MENU_TEXT2.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -194,7 +194,7 @@ MENU_TEXT2.controllers		        =   {{"opacity_using_parameter",0},{"parameter_i
 Add(MENU_TEXT2)
 --------------------------------------------------------------------------------------------------- NAV
 MENU_TEXT3 					        = CreateElement "ceStringPoly"
-MENU_TEXT3.name 				    = "menu"
+MENU_TEXT3.name = "MFD_LEFT_checklist_page_MENU_TEXT3_1"
 MENU_TEXT3.material 			    = UFD_GRN
 MENU_TEXT3.value 				    = "BAY"
 MENU_TEXT3.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -209,7 +209,7 @@ MENU_TEXT3.controllers		        =   {{"opacity_using_parameter",0},{"parameter_i
 Add(MENU_TEXT3)
 --------------------------------------------------------------------------------------------------- NAV
 MENU_TEXT3 					        = CreateElement "ceStringPoly"
-MENU_TEXT3.name 				    = "menu"
+MENU_TEXT3.name = "MFD_LEFT_checklist_page_MENU_TEXT3_2"
 MENU_TEXT3.material 			    = UFD_GRN
 MENU_TEXT3.value 				    = "FUEL"
 MENU_TEXT3.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
