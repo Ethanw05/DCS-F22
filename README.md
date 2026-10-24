@@ -1,3 +1,14 @@
+# DCS-F22
+
+This project starts from [Grinnelli Designs’ F-22A](https://github.com/grinnellidesigns/f-22a), upstream commit `8484b44cf8bc46540376435f0ba584f9f3e8bf44`. Original credits, licences and source history are retained below and throughout the repository.
+
+- [Development setup](docs/DEVELOPMENT.md): checkout, build and source map.
+- [Study resources](docs/RESOURCES.md): public aircraft and display references, with access and evidence limits.
+- Clone with Git LFS installed and run `git lfs pull` to retrieve model, texture, audio and other large assets.
+- The inherited DCS/F-15C dependency still applies. Proprietary DCS binaries and original 3D authoring projects are not supplied by the public source repository.
+
+## Original project documentation
+
 # Grinnelli Designs F-22A Raptor
 Welcome! This GitHub repository contains the source code and release versions of the F-22A Raptor community mod by Grinnelli Designs.
 If you're here for the Raptor mod, please follow [this link](https://github.com/grinnellidesigns/f-22a/releases/latest) to download it. **Please note that the DCS: F-15C or DCS: Flaming Cliffs 3 expansions are required for this mod to work properly.**

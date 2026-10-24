@@ -648,3 +648,36 @@ Publisher record and indexed abstract reviewed. Aircraft development provenance;
 
 Primary announcement reviewed. Distributed embedded TacIRST sensors/IRDS integration contract; not proof of fleet-wide completion or evidence for the mod external pod implementation.
 
+
+## Further research: propulsion, actuation and stored energy
+
+### R81 — Development of the F-22 Propulsion System, AIAA 2002-3624
+
+[Source](https://doi.org/10.2514/6.2002-3624)
+
+Original propulsion-development paper located through publisher records and citations. Full paper not reviewed in this pass. Useful study lead for F119/airframe integration and EMD development; not a complete engine deck.
+
+### R82 — F-22 Actuator Dynamic Stiffness (Impedance) Testing, AIAA 2007-1792
+
+[Source](https://doi.org/10.2514/6.2007-1792)
+
+Bibliographic lead cross-checked against an author/publication record. Full paper not reviewed. Potential source for actuator/aeroelastic validation, with no numerical actuator model inferred here.
+
+### R83 — Curtiss-Wright: F-22 main and side weapons-bay door drives
+
+[Source](https://actuation.curtisswright.com/en-gb/aerospace-products/actuation-systems)
+
+Manufacturer page reviewed. Identifies F-22 bay-door drive systems among its applications; does not publish precise operating timings or control laws.
+
+### R84 — PCI Gases: Stored Energy System Servicing Cart
+
+[Source](https://www.pcigases.com/aerospace-and-defense/products/sessc/)
+
+Manufacturer page reviewed. Identifies F-22 stored-energy servicing and published cart characteristics. Cart pressure is not automatically the operating pressure of every onboard subsystem.
+
+### R85 — F-22 Environmental Control/Thermal Management Fluid Transport Optimization, SAE 2000-01-2266
+
+[Source](https://www.researchgate.net/publication/296643928_F-22_Environmental_ControlThermal_Management_Fluid_Transport_Optimization)
+
+Author/publication abstract and DOI located; full text not reviewed. Describes fluid transport and heat rejection to fuel/ram air; distinguish this from the separate downloadable-constants paper 2000-01-2265.
+
