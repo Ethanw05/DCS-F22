@@ -4,6 +4,8 @@ This pass follows the experimental EFM replacement at `3256d6e71bd55b342095da6a1
 
 The [historical audit](audit/README.md) concerns `9c5d03ee...`, not the code shipped here. The earlier [flight-model ledger](FLIGHT_MODEL.md) still describes its aerodynamic/control/engine assumptions. The matrix below records this implementation pass: source review, applicable evidence, change, verification and remaining limits. A reference's existence is not treated as access to its full contents.
 
+The subsequent [final system review](FINAL_SYSTEM_REVIEW.md) records additional code → evidence → change → verification steps: historical approach/AR configuration corrections, explicit planned-failure ownership, cold-start hydraulic recovery, APU/GPU distinction, cannon-toggle restoration, independent warning edges, held antenna controls and a loadout-ID correction. Read it alongside this matrix for the current build.
+
 ## System decisions and verification
 
 | System / source examined | Relevant research actually applied | Changes and checks | Remaining limits |

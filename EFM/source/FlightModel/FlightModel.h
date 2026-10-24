@@ -63,6 +63,9 @@ struct Health {
     std::array<double,data::Count> surface{1,1,1,1,1,1,1,1,1,1};
 };
 struct Configuration { double gear=0, speedBrake=0, leadingEdge=0, flaps=0; };
+// Neutral surface schedule before moment allocation. R22 historical configuration;
+// the allocator may depart from these biases to satisfy aircraft control demand.
+std::array<double,data::Count> configurationBias(const Configuration&,bool refueling);
 struct Aerodynamics { Wrench wrench; double liftCoefficient=0, dragCoefficient=0; };
 Aerodynamics aerodynamicForces(const Environment&,const AirData&,const Configuration&,
                               const Health&,double externalTankCount);

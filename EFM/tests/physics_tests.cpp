@@ -89,6 +89,23 @@ void enginesAndStates() {
     near(fm.surface[data::NozzleLeft],0,0,"reset clears achieved nozzle");
 }
 void controls() {
+    Configuration cruise;cruise.speedBrake=1;
+    const auto cruiseBias=configurationBias(cruise,false);
+    const auto refuelBias=configurationBias(cruise,true);
+    check(cruiseBias[data::AileronLeft]<0&&cruiseBias[data::FlaperonLeft]>0,
+        "cruise braking distributes wing deflections");
+    near(refuelBias[data::AileronLeft],0,0,"refueling does not command wing braking");
+    near(refuelBias[data::FlaperonLeft],0,0,"refueling does not command flap braking");
+    check(refuelBias[data::RudderLeft]<0&&refuelBias[data::RudderRight]>0,
+        "refueling retains opposed rudder braking");
+    FlightModel approach;approach.fuel.unlimited=true;approach.reset(Start::GroundHot);
+    auto approachEnvironment=flight(70);
+    approach.step(1,approachEnvironment);
+    near(degrees(configurationBias(approach.config,false)[data::FlaperonLeft]),35,1e-9,
+        "normal low-speed approach flap bias is 35 degrees");
+    approach.input.engineRun[1]=false;approach.step(1,approachEnvironment);
+    near(degrees(configurationBias(approach.config,false)[data::FlaperonLeft]),20,1e-9,
+        "single-engine low-speed approach flap bias is 20 degrees");
     auto e=flight(80,radians(25));
     FlightModel f; f.fuel.unlimited=true; f.reset(Start::AirHot); f.input.pitch=1; f.input.roll=.6;
     auto previous=f.surface;

@@ -8,6 +8,8 @@ assert(x==50 and y==-100 and valid and not caged)
 x,y,valid,caged=mathlib.FlightPath(10,-10,10,85,115)
 assert(x==85 and y==-115 and valid and caged)
 assert(select(3,mathlib.FlightPath(0,0,0,85,115))==false)
+assert(select(3,mathlib.FlightPath(100,0/0,0,85,115))==false)
+assert(select(3,mathlib.FlightPath(math.huge,0,0,85,115))==false)
 local h=Host.New(root);h:load("Cockpit/Scripts/Systems/HUD_System.lua");h.env.post_initialize()
 h.parameters.MAIN_POWER=1;h.parameters.F22_EFM_VALID=1;h.parameters.F22_VEL_BODY_X=100
 h.sensor.getIndicatedAirSpeed=100;h.sensor.getHeading=-math.pi/2
@@ -16,9 +18,19 @@ assert(#h.commands==32,"one native dim transition")
 h:step(.1);assert(#h.commands==32,"no per-frame native brightness spam")
 h:command(106);h:step(.02);assert(h.parameters.F22_HUD_VISIBLE==0 and #h.commands==64,"native tactical fallback")
 h:command(105);h:step(.02);assert(h.parameters.F22_HUD_VISIBLE==.8)
+h:command(113);h:step(.02);assert(h.parameters.F22_HUD_VISIBLE==0 and h.parameters.F22_HUD_MODE==113)
+h:command(113,0);h:step(.02);assert(h.parameters.F22_HUD_MODE==113,"release does not toggle cannon")
+h:command(113);h:step(.02);assert(h.parameters.F22_HUD_VISIBLE==.8,"cannon off restores previous NAV mode")
+h:command(106);h:command(113);h:command(113);h:step(.02)
+assert(h.parameters.F22_HUD_MODE==106,"cannon off restores previous combat mode")
+h:command(105);h:command(10682,0);h:step(.02)
+assert(h.parameters.F22_HUD_VISIBLE==.8,"brightness release does not step")
 for _=1,100 do h:command(10682) end
 h:step(.02);assert(h.parameters.F22_HUD_VISIBLE>=.05,"bounded brightness")
 h.parameters.MAIN_POWER=0;h:step(.02);assert(h.parameters.F22_HUD_VISIBLE==0)
+h.sensor.getHeading=math.huge;h.sensor.getPitch=0/0;h.sensor.getIndicatedAirSpeed=-math.huge
+h:step(.02)
+assert(h.parameters.F22_HUD_HEADING==0 and h.parameters.F22_HUD_IAS==0,"invalid air data uses finite fallback")
 local page=Host.New(root);page:load("Cockpit/Scripts/HUD/page.lua")
 local names={}
 for _,e in ipairs(page.elements) do

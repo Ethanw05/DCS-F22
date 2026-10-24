@@ -1,5 +1,8 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 local M = {}
+function M.IsFinite(value)
+    return type(value)=="number" and value==value and value~=math.huge and value~=-math.huge
+end
 function M.Clamp(value, minimum, maximum)
     if type(value) ~= "number" or value ~= value then return minimum end
     return math.max(minimum, math.min(maximum, value))
@@ -14,6 +17,7 @@ function M.Wrap360(value) return value % 360 end
 function M.AngleError(target, current) return (target - current + 180) % 360 - 180 end
 function M.CounterAngle(value, period) return -(value % period) / period * math.pi * 2 end
 function M.FlightPath(vx, vy, vz, limitX, limitY)
+    if not M.IsFinite(vx) or not M.IsFinite(vy) or not M.IsFinite(vz) then return 0, 0, false, false end
     if vx <= 1 or vx * vx + vy * vy + vz * vz < 100 then return 0, 0, false, false end
     local x, y = 1000 * vz / vx, 1000 * vy / vx
     local caged = math.abs(x) > limitX or math.abs(y) > limitY

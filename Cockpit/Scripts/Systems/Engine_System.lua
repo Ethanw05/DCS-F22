@@ -124,16 +124,15 @@ local function soundUpdate()
 end
 function update()
     local rpm={bus.sample("getEngineLeftRPM"),bus.sample("getEngineRightRPM")}
-    local commonFault=get_cockpit_draw_argument_value(208)>.5
     Vehicle.Step(state,dt,rpm,bus.get("GROUND_POWER")>.5,{
-        hydraulic=commonFault,
+        hydraulic=bus.get("F22_FAIL_HYD_COMMON")>.5,apu=bus.get("F22_FAIL_APU")>.5,
         hydraulic1=bus.get("F22_FAIL_HYD_LEFT")>.5,hydraulic2=bus.get("F22_FAIL_HYD_RIGHT")>.5,
         generator1=bus.get("F22_FAIL_GEN_LEFT")>.5,generator2=bus.get("F22_FAIL_GEN_RIGHT")>.5})
     if state.dc~=nativePower then dispatch_action(nil,Keys.PowerOnOff);nativePower=state.dc end
     bus.set("BATTERY_POWER",flag(state.battery));bus.set("MAIN_POWER",flag(state.main))
     bus.set("F22_DC_AVAILABLE",flag(state.dc));bus.set("F22_BATTERY_SOC",state.batteryAh/25)
-    bus.set("APU_RPM_STATE",state.apu*4);bus.set("APU_POWER",flag(state.apuRequest and state.apu>=.95))
-    bus.set("APU_READY",flag(state.startAvailable));bus.set("APU_SPOOL",flag(state.apuRequest and state.apu<.95))
+    bus.set("APU_RPM_STATE",state.apu*4);bus.set("APU_POWER",flag(state.apuReady))
+    bus.set("APU_READY",flag(state.apuReady));bus.set("APU_SPOOL",flag(state.apuRequest and state.apu<.95))
     bus.set("F22_START_AVAILABLE",flag(state.startAvailable))
     for i,side in ipairs({"L","R"}) do
         if bus.get("F22_FUEL_VALID")>.5 then

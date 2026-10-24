@@ -21,8 +21,9 @@ local dev=GetSelf()
 local Math=dofile(LockOn_Options.script_path.."Common/Math.lua")
 local bus=dofile(LockOn_Options.script_path.."Common/Runtime.lua").New(get_base_data())
 local Stores=dofile(LockOn_Options.script_path.."Common/Stores.lua")
+local Modes=dofile(LockOn_Options.script_path.."Common/Modes.lua")
 local state=Stores.New()
-local mode=105
+local mode=Modes.New()
 local activeGun,activePickle=false,false
 local ecm=false
 make_default_activity(.02)
@@ -34,7 +35,7 @@ local function output(gun,pickle)
  if pickle~=activePickle then dispatch_action(nil,pickle and 350 or 351);activePickle=pickle end
 end
 function post_initialize()
- state=Stores.New();mode=105;ecm=false
+ state=Stores.New();mode=Modes.New();ecm=false
  -- Clear host-held commands on initialization too.
  dispatch_action(nil,85);dispatch_action(nil,351);activeGun,activePickle=false,false
 end
@@ -48,8 +49,7 @@ function SetCommand(c,v)
  elseif c==10026 then state.pickle=v>0
  elseif c==3002 and v>0 then dispatch_action(nil,178) -- retained external-tank emergency jettison
  elseif c>=105 and c<=113 then
-  if mode~=c then Stores.Cancel(state);output(false,false) end
-  mode=c
+  if Modes.Apply(mode,c,v) then Stores.Cancel(state);output(false,false) end
  elseif c==101 then Stores.Cancel(state);output(false,false)
  elseif c==136 and v>0 then ecm=not ecm end
  if not state.armed then Stores.Cancel(state);output(false,false) end
@@ -63,7 +63,8 @@ function update()
  local hyd=Math.Clamp((math.max(bus.get("F22_HYD_LEFT_PSI"),bus.get("F22_HYD_RIGHT_PSI"))-500)/3500,0,1)
  if bus.get("F22_SYSTEMS_VALID")<.5 then hyd=power and 1 or 0 end
  if wow and bus.get("GROUND_POWER")>.5 then hyd=1 end -- assumed ground-service actuation
- local gun,pickle,permitted=Stores.Step(state,.02,{power=power,wow=wow,combat=mode~=105,
+ local currentMode=Modes.Value(mode)
+ local gun,pickle,permitted=Stores.Step(state,.02,{power=power,wow=wow,combat=currentMode~=105,
   bay=bus.get("BAY_STATION"),groundOverride=bus.get("GROUND_ORIDE")>.5,authority=power and hyd or 0})
  output(gun,pickle)
  for i,arg in ipairs({601,600,602,614}) do set_aircraft_draw_argument_value(arg,state.door[i]) end
@@ -71,7 +72,7 @@ function update()
  bus.set("BAY_L_ARG",state.door[1]);bus.set("BAY_C_ARG",state.door[2]);bus.set("BAY_R_ARG",state.door[3])
  bus.set("MASTER_ARM",flag(state.armed));bus.set("ARM_STATUS",wow and 2 or flag(permitted))
  bus.set("AIR_ORIDE",flag(state.override));bus.set("ORIDE_X",flag(not wow));bus.set("ORIDE_TEXT",flag(wow and bus.get("GROUND_ORIDE")>.5))
- bus.set("ECM_ARG",flag(ecm));bus.set("HUD_MODE",mode-104);bus.set("DOGFIGHT",flag(mode>=107 and mode<=110))
+ bus.set("ECM_ARG",flag(ecm));bus.set("HUD_MODE",currentMode-104);bus.set("DOGFIGHT",flag(currentMode>=107 and currentMode<=110))
  bus.set("DETENT",state.gun and 1 or (state.first and .5 or 0));bus.set("PICKLE",flag(state.pickle))
  bus.set("F22_RELEASE_READY",flag(pickle));bus.set("F22_GUN_READY",flag(gun))
 end

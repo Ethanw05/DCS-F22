@@ -5,10 +5,11 @@ local Vehicle = {}
 function Vehicle.New(hot)
     return {battery=hot, batteryAh=25, generator={hot,hot}, apuRequest=false,
         apu=0, autoOff=0, hydraulic={hot and 4000 or 0, hot and 4000 or 0},
-        dc=hot, main=hot, genAvailable={hot,hot}, startAvailable=false}
+        dc=hot, main=hot, genAvailable={hot,hot}, apuReady=false,startAvailable=false}
 end
 function Vehicle.Step(s, dt, rpm, groundPower, fault)
     fault=fault or {}
+    if fault.apu then s.apuRequest=false end
     local batteryAvailable=s.battery and s.batteryAh>.05
     if s.apuRequest and (batteryAvailable or groundPower or s.main) and not fault.apu then
         s.apu=Math.Approach(s.apu,1,1/10,dt)
@@ -16,7 +17,8 @@ function Vehicle.Step(s, dt, rpm, groundPower, fault)
         s.apu=Math.Approach(s.apu,0,1/6,dt)
         if not batteryAvailable and not groundPower and not s.main then s.apuRequest=false end
     end
-    local ready=s.apu>=.95 and s.apuRequest
+    local ready=s.apu>=.95 and s.apuRequest and not fault.apu
+    s.apuReady=ready
     for i=1,2 do
         local previous=s.genAvailable[i]
         s.genAvailable[i]=s.generator[i] and not fault["generator"..i] and rpm[i]>=(previous and 58 or 63)
@@ -29,7 +31,7 @@ function Vehicle.Step(s, dt, rpm, groundPower, fault)
     s.main=supply
     s.dc=supply or batteryAvailable
     s.startAvailable=ready or groundPower
-    local current=supply and -5 or (s.battery and (10+(s.apuRequest and 70 or 0)) or 0)
+    local current=s.battery and (supply and -5 or (10+(s.apuRequest and 70 or 0))) or 0
     s.batteryAh=Math.Clamp(s.batteryAh-current*dt/3600,0,25)
     if ready and s.genAvailable[1] and s.genAvailable[2] then s.autoOff=s.autoOff+dt else s.autoOff=0 end
     if s.autoOff>=60 then s.apuRequest=false;s.autoOff=0 end

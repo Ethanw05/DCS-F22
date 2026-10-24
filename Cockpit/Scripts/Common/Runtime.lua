@@ -1,5 +1,6 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 local Runtime = {}
+local Math=dofile(LockOn_Options.script_path.."Common/Math.lua")
 function Runtime.New(sensor)
     local handles = {}
     local function handle(name)
@@ -12,7 +13,7 @@ function Runtime.New(sensor)
         sample=function(name,fallback)
             if not sensor or type(sensor[name])~="function" then return fallback or 0 end
             local ok,value=pcall(sensor[name])
-            if ok and type(value)=="number" and value==value then return value end
+            if ok and Math.IsFinite(value) then return value end
             return fallback or 0
         end,
         wow=function()

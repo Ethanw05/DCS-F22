@@ -25,19 +25,26 @@ local page=0
 local board={false,false}
 local garfield,tint,flood,photo,visor=0,0,0,0,0
 local scan,emitting,mode=0,false,0
+local held={[19]=false,[20]=false}
 local echoes={}
 make_default_activity(.02)
 for c=3001,3020 do dev:listen_command(c) end
 for c=10131,10150 do dev:listen_command(c) end
 for _,c in ipairs({86,285,10005,10054,10055}) do dev:listen_command(c) end
 local function native(c) echoes[c]=(echoes[c] or 0)+1;dispatch_action(nil,c) end
+local function setScan(target)
+ if target==scan then return end
+ if scan~=0 then dispatch_action(nil,235) end
+ scan=target
+ if scan~=0 then dispatch_action(nil,scan>0 and 90 or 91) end
+end
 local function stopScan()
- if scan~=0 then dispatch_action(nil,235);scan=0 end
+ setScan(0);held[19],held[20]=false,false
 end
 function post_initialize()
  page=LockOn_Options.init_conditions.birth_place=="GROUND_COLD" and 0 or 1
  board={false,false};garfield,tint,flood,photo,visor=0,0,0,0,0
- scan,emitting,mode=0,false,0;echoes={}
+ scan,emitting,mode=0,false,0;echoes={};held={[19]=false,[20]=false}
 end
 function SetCommand(c,v)
  if c==86 or c==285 then
@@ -46,7 +53,15 @@ function SetCommand(c,v)
   return
  end
  local key=c>=3001 and c<=3020 and c-3000 or (c>=10131 and c<=10150 and c-10130)
- if key and (key==19 or key==20) and v<=0 then stopScan();return end
+ if key and (key==19 or key==20) and v<=0 then
+  held[key]=false
+  local direction=key==20 and 1 or -1
+  if scan==direction then
+   local other=key==20 and 19 or 20
+   setScan(held[other] and -direction or 0)
+  end
+  return
+ end
  if v<=0 then return end
  if c==10054 then board[1]=not board[1];return elseif c==10055 then board[2]=not board[2];return end
  if bus.get("MAIN_POWER")<.5 then return end
@@ -63,8 +78,7 @@ function SetCommand(c,v)
   elseif key==14 and not bus.wow() then dispatch_action(nil,394)
   elseif key==15 and not bus.wow() then mode=1-mode;native(285)
   elseif (key==19 or key==20) and not bus.wow() then
-   local target=key==20 and 1 or -1
-   if scan~=target then stopScan();scan=target;dispatch_action(nil,scan>0 and 90 or 91) end
+   held[key]=true;setScan(key==20 and 1 or -1)
   end
  elseif page==4 and bus.wow() then
   if key==16 then garfield=1-garfield elseif key==17 then photo=1-photo

@@ -1,6 +1,7 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 local dev, sensor = GetSelf(), get_base_data()
 local Math = dofile(LockOn_Options.script_path .. "Common/Math.lua")
+local Modes = dofile(LockOn_Options.script_path .. "Common/Modes.lua")
 local config = dofile(LockOn_Options.script_path .. "HUD/config.lua")
 local dt = 0.02
 make_default_activity(dt)
@@ -14,10 +15,10 @@ local function read(name) return parameter(name):get() end
 local function sample(name, fallback)
     if type(sensor[name]) ~= "function" then return fallback end
     local ok, value = pcall(sensor[name])
-    if ok and type(value) == "number" and value == value then return value end
+    if ok and Math.IsFinite(value) then return value end
     return fallback
 end
-local custom, nativeDimmed, mode, brightness = config.defaultCustom, false, 105, 0.8
+local custom, nativeDimmed, mode, brightness = config.defaultCustom, false, Modes.New(), 0.8
 local function nativeBrightness(dim)
     if dim == nativeDimmed then return end
     -- Existing module commands: dim only on transitions; restore for native combat cues.
@@ -29,22 +30,23 @@ dev:listen_command(10680) -- custom/native HUD selection
 dev:listen_command(10681)
 dev:listen_command(10682)
 function post_initialize()
-    custom, nativeDimmed, mode, brightness = config.defaultCustom, false, 105, 0.8
+    custom, nativeDimmed, mode, brightness = config.defaultCustom, false, Modes.New(), 0.8
     set("F22_HUD_CUSTOM", custom and 1 or 0)
 end
 function SetCommand(command, value)
-    if command >= 105 and command <= 113 then mode = command end
+    Modes.Apply(mode, command, value)
     if command == 10680 and value > 0 then custom = not custom end
-    if command == 10681 then brightness = Math.Clamp(brightness + 0.05, 0.05, 1) end
-    if command == 10682 then brightness = Math.Clamp(brightness - 0.05, 0.05, 1) end
+    if command == 10681 and value > 0 then brightness = Math.Clamp(brightness + 0.05, 0.05, 1) end
+    if command == 10682 and value > 0 then brightness = Math.Clamp(brightness - 0.05, 0.05, 1) end
 end
 function update()
     local power = read("MAIN_POWER") > 0.5
-    local show = custom and mode == 105 and power
-    nativeBrightness(custom and mode == 105)
+    local currentMode = Modes.Value(mode)
+    local show = custom and currentMode == 105 and power
+    nativeBrightness(custom and currentMode == 105)
     set("F22_HUD_VISIBLE", show and brightness or 0)
     set("F22_HUD_CUSTOM", custom and 1 or 0)
-    set("F22_HUD_MODE", mode)
+    set("F22_HUD_MODE", currentMode)
     local pitch, roll = sample("getPitch", 0), sample("getRoll", 0)
     local ias = math.max(0, sample("getIndicatedAirSpeed", 0) * 1.943844492)
     local altitude = sample("getBarometricAltitude", 0) * 3.280839895

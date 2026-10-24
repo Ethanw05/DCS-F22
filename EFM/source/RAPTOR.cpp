@@ -45,6 +45,11 @@ bool contactReceived=false, groundStart=true, immortal=false;
 double surfaceHeight=0, commonBrake=0, leftBrake=0, rightBrake=0, elapsed=0;
 std::array<double,3> keyboard{};
 std::array<bool,3> keyboardActive{};
+struct PlannedFailures {
+    std::array<bool,2> engine{},generator{};
+    bool hydraulic=false,apu=false;
+    bool any() const { return engine[0]||engine[1]||generator[0]||generator[1]||hydraulic||apu; }
+} planned;
 class Parameters {
     EDPARAM api;
     std::unordered_map<std::string,void*> handles;
@@ -62,6 +67,13 @@ public:
     void clear() { handles.clear(); api=EDPARAM{}; }
 } parameters;
 
+void publishFailures() {
+    parameters.write("F22_FAIL_HYD_COMMON",planned.hydraulic ? 1 : 0);
+    parameters.write("F22_FAIL_APU",planned.apu ? 1 : 0);
+    parameters.write("F22_FAIL_GEN_LEFT",planned.generator[0] ? 1 : 0);
+    parameters.write("F22_FAIL_GEN_RIGHT",planned.generator[1] ? 1 : 0);
+}
+
 bool onGround() {
     return contactReceived ? std::any_of(contact.begin(),contact.end(),[](bool v){return v;}) : groundStart;
 }
@@ -75,6 +87,7 @@ void updateHealth() {
     h=Health{};
     h.leftWing=product({23,29,35}); h.rightWing=product({24,30,36});
     h.engine={product({11,13,17,103}),product({12,14,18,104})};
+    for(std::size_t i=0;i<2;++i) if(planned.engine[i]) h.engine[i]=0;
     h.surface[data::TailLeft]=product({45,47,49,51,55,56});
     h.surface[data::TailRight]=product({46,48,50,52,55,57});
     h.surface[data::AileronLeft]=integrity[25]*h.leftWing;
@@ -86,7 +99,7 @@ void updateHealth() {
     h.tail=.5*(h.surface[data::TailLeft]+h.surface[data::TailRight]);
 }
 void start(Start mode) {
-    model.reset(mode); integrity.fill(1);
+    model.reset(mode); integrity.fill(1);planned={};publishFailures();
     contact.fill(false); contactReceived=false; groundStart=mode!=Start::AirHot;
     commonBrake=leftBrake=rightBrake=elapsed=0;
     keyboard.fill(0); keyboardActive.fill(false);
@@ -95,6 +108,7 @@ void start(Start mode) {
     parameters.write("F22_EFM_VALID",0);
 }
 void publish() {
+    publishFailures();
     parameters.write("WoW",environment.weightOnWheels ? 1 : 0);
     parameters.write("F22_EFM_VALID",bodyStateReceived ? 1 : 0);
     parameters.write("F22_VEL_BODY_X",groundVelocityBody.x);
@@ -128,12 +142,11 @@ EXPORT_ED_FM_PHYSICS_IMP void ed_fm_simulate(double dt) {
     double* axes[]={&model.input.pitch,&model.input.roll,&model.input.yaw};
     for(std::size_t i=0;i<3;++i) if(keyboardActive[i])
         *axes[i]=approach(*axes[i],keyboard[i],1.33,dt);
-    if(parameters.read("F22_SYSTEMS_VALID")>.5) {
-        const double supply=clamp((std::max(parameters.read("F22_HYD_LEFT_PSI"),
-            parameters.read("F22_HYD_RIGHT_PSI"))-500)/3500,0,1);
-        model.health.hydraulic=supply;
-        model.health.actuator.fill(supply);
-    }
+    const double supply=parameters.read("F22_SYSTEMS_VALID")>.5 ?
+        clamp((std::max(parameters.read("F22_HYD_LEFT_PSI"),
+            parameters.read("F22_HYD_RIGHT_PSI"))-500)/3500,0,1) : (planned.hydraulic ? 0 : 1);
+    model.health.hydraulic=supply;
+    model.health.actuator.fill(supply);
     model.input.refueling=parameters.read("AAR")>.5;
     model.step(dt,environment); elapsed+=dt; publish();
 }
@@ -352,6 +365,7 @@ EXPORT_ED_FM_PHYSICS_IMP void ed_fm_cold_start() { start(Start::Cold); }
 EXPORT_ED_FM_PHYSICS_IMP void ed_fm_hot_start() { start(Start::GroundHot); }
 EXPORT_ED_FM_PHYSICS_IMP void ed_fm_hot_start_in_air() { start(Start::AirHot); }
 EXPORT_ED_FM_PHYSICS_IMP void ed_fm_release() {
+    planned={};publishFailures();
     parameters.write("F22_EFM_VALID",0);parameters.write("F22_FUEL_VALID",0);
     model=FlightModel{}; environment=Environment{}; groundVelocityBody={}; bodyStateReceived=false; parameters.clear();
     integrity.fill(1); contact.fill(false); contactReceived=false; groundStart=true;
@@ -364,9 +378,21 @@ EXPORT_ED_FM_PHYSICS_IMP void ed_fm_on_damage(int element,double factor) {
     if(immortal||element<0||element>=static_cast<int>(integrity.size())||!std::isfinite(factor)) return;
     integrity[static_cast<std::size_t>(element)]=clamp(factor,0,1); updateHealth();
 }
-EXPORT_ED_FM_PHYSICS_IMP void ed_fm_repair() { integrity.fill(1); updateHealth(); }
+EXPORT_ED_FM_PHYSICS_IMP void ed_fm_on_planned_failure(const char* failureId) {
+    if(!failureId||immortal) return;
+    const std::string id(failureId);
+    if(id=="hydro") planned.hydraulic=true;
+    else if(id=="l_engine"||id=="l-engine") planned.engine[0]=true;
+    else if(id=="r_engine"||id=="r-engine") planned.engine[1]=true;
+    else if(id=="apu") planned.apu=true;
+    else if(id=="l_generator") planned.generator[0]=true;
+    else if(id=="r_generator") planned.generator[1]=true;
+    else return; // Unsupported native-avionics failures are not simulated here.
+    updateHealth();publishFailures();
+}
+EXPORT_ED_FM_PHYSICS_IMP void ed_fm_repair() { integrity.fill(1);planned={};updateHealth();publishFailures(); }
 EXPORT_ED_FM_PHYSICS_IMP bool ed_fm_need_to_be_repaired() {
-    return std::any_of(integrity.begin(),integrity.end(),[](double v){return v<1;});
+    return planned.any()||std::any_of(integrity.begin(),integrity.end(),[](double v){return v<1;});
 }
 EXPORT_ED_FM_PHYSICS_IMP void ed_fm_set_immortal(bool value) { immortal=value; }
 EXPORT_ED_FM_PHYSICS_IMP void ed_fm_unlimited_fuel(bool value) { model.fuel.unlimited=value; }

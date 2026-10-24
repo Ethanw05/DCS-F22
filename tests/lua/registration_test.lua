@@ -15,7 +15,13 @@ assert(#weapons==6,"only six approximate AAM definitions registered")
 assert(not loadouts["{GBU32_JDAM}"] and not loadouts["{MAKO_A2G_C}"],"invalid stores quarantined")
 for _,station in ipairs(e.F_22A.Pylons) do for _,v in ipairs(station.Launchers) do
  assert(v.CLSID~="{GBU32_JDAM}" and v.CLSID~="{MAKO_A2G_C}","quarantined store still offered")
+ if v.CLSID:match("^{AIM") or v.CLSID:match("^{LAU_115_") or v.CLSID=="{MAKO_A2A_C}" then
+  assert(loadouts[v.CLSID],"custom pylon offering has no matching declared loadout: "..v.CLSID)
+ end
 end end
+local failures={}
+for _,v in ipairs(e.F_22A.Failures) do assert(not failures[v.id],"duplicate planned failure");failures[v.id]=true end
+for _,id in ipairs({"hydro","l_engine","r_engine","apu","l_generator","r_generator"}) do assert(failures[id],"missing implemented planned failure") end
 local cm=e.F_22A.passivCounterm
 assert(cm.chaff.default*cm.chaff.chargeSz+cm.flare.default*cm.flare.chargeSz<=cm.SingleChargeTotal,"countermeasures exceed charge budget")
 assert(not e.F_22A.Sensors.IRST and not e.F_22A.Sensors.OPTIC,"no unverified baseline OLS/TADS")

@@ -55,6 +55,24 @@ void callbacks() {
     ed_fm_simulation_event event{}; check(!ed_fm_pop_simulation_event(event),"incoming damage not echoed as structure events");
     ed_fm_set_immortal(true); ed_fm_on_damage(13,0); check(!ed_fm_need_to_be_repaired(),"invulnerability honors host setting");
     ed_fm_set_immortal(false);
+    ed_fm_on_planned_failure(nullptr);ed_fm_on_planned_failure("unknown");
+    check(!ed_fm_need_to_be_repaired(),"unsupported planned failure does not invent a fault");
+    ed_fm_on_planned_failure("l_engine");ed_fm_simulate(.004);
+    near(ed_fm_get_param(ED_FM_ENGINE_1_OPERABILITY_FACTOR),0,0,"planned left-engine fault reaches physics");
+    check(ed_fm_get_param(ED_FM_ENGINE_2_OPERABILITY_FACTOR)>0,"planned engine fault remains independent");
+    check(ed_fm_need_to_be_repaired(),"planned failure requests repair");
+    ed_fm_repair();near(ed_fm_get_param(ED_FM_ENGINE_1_OPERABILITY_FACTOR),1,0,"repair restores planned engine operability");
+    ed_fm_hot_start_in_air();ed_fm_on_planned_failure("hydro");ed_fm_set_command(431,1);ed_fm_simulate(1);
+    float gearArgs[6]{};ed_fm_set_draw_args_v2(gearArgs,6);
+    near(gearArgs[0],0,0,"planned hydraulic failure holds gear without cockpit DLL");
+    ed_fm_repair();ed_fm_simulate(1);ed_fm_set_draw_args_v2(gearArgs,6);
+    check(gearArgs[0]>.2,"repair restores hydraulic actuation");
+    for(const char* id:{"apu","l_generator","r_generator"}) {
+        ed_fm_on_planned_failure(id);check(ed_fm_need_to_be_repaired(),"supply failure requests repair");
+        ed_fm_repair();check(!ed_fm_need_to_be_repaired(),"repair clears supply failure");
+    }
+    ed_fm_on_planned_failure("r_engine");ed_fm_cold_start();
+    check(!ed_fm_need_to_be_repaired(),"new start clears old planned failures");
     // WOW comes from contact, including flight below 50 m AGL.
     ed_fm_hot_start(); ed_fm_set_command(430,1);
     near(ed_fm_get_param(ED_FM_FC3_GEAR_HANDLE_POS),1,0,"ground-start gear inhibit");

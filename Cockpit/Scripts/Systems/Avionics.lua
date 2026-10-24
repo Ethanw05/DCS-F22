@@ -74,15 +74,20 @@ function update()
     bus.set("BINGO_LIGHT",math.max(draw(225),flag(fuel<1500))) -- assumed low-fuel threshold, shared with EFM
     bus.set("FLAPS_MOVE",draw(42));bus.set("FLAPS_DOWN",flag(get_aircraft_draw_argument_value(9)>.95 and get_aircraft_draw_argument_value(10)>.95))
     bus.set("AAR_LIGHT",bus.get("AAR_READY"))
-    local genFault=false
+    local faults={}
     for _,side in ipairs({{"L","LEFT"},{"R","RIGHT"}}) do
         local failed=bus.get("RPM_"..side[1])>40 and bus.get("F22_GEN_"..side[2].."_AVAILABLE")<.5
-        bus.set(side[1].."_GEN_OUT",flag(failed));genFault=genFault or failed
+        bus.set(side[1].."_GEN_OUT",flag(failed));faults[#faults+1]=failed
     end
-    local hyd=bus.get("F22_HYD_LEFT_PSI")<1500 or bus.get("F22_HYD_RIGHT_PSI")<1500
-    local oil=bus.get("L_OIL_COLOR")>.5 or bus.get("R_OIL_COLOR")>.5 or draw(220)>.5
+    local hydLeft=bus.get("F22_HYD_LEFT_PSI")<1500
+    local hydRight=bus.get("F22_HYD_RIGHT_PSI")<1500
+    local hyd=hydLeft or hydRight
+    local oilLeft,oilRight,oilHost=bus.get("L_OIL_COLOR")>.5,bus.get("R_OIL_COLOR")>.5,draw(220)>.5
+    local oil=oilLeft or oilRight or oilHost
     bus.set("HYD_LIGHT",flag(hyd));bus.set("OIL_LIGHT",flag(oil))
-    local faults={genFault,hyd,oil,draw(251)>.5,draw(126)>.5,draw(256)>.5}
+    -- Keep independent failure edges: acknowledging the left supply must not
+    -- silence a later right-supply failure just because the aggregate stayed on.
+    for _,active in ipairs({hydLeft,hydRight,oilLeft,oilRight,oilHost,draw(251)>.5,draw(126)>.5,draw(256)>.5}) do faults[#faults+1]=active end
     local fault=false
     for i,active in ipairs(faults) do
         if active and not previousFault[i] then caution=true end

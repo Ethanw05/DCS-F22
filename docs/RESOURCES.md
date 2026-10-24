@@ -2,7 +2,7 @@
 
 Checked 24 October 2026.
 
-**185 numbered entries.** Start with the [focused reading guide](RESEARCH_GUIDE.md) for avionics, HUD and flight performance. R88–R147 are the 60 additions from the expanded aircraft research pass; R148–R153 add standalone-mod implementation references and an official performance-summary lead. R154–R171 add 18 Chinese-language journal, university and CAAC records; R172 adds official JDAM descriptions. R173–R176 extend the Chinese forum/citation-trail follow-up, which also improves access to R65. R177–R181 add the user-provided cockpit lead, primary equation references and two independent fighter-mod precedents. R182–R185 add the C-130J photograph and game-HUD comparison sources. Supporting methods and access-limited leads are labelled.
+**186 numbered entries.** Start with the [focused reading guide](RESEARCH_GUIDE.md) for avionics, HUD and flight performance. R88–R147 are the 60 additions from the expanded aircraft research pass; R148–R153 add standalone-mod implementation references and an official performance-summary lead. R154–R171 add 18 Chinese-language journal, university and CAAC records; R172 adds official JDAM descriptions. R173–R176 extend the Chinese forum/citation-trail follow-up, which also improves access to R65. R177–R181 add the user-provided cockpit lead, primary equation references and two independent fighter-mod precedents. R182–R185 add the C-130J photograph and game-HUD comparison sources. R186 documents the retained simulator avionics interface. Supporting methods and access-limited leads are labelled.
 
 The [overhaul assessment](OVERHAUL_ASSESSMENT.md) connects the references to the current code. The [standalone design](STANDALONE_DESIGN.md) and [roadmap](OVERHAUL_ROADMAP.md) separate implementable improvements from host-interface uncertainties.
 
@@ -2072,3 +2072,16 @@ DOI: 10.1109/DASC.1996.559202. [Publisher PDF lead](https://ieeexplore.ieee.org/
 **Access/review:** Public screenshot images inspected through image retrieval. Generated image-search captions are not aircraft evidence. No game archive/source obtained.
 
 **Study use and limits:** Another game's distinct presentation, including screen-edge game UI. Its differing HUD is useful evidence that games disagree; it is not authority for F-22 symbology or for copying a combat/guidance implementation.
+
+
+## Retained host avionics interface
+
+<a id="r186"></a>
+
+### R186 — Eagle Dynamics/Belsimtek — DCS F-15C Flaming Cliffs flight manual
+
+[Official PDF](https://www.digitalcombatsimulator.com/upload/iblock/1ad/F-15C%20DCS%20Flaming%20Cliffs%20Flight%20Manual%20EN.pdf) · [Official documentation listing](https://www.digitalcombatsimulator.com/en/downloads/documentation/dcs-f-15c_flight_manual_en/)
+
+**Access/review:** Official 12,414,107-byte PDF downloaded; selected text reviewed for NAV/gunnery (printed pp.47–50) and radar/elevation/TWS (pp.66–70). Web text extraction rejected its size; local PDF text extraction succeeded. Figures were not used as an F-22 symbology reference.
+
+**Study use and limits:** Primary documentation for the simulator avionics backend retained by this mod. Confirms native cannon selection, antenna-elevation control and TWS support. Not evidence for real F-22 APG-77 performance or its exact switch/mode logic. Command IDs and toggle interpretation are cross-checked with this repository's native command definitions; resulting Lua state is an observation of commands, not actual avionics readback. Installed DCS-version behavior still requires testing.

@@ -228,15 +228,20 @@ Vec3 FlightModel::commandMoments(const Environment& e,double dt) {
         +cross(e.angularVelocity,momentum);
 }
 
-std::array<double,data::Count> FlightModel::allocate(const Environment& e,Vec3 requested) {
+std::array<double,data::Count> configurationBias(const Configuration& config,bool refueling) {
     using namespace data;
     std::array<double,Count> common{};
-    // R22: cruise distributed wing/rudder braking; approach uses rudders only.
-    const double wingBrake=config.speedBrake*(1-config.gear);
+    // R22: wing/rudder braking in cruise; rudders only in approach and air refueling.
+    const double wingBrake=refueling ? 0 : config.speedBrake*(1-config.gear);
     common[AileronLeft]=common[AileronRight]=-radians(15)*wingBrake;
-    common[FlaperonLeft]=common[FlaperonRight]=radians(20)*config.flaps+radians(10)*wingBrake;
+    common[FlaperonLeft]=common[FlaperonRight]=radians(35)*config.flaps+radians(10)*wingBrake;
     common[RudderLeft]=-radians(20)*config.speedBrake;
     common[RudderRight]=radians(20)*config.speedBrake;
+    return common;
+}
+std::array<double,data::Count> FlightModel::allocate(const Environment& e,Vec3 requested) {
+    using namespace data;
+    auto common=configurationBias(config,input.refueling);
     for(std::size_t i=0;i<Count;++i) if(health.actuator[i]<=0) common[i]=surface[i];
     const Wrench base=effectorForces(e,air,config,health,engines,common);
     const Wrench aero=aerodynamicForces(e,air,config,health,static_cast<double>(fuel.external.size())).wrench;
@@ -284,7 +289,13 @@ void FlightModel::substep(double dt,const Environment& e) {
     config.speedBrake=approach(config.speedBrake,input.speedBrake ? 1 : 0,.7*health.hydraulic,dt);
     const double leadingTarget=clamp((degrees(air.alpha)-5)/25,0,1)*(1-smoothStep(.8,1.2,air.mach));
     config.leadingEdge=approach(config.leadingEdge,leadingTarget,30.0/35.0*health.hydraulic,dt);
-    const double flapTarget=(input.manualFlaps||input.gearDown) ? 1-smoothStep(220,300,air.eas*1.943844) : 0;
+    // R22 gives 35 degrees normal / 20 degrees single-engine approach. Automatic
+    // cutoff/damage selection and the EAS retraction blend are our approximations.
+    const bool leftAvailable=input.engineRun[0]&&health.engine[0]>.25;
+    const bool rightAvailable=input.engineRun[1]&&health.engine[1]>.25;
+    const double landingFraction=leftAvailable!=rightAvailable ? 20.0/35.0 : 1;
+    const double flapTarget=(input.manualFlaps||input.gearDown) ?
+        landingFraction*(1-smoothStep(220,300,air.eas*1.943844)) : 0;
     config.flaps=approach(config.flaps,flapTarget,2*health.hydraulic,dt);
     for(std::size_t i=0;i<2;++i)
         engines[i].advance(dt,input.throttle[i],input.engineRun[i],fuel.usable()>0,health.engine[i],e,air);

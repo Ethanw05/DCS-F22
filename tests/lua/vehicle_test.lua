@@ -15,6 +15,11 @@ local a,b=Vehicle.New(true),Vehicle.New(true)
 for _=1,1000 do Vehicle.Step(a,.01,{0,0},false) end
 for _=1,100 do Vehicle.Step(b,.1,{0,0},false) end
 assert(math.abs(a.hydraulic[1]-b.hydraulic[1])<1e-7,"time-based pressure decay")
+local gpu=Vehicle.New(false);gpu.batteryAh=10;Vehicle.Step(gpu,.1,{0,0},true)
+assert(gpu.startAvailable and not gpu.apuReady,"ground start supply is not APU ready")
+assert(gpu.batteryAh==10,"disconnected battery does not charge")
+s.apuRequest=true;s.apu=1;Vehicle.Step(s,.02,{70,70},false,{apu=true})
+assert(not s.apuReady and not s.apuRequest,"APU failure removes generation and requires restart")
 h=Host.New(root);h.env.LockOn_Options.init_conditions.birth_place="GROUND_COLD"
 h.sensor.getWOW_NoseLandingGear=1
 h:load("Cockpit/Scripts/Systems/Engine_System.lua");h.env.post_initialize()
@@ -24,4 +29,8 @@ h:command(10056,0);h:command(10057,1);h:step(.02)
 assert(h.parameters.F22_BRAKE_LEFT==.5 and h.parameters.F22_BRAKE_RIGHT==1)
 h:command(10659,1);h:command(10660,1);h:command(10661,1);h:step(.02)
 assert(h.parameters.F22_BRAKE_LEFT==.5 and h.parameters.F22_BRAKE_RIGHT==1,"left release preserves right request")
+h.sensor.getEngineLeftRPM=70;h.sensor.getEngineRightRPM=70;h.draws[208]=1;h:step(10)
+assert(h.parameters.F22_HYD_LEFT_PSI>3900,"legacy low-pressure indication cannot fail physical pumps")
+h.parameters.F22_FAIL_HYD_COMMON=1;h:step(40)
+assert(h.parameters.F22_HYD_LEFT_PSI<10 and h.parameters.F22_HYD_RIGHT_PSI<10,"explicit common failure disables both pumps")
 print("PASS vehicle supplies, APU interruption, hydraulic faults, time consistency and engine/brake commands")

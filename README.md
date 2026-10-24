@@ -4,6 +4,7 @@ This project starts from [Grinnelli Designs’ F-22A](https://github.com/grinnel
 
 - [Overhaul test build](docs/TEST_BUILD.md): install overlay, new NAV HUD, rewritten active cockpit systems and simulator test sequence.
 - [System implementation/evidence](docs/OVERNIGHT_OVERHAUL.md): completed changes, per-system references, assumptions and remaining work.
+- [Final system review](docs/FINAL_SYSTEM_REVIEW.md): follow-up code/evidence/change/check record for flight configuration, supplies, failures, HUD, warnings, radar controls and stores.
 - [F-22 / C-130J / game HUD picture comparison](docs/HUD_REFERENCE_COMPARISON.md): inspected sources and provenance limits.
 - [Experimental flight-model replacement](docs/FLIGHT_MODEL.md): new physics, engine/TVC and control implementation, assumptions and numerical verification; DCS validation pending.
 - [Standalone follow-up](docs/STANDALONE_FOLLOWUP.md): independent combat-mod precedents and the remaining F-15C dependency inventory.
@@ -14,7 +15,7 @@ This project starts from [Grinnelli Designs’ F-22A](https://github.com/grinnel
 - [Overhaul assessment](docs/OVERHAUL_ASSESSMENT.md): dependency map, 23 source-backed findings and reproduced numerical defects.
 - [Standalone design](docs/STANDALONE_DESIGN.md): replacement architecture and the radar/weapon integration experiment needed to remove the F-15C prerequisite.
 - [Overhaul roadmap](docs/OVERHAUL_ROADMAP.md): ordered implementation work and completion criteria.
-- [Study resources](docs/RESOURCES.md): 185 public aircraft, display and engineering references, with access and evidence limits.
+- [Study resources](docs/RESOURCES.md): 186 public aircraft, display, engineering and host-interface references, with access and evidence limits.
 - [Focused reading guide](docs/RESEARCH_GUIDE.md): avionics, HUD, thrust vectoring and flight performance, with page/figure pointers.
 - Clone with Git LFS installed and run `git lfs pull` to retrieve model, texture, audio and other large assets.
 - The inherited DCS/F-15C dependency still applies. Proprietary DCS binaries and original 3D authoring projects are not supplied by the public source repository.

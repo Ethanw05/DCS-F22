@@ -230,6 +230,9 @@ F_22A =
 	},
 
 	Failures = {
+			{ id = 'apu', label = _('APU'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
+			{ id = 'l_generator', label = _('LEFT GENERATOR'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
+			{ id = 'r_generator', label = _('RIGHT GENERATOR'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
 			{ id = 'asc', 		label = _('ASC'), 		enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
 			{ id = 'autopilot', label = _('AUTOPILOT'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
 			{ id = 'hydro',  	label = _('HYDRO'), 	enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
@@ -313,7 +316,7 @@ F_22A =
 		        { CLSID = "{AIM-120C-7}",attach_point_position = {0.1, -0.14, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},	
 				{ CLSID = "{AIM-120C-8}",attach_point_position = {0.1, -0.14, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},
 				{ CLSID = "{AIM-120D-3}",attach_point_position = {0.1, -0.14, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},			
-				{ CLSID = "{LAU_115_2xAIM9X-II}}"  ,attach_point_position = {-0.3, -0.16, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},
+				{ CLSID = "{LAU_115_2xAIM9X-II}"  ,attach_point_position = {-0.3, -0.16, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},
 		        { CLSID = "{LAU_115_2xAIM-120C-7}" ,attach_point_position = {-0.7, -0.16, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},
 				{ CLSID = "{LAU_115_2xAIM-120C-8}" ,attach_point_position = {-0.7, -0.16, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},
 				{ CLSID = "{LAU_115_2xAIM-120D-3}" ,attach_point_position = {-0.7, -0.16, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},
