@@ -110,6 +110,20 @@ local parameters =
 	YAWRATE	         	 = get_param_handle("YAWRATE"),
 }
 
+	HUD_POWER = get_param_handle("HUD_POWER"),
+	HUD_PITCH = get_param_handle("HUD_PITCH"),
+	HUD_ROLL = get_param_handle("HUD_ROLL"),
+	HUD_FPA = get_param_handle("HUD_FPA"),
+	HUD_SLIP = get_param_handle("HUD_SLIP"),
+	HUD_IAS_POINTER = get_param_handle("HUD_IAS_POINTER"),
+	HUD_ALT_POINTER = get_param_handle("HUD_ALT_POINTER"),
+	HUD_HEADING_OFFSET = get_param_handle("HUD_HEADING_OFFSET"),
+	HUD_TICK_M20 = get_param_handle("HUD_TICK_M20"),
+	HUD_TICK_M10 = get_param_handle("HUD_TICK_M10"),
+	HUD_TICK_C00 = get_param_handle("HUD_TICK_C00"),
+	HUD_TICK_P10 = get_param_handle("HUD_TICK_P10"),
+	HUD_TICK_P20 = get_param_handle("HUD_TICK_P20"),
+
 local day_night = 0
 
 -- Clickable data
@@ -234,6 +248,32 @@ function update()
 	parameters.YAWRATE      :set(sensor_data.getRateOfYaw()/math.pi*180)-- Testing
 	parameters.AOA			:set(sensor_data.getAngleOfAttack()/math.pi*180)
 	parameters.VV			:set(sensor_data.getVerticalVelocity()* 196.85)
+    -- Independent experimental HUD data model. Airspeed/altitude and attitude
+    -- are sensor-derived. C-130-style heading tape is a deliberately hybrid choice.
+    local pitch = sensor_data.getPitch()
+    local roll = sensor_data.getRoll()
+    local heading = (360 - sensor_data.getHeading() * 180 / math.pi) % 360
+    local ias = math.max(0, sensor_data.getIndicatedAirSpeed() * 1.943844492)
+    local alt_ft = math.max(0, sensor_data.getBarometricAltitude() * 3.280839895)
+    local tas = math.max(1.0, sensor_data.getTrueAirSpeed())
+    local climb = sensor_data.getVerticalVelocity()
+    local flight_path = math.atan(climb / tas)
+
+    parameters.HUD_POWER:set((parameters.MAIN_POWER:get() == 1 and parameters.BATTERY_POWER:get() == 1) and 1 or 0)
+    parameters.HUD_PITCH:set(pitch)
+    parameters.HUD_ROLL:set(-roll)
+    parameters.HUD_FPA:set(flight_path)
+    parameters.HUD_SLIP:set(sensor_data.getAngleOfSlide())
+    parameters.HUD_IAS_POINTER:set((ias % 100.0) * (2.0 * math.pi / 100.0))
+    parameters.HUD_ALT_POINTER:set((alt_ft % 1000.0) * (2.0 * math.pi / 1000.0))
+    local heading_base = math.floor(heading / 10.0) * 10
+    parameters.HUD_HEADING_OFFSET:set(heading - heading_base)
+    parameters.HUD_TICK_M20:set((heading_base - 20) % 360)
+    parameters.HUD_TICK_M10:set((heading_base - 10) % 360)
+    parameters.HUD_TICK_C00:set(heading_base % 360)
+    parameters.HUD_TICK_P10:set((heading_base + 10) % 360)
+    parameters.HUD_TICK_P20:set((heading_base + 20) % 360)
+
 	parameters.MACH			:set(sensor_data.getMachNumber())
 	--parameters.NAV          :set(360 - sensor_data.getHeading()/math.pi*180) -- Working, don't change
 	hdg_int = math.floor(360 - sensor_data.getHeading()/math.pi*180)

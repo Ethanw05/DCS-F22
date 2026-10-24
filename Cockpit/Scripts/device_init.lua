@@ -43,6 +43,13 @@ creators[devices.ICP_SYSTEM]			 = {"avLuaDevice"		    ,LockOn_Options.script_pat
 --creators[devices.KNEEBOARD] = {"avKneeboard",LockOn_Options.common_script_path.."KNEEBOARD/device/init.lua"}
 
 indicators = {}
+-- Standalone experimental HUD: optical alignment/EDM connector still requires DCS verification.
+indicators[#indicators + 1] = {"ccIndicator", LockOn_Options.script_path.."HUD/init.lua",
+    nil,
+    {
+        {"HUD-CENTER", "HUD-DOWN", "HUD-RIGHT"}
+    }
+}
 --PFD LEFT
 indicators[#indicators + 1] = {"ccIndicator", LockOn_Options.script_path.."UFD_LEFT/init.lua",
 	nil,
