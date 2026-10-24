@@ -108,8 +108,6 @@ local parameters =
 	MACH	         	 = get_param_handle("MACH"),
 	PITCHRATE	         = get_param_handle("PITCHRATE"),
 	YAWRATE	         	 = get_param_handle("YAWRATE"),
-}
-
 	HUD_POWER = get_param_handle("HUD_POWER"),
 	HUD_PITCH = get_param_handle("HUD_PITCH"),
 	HUD_ROLL = get_param_handle("HUD_ROLL"),
@@ -123,6 +121,7 @@ local parameters =
 	HUD_TICK_C00 = get_param_handle("HUD_TICK_C00"),
 	HUD_TICK_P10 = get_param_handle("HUD_TICK_P10"),
 	HUD_TICK_P20 = get_param_handle("HUD_TICK_P20"),
+}
 
 local day_night = 0
 

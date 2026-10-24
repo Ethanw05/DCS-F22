@@ -11,6 +11,10 @@ local function add_base(e, name, parent)
     e.collimated = true
     e.h_clip_relation = h_clip_relations.COMPARE
     e.level = 0
+    if not e.controllers then
+        e.element_params = {"HUD_POWER"}
+        e.controllers = {{"opacity_using_parameter",0}}
+    end
     if parent then e.parent_element = parent end
     Add(e)
     return e
