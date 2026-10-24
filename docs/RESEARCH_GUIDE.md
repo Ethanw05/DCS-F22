@@ -1,14 +1,16 @@
 # Avionics, HUD and flight-performance reading guide
 
-Research pass: 24 October 2026. The [main catalogue](RESOURCES.md) contains **153 numbered entries**. The expanded aircraft pass added 60: 13 HUD/cockpit/display references, 24 avionics/integration references and 23 flight-control/performance references. The overhaul assessment added six implementation/performance sources, R148–R153. These include explicitly labelled supporting research on other aircraft and bibliographic leads; they are not 153 complete F-22 technical manuals. Companion links and unresolved report editions are grouped.
+Research pass: 24 October 2026. The [main catalogue](RESOURCES.md) contains **172 numbered entries**. The expanded aircraft pass added 60: 13 HUD/cockpit/display references, 24 avionics/integration references and 23 flight-control/performance references. The first overhaul assessment added six sources, R148–R153. The Chinese-language pass adds 18 records, R154–R171; R172 adds official JDAM descriptions. These include explicitly labelled supporting research on other aircraft and bibliographic leads; they are not 172 complete F-22 technical manuals. Companion links and unresolved report editions are grouped.
 
 For implementation, read the [code assessment](OVERHAUL_ASSESSMENT.md), [standalone design](STANDALONE_DESIGN.md) and [roadmap](OVERHAUL_ROADMAP.md). The assessment separates reproduced numerical defects from fidelity gaps and untested DCS integration assumptions.
+
+The expanded [16-system audit](audit/README.md) is the current review record and keeps implementation deferred. The [Chinese research report](CHINESE_RESEARCH.md) explains source selection and manual-search outcomes. Each system review identifies applicable references and their limits.
 
 ## Start here
 
 | Study goal | Read first | What to look for |
 | --- | --- | --- |
-| Actual F-22 HUD appearance | [R01](RESOURCES.md#r01), [R02](RESOURCES.md#r02), [R03](RESOURCES.md#r03) | Manufacturer rig footage and the published F-22 illustration; preserve their dates and shared provenance. |
+| Actual F-22 HUD appearance | [R02](RESOURCES.md#r02), [R03](RESOURCES.md#r03), historical corroboration [R01](RESOURCES.md#r01) | Published F-22 illustration is the main appearance reference; R03 reproduces R02. Manufacturer rig footage is not the principal reference. |
 | Why the flight symbology looks that way | [R99](RESOURCES.md#r99), [R91](RESOURCES.md#r91), [R92](RESOURCES.md#r92) | Counter-pointers, attitude references and display dynamics; general research does not establish exact F-22 modes. |
 | Cockpit/display responsibilities | [R09](RESOURCES.md#r09), [R06](RESOURCES.md#r06), [R07](RESOURCES.md#r07), [R125](RESOURCES.md#r125) | Architecture, controls, displays and synoptics. Two original cockpit papers still need full-text access. |
 | Radar and integrated avionics | [R101](RESOURCES.md#r101), [R121](RESOURCES.md#r121), [R104](RESOURCES.md#r104) | APG-77 development, core-processing recovery and CNI. |
@@ -18,6 +20,9 @@ For implementation, read the [code assessment](OVERHAUL_ASSESSMENT.md), [standal
 | CFD/model validation | [R127](RESOURCES.md#r127), [R147](RESOURCES.md#r147), [R146](RESOURCES.md#r146) | Distinguish flight measurements, simulation output, relative-error plots and conceptual estimates. |
 | Later avionics configurations | [R108](RESOURCES.md#r108), [R109](RESOURCES.md#r109), [R107](RESOURCES.md#r107), [R38](RESOURCES.md#r38), [R80](RESOURCES.md#r80) | Record whether each source describes a test, contract, first delivery or operational installation. |
 | Removing the paid-aircraft prerequisite | [R86](RESOURCES.md#r86), [R87](RESOURCES.md#r87), [R148–R152](RESOURCES.md#r148) | Core device capability, compiled-component boundaries, reuse terms and the need to prove actual missile support separately from display tracks. |
+| Chinese architecture/control studies | [R154–R155](RESOURCES.md#r154), [R159–R161](RESOURCES.md#r159), [R168–R169](RESOURCES.md#r168) | Integrated computing, allocation and nozzle-state separation; methods do not supply production F-22 gains or F119 schedules. |
+| Chinese HUD evaluation studies | [R156–R158](RESOURCES.md#r156) | Character readability, workload and civil projection concepts; not a Raptor symbol handbook. |
+| Chinese aero/sensor modeling | [R162–R167](RESOURCES.md#r162), [R170–R171](RESOURCES.md#r170) | Model provenance, limited conditions, timestamps and assumed scenarios; reconstructed aircraft are not measured F-22 data. |
 
 ## Useful page and figure pointers
 

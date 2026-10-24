@@ -2,9 +2,11 @@
 
 Checked 24 October 2026.
 
-**153 numbered entries.** Start with the [focused reading guide](RESEARCH_GUIDE.md) for avionics, HUD and flight performance. R88–R147 are the 60 additions from the expanded aircraft research pass; R148–R153 add standalone-mod implementation references and an official performance-summary lead. Supporting methods and access-limited leads are labelled.
+**172 numbered entries.** Start with the [focused reading guide](RESEARCH_GUIDE.md) for avionics, HUD and flight performance. R88–R147 are the 60 additions from the expanded aircraft research pass; R148–R153 add standalone-mod implementation references and an official performance-summary lead. R154–R171 add 18 Chinese-language journal, university and CAAC records; R172 adds official JDAM descriptions. Supporting methods and access-limited leads are labelled.
 
 The [overhaul assessment](OVERHAUL_ASSESSMENT.md) connects the references to the current code. The [standalone design](STANDALONE_DESIGN.md) and [roadmap](OVERHAUL_ROADMAP.md) separate implementable improvements from host-interface uncertainties.
+
+The expanded [16-system code audit](audit/README.md) maps applicable resources to each system. The [Chinese-language research report](CHINESE_RESEARCH.md) records search scope, review depth and rejected/unverified manual leads.
 
 Study references for developing this mod from the Grinnelli F-22A baseline. It includes primary technical material, official public documents, manufacturer announcements, and explicitly labelled implementation sources. Access status is part of each entry: a discovered title or indexed excerpt is not presented as a fully reviewed paper. Mirrors and companion publication records are grouped where possible. The catalogue is a bounded public-source collection, not a claim to contain all information that exists.
 
@@ -1732,3 +1734,201 @@ DOI: 10.1109/DASC.1996.559202. [Publisher PDF lead](https://ieeexplore.ieee.org/
 **Study use:** Indexed official summary lists +9 g and internal fuel of approximately 18,000 lb / 8,200 kg. Useful as a high-level cross-check against inconsistent mod constants.
 
 **Limits:** A 2019 media summary, not a full flight manual, limiter schedule or structural-loads specification. Do not use it to infer transient overshoot, override logic or the complete performance envelope.
+
+## Chinese-language research: architecture and display methods
+
+<a id="r154"></a>
+
+### R154 — Chen Yuanzhi and Mao Shiyi — 先进航空信息处理机介绍, 1997
+
+[Publisher](https://hkxb.buaa.edu.cn/CN/abstract/abstract13332.shtml)
+
+**Access/review:** Publisher abstract and metadata reviewed. *航空学报*, 18(4), 477–480; English title: *Introduction to Advanced Avionics Core Processor*.
+
+**Study use and limits:** Historical architecture analysis based on F-22 CIP. Useful for mission processing boundaries and data ownership. Not manufacturer source code, a current hardware inventory or proof of exact tactical algorithms. [Publisher PDF link](https://hkxb.buaa.edu.cn/CN/article/downloadArticleFile.do?attachType=PDF&id=13332) discovered; full PDF not reviewed in this pass.
+
+<a id="r155"></a>
+
+### R155 — Chen Zongji et al. — 先进战斗机的飞行控制计算机系统研究, 2007
+
+[Publisher](https://hkxb.buaa.edu.cn/CN/Y2007/V28/I4/935) · [PDF](https://hkxb.buaa.edu.cn/CN/article/downloadArticleFile.do?attachType=PDF&id=9122)
+
+**Access/review:** Eight-page PDF retrieved; architecture discussion and reference trail inspected. *航空学报*, 28(4), 935–942; English title: *Study on Flight Control Computer Systems of Advanced Fighters*.
+
+**Study use and limits:** F-22/JSF vehicle/mission computing and integrated control architecture. Useful for separating controller, vehicle-system and mission-avionics ownership. A research analysis, not complete production scheduling laws, redundancy software or a flight manual. Bibliography points to AGARD AR-343; that report was not reviewed here.
+
+<a id="r156"></a>
+
+### R156 — Zhou Yingwei et al. — 显示界面字符编码工效设计与分析, 2013
+
+[Publisher](https://bhxb.buaa.edu.cn/bhzk/article/id/12642)
+
+**Access/review:** Publisher abstract reviewed. *北京航空航天大学学报*, 2013(6), 761–765; English title: *Ergonomic design and analysis of character coding on display interface*.
+
+**Study use and limits:** Experimental character-recognition/readability work, including lighting/color effects. Supports display evaluation. Generic human factors, not F-22 fonts, symbol dimensions or brightness schedules; full experimental paper not reviewed.
+
+<a id="r157"></a>
+
+### R157 — Zhang Ningning, Bu Tianze and Ren Hong — 基于心理负荷的通航飞机平视显示设计, 2023
+
+[Publisher](https://xuebao.sau.edu.cn/CN/10.3969/j.issn.2095-1248.2023.05.011) · [PDF](https://cjournal.hep.com.cn/2095-1248/CN/PDF/10.3969/j.issn.2095-1248.2023.05.011)
+
+**Access/review:** Eight-page PDF retrieved; methods/results inspected. *沈阳航空航天大学学报*, 40(5), 82–89. English title: *Head-up display design of general aviation aircraft based on mental workload*.
+
+**Study use and limits:** Simulator workload/eye-tracking evaluation provides an example of evaluating HUD presentation. Uses a Cessna-based simulation, not an F-22. Do not copy its symbols as aircraft-authentic.
+
+<a id="r158"></a>
+
+### R158 — CAAC — 平视显示器（HUD)—适合中国的新技术, 2015
+
+[Official page](https://www.caac.gov.cn/PHONE/ZTZL/RDZT/XJSYY/201511/t20151126_15085.html)
+
+**Access/review:** Public presentation page reviewed; posted 26 November 2015.
+
+**Study use and limits:** Civil HUD/HGS explanation of conformal guidance, flight-path information and presentation. Supports projection/flight-guidance concepts. Not military symbology or a specification for the Raptor's HUD optics, tactical modes or control priorities.
+
+## Chinese-language research: control, propulsion and aerodynamics
+
+<a id="r159"></a>
+
+### R159 — Shen Gongzhang et al. — 综合飞行推力矢量控制系统设计与仿真
+
+[Publisher-platform record](https://www.spacejournal.cn/article/id/bjhkhtdxxb_11618)
+
+**Access/review:** Publisher-platform abstract reviewed; indexed as 1998. English title: *Design and Simulation of Integrated Flight/Vectored Thrust Control System*.
+
+**Study use and limits:** Integrated control/allocation methodology and nonlinear simulation. Useful for separating commanded response from effector commands. Generic study, not recovered F-22 control gains or performance. Full equations/results not reviewed here.
+
+<a id="r160"></a>
+
+### R160 — Peng Kemao, Shen Gongzhang and Wen Chuanyuan — 起飞模态的综合飞行矢量喷管控制系统设计, 1998
+
+[Publisher](https://bhxb.buaa.edu.cn/bhzk/article/id/11623)
+
+**Access/review:** Publisher abstract reviewed. *北京航空航天大学学报*, 24(3), 283–286.
+
+**Study use and limits:** Takeoff-mode integrated flight/nozzle control in multiple modeled configurations. Helps frame configuration-aware validation. The aircraft/control arrangement is not established as the F-22; simulated takeoff benefits cannot become Raptor takeoff-distance data.
+
+<a id="r161"></a>
+
+### R161 — Zhang Ping and Chen Zongji — 推力矢量对飞机操纵面失效的补偿与重构, 2002
+
+[Publisher](https://bhxb.buaa.edu.cn/bhzk/article/id/10816)
+
+**Access/review:** Publisher abstract reviewed. *北京航空航天大学学报*, 28(3), 257–260; English title: *Reconfiguration of Control Surface Faults with Thrust Vectoring Technique*.
+
+**Study use and limits:** Failed-effector compensation/allocation methods. The nozzle assumptions are not the F119's two-dimensional pitch-vector system; do not infer direct yaw vectoring or production fault-reconfiguration logic for F-22.
+
+<a id="r162"></a>
+
+### R162 — Zhang Wanxin and Zhu Jihong — 大迎角非定常气动参数辨识研究, 2017
+
+[Publisher](https://jst.tsinghuajournals.com/CN/10.16511/j.cnki.qhdxxb.2017.25.021)
+
+**Access/review:** Publisher record and indexed abstract reviewed. *清华大学学报（自然科学版）*, 57(7), 673–679. DOI: 10.16511/j.cnki.qhdxxb.2017.25.021.
+
+**Study use and limits:** High-alpha unsteady identification using a model described as F-22-like. Useful methodology for continuity/history dependence and validation. A reported model-fit error does not establish equal accuracy for a full-size production aircraft. No real-aircraft coefficient database was obtained.
+
+<a id="r163"></a>
+
+### R163 — Tseng Pin-Chi — 匿蹤戰機尾翼外型設計在不同馬赫數下之空氣動力性能模擬分析, 2020
+
+[NCKU thesis record](https://thesis.lib.ncku.edu.tw/thesis/detail/b4e2307c917cf83f3567e50732eea213/)
+
+**Access/review:** Institutional abstract and contents reviewed; 127-page master's thesis, full thesis not inspected.
+
+**Study use and limits:** CFD comparison of reconstructed F-22 baseline and proposed tail configurations. Useful for examining sensitivity to geometry and conditions. Alternative tails and model geometry do not describe production F-22 performance; no measured aircraft calibration established.
+
+<a id="r164"></a>
+
+### R164 — Huang Po-Hsun — 似F-22模型於低速低攻角下襟翼及升降舵作動之氣動研究, 2021
+
+[NCKU thesis record](https://thesis.lib.ncku.edu.tw/thesis/detail/fae32d87a0cfc7a02b2a353754a88df5/)
+
+**Access/review:** Institutional abstract/record reviewed; 133-page master's thesis, full thesis not inspected.
+
+**Study use and limits:** Control-surface CFD of an F-22-like model at limited conditions. Useful as a control-effectiveness study lead. Neither geometry fidelity nor full-scale flight validation is established; its coefficients cannot be treated as a production aerodynamic deck.
+
+<a id="r165"></a>
+
+### R165 — Chen Zhenyu — 匿蹤戰機外型設計對雷達散射截面之模擬分析
+
+[NCKU research record](https://researchoutput.ncku.edu.tw/en/studentTheses/simulation-analysis-of-radar-cross-section-for-exterior-component/) · [Institutional repository](https://nckur.lib.ncku.edu.tw/handle/987654321/242726?locale=en-US)
+
+**Access/review:** Institutional thesis metadata/abstract reviewed; full thesis not inspected. English title: *Simulation Analysis of Radar Cross Section for Exterior Component Design of Stealth Fighter*.
+
+**Study use and limits:** Reconstructed-shape RCS analysis with restrictive geometry/material/frequency assumptions. Supports caution about scalar signature claims. Not measured F-22 RCS, a material specification or validation of the mod's 0.0001 m² value. Publication year/degree are not relied on in this audit.
+
+<a id="r166"></a>
+
+### R166 — Wang Haifeng et al. — 战斗机大迎角气动特性研究技术的发展与应用, 2022
+
+[Publisher](https://kqdlxxb.xml-journal.net/article/doi/10.7638/kqdlxxb-2021.0306)
+
+**Access/review:** Publisher abstract and indexed selected material reviewed. *空气动力学学报*, 40(1), 1–25. DOI: 10.7638/kqdlxxb-2021.0306.
+
+**Study use and limits:** High-alpha modeling/database/validation review. Useful for coupled aero/motion/control validation and separating data acquisition from model fit. Reused F-22 figures are not independent flight measurements; follow original references. Complete article not reviewed.
+
+<a id="r167"></a>
+
+### R167 — Xiang Huan et al. — 战斗机大迎角/过失速机动下的进气道气动特性, 2020
+
+[Publisher full HTML](https://hkxb.buaa.edu.cn/CN/html/20200616.html)
+
+**Access/review:** Selected public HTML methods/validation sections reviewed. *航空学报*, 41(6), 523460. DOI: 10.7527/S1000-6893.2019.23460.
+
+**Study use and limits:** Intake behavior across high-alpha/post-stall conditions and comparison methods. Supports evaluating inlet/engine coupling. The studied fighter is not established here as F-22; do not import its distortion/pressure-recovery results as F119 inlet data.
+
+<a id="r168"></a>
+
+### R168 — Wang Haifeng — 高性能战斗机与发动机协同设计关键技术, 2024
+
+[Publisher full HTML](https://hkxb.buaa.edu.cn/article/2024/1000-6893/1000-6893-2024-45-5-529978.shtml)
+
+**Access/review:** Selected integration/nozzle sections reviewed, including F119 illustration in section 5.3. *航空学报*, 45(5), 529978. DOI: 10.7527/S1000-6893.2024.29978.
+
+**Study use and limits:** Airframe/engine integration review and a bibliography trail. Does not supply an installed F119 deck or production nozzle schedules. Distinguish mechanical vectoring from fluidic concepts described elsewhere in this literature.
+
+<a id="r169"></a>
+
+### R169 — Qi Dongxing et al. — 航空发动机二元矢量喷管控制系统设计及验证, 2023
+
+[Publisher](https://qikan.cmes.org/yyyqd/CN/10.11832/j.issn.1000-4858.2023.06.021)
+
+**Access/review:** Publisher metadata and indexed abstract reviewed; dynamically loaded abstract was unavailable in direct page extraction. *液压与气动*, 47(6), 163–172. DOI: 10.11832/j.issn.1000-4858.2023.06.021.
+
+**Study use and limits:** Distinguishes throat/exit-area and vector controls, redundancy and fault-safe concerns. Useful architectural comparison for simulated actuators. Unnamed engine; no claim that its numerical response, pressures or controller are those of F119. Full paper not reviewed.
+
+## Chinese-language research: sensor methods
+
+<a id="r170"></a>
+
+### R170 — Yi Xiao, Du Jinpeng and Cao Xinying — 异地配置的雷达与电子支援措施异步航迹关联, 2021
+
+[Publisher](https://www.sys-ele.com/CN/10.12305/j.issn.1001-506X.2021.04.12) · [Publisher issue/citation](https://www.sys-ele.com/CN/volumn/volumn_238.shtml)
+
+**Access/review:** Publisher-indexed abstract and citation reviewed; direct article retrieval failed. *系统工程与电子技术*, 43(4), 954–960. DOI: 10.12305/j.issn.1001-506X.2021.04.12.
+
+**Study use and limits:** General asynchronous radar/ESM track association. Useful for timestamp/source handling and test design. Not an ALR-94/APG-77 implementation, geolocation-accuracy specification or sensor range source. Full algorithm/results not reviewed.
+
+<a id="r171"></a>
+
+### R171 — Li Taotao et al. — 舰载战斗机多传感器协同探测模型设计与仿真, 2023
+
+[Publisher full HTML](https://www.zhkzyfz.cn/CN/abstract/article/1673-3819/1071)
+
+**Access/review:** Selected public HTML model/scenario sections reviewed. *指挥控制与仿真*, 45(5), 36–42. DOI: 10.3969/j.issn.1673-3819.2023.05.006.
+
+**Study use and limits:** Modular simulation and cooperative-sensing scenario design. Hypothetical carrier fighter and assumed detection ranges; no F-22 calibration or DCS targeting API evidence. Do not transfer its scenario numbers into the mod as real radar performance.
+
+## Additional weapon-identity cross-check
+
+<a id="r172"></a>
+
+### R172 — US Navy / National Museum of the USAF — JDAM descriptions
+
+[US Navy fact file](https://www.navy.mil/Resources/Fact-Files/Display-FactFiles/Article/2166820/joint-direct-attack-munition-jdam/) · [USAF museum GBU-31/32 record](https://www.nationalmuseum.af.mil/Visit/Museum-Exhibits/Fact-Sheets/Display/Article/197589/gbu-3132-joint-direct-attack-munitions-jdam/)
+
+**Access/review:** Official indexed descriptions reviewed; direct retrieval returned 403.
+
+**Study use and limits:** Establishes JDAM as an inertial/GPS guided-bomb kit, relevant to the current air-to-air classification and absent coordinate-guidance implementation. Does not specify DCS custom-weapon fields or provide a full real-aircraft launch-acceptability model.
