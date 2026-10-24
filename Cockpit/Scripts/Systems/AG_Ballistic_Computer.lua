@@ -4,6 +4,7 @@ local dev=GetSelf()
 local data=get_base_data()
 local ballistic=dofile(LockOn_Options.script_path.."Systems/Ballistic_Point_Mass.lua")
 local project=dofile(LockOn_Options.script_path.."Systems/NavGeometry.lua")
+local ccrp=dofile(LockOn_Options.script_path.."Systems/AG_Release_Geometry.lua")
 local cadence=0.10
 make_default_activity(cadence)
 local power=get_param_handle("MAIN_POWER")
@@ -15,12 +16,19 @@ local azOut=get_param_handle("HUD_AG_CCIP_AZ_RAD")
 local elOut=get_param_handle("HUD_AG_CCIP_EL_RAD")
 local tofOut=get_param_handle("HUD_AG_CCIP_TOF_SEC")
 local rangeOut=get_param_handle("HUD_AG_CCIP_RANGE_NM")
+local markValid=get_param_handle("HUD_AG_TARGET_VALID")
+local markNorth=get_param_handle("HUD_AG_MARK_NORTH")
+local markEast=get_param_handle("HUD_AG_MARK_EAST")
+local markAlt=get_param_handle("HUD_AG_MARK_ALT")
+local ccrpValid=get_param_handle("HUD_AG_CCRP_EST_VALID")
+local ccrpSeconds=get_param_handle("HUD_AG_CCRP_TIME_SEC")
 local terrain=nil
 local previous=nil
 local previousTime=nil
 local function clear()
     estimate:set(0)
     cue:set(0)
+    ccrpValid:set(0)
     tofOut:set(0)
     rangeOut:set(0)
 end
@@ -55,11 +63,23 @@ function update()
     local vu=(pos.h-previous.h)/dt
     previous=pos
     previousTime=now
-    if power:get()<0.5 or mode:get()~=7 or submode:get()~=2 or
-       not terrain or dt<0.02 or math.sqrt(vn*vn+ve*ve)<30 then
+    if power:get()<0.5 or mode:get()~=7 or dt<0.02 or
+       math.sqrt(vn*vn+ve*ve)<30 then
         clear()
         return
     end
+    if submode:get()==3 then
+        clear()
+        if markValid:get()<0.5 then return end
+        local solution=ccrp.timeToRelease(pos.n,pos.e,pos.h,vn,ve,vu,
+            markNorth:get(),markEast:get(),markAlt:get())
+        if solution then
+            ccrpValid:set(1)
+            ccrpSeconds:set(solution.seconds)
+        end
+        return
+    end
+    if submode:get()~=2 or not terrain then clear();return end
     local result=ballistic.impact(pos.n,pos.e,pos.h,vn,ve,vu,
         function(n,e) return terrain.GetHeight(n,e) end)
     if not result then clear();return end

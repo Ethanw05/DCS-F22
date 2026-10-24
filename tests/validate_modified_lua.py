@@ -23,6 +23,7 @@ SCRIPTS = [
     Path("Cockpit/Scripts/Systems/Radar_Data_Bridge.lua"),
     Path("Cockpit/Scripts/Systems/AG_Ballistic_Computer.lua"),
     Path("Cockpit/Scripts/Systems/Ballistic_Point_Mass.lua"),
+    Path("Cockpit/Scripts/Systems/AG_Release_Geometry.lua"),
     Path("Cockpit/Scripts/PMFD_CENTER/radar_page.lua"),
     Path("Cockpit/Scripts/Systems/NavGeometry.lua"),
     Path("Cockpit/Scripts/Systems/AG_Mark_System.lua"),

@@ -1,0 +1,7 @@
+# A/G CCRP-style time-to-release estimate (non-authoritative)
+
+Grounded in [NASA's gravity-only equations](https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/ballistic-flight-equations/) and the **conceptual** impact/release-timing relationship in the [US Navy CCIP handbook](https://navyflightmanuals.tpub.com/P-1209/Figure-17-Hud-A-G-Ccip-Bomb-Display-Typical-31.htm). This is **not** the classified/proprietary F-22 mission computer or a valid JDAM CCRP implementation.
+
+A pilot-designated terrain MARK now exposes local north/east/elevation. Under current aircraft ground-velocity and gravity-only assumptions, the `AG_Release_Geometry.lua` helper solves freefall time to markpoint altitude, computes the release location from along-track ballistic travel, and displays estimated time-to-release if 0–90 s ahead and within 1000 m cross-track. No automatic release, HUD SHOOT authorization, target coordinate transfer to GBU-32, guidance, aerodynamic drag, projectile ballistic coefficient or wind estimation is implemented.
+
+**HUD always labels this `CCRP SIM` and `SIM NO DRAG`.** The actual native guided weapon integration remains unverified, and these cues are only suitable for visual engineering tests. More work must map weapon stations and selected guided/unguided stores, validate DCS native release commands, integrate target coordinates and calculate the selected weapon's ballistics.

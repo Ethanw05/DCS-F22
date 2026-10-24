@@ -15,6 +15,9 @@ local cue=get_param_handle("HUD_AG_CUE_VALID")
 local azparam=get_param_handle("HUD_AG_TGT_AZ_RAD")
 local elparam=get_param_handle("HUD_AG_TGT_EL_RAD")
 local rangeparam=get_param_handle("HUD_AG_TGT_RANGE_NM")
+local markNorth=get_param_handle("HUD_AG_MARK_NORTH")
+local markEast=get_param_handle("HUD_AG_MARK_EAST")
+local markAlt=get_param_handle("HUD_AG_MARK_ALT")
 local target=nil
 local terrain=nil
 local function publishInvalid()
@@ -99,6 +102,9 @@ function update()
         (2*math.pi-base.getHeading())%(2*math.pi),base.getPitch(),base.getRoll())
     if not range or range<1 then publishInvalid();return end
     valid:set(1)
+    markNorth:set(target.x)
+    markEast:set(target.y)
+    markAlt:set(target.alt)
     rangeparam:set(range/1852.0)
     if az and el and math.abs(az)<math.rad(15) and math.abs(el)<math.rad(12.5) then
         azparam:set(az)
