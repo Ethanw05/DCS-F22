@@ -253,8 +253,8 @@ local function radar_text(value,x,y,name,condition)
     Add(e)
 end
 radar_text("FC3 RADAR",0,0.92,"RDR_HOST")
-radar_text("RWS SELECTED",-0.53,0.79,"RDR_RWS",{name="RADAR_MODE",min=-0.1,max=0.1})
-radar_text("TWS SELECTED",-0.53,0.79,"RDR_TWS",{name="RADAR_MODE",min=0.9,max=1.1})
+radar_text("RWS SELECTED",-0.53,0.79,"RDR_RWS",{name="PMFD_RADAR_SELECTION",min=-0.1,max=0.1})
+radar_text("TWS SELECTED",-0.53,0.79,"RDR_TWS",{name="PMFD_RADAR_SELECTION",min=0.9,max=1.1})
 radar_text("RADAR OFF",0.50,0.79,"RDR_OFF",{name="RADAR_PWR",min=-0.1,max=0.1})
 radar_text("RADAR PWR",0.50,0.79,"RDR_ON",{name="RADAR_PWR",min=0.9,max=1.1})
 radar_text("STT FEED NOT LINKED",0,-0.04,"RDR_TRACK_WARN",
