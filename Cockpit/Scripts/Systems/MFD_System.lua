@@ -304,8 +304,10 @@ function post_initialize()
         --lmfd_current_page = 1
 		--dev:performClickableAction(right_UFD_swap, 1, false)
     elseif birth_place == "GROUND_HOT" or birth_place == "AIR_HOT" then
-        parameters.L_HYD_VALUE:set(3950)--engine page
-        parameters.R_HYD_VALUE:set(3950)--engine page
+        l_hyd_value = 3950
+        r_hyd_value = 3950
+        parameters.L_HYD_VALUE:set(l_hyd_value)
+        parameters.R_HYD_VALUE:set(r_hyd_value)
         ground_oride_state = 0
         set_aircraft_draw_argument_value(600,0)
 		set_aircraft_draw_argument_value(601,0)
@@ -819,9 +821,7 @@ function update()
     parameters.GROUND_ORIDE:set(ground_oride_state)
     parameters.BAY_STATION:set(bay_select)
     parameters.CABINPRESS:set(cabin_pressure)
-    parameters.L_HYD_VALUE:set(l_hyd_value)
-    parameters.R_HYD_VALUE:set(r_hyd_value)
-
+    -- Hydraulic indications are updated after the proxy pressure calculation.
     parameters.OIL_L:set(sensor_data.getEngineLeftRPM()*2.7)
     parameters.OIL_R:set(sensor_data.getEngineRightRPM()*2.7)
 
@@ -944,18 +944,21 @@ function update()
     elseif sensor_data.getEngineLeftRPM() >= 67 then
         parameters.L_OIL_COLOR:set(0)
     end 
-    --HYD ENGINE RIGHT
-    if sensor_data.getEngineRightRPM() >= 45 and hyd_light ~= 1 and r_hyd_value <= 3945 then
-        r_hyd_value = r_hyd_value + 5
-    elseif (sensor_data.getEngineRightRPM() <= 44 or hyd_light == 1) and r_hyd_value >= 0.1 then
-        r_hyd_value = r_hyd_value - 5
+    -- Hydraulic display proxy only (no physical fluid-pressure EFM yet).
+    -- Rates are normalized from the old 5 units per 0.006s callback.
+    local function advancePressure(current, engineRPM, failed)
+        local hasSupply = engineRPM >= 45 and not failed
+        local target = hasSupply and 3950 or 0
+        local maxChange = (5.0 / 0.006) * update_time_step
+        local delta = math.max(-maxChange, math.min(maxChange, target-current))
+        return math.max(0, math.min(3950, current+delta))
     end
-    --HYD ENGINE LEFT
-    if sensor_data.getEngineLeftRPM() >= 45 and hyd_light ~= 1 and l_hyd_value <= 3945 then
-        l_hyd_value = l_hyd_value + 5
-    elseif (sensor_data.getEngineLeftRPM() <= 44 or hyd_light == 1) and l_hyd_value >= 0.1 then
-        l_hyd_value = l_hyd_value - 5
-    end
+    local hydraulicFailure = hyd_light == 1
+    r_hyd_value = advancePressure(r_hyd_value, sensor_data.getEngineRightRPM(), hydraulicFailure)
+    l_hyd_value = advancePressure(l_hyd_value, sensor_data.getEngineLeftRPM(), hydraulicFailure)
+    -- Publish newly computed state instead of the previous display frame.
+    parameters.R_HYD_VALUE:set(r_hyd_value)
+    parameters.L_HYD_VALUE:set(l_hyd_value)
     --HYD COLOR CHANGE RIGHT
     if r_hyd_value >= 1001 then
         parameters.R_HYD_COLOR:set(0)
