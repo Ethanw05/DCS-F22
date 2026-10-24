@@ -3,6 +3,7 @@
 This project starts from [Grinnelli Designs’ F-22A](https://github.com/grinnellidesigns/f-22a), upstream commit `8484b44cf8bc46540376435f0ba584f9f3e8bf44`. Original credits, licences and source history are retained below and throughout the repository.
 
 - [Development setup](docs/DEVELOPMENT.md): checkout, build and source map.
+- [HUD and overhaul in-game test plan](docs/HUD_AND_SYSTEMS_TEST_PLAN.md): exact NAV/A-A/A-G scenarios and known unsupported functionality.
 - [System-by-system audit](docs/audit/README.md): 16 pre-implementation system reviews with applicable resources, confirmed defects, rewrite candidates and validation checks; see the research implementation status for subsequent fixes.
 - [Chinese-language research](docs/CHINESE_RESEARCH.md): 18 journal/university/CAAC additions, manual-search results and evidence limitations.
 - [Chinese forum follow-up](docs/CHINESE_FORUM_RESEARCH.md): 22 community leads, original-source trails, access limits and HUD/manual screening.
