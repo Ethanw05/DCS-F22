@@ -257,7 +257,8 @@ radar_text("RWS SELECTED",-0.53,0.79,"RDR_RWS",{name="RADAR_MODE",min=-0.1,max=0
 radar_text("TWS SELECTED",-0.53,0.79,"RDR_TWS",{name="RADAR_MODE",min=0.9,max=1.1})
 radar_text("RADAR OFF",0.50,0.79,"RDR_OFF",{name="RADAR_PWR",min=-0.1,max=0.1})
 radar_text("RADAR PWR",0.50,0.79,"RDR_ON",{name="RADAR_PWR",min=0.9,max=1.1})
-radar_text("TRACK DATA NOT LINKED",0,0,"RDR_TRACK_WARN")
+radar_text("STT FEED NOT LINKED",0,-0.04,"RDR_TRACK_WARN",
+    {name="HUD_RADAR_TRACK_SOURCE",min=-0.1,max=0.1})
 
 -- Optional live data: only shown when a compatible DCS radar publishes a
 -- validated current STT return. Not proof of APG-77 or of TWS track files.
@@ -275,3 +276,53 @@ sourceVisible.h_clip_relation=h_clip_relations.COMPARE
 sourceVisible.level=2
 sourceVisible.collimated=false
 Add(sourceVisible)
+
+-- B-scope: visible only when live native RADAR_CONTACT_nn range, azimuth and
+-- time handles change. No simulated TWS correlation or APG-77 performance.
+local scopeMaterial=MakeMaterial(nil,{40,255,94,255})
+local function searchDot(index)
+    local prefix=string.format("HUD_RWS_%02d_",index)
+    local name="RWS_PLOT_"..index
+    local parent=CreateElement "ceSimple"
+    parent.name=name
+    parent.element_params={prefix.."X",prefix.."Y",prefix.."VALID","RADAR_PWR",
+        "MFD_OPACITY","PMFD_RDR_PAGE"}
+    parent.controllers={{"move_left_right_using_parameter",0,1},
+        {"move_up_down_using_parameter",1,1},
+        {"parameter_in_range",2,0.9,1.1},
+        {"parameter_in_range",3,0.9,1.1},
+        {"opacity_using_parameter",4},
+        {"parameter_in_range",5,0.9,1.1}}
+    parent.h_clip_relation=h_clip_relations.COMPARE
+    parent.level=2
+    parent.collimated=false
+    Add(parent)
+    local dot=CreateElement "ceMeshPoly"
+    dot.name=name.."_BLOT"
+    dot.material=scopeMaterial
+    dot.primitivetype="triangles"
+    dot.vertices={{-0.015,-0.015},{0.015,-0.015},
+        {0.015,0.015},{-0.015,0.015}}
+    dot.indices={0,1,2,2,3,0}
+    dot.parent_element=name
+    dot.h_clip_relation=h_clip_relations.COMPARE
+    dot.level=2
+    dot.collimated=false
+    dot.additive_alpha=true
+    Add(dot)
+end
+for contact=1,12 do searchDot(contact) end
+local contactCount=CreateElement "ceStringPoly"
+contactCount.name="RDR_LIVE_RETURNS"
+contactCount.material=UFD_GRN
+contactCount.init_pos={0.48,-0.81,0}
+contactCount.alignment="CenterCenter"
+contactCount.stringdefs={0.004,0.004,0,0}
+contactCount.formats={"RET %.0f"}
+contactCount.element_params={"HUD_RADAR_SEARCH_RETURNS","MFD_OPACITY","PMFD_RDR_PAGE"}
+contactCount.controllers={{"text_using_parameter",0,0},{"opacity_using_parameter",1},
+    {"parameter_in_range",2,0.9,1.1}}
+contactCount.h_clip_relation=h_clip_relations.COMPARE
+contactCount.level=2
+contactCount.collimated=false
+Add(contactCount)

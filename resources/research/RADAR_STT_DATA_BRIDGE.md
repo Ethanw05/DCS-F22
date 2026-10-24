@@ -22,3 +22,10 @@ The PMFD labels a live STT return **only if the interface actually publishes a v
 - Loss of power or target lock clears target after ≤2 s; range meters→nautical miles correct, IFF values -1/0/1 display.
 - 15° az/12.5° el cue limit and no ghost contact when mission restarts.
 - Confirm BVR request and PMFD radar selection stay synchronized after both keyboard and OSB inputs.
+
+
+## Search-return B-scope follow-up
+
+Read [ED modding discussion with extracted RADAR_CONTACT_%02d_* conventions](https://forum.dcs.world/topic/188347-basic-radar-example-code/). The host parameter families identify individual *returns*, not multi-target TWS track files. This patch passively observes the first twelve `RADAR_CONTACT_01` through `_12` range/azimuth/time values, drops invalid or unchanged-for-two-second samples, and maps genuine contacts into a fixed +/-60° azimuth, 80-NM B-scope. It publishes `HUD_RADAR_SEARCH_RETURNS` and plotting parameters without controlling underlying radar detection.
+
+**Not implemented:** an APG-77 AESA radar, physically modeled beam/PRF/clutter/target RCS, TWS correlation, datalink and true AMRAAM fire-control. An aircraft with inherited FC3 avionics may leave these parameters unset. The scope then correctly has no plots; actual detection and missile guidance remain FC3 behaviors.

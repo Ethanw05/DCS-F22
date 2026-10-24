@@ -22,10 +22,65 @@ local output={
     range=get_param_handle("HUD_AA_TGT_RANGE_NM"),
     iff=get_param_handle("HUD_AA_TGT_IFF"),
 }
+-- Search returns are a display-only B-scope: unlike a correlated TWS track,
+-- the native contact parameter can represent more than one echo per aircraft.
+local search={}
+local countParam=get_param_handle("HUD_RADAR_SEARCH_RETURNS")
+for idx=1,12 do
+    local prefix=string.format("RADAR_CONTACT_%02d_",idx)
+    local out=string.format("HUD_RWS_%02d_",idx)
+    search[idx]={
+        range=get_param_handle(prefix.."RANGE"),
+        az=get_param_handle(prefix.."AZIMUTH"),
+        time=get_param_handle(prefix.."TIME"),
+        x=get_param_handle(out.."X"),
+        y=get_param_handle(out.."Y"),
+        valid=get_param_handle(out.."VALID"),
+        lastRange=nil,lastAz=nil,lastTime=nil,age=999
+    }
+end
 local lastDistance,lastAz,lastEl = nil,nil,nil
 local motionAge=999
 local function finite(x)
     return type(x)=="number" and x==x and math.abs(x)<1e9
+end
+local function clearSearch()
+    countParam:set(0)
+    for _,contact in ipairs(search) do
+        contact.valid:set(0)
+        contact.age=999
+    end
+end
+local function updateSearch()
+    local count=0
+    for _,contact in ipairs(search) do
+        local r,a,t=contact.range:get(),contact.az:get(),contact.time:get()
+        local validReturn=finite(r) and finite(a) and finite(t) and
+            r>40 and r<80*1852 and math.abs(a)<math.rad(60) and t>=0
+        if validReturn then
+            if contact.lastRange==nil or math.abs(r-contact.lastRange)>0.005 or
+                math.abs(a-contact.lastAz)>1e-6 or
+                math.abs(t-contact.lastTime)>0.005 then
+                contact.age=0
+            else
+                contact.age=contact.age+dt
+            end
+            contact.lastRange,contact.lastAz,contact.lastTime=r,a,t
+        else
+            contact.age=999
+            contact.lastRange=nil
+        end
+        if validReturn and contact.age<=2 then
+            -- Scope normalized to fixed ±60-degree field and 80-NM radial range.
+            contact.x:set((a/math.rad(60))*0.76)
+            contact.y:set(0.61-1.18*(r/(80*1852)))
+            contact.valid:set(1)
+            count=count+1
+        else
+            contact.valid:set(0)
+        end
+    end
+    countParam:set(count)
 end
 local function clear()
     output.valid:set(0)
@@ -37,13 +92,16 @@ local function clear()
 end
 function post_initialize()
     clear()
+    clearSearch()
 end
 function update()
     if input.power:get()<0.5 or input.bus:get()<0.5 then
         motionAge=999
         clear()
+        clearSearch()
         return
     end
+    updateSearch()
     local mode=input.mode:get()
     if mode<2 or mode>6 then
         clear()
