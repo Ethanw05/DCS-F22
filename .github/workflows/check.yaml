@@ -23,7 +23,7 @@ jobs:
       run: cmake --preset x64-release -G "Visual Studio 17 2022"
 
     - name: Build CMake Project
-      run: cmake --build --preset x64-release --config Release --config Release
+      run: cmake --build --preset x64-release --config Release
 
     - name: Check EFM numeric regression tests
       run: ctest --test-dir out/build/x64-release -C Release --output-on-failure --no-tests=error
@@ -33,6 +33,9 @@ jobs:
         python -m pip install luaparser==4.2.0 lupa==2.8
         python tests/validate_modified_lua.py
         python tests/test_nav_geometry.py
+        python tests/test_hud_construction.py
+        python tests/test_ballistics.py
+        python tests/test_radar_bridge.py
 
     - name: Upload experimental EFM DLL
       uses: actions/upload-artifact@v4
