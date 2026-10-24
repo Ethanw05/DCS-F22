@@ -125,20 +125,28 @@ void simulate_fuel_consumption(double dt)
     if (RAPTOR::fuel_consumption_since_last_time > 0) {
         double fuel_to_consume = RAPTOR::fuel_consumption_since_last_time;
 
-        if (RAPTOR::external_fuel > 0) {
-            double external_consumed = std::min(fuel_to_consume, RAPTOR::external_fuel);
-            RAPTOR::external_fuel = std::max(0.0, RAPTOR::external_fuel - external_consumed);
-            fuel_to_consume -= external_consumed;
+        // External-first is a documented simplified transfer model.
+        for (auto& [station, quantity] : RAPTOR::external_fuel_stations) {
+            if (fuel_to_consume <= 0.0) break;
+            const double removed = std::min(fuel_to_consume, std::max(0.0, quantity));
+            if (removed <= 0.0) continue;
+            quantity -= removed;
+            fuel_to_consume -= removed;
+            const auto pos = RAPTOR::external_fuel_positions.find(station);
+            g_mass_changes.push({ removed,
+                pos != RAPTOR::external_fuel_positions.end() ? pos->second : Vec3(),
+                {0.0, 0.0, 0.0} });
         }
+        RAPTOR::external_fuel = 0.0;
+        for (const auto& [station, quantity] : RAPTOR::external_fuel_stations)
+            RAPTOR::external_fuel += std::max(0.0, quantity);
 
-        if (fuel_to_consume > 0) {
-            RAPTOR::internal_fuel = std::max(0.0, RAPTOR::internal_fuel - fuel_to_consume);
-            double fuel_fraction = std::min(1.0, std::max(0.0, RAPTOR::internal_fuel / RAPTOR::max_internal_fuel));
-            g_mass_changes.push({
-                fuel_to_consume,
-                {-0.32 * (1.0 - fuel_fraction), 0.0, 0.0},
-                {0.0, 0.0, 0.0}
-                });
+        const double actual_internal_burn = std::min(fuel_to_consume, std::max(0.0, RAPTOR::internal_fuel));
+        if (actual_internal_burn > 0.0) {
+            RAPTOR::internal_fuel -= actual_internal_burn;
+            const double fraction = std::clamp(RAPTOR::internal_fuel / RAPTOR::max_internal_fuel, 0.0, 1.0);
+            g_mass_changes.push({ actual_internal_burn,
+                {-0.32 * (1.0 - fraction), 0.0, 0.0}, {0.0, 0.0, 0.0} });
         }
 
         RAPTOR::total_fuel = RAPTOR::internal_fuel + RAPTOR::external_fuel;
@@ -149,6 +157,13 @@ void simulate_fuel_consumption(double dt)
 }
 
 void reset_fm_state() {
+    while (!g_mass_changes.empty()) g_mass_changes.pop();
+    while (!g_damage_events.empty()) g_damage_events.pop();
+    RAPTOR::external_fuel_stations.clear();
+    RAPTOR::external_fuel_positions.clear();
+    RAPTOR::external_fuel = 0.0;
+    RAPTOR::external_tanks_equipped = false;
+    RAPTOR::total_fuel = RAPTOR::internal_fuel;
     RAPTOR::pitch_input = RAPTOR::roll_input = RAPTOR::yaw_input = 0.0;
     RAPTOR::pitch_discrete = RAPTOR::roll_discrete = RAPTOR::yaw_discrete = 0.0;
     RAPTOR::pitch_analog = RAPTOR::roll_analog = RAPTOR::yaw_analog = true;
@@ -913,11 +928,11 @@ void ed_fm_simulate(double dt) {
     RAPTOR::right_engine_phase += right_rps * dt;
     RAPTOR::right_engine_phase -= floor(RAPTOR::right_engine_phase);
 
-    if (RAPTOR::internal_fuel <= 25 && (RAPTOR::left_engine_state == RAPTOR::RUNNING || RAPTOR::left_engine_state == RAPTOR::STARTING)) {
+    if ((RAPTOR::internal_fuel + RAPTOR::external_fuel) <= RAPTOR::min_usable_fuel && (RAPTOR::left_engine_state == RAPTOR::RUNNING || RAPTOR::left_engine_state == RAPTOR::STARTING)) {
         RAPTOR::left_engine_state = RAPTOR::SHUTDOWN;
         RAPTOR::left_engine_switch = false;
     }
-    if (RAPTOR::internal_fuel <= 25 && (RAPTOR::right_engine_state == RAPTOR::RUNNING || RAPTOR::right_engine_state == RAPTOR::STARTING)) {
+    if ((RAPTOR::internal_fuel + RAPTOR::external_fuel) <= RAPTOR::min_usable_fuel && (RAPTOR::right_engine_state == RAPTOR::RUNNING || RAPTOR::right_engine_state == RAPTOR::STARTING)) {
         RAPTOR::right_engine_state = RAPTOR::SHUTDOWN;
         RAPTOR::right_engine_switch = false;
     }
@@ -1237,7 +1252,8 @@ bool ed_fm_change_mass(double& delta_mass, double& delta_mass_pos_x, double& del
 }
 
 void ed_fm_set_internal_fuel(double fuel) {
-    RAPTOR::internal_fuel = fuel;
+    RAPTOR::internal_fuel = std::clamp(fuel, 0.0, RAPTOR::max_internal_fuel);
+    RAPTOR::total_fuel = RAPTOR::internal_fuel + RAPTOR::external_fuel;
 }
 
 double ed_fm_get_internal_fuel() {
@@ -1245,24 +1261,18 @@ double ed_fm_get_internal_fuel() {
 }
 
 void ed_fm_set_external_fuel(int station, double fuel, double x, double y, double z) {
-    if (fuel > 0 && RAPTOR::external_fuel_stations.find(station) == RAPTOR::external_fuel_stations.end()) {
-        RAPTOR::external_fuel_stations[station] = 1850.0;
-        RAPTOR::external_tanks_equipped = true;
-    }
-    else if (fuel <= 0) {
-        RAPTOR::external_fuel_stations.erase(station);
-        RAPTOR::external_tanks_equipped = !RAPTOR::external_fuel_stations.empty();
-    }
-    else {
+    // The callback's reported fuel is authoritative; do not force a full tank.
+    if (fuel > 0.0) {
         RAPTOR::external_fuel_stations[station] = fuel;
-        RAPTOR::external_tanks_equipped = true;
+        RAPTOR::external_fuel_positions[station] = Vec3(x, y, z);
+    } else {
+        RAPTOR::external_fuel_stations.erase(station);
+        RAPTOR::external_fuel_positions.erase(station);
     }
-
+    RAPTOR::external_tanks_equipped = !RAPTOR::external_fuel_stations.empty();
     RAPTOR::external_fuel = 0.0;
-    for (const auto& [s, fuel_qty] : RAPTOR::external_fuel_stations) {
-        RAPTOR::external_fuel += fuel_qty;
-    }
-
+    for (const auto& [station_id, quantity] : RAPTOR::external_fuel_stations)
+        RAPTOR::external_fuel += std::max(0.0, quantity);
     RAPTOR::total_fuel = RAPTOR::internal_fuel + RAPTOR::external_fuel;
 }
 
@@ -1587,52 +1597,33 @@ double ed_fm_get_param(unsigned index) {
     return 0;
 }
 
-void ed_fm_refueling_add_fuel(double fuel)
-{
-    if (fuel > 0) {
-        double dt = 0.006;
-        double fuel_to_add = std::min(fuel, 100.0 * dt);
-
-        double internal_space = RAPTOR::max_internal_fuel - RAPTOR::internal_fuel;
-        double internal_added = std::min(fuel_to_add, internal_space);
-        if (internal_added > 0) {
-            RAPTOR::internal_fuel += internal_added * 10;
-            double fuel_fraction = std::min(1.0, std::max(0.0, RAPTOR::internal_fuel / RAPTOR::max_internal_fuel));
-            g_mass_changes.push({
-                -internal_added,
-                {-0.32 * (1.0 - fuel_fraction), 0.0, 0.0},
-                {0.0, 0.0, 0.0}
-                });
-        }
-
-        double remaining_fuel = fuel_to_add - internal_added;
-        if (remaining_fuel > 0 && !RAPTOR::external_fuel_stations.empty()) {
-            size_t num_refuelable_stations = 0;
-            for (const auto& [station, fuel_qty] : RAPTOR::external_fuel_stations) {
-                if ((station == 2 || station == 10) && fuel_qty > 0 && fuel_qty < 1850.0) {
-                    num_refuelable_stations++;
-                }
-            }
-            if (num_refuelable_stations > 0) {
-                double fuel_per_station = remaining_fuel / num_refuelable_stations;
-                for (auto& [station, fuel_qty] : RAPTOR::external_fuel_stations) {
-                    if ((station == 2 || station == 10) && fuel_qty > 0 && fuel_qty < 1850.0) {
-                        double space = 1850.0 - fuel_qty;
-                        double added = std::min(fuel_per_station, space);
-                        fuel_qty += added;
-                    }
-                }
-                RAPTOR::external_fuel = 0.0;
-                for (const auto& [station, fuel_qty] : RAPTOR::external_fuel_stations) {
-                    if (station == 2 || station == 10) {
-                        RAPTOR::external_fuel += fuel_qty;
-                    }
-                }
-            }
-        }
-
-        RAPTOR::total_fuel = RAPTOR::internal_fuel + RAPTOR::external_fuel;
+void ed_fm_refueling_add_fuel(double fuel) {
+    // DCS supplies incremental fuel in kg, not a per-frame flow rate.
+    if (fuel <= 0.0) return;
+    const double accepted = std::min(fuel, std::max(0.0, RAPTOR::max_internal_fuel - RAPTOR::internal_fuel));
+    RAPTOR::internal_fuel += accepted;
+    if (accepted > 0.0) {
+        const double fraction = std::clamp(RAPTOR::internal_fuel / RAPTOR::max_internal_fuel, 0.0, 1.0);
+        g_mass_changes.push({ -accepted, {-0.32 * (1.0 - fraction), 0.0, 0.0}, {0.0, 0.0, 0.0} });
     }
+    double remainder = fuel - accepted;
+    // 1850 kg per station is provisional mod capacity, not verified production data.
+    for (auto& [station, quantity] : RAPTOR::external_fuel_stations) {
+        if (remainder <= 0.0) break;
+        if (station != 2 && station != 10) continue;
+        const double added = std::min(remainder, std::max(0.0, 1850.0 - quantity));
+        if (added <= 0.0) continue;
+        quantity += added;
+        remainder -= added;
+        const auto pos = RAPTOR::external_fuel_positions.find(station);
+        g_mass_changes.push({ -added,
+            pos != RAPTOR::external_fuel_positions.end() ? pos->second : Vec3(),
+            {0.0, 0.0, 0.0} });
+    }
+    RAPTOR::external_fuel = 0.0;
+    for (const auto& [station, quantity] : RAPTOR::external_fuel_stations)
+        RAPTOR::external_fuel += std::max(0.0, quantity);
+    RAPTOR::total_fuel = RAPTOR::internal_fuel + RAPTOR::external_fuel;
 }
 
 

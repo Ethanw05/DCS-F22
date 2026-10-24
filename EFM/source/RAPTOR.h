@@ -142,6 +142,7 @@ namespace RAPTOR {
     double right_fuel_rate_kg_s;
     bool external_tanks_equipped = false;
     std::map<int, double> external_fuel_stations;
+    std::map<int, Vec3> external_fuel_positions;
 
     double atmosphere_density = 1.225, altitude_ASL = 0, altitude_AGL = 0, V_scalar = 0;
     double speed_of_sound = 320, mach = 0;
