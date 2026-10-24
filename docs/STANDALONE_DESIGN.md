@@ -2,11 +2,13 @@
 
 Proposed design, 24 October 2026. This is an implementation architecture and feasibility plan, not a claim that these replacement systems already run. See the [baseline assessment](OVERHAUL_ASSESSMENT.md) for source findings and the [roadmap](OVERHAUL_ROADMAP.md) for completion gates.
 
+The [implementation follow-up](STANDALONE_FOLLOWUP.md) records additional independent fighter-mod evidence and the current migration inventory. The [experimental physics replacement](FLIGHT_MODEL.md) now implements the core EFM changes with local tests; it has not passed DCS runtime validation.
+
 ## Feasibility by subsystem
 
 | Replacement | Assessment | Main remaining dependency or uncertainty |
 | --- | --- | --- |
-| EFM and thrust vectoring | Already independent source; substantial corrections/refactoring needed. | DCS force/mass/suspension callback contracts and flight calibration. |
+| EFM and thrust vectoring | Experimental independent replacement implemented; calibration/integration pending. | DCS force/mass/suspension callback contracts and flight calibration. |
 | Custom HUD and head-down displays | Strong implementation precedent; feasible. | Cockpit connectors, angular projection, VR/export behavior and our display logic. |
 | Engine, fuel, electrical, hydraulics, ECS and warnings | Feasible as our own simulation. | Public data supports different fidelity levels; host electrical device must agree with modeled buses. |
 | Navigation, routes and autopilot | Feasible application logic. | Supported mission-route/beacon access, terrain/ILS integration and validated control-loop behavior. |

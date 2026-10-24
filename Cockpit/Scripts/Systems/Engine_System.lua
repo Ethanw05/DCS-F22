@@ -39,6 +39,9 @@ local UFD_ADI	        = get_param_handle ("UFD_ADI")
 local L_TOE	        	= get_param_handle ("L_TOE")
 local R_TOE	        	= get_param_handle ("R_TOE")
 local B_TOE	        	= get_param_handle ("B_TOE")
+-- Normalized, independent brake requests consumed by the EFM.
+local F22_BRAKE_LEFT = get_param_handle("F22_BRAKE_LEFT")
+local F22_BRAKE_RIGHT = get_param_handle("F22_BRAKE_RIGHT")
 local L_THROTTLE_CUT 	= get_param_handle ("L_THROTTLE_CUT")
 local L_THROTTLE_POS 	= get_param_handle ("L_THROTTLE_POS")
 local R_THROTTLE_CUT 	= get_param_handle ("R_THROTTLE_CUT")
@@ -495,14 +498,10 @@ function update()
 	end
 
 
---Brakes
-	if B_axis_value > 0.1 or (L_axis_value > 0.1 or R_axis_value > 0.1) or park_state == 1 then   
-		dispatch_action(nil,74)
-		--print_message_to_user("brake")
-	else
-		dispatch_action(nil,75)
-		--print_message_to_user("no brakes")
-	end
+-- Preserve proportional/differential braking; do not dispatch common 74/75.
+	local parking = park_state == 1 and 1 or 0
+	F22_BRAKE_LEFT:set(math.max(parking, math.min(1, math.max(0, (L_axis_value + 1) * 0.5))))
+	F22_BRAKE_RIGHT:set(math.max(parking, math.min(1, math.max(0, (R_axis_value + 1) * 0.5))))
 
 	-- if L_axis_value > 0.1 then  
 	-- 	dispatch_action(nil,74)

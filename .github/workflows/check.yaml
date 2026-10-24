@@ -22,3 +22,18 @@ jobs:
 
     - name: Build CMake Project
       run: cmake --build --preset x64-release
+
+    - name: Test Physics and Callbacks
+      run: ctest --preset x64-release
+
+  physics-linux:
+    name: Portable Physics and Sanitizers
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Configure
+      run: cmake -S . -B out/test -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
+    - name: Build
+      run: cmake --build out/test --parallel
+    - name: Test
+      run: ctest --test-dir out/test --output-on-failure

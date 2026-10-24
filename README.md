@@ -2,14 +2,16 @@
 
 This project starts from [Grinnelli Designs’ F-22A](https://github.com/grinnellidesigns/f-22a), upstream commit `8484b44cf8bc46540376435f0ba584f9f3e8bf44`. Original credits, licences and source history are retained below and throughout the repository.
 
+- [Experimental flight-model replacement](docs/FLIGHT_MODEL.md): new physics, engine/TVC and control implementation, assumptions and numerical verification; DCS validation pending.
+- [Standalone follow-up](docs/STANDALONE_FOLLOWUP.md): independent combat-mod precedents and the remaining F-15C dependency inventory.
 - [Development setup](docs/DEVELOPMENT.md): checkout, build and source map.
-- [System-by-system audit](docs/audit/README.md): 16 system reviews with applicable resources, confirmed defects, rewrite candidates and future validation checks; implementation deferred.
+- [System-by-system audit](docs/audit/README.md): 16 system reviews with applicable resources, confirmed defects, rewrite candidates and future validation checks; historical baseline; see the replacement flight model below.
 - [Chinese-language research](docs/CHINESE_RESEARCH.md): 18 journal/university/CAAC additions, manual-search results and evidence limitations.
 - [Chinese forum follow-up](docs/CHINESE_FORUM_RESEARCH.md): 22 community leads, original-source trails, access limits and HUD/manual screening.
 - [Overhaul assessment](docs/OVERHAUL_ASSESSMENT.md): dependency map, 23 source-backed findings and reproduced numerical defects.
 - [Standalone design](docs/STANDALONE_DESIGN.md): replacement architecture and the radar/weapon integration experiment needed to remove the F-15C prerequisite.
 - [Overhaul roadmap](docs/OVERHAUL_ROADMAP.md): ordered implementation work and completion criteria.
-- [Study resources](docs/RESOURCES.md): 176 public aircraft, display and engineering references, with access and evidence limits.
+- [Study resources](docs/RESOURCES.md): 181 public aircraft, display and engineering references, with access and evidence limits.
 - [Focused reading guide](docs/RESEARCH_GUIDE.md): avionics, HUD, thrust vectoring and flight performance, with page/figure pointers.
 - Clone with Git LFS installed and run `git lfs pull` to retrieve model, texture, audio and other large assets.
 - The inherited DCS/F-15C dependency still applies. Proprietary DCS binaries and original 3D authoring projects are not supplied by the public source repository.

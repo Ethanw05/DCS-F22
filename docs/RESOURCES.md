@@ -2,7 +2,7 @@
 
 Checked 24 October 2026.
 
-**176 numbered entries.** Start with the [focused reading guide](RESEARCH_GUIDE.md) for avionics, HUD and flight performance. R88–R147 are the 60 additions from the expanded aircraft research pass; R148–R153 add standalone-mod implementation references and an official performance-summary lead. R154–R171 add 18 Chinese-language journal, university and CAAC records; R172 adds official JDAM descriptions. R173–R176 extend the Chinese forum/citation-trail follow-up, which also improves access to R65. Supporting methods and access-limited leads are labelled.
+**181 numbered entries.** Start with the [focused reading guide](RESEARCH_GUIDE.md) for avionics, HUD and flight performance. R88–R147 are the 60 additions from the expanded aircraft research pass; R148–R153 add standalone-mod implementation references and an official performance-summary lead. R154–R171 add 18 Chinese-language journal, university and CAAC records; R172 adds official JDAM descriptions. R173–R176 extend the Chinese forum/citation-trail follow-up, which also improves access to R65. R177–R181 add the user-provided cockpit lead, primary equation references and two independent fighter-mod precedents. Supporting methods and access-limited leads are labelled.
 
 The [overhaul assessment](OVERHAUL_ASSESSMENT.md) connects the references to the current code. The [standalone design](STANDALONE_DESIGN.md) and [roadmap](OVERHAUL_ROADMAP.md) separate implementable improvements from host-interface uncertainties.
 
@@ -1978,3 +1978,55 @@ DOI: 10.1109/DASC.1996.559202. [Publisher PDF lead](https://ieeexplore.ieee.org/
 **Access/review:** Publisher abstract/metadata reviewed. *航空学报*, 30(10), 1912–1917. English title: *Overview on Software Architecture of Integrated Modular Avionic Systems*. Full PDF not reviewed.
 
 **Study use and limits:** Compares IMA software architecture, including the F-22 CIP. Useful historical architecture and bibliography lead. Does not supply production software, exact task schedules or a reason to emulate physical avionics buses in the DCS mod.
+
+## Flight-model implementation and additional standalone precedents
+
+<a id="r177"></a>
+
+### R177 — Julhelm — F-22 Cockpit 1.0 for Strike Fighters 2, 13 April 2012
+
+[Author's CombatACE listing](https://combatace.com/files/file/12851-f-22-cockpit/)
+
+**Access/review:** Public description, credits, known issues and permissions read. Download requires sign-in; archive contents not retrieved or reviewed.
+
+**Study use and limits:** User-provided visual approximation lead. This is a different simulator's add-on, not a real-aircraft symbology or performance reference. Author reports weapon-count/wing-station display limitations. Modification/reposting requires consent; no assets or code imported.
+
+<a id="r178"></a>
+
+### R178 — NASA Glenn — Lift Equation
+
+[Primary educational reference](https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/lift-equation/)
+
+**Access/review:** Full short page read.
+
+**Study use and limits:** Supports dynamic-pressure/reference-area formulation and the need to determine aerodynamic coefficients. General physics; supplies no F-22 coefficient values. Used for the replacement EFM's equation conventions, not to validate its assumed tables.
+
+<a id="r179"></a>
+
+### R179 — NASA Glenn — Vectored Thrust
+
+[Primary educational reference](https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/vectored-thrust/)
+
+**Access/review:** Force-component equations and explanation read.
+
+**Study use and limits:** Supports resolving a single thrust vector into sine/cosine components and accounting for resulting forces. Not an F119 installed-thrust/nozzle-efficiency deck or F-22 control law.
+
+<a id="r180"></a>
+
+### R180 — VSN F-4B/C standalone: author's release repository and developer interview
+
+[Author repository/readme](https://github.com/PeeJott/VSN-F-4-B-C-Standalone-Release) · [PeeJott interview, initially July 2023, revised November 2023](https://www.skywardfm.com/post/interview-dcs-vsn-f4-phantom-developer-insight)
+
+**Access/review:** README read through GitHub connector, blob `75bd46e10db35744043038b1b31d13a8781e919c`; selected developer answers read, especially the transition from FC3 and radar implementation. Release archive and linked EFM source archive not downloaded/inspected.
+
+**Study use and limits:** First-person standalone combat-mod precedent. Author identifies a basic radar/RWR example and reports single-target tracking without TWS. Useful for choosing a host-integration experiment, not proof of native multi-target AIM-120 support. README separates EFM source availability from restrictions on the broader package. No reuse undertaken.
+
+<a id="r181"></a>
+
+### R181 — VSN F-104C standalone: author README and June 2025 announcement
+
+[Author repository](https://github.com/PeeJott/VSN_F104C) · [Author announcement trail](https://forum.dcs.world/topic/283524-vsn-new-f-104-mod/?comment=5658872&do=findComment)
+
+**Access/review:** README via GitHub connector, blob `f56d02d8c8ff96672e23b83cf568679c932c8b77`; forum's highlighted author announcement dated 19 June 2025. Installed archive, complete avionics source and runtime behavior not reviewed.
+
+**Study use and limits:** Additional independent-fighter precedent; author credits radar/RWR examples and radio integration. Distinguish the standalone C early-access version from older FC3-dependent G packages and historical text retained in its README. EFM reuse statements and package restrictions are not treated as blanket permission to copy the mod. No code/assets imported.

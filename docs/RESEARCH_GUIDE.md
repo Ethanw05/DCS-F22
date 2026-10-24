@@ -1,6 +1,6 @@
 # Avionics, HUD and flight-performance reading guide
 
-Research pass: 24 October 2026. The [main catalogue](RESOURCES.md) contains **176 numbered entries**. The expanded aircraft pass added 60: 13 HUD/cockpit/display references, 24 avionics/integration references and 23 flight-control/performance references. The first overhaul assessment added six sources, R148–R153. The first Chinese-language pass adds 18 records, R154–R171; R172 adds official JDAM descriptions. The forum follow-up adds R173–R176 and improves text access to R65. These include explicitly labelled supporting research on other aircraft and bibliographic leads; they are not 176 complete F-22 technical manuals. Companion links and unresolved report editions are grouped.
+Research pass: 24 October 2026. The [main catalogue](RESOURCES.md) contains **181 numbered entries**. The expanded aircraft pass added 60: 13 HUD/cockpit/display references, 24 avionics/integration references and 23 flight-control/performance references. The first overhaul assessment added six sources, R148–R153. The first Chinese-language pass adds 18 records, R154–R171; R172 adds official JDAM descriptions. The forum follow-up adds R173–R176 and improves text access to R65. These include explicitly labelled supporting research on other aircraft and bibliographic leads; they are not 181 complete F-22 technical manuals. Companion links and unresolved report editions are grouped.
 
 For implementation, read the [code assessment](OVERHAUL_ASSESSMENT.md), [standalone design](STANDALONE_DESIGN.md) and [roadmap](OVERHAUL_ROADMAP.md). The assessment separates reproduced numerical defects from fidelity gaps and untested DCS integration assumptions.
 
@@ -55,3 +55,7 @@ Priority full-text retrieval leads are **R06/R07** (cockpit integration), **R101
 Search results also produced misleading matches: commercial F-22 game manuals presented as flight manuals, Fairchild F-22 material unrelated to the Raptor, WVU scale-model YF-22 research, and a NASA conference volume indexed under a HUD section title. These were not promoted into aircraft-accuracy references. Patent concepts and generic research retained in the catalogue are labelled accordingly.
 
 Access was checked during this pass; some official PDFs still returned 403, publisher verification pages or dead legacy URLs. The catalogue distinguishes those leads from retrieved text. External papers remain linked to their hosts; only our study notes are added to the repository.
+
+## Implementation follow-up
+
+[FLIGHT_MODEL.md](FLIGHT_MODEL.md) maps each replacement physics system to evidence and assumed values. R177 is a visual simulator comparison, R178–R179 provide primary equation references, and R180–R181 add standalone combat-mod precedents. See [STANDALONE_FOLLOWUP.md](STANDALONE_FOLLOWUP.md) for what those precedents actually establish.

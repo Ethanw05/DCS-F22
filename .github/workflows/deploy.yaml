@@ -26,6 +26,10 @@ jobs:
               working-directory: f-22a
               run: cmake --build --preset x64-release
 
+            - name: Test EFM
+              working-directory: f-22a
+              run: ctest --preset x64-release
+
             - name: Clean Project
               working-directory: f-22a
               run: |
@@ -36,6 +40,8 @@ jobs:
                 Remove-Item -Path .gitattributes -Force -ErrorAction SilentlyContinue
                 Remove-Item -Path README.md -Force -ErrorAction SilentlyContinue
                 Remove-Item -Path CONTRIBUTING.md -Force -ErrorAction SilentlyContinue
+                New-Item -ItemType Directory -Force -Path LICENSES | Out-Null
+                Copy-Item -Path EFM/LICENSE -Destination LICENSES/EFM-template-MIT.txt
                 Remove-Item -Path EFM -Force -ErrorAction SilentlyContinue -Recurse
                 Remove-Item -Path *.pdb -Force -ErrorAction SilentlyContinue
                 Remove-Item -Path CMakePresets.json -Force -ErrorAction SilentlyContinue
