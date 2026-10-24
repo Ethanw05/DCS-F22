@@ -47,6 +47,12 @@ local sensor_data		= get_base_data()
 			MASTER_ARM			= get_param_handle("MASTER_ARM"),
 			DOGFIGHT			= get_param_handle("DOGFIGHT"),
 			HUD_MODE			= get_param_handle("HUD_MODE"),
+            HUD_WEAPON = get_param_handle("HUD_WEAPON"),
+            HUD_RADAR_REQUEST = get_param_handle("HUD_RADAR_REQUEST"),
+            HUD_ARMED = get_param_handle("HUD_ARMED"),
+            HUD_GUN_READY = get_param_handle("HUD_GUN_READY"),
+            HUD_GUN_TRIGGER = get_param_handle("HUD_GUN_TRIGGER"),
+            HUD_AG_SUBMODE = get_param_handle("HUD_AG_SUBMODE"),
 			GROUND_POWER		= get_param_handle("GROUND_POWER"),
 			WoW				    = get_param_handle("WoW"),
 			DETENT				= get_param_handle("DETENT"),
@@ -69,6 +75,9 @@ local PlaneModeBVR 						= Keys.PlaneModeBVR	--2
 local PlaneModeVS 						= Keys.PlaneModeVS --3								
 local PlaneModeBore 					= Keys.PlaneModeBore --4
 local PlaneModeFI0 						= Keys.PlaneModeFI0 --6
+local PlaneModeGround = Keys.PlaneModeGround --7, only a HUD request until A/G delivery is integrated
+local PlaneRadarChangeMode = Keys.PlaneRadarChangeMode
+local ChangeReleaseMode = Keys.ChangeReleaseMode
 --rwr
 -- local PlaneThreatWarnSoundVolumeDown 	= 409
 -- local PlaneThreatWarnSoundVolumeUp 		= 410
@@ -101,6 +110,9 @@ dev:listen_command(PlaneModeVS)
 dev:listen_command(PlaneModeBore)
 dev:listen_command(PlaneModeFI0)
 dev:listen_command(PlaneModeCannon)
+dev:listen_command(PlaneModeGround)
+dev:listen_command(PlaneRadarChangeMode)
+dev:listen_command(ChangeReleaseMode)
 dev:listen_command(PlaneJettisonWeapons)
 dev:listen_command(PlaneJettisonFuelTanks)
 dev:listen_command(ActiveJamming)
@@ -139,6 +151,9 @@ local fire_z_weapons 		= 0
 local air_oride				= 0
 local detent_pos			= 0
 local pickle_pos			= 0
+local hud_radar_request = 1 -- 1 RWS, 2 TWS request, 3 VS, 4 ACM, 5 FLOOD
+local ag_submode = 1 -- 1 MAN, 2 CCIP request, 3 CCRP request
+local gun_command_active = false
 ------------------------------------------------------------------FUNCTION-POSTINIT---------------------------------------------------------------------------------------------------
 
 function post_initialize()
@@ -221,20 +236,32 @@ end
 --Mode States
 	if command == PlaneModeNAV then
 		mode_state = 1
-		--print_message_to_user("NAV MODE")
+        hud_radar_request = 0
 	elseif command == PlaneModeBVR then
 		mode_state = 2
-		--print_message_to_user("BVR MODE")
+        hud_radar_request = 1
 	elseif command == PlaneModeVS then
 		mode_state = 3
-		--print_message_to_user("VS MODE")
+        hud_radar_request = 3
 	elseif command == PlaneModeBore then
 		mode_state = 4
-		--print_message_to_user("BORE MODE")
+        hud_radar_request = 4
 	elseif command == PlaneModeFI0 then
-		mode_state = 6
-		--print_message_to_user("FLOOD MODE")
-	end					
+        mode_state = 6
+        hud_radar_request = 5
+    elseif command == PlaneModeCannon then
+        mode_state = 5
+        hud_radar_request = 4
+    elseif command == PlaneModeGround then
+        mode_state = 7
+        hud_radar_request = 0
+    elseif command == PlaneRadarChangeMode and mode_state == 2 then
+        -- Tracks requested radar presentation; no APG-77 feedback is available.
+        -- The native FC3 radar receives the same key binding independently.
+        hud_radar_request = hud_radar_request == 2 and 1 or 2
+    elseif command == ChangeReleaseMode and mode_state == 7 then
+        ag_submode = ag_submode % 3 + 1
+    end					
 --Master Arm JOYSTICK/KEYBOARD BINDS
 	if (command == 10007 or command == 10008 or command == master_arm_switch) and master_arm_state == 0 then
 		master_arm_state = 1
@@ -383,7 +410,7 @@ function update()
 			set_aircraft_draw_argument_value(600, bay_door_pos)
 		end
 		--LEFT BAY ORIDE
-		if air_oride == 1 and parameters.BAY_STATION:get() == 1 and master_arm_state == 1 and left_door_pos <= 1 and parameters.MAIN_POWER:get() == 1 and sensor_data.getNoseLandingGearDown() then
+		if air_oride == 1 and parameters.BAY_STATION:get() == 1 and master_arm_state == 1 and left_door_pos <= 1 and parameters.MAIN_POWER:get() == 1 and sensor_data.getNoseLandingGearDown() == 0 then
 			left_door_pos = left_door_pos + 0.05
 			set_aircraft_draw_argument_value(601, left_door_pos)
 		elseif air_oride == 0 and parameters.MAIN_POWER:get() == 1 and left_door_pos >= 0 and sensor_data.getNoseLandingGearDown() == 0 and parameters.GROUND_POWER:get() == 0 then
@@ -444,9 +471,18 @@ function update()
 			set_aircraft_draw_argument_value(615, canon_rotate)
 		end
 		--CANON FIRE
-		if fire_z_weapons == 1 and master_arm_state == 1 then
-			dispatch_action(nil,PlaneFire)
-		end
+        -- Emit a trigger command only on an actual state transition.
+        -- This also guarantees a release when power/ground/arm interlocks change.
+        local can_fire_gun = (mode_state == 5 and master_arm_state == 1
+            and parameters.MAIN_POWER:get() == 1 and parameters.WoW:get() < 0.5
+            and canon_door_pos >= 0.8)
+        local gun_requested = (fire_z_weapons == 1 and can_fire_gun)
+        if gun_requested ~= gun_command_active then
+            dispatch_action(nil, gun_requested and PlaneFire or PlaneFireOff)
+            gun_command_active = gun_requested
+        end
+        parameters.HUD_GUN_READY:set(can_fire_gun and 1 or 0)
+        parameters.HUD_GUN_TRIGGER:set(gun_command_active and 1 or 0)
 		-- --Canon Timer
 		-- if first_state == 1 and master_arm_state == 1 and parameters.MAIN_POWER:get() == 1 and canon_rotate < 1 then
 		-- 	canon_rotate = (canon_rotate + update_time_step * 2)
@@ -466,6 +502,14 @@ function update()
 		-- end
 
 -----------------------------------------------------------------------
+    -- Final normalized bay states, guarding against per-step overshoot.
+    local function clamp_door(x) return math.max(0, math.min(1, x)) end
+    bay_door_pos = clamp_door(bay_door_pos)
+    left_door_pos = clamp_door(left_door_pos)
+    right_door_pos = clamp_door(right_door_pos)
+    set_aircraft_draw_argument_value(600,bay_door_pos)
+    set_aircraft_draw_argument_value(601,left_door_pos)
+    set_aircraft_draw_argument_value(602,right_door_pos)
 	parameters.BAY_C_ARG:set(bay_door_pos)
 	parameters.BAY_L_ARG:set(left_door_pos)
 	parameters.BAY_R_ARG:set(right_door_pos)
@@ -474,6 +518,12 @@ function update()
 	parameters.DOGFIGHT:set(dogfight_mode)
 	parameters.AIR_ORIDE:set(air_oride)
 	parameters.HUD_MODE:set(mode_state)
+    parameters.HUD_RADAR_REQUEST:set(hud_radar_request)
+    parameters.HUD_WEAPON:set(mode_state == 5 and 1 or
+        ((mode_state == 3 or mode_state == 4 or mode_state == 6) and 2 or
+        (mode_state == 2 and 3 or (mode_state == 7 and 4 or 0))))
+    parameters.HUD_ARMED:set(master_arm_state)
+    parameters.HUD_AG_SUBMODE:set(ag_submode)
 	parameters.DETENT:set(detent_pos)
 	parameters.PICKLE:set(pickle_pos)
 
