@@ -157,6 +157,8 @@ void simulate_fuel_consumption(double dt)
 }
 
 void reset_fm_state() {
+    RAPTOR::suspension_compression.fill(0.0);
+    RAPTOR::suspension_feedback_available = false;
     while (!g_mass_changes.empty()) g_mass_changes.pop();
     while (!g_damage_events.empty()) g_damage_events.pop();
     RAPTOR::external_fuel_stations.clear();
@@ -277,6 +279,16 @@ void ed_fm_simulate(double dt) {
     cockpit_manager.update(dt);
 
     RAPTOR::gear_pos = limit(actuator_timed(RAPTOR::gear_pos, RAPTOR::gear_switch, -0.25, 0.25, dt), 0, 1);
+    // Primary contact signal is DCS suspension feedback, not gear/height alone.
+    // The 2-m fallback is only for versions where feedback is not supplied.
+    bool wheels_loaded = false;
+    for (double compression : RAPTOR::suspension_compression)
+        wheels_loaded = wheels_loaded || compression > 0.001;
+    RAPTOR::on_ground = RAPTOR::gear_pos > 0.5 &&
+        (RAPTOR::suspension_feedback_available ? wheels_loaded :
+         (RAPTOR::altitude_AGL < 2.0 && RAPTOR::mach < 0.3));
+    RAPTOR::ground_speed_knots =
+        std::hypot(RAPTOR::velocity_world.x, RAPTOR::velocity_world.z) * 1.943844492;
     RAPTOR::airbrake_pos = limit(actuator_timed(RAPTOR::airbrake_pos, RAPTOR::airbrake_switch, -0.6666666667, 0.6666666667, dt), 0, 1);
     double slat_target = (RAPTOR::mach < 0.8) ? (RAPTOR::alpha - 10.0) / 10.0 : 0.0;
     RAPTOR::slats_pos = limit(actuator_timed(RAPTOR::slats_pos, slat_target, -0.5, 0.5, dt), 0, 1);
@@ -972,12 +984,6 @@ void ed_fm_simulate(double dt) {
     double yaw_rate_limiter = -(RAPTOR::yaw_rate + RAPTOR::aos) * (q + 1e5 * 0.5);
     add_local_moment(Vec3(0, yaw_rate_limiter, 0));
 
-    RAPTOR::on_ground = (RAPTOR::gear_pos > 0.5 && RAPTOR::altitude_AGL < 50.0 && RAPTOR::mach < 0.3);
-
-    double ground_vel_x = RAPTOR::velocity_world.x;
-    double ground_vel_z = RAPTOR::velocity_world.z;
-    RAPTOR::ground_speed_knots = sqrt(ground_vel_x * ground_vel_x + ground_vel_z * ground_vel_z) * 1.94384;
-
     RAPTOR::shake_amplitude = 0;
     RAPTOR::shake_amplitude += limit((FM_DATA::cx_brk + 1) * RAPTOR::airbrake_pos * RAPTOR::mach, 0, 2) / 6;
     if (!RAPTOR::on_ground) {
@@ -997,6 +1003,13 @@ void ed_fm_set_atmosphere(double h, double t, double a, double ro, double p, dou
     RAPTOR::altitude_ASL = h;
     RAPTOR::engine_alt_effect = RAPTOR::atmosphere_density / 1.225;
     RAPTOR::atmosphere_temperature = t;
+}
+
+void ed_fm_suspension_feedback(int idx, const ed_fm_suspension_info* info) {
+    if (info == nullptr || idx < 0 || idx >= 3) return;
+    RAPTOR::suspension_feedback_available = true;
+    RAPTOR::suspension_compression[static_cast<size_t>(idx)] =
+        std::max(0.0, info->struct_compression);
 }
 
 void ed_fm_set_surface(double h, double h_obj, unsigned surface_type, double normal_x, double normal_y, double normal_z) {

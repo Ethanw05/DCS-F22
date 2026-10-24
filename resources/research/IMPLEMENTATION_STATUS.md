@@ -18,7 +18,7 @@ Changes are on the experimental feature branch, not yet accepted into main.
 
 - Standalone radar, weapon launch and external guided-weapon integration (F-15C/FC3 remains required).
 - Verified cockpit EDM HUD connector, VR conformality, brightness/clipping and suppression of inherited HUD.
-- Ground suspension-contact state rather than approximate WOW heuristic.
+- Suspension feedback wired to on-ground state, **but** callback availability, sign conventions and wheel compression must be checked inside DCS; 2-m fallback remains when no feedback is supplied.
 - Fully integrated vehicle buses/hydraulics/ECS, engine spool/temperature and calibrated flight-control gain maps.
 - Exact late-service HUD tactical cues, F119 engine deck, APG-77 fusion and aircraft aerodynamic coefficients.
 

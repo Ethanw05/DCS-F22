@@ -149,6 +149,8 @@ namespace RAPTOR {
     double engine_alt_effect = 1, atmosphere_temperature = 273;
     double aoa = 0, alpha = 0, aos = 0, beta = 0, g = 0;
     bool on_ground = false;
+    std::array<double, 3> suspension_compression = {0.0, 0.0, 0.0};
+    bool suspension_feedback_available = false;
     double pitch = 0, pitch_rate = 0, roll = 0, roll_rate = 0, heading = 0, yaw_rate = 0;
 
     double element_integrity[137];
