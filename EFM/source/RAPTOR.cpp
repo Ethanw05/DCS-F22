@@ -1632,7 +1632,7 @@ void ed_fm_set_easy_flight(bool value) { RAPTOR::easy_flight = value; }
 void ed_fm_set_immortal(bool value) { RAPTOR::invincible = value; }
 
 void ed_fm_on_damage(int Element, double element_integrity_factor) {
-    if (Element >= 0 && Element < 111) {
+    if (Element >= 0 && Element < 137) {
         RAPTOR::element_integrity[Element] = element_integrity_factor;
     }
     g_damage_events.push({ Element, element_integrity_factor });
