@@ -31,6 +31,7 @@
 #include <Cockpit/CockpitAPI_Declare.h>
 
 #include "Utility.h"
+#include "HighAlpha.h"
 #include "Inputs.h"
 #include "RAPTOR.h"
 
@@ -350,11 +351,9 @@ void ed_fm_simulate(double dt) {
     double CyAlpha_ = lerp(FM_DATA::mach_table.data(), FM_DATA::Cya, FM_DATA::mach_table.size(), RAPTOR::mach);
     double CyMax_ = lerp(FM_DATA::mach_table.data(), FM_DATA::CyMax, FM_DATA::mach_table.size(), RAPTOR::mach);
 
-    if (fabs(RAPTOR::alpha) >= 15.0) {
-        double vortex_boost = 0.72 * exp(-pow((fabs(RAPTOR::alpha) - 35.0), 2) / (2 * 600.0));
-        if (fabs(RAPTOR::alpha) > 65.0) vortex_boost = 0;
-        CyMax_ += vortex_boost;
-    }
+    // Smooth the original high-alpha vortex *proxy* at both endpoints.
+    // The existing peak/width are retained until measured coefficient data exist.
+    CyMax_ += RaptorAero::VortexLiftCorrection(RAPTOR::alpha);
 
     CyMax_ += (FM_DATA::cy_flap * RAPTOR::slats_pos);
     double Cy = CyAlpha_ * RAPTOR::alpha;

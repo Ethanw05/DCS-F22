@@ -18,3 +18,10 @@ set_target_properties(f22 PROPERTIES
     OUTPUT_NAME "f22" 
     MSVC_RUNTIME_LIBRARY "MultiThreadedDLL"
 )
+# Small standalone numerical tests; no DCS SDK or host process is required.
+include(CTest)
+if(BUILD_TESTING)
+    add_executable(f22_high_alpha_test "${CMAKE_SOURCE_DIR}/tests/test_high_alpha.cpp")
+    target_include_directories(f22_high_alpha_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/source")
+    add_test(NAME high_alpha_continuity COMMAND f22_high_alpha_test)
+endif()
