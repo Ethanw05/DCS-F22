@@ -31,7 +31,9 @@ cmake --build --preset x64-release
 ctest --preset x64-release
 ```
 
-The CMake project writes `bin/F22.dll`. The repository contains source;
+The CMake project writes `bin/F22.dll`. The PR workflow pins the Windows 2022
+runner to match its Visual Studio 2022 preset; a successful run uploads an
+experimental DLL artifact with licence notices and the model limitations. The repository contains source;
 building the DLL is required before installing a fresh source checkout as
 a flyable mod. The inherited release workflow also builds the DLL when a
 version tag is published.
