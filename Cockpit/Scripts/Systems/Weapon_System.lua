@@ -278,24 +278,23 @@ end
 	-- 	weapon_release_state = 0
 	-- 	--print_message_to_user("COMMAND RELEASE")
 	-- end	
-	--Bay Doors Open Close
-	if command == 10026 and master_arm_state == 0 and pickle_pos < 1 then
-		pickle_pos = 1
-		--print_message_to_user("button moves in Doesnt fire")
-	elseif command == 10026 and master_arm_state == 0 and pickle_pos > 0  then
-		pickle_pos = 0
-		--print_message_to_user("button moves out Doesnt fire")
-	elseif command == 10026 and weapon_release_state == 0 and master_arm_state == 1 then
-		weapon_release_state = 1
-		pickle_pos = 1
-		dispatch_action(nil,PickleON)
-		--print_message_to_user("COMMAND DEPRESS")
-	elseif command == 10026 and weapon_release_state == 1 then
-		weapon_release_state = 0
-		pickle_pos = 0
-		dispatch_action(nil,PickleOFF)
-		--print_message_to_user("COMMAND RELEASE")
-	end	
+    -- Pickle is a stateful momentary request. Native FC3 still owns actual
+    -- launch authorization; this code must not leave its trigger latched.
+    if command == 10026 then
+        if weapon_release_state == 1 then
+            weapon_release_state = 0
+            pickle_pos = 0
+            dispatch_action(nil,PickleOFF)
+        elseif master_arm_state == 1 and parameters.MAIN_POWER:get() == 1
+                and parameters.WoW:get() < 0.5 then
+            weapon_release_state = 1
+            pickle_pos = 1
+            dispatch_action(nil,PickleON)
+        else
+            pickle_pos = 0
+        end
+    end
+
 	--ecm_state JAMMER
 	if command == ActiveJamming and ecm_state == 0 then
 		ecm_state = 1
@@ -316,6 +315,21 @@ end
 end
 ------------------------------------------------------------------FUNCTION-UPDATE---------------------------------------------------------------------------------------------------
 function update()
+    -- Interlock all locally dispatched weapon requests on ground, power loss,
+    -- and master-arm loss. Do not confuse gear-down with weight-on-wheels.
+    local ready_to_release = master_arm_state == 1
+        and parameters.MAIN_POWER:get() == 1
+        and parameters.WoW:get() < 0.5
+    if not ready_to_release then
+        if weapon_release_state == 1 then
+            dispatch_action(nil,PickleOFF)
+            weapon_release_state = 0
+            pickle_pos = 0
+        end
+        fire_z_weapons = 0
+        first_state = 0
+        detent_pos = 0
+    end
 	-- print_message_to_user(parameters.WoW:get()) --0 no weight 1 weight on wheel
 	-- print_message_to_user(canon_rotate)
 

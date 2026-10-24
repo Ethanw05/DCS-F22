@@ -230,3 +230,31 @@ Add(LBLTXT)
 ----------------------------------------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------------------------------------
+
+-- Experimental radar MFD: PMFD keys request native FC3 RWS/TWS, NOT an
+-- independent APG-77 scan computer. Target returns not yet integrated.
+local function radar_text(value,x,y,name,condition)
+    local e=CreateElement "ceStringPoly"
+    e.name=name
+    e.material=UFD_GRN
+    e.value=value
+    e.init_pos={x,y,0}
+    e.alignment="CenterCenter"
+    e.stringdefs={0.005,0.005,0,0}
+    e.element_params={"MFD_OPACITY","PMFD_RDR_PAGE"}
+    e.controllers={{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1}}
+    if condition then
+        e.element_params[3]=condition.name
+        e.controllers[3]={"parameter_in_range",2,condition.min,condition.max}
+    end
+    e.h_clip_relation=h_clip_relations.COMPARE
+    e.level=2
+    e.collimated=false
+    Add(e)
+end
+radar_text("FC3 RADAR",0,0.92,"RDR_HOST")
+radar_text("RWS SELECTED",-0.53,0.79,"RDR_RWS",{name="RADAR_MODE",min=-0.1,max=0.1})
+radar_text("TWS SELECTED",-0.53,0.79,"RDR_TWS",{name="RADAR_MODE",min=0.9,max=1.1})
+radar_text("RADAR OFF",0.50,0.79,"RDR_OFF",{name="RADAR_PWR",min=-0.1,max=0.1})
+radar_text("RADAR PWR",0.50,0.79,"RDR_ON",{name="RADAR_PWR",min=0.9,max=1.1})
+radar_text("TRACK DATA NOT LINKED",0,0,"RDR_TRACK_WARN")
