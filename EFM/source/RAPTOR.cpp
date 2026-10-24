@@ -1885,6 +1885,8 @@ void CockpitManager::initialize() {
     param_handles_["FORM_KNOB"] = param_api_.getParamHandle("FORM_KNOB");
     param_handles_["AAR_KNOB"] = param_api_.getParamHandle("AAR_KNOB");
     param_handles_["AAR_READY"] = param_api_.getParamHandle("AAR_READY");
+    param_handles_["EFM_INTERNAL_FUEL_KG"] = param_api_.getParamHandle("EFM_INTERNAL_FUEL_KG");
+    param_handles_["EFM_EXTERNAL_FUEL_KG"] = param_api_.getParamHandle("EFM_EXTERNAL_FUEL_KG");
 
 
     draw_args_[709] = static_cast<float>(getParameter("TAXI_SWITCH", 0.0));
@@ -1899,6 +1901,9 @@ void CockpitManager::initialize() {
 }
 
 void CockpitManager::update(double dt) {
+    // EFM is the authoritative source; no fabricated 'full internal' subtraction.
+    param_api_.setParamNumber(param_handles_["EFM_INTERNAL_FUEL_KG"], RAPTOR::internal_fuel);
+    param_api_.setParamNumber(param_handles_["EFM_EXTERNAL_FUEL_KG"], RAPTOR::external_fuel);
     updateGearLights(dt);
     updateTaxiLandingLights(dt);
     updateAARLight(dt);

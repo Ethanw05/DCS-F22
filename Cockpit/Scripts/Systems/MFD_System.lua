@@ -945,7 +945,7 @@ function update()
         parameters.L_OIL_COLOR:set(0)
     end 
     --HYD ENGINE RIGHT
-    if sensor_data.getEngineRightRPM() >= 45 and r_hyd_value <= 3945 then
+    if sensor_data.getEngineRightRPM() >= 45 and hyd_light ~= 1 and r_hyd_value <= 3945 then
         r_hyd_value = r_hyd_value + 5
     elseif (sensor_data.getEngineRightRPM() <= 44 or hyd_light == 1) and r_hyd_value >= 0.1 then
         r_hyd_value = r_hyd_value - 5

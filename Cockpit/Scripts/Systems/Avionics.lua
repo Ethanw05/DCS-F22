@@ -108,6 +108,8 @@ local parameters =
 	MACH	         	 = get_param_handle("MACH"),
 	PITCHRATE	         = get_param_handle("PITCHRATE"),
 	YAWRATE	         	 = get_param_handle("YAWRATE"),
+    EFM_INTERNAL_FUEL_KG = get_param_handle("EFM_INTERNAL_FUEL_KG"),
+    EFM_EXTERNAL_FUEL_KG = get_param_handle("EFM_EXTERNAL_FUEL_KG"),
 	HUD_POWER = get_param_handle("HUD_POWER"),
 	HUD_PITCH = get_param_handle("HUD_PITCH"),
 	HUD_ROLL = get_param_handle("HUD_ROLL"),
@@ -206,13 +208,11 @@ function update()
 		parameters.FLAPS_DOWN:set(0)	
 	end
 
-	-- Fuel state
-	if parameters.FUELT:get() <= 0 then
-		parameters.FUELTANK:set(0)
-	else
-		parameters.FUELTANK:set(sensor_data.getTotalFuelWeight() * 2.20462 - 18078) -- Working, don't chage: 0.36622 
-	end
-	
+    -- External and internal quantities come directly from EFM state.
+    local fuel_internal_kg = math.max(0.0, parameters.EFM_INTERNAL_FUEL_KG:get())
+    local fuel_external_kg = math.max(0.0, parameters.EFM_EXTERNAL_FUEL_KG:get())
+    parameters.FUELTANK:set(fuel_external_kg * 2.20462262)
+
 	local MFD_KNOB          = get_cockpit_draw_argument_value(704)
 	local UFD_KNOB          = get_cockpit_draw_argument_value(705)
 	local CONSOLE_KNOB      = get_cockpit_draw_argument_value(706)
@@ -281,13 +281,13 @@ function update()
 	end
 	parameters.NAV:set(hdg_int)
 	--parameters.NAV			:set((359 - sensor_data.getHeading() * 180/math.pi))
-	parameters.RADALT       :set(sensor_data.getRadarAltitude() ) -- Working, don't change
+	parameters.RADALT       :set(sensor_data.getRadarAltitude() * 3.280839895 ) -- Working, don't change
 	parameters.BARO         :set(sensor_data.getBarometricAltitude() * 3.28084 ) -- Working, don't change	
 	parameters.RPM_L        :set(sensor_data.getEngineLeftRPM())-- Needs to be tested (might not need to multiply by 2750 cause that was from fixed prop? maybe)
 	parameters.RPM_R        :set(sensor_data.getEngineRightRPM())
 	parameters.FUELL        :set(sensor_data.getTotalFuelWeight() * 0.01 ) -- Working, don't change: 0.36622 
 	parameters.FUEL         :set(sensor_data.getTotalFuelWeight() * 2.20462 ) -- Working, don't change: 0.36622
-	parameters.FUELT        :set(sensor_data.getTotalFuelWeight() * 2.20462 - 18078) -- Working, don't change: 0.36622 **25725 - 17500 = 8225**
+	parameters.FUELT        :set(fuel_external_kg * 2.20462262) -- Working, don't change: 0.36622 **25725 - 17500 = 8225**
 	parameters.EGT_L        :set(sensor_data.getEngineLeftTemperatureBeforeTurbine())
 	parameters.EGT_R        :set(sensor_data.getEngineRightTemperatureBeforeTurbine())
 
