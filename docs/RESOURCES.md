@@ -2,7 +2,9 @@
 
 Checked 24 October 2026.
 
-**147 numbered entries.** Start with the [focused reading guide](RESEARCH_GUIDE.md) for avionics, HUD and flight performance. R88–R147 are the 60 additions from this research pass; supporting methods and access-limited leads are labelled.
+**153 numbered entries.** Start with the [focused reading guide](RESEARCH_GUIDE.md) for avionics, HUD and flight performance. R88–R147 are the 60 additions from the expanded aircraft research pass; R148–R153 add standalone-mod implementation references and an official performance-summary lead. Supporting methods and access-limited leads are labelled.
+
+The [overhaul assessment](OVERHAUL_ASSESSMENT.md) connects the references to the current code. The [standalone design](STANDALONE_DESIGN.md) and [roadmap](OVERHAUL_ROADMAP.md) separate implementable improvements from host-interface uncertainties.
 
 Study references for developing this mod from the Grinnelli F-22A baseline. It includes primary technical material, official public documents, manufacturer announcements, and explicitly labelled implementation sources. Access status is part of each entry: a discovered title or indexed excerpt is not presented as a fully reviewed paper. Mirrors and companion publication records are grouped where possible. The catalogue is a bounded public-source collection, not a claim to contain all information that exists.
 
@@ -1652,3 +1654,81 @@ DOI: 10.1109/DASC.1996.559202. [Publisher PDF lead](https://ieeexplore.ieee.org/
 **Study use:** Reproducible poststall models and time/frequency-domain validation for a thrust-vectoring research aircraft.
 
 **Limits:** X-31A, not F-22. Study the modelling/validation method; its vane geometry, coefficients, controller gains and 70-degree test envelope do not transfer to the Raptor.
+
+## Standalone DCS implementation and additional performance evidence
+
+<a id="r148"></a>
+
+### R148 — Community DCS Modding Documentation — avSimpleRadar
+
+[Source](https://modding.caffeinesimulations.com/Aircraft/Lua/Devices/avSimpleRadar/)
+
+**Access/review:** Community-maintained device documentation reviewed, including initialization and parameter descriptions. Not an official ED compatibility promise.
+
+**Study use:** Describes basic RWS/STT operation, the electric-device prerequisite, scan controls and contact/lock data. This is a candidate integration path for an independent radar prototype.
+
+**Limits:** Explicitly lacks native TWS; search returns are unavailable in STT. A return slot represents a return instance, not necessarily a persistent aircraft ID. Prototype against a pinned DCS build before relying on the interface or inferring supported multi-target missile guidance.
+
+<a id="r149"></a>
+
+### R149 — Community DCS Modding Documentation — avSimpleWeaponSystem
+
+[Source](https://modding.caffeinesimulations.com/Aircraft/Lua/Devices/avSimpleWeaponSystem/)
+
+**Access/review:** Community-maintained device documentation reviewed. Some functions are marked unverified by the documentation itself.
+
+**Study use:** Core-device station inventory, selection, launch, jettison, chaff/flare and ECM interfaces; documents zero-based station indexing.
+
+**Limits:** A launch API does not by itself establish a guided-weapon targeting/support interface. Check actual behavior and native radio/radar/device linkage on the target DCS build.
+
+<a id="r150"></a>
+
+### R150 — Sérvalpilot — List of modding capabilities and limitations, January 2024
+
+[Author's ED forum post](https://forum.dcs.world/topic/342798-list-of-modding-capabilities-and-limitations/)
+
+**Access/review:** First-person modder observations and follow-up discussion reviewed. This is implementation testimony, not an ED SDK specification.
+
+**Study use:** Reports radar-guided missile support via the simple radar, and discusses radio/core-device integration obstacles.
+
+**Limits:** Dated January 2024. Reported close-range sensing and lock-loss limitations need reproduction; it does not prove native TWS, AESA behavior or a currently working independent F-22 combat stack.
+
+<a id="r151"></a>
+
+### R151 — FC3 avionics preload for third-party mods, ED forum exchange, 23 May 2025
+
+[Source](https://forum.dcs.world/topic/373950-fc3-avionics-pre-load-for-3rd-party-mods/)
+
+**Access/review:** Mod developer request and ED Team response reviewed.
+
+**Study use:** Historical primary discussion of FC avionics preload changes, the base-install edit workaround and resulting integrity-check concern. ED declined the requested default change at that time.
+
+**Limits:** Not a current universal statement about every mod or server. Independence removes this specific inherited-avionics dependency; it does not guarantee server admission or integrity-check acceptance.
+
+<a id="r152"></a>
+
+### R152 — Luiz Renault and contributors — A-29B community module
+
+[Project](https://github.com/luizrenault/a-29b-community)
+
+[Inspected revision](https://github.com/luizrenault/a-29b-community/tree/1f632f004e28ef13a5f3404528de4c3fc982a0e2)
+
+[Device declarations](https://github.com/luizrenault/a-29b-community/blob/1f632f004e28ef13a5f3404528de4c3fc982a0e2/Cockpit/Scripts/device_init.lua)
+
+**Access/review:** README, registration and device source inspected from a read-only checkout; no runtime testing.
+
+**Study use:** Independent HUD, navigation, system and stores architecture; use of `avSimplest*` devices and custom cockpit indicators.
+
+**Limits:** Includes compiled `avSimplest.dll` and `avSimplestRadio.dll`; the inspected tree does not supply corresponding C++ source. README allows Lua-system reuse in non-paid DCS modules and describes C++ reuse on request under stated conditions. Do not assume a permissive blanket license or copy binaries as a shortcut. No source or binaries were imported.
+
+<a id="r153"></a>
+
+### R153 — USAF Air Combat Command — F-22 Raptor Demo Team Media Kit, 2019
+
+[Official PDF](https://www.acc.af.mil/Portals/92/AE/F-22%20Demo/F-22%20Media%20Kit%202019.pdf?ver=2019-08-01-143047-813)
+
+**Access/review:** Official PDF indexed with specification excerpts; direct retrieval returned 403. Complete document not reviewed.
+
+**Study use:** Indexed official summary lists +9 g and internal fuel of approximately 18,000 lb / 8,200 kg. Useful as a high-level cross-check against inconsistent mod constants.
+
+**Limits:** A 2019 media summary, not a full flight manual, limiter schedule or structural-loads specification. Do not use it to infer transient overshoot, override logic or the complete performance envelope.

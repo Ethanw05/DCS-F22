@@ -1,6 +1,8 @@
 # Avionics, HUD and flight-performance reading guide
 
-Research pass: 24 October 2026. The [main catalogue](RESOURCES.md) contains **147 numbered entries**, including **60 additions** in this pass: 13 HUD/cockpit/display references, 24 avionics/integration references and 23 flight-control/performance references. Those categories include explicitly labelled supporting research on other aircraft and bibliographic leads; they are not 147 complete F-22 technical manuals. Companion links and unresolved report editions are grouped.
+Research pass: 24 October 2026. The [main catalogue](RESOURCES.md) contains **153 numbered entries**. The expanded aircraft pass added 60: 13 HUD/cockpit/display references, 24 avionics/integration references and 23 flight-control/performance references. The overhaul assessment added six implementation/performance sources, R148–R153. These include explicitly labelled supporting research on other aircraft and bibliographic leads; they are not 153 complete F-22 technical manuals. Companion links and unresolved report editions are grouped.
+
+For implementation, read the [code assessment](OVERHAUL_ASSESSMENT.md), [standalone design](STANDALONE_DESIGN.md) and [roadmap](OVERHAUL_ROADMAP.md). The assessment separates reproduced numerical defects from fidelity gaps and untested DCS integration assumptions.
 
 ## Start here
 
@@ -15,6 +17,7 @@ Research pass: 24 October 2026. The [main catalogue](RESOURCES.md) contains **14
 | Real-aircraft performance checkpoints | [R131](RESOURCES.md#r131), [R21](RESOURCES.md#r21), [R22](RESOURCES.md#r22) | Conditions, configuration and test-era limits; keep demonstration profiles separate from full performance envelopes. |
 | CFD/model validation | [R127](RESOURCES.md#r127), [R147](RESOURCES.md#r147), [R146](RESOURCES.md#r146) | Distinguish flight measurements, simulation output, relative-error plots and conceptual estimates. |
 | Later avionics configurations | [R108](RESOURCES.md#r108), [R109](RESOURCES.md#r109), [R107](RESOURCES.md#r107), [R38](RESOURCES.md#r38), [R80](RESOURCES.md#r80) | Record whether each source describes a test, contract, first delivery or operational installation. |
+| Removing the paid-aircraft prerequisite | [R86](RESOURCES.md#r86), [R87](RESOURCES.md#r87), [R148–R152](RESOURCES.md#r148) | Core device capability, compiled-component boundaries, reuse terms and the need to prove actual missile support separately from display tracks. |
 
 ## Useful page and figure pointers
 
