@@ -39,6 +39,7 @@ creators[devices.MFD_SYSTEM]			 = {"avLuaDevice"		    ,LockOn_Options.script_pat
 creators[devices.PMFD_SYSTEM]			 = {"avLuaDevice"		    ,LockOn_Options.script_path.."Systems/PMFD_System.lua"}
 creators[devices.ICP_SYSTEM]			 = {"avLuaDevice"		    ,LockOn_Options.script_path.."Systems/ICP_System.lua"}
 creators[devices.NAV_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/Navigation_System.lua"}
+creators[devices.AG_MARK_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/AG_Mark_System.lua"}
 --creators[devices.FCS]					 = {"avLuaDevice"			,LockOn_Options.script_path.."Systems/FCS.lua"}
 
 --creators[devices.KNEEBOARD] = {"avKneeboard",LockOn_Options.common_script_path.."KNEEBOARD/device/init.lua"}

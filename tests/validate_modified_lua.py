@@ -17,6 +17,9 @@ SCRIPTS = [
     Path("Cockpit/Scripts/Systems/Navigation_System.lua"),
     Path("Cockpit/Scripts/PMFD_CENTER/radar_page.lua"),
     Path("Cockpit/Scripts/Systems/NavGeometry.lua"),
+    Path("Cockpit/Scripts/Systems/AG_Mark_System.lua"),
+    Path("Cockpit/Scripts/Systems/ICP_System.lua"),
+    Path("Cockpit/Scripts/clickabledata.lua"),
 ]
 
 def main() -> None:

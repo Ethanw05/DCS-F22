@@ -147,9 +147,10 @@ return function(api)
     local noAG=visible("NO_AG_TGT","HUD_AG_TARGET_VALID",0,ag)
     static(0,-0.80,"NO DESIGNATION",0.039,noAG)
     local mark=visible("AG_MARK","HUD_AG_TARGET_VALID",1,ag)
-    static(0,-0.80,"DESIGNATED",0.037,mark)
+    static(0,-0.80,"MARKPOINT",0.037,mark)
+    label(0.75,-0.46,"HUD_AG_TGT_RANGE_NM","R %.1f",0.037,mark)
     group("HUD_AG_MARKER",0,0,
-        {"HUD_AG_TGT_AZ_RAD","HUD_AG_TGT_EL_RAD","HUD_POWER","HUD_AG_TARGET_VALID","HUD_MODE"},
+        {"HUD_AG_TGT_AZ_RAD","HUD_AG_TGT_EL_RAD","HUD_POWER","HUD_AG_CUE_VALID","HUD_MODE"},
         {{"move_left_right_using_parameter",0,1.18},
          {"move_up_down_using_parameter",1,1.18},
          {"opacity_using_parameter",2},
