@@ -78,3 +78,15 @@ The original `Weapons/GBU_32.lua` defines an alleged JDAM as `CAT_AIR_TO_AIR` an
 The two internal GBU-32 positions in `F-22A.lua` now also offer `{GBU_32_V_2B}`, identified by the widely used [pydcs DCS weapon database](https://github.com/pydcs/dcs/blob/master/dcs/weapons_data.py) as the stock GBU-32(V)2/B, approximately 467 kg total. [USAF F-22 fact sheet](https://www.af.mil/About-Us/Fact-Sheets/Display/Article/104506/f-22-raptor/) explicitly identifies **two internal 1,000-pound GBU-32 JDAMs** as a supported A/G fit.
 
 The custom CLSID and stock CLSID are *alternatives* at each pylon. The **old preset remains untouched**; this is a test option, not a guaranteed usable JDAM. There is no integrated F-15C native coordinate-entry/INS weapon computer. In DCS test whether stock GBU-32 is loadable, whether actual released object is a bomb, whether host provides proper guidance (likely absent), weapon employment interlocks, and visual/physics agreement. Never display CCIP/CCRP release solutions without valid store/target data.
+
+
+## Additional HUD/radar/gameplay tests from the latest pass
+
+- **HUD construction**: confirm `HUD_AG_CCIP_PIPPER`, `HUD_GUN_LEAD_SIM`, `HUD_AA_TRACK_SYMBOL`, `HUD_NAV_STEERING` objects are emitted, correct power-gating, separate A/G mode visibility.
+- **Search radar**: with actual native RWS track/return, verify dots move in ±60°/80-NM B-scope; age expires after 2 s with no changing return, and power loss clears all plots. FC3 may not expose these parameters at all; in that case no track dots is correct, not proof the fake radar has been simulated.
+- **AIM-120**: if real STT return is available, HUD should show changing range and observed closure. No SHOOT, TTI, no-escape zone, or guidance-uplink simulations are claimed.
+- **AIM-9**: HUD boresight circle is a generic reference; radar ranging is separate from valid IR-seeker lock. No fake lock tone.
+- **Gun**: with live changing STT data 150–2000 m, `GUN LEAD SIM` reticle is a simplified gravity-only/LOS-rate projection; verify visual movement and use native gun firing independently. It is not an authentic F-22 gun director.
+- **A/G CCIP**: switch to the second A/G submode, point toward terrain and maneuver with positive ground speed. `CCIP SIM` should display estimated intersection/TOF; no drag, no tested bomb-specific coefficient, no release permission.
+- **A/G CCRP**: designate terrain with MARK first, then switch to third A/G submode. `CCRP SIM` estimates time to a gravity-only release point only when the point is ahead/aligned; no automatic release or JDAM guidance.
+- **Native DCS limitation**: `F-15C` host sensors and weapons might still be drawn from the original inherited HUD; if overlapping, capture screenshot and dcs.log. Retain a working baseline when attempting this experimental branch's code (all commits are on `main`).

@@ -14,6 +14,25 @@ Changes are committed to **`main`**, the repository's active development branch.
 - Cockpit quantity data sourced from EFM state, not inferred from a fixed 18,078 lb internal full quantity. Barometric and radar altitude intended in feet. Symmetric hydraulic fault inhibit restored to both displayed circuits.
 - Pinned Visual Studio 2022 runner instead of `windows-latest`, which migrated to VS 2026.
 
+## HUD / radar / missile / A-G follow-up — current main
+
+These changes improve the **presentation and data adapters** and are suitable for desktop DCS testing; they are not an independently complete APG-77/AIM-9/AIM-120/JDAM combat model:
+
+| Area | Implemented code path | DCS proof still needed |
+| --- | --- | --- |
+| NAV HUD | F-22 historical counter-pointers, C-130-inspired heading bar, waypoint bearing/range/steering | Real HUD EDM connector, collimation, duplicate FC3 HUD |
+| Radar RWS | Native-return-only B-scope plots for up to 12 `RADAR_CONTACT_nn_` handles, current-return freshness and radar power gates | Whether inherited FC3 exports any of these avSimpleRadar parameters |
+| Radar STT | Native `RADAR_STT_*` telemetry bridge to HUD/PMFD: range, angular LOS, IFF, stale-data removal | Presence/accuracy of source parameters, actual lock/transition |
+| Radar mode selection | RWS/TWS requested via native FC3 and synchronized with PMFD; VS, BORE, FLOOD request modes | True host mode readback and association with DCS weapon guidance |
+| AIM-9 / AIM-120 HUD | Distinct mode presentations, live radar range/closure when provided, IR lock explicitly unavailable | Actual station ID/count and seeker/rocket status; no claimed shot-envelope validation |
+| Gun HUD | Published M61A2 muzzle speed drives clearly marked **SIM** lead from changing STT range and LOS; gun trigger/bay interlocks | Full ballistics, cannon selected/ammunition actual, ED host command loop |
+| A/G MAN / CCIP / CCRP | Real terrain-markpoint/visual designator, gravity-only `CCIP SIM` predicted point, `CCRP SIM` time-to-release | True DCS weapon selection, flight-model ballistic drag, native bombs/JDAM target data and release |
+| Stock GBU-32 | Optional native GBU-32 entry for two internal bays; old custom weapon preserved for mission compatibility | Whether current FC3 host can release/guide it |
+
+**Do not claim full radar or missile implementation.** Research confirms [avSimpleRadar provides RWS/STT only](https://modding.caffeinesimulations.com/Aircraft/Lua/Devices/avSimpleRadar/) and needs a simple-electric system, while [ED community examples warn of conflicts with FC3 guidance](https://forum.dcs.world/topic/188347-basic-radar-example-code/). Replacing the native stack requires an integrated sensor/electrical/SMS/weapon rewrite and in-simulator tests, not a Lua label change.
+
+**Source trail**: [primary F-22 HUD evidence](HUD_SYMBOL_LEDGER.md), [native-radar bridge](RADAR_STT_DATA_BRIDGE.md), [tactical mode reference](TACTICAL_HUD_RADAR_EVIDENCE.md), [A/G ballistic estimate](AG_POINT_MASS_ESTIMATOR.md), [CCRP approximation](AG_CCRP_ESTIMATOR.md), [existing overall system audit](../../docs/audit/README.md).
+
 ## HUD, navigation, radar, weapons and avionics pass (main, 24 October 2026)
 
 | Subsystem | Changed implementation | Evidence and follow-on |
