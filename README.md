@@ -10,6 +10,7 @@ This project starts from [Grinnelli Designs’ F-22A](https://github.com/grinnel
 - [Standalone design](docs/STANDALONE_DESIGN.md): replacement architecture and the radar/weapon integration experiment needed to remove the F-15C prerequisite.
 - [Overhaul roadmap](docs/OVERHAUL_ROADMAP.md): ordered implementation work and completion criteria.
 - [Study resources](docs/RESOURCES.md): 176 public aircraft, display and engineering references, with access and evidence limits.
+- [Experimental HUD / avionics research](resources/research/README.md): sourced F-22 counter-pointer references, C-130-inspired heading design, change log and test plan. The feature is still on a **draft PR**, not merged into the stable release.
 - [Focused reading guide](docs/RESEARCH_GUIDE.md): avionics, HUD, thrust vectoring and flight performance, with page/figure pointers.
 - Clone with Git LFS installed and run `git lfs pull` to retrieve model, texture, audio and other large assets.
 - The inherited DCS/F-15C dependency still applies. Proprietary DCS binaries and original 3D authoring projects are not supplied by the public source repository.
