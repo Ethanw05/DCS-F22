@@ -156,8 +156,9 @@ function stopSound(sound)
 	end	
 end
 function createExternalLoop(sound_host, start_sound_length, sdef_name_start, sdef_name_loop, sdef_name_end)
-	start_length_ = start_sound_length or 0
+	local start_length_ = start_sound_length or 0
 	
+	local sound_start_, sound_loop_, sound_end_
 	if sdef_name_start then
 		sound_start_ = createExternal(sound_host, sdef_name_start)
 	else
@@ -189,7 +190,8 @@ function post_initialize()
 	if birth == "GROUND_HOT" or birth == "AIR_HOT" then
 		L_cutoff = 1
 		R_cutoff = 1
-		dispatch_action(nil,PowerOnOff)
+		-- Battery clickable handler owns the native power toggle.
+        -- No second PowerOnOff dispatch in the hot-start path.
 		dev:performClickableAction(battery_switch, 1, false)--set battery switch ON
 		dev:performClickableAction(L_gen_switch, 1, false)--set L Gen switch ON
 		dev:performClickableAction(R_gen_switch, 1, false)--set R Gen switch ON
@@ -561,29 +563,21 @@ function update()
 		apu_played = false
 		--print_message_to_user("APU SHUTDOWN!!")
 	end
-	--GEN LEFT POWER ON OFF
-	if L_gen_state == 1 and sensor_data.getEngineLeftRPM() >= 61 and L_gen_pwr == 0 then
-		L_gen_pwr = 1
-		--print_message_to_user("LEFT GEN HAS POWER")
-	elseif L_gen_state == 1 and sensor_data.getEngineLeftRPM() <= 61 and L_gen_pwr == 1 then
-		L_gen_pwr = 0
-		--print_message_to_user("LEFT GEN OFF (NO RPM) ")
-	elseif L_gen_state == 0 and sensor_data.getEngineLeftRPM() >= 61 and L_gen_pwr == 1 then
-		L_gen_pwr = 0
-		--print_message_to_user("LEFT GEN OFF (NO POWER) ")
-	end
-	--GEN RIGHT POWER ON OFF
-	if R_gen_state == 1 and sensor_data.getEngineRightRPM() >= 61 and R_gen_pwr == 0 then
-		R_gen_pwr = 1
-		--print_message_to_user("RIGHT GEN HAS POWER")
-	elseif R_gen_state == 1 and sensor_data.getEngineRightRPM() <= 61 and R_gen_pwr == 1 then
-		R_gen_pwr = 0
-		--print_message_to_user("RIGHT GEN OFF (NO RPM) ")
-	elseif R_gen_state == 0 and sensor_data.getEngineRightRPM() >= 61 and R_gen_pwr == 1 then
-		R_gen_pwr = 0
-		--print_message_to_user("RIGHT GEN OFF (NO POWER) ")
-	end
-	--FULL POWER
+	-- Generator output derived from switch + sensed engine RPM, with hysteresis.
+    -- 59/61% thresholds are preserved/moderated gameplay approximations.
+    local left_rpm = sensor_data.getEngineLeftRPM()
+    local right_rpm = sensor_data.getEngineRightRPM()
+    if L_gen_state == 0 or left_rpm < 59 then
+        L_gen_pwr = 0
+    elseif left_rpm >= 61 then
+        L_gen_pwr = 1
+    end
+    if R_gen_state == 0 or right_rpm < 59 then
+        R_gen_pwr = 0
+    elseif right_rpm >= 61 then
+        R_gen_pwr = 1
+    end
+    --FULL POWER
 	if L_gen_pwr == 1 or R_gen_pwr == 1 or GROUND_POWER:get() == 1 then
 		main_pwr = 1
 	else
