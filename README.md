@@ -3,7 +3,8 @@
 This project starts from [Grinnelli Designs’ F-22A](https://github.com/grinnellidesigns/f-22a), upstream commit `8484b44cf8bc46540376435f0ba584f9f3e8bf44`. Original credits, licences and source history are retained below and throughout the repository.
 
 - [Development setup](docs/DEVELOPMENT.md): checkout, build and source map.
-- [Study resources](docs/RESOURCES.md): public aircraft and display references, with access and evidence limits.
+- [Study resources](docs/RESOURCES.md): 147 public aircraft, display and engineering references, with access and evidence limits.
+- [Focused reading guide](docs/RESEARCH_GUIDE.md): avionics, HUD, thrust vectoring and flight performance, with page/figure pointers.
 - Clone with Git LFS installed and run `git lfs pull` to retrieve model, texture, audio and other large assets.
 - The inherited DCS/F-15C dependency still applies. Proprietary DCS binaries and original 3D authoring projects are not supplied by the public source repository.
 
