@@ -517,10 +517,10 @@ function update()
 	APU_POWER		:set(apu_pwr)
 	APU_RPM_STATE	:set(apu_rpm)
 	BATTERY_POWER	:set(battery_state)
-	MAIN_POWER		:set(main_pwr)
+	-- MAIN_POWER is published after the generator supply model below.
 	UFD_ADI			:set(ufd_swap_adi)
-	L_GEN_POWER		:set(L_gen_state)
-	R_GEN_POWER		:set(R_gen_state)
+	-- Generator power is measured availability, not switch position.
+	-- Supply is published after RPM-dependent state update.
 	PARK		    :set(park_state)
 	B_TOE			:set(B_axis_value)
 	L_TOE			:set(L_axis_value)
@@ -583,6 +583,10 @@ function update()
 	else
 		main_pwr = 0
 	end
+    -- Current frame availability must be propagated before other devices read it.
+    L_GEN_POWER:set(L_gen_pwr)
+    R_GEN_POWER:set(R_gen_pwr)
+    MAIN_POWER:set(main_pwr)
 	--Update Connectors On moving Throttles	
 	local L_THROTTLE = get_cockpit_draw_argument_value(768)
 	if prev_L_throttle_val ~= L_THROTTLE then
