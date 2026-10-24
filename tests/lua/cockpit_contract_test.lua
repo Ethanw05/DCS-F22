@@ -1,5 +1,8 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 local root=assert(arg[1]);local Host=dofile(root.."/tests/lua/host.lua")
+local fonts=Host.New(root);local fontNames={}
+fonts.env.MakeFont=function(_,_,name) assert(not fontNames[name],"font registration collision: "..name);fontNames[name]=true;return name end
+fonts:load("Cockpit/Scripts/fonts.lua")
 local h=Host.New(root)
 h.env.require=function(name) assert(name=="i_18n");return {translate=function(v) return v end} end
 h.env.class_type={BTN=1,TUMB=2,LEV=3,MOVABLE_LEV=4}
