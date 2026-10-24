@@ -389,6 +389,20 @@ F_22A =
 				{ station = 4, loadout = {"{MAKO_A2G_C}"}}}},
                 { CLSID = "{MAKO_A2A_C}", attach_point_position = {0.03, -0.08, -0.05}, Type = 1, Cx_gain_empty = 0.0, Cx_gain_item = 0},	
  				{ CLSID = "{MAKO_A2G_C}", attach_point_position = {0.03, -0.08, -0.05}, Type = 1, Cx_gain_empty = 0.0, Cx_gain_item = 0},	
+                -- Experimental host-native DCS guided-bomb option, NOT verified
+                -- with inherited F-15C stores avionics. See JDAM compatibility study.
+                { CLSID = "{GBU_32_V_2B}", attach_point_position = {0.12, -0.10, -0.13},
+                  Type = 1, Cx_gain_empty = 0.0, Cx_gain_item = 0,
+                  forbidden = {
+                      { station = 4, loadout = {"{40EF17B7-F508-45de-8566-6FFECC0C1AB8}"}},
+                      { station = 4, loadout = {"{C8E06185-7CD6-4C90-959F-044679E90751}"}},
+                      { station = 4, loadout = {"{AIM-120C-7}"}},
+                      { station = 4, loadout = {"{AIM-120C-8}"}},
+                      { station = 4, loadout = {"{AIM-120D-3}"}},
+                      { station = 4, loadout = {"{AIM-260A}"}},
+                      { station = 4, loadout = {"{MAKO_A2A_C}"}},
+                      { station = 4, loadout = {"{MAKO_A2G_C}"}}
+                  } },
 				{ CLSID = "{GBU32_JDAM}", attach_point_position = {0.12, -0.10, -0.13}, Type = 1, Cx_gain_empty = 0.0, Cx_gain_item = 0,  forbidden = {	
 				{ station = 4, loadout = {"{40EF17B7-F508-45de-8566-6FFECC0C1AB8}"}},	
 				{ station = 4, loadout = {"{C8E06185-7CD6-4C90-959F-044679E90751}"}},	
@@ -443,6 +457,20 @@ F_22A =
 				{ station = 8, loadout = {"{MAKO_A2G_C}"}}}},				
                 { CLSID = "{MAKO_A2A_C}", attach_point_position = {0.03, -0.08, 0.05}, Type = 1, Cx_gain_empty = 0.0, Cx_gain_item = 0},	
                 { CLSID = "{MAKO_A2G_C}", attach_point_position = {0.03, -0.08, 0.05}, Type = 1, Cx_gain_empty = 0.0, Cx_gain_item = 0},					
+                -- Experimental host-native DCS guided-bomb option, NOT verified
+                -- with inherited F-15C stores avionics. See JDAM compatibility study.
+                { CLSID = "{GBU_32_V_2B}", attach_point_position = {0.12, -0.10, 0.13},
+                  Type = 1, Cx_gain_empty = 0.0, Cx_gain_item = 0,
+                  forbidden = {
+                      { station = 8, loadout = {"{40EF17B7-F508-45de-8566-6FFECC0C1AB8}"}},
+                      { station = 8, loadout = {"{C8E06185-7CD6-4C90-959F-044679E90751}"}},
+                      { station = 8, loadout = {"{AIM-120C-7}"}},
+                      { station = 8, loadout = {"{AIM-120C-8}"}},
+                      { station = 8, loadout = {"{AIM-120D-3}"}},
+                      { station = 8, loadout = {"{AIM-260A}"}},
+                      { station = 8, loadout = {"{MAKO_A2A_C}"}},
+                      { station = 8, loadout = {"{MAKO_A2G_C}"}}
+                  } },
 				{ CLSID = "{GBU32_JDAM}", attach_point_position = {0.12, -0.10, 0.13}, Type = 1, Cx_gain_empty = 0.0, Cx_gain_item = 0,  forbidden = {		
 				{ station = 8, loadout = {"{40EF17B7-F508-45de-8566-6FFECC0C1AB8}"}},	
 				{ station = 8, loadout = {"{C8E06185-7CD6-4C90-959F-044679E90751}"}},	

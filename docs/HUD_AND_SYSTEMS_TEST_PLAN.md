@@ -69,3 +69,12 @@ Create a simple mission with at least three waypoints, including a waypoint 10 k
 Record DCS version, loadout, mission, weight/fuel, start type, input device and DCS log. Classify failure separately as **HUD rendering/EDM**, **sensor-data projection**, **combat host integration**, **actuator**, **engine/electrical**, **fuel ledger** or **DCS parameter bridge**. Screenshot alone cannot verify missile target support or an aircraft handling-quality curve.
 
 See [the research and outstanding-work matrix](../resources/research/IMPLEMENTATION_STATUS.md); all changes are on `main`, not a separate release branch.
+
+
+## Optional host-native GBU-32 compatibility experiment
+
+The original `Weapons/GBU_32.lua` defines an alleged JDAM as `CAT_AIR_TO_AIR` and missile `wsTypeOfWeapon`, with a whole-bomb explosive fill. This is **not a valid JDAM simulation**. The legacy CLSID remains for existing mission compatibility, with its defective semantics plainly documented.
+
+The two internal GBU-32 positions in `F-22A.lua` now also offer `{GBU_32_V_2B}`, identified by the widely used [pydcs DCS weapon database](https://github.com/pydcs/dcs/blob/master/dcs/weapons_data.py) as the stock GBU-32(V)2/B, approximately 467 kg total. [USAF F-22 fact sheet](https://www.af.mil/About-Us/Fact-Sheets/Display/Article/104506/f-22-raptor/) explicitly identifies **two internal 1,000-pound GBU-32 JDAMs** as a supported A/G fit.
+
+The custom CLSID and stock CLSID are *alternatives* at each pylon. The **old preset remains untouched**; this is a test option, not a guaranteed usable JDAM. There is no integrated F-15C native coordinate-entry/INS weapon computer. In DCS test whether stock GBU-32 is loadable, whether actual released object is a bomb, whether host provides proper guidance (likely absent), weapon employment interlocks, and visual/physics agreement. Never display CCIP/CCRP release solutions without valid store/target data.

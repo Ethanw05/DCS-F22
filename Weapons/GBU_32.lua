@@ -17,6 +17,12 @@
 --]]
 
 
+-- LEGACY COMPATIBILITY ONLY: this asset incorrectly declares a GPS-guided
+-- 1000-lb bomb as an A/A missile, with missile ModelData and 460-kg explosive
+-- mass equal to gross munition mass. Existing user missions still reference
+-- CLSID "{GBU32_JDAM}", so retain the old definition until native DCS stock
+-- GBU-32 or a properly tested guided bomb device replaces its use.
+-- Do not interpret this as valid JDAM guidance or realistic effects.
 --v1.1
 local GBU_32_JDAM =
 {
