@@ -27,8 +27,9 @@ jobs:
 
     - name: Check modified Lua scripts
       run: |
-        python -m pip install luaparser==4.2.0
+        python -m pip install luaparser==4.2.0 lupa==2.8
         python tests/validate_modified_lua.py
+        python tests/test_nav_geometry.py
 
     - name: Upload experimental EFM DLL
       uses: actions/upload-artifact@v4
