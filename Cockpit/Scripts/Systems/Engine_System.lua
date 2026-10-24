@@ -356,22 +356,15 @@ end
 			L_cutoff = 0
 			R_cutoff = 0
 		end
---THROTTLE ANIMATION		
-		if command == 2004 and L_cutoff == 1 and R_cutoff == 1 then --common
-			L_throttle_pos = value
-			R_throttle_pos = value
-		elseif command == 2004 and L_cutoff == 0 and R_cutoff == 0 then --common
-			L_throttle_pos = 1
-			R_throttle_pos = 1
-		elseif command == 2005 and L_cutoff == 1 then --Left
-			L_throttle_pos = value
-		elseif command == 2005 and L_cutoff == 0 then --Left
-			L_throttle_pos = 1
-		elseif command == 2006 and R_cutoff == 1 then --Right
-			R_throttle_pos = value
-		elseif command == 2006 and R_cutoff == 0 then --Right
-			R_throttle_pos = 1
-		end
+--THROTTLE ANIMATION: each lever follows its own cutoff, including mixed engines.
+    if command == 2004 then
+        L_throttle_pos = (L_cutoff == 1) and value or 1
+        R_throttle_pos = (R_cutoff == 1) and value or 1
+    elseif command == 2005 then
+        L_throttle_pos = (L_cutoff == 1) and value or 1
+    elseif command == 2006 then
+        R_throttle_pos = (R_cutoff == 1) and value or 1
+    end
 --APU START/RUN/STOP	
 		if command == apu_switch and battery_state == 1 and apu_state == 0 and apu_switch_pos == 1 then
 			apu_state = 1
@@ -547,25 +540,21 @@ function update()
 		apu_played = true
 		--print_message_to_user("APU STARTING!!")
 	end
-	--APU RUN UP CLOCK	
-	if battery_state == 1 and apu_state == 1 and apu_switch_pos == 0 and apu_rpm <= 3.99 then	
-		apu_rpm = apu_rpm + 0.01
-		--print_message_to_user("APU RUNNING!!")
-	end
-	--APU RUN DOWN CLOCK	
-	if battery_state == 1 and apu_state == 0 and apu_switch_pos == -1 and apu_rpm >= 0.01 then	
-		apu_rpm = apu_rpm - 0.01
-		--print_message_to_user("APU RUNNING!!")
-	end
-	--APU HAS POWER	
-	if battery_state == 1 and apu_state == 1 and apu_switch_pos == 0 and apu_rpm >= 3.80 then
-		apu_pwr = 1	
-		--print_message_to_user("APU HAS POWER")
-	end
-	--APU LOST POWER
-	if battery_state == 1 and apu_state == 0 and apu_rpm < 1 then
-		apu_pwr = 0
-	end	
+    -- APU start/run/stop is a bounded timed state, not an update-count rate.
+    -- 0.01 per 0.024s preserves the earlier nominal ramp speed.
+    local apu_rate = 0.01 / 0.024
+    local apu_can_start = battery_state == 1 and apu_state == 1
+        and apu_switch_pos == 0
+    if apu_can_start then
+        apu_rpm = math.min(4.0, apu_rpm + apu_rate * dt)
+    else
+        apu_rpm = math.max(0.0, apu_rpm - apu_rate * dt)
+    end
+    -- Supply is an independently published availability state.
+    apu_pwr = apu_can_start and apu_rpm >= 3.8 and 1 or 0
+    -- Update the current tick's published values after advancing the model.
+    APU_POWER:set(apu_pwr)
+    APU_RPM_STATE:set(apu_rpm)
 	--APU SOUND SHUTDOWN
 	if apu_played == true and battery_state >= 0 and apu_state == 0 and apu_switch_pos == -1 then		
 		SOUND_APU:set(0)
@@ -604,38 +593,17 @@ function update()
 	local L_THROTTLE = get_cockpit_draw_argument_value(768)
 	if prev_L_throttle_val ~= L_THROTTLE then
         local L_throttle_clickable_ref = get_clickable_element_reference("LTHROT_PNT")
-        L_throttle_clickable_ref:update() -- ensure the connector moves too
+        if L_throttle_clickable_ref then L_throttle_clickable_ref:update() end
         prev_L_throttle_val = L_THROTTLE
     end
 	local R_THROTTLE = get_cockpit_draw_argument_value(766)
 	if prev_R_throttle_val ~= R_THROTTLE then
         local R_throttle_clickable_ref = get_clickable_element_reference("RTHRT_PNT")
-        R_throttle_clickable_ref:update() -- ensure the connector moves too
+        if R_throttle_clickable_ref then R_throttle_clickable_ref:update() end
         prev_R_throttle_val = R_THROTTLE
     end
-	--CLAM SHELL COLD START
-	-- Clam positon 1 = open 0 = closed
-	--print_message_to_user(right_clam_pos)
-	local right_clam_pos = get_aircraft_draw_argument_value(610)
-	if (sensor_data.getEngineRightRPM()) <= 35 and right_clam_pos <= 1  then
-		right_clam_pos = right_clam_pos + 0.005   
-		set_aircraft_draw_argument_value(610, right_clam_pos)--set open
-		-- print_message_to_user("plus")
-	elseif (sensor_data.getEngineRightRPM()) >= 36 and right_clam_pos >= 0  then
-		right_clam_pos = right_clam_pos - 0.005    
-		set_aircraft_draw_argument_value(610,right_clam_pos)
-		--print_message_to_user("minus")
-	end
-	local left_clam_pos = get_aircraft_draw_argument_value(611)
-	if (sensor_data.getEngineLeftRPM()) <= 35 and left_clam_pos <= 1  then
-		left_clam_pos = left_clam_pos + 0.005   
-		set_aircraft_draw_argument_value(611, left_clam_pos)--set open
-		--print_message_to_user("plus")
-	elseif (sensor_data.getEngineLeftRPM()) >= 36 and left_clam_pos >= 0  then
-		left_clam_pos = left_clam_pos - 0.005    
-		set_aircraft_draw_argument_value(611, left_clam_pos)
-		--print_message_to_user("minus")
-	end
+    -- No Lua writes to arguments 610 and 611. The EFM owns these physical
+    -- engine-clam animations through ed_fm_set_draw_args_v2 (single writer).
 	--Ground Power Cart
 	if GROUND_POWER:get() == 1 then
 		gpu_cart = 1
@@ -683,19 +651,21 @@ function update()
 
 	--print_message_to_user(left_throttle_pos)
 
-	--APU SHUTOFF
-	if apu_state == 1 and apu_switch_pos == 0 and sensor_data.getEngineLeftRPM() >= 67 and sensor_data.getEngineRightRPM() >= 67 and apu_autooff == 0 then
-		apu_autooff_timer = apu_autooff_timer + dt
-		--print_message_to_user(apu_autooff_timer)
-	elseif apu_state == 0 then
-		apu_autooff = 0
-		apu_autooff_timer = 0
-	end
-	--APU AUTO SHUTDOWN
-	if apu_autooff_timer >= 60 and apu_switch_pos == 0 and (L_gen_state == 1 or R_gen_state == 1) then
-		dev:performClickableAction(apu_switch, -1, false)--set apu switch OFF
-	end
-
+    -- Require a CONTINUOUS 60 seconds with both generators available and
+    -- both engines running. Interrupted conditions reset the qualification.
+    local apu_autooff_qualified = apu_state == 1 and apu_switch_pos == 0
+        and sensor_data.getEngineLeftRPM() >= 67
+        and sensor_data.getEngineRightRPM() >= 67
+        and (L_gen_pwr == 1 or R_gen_pwr == 1)
+    if apu_autooff_qualified then
+        apu_autooff_timer = apu_autooff_timer + dt
+    else
+        apu_autooff_timer = 0
+    end
+    if apu_autooff_timer >= 60 then
+        apu_autooff_timer = 0
+        dev:performClickableAction(apu_switch, -1, false)
+    end
 
 end
 ------------------------------------------------------------------FUNCTION-UPDATE-END-----------------------------------------------------------------------------------------------
