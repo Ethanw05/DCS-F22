@@ -15,6 +15,8 @@ local p={
     el=get_param_handle("HUD_WP_EL_RAD"),
     distance=get_param_handle("HUD_WP_RANGE_NM"),
     index=get_param_handle("HUD_WP_INDEX"),
+    bearing=get_param_handle("HUD_WP_BEARING_DEG"),
+    bearingValid=get_param_handle("HUD_WP_BRG_VALID"),
 }
 local nextSteer=Keys.PlaneChangeTarget
 local prevSteer=1315 -- existing ICP previous waypoint command
@@ -29,6 +31,8 @@ local function clear()
     p.el:set(0)
     p.distance:set(0)
     p.index:set(0)
+    p.bearing:set(0)
+    p.bearingValid:set(0)
 end
 local function validPoint(w)
     return type(w)=="table" and type(w.x)=="number" and
@@ -77,6 +81,22 @@ function update()
     if not range or range<1 then clear(); return end
     p.index:set(active)
     p.distance:set(range/1852.0)
+    -- Bearing from aircraft to the selected waypoint in DCS world coordinates:
+    -- horizontal x=north, horizontal map y=east. True/world reference.
+    -- Lua 5.1 lacks a portable atan2; handle the quadrants explicitly.
+    local horizontal=math.sqrt(dx*dx+dy*dy)
+    if horizontal > 1.0 then
+        local bearing
+        if dx>0 then bearing=math.atan(dy/dx)
+        elseif dx<0 then bearing=math.atan(dy/dx)+math.pi
+        elseif dy>0 then bearing=math.pi/2
+        else bearing=3*math.pi/2 end
+        p.bearing:set((bearing*180/math.pi+360)%360)
+        p.bearingValid:set(1)
+    else
+        p.bearing:set(0)
+        p.bearingValid:set(0)
+    end
     p.waypoint:set(1)
     if az and el and math.abs(az)<math.rad(15) and math.abs(el)<math.rad(12.5) then
         p.az:set(az)

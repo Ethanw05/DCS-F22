@@ -21,3 +21,10 @@ This subsystem is independent of the earlier handwritten flight-display illustra
 - The generic 30°×25° advertised historic HUD FOV is used as a conservative cue clipping assumption, NOT as measured optical geometry.
 - Waypoint altitude `alt` is not assumed to equal ground height; **do not use mission navigation points as targets for JDAM/CCIP/AG designation automatically**.
 - Lua device numeric data is validated; DCS APIs themselves still need in-game validation.
+
+
+### Direct-to-waypoint bearing (added in main)
+
+The NAV computer now publishes `HUD_WP_BEARING_DEG` and `HUD_WP_BRG_VALID`: the bearing is determined from the north/east horizontal displacement using quadrant-aware arctangent and normalized to [0,360) degrees. It is a **world/true bearing**, not a selected `CRS` or a magnetic corrected course. Display uses `BRG` rather than the C-130J image's `CRS`, deliberately avoiding fabricated course-select logic. A waypoint directly above/below the aircraft gives no defined bearing and hides the text.
+
+Screen distinguishes selected waypoint index from waypoint slant range. Check points due north, south, east and west with aircraft heading 000/090/180/270; especially wrap at 359→000 and heading source convention, as the current system still requires DCS runtime calibration.

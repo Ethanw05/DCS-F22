@@ -60,7 +60,10 @@ return function(api)
     local noWP = visible("NO_WP","HUD_WP_VALID",0,nav)
     static(0.0,-0.78,"STPT --",0.039,noWP)
     local wp = visible("WP","HUD_WP_VALID",1,nav)
-    label(0.0,-0.78,"HUD_WP_RANGE_NM","%4.1f NM",0.038,wp)
+    label(-0.35,-0.78,"HUD_WP_INDEX","STPT %02.0f",0.039,wp)
+    label(0.25,-0.78,"HUD_WP_RANGE_NM","%4.1f NM",0.038,wp)
+    local bearing=visible("WP_BRG","HUD_WP_BRG_VALID",1,nav)
+    label(0.72,0.83,"HUD_WP_BEARING_DEG","BRG %03.0f",0.037,bearing)
     group("HUD_NAV_STEERING",0,0,
         {"HUD_WP_AZ_RAD","HUD_WP_EL_RAD","HUD_POWER","HUD_WP_CUE_VALID","HUD_MODE"},
         {{"move_left_right_using_parameter",0,1.18},
