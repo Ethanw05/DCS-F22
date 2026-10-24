@@ -154,6 +154,8 @@ local pickle_pos			= 0
 local hud_radar_request = 1 -- 1 RWS, 2 TWS request, 3 VS, 4 ACM, 5 FLOOD
 local ag_submode = 1 -- 1 MAN, 2 CCIP request, 3 CCRP request
 local gun_command_active = false
+local native_pickle_active = false
+local prev_bay_selection = 2
 ------------------------------------------------------------------FUNCTION-POSTINIT---------------------------------------------------------------------------------------------------
 
 function post_initialize()
@@ -278,18 +280,16 @@ end
 	-- 	weapon_release_state = 0
 	-- 	--print_message_to_user("COMMAND RELEASE")
 	-- end	
-    -- Pickle is a stateful momentary request. Native FC3 still owns actual
-    -- launch authorization; this code must not leave its trigger latched.
+    -- User-operated pickle switch sets a request. DCS receives PickleON
+    -- only after the selected weapon bay has finished opening.
     if command == 10026 then
         if weapon_release_state == 1 then
             weapon_release_state = 0
             pickle_pos = 0
-            dispatch_action(nil,PickleOFF)
         elseif master_arm_state == 1 and parameters.MAIN_POWER:get() == 1
                 and parameters.WoW:get() < 0.5 then
             weapon_release_state = 1
             pickle_pos = 1
-            dispatch_action(nil,PickleON)
         else
             pickle_pos = 0
         end
@@ -322,7 +322,6 @@ function update()
         and parameters.WoW:get() < 0.5
     if not ready_to_release then
         if weapon_release_state == 1 then
-            dispatch_action(nil,PickleOFF)
             weapon_release_state = 0
             pickle_pos = 0
         end
@@ -333,157 +332,85 @@ function update()
 	-- print_message_to_user(parameters.WoW:get()) --0 no weight 1 weight on wheel
 	-- print_message_to_user(canon_rotate)
 
-	local bay_door_pos   = get_aircraft_draw_argument_value(600)
-	local left_door_pos  = get_aircraft_draw_argument_value(601)
-	local right_door_pos = get_aircraft_draw_argument_value(602)
-	local canon_door_pos = get_aircraft_draw_argument_value(614)
-	local canon_rotate   = get_aircraft_draw_argument_value(615)
+    -- Single owner for all bay positions. Independent main/left/right bay
+    -- requests, ramped with physical time, no repeated writes/overshoots.
+    -- Rate approximations reproduce the earlier intended 0.02s Lua cadence.
+    local mainPower = parameters.MAIN_POWER:get() >= 0.5
+    local groundContact = parameters.WoW:get() >= 0.5
+    local selected = math.floor(parameters.BAY_STATION:get() + 0.5)
+    if selected < 1 or selected > 4 then
+        selected = prev_bay_selection
+    else
+        prev_bay_selection = selected
+    end
+    local groundOverride = groundContact and mainPower
+        and parameters.GROUND_ORIDE:get() >= 0.5
+    local groundCrewLeft = groundContact and parameters.GROUND_POWER:get() >= 0.5
+        and parameters.GROUND_ORIDE:get() < 0.5
+    local releaseRequest = not groundContact and mainPower and master_arm_state == 1
+        and (weapon_release_state == 1 or air_oride == 1)
+    local openAll = groundOverride or (releaseRequest and selected == 4)
+    local openMain = openAll or (releaseRequest and selected == 2)
+    local openLeft = openAll or groundCrewLeft or (releaseRequest and selected == 1)
+    local openRight = openAll or (releaseRequest and selected == 3)
 
-	local left_door_pos_gpu  = get_aircraft_draw_argument_value(601)
-	--LEFT BAY Ground Power
-	if parameters.GROUND_POWER:get() == 1 and left_door_pos_gpu <= 1 and parameters.GROUND_ORIDE:get() == 0 and parameters.WoW:get() == 1 then
-		left_door_pos_gpu = left_door_pos_gpu + 0.005
-		set_aircraft_draw_argument_value(601, left_door_pos_gpu)
-	elseif parameters.GROUND_POWER:get() == 0 and left_door_pos_gpu >= 0 and parameters.GROUND_ORIDE:get() == 0 and parameters.WoW:get() == 1 then
-		left_door_pos_gpu = left_door_pos_gpu - 0.005
-		set_aircraft_draw_argument_value(601, left_door_pos_gpu)
-	end
---parameters.BAY_OPTION:get() == 1
-	--parameters.BAY_STATION:set(hotas_station) --had to remove
-	--GROUND BAY OVERRIDE
-	if sensor_data.getNoseLandingGearDown() == 1 and parameters.GROUND_ORIDE:get() == 1 and parameters.MAIN_POWER:get() == 1 and bay_door_pos <= 1 then --and parameters.BAY_OPTION:get() == 0 then
-		bay_door_pos = bay_door_pos + 0.0022
-		left_door_pos = left_door_pos + 0.0022
-		right_door_pos = right_door_pos + 0.0022
-		set_aircraft_draw_argument_value(600,bay_door_pos)
-		set_aircraft_draw_argument_value(601,left_door_pos)
-		set_aircraft_draw_argument_value(602,right_door_pos)
-	elseif sensor_data.getNoseLandingGearDown() == 1 and parameters.GROUND_ORIDE:get() == 0 and parameters.MAIN_POWER:get() == 1 and bay_door_pos >= 0 then --and parameters.BAY_OPTION:get() == 0 then
-		bay_door_pos = bay_door_pos - 0.0022
-		left_door_pos = left_door_pos - 0.0022
-		right_door_pos = right_door_pos - 0.0022
-		set_aircraft_draw_argument_value(600,bay_door_pos)
-		set_aircraft_draw_argument_value(601,left_door_pos)
-		set_aircraft_draw_argument_value(602,right_door_pos)
-	end
+    -- Normal actuator model [normalized travel/second]. True real rates
+    -- depend on hydraulics and are not available in the public documents.
+    local function stepDoor(current, open, rate)
+        current = math.max(0, math.min(1, current))
+        if not mainPower and not groundCrewLeft then return current end
+        local target = open and 1 or 0
+        local maximum = rate * update_time_step
+        return math.max(0, math.min(1,
+            current + math.max(-maximum, math.min(maximum, target-current))))
+    end
+    local bay_door_pos = stepDoor(get_aircraft_draw_argument_value(600),
+        openMain, groundContact and 0.11 or 2.5)
+    local left_door_pos = stepDoor(get_aircraft_draw_argument_value(601),
+        openLeft, groundContact and (groundCrewLeft and 0.25 or 0.11) or 2.5)
+    local right_door_pos = stepDoor(get_aircraft_draw_argument_value(602),
+        openRight, groundContact and 0.11 or 2.5)
+    set_aircraft_draw_argument_value(600,bay_door_pos)
+    set_aircraft_draw_argument_value(601,left_door_pos)
+    set_aircraft_draw_argument_value(602,right_door_pos)
 
-	
-	--ORIDE X
-	if sensor_data.getNoseLandingGearDown() == 0 then --not on the ground...
-		parameters.ORIDE_X:set(1)
-	else
-		parameters.ORIDE_X:set(0)
-	end
-	--ORIDE TEXT
-	if sensor_data.getNoseLandingGearDown() == 1 and bay_door_pos >= 0.01 then
-		parameters.ORIDE_TEXT:set(1)
-	elseif sensor_data.getNoseLandingGearDown() == 1 and bay_door_pos < 0.01 then
-		parameters.ORIDE_TEXT:set(0)
-	end
-	-- ARMED TEXT
-	if sensor_data.getNoseLandingGearDown() == 1 and sensor_data.getRightMainLandingGearDown() == 1 and sensor_data.getLeftMainLandingGearDown() == 1 then
-		parameters.ARM_STATUS:set(2)
-	elseif master_arm_state == 1 and sensor_data.getNoseLandingGearDown() == 0 and sensor_data.getRightMainLandingGearDown() == 0 and sensor_data.getLeftMainLandingGearDown() == 0 then
-		parameters.ARM_STATUS:set(1)
-	elseif master_arm_state == 0 and sensor_data.getNoseLandingGearDown() == 0 and sensor_data.getRightMainLandingGearDown() == 0 and sensor_data.getLeftMainLandingGearDown() == 0 then
-		parameters.ARM_STATUS:set(0)
-	end
-	--WEAPON BAY FIRE ANIMATIONS BAY STATION 1-left 2-center 3-right 4-all
-		--ALL BAY ORIDE
-		if air_oride == 1 and parameters.BAY_STATION:get() == 4 and master_arm_state == 1 and bay_door_pos <= 1 and parameters.MAIN_POWER:get() == 1 and sensor_data.getNoseLandingGearDown() == 0 then
-			left_door_pos = left_door_pos + 0.05
-			right_door_pos = right_door_pos + 0.05
-			bay_door_pos = bay_door_pos + 0.05
-			set_aircraft_draw_argument_value(600, bay_door_pos)
-			set_aircraft_draw_argument_value(601, left_door_pos)
-			set_aircraft_draw_argument_value(602, right_door_pos)
-		end
-		--ALL BAY
-		if weapon_release_state == 1 and air_oride == 0 and parameters.BAY_STATION:get() == 4 and master_arm_state == 1 and right_door_pos <= 1 and parameters.MAIN_POWER:get() == 1 and sensor_data.getNoseLandingGearDown() == 0 then
-			left_door_pos = left_door_pos + 0.05
-			right_door_pos = right_door_pos + 0.05
-			bay_door_pos = bay_door_pos + 0.05
-			set_aircraft_draw_argument_value(600, bay_door_pos)
-			set_aircraft_draw_argument_value(601, left_door_pos)
-			set_aircraft_draw_argument_value(602, right_door_pos)
-		end
-		--CENTER BAY AIR ORIDE
-		if air_oride == 1 and parameters.BAY_STATION:get() == 2 and master_arm_state == 1 and bay_door_pos <= 1 and parameters.MAIN_POWER:get() == 1 and sensor_data.getNoseLandingGearDown() == 0 then
-			bay_door_pos = bay_door_pos + 0.05
-			set_aircraft_draw_argument_value(600, bay_door_pos)
-		elseif air_oride == 0 and parameters.MAIN_POWER:get() == 1 and bay_door_pos >= 0 and sensor_data.getNoseLandingGearDown() == 0 then
-			bay_door_pos = bay_door_pos
-			set_aircraft_draw_argument_value(600, bay_door_pos)
-		end
-		--CENTER BAY
-		if weapon_release_state == 1 and air_oride == 0 and parameters.BAY_STATION:get() == 2 and master_arm_state == 1 and bay_door_pos <= 1 and parameters.MAIN_POWER:get() == 1 and sensor_data.getNoseLandingGearDown() == 0 then
-			bay_door_pos = bay_door_pos + 0.05
-			set_aircraft_draw_argument_value(600, bay_door_pos)
-		elseif weapon_release_state == 0 and air_oride == 0 and parameters.MAIN_POWER:get() == 1 and bay_door_pos >= 0 and sensor_data.getNoseLandingGearDown() == 0 then
-			bay_door_pos = bay_door_pos - 0.05
-			set_aircraft_draw_argument_value(600, bay_door_pos)
-		end
-		--LEFT BAY ORIDE
-		if air_oride == 1 and parameters.BAY_STATION:get() == 1 and master_arm_state == 1 and left_door_pos <= 1 and parameters.MAIN_POWER:get() == 1 and sensor_data.getNoseLandingGearDown() == 0 then
-			left_door_pos = left_door_pos + 0.05
-			set_aircraft_draw_argument_value(601, left_door_pos)
-		elseif air_oride == 0 and parameters.MAIN_POWER:get() == 1 and left_door_pos >= 0 and sensor_data.getNoseLandingGearDown() == 0 and parameters.GROUND_POWER:get() == 0 then
-			left_door_pos = left_door_pos
-			set_aircraft_draw_argument_value(601, left_door_pos)
-		end
-		--LEFT BAY
-		if weapon_release_state == 1 and air_oride == 0 and parameters.BAY_STATION:get() == 1 and master_arm_state == 1 and left_door_pos <= 1 and parameters.MAIN_POWER:get() == 1 and sensor_data.getNoseLandingGearDown() == 0 then
-			left_door_pos = left_door_pos + 0.05
-			set_aircraft_draw_argument_value(601, left_door_pos)
-		elseif weapon_release_state == 0 and air_oride == 0 and parameters.MAIN_POWER:get() == 1 and left_door_pos >= 0 and sensor_data.getNoseLandingGearDown() == 0 then
-			left_door_pos = left_door_pos - 0.05
-			set_aircraft_draw_argument_value(601, left_door_pos)
-		end
-		--RIGHT BAY ORIDE
-		if air_oride == 1 and parameters.BAY_STATION:get() == 3 and master_arm_state == 1 and right_door_pos <= 1 and parameters.MAIN_POWER:get() == 1 and sensor_data.getNoseLandingGearDown() == 0 then
-			right_door_pos = right_door_pos + 0.05
-			set_aircraft_draw_argument_value(602, right_door_pos)
-		elseif air_oride == 0 and parameters.MAIN_POWER:get() == 1 and right_door_pos >= 0 and sensor_data.getNoseLandingGearDown() == 0 then
-			right_door_pos = right_door_pos
-			set_aircraft_draw_argument_value(602, right_door_pos)
-		end
-		--RIGHT BAY
-		if weapon_release_state == 1 and air_oride == 0 and parameters.BAY_STATION:get() == 3 and master_arm_state == 1 and right_door_pos <= 1 and parameters.MAIN_POWER:get() == 1 and sensor_data.getNoseLandingGearDown() == 0 then
-			right_door_pos = right_door_pos + 0.05
-			set_aircraft_draw_argument_value(602, right_door_pos)
-		elseif weapon_release_state == 0 and air_oride == 0 and parameters.MAIN_POWER:get() == 1 and right_door_pos >= 0 and sensor_data.getNoseLandingGearDown() == 0 then
-			right_door_pos = right_door_pos - 0.05
-			set_aircraft_draw_argument_value(602, right_door_pos)
-		end
-		--First Detent CAnon Door
-		if first_state == 1 and master_arm_state == 1 and canon_door_pos <= 1 and parameters.MAIN_POWER:get() == 1 and sensor_data.getNoseLandingGearDown() == 0 then
-			canon_door_pos = canon_door_pos + 0.0900
-			set_aircraft_draw_argument_value(614, canon_door_pos)
-		elseif first_state == 0 and master_arm_state == 1 and canon_door_pos >= 0 and parameters.MAIN_POWER:get() == 1 and sensor_data.getNoseLandingGearDown() == 0 then
-			canon_door_pos = canon_door_pos - 0.0900
-			set_aircraft_draw_argument_value(614, canon_door_pos)
-		end
-		if fire_z_weapons == 1 and master_arm_state == 1 and canon_door_pos <= 1 and parameters.MAIN_POWER:get() == 1 and sensor_data.getNoseLandingGearDown() == 0 then
-			canon_door_pos = canon_door_pos + 1--0.0900
-			set_aircraft_draw_argument_value(614, canon_door_pos)
-		-- elseif fire_z_weapons == 0 and master_arm_state == 1 and canon_door_pos >= 0 and parameters.MAIN_POWER:get() == 1 and sensor_data.getNoseLandingGearDown() == 0 then
-		-- 	canon_door_pos = canon_door_pos - 0.0900
-		-- 	set_aircraft_draw_argument_value(614, canon_door_pos)	
-		end
-		--Canon Timer
-		if first_state == 1 and master_arm_state == 1 and parameters.MAIN_POWER:get() == 1 and canon_rotate < 1 then
-			canon_rotate = (canon_rotate + update_time_step * 2)
-			set_aircraft_draw_argument_value(615, canon_rotate)
-		elseif first_state == 1 and master_arm_state == 1 and parameters.MAIN_POWER:get() == 1 and canon_rotate > 1 then
-			canon_rotate = 0
-			set_aircraft_draw_argument_value(615, canon_rotate)
-		elseif fire_z_weapons == 1 and master_arm_state == 1 and parameters.MAIN_POWER:get() == 1 and canon_rotate < 1 then
-			canon_rotate = (canon_rotate + update_time_step * 2)
-			set_aircraft_draw_argument_value(615, canon_rotate)
-		elseif fire_z_weapons == 1 and master_arm_state == 1 and parameters.MAIN_POWER:get() == 1 and canon_rotate > 1 then
-			canon_rotate = 0
-			set_aircraft_draw_argument_value(615, canon_rotate)
-		end
+    parameters.ORIDE_X:set(groundContact and 0 or 1)
+    parameters.ORIDE_TEXT:set(groundContact and
+        (bay_door_pos > 0.01 or left_door_pos > 0.01 or right_door_pos > 0.01)
+        and 1 or 0)
+    -- Arm annunciation depends on real WOW and main-power availability.
+    parameters.ARM_STATUS:set(groundContact and 2 or
+        (master_arm_state == 1 and mainPower and 1 or 0))
+
+    -- Weapon release is a request distinct from an actual launch or clearance.
+    local chosenBayReady = (selected == 1 and left_door_pos >= 0.98) or
+        (selected == 2 and bay_door_pos >= 0.98) or
+        (selected == 3 and right_door_pos >= 0.98) or
+        (selected == 4 and bay_door_pos >= 0.98
+            and left_door_pos >= 0.98 and right_door_pos >= 0.98)
+    local canCommandNativePickle = mainPower and not groundContact
+        and master_arm_state == 1 and weapon_release_state == 1
+        and chosenBayReady and mode_state ~= 5 and mode_state ~= 1
+    if canCommandNativePickle ~= native_pickle_active then
+        dispatch_action(nil, canCommandNativePickle and PickleON or PickleOFF)
+        native_pickle_active = canCommandNativePickle
+    end
+
+    -- Gun door has its own hydraulic actuation path, documented by USAF.
+    local cannon_request = mode_state == 5 and mainPower
+        and not groundContact and master_arm_state == 1
+        and (first_state == 1 or fire_z_weapons == 1)
+    local canon_door_pos = stepDoor(get_aircraft_draw_argument_value(614),
+        cannon_request, 4.5)
+    set_aircraft_draw_argument_value(614, canon_door_pos)
+    local canon_rotate = get_aircraft_draw_argument_value(615)
+    if cannon_request then
+        canon_rotate = (canon_rotate + update_time_step * 2) % 1
+    else
+        canon_rotate = 0
+    end
+    set_aircraft_draw_argument_value(615, canon_rotate)
+
 		--CANON FIRE
         -- Emit a trigger command only on an actual state transition.
         -- This also guarantees a release when power/ground/arm interlocks change.
@@ -516,14 +443,7 @@ function update()
 		-- end
 
 -----------------------------------------------------------------------
-    -- Final normalized bay states, guarding against per-step overshoot.
-    local function clamp_door(x) return math.max(0, math.min(1, x)) end
-    bay_door_pos = clamp_door(bay_door_pos)
-    left_door_pos = clamp_door(left_door_pos)
-    right_door_pos = clamp_door(right_door_pos)
-    set_aircraft_draw_argument_value(600,bay_door_pos)
-    set_aircraft_draw_argument_value(601,left_door_pos)
-    set_aircraft_draw_argument_value(602,right_door_pos)
+
 	parameters.BAY_C_ARG:set(bay_door_pos)
 	parameters.BAY_L_ARG:set(left_door_pos)
 	parameters.BAY_R_ARG:set(right_door_pos)
