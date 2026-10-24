@@ -322,43 +322,21 @@ function update()
 		parameters.CMFD_BLANK_PAGE:set(0)
 	end
 
-	-- ALL SCREEN OPACITY LOGIC WITH DAY NIGHT MODE | UFD PAGE SWAP LOGIC | L-MFD ENG PAGE ONLY | C-MFD BAY PAGE ONLY | R-MFD CHK LIST ONLY 
-	if (parameters.MAIN_POWER:get() == 1 or parameters.APU_RPM_STATE:get() >= 2) and parameters.BATTERY_POWER:get() == 1 and day_night == 0 and R_UFD_ADI == 1 then
-		parameters.L_WAR_OPACITY:set(1)--WARNING PANEL LEFT ON
-		parameters.R_WAR_OPACITY:set(0)
-		parameters.UFD_OPACITY:set(UFD_KNOB)
-		parameters.MFD_OPACITY:set(MFD_KNOB)
-		parameters.FLOOD_LIGHT:set(FLOOD_KNOB)
-		parameters.PANEL_LIGHT:set(CONSOLE_KNOB)     
-	elseif (parameters.MAIN_POWER:get() == 1 or parameters.APU_RPM_STATE:get() >= 2) and parameters.BATTERY_POWER:get() == 1 and day_night == 0 and R_UFD_ADI == 0 then
-		parameters.L_WAR_OPACITY:set(0)
-		parameters.R_WAR_OPACITY:set(1)--WARNING PANEL RIGHT ON
-		parameters.UFD_OPACITY:set(UFD_KNOB)
-		parameters.MFD_OPACITY:set(MFD_KNOB)
-		parameters.FLOOD_LIGHT:set(FLOOD_KNOB)
-		parameters.PANEL_LIGHT:set(CONSOLE_KNOB)
-	elseif (parameters.MAIN_POWER:get() == 1 or parameters.APU_RPM_STATE:get() >= 2) and parameters.BATTERY_POWER:get() == 1 and day_night == 1 and R_UFD_ADI == 1 then
-		parameters.L_WAR_OPACITY:set(1)--WARNING PANEL LEFT ON	
-		parameters.R_WAR_OPACITY:set(0)
-		parameters.UFD_OPACITY:set(UFD_KNOB - 0.9)
-		parameters.MFD_OPACITY:set(MFD_KNOB - 0.9)
-		parameters.FLOOD_LIGHT:set(FLOOD_KNOB)
-		parameters.PANEL_LIGHT:set(CONSOLE_KNOB)
-	elseif (parameters.MAIN_POWER:get() == 1 or parameters.APU_RPM_STATE:get() >= 2) and parameters.BATTERY_POWER:get() == 1 and day_night == 1 and R_UFD_ADI == 0 then
-		parameters.L_WAR_OPACITY:set(0)
-		parameters.R_WAR_OPACITY:set(1)--WARNING PANEL RIGHT ON
-		parameters.UFD_OPACITY:set(UFD_KNOB - 0.9)
-		parameters.MFD_OPACITY:set(MFD_KNOB - 0.9)
-		parameters.FLOOD_LIGHT:set(FLOOD_KNOB)
-		parameters.PANEL_LIGHT:set(CONSOLE_KNOB)	
-	elseif parameters.MAIN_POWER:get() == 0 or parameters.APU_RPM_STATE:get() <= 1.9 then
-		parameters.L_WAR_OPACITY:set(0)
-		parameters.R_WAR_OPACITY:set(0)
-		parameters.UFD_OPACITY:set(0)
-		parameters.MFD_OPACITY:set(0)
-		parameters.FLOOD_LIGHT:set(0)
-		parameters.PANEL_LIGHT:set(0)
-	end
+    -- Physical alert data and presentation are distinct. MIL-HDBK-87213
+    -- guidance distinguishes legibility/brightness from warning content.
+    -- Night mode is a bounded gain, NOT subtraction of a fixed 0.9 level.
+    local function clamp01(v) return math.max(0, math.min(1, v)) end
+    local electrical_available = parameters.BATTERY_POWER:get() >= 0.5 and
+        (parameters.MAIN_POWER:get() >= 0.5 or parameters.APU_RPM_STATE:get() >= 2)
+    local night_factor = day_night == 1 and 0.18 or 1.0
+    local ufd_brightness = electrical_available and clamp01(UFD_KNOB) * night_factor or 0
+    local mfd_brightness = electrical_available and clamp01(MFD_KNOB) * night_factor or 0
+    parameters.UFD_OPACITY:set(ufd_brightness)
+    parameters.MFD_OPACITY:set(mfd_brightness)
+    parameters.L_WAR_OPACITY:set(ufd_brightness * (R_UFD_ADI == 1 and 1 or 0))
+    parameters.R_WAR_OPACITY:set(ufd_brightness * (R_UFD_ADI == 0 and 1 or 0))
+    parameters.FLOOD_LIGHT:set(electrical_available and clamp01(FLOOD_KNOB) or 0)
+    parameters.PANEL_LIGHT:set(electrical_available and clamp01(CONSOLE_KNOB) or 0)
 
 	-- Day/Night lights
 	-- if day_night == 1 then
@@ -433,28 +411,15 @@ function update()
 	if parameters.CANOPY_LIGHT:get() == 1 then
 		parameters.CAUTION_LIGHT:set(1)
 	end
-	-- UFD power knob (used for opacity/brightness issues)
-	if UFD_KNOB == 0 then
-		parameters.R_WAR_OPACITY:set(0)
-		parameters.L_WAR_OPACITY:set(0)
-		parameters.R_ADI_OPACITY:set(0)
-		parameters.L_ADI_OPACITY:set(0)
-		parameters.CANOPY_LIGHT:set(0)
-		parameters.CHAFF_LIGHT:set(0)
-		parameters.FLARE_LIGHT:set(0)
-		parameters.SPD_BRK_LIGHT:set(0)	
-		parameters.BINGO_LIGHT:set(0)	
-		parameters.FLAPS_DOWN:set(0)	
-		parameters.FLAPS_MOVE:set(0)	
-		parameters.AAR_LIGHT:set(0)	
-		parameters.L_FIRE_LIGHT:set(0)	
-		parameters.R_FIRE_LIGHT:set(0)	
-		parameters.L_GEN_OUT:set(0)	
-		parameters.R_GEN_OUT:set(0)
-		parameters.CAUTION_LIGHT:set(0)
-		parameters.OIL_LIGHT:set(0)
-		parameters.HYD_LIGHT:set(0)	
-	end
+    -- Turning the UFD brightness to zero must never erase fault/alert state.
+    -- The display and annunciator surfaces observe the state through opacity.
+    if ufd_brightness <= 0 then
+        parameters.R_WAR_OPACITY:set(0)
+        parameters.L_WAR_OPACITY:set(0)
+        parameters.R_ADI_OPACITY:set(0)
+        parameters.L_ADI_OPACITY:set(0)
+    end
+
 	if MFD_KNOB == 0 then
 		parameters.LMFD_MASK:set(0)
 		parameters.RMFD_MASK:set(0)
