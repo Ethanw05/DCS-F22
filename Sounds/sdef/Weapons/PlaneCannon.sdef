@@ -1,0 +1,6 @@
+wave = "Effects/Weapons/PlaneCannon"
+inner_radius = 200
+outer_radius = 3000
+pitch_random = 0.01
+release = 0.18
+gain = 5.0

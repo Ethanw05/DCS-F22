@@ -1,0 +1,4 @@
+wave = "Effects/Aircrafts/F-22A/External/apu_stop"
+inner_radius = 10
+outer_radius = 100
+gain = 1

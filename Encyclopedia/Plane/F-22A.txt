@@ -1,0 +1,36 @@
+﻿F-22A
+F-22A/F-22A.png
+F-22A
+
+
+
+
+Name: F-22A Raptor
+Type: 5th Generation Advanced Tactical Fighter
+Crew: 1
+Length: 18.89 m (62')
+Height: 5.63 m (16.7')
+Wingspan: 13.56 m (44.5')
+Empty Weight: 19,700 kg (43,340 lb)
+Maximum Weight: 38,000 kg (83,500 lb)
+Maximum Speed: 1,726 mph
+Powerplant: 2x F119-PW-100 turbofan engines with two-dimensional thrust-vectoring nozzles
+
+Fuel Capacity:
+Main: 16,400 lb / 7,438.9 kg
+Wings Drop Tanks: 2x 600 gallon tanks
+
+Armament:
+M61A1 Vulcan 20mm gun, 480 rounds
+
+Air to Air Missiles:
+AIM-9X Sidewinder
+AIM-9M Sidewinder
+AIM-120C
+
+Air to Ground Munitions:
+GBU-32 JDAM Joint Direct Attack Munition - Not Available in DCS
+
+Special Munitions:
+Wing Pylon Smokewinders
+Center Pylon Smoke
