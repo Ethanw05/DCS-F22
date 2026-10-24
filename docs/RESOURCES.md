@@ -681,3 +681,16 @@ Manufacturer page reviewed. Identifies F-22 stored-energy servicing and publishe
 
 Author/publication abstract and DOI located; full text not reviewed. Describes fluid transport and heat rejection to fuel/ram air; distinguish this from the separate downloadable-constants paper 2000-01-2265.
 
+## DCS implementation study references
+
+### R86 — IGServal: DCS Basic EFM Template
+
+[Source](https://github.com/IGServal/DCS-Basic-EFM-Template)
+
+Repository README and MIT licence reviewed. An enhanced template derived from the Eagle Dynamics API example, with examples of force calculations, controls, fuel, damage and Lua parameter exchange. Useful for understanding the origins and structure of this mod's EFM. Its example aircraft model is not F-22 performance evidence.
+
+### R87 — Community A-4E: public implementation repository
+
+[Source](https://github.com/Community-A-4E/community-a4e-c)
+
+Repository README reviewed. A mature community implementation to study for EFM, cockpit and subsystem architecture. Its README explicitly prohibits redistribution without permission; public visibility does not establish permission to copy its code or assets into this project. Use as a reading reference and review the applicable terms before any reuse. It is not an F-22 accuracy source.
