@@ -39,7 +39,7 @@ local function readRoute()
     if type(get_mission_route)~="function" then return end
     local ok,results=pcall(get_mission_route)
     if not ok or type(results)~="table" then return end
-    for _,entry in ipairs(results) do
+    for _,entry in ipairs(results.route or results) do
         if validPoint(entry) then route[#route+1]=entry end
     end
     if #route==1 then active=1

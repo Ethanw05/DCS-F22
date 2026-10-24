@@ -4,7 +4,7 @@
 -- Roll convention requires in-game comparison with DCS base sensor values.
 local M={}
 local pi=math.pi
-local atan=math.atan
+-- DCS Lua 5.1 math.atan supports one argument; forward is guaranteed positive.
 function M.wrap(angle)
     return (angle + 2*pi) % (2*pi)
 end
@@ -21,6 +21,6 @@ function M.project(dx,dy,dz,heading,pitch,roll)
     local up=right0*sr+up0*cr
     local distance=math.sqrt(dx*dx+dy*dy+dz*dz)
     if distance < 0.001 or forward <= 0 then return nil, nil, distance end
-    return atan(right,forward),atan(up,forward),distance
+    return math.atan(right/forward),math.atan(up/forward),distance
 end
 return M
