@@ -159,6 +159,7 @@ namespace RAPTOR {
     double total_damage = 1 - (left_wing_integrity + right_wing_integrity + tail_integrity +
         left_engine_integrity + right_engine_integrity + left_elevon_integrity + right_elevon_integrity) / 7;
     bool is_destroyed = false;
+    bool destruction_events_pushed = false;
 
     bool invincible = true, infinite_fuel = false, easy_flight = false;
     double shake_amplitude = 0, fm_clock = 0;

@@ -217,6 +217,7 @@ void reset_fm_state() {
 
     RAPTOR::autotrim_elevator_cmd = 0.0;
     RAPTOR::is_destroyed = false;
+    RAPTOR::destruction_events_pushed = false;
 }
 
 void ed_fm_simulate(double dt) {
@@ -242,8 +243,7 @@ void ed_fm_simulate(double dt) {
     }
 
     if (RAPTOR::is_destroyed) {
-        static bool destruction_events_pushed = false;
-        if (!destruction_events_pushed) {
+        if (!RAPTOR::destruction_events_pushed) {
             g_damage_events.push({ static_cast<int>(DamageElement::WingOutLeft), RAPTOR::element_integrity[static_cast<size_t>(DamageElement::WingOutLeft)] });
             g_damage_events.push({ static_cast<int>(DamageElement::WingOutRight), RAPTOR::element_integrity[static_cast<size_t>(DamageElement::WingOutRight)] });
             g_damage_events.push({ static_cast<int>(DamageElement::Tail), RAPTOR::element_integrity[static_cast<size_t>(DamageElement::Tail)] });
@@ -251,7 +251,7 @@ void ed_fm_simulate(double dt) {
             g_damage_events.push({ static_cast<int>(DamageElement::Engine2), RAPTOR::element_integrity[static_cast<size_t>(DamageElement::Engine2)] });
             g_damage_events.push({ static_cast<int>(DamageElement::WingInLeft), RAPTOR::element_integrity[static_cast<size_t>(DamageElement::WingInLeft)] });
             g_damage_events.push({ static_cast<int>(DamageElement::WingInRight), RAPTOR::element_integrity[static_cast<size_t>(DamageElement::WingInRight)] });
-            destruction_events_pushed = true;
+            RAPTOR::destruction_events_pushed = true;
         }
         RAPTOR::common_force = Vec3(0.0, 0.0, 0.0);
         RAPTOR::common_moment = Vec3(0.0, 0.0, 0.0);
@@ -1298,6 +1298,8 @@ void ed_fm_set_fc3_cockpit_draw_args_v2(float* data, size_t size) {
 }
 
 void ed_fm_set_draw_args_v2(float* data, size_t size) {
+    // Highest aircraft draw-argument index used here is 623; reject short buffers.
+    if (data == nullptr || size <= 623) return;
     data[0] = (float)limit(RAPTOR::gear_pos, 0, 1);
     data[3] = (float)limit(RAPTOR::gear_pos, 0, 1);
     data[5] = (float)limit(RAPTOR::gear_pos, 0, 1);
@@ -1680,7 +1682,12 @@ void ed_fm_on_damage(int Element, double element_integrity_factor) {
 }
 
 void ed_fm_repair() {
-    for (int i = 0; i < 137; i++) RAPTOR::element_integrity[i] = 1;
+    for (int i = 0; i < 137; i++) RAPTOR::element_integrity[i] = 1.0;
+    RAPTOR::left_wing_integrity = RAPTOR::right_wing_integrity = RAPTOR::tail_integrity = 1.0;
+    RAPTOR::left_elevon_integrity = RAPTOR::right_elevon_integrity = 1.0;
+    RAPTOR::left_engine_integrity = RAPTOR::right_engine_integrity = 1.0;
+    RAPTOR::is_destroyed = false;
+    RAPTOR::destruction_events_pushed = false;
     while (!g_damage_events.empty()) g_damage_events.pop();
 }
 
