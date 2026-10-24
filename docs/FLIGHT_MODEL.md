@@ -76,11 +76,11 @@ Selected 28-tonne outputs, with fixed sea-level atmospheric properties and initi
 
 AddressSanitizer and UndefinedBehaviorSanitizer builds also pass these suites with `ASAN_OPTIONS=detect_leaks=0`. The first local attempt failed inside LeakSanitizer's process/thread inspection in this environment; leak detection was therefore disabled locally. This is not a leak-check pass. CI retains normal sanitizer settings on Ubuntu.
 
-Both changed Lua files pass Lua 5.1 syntax checking. GitHub CI is configured to build/test on Windows and Linux. A Linux test pass does not prove the Windows DLL links, loads, matches current DCS ABI, or flies correctly.
+Both changed Lua files pass Lua 5.1 syntax checking. [GitHub Actions run 40079669800](https://github.com/Ethanw05/DCS-F22/actions/runs/40079669800) also built `bin/F22.dll` with MSVC 19.44.35229 on Windows 2022 and passed all three suites there; its Linux sanitizer job passed with normal leak-detection settings. The initial Windows job failed because `windows-latest` had migrated to VS2026; pinning the VS2022 runner resolved configuration. Successful compilation/callback tests do not establish DCS loading, current runtime ABI compatibility or flight accuracy.
 
 ## Accuracy and integration still to establish
 
-1. Build/load the Windows DLL on a recorded DCS version. Verify force/moment signs, mass changes, engine instrument/sound scaling, surface animation, shutdown, repair/rearm/respawn and ground contact.
+1. Load the CI-built Windows DLL on a recorded DCS version. Verify force/moment signs, mass changes, engine instrument/sound scaling, surface animation, shutdown, repair/rearm/respawn and ground contact.
 2. Check normal flight and approach response across weight/CG/altitude/configuration, including mode transitions and actuator saturation. Add pilot task evaluations; the numerical harness is not a PIO assessment.
 3. Obtain legitimate quantitative data with mass/configuration/atmosphere and uncertainty. Fit thrust and drag jointly to several acceleration, climb and steady-flight points. Public supercruise/Mach/ceiling labels alone cannot identify the model. No calibrated top speed, climb, sustained-turn, takeoff/landing, fuel range or full post-stall accuracy is claimed.
 4. Replace coefficient/engine assumptions as evidence improves. Detailed high-alpha/beta, departure/spin, compressibility/buffet, asymmetric stores/drag, inlet effects, hydraulic failures and ground performance remain substantial work.

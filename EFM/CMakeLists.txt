@@ -13,7 +13,7 @@ if(WIN32)
     add_library(f22 SHARED source/RAPTOR.cpp source/dllmain.cpp)
     target_link_libraries(f22 PRIVATE f22_physics)
     target_include_directories(f22 PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
-    target_compile_definitions(f22 PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN)
+    target_compile_definitions(f22 PRIVATE NOMINMAX)
     set_target_properties(f22 PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/$<0:>"
         OUTPUT_NAME "F22"
