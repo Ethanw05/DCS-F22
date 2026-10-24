@@ -464,7 +464,9 @@ void ed_fm_simulate(double dt) {
         }
 
         double elevator_rate = lerp(FM_DATA::mach_table.data(), FM_DATA::elevator_rate_table, FM_DATA::mach_table.size(), RAPTOR::mach);
-        double tv_rate = lerp(FM_DATA::mach_table.data(), FM_DATA::thrust_vector_rate, FM_DATA::mach_table.size(), RAPTOR::mach);
+        double tv_rate = std::min(
+            lerp(FM_DATA::mach_table.data(), FM_DATA::thrust_vector_rate, FM_DATA::mach_table.size(), RAPTOR::mach),
+            RAPTOR::rad(40.0)); // YF-22-era no-load hardware bound, not a production control schedule
 
         double max_elevator_deflection = lerp(FM_DATA::mach_table.data(), FM_DATA::max_elevator_deflection, FM_DATA::mach_table.size(), RAPTOR::mach);
         double max_tv_deflection = lerp(FM_DATA::mach_table.data(), FM_DATA::max_thrust_vector_deflection, FM_DATA::mach_table.size(), RAPTOR::mach);

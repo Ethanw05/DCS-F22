@@ -176,7 +176,7 @@ namespace RAPTOR {
     double tv_angle = 0.0;
 
     double g_assist_pos = 0;
-    double g_limit_positive = 11.0;
+    double g_limit_positive = 9.0; // Official USAF +9 g public limit
     double g_limit_negative = -4.0;
 
     double last_yaw_input = 0.0;
