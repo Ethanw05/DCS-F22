@@ -21,6 +21,11 @@ local output={
     el=get_param_handle("HUD_AA_TGT_EL_RAD"),
     range=get_param_handle("HUD_AA_TGT_RANGE_NM"),
     iff=get_param_handle("HUD_AA_TGT_IFF"),
+    closureValid=get_param_handle("HUD_AA_CLOSURE_VALID"),
+    closure=get_param_handle("HUD_AA_TGT_CLOSURE_KTS"),
+    leadValid=get_param_handle("HUD_GUN_LEAD_VALID"),
+    leadAz=get_param_handle("HUD_GUN_LEAD_AZ_RAD"),
+    leadEl=get_param_handle("HUD_GUN_LEAD_EL_RAD"),
 }
 -- Search returns are a display-only B-scope: unlike a correlated TWS track,
 -- the native contact parameter can represent more than one echo per aircraft.
@@ -41,6 +46,12 @@ for idx=1,12 do
 end
 local lastDistance,lastAz,lastEl = nil,nil,nil
 local motionAge=999
+local previousSampleDistance,previousSampleAz,previousSampleEl=nil,nil,nil
+local previousSampleTime=nil
+local measuredClosure=0
+local measuredAzRate,measuredElRate=0,0
+local canComputeLead=false
+local clock=0
 local function finite(x)
     return type(x)=="number" and x==x and math.abs(x)<1e9
 end
@@ -89,14 +100,19 @@ local function clear()
     output.source:set(0)
     output.range:set(0)
     output.iff:set(-1)
+    output.closureValid:set(0)
+    output.leadValid:set(0)
 end
 function post_initialize()
     clear()
     clearSearch()
 end
 function update()
+    clock=clock+dt
     if input.power:get()<0.5 or input.bus:get()<0.5 then
         motionAge=999
+        previousSampleDistance=nil
+        canComputeLead=false
         clear()
         clearSearch()
         return
@@ -114,6 +130,8 @@ function update()
        not finite(az) or not finite(el) or math.abs(az)>math.pi/2 or
        math.abs(el)>math.pi/2 then
         motionAge=999
+        previousSampleDistance=nil
+        canComputeLead=false
         clear()
         return
     end
@@ -122,6 +140,31 @@ function update()
         motionAge=0
     else
         motionAge=motionAge+dt
+    end
+    local changed=(lastDistance==nil or math.abs(distance-lastDistance)>0.005 or
+        math.abs(az-lastAz)>1e-6 or math.abs(el-lastEl)>1e-6)
+    if changed then
+        if previousSampleDistance and previousSampleTime then
+            local interval=clock-previousSampleTime
+            if interval>=dt and interval<4 then
+                local relativeRangeRate=(previousSampleDistance-distance)/interval
+                local angularAz=(az-previousSampleAz)/interval
+                local angularEl=(el-previousSampleEl)/interval
+                if math.abs(relativeRangeRate)<1500 and math.abs(angularAz)<1.5 and
+                    math.abs(angularEl)<1.5 then
+                    measuredClosure=relativeRangeRate*1.943844492
+                    measuredAzRate=angularAz
+                    measuredElRate=angularEl
+                    canComputeLead=true
+                else
+                    canComputeLead=false
+                end
+            end
+        end
+        previousSampleDistance=distance
+        previousSampleAz=az
+        previousSampleEl=el
+        previousSampleTime=clock
     end
     lastDistance,lastAz,lastEl=distance,az,el
     -- A stale external parameter is not proof of a current lock.
@@ -132,6 +175,22 @@ function update()
     output.az:set(az)
     output.el:set(el)
     output.range:set(distance/1852.0)
+    output.closureValid:set(canComputeLead and 1 or 0)
+    output.closure:set(measuredClosure)
+    -- Approximate point-mass fixed-gun lead in boresight angular coordinates.
+    -- Reference: 1030 m/s M61A2 published muzzle velocity; no drag or full
+    -- aircraft/projectile/target vector solution, hence "GUN SIM" on display.
+    local bulletTime=distance/1030.0
+    local leadAz=az+measuredAzRate*bulletTime
+    local leadEl=el+measuredElRate*bulletTime+
+        0.5*9.80665*bulletTime*bulletTime/math.max(distance,1)
+    local gunLeadOK=canComputeLead and distance>=150 and distance<=2000 and
+        math.abs(leadAz)<math.rad(15) and math.abs(leadEl)<math.rad(12.5)
+    output.leadValid:set(gunLeadOK and 1 or 0)
+    if gunLeadOK then
+        output.leadAz:set(leadAz)
+        output.leadEl:set(leadEl)
+    end
     local iff=input.iff:get()
     output.iff:set((finite(iff) and (iff==1 or iff==0 or iff==-1)) and iff or -1)
     output.cue:set((math.abs(az)<math.rad(15) and math.abs(el)<math.rad(12.5)) and 1 or 0)

@@ -96,6 +96,8 @@ return function(api)
     local tgtText = visible("MRM_TGT","HUD_AA_TARGET_VALID",1,mrm)
     label(0.70,-0.61,"HUD_AA_TGT_RANGE_NM","R %.1f",0.043,tgtText)
     static(0,-0.80,"STT TELEMETRY",0.037,tgtText)
+    local closure=visible("MRM_CLOSURE","HUD_AA_CLOSURE_VALID",1,tgtText)
+    label(-0.73,-0.58,"HUD_AA_TGT_CLOSURE_KTS","VC %+0.f",0.038,closure)
     local iffFriend = visible("FRIEND","HUD_AA_TGT_IFF",1,tgtText)
     static(0.0,-0.67,"FRIEND",0.048,iffFriend)
     local radarPowered = visible("RDR_ON","RADAR_PWR",1,mrm)
@@ -124,6 +126,9 @@ return function(api)
         static(0.75,0.83,"AIM-9",0.044,sr)
         ring(0,0,0.14,sr,32)
         cross(0,0,0.045,sr)
+        local radarInfo=visible("IR_RADAR_INFO","HUD_AA_TARGET_VALID",1,sr)
+        label(0.72,-0.59,"HUD_AA_TGT_RANGE_NM","R %.1f",0.038,radarInfo)
+        static(-0.73,-0.58,"RDR TRACK",0.033,radarInfo)
         local noSeeker=visible("IR_UNAVAILABLE","HUD_IR_SEEKER_VALID",0,sr)
         static(0,-0.8,"SEEKER DATA N/A",0.034,noSeeker)
         local seeker=visible("IR_SEEKER","HUD_IR_SEEKER_VALID",1,sr)
@@ -142,7 +147,18 @@ return function(api)
     static(0,-0.8,"GUN NO RNG",0.04,noRange)
     local withRange=visible("GUN_RANGE","HUD_GUN_TARGET_VALID",1,gun)
     label(0.72,-0.61,"HUD_AA_TGT_RANGE_NM","R %.1f",0.04,withRange)
-    static(0,-0.80,"NO LEAD SOLUTION",0.032,withRange)
+    static(0,-0.80,"NO VERIFIED LEAD",0.032,withRange)
+    group("HUD_GUN_LEAD_SIM",0,0,
+        {"HUD_GUN_LEAD_AZ_RAD","HUD_GUN_LEAD_EL_RAD","HUD_POWER","HUD_GUN_LEAD_VALID","HUD_MODE"},
+        {{"move_left_right_using_parameter",0,1.18},
+         {"move_up_down_using_parameter",1,1.18},
+         {"opacity_using_parameter",2},
+         {"parameter_in_range",3,0.9,1.1},
+         {"parameter_in_range",4,4.9,5.1}})
+    ring(0,0,0.039,"HUD_GUN_LEAD_SIM",24)
+    cross(0,0,0.09,"HUD_GUN_LEAD_SIM")
+    local leadCaption=visible("LEAD_SIM_CAPTION","HUD_GUN_LEAD_VALID",1,gun)
+    static(0,-0.84,"GUN LEAD SIM",0.035,leadCaption)
     local ready=visible("GUN_READY","HUD_GUN_READY",1,gun)
     static(0.76,-0.73,"GUN RDY",0.036,ready)
 

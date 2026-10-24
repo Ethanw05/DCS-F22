@@ -29,3 +29,10 @@ The PMFD labels a live STT return **only if the interface actually publishes a v
 Read [ED modding discussion with extracted RADAR_CONTACT_%02d_* conventions](https://forum.dcs.world/topic/188347-basic-radar-example-code/). The host parameter families identify individual *returns*, not multi-target TWS track files. This patch passively observes the first twelve `RADAR_CONTACT_01` through `_12` range/azimuth/time values, drops invalid or unchanged-for-two-second samples, and maps genuine contacts into a fixed +/-60° azimuth, 80-NM B-scope. It publishes `HUD_RADAR_SEARCH_RETURNS` and plotting parameters without controlling underlying radar detection.
 
 **Not implemented:** an APG-77 AESA radar, physically modeled beam/PRF/clutter/target RCS, TWS correlation, datalink and true AMRAAM fire-control. An aircraft with inherited FC3 avionics may leave these parameters unset. The scope then correctly has no plots; actual detection and missile guidance remain FC3 behaviors.
+
+
+## Generic gunsight lead and closure readout (non-authoritative)
+
+[General Dynamics' M61A1/M61A2 published gunsheet](https://www.gdots.com/armaments/aircraft-guns-gun-systems/m61a1/) gives a **nominal 1,030 m/s muzzle velocity**. With *real and changing native STT range/LOS samples*, the bridge estimates range closure and angular LOS rates. The AIM-120 BVR HUD can show an observed relative closure in knots, `VC`; this is **not** missile launch/no-escape-zone performance.
+
+Gun mode displays a separate `GUN LEAD SIM` reticle at azimuth/elevation adjusted for LOS angular rate × 1030-m/s time-of-flight plus gravity-only angular drop, in the approximate 150–2000-m range. It never sets a shoot/launch authorization. It ignores airframe motion during flight, bullet drag/velocity decay, target acceleration, aerodynamic dispersion, gun bore offset, and full relative velocity geometry; **not an operational gunsight**. Native FC3 cannon remains the only firing mechanism.
