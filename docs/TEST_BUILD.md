@@ -5,7 +5,7 @@ This is an **overlay for an existing, complete Grinnelli F-22A installation** wi
 1. Back up your working F-22A mod folder and saved input bindings.
 2. Close DCS. Extract the overlay. Copy the **contents of its `F-22A` directory** into your existing F-22A mod directory (the directory containing `entry.lua`), replacing matching files. Do not accidentally nest `F-22A/F-22A`.
 3. Confirm `bin/F22.dll` and `Cockpit/Scripts/HUD/page.lua` are present. `BUILD_INFO.txt` records the exact source commit and DLL hash. Install the DLL and Lua from the same overlay.
-4. Start a new single-player mission. Rebind **F-22A HUD** controls and the custom **F-22A HOTAS → Weapons: Release / Trigger** controls. Existing saved native bindings can bypass the new release interlock. Check brake-axis inversion in Controls.
+4. Start a new single-player mission. Rebind **F-22A HUD** controls, **F-22A Systems → Master Caution Acknowledge**, and the custom **F-22A HOTAS → Weapons: Release / Trigger** controls. Existing saved native bindings can bypass the new release interlock. Check brake-axis inversion in Controls.
 
 ## First test sequence
 

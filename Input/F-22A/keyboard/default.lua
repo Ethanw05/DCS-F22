@@ -169,6 +169,7 @@ local R_BRAKE       = 10057
     local LIGHT_LANDING_T = 10154
 
 join(res.keyCommands,{
+    {down = 10679, name = _("Master Caution Acknowledge"), category = _("F-22A Systems")},
     {down = 10680, name = _("Custom NAV HUD / Native HUD"), category = _("F-22A HUD")},
     {down = 10681, name = _("Custom HUD Brightness Increase"), category = _("F-22A HUD")},
     {down = 10682, name = _("Custom HUD Brightness Decrease"), category = _("F-22A HUD")},

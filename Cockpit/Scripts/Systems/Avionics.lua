@@ -25,7 +25,7 @@ local knobs={1,1,1,1,.25,.3}
 local night,swapped=false,false
 local caution,previousFault,ack=false,{},false
 make_default_activity(.02)
-for _,c in ipairs({3001,3002,3003,3004,3005,3006,3008,3009,3010,3011,379,10017,10018,10027}) do dev:listen_command(c) end
+for _,c in ipairs({3001,3002,3003,3004,3005,3006,3008,3009,3010,3011,144,379,10017,10018,10027,10679}) do dev:listen_command(c) end
 local function flag(v) return v and 1 or 0 end
 function post_initialize()
     knobs={1,1,1,1,.25,.3};night,swapped=false,false
@@ -37,7 +37,7 @@ function SetCommand(c,v)
     elseif c==10018 and v>0 then night=not night
     elseif (c==3009 or c==3010 or c==10027) and v>0 then swapped=not swapped
     elseif c==3011 and v>0 then dispatch_action(nil,83)
-    elseif c==379 and v>0 then ack=true end
+    elseif (c==144 or c==379 or c==10679) and v>0 then ack=true end
 end
 local function draw(i) return Math.Clamp(get_cockpit_draw_argument_value(i),0,1) end
 function update()
