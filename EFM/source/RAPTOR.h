@@ -150,7 +150,7 @@ namespace RAPTOR {
     bool on_ground = false;
     double pitch = 0, pitch_rate = 0, roll = 0, roll_rate = 0, heading = 0, yaw_rate = 0;
 
-    double element_integrity[111];
+    double element_integrity[137];
     double left_wing_integrity = 1.0, right_wing_integrity = 1.0, tail_integrity = 1.0, left_elevon_integrity = 1.0, right_elevon_integrity = 1.0;
     double left_engine_integrity = 1.0, right_engine_integrity = 1.0;
     double total_damage = 1 - (left_wing_integrity + right_wing_integrity + tail_integrity +

@@ -36,6 +36,15 @@ inline double actuator(double value, double target, double down_speed, double up
 	}
 };
 
+// Rates in units/second; independent of EFM callback frequency.
+inline double actuator_timed(double value, double target, double down_rate, double up_rate, double dt)
+{
+    if (dt <= 0.0) return value;
+    if (target > value) return fmin(target, value + fabs(up_rate) * dt);
+    if (target < value) return fmax(target, value - fabs(down_rate) * dt);
+    return target;
+}
+
 // Simple upper and lower limiter
 inline double limit(double input, double lower_limit, double upper_limit)
 {
