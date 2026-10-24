@@ -2,6 +2,8 @@
 
 Search/review date: **24 October 2026**. This supplements the existing public-source collection and the [system-by-system audit](audit/README.md). Original Chinese titles are retained in [R154–R171](RESOURCES.md#r154); translations identify subject matter, not official aircraft terminology.
 
+**Follow-up:** The later [Chinese forum/community search](CHINESE_FORUM_RESEARCH.md) records 22 specific leads, four further catalogue records and improved access to R65. Its [audit addendum](audit/RESEARCH_ADDENDUM.md) maps the new evidence to the reviewed systems. The 18-entry table below describes the first pass, not the entire expanded collection.
+
 ## Result
 
 The search found useful Chinese-language journal and university material on avionics architecture, high-angle-of-attack modeling, integrated thrust-vector control and HUD human factors. It did **not** locate an authenticated public F-22 technical-order flight manual, complete HUD symbol/mode handbook, production aerodynamic database or installed F119 engine deck.

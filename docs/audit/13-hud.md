@@ -13,6 +13,8 @@
 
 No verified public real-aircraft F-22 flight manual or comprehensive HUD mode/symbol handbook was located in this search. This is a search result, not proof that no further public material exists. Simulator manuals and unverified uploads are excluded from aircraft-authenticity claims.
 
+The later [forum follow-up](../CHINESE_FORUM_RESEARCH.md#hud-and-manual-traps-encountered) screened additional image, video and manual leads. It did not establish a new authenticated tactical-symbol set; [the addendum](RESEARCH_ADDENDUM.md) preserves that evidence boundary.
+
 ### Visible cues to preserve from R03 Figure 3
 
 | Observation | Reconstruction boundary |

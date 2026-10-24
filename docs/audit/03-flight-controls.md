@@ -6,6 +6,7 @@
 | --- | --- | --- |
 | [R20](../RESOURCES.md#r20), [R125](../RESOURCES.md#r125) | Pilot-command behavior, smooth transitions and handling-quality evaluation. | Development descriptions/lecture material do not publish complete production gains. |
 | [R126](../RESOURCES.md#r126), [R22](../RESOURCES.md#r22) | Effector authority and distributed speedbraking. | Historical no-load bounds and EMD configuration. |
+| [R65](../RESOURCES.md#r65), [R174](../RESOURCES.md#r174) | Follow-up control/handling evidence; see [research addendum](RESEARCH_ADDENDUM.md). | Different eras and evidence types; no production gains recovered. |
 | [R155](../RESOURCES.md#r155), [R159–R161](../RESOURCES.md#r159) | Vehicle-management boundaries, integrated controls, allocation and fault reconfiguration. | Supporting methods; some studies use aircraft/nozzle arrangements unlike the F-22. |
 
 ## Code scope and findings

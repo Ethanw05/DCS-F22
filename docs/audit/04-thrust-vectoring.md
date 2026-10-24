@@ -6,6 +6,7 @@
 | --- | --- | --- |
 | [R25](../RESOURCES.md#r25), [R81](../RESOURCES.md#r81), [R129](../RESOURCES.md#r129) | F119 pitch vectoring, integrated engine/flight controls and nozzle/inlet integration. | No complete installed-engine or nozzle-loss deck. |
 | [R126, Fig. 9-12](../RESOURCES.md#r126) | Historical nozzle travel/rate and surface bounds. | No-load, historical data; not a full production scheduling law. |
+| [R65](../RESOURCES.md#r65), [R174](../RESOURCES.md#r174) | Original-paper text and later first-person handling testimony; access updated in the [addendum](RESEARCH_ADDENDUM.md). | Preserve prototype/production distinctions; no complete production schedule. |
 | [R159–R161](../RESOURCES.md#r159), [R168–R169](../RESOURCES.md#r168) | Allocation, failed-effector handling and distinction between throat area and vector control. | Chinese studies supply methods, not F119 calibration; fluidic-nozzle research is not a substitute for the F119 mechanical nozzle. |
 
 ## Code scope and findings

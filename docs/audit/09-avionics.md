@@ -7,6 +7,7 @@
 | [R06–R09](../RESOURCES.md#r06), [R104](../RESOURCES.md#r104), [R121](../RESOURCES.md#r121) | Display roles, integrated processing, CNI and fault-tolerant architecture. | Several cockpit papers are abstract-only; no production software interfaces or complete symbol dictionary. |
 | [R154–R155](../RESOURCES.md#r154) | Chinese-language analysis of core processing and integrated flight/vehicle computing. | Secondary aircraft architecture analysis, not recovered F-22 source code. |
 | [R170–R171](../RESOURCES.md#r170) | Timestamping, track association and modular multisensor test concepts. | Research methods; neither contains APG-77/ALR-94 implementation data. |
+| [R175–R176](../RESOURCES.md#r175) | Follow-up architecture/state-model study; see [research addendum](RESEARCH_ADDENDUM.md). | General methods and historical analysis, not production F-22 avionics software. |
 
 ## Code scope and findings
 

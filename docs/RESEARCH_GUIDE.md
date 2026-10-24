@@ -1,10 +1,12 @@
 # Avionics, HUD and flight-performance reading guide
 
-Research pass: 24 October 2026. The [main catalogue](RESOURCES.md) contains **172 numbered entries**. The expanded aircraft pass added 60: 13 HUD/cockpit/display references, 24 avionics/integration references and 23 flight-control/performance references. The first overhaul assessment added six sources, R148–R153. The Chinese-language pass adds 18 records, R154–R171; R172 adds official JDAM descriptions. These include explicitly labelled supporting research on other aircraft and bibliographic leads; they are not 172 complete F-22 technical manuals. Companion links and unresolved report editions are grouped.
+Research pass: 24 October 2026. The [main catalogue](RESOURCES.md) contains **176 numbered entries**. The expanded aircraft pass added 60: 13 HUD/cockpit/display references, 24 avionics/integration references and 23 flight-control/performance references. The first overhaul assessment added six sources, R148–R153. The first Chinese-language pass adds 18 records, R154–R171; R172 adds official JDAM descriptions. The forum follow-up adds R173–R176 and improves text access to R65. These include explicitly labelled supporting research on other aircraft and bibliographic leads; they are not 176 complete F-22 technical manuals. Companion links and unresolved report editions are grouped.
 
 For implementation, read the [code assessment](OVERHAUL_ASSESSMENT.md), [standalone design](STANDALONE_DESIGN.md) and [roadmap](OVERHAUL_ROADMAP.md). The assessment separates reproduced numerical defects from fidelity gaps and untested DCS integration assumptions.
 
 The expanded [16-system audit](audit/README.md) is the current review record and keeps implementation deferred. The [Chinese research report](CHINESE_RESEARCH.md) explains source selection and manual-search outcomes. Each system review identifies applicable references and their limits.
+
+The [Chinese forum follow-up](CHINESE_FORUM_RESEARCH.md) records community leads separately from primary evidence. Read the [system evidence addendum](audit/RESEARCH_ADDENDUM.md) for the implications of the new source trails.
 
 ## Start here
 
@@ -23,6 +25,7 @@ The expanded [16-system audit](audit/README.md) is the current review record and
 | Chinese architecture/control studies | [R154–R155](RESOURCES.md#r154), [R159–R161](RESOURCES.md#r159), [R168–R169](RESOURCES.md#r168) | Integrated computing, allocation and nozzle-state separation; methods do not supply production F-22 gains or F119 schedules. |
 | Chinese HUD evaluation studies | [R156–R158](RESOURCES.md#r156) | Character readability, workload and civil projection concepts; not a Raptor symbol handbook. |
 | Chinese aero/sensor modeling | [R162–R167](RESOURCES.md#r162), [R170–R171](RESOURCES.md#r170) | Model provenance, limited conditions, timestamps and assumed scenarios; reconstructed aircraft are not measured F-22 data. |
+| Pilot testimony and architecture follow-up | [R173–R176](RESOURCES.md#r173) | Keep original-presentation leads, selected interview text, general methods and actual aircraft measurements distinct. |
 
 ## Useful page and figure pointers
 
@@ -47,7 +50,7 @@ The expanded [16-system audit](audit/README.md) is the current review record and
 
 The collection does **not** establish a complete, verified operational F-22 HUD/MFD symbol dictionary, all HOTAS/ICP mappings, current radar/EW mode logic, a full installed F119 engine deck or full-envelope aerodynamic coefficient tables. Exact gains, schedules and unmeasured values must remain explicitly assumed in any future implementation.
 
-Priority full-text retrieval leads are **R06/R07** (cockpit integration), **R101/R121** (radar/core processing), **R65/R130/R141/R142** (prototype flight/propulsion testing), and **R143–R145** (aeroelastic/loads work).
+Priority full-text retrieval leads are **R06/R07** (cockpit integration), **R101/R121** (radar/core processing), **R130/R141/R142** (prototype flight/propulsion testing), and **R143–R145** (aeroelastic/loads work). R65 now has readable original-paper text via a public mirror; a clean original with figures is still preferable.
 
 Search results also produced misleading matches: commercial F-22 game manuals presented as flight manuals, Fairchild F-22 material unrelated to the Raptor, WVU scale-model YF-22 research, and a NASA conference volume indexed under a HUD section title. These were not promoted into aircraft-accuracy references. Patent concepts and generic research retained in the catalogue are labelled accordingly.
 

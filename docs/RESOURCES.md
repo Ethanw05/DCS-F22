@@ -2,11 +2,13 @@
 
 Checked 24 October 2026.
 
-**172 numbered entries.** Start with the [focused reading guide](RESEARCH_GUIDE.md) for avionics, HUD and flight performance. R88–R147 are the 60 additions from the expanded aircraft research pass; R148–R153 add standalone-mod implementation references and an official performance-summary lead. R154–R171 add 18 Chinese-language journal, university and CAAC records; R172 adds official JDAM descriptions. Supporting methods and access-limited leads are labelled.
+**176 numbered entries.** Start with the [focused reading guide](RESEARCH_GUIDE.md) for avionics, HUD and flight performance. R88–R147 are the 60 additions from the expanded aircraft research pass; R148–R153 add standalone-mod implementation references and an official performance-summary lead. R154–R171 add 18 Chinese-language journal, university and CAAC records; R172 adds official JDAM descriptions. R173–R176 extend the Chinese forum/citation-trail follow-up, which also improves access to R65. Supporting methods and access-limited leads are labelled.
 
 The [overhaul assessment](OVERHAUL_ASSESSMENT.md) connects the references to the current code. The [standalone design](STANDALONE_DESIGN.md) and [roadmap](OVERHAUL_ROADMAP.md) separate implementable improvements from host-interface uncertainties.
 
 The expanded [16-system code audit](audit/README.md) maps applicable resources to each system. The [Chinese-language research report](CHINESE_RESEARCH.md) records search scope, review depth and rejected/unverified manual leads.
+
+The [Chinese forum follow-up](CHINESE_FORUM_RESEARCH.md) records 22 thread/article leads, additional HUD/manual screening and source trails. Those community leads are separate from the numbered aircraft/engineering catalogue. The [research addendum](audit/RESEARCH_ADDENDUM.md) updates applicable system evidence.
 
 Study references for developing this mod from the Grinnelli F-22A baseline. It includes primary technical material, official public documents, manufacturer announcements, and explicitly labelled implementation sources. Access status is part of each entry: a discovered title or indexed excerpt is not presented as a fully reviewed paper. Mirrors and companion publication records are grouped where possible. The catalogue is a bounded public-source collection, not a claim to contain all information that exists.
 
@@ -692,7 +694,9 @@ Use the manufacturer film and published JASDF/USAF illustration for basic HUD ge
 
 [Source](https://doi.org/10.2514/6.1994-2105)
 
-Publisher bibliographic record located; full text not reviewed. Prototype thrust-vectoring development; distinguish YF-22 results from production F-22 behaviour.
+**Access/review, updated:** Publisher PDF returned 403. Selected original-paper text is readable through a [public mirror](https://www.scribd.com/document/74332825/AIAA-1994-2105-454-1), listing 13 pages. Control/nozzle and handling sections inspected; figures not calibrated. Chinese scan trail is recorded in the [forum follow-up](CHINESE_FORUM_RESEARCH.md).
+
+**Use and limits:** YF-22 integrated controls and prototype flight testing. Preserve aircraft/engine/configuration provenance; OCR is imperfect. No production F-22 controller or complete aerodynamic deck is established. Mirror/uploader labels do not establish redistribution rights.
 
 <a id="r66"></a>
 
@@ -1932,3 +1936,45 @@ DOI: 10.1109/DASC.1996.559202. [Publisher PDF lead](https://ieeexplore.ieee.org/
 **Access/review:** Official indexed descriptions reviewed; direct retrieval returned 403.
 
 **Study use and limits:** Establishes JDAM as an inertial/GPS guided-bomb kit, relevant to the current air-to-air classification and absent coordinate-guidance implementation. Does not specify DCS custom-weapon fields or provide a full real-aircraft launch-acceptability model.
+
+## Forum/citation-trail follow-up: pilot accounts and architecture
+
+<a id="r173"></a>
+
+### R173 — Jim “JB” Brown — F-117 Nighthawk and F-22 Raptor presentation, 2022
+
+[Original presentation link](https://www.youtube.com/watch?v=lltMfkj1yPU) · [AIAA 2019 speaker/presentation record](https://engage.aiaa.org/longisland/events/event-description?CalendarEventKey=f475f1e8-bff5-425e-99e9-993105061cdc&CommunityKey=93ba815a-7f6d-443b-b4a6-358cf36096af&hlmlt=VT)
+
+**Access/review:** Chinese PTT trail recovered the video; indexed title/date identify publication on 21 November 2022. Video/full slides not reviewed. AIAA's separate event record corroborates Brown's F-22 test-pilot background, not the talk's numerical claims.
+
+**Study use and limits:** Primary-presentation retrieval lead for pilot/system behavior. Acceleration numbers repeated in forums remain unverified here. No mass, configuration or complete test-card data recovered. Do not count translations as independent flight measurements.
+
+<a id="r174"></a>
+
+### R174 — The Flyboy Podcast — Guest JB Brown, 9 April 2026
+
+[Publisher episode and transcript](https://www.buzzsprout.com/2566008/episodes/18986404-the-flyboy-podcast-guest-jb-brown?t=0)
+
+**Access/review:** Publisher transcript read selectively. Relevant timestamps: 2:58–4:47 bleed-air incident; 21:19–24:59 high-alpha handling/TVC; 25:22–27:30 speed/buffet/temperature context.
+
+**Study use and limits:** First-person recollection, useful for qualitative system/handling cross-checks. Transcript contains transcription errors and has not been checked against all audio. Not a flight manual, measured response dataset or complete limiter schedule. Aircraft mass, atmospheric conditions and software state are insufficient for numeric engine/airframe fitting.
+
+<a id="r175"></a>
+
+### R175 — Li Rui et al. — 基于形式化方法的航空电子系统检测, 2015
+
+[Publisher full HTML](https://www.jos.org.cn/html/2015/2/4775.htm)
+
+**Access/review:** Selected architecture, modeling and static/dynamic-check sections reviewed. Authors: Li Rui, Lian Hang, Ma Shilong and Li Tao. *软件学报 / Journal of Software*, 26(2), 181–201. English title: *Avionics System Testing Based on Formal Methods*.
+
+**Study use and limits:** General state/configuration consistency methodology. Useful for reasoning about contradictory avionics states. Research software/test architecture, not F-22 source code or combat-mode logic; no audit framework is being added to this mod.
+
+<a id="r176"></a>
+
+### R176 — Chu Wenkui, Zhang Fengming and Fan Xiaoguang — 综合模块化航空电子系统软件体系结构综述, 2009
+
+[Publisher](https://hkxb.buaa.edu.cn/CN/abstract/abstract9508.shtml)
+
+**Access/review:** Publisher abstract/metadata reviewed. *航空学报*, 30(10), 1912–1917. English title: *Overview on Software Architecture of Integrated Modular Avionic Systems*. Full PDF not reviewed.
+
+**Study use and limits:** Compares IMA software architecture, including the F-22 CIP. Useful historical architecture and bibliography lead. Does not supply production software, exact task schedules or a reason to emulate physical avionics buses in the DCS mod.

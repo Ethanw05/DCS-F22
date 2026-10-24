@@ -29,6 +29,8 @@ Each record gives applicable resources, code scope, findings, proposed changes, 
 
 There are **113 finding records** across these reviews, including overlapping system concerns, confirmed defects, fidelity gaps and unresolved interface questions. This is not a claim of 113 distinct reproduced bugs.
 
+The subsequent [Chinese forum follow-up](../CHINESE_FORUM_RESEARCH.md) and [research addendum](RESEARCH_ADDENDUM.md) update source access and applicable system evidence without changing the audited implementation or treating forum agreement as a reproduced defect.
+
 ## Findings that affect the overhaul plan
 
 - Flight physics: high-alpha force discontinuity, thrust-vector direction/magnitude inconsistency, inert roll/yaw trim and timestep-dependent actuator motion.
