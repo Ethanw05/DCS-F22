@@ -34,4 +34,5 @@ devices["ICP_SYSTEM"]			= counter()--07
 devices["NAV_SYSTEM"]           = counter()--08: mission route / HUD steering
 devices["AG_MARK_SYSTEM"]       = counter()--09: terrain-backed designated markpoint
 devices["RADAR_DATA_BRIDGE"]     = counter()--10: compatible, read-only STT telemetry bridge
+devices["AG_BALLISTIC_COMPUTER"] = counter()--11: non-authoritative point-mass impact estimate
 --devices["FCS"]		  			= counter()--08

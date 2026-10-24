@@ -153,7 +153,22 @@ return function(api)
     local man=visible("MAN","HUD_AG_SUBMODE",1,ag)
     static(0.76,0.83,"MAN",0.050,man)
     local ccip=visible("CCIP","HUD_AG_SUBMODE",2,ag)
-    static(0.73,0.83,"CCIP N/A",0.039,ccip)
+    static(0.73,0.83,"CCIP SIM",0.039,ccip)
+    local est=visible("CCIP_EST","HUD_AG_CCIP_EST_VALID",1,ccip)
+    label(0.75,-0.56,"HUD_AG_CCIP_TOF_SEC","FALL %.1f",0.037,est)
+    static(-0.72,-0.73,"SIM NO DRAG",0.037,est)
+    local noEstimate=visible("CCIP_NO_EST","HUD_AG_CCIP_EST_VALID",0,ccip)
+    static(0,-0.80,"EST UNAVAILABLE",0.037,noEstimate)
+    group("HUD_AG_CCIP_PIPPER",0,0,
+        {"HUD_AG_CCIP_AZ_RAD","HUD_AG_CCIP_EL_RAD","HUD_POWER","HUD_AG_CCIP_CUE_VALID","HUD_MODE","HUD_AG_SUBMODE"},
+        {{"move_left_right_using_parameter",0,1.18},
+         {"move_up_down_using_parameter",1,1.18},
+         {"opacity_using_parameter",2},
+         {"parameter_in_range",3,0.9,1.1},
+         {"parameter_in_range",4,6.9,7.1},
+         {"parameter_in_range",5,1.9,2.1}})
+    ring(0,0,0.052,"HUD_AG_CCIP_PIPPER",24)
+    cross(0,0,0.11,"HUD_AG_CCIP_PIPPER")
     local ccrp=visible("CCRP","HUD_AG_SUBMODE",3,ag)
     static(0.73,0.83,"CCRP N/A",0.039,ccrp)
     local noAG=visible("NO_AG_TGT","HUD_AG_TARGET_VALID",0,ag)
