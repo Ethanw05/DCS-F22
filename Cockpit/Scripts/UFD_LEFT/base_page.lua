@@ -106,7 +106,7 @@ local ADI_MASK 	 		= MakeMaterial(LockOn_Options.script_path.."../Scripts/Indica
 local ADI_MASK2 	 	= MakeMaterial(LockOn_Options.script_path.."../Scripts/IndicationTextures/adi_mask.dds", WhiteColor)
 --Clipping Masks
 local total_field_of_view           = CreateElement "ceMeshPoly"
-total_field_of_view.name            = "total_field_of_view"
+total_field_of_view.name = "UFD_LEFT_base_page_total_field_of_view_1"
 total_field_of_view.primitivetype   = "triangles"
 total_field_of_view.vertices        = {
 										{-1 * ClippingWidth,-1 * ClippingPlaneSize},
@@ -125,7 +125,7 @@ total_field_of_view.isvisible       = false
 Add(total_field_of_view)
 
 local clipPoly               = CreateElement "ceMeshPoly"
-clipPoly.name                = "clipPoly-1"
+clipPoly.name = "UFD_LEFT_base_page_clipPoly_1"
 clipPoly.primitivetype       = "triangles"
 clipPoly.init_pos            = {0, 0, 0}
 clipPoly.init_rot            = { 0, 0 , 0} -- degree NOT rad
@@ -145,7 +145,7 @@ Add(clipPoly)
 -------------------------------------------------------------------------------------------------------------------------------------
 --TEST
 BGROUND                    = CreateElement "ceTexPoly"
-BGROUND.name    			= "BG"
+BGROUND.name = "UFD_LEFT_base_page_BGROUND_1"
 BGROUND.material			= MASK_BOX
 BGROUND.change_opacity 		= false
 BGROUND.collimated 			= false
@@ -162,7 +162,7 @@ vertices(BGROUND,200)
 Add(BGROUND)
 ----------------------------------------------------------------
 ADFUEL                    = CreateElement "ceTexPoly"
-ADFUEL.name    			= "fuel_grid"
+ADFUEL.name = "UFD_LEFT_base_page_ADFUEL_1"
 ADFUEL.material			= ADI_FUEL
 ADFUEL.change_opacity 		= false
 ADFUEL.collimated 			= false
@@ -181,7 +181,7 @@ Add(ADFUEL)
 
 --BARO TEXT
 BARO 					= CreateElement "ceStringPoly"
-BARO.name 				= "apu spool"
+BARO.name = "UFD_LEFT_base_page_BARO_1"
 BARO.material 			= UFD_GRN
 BARO.value 				= "BARO 29.92  J:3.5  B:2.5"
 BARO.stringdefs 		= {0.0050, 0.0050, 0.0004, 0.001}
@@ -198,7 +198,7 @@ BARO.controllers		= {{"parameter_in_range",0,0.9,1.1},
 Add(BARO)
 ----------------------------------------------------------------------------------------
 I 					= CreateElement "ceStringPoly"
-I.name 				= "internal"
+I.name = "UFD_LEFT_base_page_I_1"
 I.material 			= UFD_GRN
 I.value 				= "I:"
 I.stringdefs 		= {0.0050, 0.0050, 0.0004, 0.001}
@@ -215,7 +215,7 @@ I.controllers		= {{"parameter_in_range",0,0.9,1.1},
 Add(I)
 ----------------------------------------------------------------------------------------
 T 					= CreateElement "ceStringPoly"
-T.name 				= "tanks"
+T.name = "UFD_LEFT_base_page_T_1"
 T.material 			= UFD_GRN
 T.value 				= "T:"
 T.stringdefs 		= {0.0050, 0.0050, 0.0004, 0.001}
@@ -232,7 +232,7 @@ T.controllers		= {{"parameter_in_range",0,0.9,1.1},
 Add(T)
 ----------------------------------------------------------------------------------------
 F1 					= CreateElement "ceStringPoly"
-F1.name 				= "fuel numb"
+F1.name = "UFD_LEFT_base_page_F1_1"
 F1.material 			= UFD_GRN
 F1.value 				= "20"
 F1.stringdefs 		= {0.0050, 0.0050, 0.0004, 0.001}
@@ -249,7 +249,7 @@ F1.controllers		= {{"parameter_in_range",0,0.9,1.1},
 Add(F1)
 ----------------------------------------------------------------------------------------
 F2 					= CreateElement "ceStringPoly"
-F2.name 				= "fuel numb"
+F2.name = "UFD_LEFT_base_page_F2_1"
 F2.material 			= UFD_GRN
 F2.value 				= "10"
 F2.stringdefs 		= {0.0050, 0.0050, 0.0004, 0.001}
@@ -266,7 +266,7 @@ F2.controllers		= {{"parameter_in_range",0,0.9,1.1},
 Add(F2)
 ----------------------------------------------------------------------------------------
 F3 					= CreateElement "ceStringPoly"
-F3.name 				= "fuel numb"
+F3.name = "UFD_LEFT_base_page_F3_1"
 F3.material 			= UFD_GRN
 F3.value 				= "8"
 F3.stringdefs 		= {0.0050, 0.0050, 0.0004, 0.001}
@@ -283,7 +283,7 @@ F3.controllers		= {{"parameter_in_range",0,0.9,1.1},
 Add(F3)
 ----------------------------------------------------------------------------------------
 F4 					= CreateElement "ceStringPoly"
-F4.name 				= "fuel numb"
+F4.name = "UFD_LEFT_base_page_F4_1"
 F4.material 			= UFD_GRN
 F4.value 				= "6"
 F4.stringdefs 		= {0.0050, 0.0050, 0.0004, 0.001}
@@ -300,7 +300,7 @@ F4.controllers		= {{"parameter_in_range",0,0.9,1.1},
 Add(F4)
 ----------------------------------------------------------------------------------------
 F5 					= CreateElement "ceStringPoly"
-F5.name 				= "fuel numb"
+F5.name = "UFD_LEFT_base_page_F5_1"
 F5.material 			= UFD_GRN
 F5.value 				= "4"
 F5.stringdefs 		= {0.0050, 0.0050, 0.0004, 0.001}
@@ -317,7 +317,7 @@ F5.controllers		= {{"parameter_in_range",0,0.9,1.1},
 Add(F5)
 ----------------------------------------------------------------------------------------
 F6 					= CreateElement "ceStringPoly"
-F6.name 				= "fuel numb"
+F6.name = "UFD_LEFT_base_page_F6_1"
 F6.material 			= UFD_GRN
 F6.value 				= "2"
 F6.stringdefs 		= {0.0050, 0.0050, 0.0004, 0.001}
@@ -337,7 +337,7 @@ local ClippingPlaneSize1 = 41.5 --Clipping Masks   --50
 local ClippingWidth1 	= 45.5 --Clipping Masks	--85
 -------------------------------------------------------------------
 local FUELQT				= CreateElement "ceStringPoly"
-FUELQT.name				= "rad Alt"
+FUELQT.name = "UFD_LEFT_base_page_FUELQT_1"
 FUELQT.material			= UFD_GRN
 FUELQT.init_pos			= {40, 38, 0} --L-R,U-D,F-B
 FUELQT.alignment			= "LeftCenter"
@@ -355,7 +355,7 @@ Add(FUELQT)
 -------------------------------------------------------------------
 -------------------------------------------------------------------
 local FUELTQT				= CreateElement "ceStringPoly"
-FUELTQT.name				= "tank"
+FUELTQT.name = "UFD_LEFT_base_page_FUELTQT_1"
 FUELTQT.material			= UFD_GRN
 FUELTQT.init_pos			= {40, 30, 0} --L-R,U-D,F-B
 FUELTQT.alignment			= "LeftCenter"
@@ -372,7 +372,7 @@ FUELTQT.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1
 Add(FUELTQT)
 ----------------------------------------------------------------------------
 local total_field_of_view1           = CreateElement "ceMeshPoly"
-total_field_of_view1.name            = "total_field_of_view"
+total_field_of_view1.name = "UFD_LEFT_base_page_total_field_of_view1_1"
 total_field_of_view1.primitivetype   = "triangles"
 total_field_of_view1.vertices        = {
 										{-1 * ClippingWidth,-1 * ClippingPlaneSize},
@@ -391,7 +391,7 @@ total_field_of_view1.isvisible       = false
 Add(total_field_of_view1)
 -----------------
 local clipPoly1               = CreateElement "ceMeshPoly"
-clipPoly1.name                = "clipPoly-11"
+clipPoly1.name = "UFD_LEFT_base_page_clipPoly1_1"
 clipPoly1.primitivetype       = "triangles"
 clipPoly1.init_pos            = {-16.2, 4.4, 0}
 clipPoly1.init_rot            = { 0, 0 , 0} -- degree NOT rad
@@ -410,7 +410,7 @@ clipPoly1.isvisible           = false
 Add(clipPoly1)
 --------------
 ADIUP                    = CreateElement "ceTexPoly"
-ADIUP.name    			 = "up"
+ADIUP.name = "UFD_LEFT_base_page_ADIUP_1"
 ADIUP.material			 = ADI_TOP
 ADIUP.change_opacity 		= false
 ADIUP.collimated 			= false
@@ -432,7 +432,7 @@ vertices(ADIUP,400)
 Add(ADIUP)
 -- ----------------
 ADIDN                    = CreateElement "ceTexPoly"
-ADIDN.name    			 = "bot"
+ADIDN.name = "UFD_LEFT_base_page_ADIDN_1"
 ADIDN.material			 = ADI_BOT
 ADIDN.change_opacity 		= false
 ADIDN.collimated 			= false
@@ -454,7 +454,7 @@ vertices(ADIDN,400)
 Add(ADIDN)
 ----------------
 ADILAD                    	= CreateElement "ceTexPoly" --need to fix aith more code
-ADILAD.name    				= "ladderup"
+ADILAD.name = "UFD_LEFT_base_page_ADILAD_1"
 ADILAD.material			 	= LADDER_TOP
 ADILAD.change_opacity 		= false
 ADILAD.collimated 			= false
@@ -475,7 +475,7 @@ vertices(ADILAD,200)
 Add(ADILAD)
 -----------------------------------
 ADILAD1MASK                    	= CreateElement "ceTexPoly"
-ADILAD1MASK.name    				= "ladderdn"
+ADILAD1MASK.name = "UFD_LEFT_base_page_ADILAD1MASK_1"
 ADILAD1MASK.material			 	= LADDER_BOT_MASK
 ADILAD1MASK.change_opacity 		= false
 ADILAD1MASK.collimated 			= false
@@ -497,7 +497,7 @@ vertices(ADILAD1MASK,200)
 Add(ADILAD1MASK)
 -----------------------------------
 ADILAD1                    	= CreateElement "ceTexPoly"
-ADILAD1.name    				= "ladderdn"
+ADILAD1.name = "UFD_LEFT_base_page_ADILAD1_1"
 ADILAD1.material			 	= LADDER_BOT
 ADILAD1.change_opacity 		= false
 ADILAD1.collimated 			= false
@@ -519,7 +519,7 @@ vertices(ADILAD1,200)
 Add(ADILAD1)
 ----------------------------
 ADICENTMASK                    	= CreateElement "ceTexPoly"
-ADICENTMASK.name    				= "cen"
+ADICENTMASK.name = "UFD_LEFT_base_page_ADICENTMASK_1"
 ADICENTMASK.material			 	= ADI_CENTER_MASK
 ADICENTMASK.change_opacity 		= false
 ADICENTMASK.collimated 			= false
@@ -561,7 +561,7 @@ ADICENTMASK.vertices =
 Add(ADICENTMASK)
 ---------------------------
 ADICENT                    	= CreateElement "ceTexPoly"
-ADICENT.name    				= "cen"
+ADICENT.name = "UFD_LEFT_base_page_ADICENT_1"
 ADICENT.material			 	= ADI_CENTER
 ADICENT.change_opacity 		= false
 ADICENT.collimated 			= false
@@ -603,7 +603,7 @@ ADICENT.vertices =
 Add(ADICENT)
 ------------------------------------------------------
 local total_field_of_view2           = CreateElement "ceMeshPoly"
-total_field_of_view2.name            = "total_field_of_view"
+total_field_of_view2.name = "UFD_LEFT_base_page_total_field_of_view2_1"
 total_field_of_view2.primitivetype   = "triangles"
 total_field_of_view2.vertices        = {
 										{-1 * ClippingWidth,-1 * ClippingPlaneSize},
@@ -622,7 +622,7 @@ total_field_of_view2.isvisible       = false
 Add(total_field_of_view2)
 -----------------
 local clipPoly2               = CreateElement "ceMeshPoly"
-clipPoly2.name                = "clipPoly-11"
+clipPoly2.name = "UFD_LEFT_base_page_clipPoly2_1"
 clipPoly2.primitivetype       = "triangles"
 clipPoly2.init_pos            = {-16.2, 4.4, 0}
 clipPoly2.init_rot            = { 0, 0 , 0} -- degree NOT rad
@@ -642,7 +642,7 @@ Add(clipPoly2)
 -----------------------------------------------
 -----------------------------------------------
 BGROUND1                    	= CreateElement "ceTexPoly" --top left box
-BGROUND1.name    				= "BG"
+BGROUND1.name = "UFD_LEFT_base_page_BGROUND1_1"
 BGROUND1.material				= BLACK_MASK
 BGROUND1.change_opacity 		= false
 BGROUND1.collimated 			= false
@@ -683,7 +683,7 @@ BGROUND1.vertices =
 Add(BGROUND1)
 --------------------------------------------------
 local LENGRPM				= CreateElement "ceStringPoly"
-LENGRPM.name				= "rad Alt"
+LENGRPM.name = "UFD_LEFT_base_page_LENGRPM_1"
 LENGRPM.material			= UFD_GRN
 LENGRPM.init_pos			= {-47, 40, 0} --L-R,U-D,F-B
 LENGRPM.alignment			= "RightCenter"
@@ -700,7 +700,7 @@ LENGRPM.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1
 Add(LENGRPM)
 -----------------------------------------------------------------------------------------
 ENGPCTL 					= CreateElement "ceStringPoly"
-ENGPCTL.name 				= "fuel numb"
+ENGPCTL.name = "UFD_LEFT_base_page_ENGPCTL_1"
 ENGPCTL.material 			= UFD_GRN
 ENGPCTL.value 				= "%"
 ENGPCTL.stringdefs 			= {0.005, 0.005, 0, 0.0} --either 004 or 005
@@ -718,7 +718,7 @@ ENGPCTL.controllers		= {
 Add(ENGPCTL)
 ----------------------------------------------------------------------------------------------------------------------
 ENGDEGL 					= CreateElement "ceStringPoly"
-ENGDEGL.name 				= "fuel numb"
+ENGDEGL.name = "UFD_LEFT_base_page_ENGDEGL_1"
 ENGDEGL.material 			= UFD_GRN
 ENGDEGL.value 				= "d"
 ENGDEGL.stringdefs 			= {0.005, 0.005, 0, 0.0} --either 004 or 005
@@ -735,7 +735,7 @@ ENGDEGL.controllers		= {
 								}
 Add(ENGDEGL)
 local LENGEGT				= CreateElement "ceStringPoly"
-LENGEGT.name				= "rad Alt"
+LENGEGT.name = "UFD_LEFT_base_page_LENGEGT_1"
 LENGEGT.material			= UFD_GRN
 LENGEGT.init_pos			= {-47, 33, 0} --L-R,U-D,F-B
 LENGEGT.alignment			= "RightCenter"
@@ -754,7 +754,7 @@ Add(LENGEGT)
 ----------------------------------
 ---------------------------------------------------------------
 BGROUND1a                    = CreateElement "ceTexPoly" --top center box
-BGROUND1a.name    			= "BG"
+BGROUND1a.name = "UFD_LEFT_base_page_BGROUND1a_1"
 BGROUND1a.material			= BLACK_MASK
 BGROUND1a.change_opacity 		= false
 BGROUND1a.collimated 			= false
@@ -796,7 +796,7 @@ Add(BGROUND1a)
 ----------------------------------------------------------------
 --Heading Digital
 local NAV				= CreateElement "ceStringPoly"
-NAV.name				= "Navigation"
+NAV.name = "UFD_LEFT_base_page_NAV_1"
 NAV.material			= UFD_FONT
 NAV.init_pos			= {-16.8, 40.8, 0} --L-R,U-D,F-B
 NAV.alignment			= "CenterCenter"
@@ -813,7 +813,7 @@ NAV.controllers			= {{"parameter_in_range",0,0.9,1.1},{"text_using_parameter",1,
 Add(NAV)
 ----------------------------------------------------
 BGROUND2                    = CreateElement "ceTexPoly" --top right box
-BGROUND2.name    			= "BG"
+BGROUND2.name = "UFD_LEFT_base_page_BGROUND2_1"
 BGROUND2.material			= BLACK_MASK
 BGROUND2.change_opacity 		= false
 BGROUND2.collimated 			= false
@@ -855,7 +855,7 @@ Add(BGROUND2)
 --------------------------------
 --------------------------------------------------
 local RENGRPM				= CreateElement "ceStringPoly"
-RENGRPM.name				= "rad Alt"
+RENGRPM.name = "UFD_LEFT_base_page_RENGRPM_1"
 RENGRPM.material			= UFD_GRN
 RENGRPM.init_pos			= {20, 40, 0} --L-R,U-D,F-B
 RENGRPM.alignment			= "RightCenter"
@@ -873,7 +873,7 @@ Add(RENGRPM)
 -----------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------
 ENGPCTR 					= CreateElement "ceStringPoly"
-ENGPCTR.name 				= "fuel numb"
+ENGPCTR.name = "UFD_LEFT_base_page_ENGPCTR_1"
 ENGPCTR.material 			= UFD_GRN
 ENGPCTR.value 				= "%"
 ENGPCTR.stringdefs 			= {0.005, 0.005, 0, 0.0} --either 004 or 005
@@ -891,7 +891,7 @@ ENGPCTR.controllers			= {
 Add(ENGPCTR)
 ----------------------------------------------------------------------------------------------------------------------
 ENGDEGR 					= CreateElement "ceStringPoly"
-ENGDEGR.name 				= "fuel numb"
+ENGDEGR.name = "UFD_LEFT_base_page_ENGDEGR_1"
 ENGDEGR.material 			= UFD_GRN
 ENGDEGR.value 				= "d"
 ENGDEGR.stringdefs 			= {0.005, 0.005, 0, 0.0} --either 004 or 005
@@ -909,7 +909,7 @@ ENGDEGR.controllers		= {
 Add(ENGDEGR)
 --------------------------------------------------
 local RENGEGT				= CreateElement "ceStringPoly"
-RENGEGT.name				= "rad Alt"
+RENGEGT.name = "UFD_LEFT_base_page_RENGEGT_1"
 RENGEGT.material			= UFD_GRN
 RENGEGT.init_pos			= {20, 33, 0} --L-R,U-D,F-B
 RENGEGT.alignment			= "RightCenter"
@@ -926,7 +926,7 @@ RENGEGT.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1
 Add(RENGEGT)
 ----------------------------------
 BGROUND3                    = CreateElement "ceTexPoly" -- speed box left
-BGROUND3.name    			= "BG"
+BGROUND3.name = "UFD_LEFT_base_page_BGROUND3_1"
 BGROUND3.material			= BLACK_MASK
 BGROUND3.change_opacity 		= false
 BGROUND3.collimated 			= false
@@ -959,7 +959,7 @@ Add(BGROUND3)
 ---------------------------------------------------------------------
 --Indicated Airspeed
 local IAS				= CreateElement "ceStringPoly"
-IAS.name				= "Indicated Airspeed"
+IAS.name = "UFD_LEFT_base_page_IAS_1"
 IAS.material			= UFD_FONT
 IAS.init_pos			= {-60, 4.4, 0} --L-R,U-D,F-B
 IAS.alignment			= "LeftCenter"
@@ -976,7 +976,7 @@ IAS.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},
 Add(IAS)
 ---------------------------------------------------------------------
 BGROUND4                    = CreateElement "ceTexPoly" -- alt box right
-BGROUND4.name    			= "BG"
+BGROUND4.name = "UFD_LEFT_base_page_BGROUND4_1"
 BGROUND4.material			= BLACK_MASK
 BGROUND4.change_opacity 		= false
 BGROUND4.collimated 			= false
@@ -1010,7 +1010,7 @@ Add(BGROUND4)
 -----------------------------------------------------
 --Barometric Alt
 local BARO				= CreateElement "ceStringPoly"
-BARO.name				= "Baro Alt"
+BARO.name = "UFD_LEFT_base_page_BARO_2"
 BARO.material			= UFD_FONT
 BARO.init_pos			= {26.5, 4.4, 0} --L-R,U-D,F-B
 BARO.alignment			= "RightCenter"
@@ -1027,7 +1027,7 @@ BARO.controllers		= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},
 Add(BARO)
 -----------------------------------------------------
 BGROUND5                    = CreateElement "ceTexPoly" -- alt box right lower
-BGROUND5.name    			= "BG"
+BGROUND5.name = "UFD_LEFT_base_page_BGROUND5_1"
 BGROUND5.material			= BLACK_MASK
 BGROUND5.change_opacity 		= false
 BGROUND5.collimated 			= false
@@ -1059,7 +1059,7 @@ BGROUND5.vertices =
 Add(BGROUND5)
 --------------------------------------------------------------------------
 local RADALT				= CreateElement "ceStringPoly"
-RADALT.name				= "rad Alt"
+RADALT.name = "UFD_LEFT_base_page_RADALT_1"
 RADALT.material			= UFD_FONT
 RADALT.init_pos			= {26, -32.5, 0} --L-R,U-D,F-B
 RADALT.alignment			= "RightCenter"
@@ -1077,7 +1077,7 @@ Add(RADALT)
 
 ---------------------------------------------------------------------TRIM--STOP
 ADITRIMMASK                    	= CreateElement "ceTexPoly"
-ADITRIMMASK.name    				= "trim"
+ADITRIMMASK.name = "UFD_LEFT_base_page_ADITRIMMASK_1"
 ADITRIMMASK.material			 	= ADI_TRIM_MASK
 ADITRIMMASK.change_opacity 		= false
 ADITRIMMASK.collimated 			= false
@@ -1098,7 +1098,7 @@ vertices(ADITRIMMASK,199)
 Add(ADITRIMMASK)
 ---------------------------------------------------------------------
 ADITRIM                    	= CreateElement "ceTexPoly"
-ADITRIM.name    				= "trim"
+ADITRIM.name = "UFD_LEFT_base_page_ADITRIM_1"
 ADITRIM.material			 	= ADI_TRIM
 ADITRIM.change_opacity 		= false
 ADITRIM.collimated 			= false
@@ -1123,7 +1123,7 @@ local ClippingPlaneSize3 = 29 --Clipping Masks   --50
 local ClippingWidth3 	= 5.40 --Clipping Masks	--85
 --Clipping Masks
 local total_field_of_view3           = CreateElement "ceMeshPoly"
-total_field_of_view3.name            = "total_field_of_view"
+total_field_of_view3.name = "UFD_LEFT_base_page_total_field_of_view3_1"
 total_field_of_view3.primitivetype   = "triangles"
 total_field_of_view3.vertices        = {
 										{-1 * ClippingWidth,-1 * ClippingPlaneSize},
@@ -1142,7 +1142,7 @@ total_field_of_view3.isvisible       = false
 Add(total_field_of_view3)
 
 local clipPoly3               = CreateElement "ceMeshPoly"
-clipPoly3.name                = "clipPoly-3"
+clipPoly3.name = "UFD_LEFT_base_page_clipPoly3_1"
 clipPoly3.primitivetype       = "triangles"
 clipPoly3.init_pos            = {43, -7.8, 0}
 clipPoly3.init_rot            = { 0, 0 , 0} -- degree NOT rad
@@ -1161,7 +1161,7 @@ clipPoly3.isvisible           = false
 Add(clipPoly3)
 ----------------------------------------------------
 FUELLINEM                    = CreateElement "ceTexPoly"
-FUELLINEM.name    			= "BG"
+FUELLINEM.name = "UFD_LEFT_base_page_FUELLINEM_1"
 FUELLINEM.material			= FUEL_LINE_M
 FUELLINEM.change_opacity 		= false
 FUELLINEM.collimated 			= false
@@ -1176,7 +1176,7 @@ vertices(FUELLINEM,80,true)
 --888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 --888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 FUELLINEMASK                    	= CreateElement "ceTexPoly"
-FUELLINEMASK.name    				= "BG"
+FUELLINEMASK.name = "UFD_LEFT_base_page_FUELLINEMASK_1"
 FUELLINEMASK.material				= FUEL_LINE_MASK
 FUELLINEMASK.change_opacity 		= false
 FUELLINEMASK.collimated 			= false
@@ -1196,7 +1196,7 @@ vertices(FUELLINEMASK,80,true)
 Add(FUELLINEMASK)
 ----------------------------------------------------------------------------------------------------------
 FUELLINE                    = CreateElement "ceTexPoly"
-FUELLINE.name    			= "BG"
+FUELLINE.name = "UFD_LEFT_base_page_FUELLINE_1"
 FUELLINE.material			= FUEL_LINE
 FUELLINE.change_opacity 		= false
 FUELLINE.collimated 			= false
@@ -1222,7 +1222,7 @@ Add(FUELLINE)
 --888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 --888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
 FUELLINEMASKLOWER                    	= CreateElement "ceTexPoly"
-FUELLINEMASKLOWER.name    				= "BG"
+FUELLINEMASKLOWER.name = "UFD_LEFT_base_page_FUELLINEMASKLOWER_1"
 FUELLINEMASKLOWER.material				= FUEL_LINE_MASK
 FUELLINEMASKLOWER.change_opacity 		= false
 FUELLINEMASKLOWER.collimated 			= false
@@ -1242,7 +1242,7 @@ vertices(FUELLINEMASKLOWER,80,true)
 Add(FUELLINEMASKLOWER)
 ----------------------------------------------------------------------------------------------------------
 FUELLINEL                    = CreateElement "ceTexPoly"
-FUELLINEL.name    			= "BG"
+FUELLINEL.name = "UFD_LEFT_base_page_FUELLINEL_1"
 FUELLINEL.material			= FUEL_LINE
 FUELLINEL.change_opacity 		= false
 FUELLINEL.collimated 			= false
@@ -1289,7 +1289,7 @@ Add(FUELLINEL)
 ------------------------------------------------------------------------------------------------------------
 --Clipping Masks
 local total_field_of_viewP2           = CreateElement "ceMeshPoly"
-total_field_of_viewP2.name            = "total_field_of_view"
+total_field_of_viewP2.name = "UFD_LEFT_base_page_total_field_of_viewP2_1"
 total_field_of_viewP2.primitivetype   = "triangles"
 total_field_of_viewP2.vertices        = {
 										{-1 * ClippingWidth,-1 * ClippingPlaneSize},
@@ -1308,7 +1308,7 @@ total_field_of_viewP2.isvisible       = false
 Add(total_field_of_viewP2)
 
 local clipPolyP2               = CreateElement "ceMeshPoly"
-clipPolyP2.name                = "clipPoly-1"
+clipPolyP2.name = "UFD_LEFT_base_page_clipPolyP2_1"
 clipPolyP2.primitivetype       = "triangles"
 clipPolyP2.init_pos            = {0, 0, 0}
 clipPolyP2.init_rot            = { 0, 0 , 0} -- degree NOT rad
@@ -1327,7 +1327,7 @@ clipPolyP2.isvisible           = false
 Add(clipPolyP2)
 ---------------------------------------------------------------------------------------------------------------PFD-FAKE-BACKGROUND
 PFDFAKE                    = CreateElement "ceTexPoly"
-PFDFAKE.name    			= "PFD Warning fake"
+PFDFAKE.name = "UFD_LEFT_base_page_PFDFAKE_1"
 PFDFAKE.material			= PFD_PAGE_1
 PFDFAKE.change_opacity 		= false
 PFDFAKE.collimated 			= false
@@ -1343,7 +1343,7 @@ vertices(PFDFAKE,130)
 Add(PFDFAKE)
 ------------------------------------------------------------------------------------------------------------------------APU-READY
 APURUN 					= CreateElement "ceStringPoly"
-APURUN.name 			= "lgen"
+APURUN.name = "UFD_LEFT_base_page_APURUN_1"
 APURUN.material 		= UFD_YEL --FONT_RPM--
 APURUN.value 			= "APU SPOOL"
 APURUN.stringdefs 		= {0.0040, 0.0040, 0.0004, 0.001}
@@ -1359,7 +1359,7 @@ APURUN.controllers	= 	{{"parameter_in_range",0,0.9,1.1}, {"parameter_in_range",1
 -----------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------APU-READY
 APUREADY 					= CreateElement "ceStringPoly"
-APUREADY.name 			= "lgen"
+APUREADY.name = "UFD_LEFT_base_page_APUREADY_1"
 APUREADY.material 		= UFD_GRN --FONT_RPM--
 APUREADY.value 			= "APU READY"
 APUREADY.stringdefs 		= {0.0040, 0.0040, 0.0004, 0.001}
@@ -1374,7 +1374,7 @@ APUREADY.controllers	= 	{{"parameter_in_range",0,0.9,1.1}, {"parameter_in_range"
  Add(APUREADY)
 -----------------------------------------------------
 Lgen 					= CreateElement "ceStringPoly"
-Lgen.name 			= "lgen"
+Lgen.name = "UFD_LEFT_base_page_Lgen_1"
 Lgen.material 		= UFD_RED --FONT_RPM--
 Lgen.value 			= "L GEN OUT"
 Lgen.stringdefs 		= {0.0040, 0.0040, 0.0004, 0.001}
@@ -1389,7 +1389,7 @@ Lgen.controllers		= 	{{"parameter_in_range",0,0.9,1.1}, {"parameter_in_range",1,
 Add(Lgen)
 ------------------------------------------------------
 Rgen 					= CreateElement "ceStringPoly"
-Rgen.name 			= "rgen"
+Rgen.name = "UFD_LEFT_base_page_Rgen_1"
 Rgen.material 		= UFD_RED --FONT_RPM--
 Rgen.value 			= "R GEN OUT"
 Rgen.stringdefs 		= {0.0040, 0.0040, 0.0004, 0.001}
@@ -1404,7 +1404,7 @@ Rgen.controllers		= 	{{"parameter_in_range",0,0.9,1.1}, {"parameter_in_range",1,
 Add(Rgen)
 ------------------------------------------------------
 hyd 					= CreateElement "ceStringPoly"
-hyd.name 			= "hyd"
+hyd.name = "UFD_LEFT_base_page_hyd_1"
 hyd.material 		= UFD_RED --FONT_RPM--
 hyd.value 			= "HYDRAULIC"
 hyd.stringdefs 		= {0.0040, 0.0040, 0.0004, 0.001}
@@ -1419,7 +1419,7 @@ hyd.controllers		= 	{{"parameter_in_range",0,0.9,1.1}, {"parameter_in_range",1,0
 Add(hyd)
 ------------------------------------------------------
 oilpress 					= CreateElement "ceStringPoly"
-oilpress.name 			= "oil"
+oilpress.name = "UFD_LEFT_base_page_oilpress_1"
 oilpress.material 		= UFD_RED --FONT_RPM--
 oilpress.value 			= "OIL PRESS"
 oilpress.stringdefs 		= {0.0040, 0.0040, 0.0004, 0.001}
@@ -1434,7 +1434,7 @@ oilpress.controllers		= 	{{"parameter_in_range",0,0.9,1.1}, {"parameter_in_range
 Add(oilpress)
 ------------------------------------------------------
 canopy 					= CreateElement "ceStringPoly"
-canopy.name 			= "canopy"
+canopy.name = "UFD_LEFT_base_page_canopy_1"
 canopy.material 		= UFD_YEL --FONT_RPM--
 canopy.value 			= "CANOPY UNLOCK"
 canopy.stringdefs 		= {0.0040, 0.0040, 0.0004, 0.001}
@@ -1449,7 +1449,7 @@ canopy.controllers		= 	{{"parameter_in_range",0,0.9,1.1}, {"parameter_in_range",
 Add(canopy)
 ------------------------------------------------------------------------------------------------------------------------Master Caution Warning Light
 master_caution 					= CreateElement "ceStringPoly"
-master_caution.name 			= "master_caution"
+master_caution.name = "UFD_LEFT_base_page_master_caution_1"
 master_caution.material 		= UFD_YEL --FONT_RPM--
 master_caution.value 			= "MASTER CAUTION"
 master_caution.stringdefs 		= {0.0040, 0.0040, 0.0004, 0.001}
@@ -1464,7 +1464,7 @@ master_caution.controllers		= 	{{"parameter_in_range",0,0.9,1.1}, {"parameter_in
 Add(master_caution)
 --Bingo
 BingoFuel 					= CreateElement "ceStringPoly"
-BingoFuel.name 				= "bingo"
+BingoFuel.name = "UFD_LEFT_base_page_BingoFuel_1"
 BingoFuel.material 			= UFD_YEL --FONT_RPM--
 BingoFuel.value 			= "BINGO FUEL"
 BingoFuel.stringdefs 		= {0.0040, 0.0040, 0.0004, 0.001}
@@ -1479,7 +1479,7 @@ BingoFuel.controllers		= 	{{"parameter_in_range",0,0.9,1.1}, {"parameter_in_rang
 Add(BingoFuel)
 --Flaps
 FlapsM 					= CreateElement "ceStringPoly"
-FlapsM.name 				= "flap"
+FlapsM.name = "UFD_LEFT_base_page_FlapsM_1"
 FlapsM.material 			= UFD_YEL --FONT_RPM--
 FlapsM.value 			= "FLAPS"
 FlapsM.stringdefs 		= {0.0040, 0.0040, 0.0004, 0.001}
@@ -1494,7 +1494,7 @@ FlapsM.controllers	= 	{{"parameter_in_range",0,0.9,1.1}, {"parameter_in_range",1
 Add(FlapsM)
 --Flaps
 Flaps 					= CreateElement "ceStringPoly"
-Flaps.name 				= "flap"
+Flaps.name = "UFD_LEFT_base_page_Flaps_1"
 Flaps.material 			= UFD_TEAL --FONT_RPM--
 Flaps.value 			= "FLAPS"
 Flaps.stringdefs 		= {0.0040, 0.0040, 0.0004, 0.001}
@@ -1509,7 +1509,7 @@ Flaps.controllers		= 	{{"parameter_in_range",0,0.9,1.1}, {"parameter_in_range",1
 Add(Flaps)
 --Speed Brake	
 SpdBrake 					= CreateElement "ceStringPoly"
-SpdBrake.name 				= "spd"
+SpdBrake.name = "UFD_LEFT_base_page_SpdBrake_1"
 SpdBrake.material 			= UFD_TEAL --FONT_RPM--
 SpdBrake.value 			= "SPD BRK OUT"
 SpdBrake.stringdefs 		= {0.0040, 0.0040, 0.0004, 0.001}
@@ -1524,7 +1524,7 @@ SpdBrake.controllers		= 	{{"parameter_in_range",0,0.9,1.1}, {"parameter_in_range
 Add(SpdBrake)
 --AAR	
 AARReady 					= CreateElement "ceStringPoly"
-AARReady.name 				= "aar"
+AARReady.name = "UFD_LEFT_base_page_AARReady_1"
 AARReady.material 			= UFD_TEAL --FONT_RPM--
 AARReady.value 			= "AAR READY"
 AARReady.stringdefs 		= {0.0040, 0.0040, 0.0004, 0.001}
@@ -1540,7 +1540,7 @@ Add(AARReady)
 ------------
 --CHAFF
 CHAFF 					= CreateElement "ceStringPoly"
-CHAFF.name 				= "chaff"
+CHAFF.name = "UFD_LEFT_base_page_CHAFF_1"
 CHAFF.material 			= UFD_YEL --FONT_RPM--
 CHAFF.value 			= "CHAFF"
 CHAFF.stringdefs 		= {0.0040, 0.0040, 0.0004, 0.001}
@@ -1555,7 +1555,7 @@ CHAFF.controllers		= 	{{"parameter_in_range",0,0.9,1.1}, {"parameter_in_range",1
 Add(CHAFF)
 --Flare
 FLARE 					= CreateElement "ceStringPoly"
-FLARE.name 				= "chaff"
+FLARE.name = "UFD_LEFT_base_page_FLARE_1"
 FLARE.material 			= UFD_YEL --FONT_RPM--
 FLARE.value 			= "FLARE"
 FLARE.stringdefs 		= {0.0040, 0.0040, 0.0004, 0.001}
@@ -1570,7 +1570,7 @@ FLARE.controllers		= 	{{"parameter_in_range",0,0.9,1.1}, {"parameter_in_range",1
 Add(FLARE)
 -------------------------------------------------------------
 JAMMER 					= CreateElement "ceStringPoly"
-JAMMER.name 				= "chaff"
+JAMMER.name = "UFD_LEFT_base_page_JAMMER_1"
 JAMMER.material 			= UFD_YEL --FONT_RPM--
 JAMMER.value 			= "ECM"
 JAMMER.stringdefs 		= {0.0040, 0.0040, 0.0004, 0.001}
@@ -1585,7 +1585,7 @@ JAMMER.controllers		= 	{{"parameter_in_range",0,0.9,1.1}, {"parameter_in_range",
 Add(JAMMER)
 -------------------------------------------------------------
 GPOWER 					= CreateElement "ceStringPoly"
-GPOWER.name 				= "chaff"
+GPOWER.name = "UFD_LEFT_base_page_GPOWER_1"
 GPOWER.material 			= UFD_GRN --FONT_RPM--
 GPOWER.value 			= "GROUND POWER"
 GPOWER.stringdefs 		= {0.0040, 0.0040, 0.0004, 0.001}
@@ -1603,7 +1603,7 @@ GPOWER.controllers		= 	{	{"parameter_in_range",0,0.9,1.1},
 Add(GPOWER)
 -------------------------------------------------------------
 GTXT 					= CreateElement "ceStringPoly"
-GTXT.name 				= "gtext"
+GTXT.name = "UFD_LEFT_base_page_GTXT_1"
 GTXT.material 			= UFD_GRN --FONT_RPM--
 GTXT.value 				= "G:  "
 GTXT.stringdefs 		= {0.0050, 0.0050, 0.0005, 0.001}
@@ -1622,7 +1622,7 @@ Add(GTXT)
 --------------
 --------------
 G_NUM				    = CreateElement "ceStringPoly"
-G_NUM.name				= "G_NUM"
+G_NUM.name = "UFD_LEFT_base_page_G_NUM_1"
 G_NUM.material			= UFD_GRN
 G_NUM.init_pos			= {-42, -25, 0} --L-R,U-D,F-B
 G_NUM.alignment			= "RightCenter"
@@ -1645,7 +1645,7 @@ Add(G_NUM)
 ------------------------------------------------------------------------------------------------
 -------------------------------------------------------------
 AOATXT 					= CreateElement "ceStringPoly"
-AOATXT.name 				= "gtext"
+AOATXT.name = "UFD_LEFT_base_page_AOATXT_1"
 AOATXT.material 			= UFD_GRN --FONT_RPM--
 AOATXT.value 				= "A:  "
 AOATXT.stringdefs 		= {0.005, 0.005, 0.0005, 0.001}
@@ -1664,7 +1664,7 @@ Add(AOATXT)
 --------------
 --------------
 AOA_NUM				    = CreateElement "ceStringPoly"
-AOA_NUM.name				= "G_NUM"
+AOA_NUM.name = "UFD_LEFT_base_page_AOA_NUM_1"
 AOA_NUM.material			= UFD_GRN
 AOA_NUM.init_pos			= {-42, -13, 0} --L-R,U-D,F-B
 AOA_NUM.alignment			= "RightCenter"
@@ -1688,7 +1688,7 @@ Add(AOA_NUM)
 
 -------------------------------------------------------------
 MACHTXT 					= CreateElement "ceStringPoly"
-MACHTXT.name 				= "gtext"
+MACHTXT.name = "UFD_LEFT_base_page_MACHTXT_1"
 MACHTXT.material 			= UFD_GRN --FONT_RPM--
 MACHTXT.value 				= "M:  "
 MACHTXT.stringdefs 		= {0.005, 0.005, 0.0005, 0.001}
@@ -1707,7 +1707,7 @@ Add(MACHTXT)
 --------------
 --------------
 MACH_NUM				    = CreateElement "ceStringPoly"
-MACH_NUM.name				= "G_NUM"
+MACH_NUM.name = "UFD_LEFT_base_page_MACH_NUM_1"
 MACH_NUM.material			= UFD_GRN
 MACH_NUM.init_pos			= {-42, -19, 0} --L-R,U-D,F-B
 MACH_NUM.alignment			= "RightCenter"

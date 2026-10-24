@@ -48,7 +48,7 @@ function default_button(hint_,device_,command_,arg_,arg_val_,arg_lim_)
 				arg 				= {arg_},
 				arg_value			= {arg_val_}, 
 				arg_lim 			= {arg_lim_},
-				use_release_message = {false},
+				use_release_message = {true},
 				updatable 	= true, 
 			}
 end
@@ -368,7 +368,7 @@ elements = {}
 	elements["TAXI_PNT"] 	    = default_3_position_tumb(_("Taxi/Landing Lights"),   	devices.ELECTRICAL_SYSTEM, device_commands.Button_4,   709, false, true,    TOGGLECLICK)
 --Weapon System
 	elements["MASTER_PNT"] 	    = default_2_position_tumb(_("Master Arm"),   			devices.WEAPON_SYSTEM, device_commands.Button_1,    708, 1, {0,1},   TOGGLECLICK)
-	elements["JETT_PNT"] 	    = default_button(_("Emergency Jettison"),   		    devices.WEAPON_SYSTEM, device_commands.Button_2,   	711, 1, {0,1},   TOGGLECLICK)--Electrical System
+	elements["JETT_PNT"] 	    = default_button(_("Emergency Fuel Tank Jettison"),   		    devices.WEAPON_SYSTEM, device_commands.Button_2,   	711, 1, {0,1},   TOGGLECLICK)--Electrical System
 	--elements["RWR_UP_PNT"] 	    = default_2_position_tumb(_("RWR Volume Up"),   		devices.WEAPON_SYSTEM, device_commands.Button_2,  	999, 1, {0,1},   TOGGLECLICK)
 	--elements["RWR_DWN_PNT"]     = default_2_position_tumb(_("RWR Volume Down"),   		devices.WEAPON_SYSTEM, device_commands.Button_3,  	999, 1, {0,1},   TOGGLECLICK)
 --Avionics System
@@ -381,7 +381,7 @@ elements = {}
 	elements["PFD_PNT"]			= default_axis_limited(_("PFD Brightness"),   			devices.AVIONICS, device_commands.Button_4, 705, 0.0, 0.3, false, false, {0,1})
 	elements["CONSOLE_PNT"] 	= default_axis_limited(_("Console Lights"),   			devices.AVIONICS, device_commands.Button_5, 706, 0.0, 0.3, false, false, {0,1})
 	elements["FLOOD_PNT"] 		= default_axis_limited(_("Flood Lights"),     			devices.AVIONICS, device_commands.Button_6, 707, 0.0, 0.3, false, false, {0,1})
-	elements["FORMLIGHT_PNT"] 	= default_axis_limited(_("Formation Lights"), 			devices.AVIONICS, device_commands.Button_7, 714, 0.0, 0.3, false, false, {0,1})
+	elements["FORMLIGHT_PNT"] 	= default_axis_limited(_("Formation Lights"), 			devices.ELECTRICAL_SYSTEM, device_commands.Button_7, 714, 0.0, 0.3, false, false, {0,1})
 	elements["DAY_NIGHT_PNT"]   = default_2_position_tumb(_("Day/Night Mode"),			devices.AVIONICS, device_commands.Button_8,  	    718, 1, {0,1},   TOGGLECLICK)
 --Left UFD
 	elements["L_SMFD_1_PNT"] 	= default_button(_("SMFD OSB 1"),	  devices.AVIONICS, device_commands.Button_10, 	881, 1, {0,1},   TOGGLECLICK)

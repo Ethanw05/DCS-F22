@@ -76,7 +76,7 @@ local PFD_MASK_BASE1 	= MakeMaterial(nil,{255,0,0,255})--Clipping Masks
 local PFD_MASK_BASE2 	= MakeMaterial(nil,{0,255,0,255})--Clipping Masks
 --Clipping Masks
 local total_field_of_view           = CreateElement "ceMeshPoly"
-total_field_of_view.name            = "total_field_of_view"
+total_field_of_view.name = "MFD_CENTER_menu_page_total_field_of_view_1"
 total_field_of_view.primitivetype   = "triangles"
 total_field_of_view.vertices        = {
 										{-1 * ClippingWidth,-1 * ClippingPlaneSize},
@@ -95,7 +95,7 @@ total_field_of_view.isvisible       = false
 Add(total_field_of_view)
 --Clipping Masks
 local clipPoly               = CreateElement "ceMeshPoly"
-clipPoly.name                = "clipPoly-1"
+clipPoly.name = "MFD_CENTER_menu_page_clipPoly_1"
 clipPoly.primitivetype       = "triangles"
 clipPoly.init_pos            = {0, 0, 0}
 clipPoly.init_rot            = { 0, 0 , 0} -- degree NOT rad
@@ -114,7 +114,7 @@ clipPoly.isvisible           = false
 Add(clipPoly)
 ------------------------------------------------------------------------------------------------CLIPPING-END----------------------------------------------------------------------------------------------
 BGROUND                    = CreateElement "ceTexPoly"
-BGROUND.name    			= "BG"
+BGROUND.name = "MFD_CENTER_menu_page_BGROUND_1"
 BGROUND.material			= MASK_BOX
 BGROUND.change_opacity 		= false
 BGROUND.collimated 			= false
@@ -130,7 +130,7 @@ Add(BGROUND)
 ----------------------------------------------------------------------------------------------------------------ADI
 --ADI TEXT
 ADITEXT 					    = CreateElement "ceStringPoly"
-ADITEXT.name 				    = "menu"
+ADITEXT.name = "MFD_CENTER_menu_page_ADITEXT_1"
 ADITEXT.material 			    = UFD_FONT
 ADITEXT.value 				    = "ADI"
 ADITEXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -149,7 +149,7 @@ Add(ADITEXT)
 ----------------------------------------------------------------------------------------------------------------ADI
 --HSI TEXT
 HSITEXT 					    = CreateElement "ceStringPoly"
-HSITEXT.name 				    = "menu"
+HSITEXT.name = "MFD_CENTER_menu_page_HSITEXT_1"
 HSITEXT.material 			    = UFD_FONT
 HSITEXT.value 				    = "HSI"
 HSITEXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -168,7 +168,7 @@ Add(HSITEXT)
 ----------------------------------------------------------------------------------------------------------------ENG
 --ENG TEXT
 ENGTEXT 					    = CreateElement "ceStringPoly"
-ENGTEXT.name 				    = "menu"
+ENGTEXT.name = "MFD_CENTER_menu_page_ENGTEXT_1"
 ENGTEXT.material 			    = UFD_FONT
 ENGTEXT.value 				    = "ENG"
 ENGTEXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -187,7 +187,7 @@ Add(ENGTEXT)
 ----------------------------------------------------------------------------------------------------------------FCS
 --FCS TEXT
 FCSTEXT 					    = CreateElement "ceStringPoly"
-FCSTEXT.name 				    = "menu"
+FCSTEXT.name = "MFD_CENTER_menu_page_FCSTEXT_1"
 FCSTEXT.material 			    = UFD_FONT
 FCSTEXT.value 				    = "FCS"
 FCSTEXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -206,7 +206,7 @@ Add(FCSTEXT)
 ----------------------------------------------------------------------------------------------------------------FUEL
 --FUEL TEXT
 FUELTEXT 					    = CreateElement "ceStringPoly"
-FUELTEXT.name 				    = "menu"
+FUELTEXT.name = "MFD_CENTER_menu_page_FUELTEXT_1"
 FUELTEXT.material 			    = UFD_FONT
 FUELTEXT.value 				    = "FUEL"
 FUELTEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
@@ -225,7 +225,7 @@ Add(FUELTEXT)
 ----------------------------------------------------------------------------------------------------------------FUEL
 --FUEL TEXT
 BAYTEXT 					    = CreateElement "ceStringPoly"
-BAYTEXT.name 				    = "menu"
+BAYTEXT.name = "MFD_CENTER_menu_page_BAYTEXT_1"
 BAYTEXT.material 			    = UFD_FONT
 BAYTEXT.value 				    = "BAY"
 BAYTEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
@@ -244,7 +244,7 @@ Add(BAYTEXT)
 ----------------------------------------------------------------------------------------------------------------CHK
 --CHK TEXT
 CHKTEXT 					    = CreateElement "ceStringPoly"
-CHKTEXT.name 				    = "menu"
+CHKTEXT.name = "MFD_CENTER_menu_page_CHKTEXT_1"
 CHKTEXT.material 			    = UFD_FONT
 CHKTEXT.value 				    = "CHK"
 CHKTEXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}

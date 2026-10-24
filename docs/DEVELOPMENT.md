@@ -22,24 +22,44 @@ settings; cloning with Git LFS is the documented development path.
 ## Build the external flight model
 
 Use Windows with Visual Studio 2022 or its Build Tools, the C++ desktop
-workload, a Windows SDK, and CMake 3.30 or later. The source requests C++23.
+workload, a Windows SDK, and CMake 3.21 or later. The physics core uses C++17.
 From a Visual Studio x64 developer terminal in the repository root:
 
 ```sh
 cmake --preset x64-release -G "Visual Studio 17 2022"
-cmake --build --preset x64-release --config Release
+cmake --build --preset x64-release
+ctest --preset x64-release
 ```
 
-The CMake project writes `bin/f22.dll`. The repository contains source;
+The CMake project writes `bin/F22.dll`. The PR workflow pins the Windows 2022
+runner to match its Visual Studio 2022 preset; a successful run uploads an
+experimental DLL artifact and a Lua/DLL install-overlay ZIP, with licence notices and model limitations. The repository contains source;
 building the DLL is required before installing a fresh source checkout as
 a flyable mod. The inherited release workflow also builds the DLL when a
 version tag is published.
+
+## Test the portable physics on Linux
+
+```sh
+cmake -S . -B out/physics -DCMAKE_BUILD_TYPE=Release
+cmake --build out/physics --parallel
+ctest --test-dir out/physics --output-on-failure
+```
+
+Install Lua 5.1 to include cockpit state, registration, indicator-construction and syntax tests. CMake discovers `lua5.1`/`lua51`/`lua`; set `F22_LUA_EXECUTABLE` explicitly if needed.
+
+This builds the physics, callback tests with an absent-DLL stub, and a small
+rigid-body scenario harness. It does not build a usable Linux DCS plugin.
+For sanitizers use a separate Debug build with
+`-DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"`.
+The tests validate numerical properties and selected response cases, not
+production F-22 fidelity.
 
 ## Install a development build
 
 Use a separate working copy under your DCS Saved Games aircraft-mod
 directory, conventionally `Saved Games/DCS/Mods/aircraft/F-22A`, containing
-the root `entry.lua`, compiled `bin/f22.dll`, and the aircraft's asset
+the root `entry.lua`, compiled `bin/F22.dll`, and the aircraft's asset
 directories. See the original README and included manual for installation
 details and the inherited F-15C preload setting.
 
@@ -66,8 +86,8 @@ available unless separately present and licensed.
 
 The current baseline dispatches inherited avionics/HUD commands; the
 presence of Lua cockpit pages does not establish a fully independent HUD
-or radar implementation. Aircraft behaviour has not been changed as part
-of this repository import.
+or radar implementation. The experimental flight-model overhaul is documented in
+[FLIGHT_MODEL.md](FLIGHT_MODEL.md), including its assumptions and validation limits.
 
 ## Contributing
 
@@ -75,3 +95,9 @@ Make focused branches and preserve existing attribution and licence
 notices. Keep changes to aircraft behaviour distinct from additions to
 the study catalogue. When implementing a reference-based feature, record
 the reference, aircraft era/configuration and any necessary approximation.
+
+## Build an install overlay
+
+After building the Windows DLL, run `python tools/package_overlay.py`. It produces `dist/f22-overhaul-overlay-win64.zip` with Lua, DLL, licences, evidence and installation notes. It deliberately excludes large model/texture/audio assets and refuses LFS pointers. Use it over a complete existing installation, as described in [TEST_BUILD.md](TEST_BUILD.md). The package records the commit/hash; it is not a standalone mod.
+
+The current source now includes an original custom NAV HUD, with native combat-HUD fallback. See [HUD.md](HUD.md) for controls and unverified optical assumptions. The seven active cockpit devices are replaced by the systems pass in [OVERNIGHT_OVERHAUL.md](OVERNIGHT_OVERHAUL.md). Unregistered legacy device files are retained for history/study, not activated.

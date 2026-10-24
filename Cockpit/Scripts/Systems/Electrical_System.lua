@@ -16,141 +16,56 @@
     along with this program.  If not, see https://www.gnu.org/licenses.
 --]]
 
-dofile(LockOn_Options.script_path.."devices.lua")
+-- Switch requests have one owner; animation arguments are outputs, not switch storage.
+-- No public F-22 wiring diagram is available: these are explicit simulator conventions.
 dofile(LockOn_Options.script_path.."command_defs.lua")
-
-local dev = GetSelf()
-local sensor_data = get_base_data()
-
-local update_time_step = 0.01
-make_default_activity(update_time_step)
-
--- Parameters
-local parameters = {
-    APU_POWER        = get_param_handle("APU_POWER"),
-    APU_RPM_STATE    = get_param_handle("APU_RPM_STATE"),
-    BATTERY_POWER    = get_param_handle("BATTERY_POWER"),
-    MAIN_POWER       = get_param_handle("MAIN_POWER"),
-    WoW              = get_param_handle("WoW"),
-    AAR              = get_param_handle("AAR"),
-    N_GEAR_LIGHT     = get_param_handle("N_GEAR_LIGHT"),
-    R_GEAR_LIGHT     = get_param_handle("R_GEAR_LIGHT"),
-    L_GEAR_LIGHT     = get_param_handle("L_GEAR_LIGHT"),
-    TAXI_SWITCH      = get_param_handle("TAXI_SWITCH"),
-    NAV_LIGHT_SWITCH = get_param_handle("NAV_LIGHT_SWITCH"),
-    FORM_KNOB        = get_param_handle("FORM_KNOB"),
-    AAR_KNOB         = get_param_handle("AAR_KNOB"),
-    AAR_READY        = get_param_handle("AAR_READY"),
-}
-
-local PlaneAirRefuel = Keys.PlaneAirRefuel
-local AAR_SWITCH     = device_commands.Button_1
-local AAR_LIGHT      = device_commands.Button_2
-local NAV_SWITCH     = device_commands.Button_3
-local TAXI_LIGHT     = device_commands.Button_4
-local FORM_LIGHT     = device_commands.Button_7
-
-dev:listen_command(PlaneAirRefuel)
-dev:listen_command(AAR_SWITCH)
-dev:listen_command(AAR_LIGHT)
-dev:listen_command(NAV_SWITCH)
-dev:listen_command(TAXI_LIGHT)
-dev:listen_command(FORM_LIGHT)
-dev:listen_command(74)  -- Brakes on
-dev:listen_command(75)  -- Brakes off
-dev:listen_command(10015)
-dev:listen_command(10016)
-dev:listen_command(10151)
-dev:listen_command(10152)
-dev:listen_command(10153)
-dev:listen_command(10154)
-
-local aar_state         = 0
-local light_state       = 0  
-local form_knob         = 0  
-local aar_knob          = 0  
-
-------------------------------------------------------------------FUNCTION-POST-INIT---------------------------------------------------------------------------------------------------
+local dev=GetSelf()
+local Math=dofile(LockOn_Options.script_path.."Common/Math.lua")
+local bus=dofile(LockOn_Options.script_path.."Common/Runtime.lua").New(get_base_data())
+local aar,taxi,nav,formation,aarLight,master=0,0,0,.5,.5,true
+local ownNativeRefuel=0
+make_default_activity(.02)
+for _,command in ipairs({155,175,328,3001,3002,3003,3004,3007,10015,10016,
+    10151,10152,10153,10154,10505,10506,10507,10508,10509,10510,10511,10512}) do dev:listen_command(command) end
+local function requestRefuel(value)
+    if value==aar then return end
+    aar=value
+    -- The queued host command can also be observed by listen_command. Count our echoes.
+    ownNativeRefuel=ownNativeRefuel+1
+    dispatch_action(nil,155)
+end
 function post_initialize()
-    aar_state        = 0
-    light_state      = 0
-    form_knob        = 0.5
-    aar_knob         = 0.5
-    parameters.AAR:set(aar_state)
-    parameters.TAXI_SWITCH:set(light_state)
-    parameters.FORM_KNOB:set(form_knob)
-    parameters.AAR_KNOB:set(aar_knob)
-    parameters.AAR_READY:set(0)
-    dev:performClickableAction(AAR_SWITCH, aar_state, false)  
-    dev:performClickableAction(AAR_LIGHT, aar_knob, false)  
-    dev:performClickableAction(FORM_LIGHT, form_knob, false)  
+    aar,taxi,nav,formation,aarLight,master=0,0,0,.5,.5,true
+    ownNativeRefuel=0
+    bus.set("F22_ELECTRICAL_VALID",0)
 end
-
-------------------------------------------------------------------FUNCTION-SETCOMMAND---------------------------------------------------------------------------------------------------
-function SetCommand(command, value)
-    -- AAR Switch
-    if (command == AAR_SWITCH or command == 10015 or command == 10016) and aar_state == 0 then
-        aar_state = 1
-        dispatch_action(nil, PlaneAirRefuel)
-        dev:performClickableAction(AAR_SWITCH, aar_state, false)
-        parameters.AAR:set(aar_state)
-    elseif (command == AAR_SWITCH or command == 10015 or command == 10016) and aar_state == 1 then
-        aar_state = 0
-        dispatch_action(nil, PlaneAirRefuel)
-        dev:performClickableAction(AAR_SWITCH, aar_state, false)
-        parameters.AAR:set(aar_state)
-    end
-
-    -- AAR Light Knob (continuous axis)
-    if command == AAR_LIGHT then
-        aar_knob = math.max(0, math.min(1, value))
-        dev:performClickableAction(AAR_LIGHT, aar_knob, false)
-        parameters.AAR_KNOB:set(aar_knob)
-    end
-
-    -- Taxi/Landing Light Switch (keybinds only)
-    if (command == 10151 or command == 10152) and light_state == 0 then -- taxi light
-        light_state = -1
-        dev:performClickableAction(TAXI_LIGHT, -1, false)
-        parameters.TAXI_SWITCH:set(light_state)
-    elseif (command == 10151 or command == 10152) and light_state == -1 then -- taxi light
-        light_state = 0
-        dev:performClickableAction(TAXI_LIGHT, 0, false)
-        parameters.TAXI_SWITCH:set(light_state)
-    elseif (command == 10151 or command == 10152) and light_state == 1 then -- taxi light
-        light_state = 0
-        dev:performClickableAction(TAXI_LIGHT, 0, false)
-        parameters.TAXI_SWITCH:set(light_state)
-    elseif (command == 10153 or command == 10154) and light_state == 0 then -- land light
-        light_state = 1
-        dev:performClickableAction(TAXI_LIGHT, 1, false)
-        parameters.TAXI_SWITCH:set(light_state)
-    elseif (command == 10153 or command == 10154) and light_state == 1 then -- land light
-        light_state = 0
-        dev:performClickableAction(TAXI_LIGHT, 0, false)
-        parameters.TAXI_SWITCH:set(light_state)
-    elseif (command == 10153 or command == 10154) and light_state == -1 then -- land light
-        light_state = 0
-        dev:performClickableAction(TAXI_LIGHT, 0, false)
-        parameters.TAXI_SWITCH:set(light_state)
-    end
-
-    -- Formation Light Knob (continuous axis)
-    if command == FORM_LIGHT then
-        form_knob = math.max(0, math.min(1, value))
-        dev:performClickableAction(FORM_LIGHT, form_knob, false)
-        parameters.FORM_KNOB:set(form_knob)
-    end
+function SetCommand(command,value)
+    if command==155 then
+        if ownNativeRefuel>0 then ownNativeRefuel=ownNativeRefuel-1 elseif value>0 then aar=1-aar end
+    elseif command==3001 or command==10015 then requestRefuel(value>.5 and 1 or 0)
+    elseif command==10016 and value>0 then requestRefuel(1-aar)
+    elseif command==3002 then aarLight=Math.Clamp(value,0,1)
+    elseif command==3003 then nav=math.floor(Math.Clamp(value,0,.4)*10+.5)/10
+    elseif command==3004 then taxi=value<-.5 and -1 or (value>.5 and 1 or 0)
+    elseif command==3007 then formation=Math.Clamp(value,0,1)
+    elseif command==10151 then taxi=value>.5 and -1 or 0
+    elseif command==10153 then taxi=value>.5 and 1 or 0
+    elseif (command==10152 or command==10505) and value>0 then taxi=taxi==-1 and 0 or -1
+    elseif (command==10154 or command==10506 or command==328) and value>0 then taxi=taxi==1 and 0 or 1
+    elseif command==10507 and value>0 then formation=formation>0 and 0 or .5
+    elseif command==10508 and value>0 then nav=nav==.4 and 0 or .4
+    elseif command==10509 and value>0 then nav=nav==.3 and 0 or .3
+    elseif command==10510 and value>0 then aarLight=aarLight>0 and 0 or .5
+    elseif command==10511 and value>0 then nav=nav>.1 and 0 or .2
+    elseif (command==10512 or command==175) and value>0 then master=not master end
 end
-
-------------------------------------------------------------------FUNCTION-UPDATE---------------------------------------------------------------------------------------------------
 function update()
-    parameters.AAR:set(aar_state)
-    parameters.TAXI_SWITCH:set(get_cockpit_draw_argument_value(709))
-    parameters.NAV_LIGHT_SWITCH:set(get_cockpit_draw_argument_value(715))
-    parameters.FORM_KNOB:set(get_cockpit_draw_argument_value(714))
-    parameters.AAR_KNOB:set(get_cockpit_draw_argument_value(713))
-    parameters.AAR_READY:set(get_aircraft_draw_argument_value(22))
+    bus.set("AAR",aar)
+    -- Host animates door 22. Read its achieved position before accepting tanker fuel.
+    bus.set("AAR_READY",aar>.5 and get_aircraft_draw_argument_value(22)>.98 and 1 or 0)
+    bus.set("TAXI_SWITCH",taxi);bus.set("NAV_LIGHT_SWITCH",nav)
+    bus.set("FORM_KNOB",formation);bus.set("AAR_KNOB",aarLight)
+    bus.set("F22_EXTERNAL_LIGHTS_MASTER",master and 1 or 0)
+    bus.set("F22_ELECTRICAL_VALID",1)
 end
-
-need_to_be_closed = false
+need_to_be_closed=false

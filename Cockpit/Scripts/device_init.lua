@@ -42,7 +42,11 @@ creators[devices.ICP_SYSTEM]			 = {"avLuaDevice"		    ,LockOn_Options.script_pat
 
 --creators[devices.KNEEBOARD] = {"avKneeboard",LockOn_Options.common_script_path.."KNEEBOARD/device/init.lua"}
 
+creators[devices.HUD_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/HUD_System.lua"}
+
 indicators = {}
+local hud_config = dofile(LockOn_Options.script_path.."HUD/config.lua")
+indicators[#indicators + 1] = {"ccIndicator", LockOn_Options.script_path.."HUD/init.lua", devices.HUD_SYSTEM, {{}, hud_config.origin}}
 --PFD LEFT
 indicators[#indicators + 1] = {"ccIndicator", LockOn_Options.script_path.."UFD_LEFT/init.lua",
 	nil,

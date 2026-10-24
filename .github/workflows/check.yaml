@@ -1,4 +1,4 @@
-name: EFM Build Check
+name: F-22 Overhaul Check
 
 on:
   pull_request:
@@ -10,11 +10,12 @@ on:
 jobs:
   build:
     name: Check Build
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
     - name: Checkout
       uses: actions/checkout@v4
       with:
+        ref: ${{ github.event.pull_request.head.sha }}
         submodules: 'recursive'
     
     - name: Configure CMake Project
@@ -22,3 +23,43 @@ jobs:
 
     - name: Build CMake Project
       run: cmake --build --preset x64-release
+
+    - name: Test Physics and Callbacks
+      run: ctest --preset x64-release
+
+    - name: Package Install Overlay
+      run: python tools/package_overlay.py
+
+    - name: Upload Overhaul Install Overlay
+      uses: actions/upload-artifact@v4
+      with:
+        name: f22-overhaul-install-overlay-win64
+        if-no-files-found: error
+        path: dist/f22-overhaul-overlay-win64.zip
+
+    - name: Upload Experimental Windows EFM
+      uses: actions/upload-artifact@v4
+      with:
+        name: experimental-f22-efm-win64
+        if-no-files-found: error
+        path: |
+          bin/F22.dll
+          LICENSE
+          EFM/LICENSE
+          docs/FLIGHT_MODEL.md
+
+  physics-linux:
+    name: Portable Physics and Sanitizers
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+    - name: Install Lua 5.1
+      run: sudo apt-get update && sudo apt-get install -y lua5.1
+    - name: Configure
+      run: cmake -S . -B out/test -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
+    - name: Build
+      run: cmake --build out/test --parallel
+    - name: Test
+      run: ctest --test-dir out/test --output-on-failure

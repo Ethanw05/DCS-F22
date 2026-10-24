@@ -81,7 +81,7 @@ local PFD_MASK_BASE2 	= MakeMaterial(nil,{0,255,0,255})--Clipping Masks
 
 --Clipping Masks
 local total_field_of_view           = CreateElement "ceMeshPoly"
-total_field_of_view.name            = "total_field_of_view"
+total_field_of_view.name = "PMFD_CENTER_sfm_page_total_field_of_view_1"
 total_field_of_view.primitivetype   = "triangles"
 total_field_of_view.vertices        = {
 										{-1 * ClippingWidth,-1 * ClippingPlaneSize},
@@ -100,7 +100,7 @@ total_field_of_view.isvisible       = false
 Add(total_field_of_view)
 --Clipping Masks
 local clipPoly               = CreateElement "ceMeshPoly"
-clipPoly.name                = "clipPoly-1"
+clipPoly.name = "PMFD_CENTER_sfm_page_clipPoly_1"
 clipPoly.primitivetype       = "triangles"
 clipPoly.init_pos            = {0, 0, -0.2}
 clipPoly.init_rot            = { 0, 0 , 0} -- degree NOT rad
@@ -119,7 +119,7 @@ clipPoly.isvisible           = false
 Add(clipPoly)
 ------------------------------------------------------------------------------------------------CLIPPING-END----------------------------------------------------------------------------------------------
 BGROUND                    = CreateElement "ceTexPoly"
-BGROUND.name    			= "BG"
+BGROUND.name = "PMFD_CENTER_sfm_page_BGROUND_1"
 BGROUND.material			= MASK_BOX
 BGROUND.change_opacity 		= false
 BGROUND.collimated 			= false
@@ -134,7 +134,7 @@ vertices(BGROUND,3)
 Add(BGROUND)
 ----------------------------------------------------------------------------------------------------------------
 BLOG                    = CreateElement "ceTexPoly"
-BLOG.name    			= "BG"
+BLOG.name = "PMFD_CENTER_sfm_page_BLOG_1"
 BLOG.material			= LOGO
 BLOG.change_opacity 		= false
 BLOG.collimated 			= false
@@ -149,7 +149,7 @@ vertices(BLOG,2.2)
 Add(BLOG)
 ----------------------------------------------------------------------------------------------------------------
 MENUTEXT 					    = CreateElement "ceStringPoly"
-MENUTEXT.name 				    = "menu"
+MENUTEXT.name = "PMFD_CENTER_sfm_page_MENUTEXT_1"
 MENUTEXT.material 			    = UFD_FONT
 MENUTEXT.value 				    = "MENU"
 MENUTEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
@@ -165,7 +165,7 @@ Add(MENUTEXT)
 ----------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------
 TITLE 					    = CreateElement "ceStringPoly"
-TITLE.name 				    = "menu"
+TITLE.name = "PMFD_CENTER_sfm_page_TITLE_1"
 TITLE.material 			    = UFD_FONT
 TITLE.value 				    = "F-22A SFM DATA LOG"
 TITLE.stringdefs 		        = {0.0090, 0.0090, 0.0004, 0.001}
@@ -180,7 +180,7 @@ TITLE.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range
 Add(TITLE)
 ------------------CENTER ROW
 ROLL_TXT 					    = CreateElement "ceStringPoly"
-ROLL_TXT.name 				    = "ROLL_TXT"
+ROLL_TXT.name = "PMFD_CENTER_sfm_page_ROLL_TXT_1"
 ROLL_TXT.material 			    = UFD_GRN
 ROLL_TXT.value 				    = "ROLL"
 ROLL_TXT.stringdefs 		        = {0.0070, 0.0070, 0.0004, 0.001}
@@ -195,7 +195,7 @@ ROLL_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_ra
 Add(ROLL_TXT)
 ----------------------------------
 ROLL_NUM				        = CreateElement "ceStringPoly"
-ROLL_NUM.name				    = "ROLL_NUM"
+ROLL_NUM.name = "PMFD_CENTER_sfm_page_ROLL_NUM_1"
 ROLL_NUM.material			    = UFD_FONT
 ROLL_NUM.init_pos			    = {0, -0.7, 0} --L-R,U-D,F-B
 ROLL_NUM.alignment			    = "CenterCenter"
@@ -218,7 +218,7 @@ ROLL_NUM.controllers		    =   {
 Add(ROLL_NUM)
 --------------
 PITCH_TXT 					    = CreateElement "ceStringPoly"
-PITCH_TXT.name 				    = "pitch"
+PITCH_TXT.name = "PMFD_CENTER_sfm_page_PITCH_TXT_1"
 PITCH_TXT.material 			    = UFD_GRN
 PITCH_TXT.value 				    = "PITCH"
 PITCH_TXT.stringdefs 		        = {0.0070, 0.0070, 0.0004, 0.001}
@@ -234,7 +234,7 @@ PITCH_TXT.parent_element            = ROLL_TXT.name
 Add(PITCH_TXT)
 --------------
 PI_NUM				        = CreateElement "ceStringPoly"
-PI_NUM.name				    = "PI_NUM"
+PI_NUM.name = "PMFD_CENTER_sfm_page_PI_NUM_1"
 PI_NUM.material			    = UFD_FONT
 PI_NUM.init_pos			    = {-0.5, 0, 0} --L-R,U-D,F-B
 PI_NUM.alignment			= "CenterCenter"
@@ -257,7 +257,7 @@ PI_NUM.controllers		    =   {
 Add(PI_NUM)
 -------------------------------------------------
 YAW_TXT 					    = CreateElement "ceStringPoly"
-YAW_TXT.name 				    = "yaw"
+YAW_TXT.name = "PMFD_CENTER_sfm_page_YAW_TXT_1"
 YAW_TXT.material 			    = UFD_GRN
 YAW_TXT.value 				    = "YAW"
 YAW_TXT.stringdefs 		        = {0.0070, 0.0070, 0.0004, 0.001}
@@ -273,7 +273,7 @@ YAW_TXT.parent_element            = ROLL_TXT.name
 Add(YAW_TXT)
 -----------------------------
 Y_NUM				        = CreateElement "ceStringPoly"
-Y_NUM.name				    = "Y_NUM"
+Y_NUM.name = "PMFD_CENTER_sfm_page_Y_NUM_1"
 Y_NUM.material			    = UFD_FONT
 Y_NUM.init_pos			    = {0.5, 0, 0} --L-R,U-D,F-B
 Y_NUM.alignment			    = "CenterCenter"
@@ -296,7 +296,7 @@ Y_NUM.controllers		    =   {
 Add(Y_NUM)
 ------------------CENTER ROW
 MACH_TXT 					    = CreateElement "ceStringPoly"
-MACH_TXT.name 				    = "MACH_TXT"
+MACH_TXT.name = "PMFD_CENTER_sfm_page_MACH_TXT_1"
 MACH_TXT.material 			    = UFD_GRN
 MACH_TXT.value 				    = "MACH"
 MACH_TXT.stringdefs 		        = {0.0070, 0.0070, 0.0004, 0.001}
@@ -311,7 +311,7 @@ MACH_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_ra
 Add(MACH_TXT)
 ----------------------------------
 M_NUM				        = CreateElement "ceStringPoly"
-M_NUM.name				    = "M_NUM"
+M_NUM.name = "PMFD_CENTER_sfm_page_M_NUM_1"
 M_NUM.material			    = UFD_FONT
 M_NUM.init_pos			    = {0, -0.2, 0} --L-R,U-D,F-B
 M_NUM.alignment			    = "CenterCenter"
@@ -334,7 +334,7 @@ M_NUM.controllers		    =   {
 Add(M_NUM)
 --------------
 IAS_TXT 					    = CreateElement "ceStringPoly"
-IAS_TXT.name 				    = "pitch"
+IAS_TXT.name = "PMFD_CENTER_sfm_page_IAS_TXT_1"
 IAS_TXT.material 			    = UFD_GRN
 IAS_TXT.value 				    = "IAS"
 IAS_TXT.stringdefs 		        = {0.0070, 0.0070, 0.0004, 0.001}
@@ -350,7 +350,7 @@ IAS_TXT.parent_element            = MACH_TXT.name
 Add(IAS_TXT)
 ----------------------------------
 I_NUM				        = CreateElement "ceStringPoly"
-I_NUM.name				    = "I_NUM"
+I_NUM.name = "PMFD_CENTER_sfm_page_I_NUM_1"
 I_NUM.material			    = UFD_FONT
 I_NUM.init_pos			    = {-0.5, 0, 0} --L-R,U-D,F-B
 I_NUM.alignment			    = "CenterCenter"
@@ -374,7 +374,7 @@ Add(I_NUM)
 --------------
 --------------
 TAS_TXT 					    = CreateElement "ceStringPoly"
-TAS_TXT.name 				    = "yaw"
+TAS_TXT.name = "PMFD_CENTER_sfm_page_TAS_TXT_1"
 TAS_TXT.material 			    = UFD_GRN
 TAS_TXT.value 				    = "TAS"
 TAS_TXT.stringdefs 		        = {0.0070, 0.0070, 0.0004, 0.001}
@@ -390,7 +390,7 @@ TAS_TXT.parent_element          = MACH_TXT.name
 Add(TAS_TXT)
 -------------------
 T_NUM				        = CreateElement "ceStringPoly"
-T_NUM.name				    = "I_NUM"
+T_NUM.name = "PMFD_CENTER_sfm_page_T_NUM_1"
 T_NUM.material			    = UFD_FONT
 T_NUM.init_pos			    = {0.5, 0, 0} --L-R,U-D,F-B
 T_NUM.alignment			    = "CenterCenter"
@@ -413,7 +413,7 @@ T_NUM.controllers		    =   {
 Add(T_NUM)
 ------------------CENTER ROW
 G_TXT 					    = CreateElement "ceStringPoly"
-G_TXT.name 				    = "G_TXT"
+G_TXT.name = "PMFD_CENTER_sfm_page_G_TXT_1"
 G_TXT.material 			    = UFD_GRN
 G_TXT.value 				    = "G FORCE"
 G_TXT.stringdefs 		        = {0.0070, 0.0070, 0.0004, 0.001}
@@ -428,7 +428,7 @@ G_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range
 Add(G_TXT)
 --------------
 G_NUM				    = CreateElement "ceStringPoly"
-G_NUM.name				= "G_NUM"
+G_NUM.name = "PMFD_CENTER_sfm_page_G_NUM_1"
 G_NUM.material			= UFD_FONT
 G_NUM.init_pos			= {0, 0.3, 0} --L-R,U-D,F-B
 G_NUM.alignment			= "CenterCenter"
@@ -450,7 +450,7 @@ G_NUM.controllers		=   {
 Add(G_NUM)
 ----------------------------------
 AOA_TXT 					    = CreateElement "ceStringPoly"
-AOA_TXT.name 				    = "pitch"
+AOA_TXT.name = "PMFD_CENTER_sfm_page_AOA_TXT_1"
 AOA_TXT.material 			    = UFD_GRN
 AOA_TXT.value 				    = "AOA"
 AOA_TXT.stringdefs 		        = {0.0070, 0.0070, 0.0004, 0.001}
@@ -466,7 +466,7 @@ AOA_TXT.parent_element            = G_TXT.name
 Add(AOA_TXT)
 ----------------------------------
 AOA_NUM				    = CreateElement "ceStringPoly"
-AOA_NUM.name				= "AOA_NUM"
+AOA_NUM.name = "PMFD_CENTER_sfm_page_AOA_NUM_1"
 AOA_NUM.material			= UFD_FONT
 AOA_NUM.init_pos			= {-0.5, 0, 0} --L-R,U-D,F-B
 AOA_NUM.alignment			= "CenterCenter"
@@ -489,7 +489,7 @@ AOA_NUM.controllers		    =   {
 Add(AOA_NUM)
 --------------
 VV_TXT 					    = CreateElement "ceStringPoly"
-VV_TXT.name 				    = "yaw"
+VV_TXT.name = "PMFD_CENTER_sfm_page_VV_TXT_1"
 VV_TXT.material 			    = UFD_GRN
 VV_TXT.value 				    = "VERT VEL"
 VV_TXT.stringdefs 		        = {0.0070, 0.0070, 0.0004, 0.001}
@@ -505,7 +505,7 @@ VV_TXT.parent_element          = G_TXT.name
 Add(VV_TXT)
 ----------------------------------
 VV_NUM				        = CreateElement "ceStringPoly"
-VV_NUM.name				    = "VV_NUM"
+VV_NUM.name = "PMFD_CENTER_sfm_page_VV_NUM_1"
 VV_NUM.material			    = UFD_FONT
 VV_NUM.init_pos			    = {0.5, 0, 0} --L-R,U-D,F-B
 VV_NUM.alignment			= "CenterCenter"

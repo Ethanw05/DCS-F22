@@ -79,7 +79,7 @@ local PFD_MASK_BASE2 	= MakeMaterial(nil,{0,255,0,255})--Clipping Masks
 
 --Clipping Masks
 local total_field_of_view           = CreateElement "ceMeshPoly"
-total_field_of_view.name            = "total_field_of_view"
+total_field_of_view.name = "PMFD_CENTER_menu_page_total_field_of_view_1"
 total_field_of_view.primitivetype   = "triangles"
 total_field_of_view.vertices        = {
 										{-1 * ClippingWidth,-1 * ClippingPlaneSize},
@@ -98,7 +98,7 @@ total_field_of_view.isvisible       = false
 Add(total_field_of_view)
 --Clipping Masks
 local clipPoly               = CreateElement "ceMeshPoly"
-clipPoly.name                = "clipPoly-1"
+clipPoly.name = "PMFD_CENTER_menu_page_clipPoly_1"
 clipPoly.primitivetype       = "triangles"
 clipPoly.init_pos            = {0, 0, 0}
 clipPoly.init_rot            = { 0, 0 , 0} -- degree NOT rad
@@ -117,7 +117,7 @@ clipPoly.isvisible           = false
 Add(clipPoly)
 ------------------------------------------------------------------------------------------------CLIPPING-END----------------------------------------------------------------------------------------------
 BGROUND                    = CreateElement "ceTexPoly"
-BGROUND.name    			= "BG"
+BGROUND.name = "PMFD_CENTER_menu_page_BGROUND_1"
 BGROUND.material			= MASK_BOX
 BGROUND.change_opacity 		= false
 BGROUND.collimated 			= false
@@ -132,7 +132,7 @@ vertices(BGROUND,3)
 Add(BGROUND)
 ----------------------------------------------------------------------------------------------------------------
 MENU_TEXT 					        = CreateElement "ceStringPoly"
-MENU_TEXT.name 				        = "menu"
+MENU_TEXT.name = "PMFD_CENTER_menu_page_MENU_TEXT_1"
 MENU_TEXT.material 			        = UFD_GRN
 MENU_TEXT.value 				    = "PMFD MAIN MENU"
 MENU_TEXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -147,7 +147,7 @@ MENU_TEXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_r
 Add(MENU_TEXT)
 ----------------------------------------------------------------------------------------------------------------
 GD 					        = CreateElement "ceStringPoly"
-GD.name 				    = "menu"
+GD.name = "PMFD_CENTER_menu_page_GD_1"
 GD.material 			    = UFD_GRN
 GD.value 				    = "GRINNELLIDESIGNS F22 RAPTOR V3.0"
 GD.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -162,7 +162,7 @@ GD.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range",1
 Add(GD)
 ----------------------------------------------------------------------------------------------------------------
 MOD 					        = CreateElement "ceStringPoly"
-MOD.name 				    = "menu"
+MOD.name = "PMFD_CENTER_menu_page_MOD_1"
 MOD.material 			    = UFD_GRN
 MOD.value 				    = "WWW.GRINNELLIDESIGNS.COM"
 MOD.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -177,7 +177,7 @@ MOD.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range",
 Add(MOD)
 ----------------------------------------------------------------------------------------------------------------
 RDRTEXT 					    = CreateElement "ceStringPoly"
-RDRTEXT.name 				    = "menu"
+RDRTEXT.name = "PMFD_CENTER_menu_page_RDRTEXT_1"
 RDRTEXT.material 			    = UFD_YEL
 RDRTEXT.value 				    = "RDR"
 RDRTEXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -192,7 +192,7 @@ RDRTEXT.controllers		        =   {{"opacity_using_parameter",0},{"parameter_in_r
 Add(RDRTEXT)
 ----------------------------------------------------------------------------------------------------------------
 SFMTEXT 					    = CreateElement "ceStringPoly"
-SFMTEXT.name 				    = "menu"
+SFMTEXT.name = "PMFD_CENTER_menu_page_SFMTEXT_1"
 SFMTEXT.material 			    = UFD_YEL
 SFMTEXT.value 				    = "SFM"
 SFMTEXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -207,7 +207,7 @@ SFMTEXT.controllers		        =   {{"opacity_using_parameter",0},{"parameter_in_r
 Add(SFMTEXT)
 ----------------------------------------------------------------------------------------------------------------
 MENUTEXT 					    = CreateElement "ceStringPoly"
-MENUTEXT.name 				    = "menu"
+MENUTEXT.name = "PMFD_CENTER_menu_page_MENUTEXT_1"
 MENUTEXT.material 			    = UFD_FONT
 MENUTEXT.value 				    = "MENU"
 MENUTEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
@@ -222,7 +222,7 @@ MENUTEXT.controllers		        =   {{"opacity_using_parameter",0},{"parameter_in_
 Add(MENUTEXT)
 ----------------------------------------------------------------------------------------------------------------
 MAPTEXT 					    = CreateElement "ceStringPoly"
-MAPTEXT.name 				    = "menu"
+MAPTEXT.name = "PMFD_CENTER_menu_page_MAPTEXT_1"
 MAPTEXT.material 			    = UFD_YEL
 MAPTEXT.value 				    = "TID" --changed it for a meme
 MAPTEXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -237,7 +237,7 @@ MAPTEXT.controllers		        =   {{"opacity_using_parameter",0},{"parameter_in_r
 Add(MAPTEXT)
 ----------------------------------------------------------------------------------------------------------------
 SYSTEXT 					    = CreateElement "ceStringPoly"
-SYSTEXT.name 				    = "menu"
+SYSTEXT.name = "PMFD_CENTER_menu_page_SYSTEXT_1"
 SYSTEXT.material 			    = UFD_YEL
 SYSTEXT.value 				    = "SYS"
 SYSTEXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -252,7 +252,7 @@ SYSTEXT.controllers		        =   {{"opacity_using_parameter",0},{"parameter_in_r
 Add(SYSTEXT)
 -------------------------------------------------------------------------------------------------------------------
 CONFIG_TXT 					        = CreateElement "ceStringPoly"
-CONFIG_TXT.name 				    = "menu"
+CONFIG_TXT.name = "PMFD_CENTER_menu_page_CONFIG_TXT_1"
 CONFIG_TXT.material 			    = UFD_YEL
 CONFIG_TXT.value 				    = "CONFIG"
 CONFIG_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}

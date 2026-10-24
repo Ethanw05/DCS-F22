@@ -78,7 +78,7 @@ local MASK_BOX	            = MakeMaterial(LockOn_Options.script_path.."../Script
 
     --Clipping Masks
     local total_field_of_view           = CreateElement "ceMeshPoly"
-    total_field_of_view.name            = "total_field_of_view"
+    total_field_of_view.name = "PMFD_CENTER_radar_page_total_field_of_view_1"
     total_field_of_view.primitivetype   = "triangles"
     total_field_of_view.vertices        = {
     										{-1 * ClippingWidth,-1 * ClippingPlaneSize},
@@ -97,7 +97,7 @@ local MASK_BOX	            = MakeMaterial(LockOn_Options.script_path.."../Script
     Add(total_field_of_view)
     --Clipping Masks
     local clipPoly               = CreateElement "ceMeshPoly"
-    clipPoly.name                = "clipPoly-1"
+    clipPoly.name = "PMFD_CENTER_radar_page_clipPoly_1"
     clipPoly.primitivetype       = "triangles"
     clipPoly.init_pos            = {0, 0, -0.2}
     clipPoly.init_rot            = { 0, 0 , 0} -- degree NOT rad
@@ -116,7 +116,7 @@ local MASK_BOX	            = MakeMaterial(LockOn_Options.script_path.."../Script
     Add(clipPoly)
 --------------------------------------------------------------------------------CLIPPING-END------------------------------
 BGROUND                    = CreateElement "ceTexPoly"
-BGROUND.name    			= "BG"
+BGROUND.name = "PMFD_CENTER_radar_page_BGROUND_1"
 BGROUND.material			= MASK_BOX
 BGROUND.change_opacity 		= false
 BGROUND.collimated 			= false
@@ -131,7 +131,7 @@ vertices(BGROUND,3)
 Add(BGROUND)
 ---------------------------------------------------------------------------RWS-------------------------------------
 MODE_TXT 					    = CreateElement "ceStringPoly"
-MODE_TXT.name 				    = "menu"
+MODE_TXT.name = "PMFD_CENTER_radar_page_MODE_TXT_1"
 MODE_TXT.material 			    = UFD_GRN
 MODE_TXT.value 				    = "MODE"
 MODE_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -146,7 +146,7 @@ MODE_TXT.controllers		        =   {{"opacity_using_parameter",0},{"parameter_in_
 Add(MODE_TXT)
 ---------------------------------------------------------------------------TWS-------------------------------------
 PULSE_TXT 					    = CreateElement "ceStringPoly"
-PULSE_TXT.name 				    = "menu"
+PULSE_TXT.name = "PMFD_CENTER_radar_page_PULSE_TXT_1"
 PULSE_TXT.material 			    = UFD_GRN
 PULSE_TXT.value 				= "PRF"
 PULSE_TXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
@@ -162,7 +162,7 @@ Add(PULSE_TXT)
 -------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------RWS-------------------------------------
 Rpwr_TXT 					    = CreateElement "ceStringPoly"
-Rpwr_TXT.name 				    = "menu"
+Rpwr_TXT.name = "PMFD_CENTER_radar_page_Rpwr_TXT_1"
 Rpwr_TXT.material 			    = UFD_GRN
 Rpwr_TXT.value 				    = "POWER"
 Rpwr_TXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
@@ -177,7 +177,7 @@ Rpwr_TXT.controllers		    =   {{"opacity_using_parameter",0},{"parameter_in_rang
 Add(Rpwr_TXT)
 ---------------------------------------------------------------------------RWS-------------------------------------
 MENUTEXT 					    = CreateElement "ceStringPoly"
-MENUTEXT.name 				    = "menu"
+MENUTEXT.name = "PMFD_CENTER_radar_page_MENUTEXT_1"
 MENUTEXT.material 			    = UFD_FONT
 MENUTEXT.value 				    = "MENU"
 MENUTEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
@@ -192,7 +192,7 @@ MENUTEXT.controllers		    =   {{"opacity_using_parameter",0},{"parameter_in_rang
 Add(MENUTEXT)
 ----------------------------------------------------------------------------------------------------------------
 LBLTXT                      = CreateElement "ceTexPoly"
-LBLTXT.name    			    = "BG"
+LBLTXT.name = "PMFD_CENTER_radar_page_LBLTXT_1"
 LBLTXT.material			    = LABLE_TEXT
 LBLTXT.change_opacity 		= false
 LBLTXT.collimated 			= false

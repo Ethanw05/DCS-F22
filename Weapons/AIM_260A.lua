@@ -22,7 +22,7 @@ local AIM_260A =
 {
 	category		= CAT_AIR_TO_AIR,
 	name			= "AIM_260A",
-	displayName		= _("AIM-260A - Active Radar AAM"),
+	displayName		= _("[APPROX] AIM-260A - Active Radar AAM"),
 	user_name		= _("AIM-260A"),
 	display_name_short = "AIM-260A",
 	scheme			= "aa_missile_amraam2",
@@ -284,7 +284,7 @@ declare_loadout({
     category    	= CAT_AIR_TO_AIR,
     CLSID       	= "{AIM-260A}",
     Picture     	= 'AIM-260A.png',
-    displayName 	= _("AIM-260A - Active Radar AAM"),
+    displayName 	= _("[APPROX] AIM-260A - Active Radar AAM"),
 	attribute		= AIM_260A.wsTypeOfWeapon,
     Count       	= 1,
     Weight      	= 160.0,
@@ -308,7 +308,7 @@ declare_loadout({
 	attribute		= {4,4,32,WSTYPE_PLACEHOLDER},	
     Count           = 2,
     Picture         = "AIM-260A.png",
-    displayName     = _("2x AIM-260A - Active Radar AAM"),
+    displayName     = _("[APPROX] 2x AIM-260A - Active Radar AAM"),
     Weight          = 160.0 * 2 + 50,
 	Elements = {
 	

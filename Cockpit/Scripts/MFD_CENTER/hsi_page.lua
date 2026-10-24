@@ -90,7 +90,7 @@ local PFD_MASK_BASE1 	= MakeMaterial(nil,{255,0,0,255})--Clipping Masks
 local PFD_MASK_BASE2 	= MakeMaterial(nil,{0,255,0,255})--Clipping Masks
 --Clipping Masks
 local total_field_of_view           = CreateElement "ceMeshPoly"
-total_field_of_view.name            = "total_field_of_view"
+total_field_of_view.name = "MFD_CENTER_hsi_page_total_field_of_view_1"
 total_field_of_view.primitivetype   = "triangles"
 total_field_of_view.vertices        = {
 										{-1 * ClippingWidth,-1 * ClippingPlaneSize},
@@ -109,7 +109,7 @@ total_field_of_view.isvisible       = false
 Add(total_field_of_view)
 --Clipping Masks
 local clipPoly               = CreateElement "ceMeshPoly"
-clipPoly.name                = "clipPoly-1"
+clipPoly.name = "MFD_CENTER_hsi_page_clipPoly_1"
 clipPoly.primitivetype       = "triangles"
 clipPoly.init_pos            = {0, 0, 0}
 clipPoly.init_rot            = { 0, 0 , 0} -- degree NOT rad
@@ -128,7 +128,7 @@ clipPoly.isvisible           = false
 Add(clipPoly)
 ------------------------------------------------------------------------------------------------CLIPPING-END----------------------------------------------------------------------------------------------
 BGROUND                    = CreateElement "ceTexPoly"
-BGROUND.name    			= "BG"
+BGROUND.name = "MFD_CENTER_hsi_page_BGROUND_1"
 BGROUND.material			= MASK_BOX
 BGROUND.change_opacity 		= false
 BGROUND.collimated 			= false
@@ -143,7 +143,7 @@ vertices(BGROUND,3)
 Add(BGROUND)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 HSIFLAG                         = CreateElement "ceTexPoly"
-HSIFLAG.name    			    = "HSIFLAG"
+HSIFLAG.name = "MFD_CENTER_hsi_page_HSIFLAG_1"
 HSIFLAG.material			    = HSI_FLAG
 HSIFLAG.change_opacity 		    = false
 HSIFLAG.collimated 			    = false
@@ -164,7 +164,7 @@ vertices(HSIFLAG,2)
 Add(HSIFLAG)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 COMPASS                    = CreateElement "ceTexPoly"
-COMPASS.name    			= "BG"
+COMPASS.name = "MFD_CENTER_hsi_page_COMPASS_1"
 COMPASS.material			= HSI_COMPASS
 COMPASS.change_opacity 		= false
 COMPASS.collimated 			= false
@@ -184,7 +184,7 @@ Add(COMPASS)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HSICP                       = CreateElement "ceTexPoly"
-HSICP.name    			    = "HSICP"
+HSICP.name = "MFD_CENTER_hsi_page_HSICP_1"
 HSICP.material			    = HSI_CP
 HSICP.change_opacity 		= false
 HSICP.collimated 			= false
@@ -203,7 +203,7 @@ vertices(HSICP,2)
 Add(HSICP)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HSIDOT                      = CreateElement "ceTexPoly"
-HSIDOT.name    			    = "HSIDOT"
+HSIDOT.name = "MFD_CENTER_hsi_page_HSIDOT_1"
 HSIDOT.material			    = HSI_DOT
 HSIDOT.change_opacity 		= false
 HSIDOT.collimated 			= false
@@ -223,7 +223,7 @@ vertices(HSIDOT,2)
 Add(HSIDOT)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HSIDL                       = CreateElement "ceTexPoly"
-HSIDL.name    			    = "BG"
+HSIDL.name = "MFD_CENTER_hsi_page_HSIDL_1"
 HSIDL.material			    = HSI_DL
 HSIDL.change_opacity 		= false
 HSIDL.collimated 			= false
@@ -243,7 +243,7 @@ vertices(HSIDL,2)
 Add(HSIDL)
 ----------------------------------------------------------------------------------------------HASH-MARKSR-------------------------------------------------------------------------------------------------
 HASHMARKS                       = CreateElement "ceTexPoly"
-HASHMARKS.name    			    = "BG"
+HASHMARKS.name = "MFD_CENTER_hsi_page_HASHMARKS_1"
 HASHMARKS.material			    = HSI_HASH
 HASHMARKS.change_opacity 		= false
 HASHMARKS.collimated 			= false
@@ -258,7 +258,7 @@ vertices(HASHMARKS,2)
 Add(HASHMARKS)
 -------------------
 TEST                    = CreateElement "ceTexPoly"
-TEST.name    			= "BG"
+TEST.name = "MFD_CENTER_hsi_page_TEST_1"
 TEST.material			= HSI_FRAME
 TEST.change_opacity 		= false
 TEST.collimated 			= false
@@ -274,7 +274,7 @@ Add(TEST)
 -------------------
 -------------------------------------------------------------------------------------BEARING-POINTER----------------------------------------------------------------------------------------------------------
 HSIBP                       = CreateElement "ceTexPoly"
-HSIBP.name    			    = "BG"
+HSIBP.name = "MFD_CENTER_hsi_page_HSIBP_1"
 HSIBP.material			    = HSI_BP
 HSIBP.change_opacity 		= false
 HSIBP.collimated 			= false
@@ -293,7 +293,7 @@ vertices(HSIBP,2)
 Add(HSIBP)
 ---------------------------------------------------------------------------------------------------DIGITAL NAV NUMBER
 HEADINGNUM		                    = CreateElement "ceStringPoly"
-HEADINGNUM.name				        = "rad Alt"
+HEADINGNUM.name = "MFD_CENTER_hsi_page_HEADINGNUM_1"
 HEADINGNUM.material			        = UFD_FONT
 HEADINGNUM.init_pos			        = {0, 0.86, 0} --L-R,U-D,F-B
 HEADINGNUM.alignment			    = "CenterCenter"
@@ -311,7 +311,7 @@ Add(HEADINGNUM)
 -----------------------------------------------------------------------------------------------------------------------------------MILES_ONES_0              
 --COURSE 0
 ONES_MILE_0 					    = CreateElement "ceStringPoly"
-ONES_MILE_0.name 				    = "menu"
+ONES_MILE_0.name = "MFD_CENTER_hsi_page_ONES_MILE_0_1"
 ONES_MILE_0.material 			    = UFD_FONT
 ONES_MILE_0.value 			        = "0"
 ONES_MILE_0.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -331,7 +331,7 @@ Add(ONES_MILE_0)
 -----------------------------------------------------------------------------------------------------------------------------------MILE_ONES_1          
 --COURSE 1
 ONES_MILE_1 					    = CreateElement "ceStringPoly"
-ONES_MILE_1.name 				    = "menu"
+ONES_MILE_1.name = "MFD_CENTER_hsi_page_ONES_MILE_1_1"
 ONES_MILE_1.material 			    = UFD_FONT
 ONES_MILE_1.value 			        = "1"
 ONES_MILE_1.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -351,7 +351,7 @@ Add(ONES_MILE_1)
 -----------------------------------------------------------------------------------------------------------------------------------
 --COURSE 2
 ONES_MILE_2 					    = CreateElement "ceStringPoly"
-ONES_MILE_2.name 				    = "menu"
+ONES_MILE_2.name = "MFD_CENTER_hsi_page_ONES_MILE_2_1"
 ONES_MILE_2.material 			    = UFD_FONT
 ONES_MILE_2.value 			        = "2"
 ONES_MILE_2.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -371,7 +371,7 @@ Add(ONES_MILE_2)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_ONES_1          
 --COURSE 3
 ONES_MILE_3 					    = CreateElement "ceStringPoly"
-ONES_MILE_3.name 				    = "menu"
+ONES_MILE_3.name = "MFD_CENTER_hsi_page_ONES_MILE_3_1"
 ONES_MILE_3.material 			    = UFD_FONT
 ONES_MILE_3.value 			        = "3"
 ONES_MILE_3.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -391,7 +391,7 @@ Add(ONES_MILE_3)
 -----------------------------------------------------------------------------------------------------------------------------------MILES_ONES_0              
 --COURSE 4
 ONES_MILE_4 					    = CreateElement "ceStringPoly"
-ONES_MILE_4.name 				    = "menu"
+ONES_MILE_4.name = "MFD_CENTER_hsi_page_ONES_MILE_4_1"
 ONES_MILE_4.material 			    = UFD_FONT
 ONES_MILE_4.value 			        = "4"
 ONES_MILE_4.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -411,7 +411,7 @@ Add(ONES_MILE_4)
 -----------------------------------------------------------------------------------------------------------------------------------MILE_ONES_1          
 --COURSE 5
 ONES_MILE_5 					    = CreateElement "ceStringPoly"
-ONES_MILE_5.name 				    = "menu"
+ONES_MILE_5.name = "MFD_CENTER_hsi_page_ONES_MILE_5_1"
 ONES_MILE_5.material 			    = UFD_FONT
 ONES_MILE_5.value 			        = "5"
 ONES_MILE_5.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -431,7 +431,7 @@ Add(ONES_MILE_5)
 -----------------------------------------------------------------------------------------------------------------------------------
 --COURSE 6
 ONES_MILE_6 					    = CreateElement "ceStringPoly"
-ONES_MILE_6.name 				    = "menu"
+ONES_MILE_6.name = "MFD_CENTER_hsi_page_ONES_MILE_6_1"
 ONES_MILE_6.material 			    = UFD_FONT
 ONES_MILE_6.value 			        = "6"
 ONES_MILE_6.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -451,7 +451,7 @@ Add(ONES_MILE_6)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_ONES_1          
 --COURSE 7
 ONES_MILE_7 					    = CreateElement "ceStringPoly"
-ONES_MILE_7.name 				    = "menu"
+ONES_MILE_7.name = "MFD_CENTER_hsi_page_ONES_MILE_7_1"
 ONES_MILE_7.material 			    = UFD_FONT
 ONES_MILE_7.value 			        = "7"
 ONES_MILE_7.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -471,7 +471,7 @@ Add(ONES_MILE_7)
 -----------------------------------------------------------------------------------------------------------------------------------
 --COURSE 8
 ONES_MILE_8 					    = CreateElement "ceStringPoly"
-ONES_MILE_8.name 				    = "menu"
+ONES_MILE_8.name = "MFD_CENTER_hsi_page_ONES_MILE_8_1"
 ONES_MILE_8.material 			    = UFD_FONT
 ONES_MILE_8.value 			        = "8"
 ONES_MILE_8.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -491,7 +491,7 @@ Add(ONES_MILE_8)
 -----------------------------------------------------------------------------------------------------------------------------------MILE          
 --COURSE 9
 ONES_MILE_9 					    = CreateElement "ceStringPoly"
-ONES_MILE_9.name 				    = "menu"
+ONES_MILE_9.name = "MFD_CENTER_hsi_page_ONES_MILE_9_1"
 ONES_MILE_9.material 			    = UFD_FONT
 ONES_MILE_9.value 			        = "9"
 ONES_MILE_9.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -511,7 +511,7 @@ Add(ONES_MILE_9)
 -----------------------------------------------------------------------------------------------------------------------------------MILE TENS              
 --MILE 0
 TENS_MILE_0 					    = CreateElement "ceStringPoly"
-TENS_MILE_0.name 				    = "menu"
+TENS_MILE_0.name = "MFD_CENTER_hsi_page_TENS_MILE_0_1"
 TENS_MILE_0.material 			    = UFD_FONT
 TENS_MILE_0.value 			        = "0"
 TENS_MILE_0.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -531,7 +531,7 @@ Add(TENS_MILE_0)
 -- -----------------------------------------------------------------------------------------------------------------------------------       
 --MILE 1
 TENS_MILE_1 					    = CreateElement "ceStringPoly"
-TENS_MILE_1.name 				    = "menu"
+TENS_MILE_1.name = "MFD_CENTER_hsi_page_TENS_MILE_1_1"
 TENS_MILE_1.material 			    = UFD_FONT
 TENS_MILE_1.value 			        = "1"
 TENS_MILE_1.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -551,7 +551,7 @@ Add(TENS_MILE_1)
 -- -----------------------------------------------------------------------------------------------------------------------------------
 --MILE 2
 TENS_MILE_2 					    = CreateElement "ceStringPoly"
-TENS_MILE_2.name 				    = "menu"
+TENS_MILE_2.name = "MFD_CENTER_hsi_page_TENS_MILE_2_1"
 TENS_MILE_2.material 			    = UFD_FONT
 TENS_MILE_2.value 			        = "2"
 TENS_MILE_2.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -571,7 +571,7 @@ Add(TENS_MILE_2)
 -- -----------------------------------------------------------------------------------------------------------------------------------MILES          
 --MILE 3
 TENS_MILE_3 					    = CreateElement "ceStringPoly"
-TENS_MILE_3.name 				    = "menu"
+TENS_MILE_3.name = "MFD_CENTER_hsi_page_TENS_MILE_3_1"
 TENS_MILE_3.material 			    = UFD_FONT
 TENS_MILE_3.value 			        = "3"
 TENS_MILE_3.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -591,7 +591,7 @@ Add(TENS_MILE_3)
 -- -----------------------------------------------------------------------------------------------------------------------------------MILES_ONES_0              
 --MILE 4
 TENS_MILE_4 					    = CreateElement "ceStringPoly"
-TENS_MILE_4.name 				    = "menu"
+TENS_MILE_4.name = "MFD_CENTER_hsi_page_TENS_MILE_4_1"
 TENS_MILE_4.material 			    = UFD_FONT
 TENS_MILE_4.value 			        = "4"
 TENS_MILE_4.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -611,7 +611,7 @@ Add(TENS_MILE_4)
 -- -----------------------------------------------------------------------------------------------------------------------------------MILE_ONES_1          
 --MILE 5
 TENS_MILE_5 					    = CreateElement "ceStringPoly"
-TENS_MILE_5.name 				    = "menu"
+TENS_MILE_5.name = "MFD_CENTER_hsi_page_TENS_MILE_5_1"
 TENS_MILE_5.material 			    = UFD_FONT
 TENS_MILE_5.value 			        = "5"
 TENS_MILE_5.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -631,7 +631,7 @@ Add(TENS_MILE_5)
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- --MILE 6
 TENS_MILE_6 					    = CreateElement "ceStringPoly"
-TENS_MILE_6.name 				    = "menu"
+TENS_MILE_6.name = "MFD_CENTER_hsi_page_TENS_MILE_6_1"
 TENS_MILE_6.material 			    = UFD_FONT
 TENS_MILE_6.value 			        = "6"
 TENS_MILE_6.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -651,7 +651,7 @@ Add(TENS_MILE_6)
 -- -----------------------------------------------------------------------------------------------------------------------------------MILE_ONES_7    
 -- --MILE 7
 TENS_MILE_7 					    = CreateElement "ceStringPoly"
-TENS_MILE_7.name 				    = "menu"
+TENS_MILE_7.name = "MFD_CENTER_hsi_page_TENS_MILE_7_1"
 TENS_MILE_7.material 			    = UFD_FONT
 TENS_MILE_7.value 			        = "7"
 TENS_MILE_7.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -671,7 +671,7 @@ Add(TENS_MILE_7)
 -- -----------------------------------------------------------------------------------------------------------------------------------MILE 8
 -- --MILE 8
 TENS_MILE_8 					    = CreateElement "ceStringPoly"
-TENS_MILE_8.name 				    = "menu"
+TENS_MILE_8.name = "MFD_CENTER_hsi_page_TENS_MILE_8_1"
 TENS_MILE_8.material 			    = UFD_FONT
 TENS_MILE_8.value 			        = "8"
 TENS_MILE_8.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -691,7 +691,7 @@ Add(TENS_MILE_8)
 -- -----------------------------------------------------------------------------------------------------------------------------------MILE_9          
 -- --MILE 9
 TENS_MILE_9 					    = CreateElement "ceStringPoly"
-TENS_MILE_9.name 				    = "menu"
+TENS_MILE_9.name = "MFD_CENTER_hsi_page_TENS_MILE_9_1"
 TENS_MILE_9.material 			    = UFD_FONT
 TENS_MILE_9.value 			        = "9"
 TENS_MILE_9.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -711,7 +711,7 @@ Add(TENS_MILE_9)
 -----------------------------------------------------------------------------------------------------------------------------------MILE TENS              
 --MILE 0
 HUNS_MILE_0 					    = CreateElement "ceStringPoly"
-HUNS_MILE_0.name 				    = "menu"
+HUNS_MILE_0.name = "MFD_CENTER_hsi_page_HUNS_MILE_0_1"
 HUNS_MILE_0.material 			    = UFD_FONT
 HUNS_MILE_0.value 			        = "0"
 HUNS_MILE_0.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -731,7 +731,7 @@ Add(HUNS_MILE_0)
 -- -----------------------------------------------------------------------------------------------------------------------------------       
 --MILE 1
 HUNS_MILE_1 					    = CreateElement "ceStringPoly"
-HUNS_MILE_1.name 				    = "menu"
+HUNS_MILE_1.name = "MFD_CENTER_hsi_page_HUNS_MILE_1_1"
 HUNS_MILE_1.material 			    = UFD_FONT
 HUNS_MILE_1.value 			        = "1"
 HUNS_MILE_1.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -751,7 +751,7 @@ Add(HUNS_MILE_1)
 -- -----------------------------------------------------------------------------------------------------------------------------------
 --MILE 2
 HUNS_MILE_2 					    = CreateElement "ceStringPoly"
-HUNS_MILE_2.name 				    = "menu"
+HUNS_MILE_2.name = "MFD_CENTER_hsi_page_HUNS_MILE_2_1"
 HUNS_MILE_2.material 			    = UFD_FONT
 HUNS_MILE_2.value 			        = "2"
 HUNS_MILE_2.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -771,7 +771,7 @@ Add(HUNS_MILE_2)
 -- -----------------------------------------------------------------------------------------------------------------------------------MILES          
 --MILE 3
 HUNS_MILE_3 					    = CreateElement "ceStringPoly"
-HUNS_MILE_3.name 				    = "menu"
+HUNS_MILE_3.name = "MFD_CENTER_hsi_page_HUNS_MILE_3_1"
 HUNS_MILE_3.material 			    = UFD_FONT
 HUNS_MILE_3.value 			        = "3"
 HUNS_MILE_3.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -791,7 +791,7 @@ Add(HUNS_MILE_3)
 -- -----------------------------------------------------------------------------------------------------------------------------------MILES_ONES_0              
 --MILE 4
 HUNS_MILE_4 					    = CreateElement "ceStringPoly"
-HUNS_MILE_4.name 				    = "menu"
+HUNS_MILE_4.name = "MFD_CENTER_hsi_page_HUNS_MILE_4_1"
 HUNS_MILE_4.material 			    = UFD_FONT
 HUNS_MILE_4.value 			        = "4"
 HUNS_MILE_4.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -811,7 +811,7 @@ Add(HUNS_MILE_4)
 -- -----------------------------------------------------------------------------------------------------------------------------------MILE_ONES_1          
 --MILE 5
 HUNS_MILE_5 					    = CreateElement "ceStringPoly"
-HUNS_MILE_5.name 				    = "menu"
+HUNS_MILE_5.name = "MFD_CENTER_hsi_page_HUNS_MILE_5_1"
 HUNS_MILE_5.material 			    = UFD_FONT
 HUNS_MILE_5.value 			        = "5"
 HUNS_MILE_5.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -831,7 +831,7 @@ Add(HUNS_MILE_5)
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- --MILE 6
 HUNS_MILE_6 					    = CreateElement "ceStringPoly"
-HUNS_MILE_6.name 				    = "menu"
+HUNS_MILE_6.name = "MFD_CENTER_hsi_page_HUNS_MILE_6_1"
 HUNS_MILE_6.material 			    = UFD_FONT
 HUNS_MILE_6.value 			        = "6"
 HUNS_MILE_6.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -851,7 +851,7 @@ Add(HUNS_MILE_6)
 -- -----------------------------------------------------------------------------------------------------------------------------------MILE_ONES_7    
 -- --MILE 7
 HUNS_MILE_7 					    = CreateElement "ceStringPoly"
-HUNS_MILE_7.name 				    = "menu"
+HUNS_MILE_7.name = "MFD_CENTER_hsi_page_HUNS_MILE_7_1"
 HUNS_MILE_7.material 			    = UFD_FONT
 HUNS_MILE_7.value 			        = "7"
 HUNS_MILE_7.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -871,7 +871,7 @@ Add(HUNS_MILE_7)
 -- -----------------------------------------------------------------------------------------------------------------------------------MILE 8
 -- --MILE 8
 HUNS_MILE_8 					    = CreateElement "ceStringPoly"
-HUNS_MILE_8.name 				    = "menu"
+HUNS_MILE_8.name = "MFD_CENTER_hsi_page_HUNS_MILE_8_1"
 HUNS_MILE_8.material 			    = UFD_FONT
 HUNS_MILE_8.value 			        = "8"
 HUNS_MILE_8.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -891,7 +891,7 @@ Add(HUNS_MILE_8)
 -- -----------------------------------------------------------------------------------------------------------------------------------MILE_9          
 -- --MILE 9
 HUNS_MILE_9 					    = CreateElement "ceStringPoly"
-HUNS_MILE_9.name 				    = "menu"
+HUNS_MILE_9.name = "MFD_CENTER_hsi_page_HUNS_MILE_9_1"
 HUNS_MILE_9.material 			    = UFD_FONT
 HUNS_MILE_9.value 			        = "9"
 HUNS_MILE_9.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -911,7 +911,7 @@ Add(HUNS_MILE_9)
 -----------------------------------------------------------------------------------------------------------------------------------MILE_9  -- {-0.76, 75, 0}        
 --MILE 0
 THOS_MILE_0 					    = CreateElement "ceStringPoly"
-THOS_MILE_0.name 				    = "menu"
+THOS_MILE_0.name = "MFD_CENTER_hsi_page_THOS_MILE_0_1"
 THOS_MILE_0.material 			    = UFD_FONT
 THOS_MILE_0.value 			        = "0"
 THOS_MILE_0.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -931,7 +931,7 @@ Add(THOS_MILE_0)
 -----------------------------------------------------------------------------------------------------------------------------------MILE_9  -- {-0.76, 75, 0}        
 --MILE 0
 THOS_MILE_1 					    = CreateElement "ceStringPoly"
-THOS_MILE_1.name 				    = "menu"
+THOS_MILE_1.name = "MFD_CENTER_hsi_page_THOS_MILE_1_1"
 THOS_MILE_1.material 			    = UFD_FONT
 THOS_MILE_1.value 			        = "1"
 THOS_MILE_1.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -951,7 +951,7 @@ Add(THOS_MILE_1)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0          
 --COURSE 0
 ONES_CRS_0 					        = CreateElement "ceStringPoly"
-ONES_CRS_0.name 				    = "CRS0"
+ONES_CRS_0.name = "MFD_CENTER_hsi_page_ONES_CRS_0_1"
 ONES_CRS_0.material 			    = UFD_FONT
 ONES_CRS_0.value 			        = "0"
 ONES_CRS_0.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -971,7 +971,7 @@ Add(ONES_CRS_0)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0          
 --COURSE 0
 ONES_CRS_1 					        = CreateElement "ceStringPoly"
-ONES_CRS_1.name 				    = "CRS0"
+ONES_CRS_1.name = "MFD_CENTER_hsi_page_ONES_CRS_1_1"
 ONES_CRS_1.material 			    = UFD_FONT
 ONES_CRS_1.value 			        = "1"
 ONES_CRS_1.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -991,7 +991,7 @@ Add(ONES_CRS_1)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0          
 --COURSE 0
 ONES_CRS_2 					        = CreateElement "ceStringPoly"
-ONES_CRS_2.name 				    = "CRS0"
+ONES_CRS_2.name = "MFD_CENTER_hsi_page_ONES_CRS_2_1"
 ONES_CRS_2.material 			    = UFD_FONT
 ONES_CRS_2.value 			        = "2"
 ONES_CRS_2.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1011,7 +1011,7 @@ Add(ONES_CRS_2)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0          
 --COURSE 0
 ONES_CRS_3 					        = CreateElement "ceStringPoly"
-ONES_CRS_3.name 				    = "CRS0"
+ONES_CRS_3.name = "MFD_CENTER_hsi_page_ONES_CRS_3_1"
 ONES_CRS_3.material 			    = UFD_FONT
 ONES_CRS_3.value 			        = "3"
 ONES_CRS_3.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1031,7 +1031,7 @@ Add(ONES_CRS_3)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0          
 --COURSE 0
 ONES_CRS_4 					        = CreateElement "ceStringPoly"
-ONES_CRS_4.name 				    = "CRS0"
+ONES_CRS_4.name = "MFD_CENTER_hsi_page_ONES_CRS_4_1"
 ONES_CRS_4.material 			    = UFD_FONT
 ONES_CRS_4.value 			        = "4"
 ONES_CRS_4.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1051,7 +1051,7 @@ Add(ONES_CRS_4)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0          
 --COURSE 0
 ONES_CRS_5 					        = CreateElement "ceStringPoly"
-ONES_CRS_5.name 				    = "CRS0"
+ONES_CRS_5.name = "MFD_CENTER_hsi_page_ONES_CRS_5_1"
 ONES_CRS_5.material 			    = UFD_FONT
 ONES_CRS_5.value 			        = "5"
 ONES_CRS_5.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1071,7 +1071,7 @@ Add(ONES_CRS_5)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0          
 --COURSE 0
 ONES_CRS_6 					        = CreateElement "ceStringPoly"
-ONES_CRS_6.name 				    = "CRS0"
+ONES_CRS_6.name = "MFD_CENTER_hsi_page_ONES_CRS_6_1"
 ONES_CRS_6.material 			    = UFD_FONT
 ONES_CRS_6.value 			        = "6"
 ONES_CRS_6.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1091,7 +1091,7 @@ Add(ONES_CRS_6)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0          
 --COURSE 0
 ONES_CRS_7 					        = CreateElement "ceStringPoly"
-ONES_CRS_7.name 				    = "CRS0"
+ONES_CRS_7.name = "MFD_CENTER_hsi_page_ONES_CRS_7_1"
 ONES_CRS_7.material 			    = UFD_FONT
 ONES_CRS_7.value 			        = "7"
 ONES_CRS_7.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1111,7 +1111,7 @@ Add(ONES_CRS_7)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0          
 --COURSE 0
 ONES_CRS_8 					        = CreateElement "ceStringPoly"
-ONES_CRS_8.name 				    = "CRS0"
+ONES_CRS_8.name = "MFD_CENTER_hsi_page_ONES_CRS_8_1"
 ONES_CRS_8.material 			    = UFD_FONT
 ONES_CRS_8.value 			        = "8"
 ONES_CRS_8.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1131,7 +1131,7 @@ Add(ONES_CRS_8)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0          
 --COURSE 0
 ONES_CRS_9 					        = CreateElement "ceStringPoly"
-ONES_CRS_9.name 				    = "CRS0"
+ONES_CRS_9.name = "MFD_CENTER_hsi_page_ONES_CRS_9_1"
 ONES_CRS_9.material 			    = UFD_FONT
 ONES_CRS_9.value 			        = "9"
 ONES_CRS_9.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1151,7 +1151,7 @@ Add(ONES_CRS_9)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0          
 --COURSE 0
 ONES_CRS_00 					        = CreateElement "ceStringPoly"
-ONES_CRS_00.name 				    = "CRS0"
+ONES_CRS_00.name = "MFD_CENTER_hsi_page_ONES_CRS_00_1"
 ONES_CRS_00.material 			    = UFD_FONT
 ONES_CRS_00.value 			        = "0"
 ONES_CRS_00.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1171,7 +1171,7 @@ Add(ONES_CRS_00)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0         
 --COURSE 0
 TENS_CRS_0 					        = CreateElement "ceStringPoly"
-TENS_CRS_0.name 				    = "CRS0"
+TENS_CRS_0.name = "MFD_CENTER_hsi_page_TENS_CRS_0_1"
 TENS_CRS_0.material 			    = UFD_FONT
 TENS_CRS_0.value 			        = "0"
 TENS_CRS_0.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1191,7 +1191,7 @@ Add(TENS_CRS_0)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0          
 --COURSE 0
 TENS_CRS_1 					        = CreateElement "ceStringPoly"
-TENS_CRS_1.name 				    = "CRS0"
+TENS_CRS_1.name = "MFD_CENTER_hsi_page_TENS_CRS_1_1"
 TENS_CRS_1.material 			    = UFD_FONT
 TENS_CRS_1.value 			        = "1"
 TENS_CRS_1.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1211,7 +1211,7 @@ Add(TENS_CRS_1)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0          
 --COURSE 0
 TENS_CRS_2 					        = CreateElement "ceStringPoly"
-TENS_CRS_2.name 				    = "CRS0"
+TENS_CRS_2.name = "MFD_CENTER_hsi_page_TENS_CRS_2_1"
 TENS_CRS_2.material 			    = UFD_FONT
 TENS_CRS_2.value 			        = "2"
 TENS_CRS_2.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1231,7 +1231,7 @@ Add(TENS_CRS_2)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0          
 --COURSE 0
 TENS_CRS_3 					        = CreateElement "ceStringPoly"
-TENS_CRS_3.name 				    = "CRS0"
+TENS_CRS_3.name = "MFD_CENTER_hsi_page_TENS_CRS_3_1"
 TENS_CRS_3.material 			    = UFD_FONT
 TENS_CRS_3.value 			        = "3"
 TENS_CRS_3.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1251,7 +1251,7 @@ Add(TENS_CRS_3)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0          
 --COURSE 0
 TENS_CRS_4 					        = CreateElement "ceStringPoly"
-TENS_CRS_4.name 				    = "CRS0"
+TENS_CRS_4.name = "MFD_CENTER_hsi_page_TENS_CRS_4_1"
 TENS_CRS_4.material 			    = UFD_FONT
 TENS_CRS_4.value 			        = "4"
 TENS_CRS_4.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1271,7 +1271,7 @@ Add(TENS_CRS_4)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0          
 --COURSE 0
 TENS_CRS_5 					        = CreateElement "ceStringPoly"
-TENS_CRS_5.name 				    = "CRS0"
+TENS_CRS_5.name = "MFD_CENTER_hsi_page_TENS_CRS_5_1"
 TENS_CRS_5.material 			    = UFD_FONT
 TENS_CRS_5.value 			        = "5"
 TENS_CRS_5.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1291,7 +1291,7 @@ Add(TENS_CRS_5)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0          
 --COURSE 0
 TENS_CRS_6 					        = CreateElement "ceStringPoly"
-TENS_CRS_6.name 				    = "CRS0"
+TENS_CRS_6.name = "MFD_CENTER_hsi_page_TENS_CRS_6_1"
 TENS_CRS_6.material 			    = UFD_FONT
 TENS_CRS_6.value 			        = "6"
 TENS_CRS_6.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1310,7 +1310,7 @@ TENS_CRS_6.controllers		        =   {
 Add(TENS_CRS_6)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0
 TENS_CRS_00 					        = CreateElement "ceStringPoly"
-TENS_CRS_00.name 				    = "CRS0"
+TENS_CRS_00.name = "MFD_CENTER_hsi_page_TENS_CRS_00_1"
 TENS_CRS_00.material 			    = UFD_FONT
 TENS_CRS_00.value 			        = "0"
 TENS_CRS_00.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1331,7 +1331,7 @@ Add(TENS_CRS_00)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0         
 --COURSE 0
 HUNS_CRS_0 					        = CreateElement "ceStringPoly"
-HUNS_CRS_0.name 				    = "CRS0"
+HUNS_CRS_0.name = "MFD_CENTER_hsi_page_HUNS_CRS_0_1"
 HUNS_CRS_0.material 			    = UFD_FONT
 HUNS_CRS_0.value 			        = "0"
 HUNS_CRS_0.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1351,7 +1351,7 @@ Add(HUNS_CRS_0)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0          
 --COURSE 0
 HUNS_CRS_1 					        = CreateElement "ceStringPoly"
-HUNS_CRS_1.name 				    = "CRS0"
+HUNS_CRS_1.name = "MFD_CENTER_hsi_page_HUNS_CRS_1_1"
 HUNS_CRS_1.material 			    = UFD_FONT
 HUNS_CRS_1.value 			        = "1"
 HUNS_CRS_1.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1371,7 +1371,7 @@ Add(HUNS_CRS_1)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0          
 --COURSE 0
 HUNS_CRS_2 					        = CreateElement "ceStringPoly"
-HUNS_CRS_2.name 				    = "CRS0"
+HUNS_CRS_2.name = "MFD_CENTER_hsi_page_HUNS_CRS_2_1"
 HUNS_CRS_2.material 			    = UFD_FONT
 HUNS_CRS_2.value 			        = "2"
 HUNS_CRS_2.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1391,7 +1391,7 @@ Add(HUNS_CRS_2)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0          
 --COURSE 0
 HUNS_CRS_3 					        = CreateElement "ceStringPoly"
-HUNS_CRS_3.name 				    = "CRS0"
+HUNS_CRS_3.name = "MFD_CENTER_hsi_page_HUNS_CRS_3_1"
 HUNS_CRS_3.material 			    = UFD_FONT
 HUNS_CRS_3.value 			        = "3"
 HUNS_CRS_3.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1411,7 +1411,7 @@ Add(HUNS_CRS_3)
 -----------------------------------------------------------------------------------------------------------------------------------COURSE_0         
 --COURSE 0
 HUNS_CRS_00 					        = CreateElement "ceStringPoly"
-HUNS_CRS_00.name 				    = "CRS0"
+HUNS_CRS_00.name = "MFD_CENTER_hsi_page_HUNS_CRS_00_1"
 HUNS_CRS_00.material 			    = UFD_FONT
 HUNS_CRS_00.value 			        = "0"
 HUNS_CRS_00.stringdefs 		        = {0.0080, 0.0080, 0.0004, 0.001}
@@ -1432,7 +1432,7 @@ Add(HUNS_CRS_00)
 
 --HSI PLACEHOLDER
 COURSETXT 					    = CreateElement "ceStringPoly"
-COURSETXT.name 				    = "menu"
+COURSETXT.name = "MFD_CENTER_hsi_page_COURSETXT_1"
 COURSETXT.material 			    = UFD_FONT
 COURSETXT.value 			        = "COURSE"
 COURSETXT.stringdefs 		    = {0.0040, 0.0040, 0.0004, 0.001}
@@ -1450,7 +1450,7 @@ COURSETXT.controllers		    =   {
 Add(COURSETXT)
 --HSI PLACEHOLDER
 MILETXT 					    = CreateElement "ceStringPoly"
-MILETXT.name 				    = "MILES"
+MILETXT.name = "MFD_CENTER_hsi_page_MILETXT_1"
 MILETXT.material 			    = UFD_FONT
 MILETXT.value 			        = "MILES"
 MILETXT.stringdefs 		    = {0.0040, 0.0040, 0.0004, 0.001}
@@ -1468,7 +1468,7 @@ MILETXT.controllers		    =   {
 Add(MILETXT)
 --------------------------------------------------------------------------------------------------- ILS
 ILS_TEXT 					    = CreateElement "ceStringPoly"
-ILS_TEXT.name 				    = "menu"
+ILS_TEXT.name = "MFD_CENTER_hsi_page_ILS_TEXT_1"
 ILS_TEXT.material 			    = UFD_FONT
 ILS_TEXT.value 				    = "ILSN"
 ILS_TEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
@@ -1487,7 +1487,7 @@ ILS_TEXT.controllers		    =   {
 Add(ILS_TEXT)
 --------------------------------------------------------------------------------------------------- NAV
 NAV_TEXT 					    = CreateElement "ceStringPoly"
-NAV_TEXT.name 				    = "menu"
+NAV_TEXT.name = "MFD_CENTER_hsi_page_NAV_TEXT_1"
 NAV_TEXT.material 			    = UFD_FONT
 NAV_TEXT.value 				    = "NAV"
 NAV_TEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
@@ -1507,7 +1507,7 @@ Add(NAV_TEXT)
 --------------------------------------------------------------------------------------------------- MENU TEXT
 --MENU TEXT
 MENU_CHK_TEXT 					    = CreateElement "ceStringPoly"
-MENU_CHK_TEXT.name 				    = "menu"
+MENU_CHK_TEXT.name = "MFD_CENTER_hsi_page_MENU_CHK_TEXT_1"
 MENU_CHK_TEXT.material 			    = UFD_FONT
 MENU_CHK_TEXT.value 				= "MENU"
 MENU_CHK_TEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
@@ -1525,7 +1525,7 @@ MENU_CHK_TEXT.controllers		    =   {
 Add(MENU_CHK_TEXT)
 --MENU TEXT
 HSI_TEXT 					    = CreateElement "ceStringPoly"
-HSI_TEXT.name 				    = "menu"
+HSI_TEXT.name = "MFD_CENTER_hsi_page_HSI_TEXT_1"
 HSI_TEXT.material 			    = UFD_FONT
 HSI_TEXT.value 				    = "ADI"
 HSI_TEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}

@@ -170,7 +170,11 @@ local LIGHT_TAXI_T    = 10152
 local LIGHT_LANDING   = 10153
 local LIGHT_LANDING_T = 10154
 
-join(res.keyCommands,{    
+join(res.keyCommands,{
+    {down = 10679, name = _("Master Caution Acknowledge"), category = _("F-22A Systems")},
+    {down = 10680, name = _("Custom NAV HUD / Native HUD"), category = _("F-22A HUD")},
+    {down = 10681, name = _("Custom HUD Brightness Increase"), category = _("F-22A HUD")},
+    {down = 10682, name = _("Custom HUD Brightness Decrease"), category = _("F-22A HUD")},
 
 		{down = iCommandPlaneTrimUp, name = "F-22: Trim Up", category = "Flight Control"},
         {down = iCommandPlaneTrimDown, name = "F-22: Trim Down", category = "Flight Control"},
@@ -272,8 +276,8 @@ join(res.keyCommands,{
     {down = PMFD_OSB_16,                name = _('PMFD OSB 16'),                          category = _('F-22A PMFD')},
     {down = PMFD_OSB_17,                name = _('PMFD OSB 17'),                          category = _('F-22A PMFD')},
     {down = PMFD_OSB_18,                name = _('PMFD OSB 18'),                          category = _('F-22A PMFD')},
-    {down = PMFD_OSB_19,                name = _('PMFD OSB 19'),                          category = _('F-22A PMFD')},
-    {down = PMFD_OSB_20,                name = _('PMFD OSB 20'),                          category = _('F-22A PMFD')},  
+    {down = PMFD_OSB_19, up = PMFD_OSB_19, value_down = 1, value_up = 0,                name = _('PMFD OSB 19'),                          category = _('F-22A PMFD')},
+    {down = PMFD_OSB_20, up = PMFD_OSB_20, value_down = 1, value_up = 0,                name = _('PMFD OSB 20'),                          category = _('F-22A PMFD')},
 --CLIPBOARD BINDS               
     {down = CLIPBOARD_L,                name = _('Clipboard Left Show/Hide'),            category = _('F-22A Systems')},
     {down = CLIPBOARD_R,                name = _('Clipboard Right Show/Hide'),           category = _('F-22A Systems')},
@@ -292,16 +296,16 @@ join(res.keyCommands,{
     {down = ICP_OP4,                    name = _('ICP Option 4'),                        category = _('F-22A ICP')},
     {down = ICP_OP5,                    name = _('ICP Option 5'),                        category = _('F-22A ICP')},
 --F-22 Weapons
-    {down = Detent_F, up = Detent_F,    name = _('Weapons: Trigger First Detent'),      category = _('F-22A HOTAS')},
-    {down = Detent_S, up = Detent_S,    name = _('Weapons: Trigger Second Detent'),     category = _('F-22A HOTAS')},
-    {down = PICKLE, up = PICKLE,        name = _('Weapons: Release'),                   category = _('F-22A HOTAS')},
+    {down = Detent_F, up = Detent_F, value_down = 1, value_up = 0,    name = _('Weapons: Trigger First Detent'),      category = _('F-22A HOTAS')},
+    {down = Detent_S, up = Detent_S, value_down = 1, value_up = 0,    name = _('Weapons: Trigger Second Detent'),     category = _('F-22A HOTAS')},
+    {down = PICKLE, up = PICKLE, value_down = 1, value_up = 0,        name = _('Weapons: Release'),                   category = _('F-22A HOTAS')},
 --F-22 CUSTOM BINDS
     {down = SelectLeft,                 name = _('Weapon Bay: Select Left'),            category = _('F-22A HOTAS')},
     {down = SelectRight,                name = _('Weapon Bay: Select Right'),           category = _('F-22A HOTAS')},
     {down = SelectCenter,               name = _('Weapon Bay: Select Center'),          category = _('F-22A HOTAS')},
     {down = SelectAll,                  name = _('Weapon Bay: Select All'),             category = _('F-22A HOTAS')},
     {down = SelectStep,                 name = _('Weapon Bay: Select Toggle'),          category = _('F-22A HOTAS')},
-    {down = AirORIDE, up = AirORIDE,    name = _('Weapon Bay: Override (AIR)'),         category = _('F-22A HOTAS')},
+    {down = AirORIDE, up = AirORIDE, value_down = 1, value_up = 0,    name = _('Weapon Bay: Override (AIR)'),         category = _('F-22A HOTAS')},
     {down = AirORIDE_T,                 name = _('Weapon Bay: Override Toggle (AIR)'),  category = _('F-22A HOTAS')},
     {down = Dogfight,                   name = _('Dogfight MFD Override'),              category = _('F-22A HOTAS')},
     {down = APU, up = APU,              name = _('APU Start'),                          category = _('F-22A HOTAS')},
@@ -309,21 +313,21 @@ join(res.keyCommands,{
     {down = L_cutoff, up = L_cutoff,   name = _('Throttle (Left) - OFF/IDLE'),          category = _('F-22A HOTAS')},
     {down = R_cutoff, up = R_cutoff,   name = _('Throttle (Right) - OFF/IDLE'),         category = _('F-22A HOTAS')},
 --Special Switch Functionality
-    {down = Battery, up = Battery,      name = _('Battery On/Off'),                     category = _('F-22A Systems')},
+    {down = Battery, up = Battery, value_down = 1, value_up = 0,      name = _('Battery On/Off'),                     category = _('F-22A Systems')},
     {down = Battery_T,                  name = _('Battery Toggle'),                     category = _('F-22A Systems')},
     {down = MasterArm, up = MasterArm,  name = _('Master Arm On/Off'),                  category = _('F-22A Systems')},
     {down = MasterArm_T,                name = _('Master Arm Toggle'),                  category = _('F-22A Systems')},
     {down = DayNight, up = DayNight,    name = _('Day/Night Mode'),                     category = _('F-22A Systems')},
     {down = DayNight_T,                 name = _('Day/Night Mode Toggle'),              category = _('F-22A Systems')},
-    {down = L_GEN, up = L_GEN,          name = _('Generator Left On/Off'),              category = _('F-22A Systems')},
+    {down = L_GEN, up = L_GEN, value_down = 1, value_up = 0,          name = _('Generator Left On/Off'),              category = _('F-22A Systems')},
     {down = L_GEN_T,                    name = _('Generator Left Toggle'),              category = _('F-22A Systems')},
-    {down = R_GEN, up = R_GEN,          name = _('Generator Right On/Off'),             category = _('F-22A Systems')},
+    {down = R_GEN, up = R_GEN, value_down = 1, value_up = 0,          name = _('Generator Right On/Off'),             category = _('F-22A Systems')},
     {down = R_GEN_T,                    name = _('Generator Right Toggle'),             category = _('F-22A Systems')},
-    {down = AAR,   up = AAR,            name = _('Air-Air Refuel Open/Close'),          category = _('F-22A Systems')},
+    {down = AAR,   up = AAR, value_down = 1, value_up = 0,            name = _('Air-Air Refuel Open/Close'),          category = _('F-22A Systems')},
     {down = AAR_T,                      name = _('Air-Air Refuel Toggle'),              category = _('F-22A Systems')},
     {down = Park, up = Park,            name = _('Parking Brake On/Off'),               category = _('F-22A Systems')},
     {down = Park_T,                     name = _('Parking Brake Toggle'),               category = _('F-22A Systems')},
-    {down = LIGHT_TAXI, up = LIGHT_TAXI,        name = _('Taxi Light On/Off'),          category = _('F-22A Systems')},   
+    {down = LIGHT_TAXI, up = LIGHT_TAXI, value_down = 1, value_up = 0,        name = _('Taxi Light On/Off'),          category = _('F-22A Systems')},
     {down = LIGHT_TAXI_T,               name = _('Taxi Light Toggle'),                  category = _('F-22A Systems')},
     {down = LIGHT_LANDING, up = LIGHT_LANDING,  name = _('Landing Light On/Off'),       category = _('F-22A Systems')},   
     {down = LIGHT_LANDING_T,            name = _('Landing Light Toggle'),               category = _('F-22A Systems')},   

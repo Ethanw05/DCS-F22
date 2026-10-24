@@ -78,7 +78,7 @@ local MASK_BOX	 = MakeMaterial(LockOn_Options.script_path.."../Scripts/Indicatio
 
     --Clipping Masks
     local total_field_of_view           = CreateElement "ceMeshPoly"
-    total_field_of_view.name            = "total_field_of_view"
+    total_field_of_view.name = "PMFD_CENTER_map_page_total_field_of_view_1"
     total_field_of_view.primitivetype   = "triangles"
     total_field_of_view.vertices        = {
     										{-1 * ClippingWidth,-1 * ClippingPlaneSize},
@@ -97,7 +97,7 @@ local MASK_BOX	 = MakeMaterial(LockOn_Options.script_path.."../Scripts/Indicatio
     Add(total_field_of_view)
     --Clipping Masks
     local clipPoly               = CreateElement "ceMeshPoly"
-    clipPoly.name                = "clipPoly-1"
+    clipPoly.name = "PMFD_CENTER_map_page_clipPoly_1"
     clipPoly.primitivetype       = "triangles"
     clipPoly.init_pos            = {0, 0, -0.2}
     clipPoly.init_rot            = { 0, 0 , 0} -- degree NOT rad
@@ -116,7 +116,7 @@ local MASK_BOX	 = MakeMaterial(LockOn_Options.script_path.."../Scripts/Indicatio
     Add(clipPoly)
 ------------------------------------------------------------------------------------------------CLIPPING-END----------------------------------------------------------------------------------------------
 BGROUND                    = CreateElement "ceTexPoly"
-BGROUND.name    			= "BG"
+BGROUND.name = "PMFD_CENTER_map_page_BGROUND_1"
 BGROUND.material			= MASK_BOX
 BGROUND.change_opacity 		= false
 BGROUND.collimated 			= false
@@ -131,7 +131,7 @@ vertices(BGROUND,3)
 Add(BGROUND)
 ----------------------------------------------------------------------------------------------------------------
 PH_TEXT 					        = CreateElement "ceStringPoly"
-PH_TEXT.name 				        = "menu"
+PH_TEXT.name = "PMFD_CENTER_map_page_PH_TEXT_1"
 PH_TEXT.material 			        = UFD_RED
 PH_TEXT.value 				    = "CLASSIFIED"
 PH_TEXT.stringdefs 		        = {0.0099, 0.0099, 0.0004, 0.001}
@@ -147,7 +147,7 @@ Add(PH_TEXT)
 ----------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------
 MENUTEXT 					    = CreateElement "ceStringPoly"
-MENUTEXT.name 				    = "menu"
+MENUTEXT.name = "PMFD_CENTER_map_page_MENUTEXT_1"
 MENUTEXT.material 			    = UFD_FONT
 MENUTEXT.value 				    = "MENU"
 MENUTEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}

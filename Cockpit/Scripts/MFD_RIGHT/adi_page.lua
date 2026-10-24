@@ -106,7 +106,7 @@ local PFD_MASK_BASE1 	= MakeMaterial(nil,{255,0,0,255})--Clipping Masks
 local PFD_MASK_BASE2 	= MakeMaterial(nil,{0,255,0,255})--Clipping Masks
 --Clipping Masks
 local total_field_of_view           = CreateElement "ceMeshPoly"
-total_field_of_view.name            = "total_field_of_view"
+total_field_of_view.name = "MFD_RIGHT_adi_page_total_field_of_view_1"
 total_field_of_view.primitivetype   = "triangles"
 total_field_of_view.vertices        = {
 										{-1 * ClippingWidth,-1 * ClippingPlaneSize},
@@ -125,7 +125,7 @@ total_field_of_view.isvisible       = false
 Add(total_field_of_view)
 --Clipping Masks
 local clipPoly               = CreateElement "ceMeshPoly"
-clipPoly.name                = "clipPoly-1"
+clipPoly.name = "MFD_RIGHT_adi_page_clipPoly_1"
 clipPoly.primitivetype       = "triangles"
 clipPoly.init_pos            = {0, 0, 0}
 clipPoly.init_rot            = { 0, 0 , 0} -- degree NOT rad
@@ -144,7 +144,7 @@ clipPoly.isvisible           = false
 Add(clipPoly)
 ------------------------------------------------------------------------------------------------CLIPPING-END----------------------------------------------------------------------------------------------
 BGROUND                    = CreateElement "ceTexPoly"
-BGROUND.name    			= "BG"
+BGROUND.name = "MFD_RIGHT_adi_page_BGROUND_1"
 BGROUND.material			= MASK_BOX
 BGROUND.change_opacity 		= false
 BGROUND.collimated 			= false
@@ -160,7 +160,7 @@ Add(BGROUND)
 ------------------------------------------------------------
 --------------
 ADIUP                       = CreateElement "ceTexPoly"
-ADIUP.name    			    = "up"
+ADIUP.name = "MFD_RIGHT_adi_page_ADIUP_1"
 ADIUP.material			     = ADI_TOP
 ADIUP.change_opacity 		= false
 ADIUP.collimated 			= false
@@ -182,7 +182,7 @@ vertices(ADIUP,11)
 Add(ADIUP)
 -- ----------------
 ADIDN                       = CreateElement "ceTexPoly"
-ADIDN.name    			    = "bot"
+ADIDN.name = "MFD_RIGHT_adi_page_ADIDN_1"
 ADIDN.material			    = ADI_BOT
 ADIDN.change_opacity 		= false
 ADIDN.collimated 			= false
@@ -203,7 +203,7 @@ Add(ADIDN)
 -- ----------------
 -- -----------------------------------------------------------------------------------------------------------line mask
 ADILINEM                         = CreateElement "ceTexPoly"
-ADILINEM.name    			    = "bot"
+ADILINEM.name = "MFD_RIGHT_adi_page_ADILINEM_1"
 ADILINEM.material			    = MFD_LINE_M
 ADILINEM.change_opacity 		    = false
 ADILINEM.collimated 			    = false
@@ -223,7 +223,7 @@ vertices(ADILINEM,1.5)
 Add(ADILINEM)
 ----------------
 ADILINE                         = CreateElement "ceTexPoly"
-ADILINE.name    			    = "bot"
+ADILINE.name = "MFD_RIGHT_adi_page_ADILINE_1"
 ADILINE.material			    = MFD_LINE
 ADILINE.change_opacity 		    = false
 ADILINE.collimated 			    = false
@@ -243,7 +243,7 @@ vertices(ADILINE,1.5)
 Add(ADILINE)
 ---------------------------------------------
 ADILADDERTOP                       = CreateElement "ceTexPoly"
-ADILADDERTOP.name    			    = "bot"
+ADILADDERTOP.name = "MFD_RIGHT_adi_page_ADILADDERTOP_1"
 ADILADDERTOP.material			    = ADI_LAD_TOP
 ADILADDERTOP.change_opacity 		= false
 ADILADDERTOP.collimated 			= false
@@ -263,7 +263,7 @@ vertices(ADILADDERTOP,11.1)
 Add(ADILADDERTOP)
 -- ----------------
 ADILADDERBOT                       = CreateElement "ceTexPoly"
-ADILADDERBOT.name    			    = "bot"
+ADILADDERBOT.name = "MFD_RIGHT_adi_page_ADILADDERBOT_1"
 ADILADDERBOT.material			    = ADI_LAD_BOT
 ADILADDERBOT.change_opacity 		= false
 ADILADDERBOT.collimated 			= false
@@ -283,7 +283,7 @@ vertices(ADILADDERBOT,11.1)
 Add(ADILADDERBOT)
 -- -- ----------------
 ADIVVM                         = CreateElement "ceTexPoly"
-ADIVVM.name    			    = "bot"
+ADIVVM.name = "MFD_RIGHT_adi_page_ADIVVM_1"
 ADIVVM.material			    = MFD_VV_M
 ADIVVM.change_opacity 		    = false
 ADIVVM.collimated 			    = false
@@ -303,7 +303,7 @@ vertices(ADIVVM,1)
 Add(ADIVVM)
 --------------------------
 ADIVV                         = CreateElement "ceTexPoly"
-ADIVV.name    			    = "bot"
+ADIVV.name = "MFD_RIGHT_adi_page_ADIVV_1"
 ADIVV.material			    = MFD_VV
 ADIVV.change_opacity 		    = false
 ADIVV.collimated 			    = false
@@ -325,7 +325,7 @@ Add(ADIVV)
 --ILS_VERT   
 --ILS_HORIZON
 ADIILS_H                    	= CreateElement "ceTexPoly"
-ADIILS_H.name    				= "BG"
+ADIILS_H.name = "MFD_RIGHT_adi_page_ADIILS_H_1"
 ADIILS_H.material				= ILS_H
 ADIILS_H.change_opacity 		= false
 ADIILS_H.collimated 			= false
@@ -340,7 +340,7 @@ vertices(ADIILS_H, 1.3, true)
 Add(ADIILS_H)
 -- ----------------------------------------------------------------------------------------
 ADIILS_V                    	= CreateElement "ceTexPoly"
-ADIILS_V.name    				= "BG"
+ADIILS_V.name = "MFD_RIGHT_adi_page_ADIILS_V_1"
 ADIILS_V.material				= ILS_V
 ADIILS_V.change_opacity 		= false
 ADIILS_V.collimated 			= false
@@ -355,7 +355,7 @@ vertices(ADIILS_V, 1.3, true)
 Add(ADIILS_V)
 -----------------------------------------------------------------------------------------------------------------------------------MASK--NO OPACITY
 ADIMASK                    = CreateElement "ceTexPoly"
-ADIMASK.name    			= "BG"
+ADIMASK.name = "MFD_RIGHT_adi_page_ADIMASK_1"
 ADIMASK.material			= ADI_MASK
 ADIMASK.change_opacity 		= false
 ADIMASK.collimated 			= false
@@ -370,7 +370,7 @@ vertices(ADIMASK,2.5)
 Add(ADIMASK)
 ----------------------------------------------------------------------------------------------------------------------------------------------MASK WITH GLOW
 ADIMASKGLOW                    = CreateElement "ceTexPoly"
-ADIMASKGLOW.name    			= "BG"
+ADIMASKGLOW.name = "MFD_RIGHT_adi_page_ADIMASKGLOW_1"
 ADIMASKGLOW.material			= ADI_PAGE_DRK
 ADIMASKGLOW.change_opacity 		= false
 ADIMASKGLOW.collimated 			= false
@@ -385,7 +385,7 @@ vertices(ADIMASKGLOW,2.5)
 Add(ADIMASKGLOW)
 ----------------------------------------------------------------------------------------------------------------------------------------------PARAM HERE
 SLIPBOX                    = CreateElement "ceTexPoly"
-SLIPBOX.name    			= "BG"
+SLIPBOX.name = "MFD_RIGHT_adi_page_SLIPBOX_1"
 SLIPBOX.material			= SLIP_BALL
 SLIPBOX.change_opacity 		= false
 SLIPBOX.collimated 			= false
@@ -404,7 +404,7 @@ vertices(SLIPBOX,0.10,false)
 Add(SLIPBOX)
 -----------------------------------------------------------------------------------------------------------------------------------MASK--NO OPACITY
 ADIMASKSLIP                    = CreateElement "ceTexPoly"
-ADIMASKSLIP.name    			= "BG"
+ADIMASKSLIP.name = "MFD_RIGHT_adi_page_ADIMASKSLIP_1"
 ADIMASKSLIP.material			= ADI_SLIP_MASK
 ADIMASKSLIP.change_opacity 		= false
 ADIMASKSLIP.collimated 			= false
@@ -419,7 +419,7 @@ vertices(ADIMASKSLIP,2.5)
 Add(ADIMASKSLIP)
 -------------------------------------------------------------------------------------------------------------------MASK WITH GLOW
 ADIMASKSLIPGLOW                    = CreateElement "ceTexPoly"
-ADIMASKSLIPGLOW.name    			= "BG"
+ADIMASKSLIPGLOW.name = "MFD_RIGHT_adi_page_ADIMASKSLIPGLOW_1"
 ADIMASKSLIPGLOW.material			= ADI_SLIP_MASK_GLOW
 ADIMASKSLIPGLOW.change_opacity 		= false
 ADIMASKSLIPGLOW.collimated 			= false
@@ -434,7 +434,7 @@ vertices(ADIMASKSLIPGLOW,2.5)
 Add(ADIMASKSLIPGLOW)
 -----------------------------------
 BOXES                    = CreateElement "ceTexPoly"
-BOXES.name    			= "BG"
+BOXES.name = "MFD_RIGHT_adi_page_BOXES_1"
 BOXES.material			= MFD_BOXES
 BOXES.change_opacity 		= false
 BOXES.collimated 			= false
@@ -449,7 +449,7 @@ vertices(BOXES,2.5)
 Add(BOXES)
 
 RING                    = CreateElement "ceTexPoly"
-RING.name    			= "BG"
+RING.name = "MFD_RIGHT_adi_page_RING_1"
 RING.material			= MFD_RING
 RING.change_opacity 		= false
 RING.collimated 			= false
@@ -465,7 +465,7 @@ Add(RING)
 -----------------------------------
 --Indicated Airspeed
 IAS						= CreateElement "ceStringPoly"
-IAS.name				= "Indicated Airspeed"
+IAS.name = "MFD_RIGHT_adi_page_IAS_1"
 IAS.material			= UFD_FONT
 IAS.init_pos			= {-0.54, 0.65, 0} --L-R,U-D,F-B
 IAS.alignment			= "RightCenter"
@@ -483,7 +483,7 @@ vertices(IAS,2.5)
 Add(IAS)
 ----------------------------------------------------------------------------------------------------------------------------------------------
 BAROALT						= CreateElement "ceStringPoly"
-BAROALT.name				= "Indicated Airspeed"
+BAROALT.name = "MFD_RIGHT_adi_page_BAROALT_1"
 BAROALT.material			= UFD_FONT
 BAROALT.init_pos			= {0.85, 0.65, 0} --L-R,U-D,F-B
 BAROALT.alignment			= "RightCenter"
@@ -501,7 +501,7 @@ vertices(BAROALT,2.5)
 Add(BAROALT)
 ----------------------------------------------------------------------------------------------------------------------------------------------
 FPM						= CreateElement "ceStringPoly"
-FPM.name				= "Indicated Airspeed"
+FPM.name = "MFD_RIGHT_adi_page_FPM_1"
 FPM.material			= UFD_FONT
 FPM.init_pos			= {0.85, 0.75, 0} --L-R,U-D,F-B
 FPM.alignment			= "RightCenter"
@@ -519,7 +519,7 @@ vertices(FPM,2.5)
 Add(FPM) 
 ----------------------------------------------------------------------------------------------------------------------------------------------
 NAV						= CreateElement "ceStringPoly"
-NAV.name				= "heading numb"
+NAV.name = "MFD_RIGHT_adi_page_NAV_1"
 NAV.material			= UFD_FONT
 NAV.init_pos			= {0, 0.85, 0} --L-R,U-D,F-B
 NAV.alignment			= "CenterCenter"
@@ -538,7 +538,7 @@ Add(NAV)
 --------------------------------------------------------------------------------------------------- MENU TEXT
 --MENU TEXT
 MENU_CHK_TEXT 					    = CreateElement "ceStringPoly"
-MENU_CHK_TEXT.name 				    = "menu"
+MENU_CHK_TEXT.name = "MFD_RIGHT_adi_page_MENU_CHK_TEXT_1"
 MENU_CHK_TEXT.material 			    = UFD_FONT
 MENU_CHK_TEXT.value 				= "MENU"
 MENU_CHK_TEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
@@ -557,7 +557,7 @@ Add(MENU_CHK_TEXT)
 -----------------------------------
 --MENU TEXT
 HSI_TEXT 					    = CreateElement "ceStringPoly"
-HSI_TEXT.name 				    = "menu"
+HSI_TEXT.name = "MFD_RIGHT_adi_page_HSI_TEXT_1"
 HSI_TEXT.material 			    = UFD_FONT
 HSI_TEXT.value 					= "HSI"
 HSI_TEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}

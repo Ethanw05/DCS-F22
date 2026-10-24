@@ -115,7 +115,7 @@ Add(clipPoly)
 ------------------------------------------------------------------------------------------------CLIPPING-END----------------------------------------------------------------------------------------------
 --HUD MENU
     NAV 					    = CreateElement "ceStringPoly"
-    NAV.name 				    = "menu"
+    NAV.name = "ICP_NAV"
     NAV.material 			    = UFD_GRN
     NAV.value 				    = "NAV MODE"
     NAV.stringdefs 		    = {0.0060, 0.0060, 0.0004, 0.001}
@@ -130,7 +130,7 @@ Add(clipPoly)
     Add(NAV)
     ----------------------------------------------------------------------------------------------------------------
     BVR 					    = CreateElement "ceStringPoly"
-    BVR.name 				    = "menu"
+    BVR.name = "ICP_BVR"
     BVR.material 			    = UFD_GRN
     BVR.value 				    = "BVR MODE"
     BVR.stringdefs 		    = {0.0060, 0.0060, 0.0004, 0.001}
@@ -145,7 +145,7 @@ Add(clipPoly)
     Add(BVR)
     ----------------
     VERTSCAN 					    = CreateElement "ceStringPoly"
-    VERTSCAN.name 				    = "menu"
+    VERTSCAN.name = "ICP_VERTSCAN"
     VERTSCAN.material 			    = UFD_GRN
     VERTSCAN.value 				    = "VERTICAL SCAN"
     VERTSCAN.stringdefs 		    = {0.0060, 0.0060, 0.0004, 0.001}
@@ -160,7 +160,7 @@ Add(clipPoly)
     Add(VERTSCAN)
     ----------------
     BORE 					    = CreateElement "ceStringPoly"
-    BORE.name 				    = "menu"
+    BORE.name = "ICP_BORE"
     BORE.material 			    = UFD_GRN
     BORE.value 				    = "BORE SIGHT"
     BORE.stringdefs 		    = {0.0060, 0.0060, 0.0004, 0.001}
@@ -175,7 +175,7 @@ Add(clipPoly)
     Add(BORE)
     ----------------
     FLOOD 					    = CreateElement "ceStringPoly"
-    FLOOD.name 				    = "menu"
+    FLOOD.name = "ICP_FLOOD"
     FLOOD.material 			    = UFD_GRN
     FLOOD.value 				    = "FLOOD MODE"
     FLOOD.stringdefs 		    = {0.0060, 0.0060, 0.0004, 0.001}
@@ -190,9 +190,9 @@ Add(clipPoly)
     Add(FLOOD)
 --AP MENU
 AP1 					    = CreateElement "ceStringPoly"
-AP1.name 				    = "menu"
+AP1.name = "ICP_AP1"
 AP1.material 			    = UFD_GRN
-AP1.value 				    = "ALTITUDE HOLD"
+AP1.value 				    = "NATIVE ALT HOLD"
 AP1.stringdefs 		        = {0.0060, 0.0060, 0.0004, 0.001}
 AP1.alignment 			    = "LeftCenter"
 AP1.formats 			    = {"%s"}
@@ -205,9 +205,9 @@ AP1.controllers		        =   {{"opacity_using_parameter",0},{"parameter_in_range
 Add(AP1)
 ----------------------------------------------------------------------------------------------------------------
 AP2 					    = CreateElement "ceStringPoly"
-AP2.name 				    = "menu"
+AP2.name = "ICP_AP2"
 AP2.material 			    = UFD_GRN
-AP2.value 				    = "ROUTE FOLLOW"
+AP2.value 				    = "NATIVE AP TOGGLE"
 AP2.stringdefs 		        = {0.0060, 0.0060, 0.0004, 0.001}
 AP2.alignment 			    = "LeftCenter"
 AP2.formats 			    = {"%s"}
@@ -220,7 +220,7 @@ AP2.controllers		        =   {{"opacity_using_parameter",0},{"parameter_in_range
 Add(AP2)
 ----------------
 AP3 					    = CreateElement "ceStringPoly"
-AP3.name 				    = "menu"
+AP3.name = "ICP_AP3"
 AP3.material 			    = UFD_GRN
 AP3.value 				    = "AP DISENGAGE"
 AP3.stringdefs 		        = {0.0060, 0.0060, 0.0004, 0.001}
@@ -234,3 +234,13 @@ AP3.element_params 	        = {"ICP_OPACITY","ICP_AP_MENU"}
 AP3.controllers		        =   {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1}}
 Add(AP3)
 ----------------
+
+-- Original numeric-reference entry view (not a production F-22 format).
+for index,param in ipairs({"F22_ICP_ENTRY_TITLE","F22_ICP_ENTRY_VALUE","F22_ICP_ENTRY_HINT"}) do
+ local e=CreateElement "ceStringPoly"
+ e.name="F22_ICP_ENTRY_"..index;e.material=UFD_GRN;e.stringdefs={.006,.006,.0004,.001}
+ e.alignment="LeftCenter";e.init_pos={-1,1.2-(index-1)*.9,0}
+ e.formats={"%s"};e.element_params={"ICP_OPACITY","F22_ICP_ENTRY_VISIBLE",param}
+ e.controllers={{"opacity_using_parameter",0},{"parameter_in_range",1,.5,1.5},{"text_using_parameter",2,0}}
+ e.h_clip_relation=h_clip_relations.COMPARE;e.level=21;Add(e)
+end

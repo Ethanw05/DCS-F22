@@ -130,13 +130,13 @@ N_GEAR.input						= {0,1}
 N_GEAR.output						= {0,1}
 
 R_GEAR							    = CreateGauge("parameter")
-R_GEAR.parameter_name				= "N_GEAR_LIGHT"
+R_GEAR.parameter_name				= "R_GEAR_LIGHT"
 R_GEAR.arg_number					= 725
 R_GEAR.input						= {0,1}
 R_GEAR.output						= {0,1}
 
 L_GEAR							    = CreateGauge("parameter")
-L_GEAR.parameter_name				= "N_GEAR_LIGHT"
+L_GEAR.parameter_name				= "L_GEAR_LIGHT"
 L_GEAR.arg_number					= 724
 L_GEAR.input						= {0,1}
 L_GEAR.output						= {0,1}
@@ -291,3 +291,10 @@ Z_test =
  --base_gauge_TotalFuelWeight
 
 --]]
+
+-- Knob animation follows the logical request, including initialized hot/cold values.
+for _,row in ipairs({{704,"F22_MFD_KNOB"},{705,"F22_UFD_KNOB"},{706,"F22_CONSOLE_KNOB"},{707,"F22_FLOOD_KNOB"},
+ {716,"F22_MAP_LEFT_KNOB"},{717,"F22_MAP_RIGHT_KNOB"}}) do
+ local gauge=CreateGauge("parameter");gauge.parameter_name=row[2];gauge.arg_number=row[1]
+ gauge.input={0,1};gauge.output={0,1}
+end

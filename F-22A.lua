@@ -101,7 +101,7 @@ F_22A =
 		tand_gear_max				=	3.73,	--XX  FA18 3.73, 
 		V_max_sea_level				=	403,	-- Max speed at sea level in m/s (for AI)
 		V_max_h						=	736.11,	-- Max speed at max altitude in m/s (for AI)
-		wing_area					=	56.5,	-- wing area in m2
+		wing_area					=	78.04, -- m2; public geometry, see docs/RESOURCES.md R27
 		thrust_sum_max 				= 	56800, 	-- ~312 kN in kgf
 		thrust_sum_ab 				= 	70000,  	-- ~444 kN in kgf
 		Vy_max						=	275,	-- Max climb speed in m/s (for AI)
@@ -204,7 +204,7 @@ F_22A =
 			-- RR-170
 			chaff = {default = 120, increment = 1, chargeSz = 1},
 			-- MJU-7
-			flare = {default = 120, increment = 2, chargeSz = 2}
+			flare = {default = 60, increment = 2, chargeSz = 2} -- assumed mix; fits 240 charge units
         },
 	
         CanopyGeometry 	= {
@@ -214,8 +214,8 @@ F_22A =
 
 		Sensors 		= {
 		RADAR 			= "AN/APG-63",--F15
-		IRST 			= "OLS-27",
-		OPTIC 			= {"TADS DTV", "TADS DVO", "TADS FLIR"},
+		-- No baseline OLS-27: this is not an F-22 production IRST specification.
+		-- No baseline Apache TADS sensors; native combat avionics remain F-15 based.
 		RWR 			= "Abstract RWR"--F15
 		},
 		Countermeasures = {
@@ -230,6 +230,9 @@ F_22A =
 	},
 
 	Failures = {
+			{ id = 'apu', label = _('APU'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
+			{ id = 'l_generator', label = _('LEFT GENERATOR'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
+			{ id = 'r_generator', label = _('RIGHT GENERATOR'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
 			{ id = 'asc', 		label = _('ASC'), 		enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
 			{ id = 'autopilot', label = _('AUTOPILOT'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
 			{ id = 'hydro',  	label = _('HYDRO'), 	enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
@@ -313,7 +316,7 @@ F_22A =
 		        { CLSID = "{AIM-120C-7}",attach_point_position = {0.1, -0.14, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},	
 				{ CLSID = "{AIM-120C-8}",attach_point_position = {0.1, -0.14, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},
 				{ CLSID = "{AIM-120D-3}",attach_point_position = {0.1, -0.14, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},			
-				{ CLSID = "{LAU_115_2xAIM9X-II}}"  ,attach_point_position = {-0.3, -0.16, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},
+				{ CLSID = "{LAU_115_2xAIM9X-II}"  ,attach_point_position = {-0.3, -0.16, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},
 		        { CLSID = "{LAU_115_2xAIM-120C-7}" ,attach_point_position = {-0.7, -0.16, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},
 				{ CLSID = "{LAU_115_2xAIM-120C-8}" ,attach_point_position = {-0.7, -0.16, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},
 				{ CLSID = "{LAU_115_2xAIM-120D-3}" ,attach_point_position = {-0.7, -0.16, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},
@@ -743,4 +746,14 @@ F_22A =
 					},
 }
 
+-- Block demonstrably invalid legacy stores until a supported implementation exists.
+-- Kept in source for study; not silently retuned with invented guidance/propellant data.
+local blockedStores={["{GBU32_JDAM}"]=true,["{MAKO_A2G_C}"]=true}
+for _,station in ipairs(F_22A.Pylons) do
+ if station.Launchers then
+  for i=#station.Launchers,1,-1 do
+   if blockedStores[station.Launchers[i].CLSID] then table.remove(station.Launchers,i) end
+  end
+ end
+end
 add_aircraft(F_22A)

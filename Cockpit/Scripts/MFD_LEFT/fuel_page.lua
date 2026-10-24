@@ -88,7 +88,7 @@ local PFD_MASK_BASE1 	= MakeMaterial(nil,{255,0,0,255})--Clipping Masks
 local PFD_MASK_BASE2 	= MakeMaterial(nil,{0,255,0,255})--Clipping Masks
 --Clipping Masks
 local total_field_of_view           = CreateElement "ceMeshPoly"
-total_field_of_view.name            = "total_field_of_view"
+total_field_of_view.name = "MFD_LEFT_fuel_page_total_field_of_view_1"
 total_field_of_view.primitivetype   = "triangles"
 total_field_of_view.vertices        = {
 										{-1 * ClippingWidth,-1 * ClippingPlaneSize},
@@ -107,7 +107,7 @@ total_field_of_view.isvisible       = false
 Add(total_field_of_view)
 --Clipping Masks
 local clipPoly               = CreateElement "ceMeshPoly"
-clipPoly.name                = "clipPoly-1"
+clipPoly.name = "MFD_LEFT_fuel_page_clipPoly_1"
 clipPoly.primitivetype       = "triangles"
 clipPoly.init_pos            = {0, 0, 0}
 clipPoly.init_rot            = { 0, 0 , 0} -- degree NOT rad
@@ -127,7 +127,7 @@ Add(clipPoly)
 ------------------------------------------------------------------------------------------------CLIPPING-END----------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------BASE BACKLIGHT
 BGROUND                    = CreateElement "ceTexPoly"
-BGROUND.name    			= "BG"
+BGROUND.name = "MFD_LEFT_fuel_page_BGROUND_1"
 BGROUND.material			= MASK_BOX
 BGROUND.change_opacity 		= false
 BGROUND.collimated 			= false
@@ -142,7 +142,7 @@ vertices(BGROUND,2)
 Add(BGROUND)
 -----------------------------------------------------------------------------------------------TEAL FUEL QUANT------------------------------------------------------------------------------------------------
 FUELQTY                    = CreateElement "ceTexPoly"
-FUELQTY.name    			= "BG"
+FUELQTY.name = "MFD_LEFT_fuel_page_FUELQTY_1"
 FUELQTY.material			= FUEL_IQT
 FUELQTY.change_opacity 		= false
 FUELQTY.collimated 			= false
@@ -162,7 +162,7 @@ vertices(FUELQTY,2)
 Add(FUELQTY)
 -----------------------------------------------------------------------------------------------TEAL FUEL QUANT2------------------------------------------------------------------------------------------------
 FUELQTY2                    = CreateElement "ceTexPoly"
-FUELQTY2.name    			= "BG"
+FUELQTY2.name = "MFD_LEFT_fuel_page_FUELQTY2_1"
 FUELQTY2.material			= FUEL_IQT
 FUELQTY2.change_opacity 		= false
 FUELQTY2.collimated 			= false
@@ -182,7 +182,7 @@ vertices(FUELQTY2,2)
 Add(FUELQTY2)
 -----------------------------------------------------------------------------------------------TEAL-FUEL-TANK-QUANT------------------------------------------------------------------------------------------------
 FUELQTY_TANK                        = CreateElement "ceTexPoly"
-FUELQTY_TANK.name    			    = "BG"
+FUELQTY_TANK.name = "MFD_LEFT_fuel_page_FUELQTY_TANK_1"
 FUELQTY_TANK.material			    = FUEL_TQT
 FUELQTY_TANK.change_opacity 	    = false
 FUELQTY_TANK.collimated 		    = false
@@ -202,7 +202,7 @@ vertices(FUELQTY_TANK,2)
 Add(FUELQTY_TANK)
 --------------------------------------------------------------------------------------------------ALL-BLACK-MASK-NO-OPACITY-----------------------
 FUEL_BLK                    = CreateElement "ceTexPoly"
-FUEL_BLK.name    			= "BG"
+FUEL_BLK.name = "MFD_LEFT_fuel_page_FUEL_BLK_1"
 FUEL_BLK.material			= FUEL_MASK
 FUEL_BLK.change_opacity 	= false
 FUEL_BLK.collimated 		= false
@@ -217,7 +217,7 @@ vertices(FUEL_BLK,2)
 Add(FUEL_BLK)
 --------------------------------------------------------------------------------------ALL-BLACK-MASK-WITH-BACKLIGHT-MATERIAL
 BGROUND1                    = CreateElement "ceTexPoly"
-BGROUND1.name    			= "BG"
+BGROUND1.name = "MFD_LEFT_fuel_page_BGROUND1_1"
 BGROUND1.material			= FUEL_MASK_BL
 BGROUND1.change_opacity 	= false
 BGROUND1.collimated 		= false
@@ -232,7 +232,7 @@ vertices(BGROUND1,2)
 Add(BGROUND1)
 -------------------------------------------------------------------------FUEL PAGE GREEN LINES
 FUELFRAME                    = CreateElement "ceTexPoly"
-FUELFRAME.name    			= "BG"
+FUELFRAME.name = "MFD_LEFT_fuel_page_FUELFRAME_1"
 FUELFRAME.material			= FUEL_PAGE
 FUELFRAME.change_opacity 		= false
 FUELFRAME.collimated 			= false
@@ -247,7 +247,7 @@ vertices(FUELFRAME,2)
 Add(FUELFRAME)
 --------------------------------------------------------------------------------------------------ALL-BLACK-MASK-NO-OPACITY-----------------------
 FUEL_BX                    = CreateElement "ceTexPoly"
-FUEL_BX.name    			= "BG"
+FUEL_BX.name = "MFD_LEFT_fuel_page_FUEL_BX_1"
 FUEL_BX.material			= FUEL_BOX
 FUEL_BX.change_opacity 		= false
 FUEL_BX.collimated 			= false
@@ -262,7 +262,7 @@ vertices(FUEL_BX,2)
 Add(FUEL_BX)
 --------------------------------------------------------------------------------------------------ALL-BLACK-MASK-NO-OPACITY-----------------------
 FUEL_BX_BL                    = CreateElement "ceTexPoly"
-FUEL_BX_BL.name    			= "BG"
+FUEL_BX_BL.name = "MFD_LEFT_fuel_page_FUEL_BX_BL_1"
 FUEL_BX_BL.material			= FUEL_BOX_BL
 FUEL_BX_BL.change_opacity 		= false
 FUEL_BX_BL.collimated 			= false
@@ -277,7 +277,7 @@ vertices(FUEL_BX_BL,2)
 Add(FUEL_BX_BL)
 --------------------------------------------------------------------------------------------------FUEL-PAGE-TINY-NUMBERS
 TINYSHIT                    = CreateElement "ceTexPoly"
-TINYSHIT.name    			= "BG"
+TINYSHIT.name = "MFD_LEFT_fuel_page_TINYSHIT_1"
 TINYSHIT.material			= FUEL_IND
 TINYSHIT.change_opacity 	= false
 TINYSHIT.collimated 		= false
@@ -293,7 +293,7 @@ Add(TINYSHIT)
 --------------------------------------------------------------------------------------------------------------------INTERNAL TEXT
 --INT TEXT
 INTERNAL_TEXT 					    = CreateElement "ceStringPoly"
-INTERNAL_TEXT.name 				    = "menu"
+INTERNAL_TEXT.name = "MFD_LEFT_fuel_page_INTERNAL_TEXT_1"
 INTERNAL_TEXT.material 			    = UFD_GRN
 INTERNAL_TEXT.value 				= "TOTAL:"
 INTERNAL_TEXT.stringdefs 		    = {0.004, 0.004, 0.0004, 0.001}
@@ -311,7 +311,7 @@ INTERNAL_TEXT.controllers		    =   {
 Add(INTERNAL_TEXT)
 --------------------------------------------------------------------------------------------------------------------INTERNAL NUMBER
 INTERNAL_NUMBER				        = CreateElement "ceStringPoly"
-INTERNAL_NUMBER.name				= "INT NUM"
+INTERNAL_NUMBER.name = "MFD_LEFT_fuel_page_INTERNAL_NUMBER_1"
 INTERNAL_NUMBER.material			= UFD_GRN
 INTERNAL_NUMBER.init_pos			= {0.80, 0.65, 0} --L-R,U-D,F-B
 INTERNAL_NUMBER.alignment			= "RightCenter"
@@ -329,7 +329,7 @@ Add(INTERNAL_NUMBER)
 --------------------------------------------------------------------------------------------------------------------TANK TEXT
 --TANK TEXT
 TANK_TEXT 					        = CreateElement "ceStringPoly"
-TANK_TEXT.name 				        = "menu"
+TANK_TEXT.name = "MFD_LEFT_fuel_page_TANK_TEXT_1"
 TANK_TEXT.material 			        = UFD_FONT
 TANK_TEXT.value 				    = "TANKS:"
 TANK_TEXT.stringdefs 		        = {0.004, 0.004, 0.0004, 0.001}
@@ -347,7 +347,7 @@ TANK_TEXT.controllers		        =   {
 Add(TANK_TEXT)
 --------------------------------------------------------------------------------------------------------------------TANK NUMBER
 TANK_NUMBER				        = CreateElement "ceStringPoly"
-TANK_NUMBER.name				= "INT NUM"
+TANK_NUMBER.name = "MFD_LEFT_fuel_page_TANK_NUMBER_1"
 TANK_NUMBER.material			= UFD_FONT
 TANK_NUMBER.init_pos			= {0.80, 0.58, 0} --L-R,U-D,F-B
 TANK_NUMBER.alignment			= "RightCenter"
@@ -364,7 +364,7 @@ TANK_NUMBER.controllers			= {{"opacity_using_parameter",0},{"text_using_paramete
 Add(TANK_NUMBER)
 --------------------------------------------------------------------------------------------------------------------LEFT FF TEXT
 L_EFF_TEXT 					        = CreateElement "ceStringPoly"
-L_EFF_TEXT.name 				        = "menu"
+L_EFF_TEXT.name = "MFD_LEFT_fuel_page_L_EFF_TEXT_1"
 L_EFF_TEXT.material 			        = UFD_GRN
 L_EFF_TEXT.value 				    = "L EFF:"
 L_EFF_TEXT.stringdefs 		        = {0.004, 0.004, 0.0004, 0.001}
@@ -382,7 +382,7 @@ L_EFF_TEXT.controllers		        =   {
 Add(L_EFF_TEXT)
 --------------------------------------------------------------------------------------------------------------------LEFT EGT TEXT
 L_EGT_TEXT 					            = CreateElement "ceStringPoly"
-L_EGT_TEXT.name 				        = "menu"
+L_EGT_TEXT.name = "MFD_LEFT_fuel_page_L_EGT_TEXT_1"
 L_EGT_TEXT.material 			        = UFD_GRN
 L_EGT_TEXT.value 				        = "L EGT:"
 L_EGT_TEXT.stringdefs 		            = {0.004, 0.004, 0.0004, 0.001}
@@ -400,7 +400,7 @@ L_EGT_TEXT.controllers		            =   {
 Add(L_EGT_TEXT)
 --------------------------------------------------------------------------------------------------------------------LEFT FF NUMBER
 L_EFF_NUMBER				        = CreateElement "ceStringPoly"
-L_EFF_NUMBER.name				= "INT NUM"
+L_EFF_NUMBER.name = "MFD_LEFT_fuel_page_L_EFF_NUMBER_1"
 L_EFF_NUMBER.material			= UFD_GRN
 L_EFF_NUMBER.init_pos			= {-0.45, -0.75, 0} --L-R,U-D,F-B
 L_EFF_NUMBER.alignment			= "RightCenter"
@@ -417,7 +417,7 @@ L_EFF_NUMBER.controllers			= {{"opacity_using_parameter",0},{"text_using_paramet
 Add(L_EFF_NUMBER)
 --------------------------------------------------------------------------------------------------------------------LEFT FF NUMBER
 L_EGT_NUMBER				        = CreateElement "ceStringPoly"
-L_EGT_NUMBER.name				    = "INT NUM"
+L_EGT_NUMBER.name = "MFD_LEFT_fuel_page_L_EGT_NUMBER_1"
 L_EGT_NUMBER.material			    = UFD_GRN
 L_EGT_NUMBER.init_pos			    = {-0.45, -0.82, 0} --L-R,U-D,F-B
 L_EGT_NUMBER.alignment			    = "RightCenter"
@@ -434,7 +434,7 @@ L_EGT_NUMBER.controllers			= {{"opacity_using_parameter",0},{"text_using_paramet
 Add(L_EGT_NUMBER)
 --------------------------------------------------------------------------------------------------------------------LEFT FF TEXT
 R_EFF_TEXT 					        = CreateElement "ceStringPoly"
-R_EFF_TEXT.name 				        = "menu"
+R_EFF_TEXT.name = "MFD_LEFT_fuel_page_R_EFF_TEXT_1"
 R_EFF_TEXT.material 			        = UFD_GRN
 R_EFF_TEXT.value 				    = ":R EFF"
 R_EFF_TEXT.stringdefs 		        = {0.004, 0.004, 0.0004, 0.001}
@@ -452,7 +452,7 @@ R_EFF_TEXT.controllers		        =   {
 Add(R_EFF_TEXT)
 --------------------------------------------------------------------------------------------------------------------LEFT EGT TEXT
 R_EGT_TEXT 					            = CreateElement "ceStringPoly"
-R_EGT_TEXT.name 				        = "menu"
+R_EGT_TEXT.name = "MFD_LEFT_fuel_page_R_EGT_TEXT_1"
 R_EGT_TEXT.material 			        = UFD_GRN
 R_EGT_TEXT.value 				        = ":R EGT"
 R_EGT_TEXT.stringdefs 		            = {0.004, 0.004, 0.0004, 0.001}
@@ -470,7 +470,7 @@ R_EGT_TEXT.controllers		            =   {
 Add(R_EGT_TEXT)
 --------------------------------------------------------------------------------------------------------------------LEFT FF NUMBER
 R_EFF_NUMBER				        = CreateElement "ceStringPoly"
-R_EFF_NUMBER.name				= "INT NUM"
+R_EFF_NUMBER.name = "MFD_LEFT_fuel_page_R_EFF_NUMBER_1"
 R_EFF_NUMBER.material			= UFD_GRN
 R_EFF_NUMBER.init_pos			= {0.45, -0.75, 0} --L-R,U-D,F-B
 R_EFF_NUMBER.alignment			= "LeftCenter"
@@ -487,7 +487,7 @@ R_EFF_NUMBER.controllers			= {{"opacity_using_parameter",0},{"text_using_paramet
 Add(R_EFF_NUMBER)
 --------------------------------------------------------------------------------------------------------------------LEFT FF NUMBER
 R_EGT_NUMBER				        = CreateElement "ceStringPoly"
-R_EGT_NUMBER.name				    = "INT NUM"
+R_EGT_NUMBER.name = "MFD_LEFT_fuel_page_R_EGT_NUMBER_1"
 R_EGT_NUMBER.material			    = UFD_GRN
 R_EGT_NUMBER.init_pos			    = {0.45, -0.82, 0} --L-R,U-D,F-B
 R_EGT_NUMBER.alignment			    = "LeftCenter"
@@ -505,7 +505,7 @@ Add(R_EGT_NUMBER)
 --------------------------------------------------------------------------------------------------------------------MENU-BUTTON
 --MENU TEXT
 MENU_CHK_TEXT 					    = CreateElement "ceStringPoly"
-MENU_CHK_TEXT.name 				    = "menu"
+MENU_CHK_TEXT.name = "MFD_LEFT_fuel_page_MENU_CHK_TEXT_1"
 MENU_CHK_TEXT.material 			    = UFD_FONT
 MENU_CHK_TEXT.value 				= "MENU"
 MENU_CHK_TEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
@@ -523,7 +523,7 @@ MENU_CHK_TEXT.controllers		    =   {
 Add(MENU_CHK_TEXT)
 --------------------------------------------------------------------------------------------------- NAV
 MENU_TEXT1 					        = CreateElement "ceStringPoly"
-MENU_TEXT1.name 				    = "menu"
+MENU_TEXT1.name = "MFD_LEFT_fuel_page_MENU_TEXT1_1"
 MENU_TEXT1.material 			    = UFD_GRN
 MENU_TEXT1.value 				    = "RWR"
 MENU_TEXT1.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -538,7 +538,7 @@ MENU_TEXT1.controllers		        =   {{"opacity_using_parameter",0},{"parameter_i
 Add(MENU_TEXT1)
 --------------------------------------------------------------------------------------------------- NAV
 MENU_TEXT2 					        = CreateElement "ceStringPoly"
-MENU_TEXT2.name 				    = "menu"
+MENU_TEXT2.name = "MFD_LEFT_fuel_page_MENU_TEXT2_1"
 MENU_TEXT2.material 			    = UFD_GRN
 MENU_TEXT2.value 				    = "BAY"
 MENU_TEXT2.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -553,7 +553,7 @@ MENU_TEXT2.controllers		        =   {{"opacity_using_parameter",0},{"parameter_i
 Add(MENU_TEXT2)
 --------------------------------------------------------------------------------------------------- NAV
 MENU_TEXT3 					        = CreateElement "ceStringPoly"
-MENU_TEXT3.name 				    = "menu"
+MENU_TEXT3.name = "MFD_LEFT_fuel_page_MENU_TEXT3_1"
 MENU_TEXT3.material 			    = UFD_GRN
 MENU_TEXT3.value 				    = "ENG"
 MENU_TEXT3.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
@@ -568,7 +568,7 @@ MENU_TEXT3.controllers		        =   {{"opacity_using_parameter",0},{"parameter_i
 Add(MENU_TEXT3)
 --------------------------------------------------------------------------------------------------- NAV
 MENU_TEXT3 					        = CreateElement "ceStringPoly"
-MENU_TEXT3.name 				    = "menu"
+MENU_TEXT3.name = "MFD_LEFT_fuel_page_MENU_TEXT3_2"
 MENU_TEXT3.material 			    = UFD_GRN
 MENU_TEXT3.value 				    = "FCS"
 MENU_TEXT3.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}

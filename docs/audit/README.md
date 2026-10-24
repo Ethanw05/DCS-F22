@@ -57,3 +57,7 @@ The numerical experiments use extracted C++ baseline functions with a no-op cock
 All 16 system scopes now have a written review. The highest-confidence problems are conservation/reset errors, discontinuous or time-step-dependent model behavior, unused controls, mismatched state/animation ownership, release-state handling, and inconsistent display values. The largest unresolved overhaul dependency is independent radar-to-native-weapon support, especially concurrent engagements. The public references support a better documented simulation, but do not supply a complete verified production F-22 aerodynamic database, F119 deck, software tape or HUD mode manual.
 
 The review pass is complete as a **source-based assessment**. The listed runtime questions remain explicit implementation/validation gates. No fixes, system rewrites, new avionics or aircraft-performance changes are included in this pass.
+
+## Implementation follow-up
+
+The audit above remains a historical review. The flight-model replacement is in [FLIGHT_MODEL.md](../FLIGHT_MODEL.md). The subsequent seven-device/HUD overhaul, per-system evidence, checks and unresolved limitations are in [OVERNIGHT_OVERHAUL.md](../OVERNIGHT_OVERHAUL.md). Use [TEST_BUILD.md](../TEST_BUILD.md) for the experimental overlay; old line links do not describe the replacement implementation.

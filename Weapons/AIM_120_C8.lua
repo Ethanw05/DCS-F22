@@ -22,7 +22,7 @@ local AIM_120_C8 =
 {
 	category		= CAT_AIR_TO_AIR,
 	name			= "AIM_120C8",
-	displayName		= _("AIM-120C8 - Active Radar AAM"),
+	displayName		= _("[APPROX] AIM-120C8 - Active Radar AAM"),
 	user_name		= _("AIM-120C8"),
 	display_name_short = "AIM-120C8",
 	scheme			= "aa_missile_amraam2",
@@ -284,7 +284,7 @@ declare_loadout({
     category    	= CAT_AIR_TO_AIR,
     CLSID       	= "{AIM-120C-8}",
     Picture     	= 'AIM-120C8.png',
-    displayName 	= _("AIM-120C8 - Active Radar AAM"),
+    displayName 	= _("[APPROX] AIM-120C8 - Active Radar AAM"),
 	attribute		= AIM_120_C8.wsTypeOfWeapon,
     Count       	= 1,
     Weight      	= 161.48,
@@ -308,7 +308,7 @@ declare_loadout({
 	attribute		= {4,4,32,WSTYPE_PLACEHOLDER},	
     Count           = 2,
     Picture         = "AIM-120C8.png",
-    displayName     = _("2x AIM-120C8 - Active Radar AAM"),
+    displayName     = _("[APPROX] 2x AIM-120C8 - Active Radar AAM"),
     Weight          = 161.48 * 2 + 50,
 	Elements = {
 	
