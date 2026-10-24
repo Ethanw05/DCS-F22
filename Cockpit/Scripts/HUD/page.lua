@@ -105,6 +105,14 @@ for step=-3,3 do
     end
 end
 
+-- W-shaped historical cue preserved from the published F-22 Figure 1.
+-- Meaning/mode remains unverified; pure reference symbology for now.
+line(-0.038,0.365,-0.023,0.348,0.005)
+line(-0.023,0.348,-0.008,0.357,0.005)
+line(-0.008,0.357,0.008,0.348,0.005)
+line(0.008,0.348,0.023,0.357,0.005)
+line(0.023,0.357,0.038,0.365,0.005)
+
 -- Aircraft-reference/boresight symbol.
 line(-0.065,0, -0.018,0,0.007)
 line(0.018,0,0.065,0,0.007)
