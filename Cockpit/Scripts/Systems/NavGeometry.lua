@@ -9,7 +9,7 @@ function M.wrap(angle)
     return (angle + 2*pi) % (2*pi)
 end
 function M.project(dx,dy,dz,heading,pitch,roll)
-    if dx ~= dx or dy ~= dy or dz ~= dz then return nil end
+    if dx ~= dx or dy ~= dy or dz ~= dz then return nil, nil, nil end
     local sh,ch=math.sin(heading),math.cos(heading)
     local forward0=dx*ch+dy*sh
     local right0=-dx*sh+dy*ch
