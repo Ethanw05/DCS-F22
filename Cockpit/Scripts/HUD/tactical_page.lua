@@ -82,7 +82,7 @@ return function(api)
     static(0,-0.80,"NO TRACK",0.042,noMRM)
     -- Target-designator box only if later sensor adapter supplies a valid LOS.
     group("HUD_AA_TRACK_SYMBOL",0,0,
-        {"HUD_AA_TGT_AZ_RAD","HUD_AA_TGT_EL_RAD","HUD_POWER","HUD_AA_TARGET_VALID","HUD_MODE"},
+        {"HUD_AA_TGT_AZ_RAD","HUD_AA_TGT_EL_RAD","HUD_POWER","HUD_AA_CUE_VALID","HUD_MODE"},
         {{"move_left_right_using_parameter",0,1.18},
          {"move_up_down_using_parameter",1,1.18},
          {"opacity_using_parameter",2},
@@ -95,7 +95,13 @@ return function(api)
     line(-rect,rect,-rect,-rect,0.006,"HUD_AA_TRACK_SYMBOL")
     local tgtText = visible("MRM_TGT","HUD_AA_TARGET_VALID",1,mrm)
     label(0.70,-0.61,"HUD_AA_TGT_RANGE_NM","R %.1f",0.043,tgtText)
-    static(0,-0.80,"TRACK DATA ONLY",0.037,tgtText)
+    static(0,-0.80,"STT TELEMETRY",0.037,tgtText)
+    local iffFriend = visible("FRIEND","HUD_AA_TGT_IFF",1,tgtText)
+    static(0.0,-0.67,"FRIEND",0.048,iffFriend)
+    local radarPowered = visible("RDR_ON","RADAR_PWR",1,mrm)
+    static(-0.76,0.53,"RDR ON",0.038,radarPowered)
+    local radarOff = visible("RDR_OFF","RADAR_PWR",0,mrm)
+    static(-0.76,0.53,"RDR OFF",0.038,radarOff)
 
     -- Requested radar submode labels are not proof of actual radar scan state.
     local requests={
@@ -134,6 +140,9 @@ return function(api)
     cross(0,-0.025,0.18,gun)
     local noRange=visible("GUN_NO_RNG","HUD_GUN_TARGET_VALID",0,gun)
     static(0,-0.8,"GUN NO RNG",0.04,noRange)
+    local withRange=visible("GUN_RANGE","HUD_GUN_TARGET_VALID",1,gun)
+    label(0.72,-0.61,"HUD_AA_TGT_RANGE_NM","R %.1f",0.04,withRange)
+    static(0,-0.80,"NO LEAD SOLUTION",0.032,withRange)
     local ready=visible("GUN_READY","HUD_GUN_READY",1,gun)
     static(0.76,-0.73,"GUN RDY",0.036,ready)
 

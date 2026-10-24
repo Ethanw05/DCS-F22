@@ -49,6 +49,7 @@ local sensor_data		= get_base_data()
 			HUD_MODE			= get_param_handle("HUD_MODE"),
             HUD_WEAPON = get_param_handle("HUD_WEAPON"),
             HUD_RADAR_REQUEST = get_param_handle("HUD_RADAR_REQUEST"),
+            PMFD_RADAR_MODE = get_param_handle("RADAR_MODE"),
             HUD_ARMED = get_param_handle("HUD_ARMED"),
             HUD_GUN_READY = get_param_handle("HUD_GUN_READY"),
             HUD_GUN_TRIGGER = get_param_handle("HUD_GUN_TRIGGER"),
@@ -452,6 +453,11 @@ function update()
 	parameters.DOGFIGHT:set(dogfight_mode)
 	parameters.AIR_ORIDE:set(air_oride)
 	parameters.HUD_MODE:set(mode_state)
+    if mode_state == 2 then
+        -- PMFD owns the native RWS/TWS selection. Do not let the HUD maintain
+        -- a second toggle that diverges when the pilot uses the OSB.
+        hud_radar_request = parameters.PMFD_RADAR_MODE:get() >= 0.5 and 2 or 1
+    end
     parameters.HUD_RADAR_REQUEST:set(hud_radar_request)
     parameters.HUD_WEAPON:set(mode_state == 5 and 1 or
         ((mode_state == 3 or mode_state == 4 or mode_state == 6) and 2 or

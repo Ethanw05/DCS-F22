@@ -20,6 +20,7 @@ SCRIPTS = [
     Path("Cockpit/Scripts/HUD/tactical_page.lua"),
     Path("Cockpit/Scripts/Systems/Weapon_System.lua"),
     Path("Cockpit/Scripts/Systems/Navigation_System.lua"),
+    Path("Cockpit/Scripts/Systems/Radar_Data_Bridge.lua"),
     Path("Cockpit/Scripts/PMFD_CENTER/radar_page.lua"),
     Path("Cockpit/Scripts/Systems/NavGeometry.lua"),
     Path("Cockpit/Scripts/Systems/AG_Mark_System.lua"),

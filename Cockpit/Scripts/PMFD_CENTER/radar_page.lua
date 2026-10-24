@@ -258,3 +258,20 @@ radar_text("TWS SELECTED",-0.53,0.79,"RDR_TWS",{name="RADAR_MODE",min=0.9,max=1.
 radar_text("RADAR OFF",0.50,0.79,"RDR_OFF",{name="RADAR_PWR",min=-0.1,max=0.1})
 radar_text("RADAR PWR",0.50,0.79,"RDR_ON",{name="RADAR_PWR",min=0.9,max=1.1})
 radar_text("TRACK DATA NOT LINKED",0,0,"RDR_TRACK_WARN")
+
+-- Optional live data: only shown when a compatible DCS radar publishes a
+-- validated current STT return. Not proof of APG-77 or of TWS track files.
+local sourceVisible=CreateElement "ceStringPoly"
+sourceVisible.name="RDR_STT_FEED"
+sourceVisible.material=UFD_GRN
+sourceVisible.init_pos={0,-0.71,0}
+sourceVisible.alignment="CenterCenter"
+sourceVisible.stringdefs={0.005,0.005,0,0}
+sourceVisible.formats={"STT %.1f NM"}
+sourceVisible.element_params={"HUD_AA_TGT_RANGE_NM","HUD_RADAR_TRACK_SOURCE","MFD_OPACITY","PMFD_RDR_PAGE"}
+sourceVisible.controllers={{"text_using_parameter",0,0},{"parameter_in_range",1,0.9,1.1},
+    {"opacity_using_parameter",2},{"parameter_in_range",3,0.9,1.1}}
+sourceVisible.h_clip_relation=h_clip_relations.COMPARE
+sourceVisible.level=2
+sourceVisible.collimated=false
+Add(sourceVisible)
