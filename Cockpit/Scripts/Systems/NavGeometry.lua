@@ -1,5 +1,5 @@
 -- Standalone, deterministic right-handed HUD navigation geometry.
--- World DCS map x=east, y=north (aircraft getSelfCoordinates x, altitude, z).
+-- World DCS map x=north, map y=east (getSelfCoordinates x, altitude, z).
 -- Positive heading = clockwise from north; positive pitch = nose up.
 -- Roll convention requires in-game comparison with DCS base sensor values.
 local M={}
@@ -11,8 +11,8 @@ end
 function M.project(dx,dy,dz,heading,pitch,roll)
     if dx ~= dx or dy ~= dy or dz ~= dz then return nil end
     local sh,ch=math.sin(heading),math.cos(heading)
-    local forward0=dx*sh+dy*ch
-    local right0=dx*ch-dy*sh
+    local forward0=dx*ch+dy*sh
+    local right0=-dx*sh+dy*ch
     local sp,cp=math.sin(pitch),math.cos(pitch)
     local forward=forward0*cp+dz*sp
     local up0=-forward0*sp+dz*cp
