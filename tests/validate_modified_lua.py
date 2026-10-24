@@ -9,6 +9,7 @@ from luaparser import ast
 SCRIPTS = [
     Path("Cockpit/Scripts/device_init.lua"),
     Path("Cockpit/Scripts/Systems/Avionics.lua"),
+    Path("Cockpit/Scripts/Systems/Engine_System.lua"),
     Path("Cockpit/Scripts/Systems/MFD_System.lua"),
     Path("Cockpit/Scripts/HUD/init.lua"),
     Path("Cockpit/Scripts/HUD/page.lua"),
