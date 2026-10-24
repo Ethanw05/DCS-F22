@@ -14,6 +14,42 @@ Changes are committed to **`main`**, the repository's active development branch.
 - Cockpit quantity data sourced from EFM state, not inferred from a fixed 18,078 lb internal full quantity. Barometric and radar altitude intended in feet. Symmetric hydraulic fault inhibit restored to both displayed circuits.
 - Pinned Visual Studio 2022 runner instead of `windows-latest`, which migrated to VS 2026.
 
+## HUD, navigation, radar, weapons and avionics pass (main, 24 October 2026)
+
+| Subsystem | Changed implementation | Evidence and follow-on |
+| --- | --- | --- |
+| **13 HUD** | Seven requested layers: NAV, BVR/AIM-120, VS/AIM-9, BORE/AIM-9, gun, FLOOD/AIM-9, A/G; target cues explicitly validity gated; historical counter-pointer flight layer preserved | [Tactical evidence](TACTICAL_HUD_RADAR_EVIDENCE.md), [HUD target contract](HUD_TARGET_INTERFACE.md). Exact combat symbols and EDM optical alignment still unverified |
+| **15 NAV** | Standalone mission-route waypoint reader, current waypoint index, range and true bearing, forward body-frame cue with provisional FOV clipping | [NAV computer](NAV_HUD_COMPUTER.md); DCS heading convention and waypoint loading need in-game verification |
+| **A/G markpoint** | ICP MARK computes terrain LOS intersection and tracks it as a visual mark; separate from actual guided bomb delivery | [Markpoint source/limitations](AG_MARKPOINT.md). No CCIP/CCRP ballistic computation, JDAM targeting or release handoff |
+| **10 Radar** | HUD scan mode **requests** and PMFD `RWS SELECTED/TWS SELECTED` readouts; no fake tracks or ranges | [Radar/weapon integration](RADAR_WEAPON_INTEGRATION.md). FC3 inherited radar still required; no independent APG-77 model |
+| **12 Stores/gun/bays** | Momentary pickle input, cancellation on master-arm/power/WOW changes, deferred native command until selected bay visually open, single timed main/left/right actuator and independent gun door | [Door research](WEAPON_BAY_ACTUATOR_REWRITE.md), [input edges](WEAPON_INPUT_EDGE_SEMANTICS.md). Native release proof, hydraulics, station/munition authority still unverified |
+| **09 Avionics & 14 displays** | Nonnegative day/night brightness gain; dimming no longer clears alert/fault state; radar page selection labels | [Display evidence](AVIONICS_BRIGHTNESS_AND_WARNINGS.md). Multi-owner power/fault and display reversion remain incomplete |
+
+**CI evidence:** [Run 40090211659](https://github.com/Ethanw05/DCS-F22/actions/runs/40090211659) passed Windows VS2022 EFM compile, Lua syntax checks, Lua 5.1 NAV geometry tests and experimental DLL upload for commit `d56555d`. The earlier test failed on a malformed invalid-input return signature and was corrected in the next commit. These checks validate code execution/syntax, not actual DCS missions or rendering.
+
+**Important limitations:** the project is **not** a fully independent F-22 combat module. It still inherits FC3 F-15C radar/weapon/radio behavior and retains undocumented airframe coefficients, TVC allocations, subsystem approximations, and unavailable tactical targeting cues. Nothing new has been tested in the DCS cockpit/VR. No CFD.
+
+### Remaining work by the original 16-system audit
+
+| Original audit | Progress | Still needed |
+| --- | --- | --- |
+| 01 Integration | Partial | Full ED HUD EDM connector/VR registration, standalone device prototype, native weapons/AI and radio host contracts |
+| 02 Aerodynamics/performance | Audited only | Public conditioned performance checks, mass-dependent coefficient validation, no CFD |
+| 03 Flight controls | Partial primitives | Control-law/saturation/handling development, failure transitions |
+| 04 Thrust vectoring | Partial force correction | Authentic allocator/rate envelope, nozzle asymmetry, testing |
+| 05 Engines | Partial combustion state | RPM/shaft exports, thermal transients, installed engine/fuel deck |
+| 06 Fuel | Partial conservation/ledger | Refill boundary cases, DCS host mass ownership, transfer calibration |
+| 07 Ground | Partial suspension/WOW | Host feedback validation, tire/brake/taxi model |
+| 08 Vehicle | Partial hydraulic display | Powered buses, reservoirs, ECS, oil, APU ownership |
+| 09 Mission avionics | Partial sensor/power/display states | Canonical state ownership, track store, validity & fault propagation |
+| 10 Radar/IRST | Requested mode labels only | Actual sensor feed/track manager and FC3-independent STT/TWS support |
+| 11 EW/datalink | Audited only | Readback of native RWR/ECM and inventory, passive uncertainty model |
+| 12 Stores/weapons | Partial door interlocks | True station selection, native launch state, ballistics, targeting |
+| 13 HUD | Experimental layers | F-22 tactical reference verification, calibration, DCS display/load tests |
+| 14 Displays | Partial warning/PMFD | Integrated source data and page states, failure modes |
+| 15 Navigation/radios | Partial waypoint steering | INS/communication/engaged autopilot and field-of-view calibration |
+| 16 Lifecycle/release | Partial damage/CI | Flight regressions, mission packages, multiplayer and release validation |
+
 ## Still not implemented or authenticated
 
 - Standalone radar, weapon launch and external guided-weapon integration (F-15C/FC3 remains required).

@@ -15,6 +15,12 @@ This directory is the **implementation-facing supplement** to [the existing 176-
 - [BIBLIOGRAPHY.md](BIBLIOGRAPHY.md) — clickable primary resources, public links and attribution.
 - [HUD_SYMBOL_LEDGER.md](HUD_SYMBOL_LEDGER.md) — trace the user's F-22 display illustration without guessing tactical semantics.
 - [IMPLEMENTATION_RULES.md](IMPLEMENTATION_RULES.md) — evidence to code to verification and limitations.
+- [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) — current implementation and 16-system remaining-work matrix.
+- [TACTICAL_HUD_RADAR_EVIDENCE.md](TACTICAL_HUD_RADAR_EVIDENCE.md) — sourced NAV/AIM-9/AIM-120/gun/A-G mode boundaries.
+- [HUD_TARGET_INTERFACE.md](HUD_TARGET_INTERFACE.md) — validity flags and target/flight-source separation.
+- [NAV_HUD_COMPUTER.md](NAV_HUD_COMPUTER.md) / [AG_MARKPOINT.md](AG_MARKPOINT.md) — mission-route steering and terrain markpoint.
+- [RADAR_WEAPON_INTEGRATION.md](RADAR_WEAPON_INTEGRATION.md) / [WEAPON_BAY_ACTUATOR_REWRITE.md](WEAPON_BAY_ACTUATOR_REWRITE.md) — host limits and bay controls.
+- [AVIONICS_BRIGHTNESS_AND_WARNINGS.md](AVIONICS_BRIGHTNESS_AND_WARNINGS.md) — dimming/fault data separation.
 - The original user-provided screenshot is not replicated as a new third-party binary. The original 2002 figure is accessible via the listed publisher/JASDF sources.
 
 **No CFD** is authorized for this pass; the exact geometry and measured coefficient datasets are not verified. Do not represent generic HUD standards or FSX/P3D avionics as leaked/official F-22 operational software. No exact APG-77/ALR-94 implementation parameters, F119 engine deck, or classified data are claimed.

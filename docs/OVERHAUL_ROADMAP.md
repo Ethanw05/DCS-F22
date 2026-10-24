@@ -22,6 +22,12 @@ No audit framework or new audit tooling is part of this roadmap. Focused enginee
 
 Stage 1 is a prerequisite for committing to a feature-complete independent combat release. Stage 2 numerical repairs can proceed while integration work is being validated. Stage 4 must follow fuel/thrust bookkeeping corrections; otherwise performance tuning absorbs defects and must be redone. Stages describe dependency order, not a calendar or a claim that one person can complete the project in a few weeks.
 
+## Progress checkpoint — 24 October 2026
+
+This repository's `main` branch is the user's development branch. Initial targeted repairs and experimental NAV/A-A/A-G HUD rendering now exist. **This does not close stages 1–6**; end-to-end completion gates still need DCS runtime tests, especially the borrowed FC3 radar/weapon host interface. See [the actual implementation status matrix](../resources/research/IMPLEMENTATION_STATUS.md).
+
+Verified on GitHub Actions only: Windows EFM compile, modified Lua parsing, and independent Lua 5.1 geometry test. No complete mission flight has been executed on the modified code.
+
 ## First implementation backlog
 
 | Item | Work | Acceptance evidence |
