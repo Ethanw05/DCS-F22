@@ -165,3 +165,7 @@ for i=-6,6 do
 end
 line(-0.02,-0.61,0,-0.65,0.004)
 line(0,-0.65,0.02,-0.61,0.004)
+
+-- Isolated per-mode presentation and sensor-validity markers.
+local drawTacticalHud = dofile(LockOn_Options.script_path.."HUD/tactical_page.lua")
+drawTacticalHud({line=line, label=label, static=static, group=group})
