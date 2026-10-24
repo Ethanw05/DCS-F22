@@ -31,4 +31,5 @@ devices["WEAPON_SYSTEM"]		= counter()--04
 devices["MFD_SYSTEM"]			= counter()--05
 devices["PMFD_SYSTEM"]			= counter()--06
 devices["ICP_SYSTEM"]			= counter()--07
+devices["NAV_SYSTEM"]           = counter()--08: mission route / HUD steering
 --devices["FCS"]		  			= counter()--08

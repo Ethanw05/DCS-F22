@@ -14,6 +14,8 @@ SCRIPTS = [
     Path("Cockpit/Scripts/HUD/page.lua"),
     Path("Cockpit/Scripts/HUD/tactical_page.lua"),
     Path("Cockpit/Scripts/Systems/Weapon_System.lua"),
+    Path("Cockpit/Scripts/Systems/Navigation_System.lua"),
+    Path("Cockpit/Scripts/Systems/NavGeometry.lua"),
 ]
 
 def main() -> None:

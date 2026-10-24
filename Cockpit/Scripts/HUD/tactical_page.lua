@@ -62,7 +62,7 @@ return function(api)
     local wp = visible("WP","HUD_WP_VALID",1,nav)
     label(0.0,-0.78,"HUD_WP_RANGE_NM","%4.1f NM",0.038,wp)
     group("HUD_NAV_STEERING",0,0,
-        {"HUD_WP_AZ_RAD","HUD_WP_EL_RAD","HUD_POWER","HUD_WP_VALID","HUD_MODE"},
+        {"HUD_WP_AZ_RAD","HUD_WP_EL_RAD","HUD_POWER","HUD_WP_CUE_VALID","HUD_MODE"},
         {{"move_left_right_using_parameter",0,1.18},
          {"move_up_down_using_parameter",1,1.18},
          {"opacity_using_parameter",2},
