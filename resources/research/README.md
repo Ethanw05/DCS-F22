@@ -21,4 +21,4 @@ This directory is the **implementation-facing supplement** to [the existing 176-
 
 ## Integration gate
 
-Baseline `Cockpit/Scripts/device_init.lua` has no own HUD indicator and still relies on the legacy F-15C/FC3 avionics chain. A new stand-alone HUD must bind to a real cockpit EDM HUD connector, maintain conformality and correct eye position, and be checked **inside DCS** (including VR). HUD Lua alone cannot certify geometry or eliminate the legacy radar/weapon dependencies.
+The original baseline had no independent HUD indicator. `main` now contains an **experimental** HUD page, but the inherited F-15C/FC3 avionics chain remains in use. A new stand-alone HUD must bind to a real cockpit EDM HUD connector, maintain conformality and correct eye position, and be checked **inside DCS** (including VR). HUD Lua alone cannot certify geometry or eliminate the legacy radar/weapon dependencies.

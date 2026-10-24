@@ -1,6 +1,6 @@
 # Overhaul implementation change log — 24 October 2026
 
-Changes are on the experimental feature branch, not yet accepted into main.
+Changes are committed to **`main`**, the repository's active development branch. This is not an independent release or fully in-game-tested build.
 
 ## Implemented (build verified, DCS runtime unverified)
 
@@ -24,7 +24,7 @@ Changes are on the experimental feature branch, not yet accepted into main.
 
 ## Validation record
 
-GitHub Windows build passing at [Actions run 40086403504](https://github.com/Ethanw05/DCS-F22/actions/runs/40086403504) after first wave; later additions need their own CI validation. Build alone does not validate runtime behavior.
+GitHub Windows build, modified Lua parsing, and experimental DLL upload passed at [Actions run 40087211369](https://github.com/Ethanw05/DCS-F22/actions/runs/40087211369). In-game and VR verification are still outstanding. Build alone does not validate runtime behavior.
 
 ## First in-game tests
 
