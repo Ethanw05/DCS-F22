@@ -35,6 +35,7 @@ local parameters = {
     WoW			            = get_param_handle("WoW"),
     RADAR_MODE			    = get_param_handle("RADAR_MODE"),
     HUD_MODE                = get_param_handle("HUD_MODE"),
+    HUD_AG_MARK_SEQUENCE    = get_param_handle("HUD_AG_MARK_SEQUENCE"),
     RADAR_PWR   			= get_param_handle("RADAR_PWR"),
     ICP_OPACITY             = get_param_handle("ICP_OPACITY"),
     ICP_HUD_MENU            = get_param_handle("ICP_HUD_MENU"),
@@ -105,7 +106,7 @@ local PlaneShowKneeboard    = 1587
 local Kneeboard_Next        = 3001
 local Kneeboard_Prev        = 3002
 local Kneeboard_Mark        = 3003
-local AG_Designate         = 10074 -- custom cockpit command, observed only by AG_Mark_System
+-- MARK is a cockpit-local sequence parameter, not an unregistered DCS action.
 local Radio_Menu            = 179
 local Rearm_Menu            = 1560
 local F1                    = 7
@@ -203,7 +204,7 @@ function SetCommand(command,value)
 --ICP COMMANDS
     if command == MRK and value and value > 0 and parameters.MAIN_POWER:get() == 1 then
         if parameters.HUD_MODE:get() == 7 then
-            dispatch_action(nil,AG_Designate)
+            parameters.HUD_AG_MARK_SEQUENCE:set(parameters.HUD_AG_MARK_SEQUENCE:get() + 1)
         else
             dispatch_action(nil,Kneeboard_Mark)
         end

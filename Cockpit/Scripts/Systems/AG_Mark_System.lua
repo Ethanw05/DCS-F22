@@ -4,8 +4,8 @@
 local dev=GetSelf()
 local base=get_base_data()
 local geom=dofile(LockOn_Options.script_path.."Systems/NavGeometry.lua")
-local command=10074 -- dispatched by cockpit ICP MARK while in A/G master mode
-dev:listen_command(command)
+local markSequence=get_param_handle("HUD_AG_MARK_SEQUENCE")
+local previousMarkSequence=0
 local dt=0.05
 make_default_activity(dt)
 local power=get_param_handle("MAIN_POWER")
@@ -64,14 +64,19 @@ local function intersection(x,alt,y,heading,pitch)
 end
 function post_initialize()
     publishInvalid()
+    previousMarkSequence=markSequence:get()
     local ok,t=pcall(require,"terrain")
     if ok and type(t)=="table" then terrain=t end
 end
-function SetCommand(id,value)
-    if id~=command or (value~=nil and value<=0) then return end
+-- Shared parameter sequence is consumed exactly once by this device.
+-- Command dispatch is reserved for DCS native actions, not our internal IPC.
+local function handleMark()
     if power:get()<0.5 or mode:get()~=7 then return end
-    -- MARK key toggles the local designation.
-    if target then target=nil;publishInvalid();return end
+    if target then
+        target=nil
+        publishInvalid()
+        return
+    end
     local x,alt,y=pos()
     if not x then publishInvalid();return end
     local heading=(2*math.pi-base.getHeading())%(2*math.pi)
@@ -79,6 +84,11 @@ function SetCommand(id,value)
     if not target then publishInvalid() end
 end
 function update()
+    local sequence=markSequence:get()
+    if sequence~=previousMarkSequence then
+        previousMarkSequence=sequence
+        handleMark()
+    end
     if power:get()<0.5 or mode:get()~=7 or not target then
         publishInvalid()
         return
