@@ -21,6 +21,7 @@ dofile(LockOn_Options.script_path.."devices.lua")
 dofile(LockOn_Options.script_path.."command_defs.lua")
 
 local dev = GetSelf()
+local nav_commands=dofile(LockOn_Options.script_path.."Systems/Nav_Commands.lua")
 local sensor_data		= get_base_data()
 
 local update_time_step = 0.006 --0.006
@@ -103,8 +104,6 @@ local AutoAttHold 		    = 62
 local AutoAltHold 		    = 389
 local AutoCancel 		    = 408
 local PlaneShowKneeboard    = 1587
-local Kneeboard_Next        = 3001
-local Kneeboard_Prev        = 3002
 local Kneeboard_Mark        = 3003
 -- MARK is a cockpit-local sequence parameter, not an unregistered DCS action.
 local Radio_Menu            = 179
@@ -118,7 +117,6 @@ local F6                    = 149
 local F7                    = 10
 local F8                    = 151
 local F9                    = 13
-local F10                   = 15
 local HUDcolor = 156
 local HUDup = 746
 local HUDdn = 747
@@ -182,7 +180,6 @@ dev:listen_command(F9)
 
 local ap_timer     = 0
 local ap_menu      = 0
-local alt_state    = 0
 
 local hud_timer    = 0
 local hud_menu     = 0
@@ -211,10 +208,10 @@ function SetCommand(command,value)
     end
     if (command == NAV or command == ICP_NAV) and parameters.MAIN_POWER:get() == 1 then
         dispatch_action(nil,PlaneModeNAV)
-    elseif command == UP and parameters.MAIN_POWER:get() == 1 then
-        dispatch_action(nil,NextSteer)
-    elseif command == DWN and parameters.MAIN_POWER:get() == 1 then
-        dispatch_action(nil,PrevSteer)
+    elseif command == UP and parameters.MAIN_POWER:get() == 1 and value and value>0 then
+        dispatch_action(devices.NAV_SYSTEM,nav_commands.next,1)
+    elseif command == DWN and parameters.MAIN_POWER:get() == 1 and value and value>0 then
+        dispatch_action(devices.NAV_SYSTEM,nav_commands.previous,1)
     elseif command == WHEELUP and parameters.MAIN_POWER:get() == 1 then
         dispatch_action(nil,HUDup)
     elseif command == WHEELDWN and parameters.MAIN_POWER:get() == 1 then

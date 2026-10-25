@@ -1,5 +1,36 @@
 # Standalone avionics and flight-model design
 
+## Installed standalone implementation — 25 October 2026
+
+The current fork owns its cockpit, HUD, EFM, radar control/track files, weapons control, RWR, route navigation and countermeasure/ECM controls. `make_flyable` registers the local cockpit and `F22.dll`; no F-15C or Hornet cockpit is instantiated. **F-15C, Flaming Cliffs and Hornet aircraft modules are not prerequisites for the qualified configuration.** No preload change to another aircraft is required.
+
+This independence was tested on **DCS 2.9.30.28738, Windows x64** by temporarily moving both installed paid aircraft directories (`F-15C` and `FA-18C`) outside the simulator tree before cold process starts. Per-flight loaded-module manifests reject `F15.dll`, `F15CCWS.dll` and `FA18C.dll`. Common DCS libraries (`CockpitBase`, `Weapons`, `WeaponsBase`, `World`) remain expected simulator dependencies. Core AI aircraft libraries with similar names are not player avionics dependencies. All temporarily moved directories are restored after testing; none of these filesystem operations are installation requirements.
+
+### Native qualification
+
+| Flight test with paid aircraft absent | Observed result |
+| --- | --- |
+| BORE acquisition and computed gun solution | Native STT and gun solution valid; actual cannon ammunition480 →423 after a burst |
+| Countermeasures | Native chaff/flare quantities120/120 →119/119; repeated held private flare input plus release dispenses exactly one additional flare |
+| ECM | Native activation requested; native flag false at the first0.3s observation, true at the next observation5s later; OFF command clears the actual flag. This verifies control/state, not jammer effectiveness or a real F-22 activation time. |
+| Two-target TWS missile engagement | Two actual AMRAAM releases assigned to distinct native targets; both assigned targets receive native HIT events; native TOF service valid |
+| Passive RWR | Eight surrounding native emitters received |
+| Mission-route navigation and lifecycle | Actual route import, AUTO capture, waypoint/MFD/ICP controls and same-process restart reset |
+
+The first isolated test exposed inherited countermeasure commands doing nothing and an ECM switch that only changed a cockpit variable. `EW_System.lua` now owns manual dispensing and native ECM requests/readback through `avSimpleWeaponSystem`. Master arm does not inhibit countermeasures. Physical bindings have explicit press/release edges; legacy global command pulses remain supported. Countermeasure indications use native quantities and empty state; ECM indication follows the actual native flag rather than the request. Power loss clears the request and commands native OFF. Native quantities are reread, including after service/rearm; a complete native ground-service rearm sequence is not qualified here.
+
+Unused inherited HSI/ILS draw-argument readers were removed from the MFD owner. The route navigation producer is independent. Aircraft sensor names such as `AN/APG-63` in the shared AI database are retained where they identify an existing common model; renaming a database reference would not create AESA physics.
+
+All **41 Python/Lua/asset checks and seven C++ CTests** pass locally. CI now loads real Git LFS assets and runs every self-contained Python test, rather than a stale short list. One old HUD/ADI test was updated to execute the actual shared-page wrapper after the MFD refactor; the instrument's rendering behavior was unchanged.
+
+### Compatibility and remaining scope
+
+The version-checked common native adapters were compiled and flown as DLL SHA256 `AD5648ACA8D85A3611577628A9C5E09C6C3E71B0EBD494C20F48E12A118CB218`. Source checkouts build their own DLL; proprietary DCS binaries and IDA databases are not bundled. A DCS update requires checking adapter readiness and repeating native qualification. This is a development build with a tested standalone core, not a claim that every subsystem is complete.
+
+Remaining work includes multiplayer/server acceptance, full native ground-service rearm/respawn coverage, TACAN/ILS and approaches, independent cockpit radio tuning, advanced datalink, additional A/G store qualification, VR alignment/readability and RF jammer-effectiveness tests. Native look-down Doppler-notch/confirmation limits remain. The original model assets, source attribution and licences are retained.
+
+## Historical architecture proposal — 24 October 2026
+
 Proposed design, 24 October 2026. This is an implementation architecture and feasibility plan, not a claim that these replacement systems already run. See the [baseline assessment](OVERHAUL_ASSESSMENT.md) for source findings and the [roadmap](OVERHAUL_ROADMAP.md) for completion gates.
 
 ## Feasibility by subsystem

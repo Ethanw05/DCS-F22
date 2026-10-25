@@ -26,6 +26,16 @@ dofile(LockOn_Options.script_path.."UFD_LEFT/definitions.lua")
 dofile(LockOn_Options.script_path.."fonts.lua")
 dofile(LockOn_Options.script_path.."materials.lua")
 
+local original_add=Add
+local status_root=CreateElement 'ceSimple'
+status_root.name='F22_UFD_STATUS_ROOT'
+status_root.element_params={'F22_UFD_STATUS_PAGE'}
+status_root.controllers={{'parameter_in_range',0,.9,1.1}}
+original_add(status_root)
+local function Add(e)
+    e.parent_element='F22_UFD_STATUS_ROOT'
+    original_add(e)
+end
 local function vertices(object, height, half_or_double)
     local width = height
     

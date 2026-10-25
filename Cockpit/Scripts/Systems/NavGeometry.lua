@@ -8,8 +8,10 @@ local pi=math.pi
 function M.wrap(angle)
     return (angle + 2*pi) % (2*pi)
 end
-function M.project(dx,dy,dz,heading,pitch,roll)
-    if dx ~= dx or dy ~= dy or dz ~= dz then return nil, nil, nil end
+function M.body(dx,dy,dz,heading,pitch,roll)
+    for _,v in ipairs({dx,dy,dz,heading,pitch,roll}) do
+        if type(v)~='number' or v~=v or math.abs(v)==math.huge then return end
+    end
     local sh,ch=math.sin(heading),math.cos(heading)
     local forward0=dx*ch+dy*sh
     local right0=-dx*sh+dy*ch
@@ -19,6 +21,11 @@ function M.project(dx,dy,dz,heading,pitch,roll)
     local sr,cr=math.sin(roll),math.cos(roll)
     local right=right0*cr-up0*sr
     local up=right0*sr+up0*cr
+    return forward,right,up
+end
+function M.project(dx,dy,dz,heading,pitch,roll)
+    local forward,right,up=M.body(dx,dy,dz,heading,pitch,roll)
+    if not forward then return nil,nil,nil end
     local distance=math.sqrt(dx*dx+dy*dy+dz*dz)
     if distance < 0.001 or forward <= 0 then return nil, nil, distance end
     return math.atan(right/forward),math.atan(up/forward),distance

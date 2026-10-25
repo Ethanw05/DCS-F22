@@ -1,0 +1,50 @@
+{
+  "MFD_LEFT/hsi_page.lua": {
+    "elements": 624,
+    "sha256": "85e34a594cc7649c5e2149e41c7f91eb35b29a62bc49140c19f1c7d154bee8b4"
+  },
+  "MFD_LEFT/fuel_page.lua": {
+    "elements": 29,
+    "sha256": "85e34a594cc7649c5e2149e41c7f91eb35b29a62bc49140c19f1c7d154bee8b4"
+  },
+  "MFD_LEFT/adi_page.lua": {
+    "elements": 26,
+    "sha256": "85e34a594cc7649c5e2149e41c7f91eb35b29a62bc49140c19f1c7d154bee8b4"
+  },
+  "MFD_LEFT/checklist_page.lua": {
+    "elements": 9,
+    "sha256": "85e34a594cc7649c5e2149e41c7f91eb35b29a62bc49140c19f1c7d154bee8b4"
+  },
+  "MFD_RIGHT/hsi_page.lua": {
+    "elements": 624,
+    "sha256": "85e34a594cc7649c5e2149e41c7f91eb35b29a62bc49140c19f1c7d154bee8b4"
+  },
+  "MFD_RIGHT/fuel_page.lua": {
+    "elements": 29,
+    "sha256": "85e34a594cc7649c5e2149e41c7f91eb35b29a62bc49140c19f1c7d154bee8b4"
+  },
+  "MFD_RIGHT/adi_page.lua": {
+    "elements": 26,
+    "sha256": "85e34a594cc7649c5e2149e41c7f91eb35b29a62bc49140c19f1c7d154bee8b4"
+  },
+  "MFD_RIGHT/checklist_page.lua": {
+    "elements": 9,
+    "sha256": "85e34a594cc7649c5e2149e41c7f91eb35b29a62bc49140c19f1c7d154bee8b4"
+  },
+  "MFD_CENTER/hsi_page.lua": {
+    "elements": 624,
+    "sha256": "85e34a594cc7649c5e2149e41c7f91eb35b29a62bc49140c19f1c7d154bee8b4"
+  },
+  "MFD_CENTER/fuel_page.lua": {
+    "elements": 29,
+    "sha256": "85e34a594cc7649c5e2149e41c7f91eb35b29a62bc49140c19f1c7d154bee8b4"
+  },
+  "MFD_CENTER/adi_page.lua": {
+    "elements": 26,
+    "sha256": "85e34a594cc7649c5e2149e41c7f91eb35b29a62bc49140c19f1c7d154bee8b4"
+  },
+  "MFD_CENTER/checklist_page.lua": {
+    "elements": 9,
+    "sha256": "85e34a594cc7649c5e2149e41c7f91eb35b29a62bc49140c19f1c7d154bee8b4"
+  }
+}

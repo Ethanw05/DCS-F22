@@ -18,7 +18,7 @@
 
 
 local dev = GetSelf()
-local sensor_data = get_base_data()
+local sensor_data = dofile(LockOn_Options.script_path.."Systems/Engine_Data.lua")(get_base_data())
 
 dofile(LockOn_Options.script_path.."devices.lua")
 dofile(LockOn_Options.script_path.."command_defs.lua")
@@ -68,8 +68,6 @@ local parameters =
 	FLOOD_LIGHT 		 = get_param_handle("FLOOD_LIGHT"),
 	PANEL_LIGHT 		 = get_param_handle("PANEL_LIGHT"),	
 	CANOPY_LIGHT 		 = get_param_handle("CANOPY_LIGHT"),	
-	CHAFF_LIGHT   	     = get_param_handle("CHAFF_LIGHT"),	
-	FLARE_LIGHT   	     = get_param_handle("FLARE_LIGHT"),	
 	SPD_BRK_LIGHT 	     = get_param_handle("SPD_BRK_LIGHT"),	
 	BINGO_LIGHT   	     = get_param_handle("BINGO_LIGHT"),	
 	FLAPS_MOVE 		     = get_param_handle("FLAPS_MOVE"),	
@@ -126,6 +124,9 @@ local parameters =
 }
 
 local day_night = 0
+local mfd_brightness_knob = 1
+local ufd_brightness_knob = 1
+local startup_diagnostic_ticks = 0
 
 -- Clickable data
 local MFD_KNOB_mouse   = device_commands.Button_3 -- Track mouse scroll
@@ -136,9 +137,11 @@ local left_UFD_swap    = device_commands.Button_10 -- Track mouse clicks
 local eject_handle     = device_commands.Button_11 -- Track mouse clicks
 
 dev:listen_command(UFD_KNOB_mouse)
+dev:listen_command(MFD_KNOB_mouse)
 dev:listen_command(day_night_switch)
 dev:listen_command(right_UFD_swap)
 dev:listen_command(left_UFD_swap)
+dev:listen_command(10910)
 dev:listen_command(83)
 
 dev:listen_command(10017)--DAY NIGHT
@@ -147,6 +150,8 @@ dev:listen_command(10018)--DAY NIGHT T
 dev:listen_command(10027)--swap bind ufd
 
 function post_initialize()
+	mfd_brightness_knob = 1
+	ufd_brightness_knob = 1
 	--print_message_to_user("AVIONICS SYSTEM POST INIT")
 	
 	local birth_place = LockOn_Options.init_conditions.birth_place
@@ -166,11 +171,15 @@ function post_initialize()
 		--print_message_to_user("HOT START")
 	end
 end
-local L_UFD_WAR = 1
+local left_ew_page=true
 local R_UFD_ADI = 1 
 local R_UFD_WAR = 0
-local L_UFD_ADI = 0
 function SetCommand(command,value)
+	if command == MFD_KNOB_mouse then
+		mfd_brightness_knob = math.max(0, math.min(1, value))
+	elseif command == UFD_KNOB_mouse then
+		ufd_brightness_knob = math.max(0, math.min(1, value))
+	end
 	--Eject handle
 	if command == eject_handle then
 		dispatch_action(nil,83)
@@ -184,12 +193,18 @@ function SetCommand(command,value)
 		day_night = 0
 		--print_message_to_user("DAY MODE")
 	end
+    if command==left_UFD_swap or command==10910 then
+        left_ew_page=not left_ew_page
+        if left_ew_page then R_UFD_ADI=1;R_UFD_WAR=0 end
+        return
+    end
 	--RIGHT UFD SWAP
-	if (command  == right_UFD_swap or command == left_UFD_swap or command == 10027) and R_UFD_ADI == 1 then
+	if (command  == right_UFD_swap or command == 10027) and R_UFD_ADI == 1 then
 		R_UFD_ADI = 0
 		R_UFD_WAR = 1
+        left_ew_page=false
 		--print_message_to_user("UFD SCREEN SWAP - RIGHT")
-	elseif (command  == right_UFD_swap or command == left_UFD_swap or command == 10027) and R_UFD_ADI == 0 then
+	elseif (command  == right_UFD_swap or command == 10027) and R_UFD_ADI == 0 then
 		R_UFD_ADI = 1
 		R_UFD_WAR = 0
 		--print_message_to_user("UFD SWAP")
@@ -197,6 +212,7 @@ function SetCommand(command,value)
 end
 
 function update()
+	startup_diagnostic_ticks = startup_diagnostic_ticks + 1
 	--print_message_to_user(parameters.FLAPS_DOWN:get())
 
 	--Fix for flaps down light
@@ -213,13 +229,11 @@ function update()
     local fuel_external_kg = math.max(0.0, parameters.EFM_EXTERNAL_FUEL_KG:get())
     parameters.FUELTANK:set(fuel_external_kg * 2.20462262)
 
-	local MFD_KNOB          = get_cockpit_draw_argument_value(704)
-	local UFD_KNOB          = get_cockpit_draw_argument_value(705)
+	local MFD_KNOB          = mfd_brightness_knob
+	local UFD_KNOB          = ufd_brightness_knob
 	local CONSOLE_KNOB      = get_cockpit_draw_argument_value(706)
 	local FLOOD_KNOB        = get_cockpit_draw_argument_value(707)
 	local CANOPY_ARG        = get_cockpit_draw_argument_value(251)
-	local CHAFF_ARG         = get_cockpit_draw_argument_value(254)
-	local FLARE_ARG         = get_cockpit_draw_argument_value(255)
 	local SPD_BRK_ARG       = get_cockpit_draw_argument_value(200)
 	local BINGO_ARG         = get_cockpit_draw_argument_value(225)
 	local FLAPS_MOVE_ARG    = get_cockpit_draw_argument_value(42)
@@ -259,12 +273,8 @@ function update()
     local flight_path = math.atan(climb / tas)
 
     parameters.HUD_POWER:set((parameters.MAIN_POWER:get() == 1 and parameters.BATTERY_POWER:get() == 1) and 1 or 0)
-    parameters.HUD_PITCH:set(pitch)
-    parameters.HUD_ROLL:set(-roll)
-    parameters.HUD_FPA:set(flight_path)
-    parameters.HUD_SLIP:set(sensor_data.getAngleOfSlide())
-    parameters.HUD_IAS_POINTER:set((ias % 100.0) * (2.0 * math.pi / 100.0))
-    parameters.HUD_ALT_POINTER:set((alt_ft % 1000.0) * (2.0 * math.pi / 1000.0))
+    -- Attitude, projected velocity and counter needles are owned exclusively
+    -- by HUD_Flight_Data; do not overwrite them with the old approximations.
     local heading_base = math.floor(heading / 10.0) * 10
     parameters.HUD_HEADING_OFFSET:set(heading - heading_base)
     parameters.HUD_TICK_M20:set((heading_base - 20) % 360)
@@ -292,8 +302,6 @@ function update()
 	parameters.EGT_R        :set(sensor_data.getEngineRightTemperatureBeforeTurbine())
 
 	parameters.CANOPY_LIGHT :set(CANOPY_ARG)
-	parameters.CHAFF_LIGHT  :set(CHAFF_ARG)
-	parameters.FLARE_LIGHT  :set(FLARE_ARG)
 	parameters.SPD_BRK_LIGHT:set(SPD_BRK_ARG)	
 	parameters.BINGO_LIGHT  :set(BINGO_ARG)	
 	-- parameters.FLAPS_DOWN   :set(FLAPS_DOWN_ARG)	
@@ -332,6 +340,8 @@ function update()
     local ufd_brightness = electrical_available and clamp01(UFD_KNOB) * night_factor or 0
     local mfd_brightness = electrical_available and clamp01(MFD_KNOB) * night_factor or 0
     parameters.UFD_OPACITY:set(ufd_brightness)
+    get_param_handle('F22_UFD_EW_PAGE'):set(left_ew_page and 1 or 0)
+    get_param_handle('F22_UFD_STATUS_PAGE'):set(left_ew_page and 0 or 1)
     parameters.MFD_OPACITY:set(mfd_brightness)
     parameters.L_WAR_OPACITY:set(ufd_brightness * (R_UFD_ADI == 1 and 1 or 0))
     parameters.R_WAR_OPACITY:set(ufd_brightness * (R_UFD_ADI == 0 and 1 or 0))
@@ -435,6 +445,15 @@ function update()
 		parameters.FLOOD_LIGHT:set(0)
 		parameters.PANEL_LIGHT:set(0)
 		parameters.ICP_OPACITY:set(0)
+	end
+	if startup_diagnostic_ticks == 100 and log and log.write then
+		log.write("F22_DISPLAYS", log.INFO, string.format(
+			"startup battery=%.0f main=%.0f efm_valid=%.0f rpm_l=%.1f rpm_r=%.1f hud=%.0f mfd=%.2f ufd=%.2f",
+			parameters.BATTERY_POWER:get(), parameters.MAIN_POWER:get(),
+			get_param_handle("EFM_ENGINE_VALID"):get(),
+			get_param_handle("EFM_ENGINE_LEFT_RPM_PCT"):get(),
+			get_param_handle("EFM_ENGINE_RIGHT_RPM_PCT"):get(),
+			parameters.HUD_POWER:get(), parameters.MFD_OPACITY:get(), parameters.UFD_OPACITY:get()))
 	end
 end
 

@@ -384,10 +384,10 @@ elements = {}
 	elements["FORMLIGHT_PNT"] 	= default_axis_limited(_("Formation Lights"), 			devices.AVIONICS, device_commands.Button_7, 714, 0.0, 0.3, false, false, {0,1})
 	elements["DAY_NIGHT_PNT"]   = default_2_position_tumb(_("Day/Night Mode"),			devices.AVIONICS, device_commands.Button_8,  	    718, 1, {0,1},   TOGGLECLICK)
 --Left UFD
-	elements["L_SMFD_1_PNT"] 	= default_button(_("SMFD OSB 1"),	  devices.AVIONICS, device_commands.Button_10, 	881, 1, {0,1},   TOGGLECLICK)
-	--elements["L_SMFD_2_PNT"] 	= default_2_position_tumb(_("SMFD OSB 2"),	  devices.AVIONICS, device_commands.Button_10, 	882, 1, {0,1},   TOGGLECLICK)
-	--elements["L_SMFD_3_PNT"] 	= default_2_position_tumb(_("SMFD OSB 3"),	  devices.AVIONICS, device_commands.Button_10, 	883, 1, {0,1},   TOGGLECLICK)
-	--elements["L_SMFD_4_PNT"] 	= default_2_position_tumb(_("SMFD OSB 4"),	  devices.AVIONICS, device_commands.Button_10, 	884, 1, {0,1},   TOGGLECLICK)
+	elements["L_SMFD_1_PNT"] 	= default_button(_("EW / aircraft status"),	  devices.AVIONICS, device_commands.Button_10, 	881, 1, {0,1},   TOGGLECLICK)
+    elements["L_SMFD_2_PNT"] = default_button(_("RWR power"),devices.RWR_SYSTEM,10900,882,1,{0,1})
+    elements["L_SMFD_3_PNT"] = default_button(_("HUD EW repeater"),devices.RWR_SYSTEM,10903,883,1,{0,1})
+    elements["L_SMFD_4_PNT"] = default_button(_("RWR ALL / threats"),devices.RWR_SYSTEM,10902,884,1,{0,1})
 	--Right UFD
 	elements["R_SMFD_1_PNT"] 	= default_button(_("SMFD OSB 1"),	  devices.AVIONICS, device_commands.Button_9, 	885, 1, {0,1},   TOGGLECLICK)
 	--elements["R_SMFD_2_PNT"] 	= default_2_position_tumb(_("SMFD OSB 2"),	  devices.AVIONICS, device_commands.Button_9, 	886, 1, {0,1},   TOGGLECLICK)

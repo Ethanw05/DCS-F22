@@ -1,166 +1,90 @@
---[[
-    Grinnelli Designs F-22A Raptor
-    Copyright (C) 2024, Joseph Grinnelli
-    
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-    
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-    
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see https://www.gnu.org/licenses.
---]]
-
-
-dofile(LockOn_Options.script_path.."MFD_RIGHT/definitions.lua")
-dofile(LockOn_Options.script_path.."fonts.lua")
-dofile(LockOn_Options.script_path.."materials.lua")
+-- GPL-3.0-or-later. Top Mach manual p24 PMFD visual conventions, original code.
+-- Heading-up polar display; actual radar and navigation data only at runtime.
+dofile(LockOn_Options.script_path..'MFD_RIGHT/definitions.lua')
+dofile(LockOn_Options.script_path..'fonts.lua')
+local layout=dofile(LockOn_Options.script_path..'Systems/Radar_Display.lua')
 SetScale(FOV)
-
-local function vertices(object, height, half_or_double)
-    local width = height
-    
-    if half_or_double == true then --
-        width = height / 2
-    end
-
-    if half_or_double == false then
-        width = height * 2
-    end
-
-    local half_width = width / 2
-    local half_height = height / 2
-    local x_positive = half_width
-    local x_negative = half_width * -1.0
-    local y_positive = half_height
-    local y_negative = half_height * -1.0
-
-    object.vertices =
-    {
-        {x_negative, y_positive},
-        {x_positive, y_positive},
-        {x_positive, y_negative},
-        {x_negative, y_negative}
-    }
-
-    object.indices = {0, 1, 2, 2, 3, 0}
-
-    object.tex_coords =
-    {
-        {0, 0},
-        {1, 0},
-        {1, 1},
-        {0, 1}
-    }
+local native_page_scale=GetScale()
+local aspect=GetAspect and GetAspect() or 1
+local content_scale=.95*math.min(1,aspect)
+local draw_level=20
+if get_param_handle then get_param_handle('F22_RWR_PAGE_SCALE'):set(native_page_scale) end
+local colors={blue={113,188,240,255},white={240,247,246,255},
+    green={0,255,0,255},yellow={255,220,0,255},red={255,35,20,255},magenta={235,80,211,255},background={3,3,12,255}}
+local materials={};for n,c in pairs(colors) do materials[n]=MakeMaterial(nil,c) end
+-- Original F-22 LCD bitmap atlas. HUD resources are independent.
+local fonts={white=UFD_FONT,blue=UFD_RADAR_BLUE,green=UFD_GRN,yellow=UFD_YEL,red=UFD_RED,magenta=UFD_RADAR_MAGENTA}
+-- This page owns its LCD aperture. It does not borrow clipping masks from
+-- unrelated MENU/SYS subsets. FOV coordinates use the real connector aspect.
+local function mask(name,relation)
+    local e=CreateElement 'ceMeshPoly';e.name=name;e.material=materials.background
+    e.primitivetype='triangles';e.vertices={{-1,-aspect},{1,-aspect},{1,aspect},{-1,aspect}}
+    e.indices={0,1,2,2,3,0};e.h_clip_relation=relation;e.level=draw_level-1
+    e.collimated=false;e.isvisible=false;e.change_opacity=false;Add(e)
 end
-local IndicationTexturesPath = LockOn_Options.script_path.."../IndicationTextures/"--I dont think this is correct might have to add scripts.
-local BlackColor  			= {0, 0, 0, 255}--RGBA
-local WhiteColor 			= {255, 255, 255, 255}--RGBA
-local MainColor 			= {255, 255, 255, 255}--RGBA
-local GreenColor 		    = {0, 255, 0, 255}--RGBA
-local YellowColor 			= {255, 255, 0, 255}--RGBA
-local OrangeColor           = {255, 102, 0, 255}--RGBA
-local RedColor 				= {255, 0, 0, 255}--RGBA
-local ScreenColor			= {3, 3, 12, 255}--RGBA DO NOT TOUCH 3-3-12-255 is good for on screen
---------------------------------------------------------------------------------------------------------------------------------------------
-local MASK_BOX	    = MakeMaterial(LockOn_Options.script_path.."../Scripts/IndicationTextures/mask_box.dds", ScreenColor)--SYSTEM TEST
---------------------------------------------------------------------------------------------------------------------------------------------
-local ClippingPlaneSize = 1.1 --Clipping Masks
-local ClippingWidth 	= 1.1--Clipping Masks
-local PFD_MASK_BASE1 	= MakeMaterial(nil,{255,0,0,255})--Clipping Masks
-local PFD_MASK_BASE2 	= MakeMaterial(nil,{0,255,0,255})--Clipping Masks
---Clipping Masks
-local total_field_of_view           = CreateElement "ceMeshPoly"
-total_field_of_view.name            = "total_field_of_view"
-total_field_of_view.primitivetype   = "triangles"
-total_field_of_view.vertices        = {
-										{-1 * ClippingWidth,-1 * ClippingPlaneSize},
-										{1 * ClippingWidth,-1 * ClippingPlaneSize},
-										{1 * ClippingWidth,1 * ClippingPlaneSize},
-										{-1 * ClippingWidth,1 * ClippingPlaneSize},										
-									}
-total_field_of_view.material        = PFD_MASK_BASE1
-total_field_of_view.indices         = {0,1,2,2,3,0}
-total_field_of_view.init_pos        = {0, 0, 0}
-total_field_of_view.init_rot        = { 0, 0, 0} -- degree NOT rad
-total_field_of_view.h_clip_relation = h_clip_relations.REWRITE_LEVEL
-total_field_of_view.level           = 1
-total_field_of_view.collimated      = false
-total_field_of_view.isvisible       = false
-Add(total_field_of_view)
---Clipping Masks
-local clipPoly               = CreateElement "ceMeshPoly"
-clipPoly.name                = "clipPoly-1"
-clipPoly.primitivetype       = "triangles"
-clipPoly.init_pos            = {0, 0, 0}
-clipPoly.init_rot            = { 0, 0 , 0} -- degree NOT rad
-clipPoly.vertices            = {
-								{-1 * ClippingWidth,-1 * ClippingPlaneSize},
-								{1 * ClippingWidth,-1 * ClippingPlaneSize},
-								{1 * ClippingWidth,1 * ClippingPlaneSize},
-								{-1 * ClippingWidth,1 * ClippingPlaneSize},										
-									}
-clipPoly.indices             = {0,1,2,2,3,0}
-clipPoly.material            = PFD_MASK_BASE2
-clipPoly.h_clip_relation     = h_clip_relations.INCREASE_IF_LEVEL
-clipPoly.level               = 1
-clipPoly.collimated          = false
-clipPoly.isvisible           = false
-Add(clipPoly)
-------------------------------------------------------------------------------------------------CLIPPING-END----------------------------------------------------------------------------------------------
-BGROUND                    = CreateElement "ceTexPoly"
-BGROUND.name    			= "BG"
-BGROUND.material			= MASK_BOX
-BGROUND.change_opacity 		= false
-BGROUND.collimated 			= false
-BGROUND.isvisible 			= true
-BGROUND.init_pos 			= {0, 0, 0} --L-R,U-D,F-B
-BGROUND.init_rot 			= {0, 0, 0}
-BGROUND.element_params 		= {"MFD_OPACITY","RMFD_RWR_PAGE"}--this may not be bneeded check when more pages done for backlight on page 7 SMS fc3 bs
-BGROUND.controllers			= {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1}}--MENU PAGE = 1
-BGROUND.level 				= 2
-BGROUND.h_clip_relation     = h_clip_relations.COMPARE
-vertices(BGROUND,3)
-Add(BGROUND)
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---MENU TEXT
-MENU_CHK_TEXT 					    = CreateElement "ceStringPoly"
-MENU_CHK_TEXT.name 				    = "menu"
-MENU_CHK_TEXT.material 			    = UFD_FONT
-MENU_CHK_TEXT.value 				= "MENU"
-MENU_CHK_TEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
-MENU_CHK_TEXT.alignment 			= "CenterCenter"
-MENU_CHK_TEXT.formats 			    = {"%s"}
-MENU_CHK_TEXT.h_clip_relation       = h_clip_relations.COMPARE
-MENU_CHK_TEXT.level 				= 2
-MENU_CHK_TEXT.init_pos 			    = {-0.565, 0.92, 0}
-MENU_CHK_TEXT.init_rot 			    = {0, 0, 0}
-MENU_CHK_TEXT.element_params 	    = {"MFD_OPACITY","RMFD_RWR_PAGE"}
-MENU_CHK_TEXT.controllers		    =   {
-                                        {"opacity_using_parameter",0},
-                                        {"parameter_in_range",1,0.9,1.1},--ENGINE PAGE = 0
-						            }
-Add(MENU_CHK_TEXT)
---MENU TEXT
-MODE_TEXT 					    = CreateElement "ceStringPoly"
-MODE_TEXT.name 				    = "menu"
-MODE_TEXT.material 			    = UFD_GRN
-MODE_TEXT.value 				= "MODE"
-MODE_TEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
-MODE_TEXT.alignment 			= "CenterCenter"
-MODE_TEXT.formats 			    = {"%s"}
-MODE_TEXT.h_clip_relation       = h_clip_relations.COMPARE
-MODE_TEXT.level 				= 2
-MODE_TEXT.init_pos 			    = {-0.565,-0.92, 0}
-MODE_TEXT.init_rot 			    = {0, 0, 0}
-MODE_TEXT.element_params 	    = {"MFD_OPACITY","RMFD_RWR_PAGE"}
-MODE_TEXT.controllers		    =   {
-                                        {"opacity_using_parameter",0},
-                                        {"parameter_in_range",1,0.9,1.1},--ENGINE PAGE = 0
-						            }
-Add(MODE_TEXT)
+mask('F22_RDR_LCD_APERTURE',h_clip_relations.REWRITE_LEVEL)
+mask('F22_RDR_LCD_CONTENT',h_clip_relations.INCREASE_IF_LEVEL)
+local root='F22_RWR_FORMAT';local seq=0
+local function add(e,name,parent)
+    e.name=name;if parent then e.parent_element=parent end;e.collimated=false
+    e.h_clip_relation=h_clip_relations.COMPARE;e.level=draw_level;e.additive_alpha=false;e.use_mipfilter=true;Add(e)
+end
+local main=CreateElement 'ceSimple'
+main.element_params={'MFD_OPACITY','RMFD_RWR_PAGE'}
+main.controllers={{'opacity_using_parameter',0},{'parameter_in_range',1,.9,1.1}}
+add(main,root)
+local function group(name,params,controllers,parent,x,y)
+    local e=CreateElement 'ceSimple';e.init_pos={(x or 0)*content_scale,(y or 0)*content_scale,0}
+    -- DCS matrix controllers bypass SetScale; convert normalized page units
+    -- to the same physical units as init_pos and vertices.
+    local scaled={}
+    for i,c in ipairs(controllers or {}) do
+        local row={};for k,v in ipairs(c) do row[k]=v end
+        if row[1]=='move_left_right_using_parameter' or row[1]=='move_up_down_using_parameter' then
+            row[3]=row[3]*native_page_scale*content_scale
+        end
+        scaled[i]=row
+    end
+    e.element_params=params;e.controllers=scaled;add(e,name,parent or root)
+end
+local function line(x1,y1,x2,y2,color,parent,width)
+    seq=seq+1
+    local e=CreateElement 'ceSMultiLine';e.material=materials[color or 'white']
+    e.vertices={{x1*content_scale,y1*content_scale},{x2*content_scale,y2*content_scale}}
+    e.indices={0,1};e.thickness=1.8;e.fuzziness=.25;e.draw_as_wire=false
+    add(e,'F22_RDR_LINE_'..seq,parent or root)
+end
+local function text(value,x,y,param,color,parent,size)
+    seq=seq+1;local e=CreateElement 'ceStringPoly';e.material=fonts[color or 'white']
+    e.init_pos={x*content_scale,y*content_scale,0};e.alignment='CenterCenter';local h=(size or .0052)*content_scale
+    e.stringdefs={h,h,h*.08,0}
+    if param then e.formats={value};e.element_params={param};e.controllers={{'text_using_parameter',0,0}}
+    else e.value=value end
+    add(e,'F22_RDR_TEXT_'..seq,parent or root)
+end
+-- Segment clipping keeps the partial circles/rays inside the flat LCD window.
+local bg=CreateElement 'ceMeshPoly';bg.material=materials.background
+bg.primitivetype='triangles';bg.vertices={{-1,-aspect},{1,-aspect},{1,aspect},{-1,aspect}}
+bg.indices={0,1,2,2,3,0};add(bg,'F22_RDR_BACKGROUND',root)
+text('MENU',-.565,.96,nil,'white',nil,.005)
+text('PASSIVE EW',0,.86,nil,'white',nil,.006)
+text('BEARING / PRIORITY',0,-.83,nil,'blue',nil,.0045)
+text('NO RANGE',0,-.89,nil,'blue',nil,.004)
+text('ALL/THRT',-.565,-.96,nil,'white',nil,.0048)
+for _,v in ipairs({{0,'OPR'},{1,'OPR'},{2,'TRACK'},{3,'MISSILE'}}) do
+    local n='F22_EW_WARNING_'..v[1]
+    group(n,{'F22_RWR_ALERT','F22_RWR_POWER','F22_RWR_READY'},{{'parameter_in_range',0,v[1]-.1,v[1]+.1},{'parameter_in_range',1,.9,1.1},{'parameter_in_range',2,.9,1.1}})
+    text(v[2],0,.76,nil,v[1]>1 and 'red' or 'white',n,.005)
+end
+group('F22_EW_OFF',{'F22_RWR_POWER'},{{'parameter_in_range',0,-.1,.1}})
+text('RWR OFF',0,.76,nil,'white','F22_EW_OFF',.005)
+group('F22_EW_UNAVAILABLE',{'F22_RWR_READY'},{{'parameter_in_range',0,-.1,.1}})
+text('RECEIVER N/A',0,.69,nil,'yellow','F22_EW_UNAVAILABLE',.005)
+group('F22_EW_MUTED',{'F22_RWR_MUTE'},{{'parameter_in_range',0,.9,1.1}})
+text('MUTED',.65,-.87,nil,'yellow','F22_EW_MUTED',.0045)
+group('F22_EW_CRIT',{'F22_RWR_FILTER'},{{'parameter_in_range',0,.9,1.1}})
+text('THRT',.65,.96,nil,'yellow','F22_EW_CRIT',.0045)
+dofile(LockOn_Options.script_path..'Systems/EW_Indicator.lua')({line=line,text=text,group=group},0,-.03,.78,root,false)
+
+text('PWR',0,-.96,nil,'white',nil,.0048)
+text('MUTE',.565,-.96,nil,'white',nil,.0048)

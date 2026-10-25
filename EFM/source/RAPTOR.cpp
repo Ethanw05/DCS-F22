@@ -1,4 +1,5 @@
-﻿/*    Grinnelli Designs F-22A Raptor
+﻿#include "NativeGunSight.h"
+/*    Grinnelli Designs F-22A Raptor
     Copyright (C) 2025, Branden Hooper
 
     This program is free software: you can redistribute it and/or modify
@@ -32,6 +33,7 @@
 
 #include "Utility.h"
 #include "HighAlpha.h"
+#include "NativeSidewinder.h"
 #include "Inputs.h"
 #include "RAPTOR.h"
 
@@ -999,6 +1001,7 @@ void ed_fm_simulate(double dt) {
 
 void ed_fm_set_atmosphere(double h, double t, double a, double ro, double p, double wind_vx, double wind_vy, double wind_vz) {
     RAPTOR::wind = Vec3(wind_vx, wind_vy, wind_vz);
+    RAPTOR::hud_static_pressure_pa = p;
     RAPTOR::atmosphere_density = ro;
     RAPTOR::speed_of_sound = a;
     RAPTOR::altitude_ASL = h;
@@ -1048,6 +1051,13 @@ void ed_fm_set_current_state_body_axis(double ax, double ay, double az, double v
 }
 
 void ed_fm_set_command(int command, float value) {
+    // Cockpit-scheduled work continues during active pause, independently of
+    // physics integration. The Lua device supplies its fixed activity period.
+    if (command == 10851) { cockpit_manager.updateGun(); return; }
+    if (command == 10850) {
+        cockpit_manager.updateCombat(static_cast<double>(value));
+        return;
+    }
     double ias_ms = RAPTOR::V_scalar * sqrt(RAPTOR::atmosphere_density / 1.225);
     double ias_knots_local = ias_ms * 1.94384;
     switch (command) {
@@ -1580,7 +1590,7 @@ double ed_fm_get_param(unsigned index) {
         double core_thrust = RAPTOR::left_thrust_force * (RAPTOR::left_throttle_output > 1.025 ? 0.6 : 0.7);
         return max_dry_core_thrust > 0 ? limit(core_thrust / max_dry_core_thrust, 0.0, 2.0) : 0.0;
     }
-    case ED_FM_ENGINE_1_RELATED_RPM: return limit(RAPTOR::left_engine_power_readout * 0.35, 0.0, 0.9);
+    case ED_FM_ENGINE_1_RELATED_RPM: return RAPTOR::left_engine_power_readout;
     case ED_FM_ENGINE_1_CORE_RELATED_RPM: return RAPTOR::left_engine_power_readout;
     case ED_FM_ENGINE_1_CORE_THRUST: return RAPTOR::left_thrust_force * (RAPTOR::left_throttle_output > 1.025 ? 0.6 : 0.7);
     case ED_FM_ENGINE_1_THRUST: return RAPTOR::left_thrust_force;
@@ -1597,7 +1607,7 @@ double ed_fm_get_param(unsigned index) {
         double core_thrust = RAPTOR::right_thrust_force * (RAPTOR::right_throttle_output > 1.025 ? 0.6 : 0.7);
         return max_dry_core_thrust > 0 ? limit(core_thrust / max_dry_core_thrust, 0.0, 2.0) : 0.0;
     }
-    case ED_FM_ENGINE_2_RELATED_RPM: return limit(RAPTOR::right_engine_power_readout * 0.35, 0.0, 0.9);
+    case ED_FM_ENGINE_2_RELATED_RPM: return RAPTOR::right_engine_power_readout;
     case ED_FM_ENGINE_2_CORE_RELATED_RPM: return RAPTOR::right_engine_power_readout;
     case ED_FM_ENGINE_2_CORE_THRUST: return RAPTOR::right_thrust_force * (RAPTOR::right_throttle_output > 1.025 ? 0.6 : 0.7);
     case ED_FM_ENGINE_2_THRUST: return RAPTOR::right_thrust_force;
@@ -1797,6 +1807,7 @@ void ed_fm_hot_start_in_air() {
 }
 
 void ed_fm_release() {
+    NativeSidewinder::reset();
     RAPTOR::fm_clock = 0;
     RAPTOR::sim_initialised = false;
     ed_fm_repair();
@@ -1893,6 +1904,13 @@ CockpitManager::CockpitManager() {
 }
 
 void CockpitManager::initialize() {
+    NativeGunSight::reset();
+    const char* hud_names[] = {"EFM_HUD_VALID", "EFM_HUD_VN", "EFM_HUD_VE", "EFM_HUD_VU",
+        "EFM_HUD_WN", "EFM_HUD_WE", "EFM_HUD_WU", "EFM_HUD_TAS",
+        "EFM_HUD_SOUND", "EFM_HUD_PRESSURE", "EFM_ENGINE_VALID",
+        "EFM_ENGINE_LEFT_RPM_PCT", "EFM_ENGINE_RIGHT_RPM_PCT",
+        "EFM_GROUND_VALID", "EFM_WEIGHT_ON_WHEELS"};
+    for (const char* name : hud_names) param_handles_[name] = param_api_.getParamHandle(name);
     param_handles_["APU_POWER"] = param_api_.getParamHandle("APU_POWER");
     param_handles_["BATTERY_POWER"] = param_api_.getParamHandle("BATTERY_POWER");
     param_handles_["MAIN_POWER"] = param_api_.getParamHandle("MAIN_POWER");
@@ -1921,7 +1939,33 @@ void CockpitManager::initialize() {
     param_api_.setParamNumber(param_handles_["BATTERY_POWER"], (RAPTOR::left_engine_switch || RAPTOR::right_engine_switch) ? 1.0 : 0.0);
 }
 
+void CockpitManager::updateGun() { NativeGunSight::update(param_api_); }
+
+void CockpitManager::updateCombat(double dt) {
+    NativeSidewinder::update(param_api_, dt);
+}
+
 void CockpitManager::update(double dt) {
+    // Shared base-sensor WOW does not reflect this custom FM reliably.
+    // Publish suspension-derived contact separately; Lua owns the legacy WoW bus.
+    param_api_.setParamNumber(param_handles_["EFM_WEIGHT_ON_WHEELS"], RAPTOR::on_ground ? 1.0 : 0.0);
+    param_api_.setParamNumber(param_handles_["EFM_GROUND_VALID"], 1.0);
+    // Explicit percent units for our electrical system, independent of the
+    // inherited aircraft's base-sensor RPM interpretation.
+    param_api_.setParamNumber(param_handles_["EFM_ENGINE_LEFT_RPM_PCT"], RAPTOR::left_engine_power_readout * 100.0);
+    param_api_.setParamNumber(param_handles_["EFM_ENGINE_RIGHT_RPM_PCT"], RAPTOR::right_engine_power_readout * 100.0);
+    param_api_.setParamNumber(param_handles_["EFM_ENGINE_VALID"], 1.0);
+    // DCS global axes: x=north, y=up, z=east; SI units throughout.
+    param_api_.setParamNumber(param_handles_["EFM_HUD_VN"], RAPTOR::velocity_world.x);
+    param_api_.setParamNumber(param_handles_["EFM_HUD_VE"], RAPTOR::velocity_world.z);
+    param_api_.setParamNumber(param_handles_["EFM_HUD_VU"], RAPTOR::velocity_world.y);
+    param_api_.setParamNumber(param_handles_["EFM_HUD_WN"], RAPTOR::wind.x);
+    param_api_.setParamNumber(param_handles_["EFM_HUD_WE"], RAPTOR::wind.z);
+    param_api_.setParamNumber(param_handles_["EFM_HUD_WU"], RAPTOR::wind.y);
+    param_api_.setParamNumber(param_handles_["EFM_HUD_TAS"], RAPTOR::V_scalar);
+    param_api_.setParamNumber(param_handles_["EFM_HUD_SOUND"], RAPTOR::speed_of_sound);
+    param_api_.setParamNumber(param_handles_["EFM_HUD_PRESSURE"], RAPTOR::hud_static_pressure_pa);
+    param_api_.setParamNumber(param_handles_["EFM_HUD_VALID"], 1.0);
     // EFM is the authoritative source; no fabricated 'full internal' subtraction.
     param_api_.setParamNumber(param_handles_["EFM_INTERNAL_FUEL_KG"], RAPTOR::internal_fuel);
     param_api_.setParamNumber(param_handles_["EFM_EXTERNAL_FUEL_KG"], RAPTOR::external_fuel);

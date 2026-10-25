@@ -17,14 +17,8 @@
 --]]
 
 --SENSOR CATEGORY
-local SENSOR_OPTICAL = 0
-local SENSOR_RADAR = 1
 local SENSOR_IRST = 2
-local SENSOR_RWR = 3
 --RADAR
-local RADAR_AS = 0
-local RADAR_SS = 1
-local RADAR_MULTIROLE = 2
 --ASPECT
 local ASPECT_HEAD_ON = 0
 local ASPECT_TAIL_ON = 1
@@ -32,13 +26,7 @@ local ASPECT_TAIL_ON = 1
 local HEMISPHERE_UPPER = 0
 local HEMISPHERE_LOWER = 1
 --IRST
-local ENGINE_MODE_FORSAGE = 0
-local ENGINE_MODE_MAXIMAL = 1
-local ENGINE_MODE_MINIMAL = 2
 --OPTIC
-local OPTIC_SENSOR_TV = 0
-local OPTIC_SENSOR_LLTV = 1
-local OPTIC_SENSOR_IR = 2
 
 -------------------------------
 IRST21= {

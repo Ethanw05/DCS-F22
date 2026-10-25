@@ -1,0 +1,109 @@
+"""Kinematic boundaries and real-launch/multi-target engagement replay."""
+from pathlib import Path
+import contextlib, io, runpy
+
+root = Path(__file__).resolve().parents[1]
+with contextlib.redirect_stdout(io.StringIO()):
+    runtime = runpy.run_path(str(root / 'tests/test_display_startup.py'))['runtime']
+
+l = runtime()
+l.execute('''
+local m=dofile(SCRIPT_ROOT..'Systems/Weapon_Engagement.lua')
+assert(math.abs(m.intercept({10000,0,0},{0,0,0},1000)-10)<1e-8)
+assert(math.abs(m.intercept({10000,0,0},{-200,0,0},1000)-10000/1200)<1e-8)
+assert(m.intercept({10000,0,0},{1100,0,0},1000)==nil,'faster escaping target became reachable')
+assert(math.abs(m.time_to_active({5000,0,0},{-1000,0,0},2000)-3)<1e-8)
+assert(m.time_to_active({5000,0,0},{1000,0,0},2000)==nil)
+assert(m.time_to_active({1000,0,0},{1000,0,0},2000)==0)
+assert(m.zone(700,700,20000,10000).inside)
+assert(m.zone(699,700,20000,10000).too_close)
+assert(not m.zone(21000,700,20000,10000).inside)
+assert(m.zone(9000,700,20000,10000).turn)
+assert(not m.zone(11000,700,20000,10000).turn)
+assert(m.zone(1000,20000,700)==nil)
+assert(m.countdown(12,100,105)==7 and m.countdown(0,100,100)==0)
+assert(m.countdown(12,100,114)==nil and m.countdown(12,100,99)==nil)
+assert(m.countdown(-1,100,100)==nil and m.countdown(nil,100,100)==nil)
+''')
+
+l.execute('''
+now=100
+function get_model_time()return now end
+function get_base_data()return setmetatable({getSelfCoordinates=function()return 0,5000,0 end},
+ {__index=function()return function()return 0 end end})end
+local function p(n,v)get_param_handle(n):set(v)end
+local function v(n)return get_param_handle(n):get()end
+for n,x in pairs({MAIN_POWER=1,RADAR_PWR=1,F22_RADAR_BACKEND_READY=1,HUD_MODE=2,MASTER_ARM=1,F22_WEAPON_COUNT=6,
+ F22_RADAR_WEAPON_TARGET_ID=101,F22_RADAR_OBSERVATIONS_READY=1,F22_RADAR_OBSERVATION_COUNT=2,
+ F22_MISSILE_DATA_VALID=1,F22_MISSILE_NATIVE_MIN=700,F22_MISSILE_NATIVE_MAX=20000,
+ F22_MISSILE_AVERAGE_SPEED=700,F22_MISSILE_LIFETIME=90,F22_DLZ_NATIVE_VALID=1,
+ F22_DLZ_RMIN=700,F22_DLZ_RMAX=20000,F22_DLZ_RTR=10000,F22_DLZ_TARGET_ID=101,
+ EFM_HUD_VN=220,F22_RADAR_RANGE_NM=40})do p(n,x)end
+for i,id in ipairs({101,202})do
+ local k=string.format('F22O_%02d_',i)
+ p(k..'ID',id);p(k..'NORTH',10000);p(k..'ALTITUDE',5000);p(k..'EAST',(i-1)*1000);p(k..'VN',-200)
+end
+dofile(SCRIPT_ROOT..'Systems/Engagement_System.lua');post_initialize();update()
+assert(v('F22_FC_SHOOT')==1 and v('F22_FC_DLZ_DYNAMIC')==1)
+assert(math.abs(v('F22_FC_CLOSURE_KTS')-420*1.943844492)<1e-6)
+assert(v('F22_FC_MISSILES')==0,'no launch event created a flyout')
+p('F22_RADAR_SELECTED_FRIENDLY',1);update();assert(v('F22_FC_SHOOT')==0)
+p('F22_RADAR_SELECTED_FRIENDLY',0);p('MASTER_ARM',0);update();assert(v('F22_FC_SHOOT')==0)
+p('MASTER_ARM',1)
+local function shot(slot,seq,id,target)
+ local k=string.format('F22_SHOT_%02d_',slot)
+ for name,x in pairs({SEQUENCE=seq,ID=id,TARGET=target,MODE=2,TIME=now,ALIVE=1,N=100,U=5000,E=0,VN=800,ACTIVE_RANGE=5000,ACTIVE=0,ACTIVE_VALID=1,SEEKER_VALID=1,SEEKER_TRACK=0})do p(k..name,x)end
+ p('F22_LAUNCH_SEQUENCE',seq)
+end
+shot(1,1,1001,101);update()
+assert(v('F22_FC_MISSILES')==1 and v('F22_MSL_01_TARGET')==101)
+assert(v('F22_MSL_01_TTG_VALID')==1 and v('F22_MSL_01_TTG_SOURCE')==2,'missing shared estimate suppressed real missile/radar fallback')
+assert(v('F22_FC_TTA_VALID')==1 and v('F22_FC_TTA')>0)
+assert(v('F22_MSL_01_SUPPORT_STATE')==1)
+p('F22N_RADAR_MODE',3);p('F22_STT_ID',202);update()
+assert(v('F22_MSL_01_SUPPORT_STATE')==2 and v('F22_FC_SUPPORT_DEGRADED')==1,'STT on another target hid support coast')
+p('RADAR_PWR',0);update();assert(v('F22_MSL_01_SUPPORT_STATE')==3 and v('F22_FC_SUPPORT_LOST')==1)
+p('RADAR_PWR',1);p('F22N_RADAR_MODE',1);update();assert(v('F22_MSL_01_SUPPORT_STATE')==1 and v('F22_FC_SUPPORT_DEGRADED')==0)
+p('F22_RADAR_WEAPON_TARGET_ID',202);p('F22_DLZ_TARGET_ID',202);shot(2,2,1002,202);update()
+assert(v('F22_FC_MISSILES')==2 and v('F22_MSL_01_TARGET')==101 and v('F22_MSL_02_TARGET')==202)
+assert(v('F22_MSL_01_SUPPORT_REQUIRED')==1 and v('F22_MSL_02_SUPPORT_REQUIRED')==1)
+p('HUD_MODE',5);update();assert(v('F22_MSL_01_TARGET')==101 and v('F22_FC_SHOOT')==0)
+p('F22_SHOT_01_ACTIVE',1);update();assert(v('F22_MSL_01_SUPPORT_REQUIRED')==1,'emitting without acquisition dropped support')
+p('F22_SHOT_01_SEEKER_TRACK',1);update();assert(v('F22_MSL_01_SUPPORT_REQUIRED')==0)
+assert(v('F22_MSL_01_TTG_VALID')==1 and v('F22_MSL_01_ACTIVE')==1)
+p('F22_SHOT_02_ACTIVE_RANGE',0);update();assert(v('F22_MSL_02_TTA_VALID')==0,'unknown activation distance invented a timer')
+now=108;p('F22O_01_AGE',8);p('F22O_02_AGE',8);update()
+assert(v('F22_FC_TARGET_VALID')==0 and v('F22_FC_SHOOT')==0)
+assert(v('F22_MSL_02_TRACK_LOST')==1,'stale support remained fresh')
+p('F22_SHOT_01_ALIVE',0);p('F22_SHOT_02_ALIVE',0);update()
+assert(v('F22_FC_MISSILES')==0,'ended native missiles left permanent flyouts')
+assert(v('F22_MSL_01_SUPPORT_REQUIRED')==0 and v('F22_MSL_02_SUPPORT_REQUIRED')==0)
+-- An immediate selection of a short-life IR store cannot age an existing MRM.
+now=200;p('F22_MISSILE_LIFETIME',1);p('HUD_MODE',3);p('F22O_01_AGE',0);p('F22O_02_AGE',0)
+shot(3,3,1003,101);update()
+now=245;update()
+assert(v('F22_MSL_03_VALID')==1 and v('F22_MSL_03_SUPPORT_REQUIRED')==1,'selected IR lifetime terminated a still-live MRM')
+p('F22_SHOT_03_ALIVE',0);update();assert(v('F22_MSL_03_VALID')==0)
+-- New-scheme missiles do not expose an activation radius. A checked native
+-- launch prediction supplies ACT without turning its expiry into acquisition.
+now=300;shot(4,4,1004,101)
+p('F22_SHOT_04_ACTIVE_RANGE',0);p('F22_SHOT_04_TOF_VALID',1);p('F22_SHOT_04_TOF',30)
+p('F22_SHOT_04_ACT_VALID',1);p('F22_SHOT_04_ACT',10);p('F22_SHOT_04_ESTIMATE_TIME',300)
+update();assert(v('F22_MSL_04_TTA_VALID')==1 and v('F22_MSL_04_TTA')==10 and v('F22_MSL_04_TTA_SOURCE')==1)
+assert(v('F22_MSL_04_TTG')==30 and v('F22_MSL_04_TTG_SOURCE')==1,'initial missile speed displaced the validated trajectory estimate')
+now=305;p('F22_RADAR_WEAPON_TARGET_ID',202);p('F22_SHOT_04_ACT',99);p('F22_SHOT_04_TOF',99);p('HUD_MODE',5);update()
+assert(v('F22_MSL_04_TARGET')==101 and v('F22_MSL_04_TTA')==5,'launch estimate changed after target/weapon switch')
+assert(v('F22_MSL_04_TTG')==25 and v('F22_MSL_04_TTG_SOURCE')==1,'airborne TOF changed after source/weapon switch')
+now=312;update()
+assert(v('F22_MSL_04_TTA_VALID')==0 and v('F22_MSL_04_SELF_GUIDING')==0 and v('F22_MSL_04_SUPPORT_REQUIRED')==1,'expired prediction declared active')
+p('F22_SHOT_04_ACTIVE',1);update()
+assert(v('F22_MSL_04_ACTIVE')==1 and v('F22_MSL_04_SELF_GUIDING')==0 and v('F22_MSL_04_SUPPORT_REQUIRED')==1)
+p('F22_SHOT_04_SEEKER_TRACK',1);update()
+assert(v('F22_MSL_04_SELF_GUIDING')==1 and v('F22_MSL_04_SUPPORT_REQUIRED')==0)
+assert(v('F22_MSL_04_TTG')==18 and v('F22_MSL_04_TTG_SOURCE')==1,'actual activation discarded valid shared TOF')
+now=332;update()
+assert(v('F22_MSL_04_VALID')==1 and v('F22_FC_MISSILES')==1,'expired TOF manufactured a missile end')
+assert(v('F22_MSL_04_TTG_VALID')==1 and v('F22_MSL_04_TTG_SOURCE')==2 and v('F22_MSL_04_TTG')>0,'expired shared prediction did not fall back to missile/radar geometry')
+p('F22_SHOT_04_ALIVE',0);update();assert(v('F22_MSL_04_VALID')==0)
+''')
+print('Engagement: kinematic limits, native DLZ identity, signed closure, consent, real launches, immutable targets/ACT prediction, actual seeker transition and stale/lost support PASS')

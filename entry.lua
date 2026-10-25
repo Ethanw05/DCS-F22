@@ -39,7 +39,7 @@ declare_plugin(self_ID, {
 })
 mount_vfs_model_path(current_mod_path .. "/Shapes")
 mount_vfs_model_path(current_mod_path .. "/Cockpit/Shape") 
---mount_vfs_sound_path(current_mod_path .. "/Sounds/")
+mount_vfs_sound_path(current_mod_path .. "/Sounds/")
 mount_vfs_liveries_path(current_mod_path .. "/Liveries")
 mount_vfs_texture_path(current_mod_path .. "/Textures")
 mount_vfs_texture_path(current_mod_path .. "/Textures/F-22A.zip")
@@ -69,11 +69,11 @@ local FM = {
 [2] = 'F22.dll',
 config_path = cfg_path,
 suspension = suspension,
-old = 6,
 }
 
---FC4 Avionics
-MAC_flyable('F-22A', current_mod_path..'/Cockpit/Scripts/', FM, current_mod_path..'/comm.lua')
+-- Own cockpit and EFM. Do not instantiate the inherited F-15 cockpit/HUD.
+-- Radar, weapons, RWR, navigation and EW use our devices and shared DCS services.
+make_flyable('F-22A', current_mod_path..'/Cockpit/Scripts/', FM, current_mod_path..'/comm.lua')
 
 
 plugin_done()

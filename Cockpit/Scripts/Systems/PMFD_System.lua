@@ -91,7 +91,6 @@ local PlaneRadarChangeMode  = 285 --RWS/TWS
 local weight_on_wheels      = 1 -- 0 = air 1 = ground
 local radar_mode_state      = 0 -- 0-RWS 1-TWS
 local radar_state           = 0 -- 0-Off 1-On
-local scan_up               = 0
 local garfield              = 0
 local tint                  = 0 -- 0 gold 0.5 black 1 clear
 local pmfd_current_page     = 0   -- 0 = menu 1 = radar 2 = map 3 = sys 4 = config 5 = sfm
@@ -243,34 +242,21 @@ function SetCommand(command,value)
         pmfd_current_page = 0
     end
     ------------------------------------------RADAR-PAGE-LOGIC---------------------------------------------------------------------------------------------------
-    --RADAR ON-OFF
-    if (command == clickable.P_OSB_11 or command == 10141) and radar_state == 0 and pmfd_current_page == 1 and parameters.WoW:get() == 0 and parameters.MAIN_POWER:get() == 1 then --Radar Page
-        dispatch_action(nil,PlaneRadarOnOff)
-        radar_state = 1
-    elseif (command == clickable.P_OSB_11 or command == 10141) and radar_state == 1 and pmfd_current_page == 1 and parameters.WoW:get() == 0 and parameters.MAIN_POWER:get() == 1 then --Radar Page
-        radar_state = 0
-        dispatch_action(nil,PlaneRadarOnOff)
+    if pmfd_current_page == 1 and parameters.MAIN_POWER:get() == 1 and value > 0 then
+        -- Bottom row is numbered right-to-left: 15,14,13,12,11.
+        -- Labels left-to-right: RNG IN, RNG OUT, MENU, EMIT, RWS/TWS.
+        if command == clickable.P_OSB_15 or command == 10145 then dispatch_action(nil,10608,1) end
+        if command == clickable.P_OSB_14 or command == 10144 then dispatch_action(nil,10607,1) end
+        if command == clickable.P_OSB_12 or command == 10142 then dispatch_action(nil,10600,1) end
+        if command == clickable.P_OSB_11 or command == 10141 then dispatch_action(nil,10603,1) end
+        if command == clickable.P_OSB_1 or command == 10131 then dispatch_action(nil,10606,1) end
+        if command == clickable.P_OSB_2 or command == 10132 then dispatch_action(nil,10628,1) end
+        if command == clickable.P_OSB_3 or command == 10133 then dispatch_action(nil,10629,1) end
+        if command == clickable.P_OSB_4 or command == 10134 then dispatch_action(nil,10630,1) end
+        if command == clickable.P_OSB_5 or command == 10135 then dispatch_action(nil,10619,1) end
+        if command == clickable.P_OSB_6 or command == 10136 then dispatch_action(nil,10607,1) end
+        if command == clickable.P_OSB_7 or command == 10137 then dispatch_action(nil,10608,1) end
     end
-    --RWS-TWS
-    if (command == clickable.P_OSB_15 or command == 10145) and radar_mode_state == 0 and pmfd_current_page == 1 and parameters.WoW:get() == 0 and parameters.MAIN_POWER:get() == 1 then --Radar Page
-        radar_mode_state = 1
-        dispatch_action(nil,PlaneRadarChangeMode)
-    elseif (command == clickable.P_OSB_15 or command == 10145) and radar_mode_state == 1 and pmfd_current_page == 1 and parameters.WoW:get() == 0 and parameters.MAIN_POWER:get() == 1 then --Radar Page
-        radar_mode_state = 0
-        dispatch_action(nil,PlaneRadarChangeMode)
-    end 
-    --RADAR ZOOM IN-OUT
-    if (command == clickable.P_OSB_6 or command == 10136) and pmfd_current_page == 1 and parameters.WoW:get() == 0 and parameters.MAIN_POWER:get() == 1 then
-        dispatch_action(nil,PlaneZoomOut)
-    end
-    if (command == clickable.P_OSB_7 or command == 10137) and pmfd_current_page == 1 and parameters.WoW:get() == 0 and parameters.MAIN_POWER:get() == 1 then    
-        dispatch_action(nil,PlaneZoomIn)
-    end
-    --RADAR PULSE FREQ
-    if (command == clickable.P_OSB_14 or command == 10144) and pmfd_current_page == 1 and parameters.WoW:get() == 0 and parameters.MAIN_POWER:get() == 1 then
-        dispatch_action(nil,PlaneChangeRadarPRF) 
-    end
-
 --END Radar Page
 
     -- if command == 10149 and p_19 == 0 then
@@ -321,7 +307,9 @@ function update()
     --print_message_to_user(garfield_roll)
 
 --WoW Logic
-    if sensor_data.getWOW_NoseLandingGear() == 0 and sensor_data.getWOW_RightMainLandingGear() == 0 and sensor_data.getWOW_LeftMainLandingGear() == 0 then
+    if get_param_handle('EFM_GROUND_VALID'):get()>.5 then
+        weight_on_wheels=get_param_handle('EFM_WEIGHT_ON_WHEELS'):get()>.5 and 1 or 0
+    elseif sensor_data.getWOW_NoseLandingGear() == 0 and sensor_data.getWOW_RightMainLandingGear() == 0 and sensor_data.getWOW_LeftMainLandingGear() == 0 then
         weight_on_wheels = 0 -- in air
     else
         weight_on_wheels = 1
@@ -426,8 +414,8 @@ function update()
 --END PMFD UPDATE
 
     parameters.WoW:set(weight_on_wheels)
-    parameters.RADAR_MODE:set(radar_mode_state)
-    parameters.RADAR_PWR:set(radar_state)
+
+
     --parameters.PMFD_PAGE:set(pmfd_current_page)
 
 end

@@ -151,7 +151,7 @@ Add(ADITEXT)
 HSITEXT 					    = CreateElement "ceStringPoly"
 HSITEXT.name 				    = "menu"
 HSITEXT.material 			    = UFD_FONT
-HSITEXT.value 				    = "HSI"
+HSITEXT.value 				    = "NAV"
 HSITEXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
 HSITEXT.alignment 			    = "CenterCenter"
 HSITEXT.formats 			    = {"%s"}

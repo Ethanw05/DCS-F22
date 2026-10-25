@@ -35,4 +35,13 @@ devices["NAV_SYSTEM"]           = counter()--08: mission route / HUD steering
 devices["AG_MARK_SYSTEM"]       = counter()--09: terrain-backed designated markpoint
 devices["RADAR_DATA_BRIDGE"]     = counter()--10: compatible, read-only STT telemetry bridge
 devices["AG_BALLISTIC_COMPUTER"] = counter()--11: non-authoritative point-mass impact estimate
---devices["FCS"]		  			= counter()--08
+devices["HUD_FLIGHT_DATA"] = counter()--12: independent flight/velocity HUD producer
+devices["RADAR_NATIVE"] = counter()--13: shared DCS detection/acquisition backend
+devices["RADAR_COMPUTER"] = counter()--14: own radar mode, cursor and track files
+devices["WEAPON_NATIVE"] = counter()--15: DCS shared payload, cannon and seeker
+devices["COMBAT_SYSTEM"] = counter()--16: single HOTAS/master-mode router
+devices["RWR_NATIVE"] = counter()--17: independent shared DCS passive receiver
+devices["RWR_SYSTEM"] = counter()--18: warnings, threat memory and fusion exports
+
+devices["ENGAGEMENT_SYSTEM"] = counter()--19: per-target launch zones and native missile flyout
+devices["EW_SYSTEM"] = counter()--20: own countermeasure and ECM controls

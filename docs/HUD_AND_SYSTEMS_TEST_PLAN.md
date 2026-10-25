@@ -68,7 +68,7 @@ Create a simple mission with at least three waypoints, including a waypoint 10 k
 
 Record DCS version, loadout, mission, weight/fuel, start type, input device and DCS log. Classify failure separately as **HUD rendering/EDM**, **sensor-data projection**, **combat host integration**, **actuator**, **engine/electrical**, **fuel ledger** or **DCS parameter bridge**. Screenshot alone cannot verify missile target support or an aircraft handling-quality curve.
 
-See [the research and outstanding-work matrix](../resources/research/IMPLEMENTATION_STATUS.md); all changes are on `main`, not a separate release branch.
+See [the research and outstanding-work matrix](resources/research/IMPLEMENTATION_STATUS.md); all changes are on `main`, not a separate release branch.
 
 
 ## Optional host-native GBU-32 compatibility experiment

@@ -1,17 +1,17 @@
 --[[
     Grinnelli Designs F-22A Raptor
     Copyright (C) 2024, Joseph Grinnelli
-    
+
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    
+
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-    
+
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see https://www.gnu.org/licenses.
 --]]
@@ -43,7 +43,6 @@ local Park          = 10019
 local Park_T        = 10020
 local Detent_F      = 10021
 local Detent_S      = 10022
-local Brakes        = 10023  
 local AirORIDE_T    = 10024
 local APU           = 10025  
 local PICKLE        = 10026  
@@ -58,8 +57,6 @@ local R_cutoff      = 10029
 --local FCSAOA        = 10035
 --local FCSG          = 10036
 --local FCSStep       = 10037
-local BrakesON      = 10038
-local BrakesOFF     = 10039
 --local FCSpitch      = 10040
 local ICP_COM1      = 10041
 local ICP_COM2      = 10042
@@ -393,4 +390,110 @@ join(res.keyCommands,{
     {action = iCommandPlaneMFDZoomAbs,              name = _('MFD Range')},
     {action = iCommandPlaneBase_DistanceAbs,        name = _('Base/Distance')},
     })
-    return res
+
+-- Own radar computer (not inherited FC3 request labels).
+join(res.keyCommands,{
+    {down=10600,value_down=1,cockpit_device_id=14,name=_('F-22 Radar emission / standby'),category=_('F-22 Radar')},
+    {down=10601,value_down=1,cockpit_device_id=14,name=_('F-22 Radar RWS'),category=_('F-22 Radar')},
+    {down=10602,value_down=1,cockpit_device_id=14,name=_('F-22 Radar TWS'),category=_('F-22 Radar')},
+    {down=10603,value_down=1,cockpit_device_id=14,name=_('F-22 Radar RWS / TWS toggle'),category=_('F-22 Radar')},
+    {down=10604,value_down=1,cockpit_device_id=14,name=_('F-22 Radar vertical acquisition'),category=_('F-22 Radar')},
+    {down=10605,value_down=1,cockpit_device_id=14,name=_('F-22 Radar boresight acquisition'),category=_('F-22 Radar')},
+    {down=10606,value_down=1,cockpit_device_id=14,name=_('F-22 Radar designate / STT'),category=_('F-22 Radar')},
+    {down=10607,value_down=1,cockpit_device_id=14,name=_('F-22 Radar range increase'),category=_('F-22 Radar')},
+    {down=10608,value_down=1,cockpit_device_id=14,name=_('F-22 Radar range decrease'),category=_('F-22 Radar')},
+    {down=10609,value_down=1,cockpit_device_id=14,name=_('F-22 Radar undesignate / break lock'),category=_('F-22 Radar')},
+    {down=10610,value_down=1,cockpit_device_id=14,name=_('F-22 Radar cursor up'),category=_('F-22 Radar')},
+    {down=10611,value_down=1,cockpit_device_id=14,name=_('F-22 Radar cursor down'),category=_('F-22 Radar')},
+    {down=10612,value_down=1,cockpit_device_id=14,name=_('F-22 Radar cursor left'),category=_('F-22 Radar')},
+    {down=10613,value_down=1,cockpit_device_id=14,name=_('F-22 Radar cursor right'),category=_('F-22 Radar')},
+    {down=10614,value_down=1,cockpit_device_id=14,name=_('F-22 Radar elevation up'),category=_('F-22 Radar')},
+    {down=10615,value_down=1,cockpit_device_id=14,name=_('F-22 Radar elevation down'),category=_('F-22 Radar')},
+    {down=10616,value_down=1,cockpit_device_id=14,name=_('F-22 Radar azimuth width'),category=_('F-22 Radar')},
+    {down=10617,value_down=1,cockpit_device_id=14,name=_('F-22 Radar recenter'),category=_('F-22 Radar')},
+    {down=10618,value_down=1,cockpit_device_id=14,name=_('F-22 Radar next track'),category=_('F-22 Radar')},
+    {down=10619,value_down=1,cockpit_device_id=14,name=_('F-22 Radar IFF interrogator toggle'),category=_('F-22 Radar')},
+})
+join(res.axisCommands,{
+ {action=10620,cockpit_device_id=14,name=_('F-22 Radar cursor horizontal')},
+ {action=10621,cockpit_device_id=14,name=_('F-22 Radar cursor vertical')},
+})
+
+-- BEGIN F22 COMBAT CONTROLS
+join(res.keyCommands,{
+ {down=10714,up=10714,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 missile step'),category=_('F-22 Combat HOTAS')},
+ {down=10701,up=10701,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 tms right'),category=_('F-22 Combat HOTAS')},
+ {down=10727,up=10727,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 range down'),category=_('F-22 Combat HOTAS')},
+ {down=10723,up=10723,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 cage'),category=_('F-22 Combat HOTAS')},
+ {down=10721,up=10721,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 nav'),category=_('F-22 Combat HOTAS')},
+ {down=10703,up=10703,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 tms left'),category=_('F-22 Combat HOTAS')},
+ {down=10720,up=10720,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 weapon cycle (optional)'),category=_('F-22 Combat HOTAS')},
+ {down=10725,up=10725,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 radar power'),category=_('F-22 Combat HOTAS')},
+ {down=10710,up=10710,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 cms down'),category=_('F-22 Combat HOTAS')},
+ {down=10718,up=10718,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 pickle'),category=_('F-22 Combat HOTAS')},
+ {down=10709,up=10709,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 cms right'),category=_('F-22 Combat HOTAS')},
+ {down=10729,up=10729,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 srm'),category=_('F-22 Combat HOTAS')},
+ {down=10717,up=10717,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 trigger second'),category=_('F-22 Combat HOTAS')},
+ {down=10706,up=10706,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 dms down'),category=_('F-22 Combat HOTAS')},
+ {down=10704,up=10704,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 dms up'),category=_('F-22 Combat HOTAS')},
+ {down=10722,up=10722,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 coverage'),category=_('F-22 Combat HOTAS')},
+ {down=10705,up=10705,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 dms right'),category=_('F-22 Combat HOTAS')},
+ {down=10728,up=10728,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 gun'),category=_('F-22 Combat HOTAS')},
+ {down=10726,up=10726,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 range up'),category=_('F-22 Combat HOTAS')},
+ {down=10724,up=10724,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 arm'),category=_('F-22 Combat HOTAS')},
+ {down=10719,up=10719,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 dogfight'),category=_('F-22 Combat HOTAS')},
+ {down=10707,up=10707,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 dms left'),category=_('F-22 Combat HOTAS')},
+ {down=10711,up=10711,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 cms left'),category=_('F-22 Combat HOTAS')},
+ {down=10712,up=10712,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 cms push'),category=_('F-22 Combat HOTAS')},
+ {down=10708,up=10708,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 cms up'),category=_('F-22 Combat HOTAS')},
+ {down=10715,up=10715,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 paddle'),category=_('F-22 Combat HOTAS')},
+ {down=10713,up=10713,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 expand'),category=_('F-22 Combat HOTAS')},
+ {down=10730,up=10730,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 mrm'),category=_('F-22 Combat HOTAS')},
+ {down=10716,up=10716,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 trigger first'),category=_('F-22 Combat HOTAS')},
+ {down=10702,up=10702,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 tms down'),category=_('F-22 Combat HOTAS')},
+ {down=10700,up=10700,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 tms up'),category=_('F-22 Combat HOTAS')},
+})
+join(res.keyCommands,{
+ {down=10731,up=10731,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 A/A toggle / NAV'),category=_('F-22 Combat HOTAS')},
+ {down=10732,up=10732,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 A/G toggle / NAV'),category=_('F-22 Combat HOTAS')},
+ {down=10733,up=10733,value_down=1,value_up=0,cockpit_device_id=16,name=_('F-22 TDC depress / designate'),category=_('F-22 Combat HOTAS')},
+})
+-- END F22 COMBAT CONTROLS
+
+join(res.keyCommands,{
+ {down=10628,value_down=1,cockpit_device_id=14,name=_('F-22 Designate secondary at cursor'),category=_('F-22 Sensors')},
+ {down=10629,value_down=1,cockpit_device_id=14,name=_('F-22 Swap primary / secondary (search only)'),category=_('F-22 Sensors')},
+ {down=10630,value_down=1,cockpit_device_id=14,name=_('F-22 Clear secondary'),category=_('F-22 Sensors')},
+ {down=10900,value_down=1,cockpit_device_id=18,name=_('F-22 RWR power'),category=_('F-22 Sensors')},
+ {down=10901,value_down=1,cockpit_device_id=18,name=_('F-22 RWR audio mute'),category=_('F-22 Sensors')},
+ {down=10902,value_down=1,cockpit_device_id=18,name=_('F-22 RWR ALL / threat filter'),category=_('F-22 Sensors')},
+})
+join(res.keyCommands,{
+ {down=10903,value_down=1,cockpit_device_id=18,name=_('F-22 HUD EW repeater'),category=_('F-22 Sensors')},
+ {down=10910,value_down=1,cockpit_device_id=1,name=_('F-22 upper-left EW / status page'),category=_('F-22 Sensors')},
+})
+join(res.keyCommands,{
+ {down=10904,value_down=1,cockpit_device_id=18,name=_('F-22 RWR volume up'),category=_('F-22 Sensors')},
+ {down=10905,value_down=1,cockpit_device_id=18,name=_('F-22 RWR volume down'),category=_('F-22 Sensors')},
+})
+join(res.keyCommands,{
+ {down=10830,up=10830,value_down=1,value_up=0,cockpit_device_id=8,name=_('F-22 Next steerpoint'),category=_('F-22 Navigation')},
+ {down=10831,up=10831,value_down=1,value_up=0,cockpit_device_id=8,name=_('F-22 Previous steerpoint'),category=_('F-22 Navigation')},
+ {down=10832,up=10832,value_down=1,value_up=0,cockpit_device_id=8,name=_('F-22 Navigation AUTO / MAN sequencing'),category=_('F-22 Navigation')},
+ {down=10833,up=10833,value_down=1,value_up=0,cockpit_device_id=8,name=_('F-22 Navigation range decrease'),category=_('F-22 Navigation')},
+ {down=10834,up=10834,value_down=1,value_up=0,cockpit_device_id=8,name=_('F-22 Navigation range increase'),category=_('F-22 Navigation')},
+ {down=10835,up=10835,value_down=1,value_up=0,cockpit_device_id=8,name=_('F-22 Direct to selected steerpoint'),category=_('F-22 Navigation')},
+ {down=10836,up=10836,value_down=1,value_up=0,cockpit_device_id=8,name=_('F-22 Reload mission route'),category=_('F-22 Navigation')},
+})
+-- Preserve the base command names/default key combinations, but own routing.
+for _, binding in ipairs(res.keyCommands) do
+ local command
+ if iCommandPlaneDropFlareOnce and binding.down==iCommandPlaneDropFlareOnce then command=10840
+ elseif iCommandPlaneDropChaffOnce and binding.down==iCommandPlaneDropChaffOnce then command=10841
+ elseif iCommandActiveJamming and binding.down==iCommandActiveJamming then command=10842 end
+ if command then
+  binding.down=command;binding.up=command;binding.value_down=1;binding.value_up=0
+  binding.cockpit_device_id=20
+ end
+end
+return res

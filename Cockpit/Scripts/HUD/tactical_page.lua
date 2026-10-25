@@ -5,6 +5,18 @@
 return function(api)
     local line, label, static, group = api.line, api.label, api.static, api.group
     local pi = math.pi
+    local function angular(name,x,y,params,controllers,parent,reference_y)
+        local corrected={}
+        for i,c in ipairs(controllers) do
+            local row={}
+            for k,v in ipairs(c) do row[k]=v end
+            if row[1]=="move_left_right_using_parameter" or row[1]=="move_up_down_using_parameter" then
+                row[3]=(row[3]<0 and -1 or 1)/api.layout_scale
+            end
+            corrected[i]=row
+        end
+        return group(name,x,y+(parent and 0 or reference_y or api.boresight_y),params,corrected,parent)
+    end
     local sequence = 0
     local function unique(part)
         sequence = sequence + 1
@@ -38,6 +50,35 @@ return function(api)
         line(cx-r,cy,cx,cy+r,0.006,parent)
     end
 
+    -- EW azimuth repeater: same font/material as the existing HUD. The fixed
+    -- bearing-circle placement is deliberately different from a radar TD box.
+    for i=1,6 do
+        local p=string.format('HUD_EW_%02d_',i);local n='HUD_EW_CONTACT_'..i
+        group(n,0,0,{p..'X',p..'Y',p..'VALID','HUD_POWER'},
+            {{'move_left_right_using_parameter',0,1},{'move_up_down_using_parameter',1,1},
+             {'parameter_in_range',2,.9,1.1},{'opacity_using_parameter',3}})
+        group(n..'_NUMBER',0,0,{p..'LABEL_CODE'},{{'parameter_in_range',0,-.1,99.9}},n)
+        label(0,0,p..'LABEL_CODE','%.0f',.024,n..'_NUMBER')
+        for code,symbol in ipairs(dofile(LockOn_Options.script_path..'Systems/RWR_Computer.lua').symbols) do
+            local v=n..'_SYMBOL_'..code
+            group(v,0,0,{p..'LABEL_CODE'},{{'parameter_in_range',0,98.9+code,99.1+code}},n)
+            static(0,0,symbol,.024,v)
+        end
+        group(n..'_AZIMUTH',0,0,{p..'ROT'},{{'rotate_using_parameter',0,1}},n)
+        for signal=1,3 do
+            local state=visible('EW_LINE',p..'SIGNAL',signal,n..'_AZIMUTH')
+            local fresh=visible('EW_FRESH',p..'COAST',0,state)
+            local coast=visible('EW_MEMORY',p..'COAST',1,state)
+            local length=.035*signal
+            line(0,-.026,0,-.026-length,.004,fresh)
+            for j=0,2 do line(0,-.026-j*length/3,0,-.026-(j+.6)*length/3,.004,coast) end
+            if signal>1 then
+                line(-.013,-.019,0,-.03,.004,state)
+                line(0,-.03,.013,-.019,.004,state)
+            end
+        end
+    end
+
     -- Shared combat SAFE/ARM cue (actual cockpit master arm, not launch permission).
     local combat = visible("COMBAT","HUD_MODE",2)
     -- All weapon modes are separate so power and master arm remain independent.
@@ -45,122 +86,175 @@ return function(api)
         local armRoot=visible("ARMROOT","HUD_MODE",n)
         local armed=visible("ARM","HUD_ARMED",1,armRoot)
         local safed=visible("SAFE","HUD_ARMED",0,armRoot)
-        static(-0.84,-0.70,"ARM",0.042,armed)
-        static(-0.84,-0.70,"SAFE",0.042,safed)
+        static(-0.40,-0.62,"ARM",0.023,armed)
+        static(-0.40,-0.62,"SAFE",0.023,safed)
     end
     local combatArm = visible("ARM","HUD_ARMED",1,combat)
     local combatSafe = visible("SAFE","HUD_ARMED",0,combat)
-    static(-0.84,-0.70,"ARM",0.042,combatArm)
-    static(-0.84,-0.70,"SAFE",0.042,combatSafe)
+    static(-0.40,-0.62,"ARM",0.023,combatArm)
+    static(-0.40,-0.62,"SAFE",0.023,combatSafe)
 
     -- NAV: retain historical flight symbology and C-130-inspired heading tape.
     local nav = visible("NAV","HUD_MODE",1)
-    static(-0.77,0.83,"NAV",0.05,nav)
-    label(0.80,-0.47,"VV","V %.0f",0.043,nav)
-    local noWP = visible("NO_WP","HUD_WP_VALID",0,nav)
-    static(0.0,-0.78,"STPT --",0.039,noWP)
-    local wp = visible("WP","HUD_WP_VALID",1,nav)
-    label(-0.35,-0.78,"HUD_WP_INDEX","STPT %02.0f",0.039,wp)
-    label(0.25,-0.78,"HUD_WP_RANGE_NM","%4.1f NM",0.038,wp)
-    local bearing=visible("WP_BRG","HUD_WP_BRG_VALID",1,nav)
-    label(0.72,0.83,"HUD_WP_BEARING_DEG","BRG %03.0f",0.037,bearing)
-    group("HUD_NAV_STEERING",0,0,
-        {"HUD_WP_AZ_RAD","HUD_WP_EL_RAD","HUD_POWER","HUD_WP_CUE_VALID","HUD_MODE"},
+    -- Route data and vertical speed are grouped in the common flight layer.
+    angular("HUD_NAV_STEERING",0,0,
+        {"HUD_WP_X","HUD_WP_Y","HUD_POWER","HUD_WP_CUE_VALID","HUD_MODE"},
         {{"move_left_right_using_parameter",0,1.18},
          {"move_up_down_using_parameter",1,1.18},
          {"opacity_using_parameter",2},
          {"parameter_in_range",3,0.9,1.1},
          {"parameter_in_range",4,0.9,1.1}})
     diamond(0,0,0.047,"HUD_NAV_STEERING")
+    angular('HUD_NAV_OFFSCREEN',0,0,
+        {'HUD_WP_ARROW_X','HUD_WP_ARROW_Y','HUD_POWER','HUD_WP_OFFSCREEN','HUD_MODE'},
+        {{'move_left_right_using_parameter',0,1},{'move_up_down_using_parameter',1,1},
+         {'opacity_using_parameter',2},{'parameter_in_range',3,.9,1.1},{'parameter_in_range',4,.9,1.1}})
+    group('HUD_NAV_DIRECTION',0,0,{'HUD_WP_ARROW_ROT'},{{'rotate_using_parameter',0,1}},'HUD_NAV_OFFSCREEN')
+    line(0,.025,-.018,-.012,.004,'HUD_NAV_DIRECTION')
+    line(0,.025,.018,-.012,.004,'HUD_NAV_DIRECTION')
+    label(0,-.04,'HUD_WP_INDEX','WP%.0f',.018,'HUD_NAV_OFFSCREEN')
 
     -- AIM-120: missile mode identifier is requested, not an actual store count.
     -- Without track/kinematics the HUD MUST NOT show a DLZ or SHOOT cue.
     local mrm = visible("MRM","HUD_MODE",2)
-    static(-0.77,0.83,"A/A",0.052,mrm)
-    static(0.75,0.83,"AIM-120",0.044,mrm)
-    local noMRM = visible("MRM_NO_TRACK","HUD_AA_TARGET_VALID",0,mrm)
-    static(0,-0.80,"NO TRACK",0.042,noMRM)
-    -- Target-designator box only if later sensor adapter supplies a valid LOS.
-    group("HUD_AA_TRACK_SYMBOL",0,0,
-        {"HUD_AA_TGT_AZ_RAD","HUD_AA_TGT_EL_RAD","HUD_POWER","HUD_AA_CUE_VALID","HUD_MODE"},
-        {{"move_left_right_using_parameter",0,1.18},
-         {"move_up_down_using_parameter",1,1.18},
-         {"opacity_using_parameter",2},
-         {"parameter_in_range",3,0.9,1.1},
-         {"parameter_in_range",4,1.9,2.1}})
-    local rect=0.07
-    line(-rect,-rect,rect,-rect,0.006,"HUD_AA_TRACK_SYMBOL")
-    line(rect,-rect,rect,rect,0.006,"HUD_AA_TRACK_SYMBOL")
-    line(rect,rect,-rect,rect,0.006,"HUD_AA_TRACK_SYMBOL")
-    line(-rect,rect,-rect,-rect,0.006,"HUD_AA_TRACK_SYMBOL")
-    local tgtText = visible("MRM_TGT","HUD_AA_TARGET_VALID",1,mrm)
-    label(0.70,-0.61,"HUD_AA_TGT_RANGE_NM","R %.1f",0.043,tgtText)
-    static(0,-0.80,"STT TELEMETRY",0.037,tgtText)
-    local closure=visible("MRM_CLOSURE","HUD_AA_CLOSURE_VALID",1,tgtText)
-    label(-0.73,-0.58,"HUD_AA_TGT_CLOSURE_KTS","VC %+0.f",0.038,closure)
+    static(-0.40,-0.48,"A/A",0.025,mrm)
+    static(0.57,-0.59,"AIM-120",0.021,mrm)
+    label(.72,-.63,"F22_WEAPON_COUNT","X %.0f",.021,mrm,"RightCenter")
+    local noMRM = visible("MRM_NO_TRACK","HUD_TD_VALID",0,mrm)
+    static(0,-1.01,"NO TRACK",0.023,noMRM)
+    local tgtText = visible("MRM_TGT","HUD_TD_VALID",1,mrm)
+    local closure=visible("MRM_CLOSURE","F22_RADAR_SELECTED_CLOSURE_VALID",1,tgtText)
     local iffFriend = visible("FRIEND","HUD_AA_TGT_IFF",1,tgtText)
-    static(0.0,-0.67,"FRIEND",0.048,iffFriend)
+    static(0.0,-1.01,"FRIEND",0.023,iffFriend)
     local radarPowered = visible("RDR_ON","RADAR_PWR",1,mrm)
-    static(-0.76,0.53,"RDR ON",0.038,radarPowered)
     local radarOff = visible("RDR_OFF","RADAR_PWR",0,mrm)
-    static(-0.76,0.53,"RDR OFF",0.038,radarOff)
 
-    -- Requested radar submode labels are not proof of actual radar scan state.
-    local requests={
-        {1,"RWS REQ"},{2,"TWS REQ"},{3,"VS REQ"},
-        {4,"ACM REQ"},{5,"FLOOD REQ"}
-    }
-    for _,entry in ipairs(requests) do
-        for _,m in ipairs({2,3,4,5,6}) do
-            local mode=visible("RADAR_MODE","HUD_MODE",m)
-            local req=visible("RADAR_REQ","HUD_RADAR_REQUEST",entry[1],mode)
-            static(0.76,0.55,entry[2],0.037,req)
+    -- Actual radar computer status. Mode selection is not weapon consent.
+    for _,m in ipairs({2,3,4,5,6}) do
+        local root=visible("RADAR_STATUS","HUD_MODE",m)
+        for code,value in ipairs({'OFF','STBY','RWS','TWS','ACQ','STT','BORE','VACQ','WIDE','SENSOR N/A'}) do
+            local status=visible('RADAR_CODE','F22_RADAR_MODE_CODE',code-1,root)
+            static(0.60,-0.37,value,0.021,status)
         end
     end
 
-    -- AIM-9 seeker reference: *boresight* circle only. No invented IR lock,
-    -- uncage, tone, valid firing range or off-boresight cue.
+    -- AIM-9 states come from the typed native seeker; radar lock alone is not IR lock.
     for _,m in ipairs({3,4,6}) do
         local sr=visible("IR","HUD_MODE",m)
-        static(-0.77,0.83,"A/A",0.052,sr)
-        static(0.75,0.83,"AIM-9",0.044,sr)
-        ring(0,0,0.14,sr,32)
-        cross(0,0,0.045,sr)
+        static(-0.40,-0.48,"A/A",0.025,sr)
+        static(0.57,-0.59,"AIM-9",0.021,sr)
+        label(.72,-.63,"F22_WEAPON_COUNT","X %.0f",.021,sr,"RightCenter")
+        local seekerPos="HUD_IR_NATIVE_"..m
+        angular(seekerPos,0,0,
+            {"HUD_IR_SEEKER_AZ","HUD_IR_SEEKER_EL","HUD_POWER","HUD_IR_SEEKER_AVAILABLE","HUD_MODE"},
+            {{"move_left_right_using_parameter",0,1.18},{"move_up_down_using_parameter",1,1.18},
+             {"opacity_using_parameter",2},{"parameter_in_range",3,.9,1.1},
+             {"parameter_in_range",4,m-.1,m+.1}})
+        ring(0,0,0.09,seekerPos,32)
         local radarInfo=visible("IR_RADAR_INFO","HUD_AA_TARGET_VALID",1,sr)
-        label(0.72,-0.59,"HUD_AA_TGT_RANGE_NM","R %.1f",0.038,radarInfo)
-        static(-0.73,-0.58,"RDR TRACK",0.033,radarInfo)
-        local noSeeker=visible("IR_UNAVAILABLE","HUD_IR_SEEKER_VALID",0,sr)
-        static(0,-0.8,"SEEKER DATA N/A",0.034,noSeeker)
+        local irClosure=visible("IR_CLOSURE","HUD_AA_CLOSURE_VALID",1,radarInfo)
+        local noSeeker=visible("IR_UNAVAILABLE","HUD_IR_BACKEND_READY",0,sr)
+        static(-0.40,-0.69,"IR BACKEND N/A",0.023,noSeeker)
+        local backend=visible("IR_BACKEND","HUD_IR_BACKEND_READY",1,sr)
+        local empty=visible("IR_EMPTY","F22_WEAPON_COUNT",0,backend)
+        static(-0.40,-0.69,"NO AIM-9",0.023,empty)
+        local searching=visible("IR_AVAILABLE","HUD_IR_SEEKER_AVAILABLE",1,backend)
+        local noLock=visible("IR_SEARCH","HUD_IR_SEEKER_VALID",0,searching)
+        static(-0.40,-0.69,"NO IR LOCK",0.023,noLock)
         local seeker=visible("IR_SEEKER","HUD_IR_SEEKER_VALID",1,sr)
-        -- A future live seeker LOS adapter can drive these offsets.
-        static(0,-0.8,"SEEKER LOS",0.032,seeker)
+        static(-0.40,-0.69,"IR TRACK",0.023,seeker)
     end
 
-    -- A/A gun: boresight reticle only, not a lead-computing gunsight.
+    -- Computed target-motion director; no alternate aiming source.
     local gun=visible("GUN","HUD_MODE",5)
-    static(-0.77,0.83,"A/A",0.052,gun)
-    static(0.77,0.83,"GUN",0.050,gun)
-    ring(0,-0.025,0.13,gun,32)
-    ring(0,-0.025,0.035,gun,20)
-    cross(0,-0.025,0.18,gun)
+    static(-0.40,-0.48,"A/A",0.025,gun)
+    static(0.57,-0.59,"GUN",0.021,gun)
+    local ammo=visible("GUN_AMMO","F22_GUN_AMMO_VALID",1,gun)
+    label(-0.40,-0.69,"F22_GUN_AMMO_COUNT","AMMO %03.0f",0.023,ammo)
+    local noAmmo=visible("GUN_AMMO_NA","F22_GUN_AMMO_VALID",0,gun)
+    static(-0.40,-0.69,"AMMO N/A",0.023,noAmmo)
     local noRange=visible("GUN_NO_RNG","HUD_GUN_TARGET_VALID",0,gun)
-    static(0,-0.8,"GUN NO RNG",0.04,noRange)
+    static(0,-0.78,"GUN NO TRACK",0.025,noRange)
     local withRange=visible("GUN_RANGE","HUD_GUN_TARGET_VALID",1,gun)
-    label(0.72,-0.61,"HUD_AA_TGT_RANGE_NM","R %.1f",0.04,withRange)
-    static(0,-0.80,"NO VERIFIED LEAD",0.032,withRange)
-    group("HUD_GUN_LEAD_SIM",0,0,
-        {"HUD_GUN_LEAD_AZ_RAD","HUD_GUN_LEAD_EL_RAD","HUD_POWER","HUD_GUN_LEAD_VALID","HUD_MODE"},
+    local gunVC=visible("GUN_CLOSURE","HUD_AA_CLOSURE_VALID",1,withRange)
+    local director=visible("GUN_DIRECTOR","F22_GUN_USING_DIRECTOR",1,withRange)
+    static(0,-0.78,"TRACK  ARC 2KM",0.025,director)
+    -- Native sight includes the gun transform. Place its body-axis angles in
+    -- the physical optical frame, independently of the decorative fixed W.
+    local gun_optics=dofile(LockOn_Options.script_path.."HUD/optics.lua")
+    if log and log.write then
+        log.write("F22_GUN_ALIGNMENT",log.INFO,string.format(
+            "native gun transform retained; optical_zero=%.3f mrad; layout_zero=%.3f mrad",
+            gun_optics.frl_elevation*1000,api.boresight_y*api.layout_scale*1000))
+    end
+    angular("HUD_GUN_NATIVE",0,0,
+        {"HUD_GUN_NATIVE_AZ","HUD_GUN_NATIVE_EL","HUD_POWER","HUD_GUN_NATIVE_VALID","HUD_MODE"},
         {{"move_left_right_using_parameter",0,1.18},
          {"move_up_down_using_parameter",1,1.18},
          {"opacity_using_parameter",2},
          {"parameter_in_range",3,0.9,1.1},
-         {"parameter_in_range",4,4.9,5.1}})
-    ring(0,0,0.039,"HUD_GUN_LEAD_SIM",24)
-    cross(0,0,0.09,"HUD_GUN_LEAD_SIM")
-    local leadCaption=visible("LEAD_SIM_CAPTION","HUD_GUN_LEAD_VALID",1,gun)
-    static(0,-0.84,"GUN LEAD SIM",0.035,leadCaption)
+         {"parameter_in_range",4,4.9,5.1}},nil,gun_optics.frl_elevation/api.layout_scale)
+    dofile(LockOn_Options.script_path..'HUD/gun_maneuver.lua')(api,gun,gun_optics.frl_elevation/api.layout_scale)
+    dofile(LockOn_Options.script_path..'HUD/gun_reticle.lua')(api,"HUD_GUN_NATIVE")
+    local noSight=visible("GUN_NO_SIGHT","HUD_GUN_NATIVE_VALID",0,gun)
+    static(0,-0.86,"GUN NO SOLUTION",0.025,noSight)
     local ready=visible("GUN_READY","HUD_GUN_READY",1,gun)
-    static(0.76,-0.73,"GUN RDY",0.036,ready)
+    static(0.40,-0.69,"GUN RDY",0.025,ready)
+
+    -- Hornet convention: solid confirmed track, segmented designation, locator
+    -- line/angle when outside the HUD. Keep weapon consent on native STT only.
+    local optical_y=gun_optics.frl_elevation/api.layout_scale
+    local unit=1/api.layout_scale
+    angular('HUD_RADAR_TD',0,0,{'HUD_TD_X','HUD_TD_Y','HUD_POWER','HUD_TD_BOX_VALID','HUD_MODE'},
+        {{'move_left_right_using_parameter',0,1},{'move_up_down_using_parameter',1,1},
+         {'opacity_using_parameter',2},{'parameter_in_range',3,.9,1.1},{'parameter_in_range',4,.9,6.1}},nil,optical_y)
+    angular('HUD_SECONDARY_TD',0,0,{'HUD_DT2_X','HUD_DT2_Y','HUD_POWER','HUD_DT2_VALID','HUD_MODE'},
+        {{'move_left_right_using_parameter',0,1},{'move_up_down_using_parameter',1,1},
+         {'opacity_using_parameter',2},{'parameter_in_range',3,.9,1.1},{'parameter_in_range',4,.9,6.1}},nil,optical_y)
+    local s2=.008/api.layout_scale
+    line(-s2,-s2,s2,s2,.001/api.layout_scale,'HUD_SECONDARY_TD')
+    line(-s2,s2,s2,-s2,.001/api.layout_scale,'HUD_SECONDARY_TD')
+    local normal=visible('TD_NORMAL','HUD_TD_FRIENDLY',0,'HUD_RADAR_TD')
+    local friend=visible('TD_FRIEND','HUD_TD_FRIENDLY',1,'HUD_RADAR_TD')
+    local solid=visible('TD_SOLID','HUD_TD_LOCKED',1,normal)
+    local segmented=visible('TD_DESIGNATED','HUD_TD_LOCKED',0,normal)
+    local r,w=.0125*unit,.001*unit
+    line(-r,-r,r,-r,w,friend);line(r,-r,r,r,w,friend)
+    line(r,r,-r,r,w,friend);line(-r,r,-r,-r,w,friend)
+    line(-r,-r,r,r,w,friend);line(-r,r,r,-r,w,friend)
+    static(0,-r-.012*unit,'FRIENDLY',.018,friend)
+    line(-r,-r,r,-r,w,solid);line(r,-r,r,r,w,solid)
+    line(r,r,-r,r,w,solid);line(-r,r,-r,-r,w,solid)
+    for _,sx in ipairs({-1,1}) do for _,sy in ipairs({-1,1}) do
+        line(sx*r,sy*r,sx*r*.4,sy*r,w,segmented)
+        line(sx*r,sy*r,sx*r,sy*r*.4,w,segmented)
+    end end
+    angular('HUD_TARGET_LOCATOR',0,0,{'HUD_TD_ARROW_X','HUD_TD_ARROW_Y','HUD_POWER','HUD_TD_ARROW_VALID','HUD_MODE'},
+        {{'move_left_right_using_parameter',0,1},{'move_up_down_using_parameter',1,1},
+         {'opacity_using_parameter',2},{'parameter_in_range',3,.9,1.1},{'parameter_in_range',4,.9,6.1}},nil,optical_y)
+    group('HUD_TARGET_LOCATOR_ROT',0,0,{'HUD_TD_ARROW_ROT'},{{'rotate_using_parameter',0,1}},'HUD_TARGET_LOCATOR')
+    line(0,-.040*unit,0,0,w,'HUD_TARGET_LOCATOR_ROT')
+    line(-.008*unit,-.014*unit,0,0,w,'HUD_TARGET_LOCATOR_ROT')
+    line(.008*unit,-.014*unit,0,0,w,'HUD_TARGET_LOCATOR_ROT')
+    local angle=visible('TARGET_ANGLE','HUD_TD_ARROW_VALID',1)
+    label(0,optical_y-.13,'HUD_TD_ANGLE_DEG','TGT %03.0f',.021,angle)
+    local shoot=visible('LAUNCH_CUE','F22_FC_SHOOT',1,'HUD_RADAR_TD')
+    static(0,r+.017*unit,'SHOOT',.021,shoot)
+    dofile(LockOn_Options.script_path..'HUD/engagement.lua')(api)
+    -- Acquisition bounds in optical radians, clipped by the existing glass mask.
+    local profiles=dofile(LockOn_Options.script_path..'Systems/Radar_Computer.lua').profiles
+    for _,key in ipairs({'BORE','VACQ','WIDE'}) do
+        local spec=profiles[key]
+        local mode,az,lo,hi=spec.code,spec.az,spec.lo,spec.hi
+        local name='HUD_ACM_VOLUME_'..mode
+        angular(name,0,0,{'HUD_POWER','F22_ACM_MODE','F22_RADAR_STT_VALID','RADAR_PWR','HUD_MODE'},
+            {{'opacity_using_parameter',0},{'parameter_in_range',1,mode-.1,mode+.1},
+             {'parameter_in_range',2,-.1,.1},{'parameter_in_range',3,.9,1.1},{'parameter_in_range',4,2.9,6.1}})
+        local x=math.rad(az)/api.layout_scale
+        local y1=math.rad(lo)/api.layout_scale;local y2=math.rad(hi)/api.layout_scale
+        line(-x,y1,-x,y2,.004,name);line(x,y1,x,y2,.004,name)
+        line(-x,y1,-x+.04,y1,.004,name);line(x-.04,y1,x,y1,.004,name)
+    end
 
     -- A/G: generic manual depressed reticle. It is NOT a computed impact point.
     -- The requested CCIP/CCRP modes must show N/A until a valid solver exists.
@@ -175,7 +269,7 @@ return function(api)
     static(-0.72,-0.73,"SIM NO DRAG",0.037,est)
     local noEstimate=visible("CCIP_NO_EST","HUD_AG_CCIP_EST_VALID",0,ccip)
     static(0,-0.80,"EST UNAVAILABLE",0.037,noEstimate)
-    group("HUD_AG_CCIP_PIPPER",0,0,
+    angular("HUD_AG_CCIP_PIPPER",0,0,
         {"HUD_AG_CCIP_AZ_RAD","HUD_AG_CCIP_EL_RAD","HUD_POWER","HUD_AG_CCIP_CUE_VALID","HUD_MODE","HUD_AG_SUBMODE"},
         {{"move_left_right_using_parameter",0,1.18},
          {"move_up_down_using_parameter",1,1.18},
@@ -197,7 +291,7 @@ return function(api)
     local mark=visible("AG_MARK","HUD_AG_TARGET_VALID",1,ag)
     static(0,-0.80,"MARKPOINT",0.037,mark)
     label(0.75,-0.46,"HUD_AG_TGT_RANGE_NM","R %.1f",0.037,mark)
-    group("HUD_AG_MARKER",0,0,
+    angular("HUD_AG_MARKER",0,0,
         {"HUD_AG_TGT_AZ_RAD","HUD_AG_TGT_EL_RAD","HUD_POWER","HUD_AG_CUE_VALID","HUD_MODE"},
         {{"move_left_right_using_parameter",0,1.18},
          {"move_up_down_using_parameter",1,1.18},

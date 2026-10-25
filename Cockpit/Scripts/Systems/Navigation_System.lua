@@ -1,109 +1,122 @@
--- GPL-3.0-or-later; F-22 DCS independent navigation producer.
--- Uses real mission-editor route, ownship coordinates and attitude.
--- Does NOT synthesize radar contacts or A/G weapon target designations.
-local dev = GetSelf()
-local base = get_base_data()
-dofile(LockOn_Options.script_path.."command_defs.lua")
-local geom = dofile(LockOn_Options.script_path.."Systems/NavGeometry.lua")
-local dt=0.05
-make_default_activity(dt)
-local p={
-    power=get_param_handle("MAIN_POWER"),
-    waypoint=get_param_handle("HUD_WP_VALID"),
-    cue=get_param_handle("HUD_WP_CUE_VALID"),
-    az=get_param_handle("HUD_WP_AZ_RAD"),
-    el=get_param_handle("HUD_WP_EL_RAD"),
-    distance=get_param_handle("HUD_WP_RANGE_NM"),
-    index=get_param_handle("HUD_WP_INDEX"),
-    bearing=get_param_handle("HUD_WP_BEARING_DEG"),
-    bearingValid=get_param_handle("HUD_WP_BRG_VALID"),
-}
-local nextSteer=Keys.PlaneChangeTarget
-local prevSteer=1315 -- existing ICP previous waypoint command
-dev:listen_command(nextSteer)
-dev:listen_command(prevSteer)
-local route={}
-local active=2 -- first waypoint after DCS takeoff/spawn point
+-- GPL-3.0-or-later. Single owner of independent mission-route navigation.
+local dev,base=GetSelf(),get_base_data()
+dofile(LockOn_Options.script_path..'devices.lua')
+dofile(LockOn_Options.script_path..'command_defs.lua')
+local nav=dofile(LockOn_Options.script_path..'Systems/Nav_Computer.lua')
+local commands=dofile(LockOn_Options.script_path..'Systems/Nav_Commands.lua')
+local decode=dofile(LockOn_Options.script_path..'Systems/Input_Value.lua')
+local geom=dofile(LockOn_Options.script_path..'Systems/NavGeometry.lua')
+local project=dofile(LockOn_Options.script_path..'Systems/HUD_TargetMath.lua').new(dofile(LockOn_Options.script_path..'HUD/glass.lua'))
+make_default_activity(.05)
+local handles={}
+local function get(k) if not handles[k] then handles[k]=get_param_handle(k) end return handles[k]:get() end
+local function set(k,v) if not handles[k] then handles[k]=get_param_handle(k) end handles[k]:set(v) end
+-- Allocate every shared handle during device construction, before the three
+-- LCD indicator Lua states bind them concurrently. Lazy first creation from
+-- multiple indicators can race the common native parameter registry.
+for _,key in ipairs({'MAIN_POWER','HUD_GS_VALID','HUD_GS_MPS','HUD_WP_VALID','HUD_WP_INDEX','HUD_WP_RANGE_NM',
+    'HUD_WP_BRG_VALID','HUD_WP_BEARING_DEG','HUD_WP_INFO','HUD_WP_TTG_TEXT','HUD_WP_TTG_VALID',
+    'HUD_WP_AZ_RAD','HUD_WP_EL_RAD','HUD_WP_X','HUD_WP_Y','HUD_WP_CUE_VALID','HUD_WP_OFFSCREEN',
+    'HUD_WP_ARROW_X','HUD_WP_ARROW_Y','HUD_WP_ARROW_ROT','F22_NAV_VALID','F22_NAV_AUTO','F22_NAV_AUTO_TEXT',
+    'F22_NAV_SCALE_NM','F22_NAV_ROUTE_COUNT','F22_NAV_COMPASS_ROT','F22_NAV_HEADING_TEXT','F22_NAV_BRG_ROT',
+    'F22_NAV_STATUS_TEXT','F22_NAV_FIX_TEXT','F22_NAV_BRG_TEXT','F22_NAV_DIST_TEXT','F22_NAV_ALT_TEXT',
+    'F22_NAV_TTG_TEXT','F22_NAV_COURSE_TEXT','F22_NAV_XTK_TEXT'}) do handles[key]=get_param_handle(key) end
+for i=1,nav.slots do
+    for _,suffix in ipairs({'VALID','X','Y','ID','ACTIVE'}) do local k=string.format('F22_NAV_PT_%02d_',i)..suffix;handles[k]=get_param_handle(k) end
+    for _,suffix in ipairs({'VALID','X1','Y1','X2','Y2','ACTIVE'}) do local k=string.format('F22_NAV_LEG_%02d_',i)..suffix;handles[k]=get_param_handle(k) end
+end
+local computer=nav.new({});local terrain
+local function ownship()
+    local ok,n,a,e=pcall(base.getSelfCoordinates)
+    if not ok or not nav.finite(n) or not nav.finite(a) or not nav.finite(e) then return end
+    local h,p,r=base.getHeading(),base.getPitch(),base.getRoll()
+    if not nav.finite(h) or not nav.finite(p) or not nav.finite(r) then return end
+    return {x=n,y=e,alt=a,heading=(-h)%(2*math.pi),pitch=p,roll=r,
+        gs=get('HUD_GS_VALID')>.5 and get('HUD_GS_MPS') or nil}
+end
+local function height(n,e)
+    if not terrain or type(terrain.GetHeight)~='function' then return end
+    local ok,h=pcall(terrain.GetHeight,n,e)
+    if ok and nav.finite(h) then return h end
+end
+local function load_route()
+    local ok,route=false,nil
+    if type(get_mission_route)=='function' then ok,route=pcall(get_mission_route) end
+    computer=nav.new(ok and route or {},height)
+end
 local function clear()
-    p.waypoint:set(0)
-    p.cue:set(0)
-    p.az:set(0)
-    p.el:set(0)
-    p.distance:set(0)
-    p.index:set(0)
-    p.bearing:set(0)
-    p.bearingValid:set(0)
-end
-local function validPoint(w)
-    return type(w)=="table" and type(w.x)=="number" and
-        type(w.y)=="number" and type(w.alt)=="number"
-end
-local function readRoute()
-    route={}
-    if type(get_mission_route)~="function" then return end
-    local ok,results=pcall(get_mission_route)
-    if not ok or type(results)~="table" then return end
-    for _,entry in ipairs(results.route or results) do
-        if validPoint(entry) then route[#route+1]=entry end
+    for _,n in ipairs({'HUD_WP_VALID','HUD_WP_CUE_VALID','HUD_WP_OFFSCREEN','HUD_WP_BRG_VALID','HUD_WP_TTG_VALID','F22_NAV_VALID'}) do set(n,0) end
+    set('HUD_WP_INFO','STPT --');set('HUD_WP_TTG_TEXT','--:--:--')
+    for _,n in ipairs({'HUD_WP_INDEX','HUD_WP_RANGE_NM','HUD_WP_BEARING_DEG'}) do set(n,0) end
+    for _,key in ipairs({'STATUS','FIX','BRG','DIST','ALT','TTG','COURSE','XTK'}) do set('F22_NAV_'..key..'_TEXT',key=='STATUS' and (#computer.route==0 and 'NO ROUTE' or 'NAV DATA UNAVAILABLE') or '--') end
+    for i=1,nav.slots do
+        set(string.format('F22_NAV_PT_%02d_VALID',i),0);set(string.format('F22_NAV_LEG_%02d_VALID',i),0)
     end
-    if #route==1 then active=1
-    elseif #route>1 then active=2
-    else active=0 end
-end
-local function increment(n)
-    if #route<1 then return end
-    local first=(#route==1) and 1 or 2
-    active=active+n
-    if active>#route then active=first end
-    if active<first then active=#route end
 end
 function post_initialize()
-    clear()
-    readRoute()
+    local ok,t=pcall(require,'terrain');if ok and type(t)=='table' then terrain=t end
+    load_route();clear();set('F22_NAV_HEADING_TEXT','---T')
+    if log and log.write then log.write('F22_NAV',log.INFO,'mission route loaded: '..#computer.route..' selectable points') end
 end
+for _,c in pairs(commands) do dev:listen_command(c) end
+dev:listen_command(Keys.PlaneChangeTarget);dev:listen_command(1315)
 function SetCommand(command,value)
-    -- Only act on positive edges. If a button is momentary we do not double step.
-    if value~=nil and value<=0 then return end
-    if command==nextSteer then increment(1)
-    elseif command==prevSteer then increment(-1) end
+    if command>=10830 and command<=10836 then value=decode(value,devices.NAV_SYSTEM) end
+    if value and value<=0 then return end
+    if get('MAIN_POWER')<.5 then return end
+    if command==commands.next or command==Keys.PlaneChangeTarget then computer:step(1)
+    elseif command==commands.previous or command==1315 then computer:step(-1)
+    elseif command==commands.auto then computer.automatic=not computer.automatic
+    elseif command==commands.range_in then computer:scale(-1)
+    elseif command==commands.range_out then computer:scale(1)
+    elseif command==commands.direct then computer:direct(ownship())
+    elseif command==commands.reload then load_route() end
+end
+local function time_text(t)
+    if not nav.finite(t) or t<0 or t>359999 then return '--:--:--' end
+    t=math.floor(t+.5)
+    return string.format('%02d:%02d:%02d',math.floor(t/3600),math.floor(t/60)%60,t%60)
 end
 function update()
-    if p.power:get()<0.5 or not validPoint(route[active]) then clear(); return end
-    if type(base.getSelfCoordinates)~="function" then clear(); return end
-    local ok,x,alt,y=pcall(base.getSelfCoordinates)
-    if not ok or type(x)~="number" or type(y)~="number"
-            or type(alt)~="number" then clear(); return end
-    local w=route[active]
-    local dx,dy,dz=w.x-x,w.y-y,w.alt-alt
-    -- Project with same compass convention as Avionics.lua HUD heading.
-    local head=(2*math.pi - base.getHeading())%(2*math.pi)
-    local az,el,range=geom.project(dx,dy,dz,head,base.getPitch(),base.getRoll())
-    if not range or range<1 then clear(); return end
-    p.index:set(active)
-    p.distance:set(range/1852.0)
-    -- Bearing from aircraft to the selected waypoint in DCS world coordinates:
-    -- horizontal x=north, horizontal map y=east. True/world reference.
-    -- Lua 5.1 lacks a portable atan2; handle the quadrants explicitly.
-    local horizontal=math.sqrt(dx*dx+dy*dy)
-    if horizontal > 1.0 then
-        local bearing
-        if dx>0 then bearing=math.atan(dy/dx)
-        elseif dx<0 then bearing=math.atan(dy/dx)+math.pi
-        elseif dy>0 then bearing=math.pi/2
-        else bearing=3*math.pi/2 end
-        p.bearing:set((bearing*180/math.pi+360)%360)
-        p.bearingValid:set(1)
-    else
-        p.bearing:set(0)
-        p.bearingValid:set(0)
+    set('F22_NAV_AUTO',computer.automatic and 1 or 0)
+    set('F22_NAV_AUTO_TEXT',computer.automatic and 'AUTO' or 'MAN')
+    set('F22_NAV_SCALE_NM',nav.ranges[computer.range_index]);set('F22_NAV_ROUTE_COUNT',#computer.route)
+    local own=get('MAIN_POWER')>.5 and ownship() or nil
+    set('F22_NAV_COMPASS_ROT',own and own.heading or 0)
+    set('F22_NAV_HEADING_TEXT',own and string.format('%03dT',math.floor(math.deg(own.heading)+.5)%360) or '---T')
+    local s=own and nav.solution(computer,own)
+    if not s then clear();return end
+    local w=s.waypoint;local degrees=math.floor(math.deg(s.bearing)+.5)%360
+    set('F22_NAV_VALID',1);set('F22_NAV_COMPASS_ROT',own.heading)
+    set('F22_NAV_HEADING_TEXT',string.format('%03dT',math.floor(math.deg(own.heading)+.5)%360))
+    set('F22_NAV_STATUS_TEXT',s.arrived and 'ARRIVED' or (s.direct and 'DIRECT TO' or 'MISSION ROUTE'))
+    set('F22_NAV_FIX_TEXT',string.format('WP%02d %s',w.id,w.name))
+    set('F22_NAV_BRG_TEXT',string.format('BRG %03dT',degrees))
+    set('F22_NAV_DIST_TEXT',string.format('DIS %.1fNM',s.distance/1852))
+    set('F22_NAV_ALT_TEXT',w.alt and string.format('ALT %.0f%s',w.alt*3.280839895,w.reference) or 'ALT --')
+    local ttg=time_text(s.ttg);set('F22_NAV_TTG_TEXT','TTG '..ttg)
+    set('F22_NAV_COURSE_TEXT',s.course and string.format('CRS %03dT',math.floor(math.deg(s.course)+.5)%360) or 'CRS --')
+    set('F22_NAV_XTK_TEXT',s.cross and string.format('XTK %s%.1f',s.cross<0 and 'L' or 'R',math.abs(s.cross)/1852) or 'XTK --')
+    set('F22_NAV_BRG_ROT',-s.relative)
+    set('HUD_WP_VALID',1);set('HUD_WP_INDEX',w.id);set('HUD_WP_RANGE_NM',s.distance/1852)
+    set('HUD_WP_BRG_VALID',s.distance>1 and 1 or 0);set('HUD_WP_BEARING_DEG',degrees)
+    set('HUD_WP_INFO',string.format('%02d %03d/%.1f',w.id,degrees,s.distance/1852))
+    set('HUD_WP_TTG_TEXT',ttg);set('HUD_WP_TTG_VALID',ttg~='--:--:--' and 1 or 0)
+    set('HUD_WP_CUE_VALID',0);set('HUD_WP_OFFSCREEN',0)
+    if w.msl and s.distance>1 then
+        local f,r,u=geom.body(w.x-own.x,w.y-own.y,w.msl-own.alt,own.heading,own.pitch,own.roll)
+        local az=nav.atan2(r,f);local el=nav.atan2(u,math.sqrt(f*f+r*r));local cue=project(az,el)
+        set('HUD_WP_AZ_RAD',az);set('HUD_WP_EL_RAD',el);set('HUD_WP_X',cue.x);set('HUD_WP_Y',cue.y)
+        set('HUD_WP_CUE_VALID',cue.visible and 1 or 0);set('HUD_WP_OFFSCREEN',cue.visible and 0 or 1)
+        set('HUD_WP_ARROW_X',cue.arrow_x);set('HUD_WP_ARROW_Y',cue.arrow_y);set('HUD_WP_ARROW_ROT',cue.rotation)
     end
-    p.waypoint:set(1)
-    if az and el and math.abs(az)<math.rad(15) and math.abs(el)<math.rad(12.5) then
-        p.az:set(az)
-        p.el:set(el)
-        p.cue:set(1)
-    else
-        p.cue:set(0)
+    for i=1,nav.slots do
+        local p=s.points[i];local root=string.format('F22_NAV_PT_%02d_',i)
+        set(root..'VALID',p and p.visible and 1 or 0)
+        if p then set(root..'X',p.x);set(root..'Y',p.y);set(root..'ID',p.id);set(root..'ACTIVE',p.active and 1 or 0) end
+        local l=s.legs[i];root=string.format('F22_NAV_LEG_%02d_',i)
+        set(root..'VALID',l and 1 or 0)
+        if l then for _,k in ipairs({'x1','y1','x2','y2'}) do set(root..k:upper(),l[k]) end;set(root..'ACTIVE',l.active and 1 or 0) end
     end
 end
 need_to_be_closed=false

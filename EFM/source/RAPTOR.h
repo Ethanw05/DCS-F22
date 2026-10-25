@@ -146,6 +146,7 @@ namespace RAPTOR {
 
     double atmosphere_density = 1.225, altitude_ASL = 0, altitude_AGL = 0, V_scalar = 0;
     double speed_of_sound = 320, mach = 0;
+    double hud_static_pressure_pa = 101325;
     double engine_alt_effect = 1, atmosphere_temperature = 273;
     double aoa = 0, alpha = 0, aos = 0, beta = 0, g = 0;
     bool on_ground = false;
@@ -377,6 +378,8 @@ public:
     void initialize();
 
     void update(double dt);
+    void updateCombat(double dt);
+    void updateGun();
 
     void updateDrawArgs(float* drawargs, size_t size);
 

@@ -4,3 +4,7 @@
 out/
 bin/
 CMakeUserPresets.json
+__pycache__/
+*.py[cod]
+*.pdb
+.venv/

@@ -25,9 +25,11 @@ init_pageID		= 1
 
 -------PAGE IDs-------
 BASE    = 1
+EW      = 2
 --INDICATION = 2
 
 page_subsets  = {
+[EW] = LockOn_Options.script_path.."UFD_LEFT/ew_page.lua",
 [BASE]    		= LockOn_Options.script_path.."UFD_LEFT/base_page.lua",
 --[INDICATION]    = LockOn_Options.script_path.."LDDI/indication_page.lua",
 }
@@ -35,6 +37,7 @@ pages =
 {
 	{
 	 BASE,
+     EW,
 	 --INDICATION
 	 },
 }

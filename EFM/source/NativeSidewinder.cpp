@@ -1,0 +1,978 @@
+// GPL-3.0-or-later. Our adapter/control policy; no Hornet binary dependency.
+// ABI reference: Standalone-F22-IDA-Research.md, typed Sidewinder investigation.
+// Runtime validation is still required. Reject a different CockpitBase ABI.
+#include "NativeSidewinder.h"
+#include "NativeSTTMotion.h"
+#include <Cockpit/CockpitAPI_Declare.h>
+#include <Windows.h>
+#include <array>
+#include <algorithm>
+#include <atomic>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <cstdio>
+#include <map>
+#include <limits>
+#include <string>
+
+namespace NativeSidewinder {
+namespace {
+struct WeaponType {
+    std::uint8_t level1{}, level2{}, level3{}, padding{};
+    std::uint32_t level4{};
+    bool operator==(const WeaponType&) const = default;
+};
+static_assert(sizeof(WeaponType)==8);
+struct Pose { double m[16]{}; };
+struct LauncherPose { float m[16]{}; };
+struct Direction { double x{}, y{}, z{}; };
+struct ScanPattern {double elevation_volume{},azimuth_volume{},azimuth{},elevation{};};
+static_assert(sizeof(ScanPattern)==32);
+// Model connector transforms can carry scale/shear. avPlatform's IR angular
+// gate assumes an orthonormal rigid pose (dot(direction, forward) >= cos(FOV)).
+bool normalize_mount_pose(Pose& p) {
+    for (double value:p.m) if (!std::isfinite(value)) return false;
+    auto norm=[](double* v) {
+        double length=std::hypot(v[0],v[1],v[2]);
+        if (length<1e-8) return false;
+        for (int i=0;i<3;++i) v[i]/=length;
+        return true;
+    };
+    if (!norm(p.m)) return false;
+    double dot=0;for (int i=0;i<3;++i) dot+=p.m[i]*p.m[4+i];
+    for (int i=0;i<3;++i) p.m[4+i]-=dot*p.m[i];
+    if (!norm(p.m+4)) return false;
+    double right[]={p.m[1]*p.m[6]-p.m[2]*p.m[5],p.m[2]*p.m[4]-p.m[0]*p.m[6],p.m[0]*p.m[5]-p.m[1]*p.m[4]};
+    double handedness=0;for (int i=0;i<3;++i) handedness+=right[i]*p.m[8+i];
+    if (handedness<=1e-8) return false;
+    for (int i=0;i<3;++i) p.m[8+i]=right[i];
+    p.m[3]=p.m[7]=p.m[11]=0;p.m[15]=1;
+    return true;
+}
+// Conservative virtual sensor aperture for the internal-bay model. The shared
+// IR sensor's search ray can stop at its own aircraft mesh. This moves only
+// the observation origin along its mounting axis; native station launch stays
+// at the actual hardpoint. Bounds are parsed from Shapes/F-22A.EDM RootNode.
+constexpr double model_min[]={-7.807378768920898,-2.015413522720337,-6.808021068572998};
+constexpr double model_max[]={11.57210636138916,3.4293808937072754,6.808021068572998};
+double clear_observation_aperture(Pose& pose,const double* low,const double* high) {
+    for (int i=0;i<3;++i) if (pose.m[12+i]<low[i] || pose.m[12+i]>high[i]) return 0;
+    double exit=1e9;
+    for (int i=0;i<3;++i) {
+        const double direction=pose.m[i];
+        if (std::abs(direction)>1e-8) {
+            const double face=direction>0 ? high[i] : low[i];
+            exit=std::min(exit,(face-pose.m[12+i])/direction);
+        }
+    }
+    const double travel=exit+.05;
+    for (int i=0;i<3;++i) pose.m[12+i]+=travel*pose.m[i];
+    return travel;
+}
+
+struct Api {
+    using Construct = void* (__fastcall*)(void*, const WeaponType*);
+    using Method = void (__fastcall*)(void*);
+    using Boolean = void (__fastcall*)(void*, bool);
+    using Test = bool (__fastcall*)(void*);
+    using Status = void (__fastcall*)(void*, unsigned);
+    using Station = void (__fastcall*)(void*, int, int);
+    using Update = void (__fastcall*)(void*, double);
+    using Slave = void (__fastcall*)(void*, const Direction*);
+    using Boresight = void (__fastcall*)(void*, const Pose*);
+    using Strength = float (__fastcall*)(void*);
+    using Seeker = const void* (__fastcall*)(const void*);
+    // MSVC member-function aggregate return: this=RCX, result buffer=RDX.
+    using LocalPose = Pose* (__fastcall*)(const void*, Pose*);
+    using Launch = unsigned (__fastcall*)(void*, void*);
+    using Aircraft = void* (__cdecl*)();
+    using Clock = double (__cdecl*)();
+    using Device = void* (__fastcall*)(void*, unsigned);
+    using Scalar = void (__fastcall*)(void*, float);
+    using MotorLimits = void (__fastcall*)(void*, double, double);
+    using Launcher = void (__fastcall*)(void*, LauncherPose*, unsigned char, unsigned char);
+    Construct construct{};
+    Method destroy{}, initialize{}, uncage{}, to_boresight{};
+    Boolean power{}, consent{};
+    Status status{};
+    Station station{};
+    Update update{};
+    Slave slave{};
+    Boresight boresight{};
+    Test tracking{};
+    Strength strength{};
+    Seeker seeker{},platform_position{};
+    LocalPose local_pose{};
+    Launch launch{};
+    Aircraft aircraft{}, binding_context{}, payload{};
+    Clock clock{};
+    Device device{};
+    const void* radar_vtable{};
+    using PatternQuery=const ScanPattern* (__fastcall*)(const void*);
+    PatternQuery scan_pattern{};
+    Method acquisition_update{};
+    const void* responder_vtable{};
+    const void* weapon_vtable{};
+    const void* missile_vtable{};
+    const void* guided_vtable{};
+    const void* homing_vtable{};
+    using DLZ=void (__fastcall*)(const void*,float,float,float,float,const float*,const float*,const float*,float*,float*,float*);
+    DLZ dlz{};
+    // Shared WeaponsBase export; nine SI/radian inputs, auxiliary ACT output,
+    // TOFE::AAM enum, Sparrow high-power flag. This is not a Hornet import.
+    using AAMTOF=double (__fastcall*)(void*,double,double,double,double,double,double,double,double,double,double*,int,bool);
+    using TOFConstruct=void* (__fastcall*)(void*);
+    AAMTOF aam_tof{};
+    TOFConstruct tof_construct{};
+    Method tof_destroy{};
+    std::uintptr_t tof_object{}; // Verified constructor writes exactly 8 bytes.
+    bool tof_constructed=false,tof_rejected=false;
+    using FindObject=void* (__fastcall*)(unsigned);
+    using ActiveDistance=float (__fastcall*)(void*);
+    FindObject find_object{};
+    ActiveDistance active_distance{};
+    Scalar gimbal_limit{}, sun_filter{};
+    MotorLimits motor_limits{};
+    void*** contexts{};
+    bool ready=false;
+    bool profile_valid=false;
+    int error=1;
+
+    void resolve_tof() {
+        if (aam_tof || tof_rejected) return;
+        auto module=GetModuleHandleW(L"WeaponsBase.dll");if (!module) return;
+        const auto base=reinterpret_cast<const std::byte*>(module);
+        const auto dos=reinterpret_cast<const IMAGE_DOS_HEADER*>(base);
+        const auto pe=reinterpret_cast<const IMAGE_NT_HEADERS64*>(base+dos->e_lfanew);
+        if (pe->FileHeader.TimeDateStamp!=0x6aae1e3b || pe->OptionalHeader.SizeOfImage!=0xeb000) {tof_rejected=true;return;}
+        tof_construct=reinterpret_cast<TOFConstruct>(GetProcAddress(module,"??0TOFEstimator@@QEAA@XZ"));
+        tof_destroy=reinterpret_cast<Method>(GetProcAddress(module,"??1TOFEstimator@@QEAA@XZ"));
+        if (tof_construct && tof_destroy)
+            aam_tof=reinterpret_cast<AAMTOF>(GetProcAddress(module,"?getAAMTOF@TOFEstimator@@QEAANNNNNNNNNNPEANW4AAM@TOFE@@_N@Z"));
+        if (!aam_tof) tof_rejected=true;
+    }
+
+    template<class T> bool bind(HMODULE module, T& fn, const char* symbol) {
+        fn=reinterpret_cast<T>(GetProcAddress(module,symbol));
+        return fn!=nullptr;
+    }
+    void resolve() {
+        if (ready || error>1) return;
+        HMODULE module=GetModuleHandleW(L"CockpitBase.dll");
+        if (!module) return;
+        const auto base=reinterpret_cast<const std::byte*>(module);
+        const auto dos=reinterpret_cast<const IMAGE_DOS_HEADER*>(base);
+        const auto pe=reinterpret_cast<const IMAGE_NT_HEADERS64*>(base+dos->e_lfanew);
+        if (pe->FileHeader.TimeDateStamp!=0x6ac12468 || pe->OptionalHeader.SizeOfImage!=0x59a000) {
+            error=2;return;
+        }
+        profile_valid=true;
+        weapon_vtable=GetProcAddress(module,"??_7avSimpleWeaponSystem@cockpit@@6BccContextRelatedObject@1@@");
+        find_object=reinterpret_cast<FindObject>(const_cast<std::byte*>(base)+0x2165d0);
+        auto weapons_module=GetModuleHandleW(L"Weapons.dll");
+        if (weapons_module) {
+            auto wb=reinterpret_cast<const std::byte*>(weapons_module);
+            auto wd=reinterpret_cast<const IMAGE_DOS_HEADER*>(wb);
+            auto wp=reinterpret_cast<const IMAGE_NT_HEADERS64*>(wb+wd->e_lfanew);
+            if (wp->FileHeader.TimeDateStamp==0x6ac12438 && wp->OptionalHeader.SizeOfImage==0x21f000) {
+                homing_vtable=GetProcAddress(weapons_module,"??_7wAmmunitionSelfHoming@@6BviObject@@@");
+                guided_vtable=GetProcAddress(weapons_module,"??_7wAmmunitionGuided@@6BviObject@@@");
+                dlz=reinterpret_cast<DLZ>(GetProcAddress(weapons_module,"?DLZ@@YAXPEAURocket_Const@@MMMMAEBVVec3f@osg@@11AEAM22@Z"));
+                missile_vtable=GetProcAddress(weapons_module,"??_7woMissile@@6BviObject@@@");
+                active_distance=reinterpret_cast<ActiveDistance>(GetProcAddress(weapons_module,"?getActiveLockDist@woMissile@@QEAAMXZ"));
+            }
+        }
+        // Optional read-only gun-ammunition source; absence does not disable IR.
+        bind(module,payload,"?c_payload@cockpit@@YAPEAVIwHumanPayload@@XZ");
+        bool ok=true;
+#define BIND(field,symbol) ok=bind(module,field,symbol)&&ok
+        BIND(construct,"??0eqSidewinderNew@cockpit@@QEAA@AEBVwsType@@@Z");
+        BIND(destroy,"??1eqSidewinderNew@cockpit@@UEAA@XZ");
+        BIND(initialize,"?initialize@eqSidewinderNew@cockpit@@UEAAXXZ");
+        BIND(uncage,"?uncage@eqSidewinderNew@cockpit@@QEAAXXZ");
+        BIND(to_boresight,"?toBoresight@eqSidewinderNew@cockpit@@QEAAXXZ");
+        BIND(power,"?setElecPower@eqSidewinder@cockpit@@UEAAX_N@Z");
+        BIND(consent,"?setConsentToTrack@eqSidewinderNew@cockpit@@QEAAX_N@Z");
+        BIND(status,"?setStatus@eqSidewinder@cockpit@@QEAAXI@Z");
+        BIND(station,"?set_station@eqSidewinder@cockpit@@QEAAXHH@Z");
+        BIND(update,"?update@eqSidewinderNew@cockpit@@UEAAXN@Z");
+        BIND(slave,"?slaveToDirection@eqSidewinderNew@cockpit@@QEAAXAEBVVec3d@osg@@@Z");
+        BIND(boresight,"?setBoresight@eqSidewinderNew@cockpit@@QEAAXV?$wPosition3@N@@@Z");
+        BIND(tracking,"?isInTrack@eqSidewinderNew@cockpit@@QEAA_NXZ");
+        BIND(strength,"?getLockStrength@eqSidewinderNew@cockpit@@QEAAMXZ");
+        BIND(seeker,"?getSeeker@eqSidewinder@cockpit@@QEBAAEBVavSidewinderSeeker@2@XZ");
+        BIND(local_pose,"?getPlatformLocalPosition@avPlatform@cockpit@@QEBA?AV?$wPosition3@N@@XZ");
+        bind(module,platform_position,"?getPlatformPosition@avPlatform@cockpit@@QEBAAEBV?$wPosition3@N@@XZ");
+        BIND(launch,"?launch@eqSidewinder@cockpit@@QEAAIPEAVIwHumanPlane@@@Z");
+        BIND(aircraft,"?c_LA@cockpit@@YAPEAVIwoLA@@XZ");
+        BIND(binding_context,"?binding_context@cockpit@@YAPEAVccCockpitContext@1@XZ");
+        BIND(device,"?get_wide_device@ccCockpitContext@cockpit@@QEAAPEAVavDevice@2@I@Z");
+        radar_vtable=GetProcAddress(module,"??_7avSimpleRadar@cockpit@@6BccContextRelatedObject@1@@");
+        bind(module,scan_pattern,"?get_current_pattern@avSimpleRadar@cockpit@@MEBAAEBUscan_pattern_data@2@XZ");
+        bind(module,acquisition_update,"?update_acquisition@avSimpleRadar@cockpit@@MEAAXXZ");
+        responder_vtable=GetProcAddress(module,"??_7avSimpleRadar@cockpit@@6BavLinkToTargetResponder@1@@");
+        ok=radar_vtable && ok;
+        BIND(gimbal_limit,"?setGimbalLimit@avSidewinderSeeker@cockpit@@QEAAXM@Z");
+        BIND(sun_filter,"?setSunFilter@avSidewinderSeeker@cockpit@@QEAAXM@Z");
+        BIND(motor_limits,"?set_limits@avMotor@cockpit@@QEAAXNN@Z");
+        contexts=reinterpret_cast<void***>(GetProcAddress(module,"?contexts_ptr@ccCockpitContext@cockpit@@0PAPEAV12@A"));
+#undef BIND
+        auto world=GetModuleHandleW(L"World.dll");
+        clock=world ? reinterpret_cast<Clock>(GetProcAddress(world,"?GetModelTime@wTime@@SANXZ")) : nullptr;
+        ready=ok && contexts;error=ready ? 0 : 3;
+    }
+};
+Api api;
+// Allocation extent of eqSidewinderNew in this verified simulator build.
+alignas(16) std::array<std::byte,0x480> object{};
+bool constructed=false;
+WeaponType current_type{};
+int current_station=-1;
+bool was_caged=true, was_release=false;
+unsigned launch_sequence=0, launch_id=0;
+unsigned tick_sequence=0;
+std::map<std::string,void*> handles;
+double read(EDPARAM& p,const char* name) {
+    auto& h=handles[name];if (!h) h=p.getParamHandle(name);
+    return p.getParamNumber(h);
+}
+void write(EDPARAM& p,const char* name,double value) {
+    auto& h=handles[name];if (!h) h=p.getParamHandle(name);
+    p.setParamNumber(h,value);
+}
+void dispose() {
+    if (constructed) { api.power(object.data(),false);api.destroy(object.data()); }
+    constructed=false;current_station=-1;was_caged=true;was_release=false;
+}
+bool readable(std::uintptr_t address,std::size_t size) {
+    MEMORY_BASIC_INFORMATION info{};
+    if (!address || !VirtualQuery(reinterpret_cast<void*>(address),&info,sizeof(info))) return false;
+    auto end=reinterpret_cast<std::uintptr_t>(info.BaseAddress)+info.RegionSize;
+    return info.State==MEM_COMMIT && !(info.Protect&(PAGE_GUARD|PAGE_NOACCESS)) && address+size<=end;
+}
+// Shared DCS target-responder ABI: destructor, is_tracking(id,weapon), selected
+// ID, selected range. The native implementation offers an ID only in STT.
+// Our interface adapter also supplies confirmed, bounded-age TWS sensor files.
+// It does not change the native search/STT state or enumerate world objects.
+struct SupportSnapshot {
+    bool enabled=false,selection_enabled=false;
+    unsigned selected=0;
+    double range=0,stamp=-100,sequence=-1,selected_until=-100;
+    std::array<unsigned,24> ids{};
+    std::array<double,24> expires{};
+};
+SRWLOCK support_lock=SRWLOCK_INIT;
+SupportSnapshot support;
+std::array<void*,5> responder_table{}; // include native RTTI locator at [-1]
+void** responder_slot=nullptr;
+std::atomic<unsigned> support_queries{0},support_accepts{0};
+using TrackQuery=bool (__fastcall*)(const void*,unsigned,unsigned);
+using TargetQuery=unsigned (__fastcall*)(const void*);
+using RangeQuery=double (__fastcall*)(const void*);
+bool support_fresh(double now) {return now-support.stamp>=0 && now-support.stamp<.35;}
+bool __fastcall support_tracking(const void* self,unsigned id,unsigned weapon) {
+    ++support_queries;
+    auto original=reinterpret_cast<const void* const*>(api.responder_vtable);
+    if (reinterpret_cast<TrackQuery>(original[1])(self,id,weapon)) return true;
+    const double now=api.clock ? api.clock() : -100;
+    AcquireSRWLockShared(&support_lock);
+    bool result=false;
+    if (support.enabled && support_fresh(now) && id) {
+        for (unsigned i=0;i<support.ids.size();++i) if (support.ids[i]==id && now<=support.expires[i]) {result=true;break;}
+    }
+    ReleaseSRWLockShared(&support_lock);if (result) ++support_accepts;return result;
+}
+unsigned __fastcall support_target(const void* self) {
+    auto original=reinterpret_cast<const void* const*>(api.responder_vtable);
+    auto native=reinterpret_cast<TargetQuery>(original[2])(self);
+    if (native) return native;
+    const double now=api.clock ? api.clock() : -100;
+    AcquireSRWLockShared(&support_lock);
+    unsigned result=support.selection_enabled && support_fresh(now) && now<=support.selected_until ? support.selected : 0;
+    ReleaseSRWLockShared(&support_lock);return result;
+}
+double __fastcall support_range(const void* self) {
+    auto original=reinterpret_cast<const void* const*>(api.responder_vtable);
+    auto native=reinterpret_cast<RangeQuery>(original[3])(self);
+    if (native>=0) return native;
+    const double now=api.clock ? api.clock() : -100;
+    AcquireSRWLockShared(&support_lock);
+    double result=support.selection_enabled && support_fresh(now) && support.selected && now<=support.selected_until ? support.range : -1;
+    ReleaseSRWLockShared(&support_lock);return result;
+}
+void update_target_support(EDPARAM& p,std::uintptr_t radar) {
+    write(p,"F22_TWS_GUIDANCE_BACKEND_READY",0);
+    if (!api.responder_vtable || read(p,"F22_RADAR_FC_ENABLE")<.5) return;
+    auto slot=reinterpret_cast<void**>(radar+192);
+    if (*slot!=api.responder_vtable && *slot!=responder_table.data()+1) return;
+    if (!responder_table[1]) {
+        const auto original=reinterpret_cast<void* const*>(api.responder_vtable);
+        responder_table[0]=original[-1];responder_table[1]=original[0];
+        responder_table[2]=reinterpret_cast<void*>(&support_tracking);
+        responder_table[3]=reinterpret_cast<void*>(&support_target);
+        responder_table[4]=reinterpret_cast<void*>(&support_range);
+    }
+    *slot=responder_table.data()+1;responder_slot=slot;
+    const auto sequence=read(p,"F22_TWS_PUBLISH_SEQUENCE");
+    AcquireSRWLockShared(&support_lock);const bool changed=sequence!=support.sequence;ReleaseSRWLockShared(&support_lock);
+    if (changed) {
+        SupportSnapshot next;next.sequence=sequence;next.stamp=api.clock ? api.clock() : -100;
+        next.enabled=read(p,"RADAR_PWR")>.5 && read(p,"F22_RADAR_SUPPORT_ENABLED")>.5;
+        next.selection_enabled=next.enabled && read(p,"F22_TWS_ACTIVE")>.5;
+        auto id=read(p,"F22_TWS_TARGET_ID");auto age=read(p,"F22_TWS_TARGET_AGE");
+        auto range=read(p,"F22_TWS_TARGET_RANGE");
+        if (id>0 && id<4294967295.0 && age>=0 && age<=6 && range>=40 && range<600000) {
+            next.selected=static_cast<unsigned>(id);next.range=range;next.selected_until=next.stamp+6-age;
+        }
+        for (unsigned i=0;i<next.ids.size();++i) {
+            char key[80];std::snprintf(key,sizeof(key),"F22_SUPPORT_%02u_ID",i+1);auto tid=read(p,key);
+            std::snprintf(key,sizeof(key),"F22_SUPPORT_%02u_AGE",i+1);auto tage=read(p,key);
+            if (tid>0 && tid<4294967295.0 && tage>=0 && tage<=6) {
+                next.ids[i]=static_cast<unsigned>(tid);next.expires[i]=next.stamp+6-tage;
+            }
+        }
+        AcquireSRWLockExclusive(&support_lock);support=next;ReleaseSRWLockExclusive(&support_lock);
+    }
+    write(p,"F22_TWS_GUIDANCE_BACKEND_READY",1);
+    write(p,"F22_TWS_SUPPORT_QUERIES",support_queries.load());
+    write(p,"F22_TWS_SUPPORT_ACCEPTS",support_accepts.load());
+    write(p,"F22_RADAR_WEAPON_TARGET_ID",support_target(reinterpret_cast<void*>(radar+192)));
+}
+struct TimeEstimate {
+    unsigned target=0,type=0;
+    double stamp=0,tof=0,act=0;
+    bool valid=false,act_valid=false;
+};
+SRWLOCK time_estimate_lock=SRWLOCK_INIT;
+TimeEstimate time_estimate{};
+double last_tof_attempt=-1e9;
+unsigned last_tof_target=0,last_tof_type=0;
+TimeEstimate launch_time_estimate(unsigned target,unsigned type,unsigned mode,double now) {
+    AcquireSRWLockShared(&time_estimate_lock);auto value=time_estimate;ReleaseSRWLockShared(&time_estimate_lock);
+    if (mode!=2 || value.target!=target || value.type!=type || now<value.stamp || now-value.stamp>.35) return {};
+    // Sampling age gates the geometry's freshness. The weapon has not flown
+    // during that sampling delay; its countdown starts at successful release.
+    value.stamp=now;
+    return value;
+}
+struct LaunchEvent {unsigned sequence=0,id=0,target=0,station=0,type=0,mode=0;double time=0;TimeEstimate estimate{};};
+SRWLOCK launch_lock=SRWLOCK_INIT;
+std::array<LaunchEvent,16> launched{};
+unsigned launched_sequence=0;
+std::atomic<unsigned> launch_master_mode{0};
+std::array<void*,193> payload_table{};
+void** payload_slot=nullptr;
+void** payload_original=nullptr;
+using PayloadLaunch=unsigned (__fastcall*)(void*,unsigned,unsigned,unsigned,const float*,bool);
+unsigned __fastcall record_payload_launch(void* self,unsigned station,unsigned sub,unsigned target,const float* point,bool armed) {
+    using StoreType=const WeaponType* (__fastcall*)(void*,unsigned);
+    unsigned type=0;
+    const auto wt=reinterpret_cast<StoreType>(payload_original[20])(self,station);
+    if (readable(reinterpret_cast<std::uintptr_t>(wt),sizeof(WeaponType))) type=wt->level4;
+    const unsigned mode=launch_master_mode.load();
+    auto estimate=launch_time_estimate(target,type,mode,api.clock ? api.clock() : 0);
+    auto id=reinterpret_cast<PayloadLaunch>(payload_original[50])(self,station,sub,target,point,armed);
+    if (id) {
+        const double now=api.clock ? api.clock() : 0;
+        estimate.stamp=now;
+        AcquireSRWLockExclusive(&launch_lock);
+        auto seq=++launched_sequence;
+        launched[(seq-1)%launched.size()]={seq,id,target,station,type,mode,now,estimate};
+        ReleaseSRWLockExclusive(&launch_lock);
+    }
+    return id;
+}
+bool executable(std::uintptr_t p) {
+    MEMORY_BASIC_INFORMATION m{};
+    return VirtualQuery(reinterpret_cast<void*>(p),&m,sizeof(m)) && m.State==MEM_COMMIT &&
+        !(m.Protect&(PAGE_GUARD|PAGE_NOACCESS)) && (m.Protect&(PAGE_EXECUTE|PAGE_EXECUTE_READ|PAGE_EXECUTE_READWRITE|PAGE_EXECUTE_WRITECOPY));
+}
+// Exact CockpitBase profile: primary vtable RVA4656b8 contains 31 functions;
+// next interface's RTTI is at4657b0. Preserve every original method and RTTI.
+// get_current_pattern (slot27) preserves physical beam direction, while the
+// original update_acquisition (slot23) receives matching scan-reference metrics.
+constexpr unsigned radar_primary_methods=31;
+std::array<void*,radar_primary_methods+1> radar_coordinate_table{};
+void** radar_coordinate_slot=nullptr;
+void** radar_coordinate_original=nullptr;
+std::atomic<const void*> radar_coordinate_owner{nullptr};
+void* radar_coordinate_ready_handle=nullptr;
+PFN_ED_COCKPIT_UPDATE_PARAMETER_WITH_NUMBER radar_coordinate_write=nullptr;
+struct AcquisitionCoordinates {const void* owner=nullptr;ScanPattern physical{};};
+thread_local AcquisitionCoordinates acquisition_coordinates{};
+struct AcquisitionMetric {const void* owner=nullptr;double azimuth=0,elevation=0,time=-100;};
+SRWLOCK acquisition_metric_lock=SRWLOCK_INIT;
+AcquisitionMetric acquisition_metric{};
+const ScanPattern* __fastcall coordinate_scan_pattern(const void* self) {
+    const auto native=api.scan_pattern(self);
+    if (!api.profile_valid || self!=radar_coordinate_owner.load(std::memory_order_acquire) ||
+        !readable(reinterpret_cast<std::uintptr_t>(self),2024) ||
+        *reinterpret_cast<const int*>(static_cast<const std::byte*>(self)+2020)!=2 ||
+        !readable(reinterpret_cast<std::uintptr_t>(native),sizeof(ScanPattern))) return native;
+    if (acquisition_coordinates.owner==self) return &acquisition_coordinates.physical;
+    // Returning a reference must outlive this call. Thread-local storage also
+    // avoids another execution thread overwriting a native caller's pattern.
+    thread_local ScanPattern physical;
+    physical=*native;physical.azimuth=-physical.azimuth;
+    return &physical;
+}
+void __fastcall coordinate_acquisition_update(void* self) {
+    if (!api.acquisition_update) return;
+    const auto address=reinterpret_cast<std::uintptr_t>(self);
+    if (!api.profile_valid || !api.scan_pattern || self!=radar_coordinate_owner.load(std::memory_order_acquire) ||
+        !readable(address,2024) || *reinterpret_cast<const int*>(address+2020)!=2 || acquisition_coordinates.owner==self) {
+        api.acquisition_update(self);return;
+    }
+    const auto native=api.scan_pattern(self);
+    if (!readable(reinterpret_cast<std::uintptr_t>(native),sizeof(ScanPattern))) {api.acquisition_update(self);return;}
+    const ScanPattern body=*native;
+    if (!std::isfinite(body.azimuth) || !std::isfinite(body.elevation) ||
+        std::abs(body.azimuth)>1.571 || std::abs(body.elevation)>1.571) {api.acquisition_update(self);return;}
+    // The native polar reference is Body*Pitch(scan-origin elevation). Its
+    // unit_handler/filter compare stored2000/2008 with angles in that reference.
+    // Supplying raw body angles there selects the higher neighbour at nonzero
+    // elevation. Keep beam planning separate while the original native code runs.
+    const double ce=std::cos(body.elevation),se=std::sin(body.elevation);
+    const double x=ce*std::cos(body.azimuth),y=se,z=ce*std::sin(body.azimuth);
+    const double f=x*ce+y*se,u=-x*se+y*ce;
+    const double metric_az=std::atan2(z,f),metric_el=std::atan2(u,std::hypot(f,z));
+    auto az=reinterpret_cast<double*>(address+2000),el=reinterpret_cast<double*>(address+2008);
+    struct Restore {
+        double *az,*el;double body_az,body_el;AcquisitionCoordinates previous;
+        ~Restore() {*az=body_az;*el=body_el;acquisition_coordinates=previous;}
+    } restore{az,el,body.azimuth,body.elevation,acquisition_coordinates};
+    acquisition_coordinates={self,body};acquisition_coordinates.physical.azimuth=-body.azimuth;
+    *az=metric_az;*el=metric_el;
+    const double now=api.clock ? api.clock() : -100;
+    AcquireSRWLockExclusive(&acquisition_metric_lock);
+    acquisition_metric={self,metric_az,metric_el,now};
+    ReleaseSRWLockExclusive(&acquisition_metric_lock);
+    // All detection, range/ECM gates, hit counts and the STT ID decision remain
+    // in the original native implementation. Restore only temporary coordinates.
+    api.acquisition_update(self);
+}
+void reset_radar_coordinates() {
+    radar_coordinate_owner.store(nullptr,std::memory_order_release);
+    if (radar_coordinate_slot && readable(reinterpret_cast<std::uintptr_t>(radar_coordinate_slot),8) &&
+        *radar_coordinate_slot==radar_coordinate_table.data()+1)
+        InterlockedExchangePointer(reinterpret_cast<PVOID volatile*>(radar_coordinate_slot),radar_coordinate_original);
+    radar_coordinate_slot=nullptr;radar_coordinate_original=nullptr;
+    if (radar_coordinate_ready_handle && radar_coordinate_write) radar_coordinate_write(radar_coordinate_ready_handle,0);
+    if (radar_coordinate_write) for (const char* key:{"F22_RADAR_NATIVE_BEAM_WORLD_VALID","F22_RADAR_NATIVE_SCAN_REF_BEAM_VALID","F22_RADAR_NATIVE_ACQ_METRIC_VALID"}) {
+        const auto h=handles.find(key);if (h!=handles.end()) radar_coordinate_write(h->second,0);
+    }
+    radar_coordinate_ready_handle=nullptr;radar_coordinate_write=nullptr;
+    AcquireSRWLockExclusive(&acquisition_metric_lock);acquisition_metric={};ReleaseSRWLockExclusive(&acquisition_metric_lock);
+}
+bool install_radar_coordinates(std::uintptr_t radar) {
+    if (!api.profile_valid || !api.scan_pattern || !api.acquisition_update || !api.radar_vtable || !readable(radar,2440)) return false;
+    auto slot=reinterpret_cast<void**>(radar);
+    if (*slot==radar_coordinate_table.data()+1)
+        return radar_coordinate_slot==slot && radar_coordinate_owner.load(std::memory_order_acquire)==reinterpret_cast<void*>(radar);
+    if (radar_coordinate_slot || *slot!=api.radar_vtable) return false;
+    auto original=reinterpret_cast<void**>(*slot);
+    if (!readable(reinterpret_cast<std::uintptr_t>(original)-8,(radar_primary_methods+1)*8) ||
+        original[27]!=reinterpret_cast<void*>(api.scan_pattern) || original[23]!=reinterpret_cast<void*>(api.acquisition_update)) return false;
+    const auto locator=reinterpret_cast<std::uintptr_t>(original[-1]);
+    if (!readable(locator,24) || *reinterpret_cast<const unsigned*>(locator)!=1 ||
+        *reinterpret_cast<const unsigned*>(locator+4)!=0) return false;
+    for (unsigned i=0;i<radar_primary_methods;++i)
+        if (!executable(reinterpret_cast<std::uintptr_t>(original[i]))) return false;
+    radar_coordinate_table[0]=original[-1];
+    for (unsigned i=0;i<radar_primary_methods;++i) radar_coordinate_table[i+1]=original[i];
+    radar_coordinate_table[28]=reinterpret_cast<void*>(&coordinate_scan_pattern);
+    radar_coordinate_table[24]=reinterpret_cast<void*>(&coordinate_acquisition_update);
+    radar_coordinate_slot=slot;radar_coordinate_original=original;
+    radar_coordinate_owner.store(reinterpret_cast<void*>(radar),std::memory_order_release);
+    InterlockedExchangePointer(reinterpret_cast<PVOID volatile*>(slot),radar_coordinate_table.data()+1);
+    return true;
+}
+void publish_radar_coordinates(EDPARAM& p,std::uintptr_t radar) {
+    write(p,"F22_RADAR_NATIVE_BEAM_WORLD_VALID",0);
+    write(p,"F22_RADAR_NATIVE_SCAN_REF_BEAM_VALID",0);
+    const auto pattern=coordinate_scan_pattern(reinterpret_cast<void*>(radar));
+    if (readable(reinterpret_cast<std::uintptr_t>(pattern),sizeof(ScanPattern))) {
+        write(p,"F22_RADAR_NATIVE_PATTERN_AZ",pattern->azimuth);
+        write(p,"F22_RADAR_NATIVE_PATTERN_EL",pattern->elevation);
+    }
+    write(p,"F22_RADAR_NATIVE_ACQ_BODY_AZ",*reinterpret_cast<const double*>(radar+2000));
+    write(p,"F22_RADAR_NATIVE_ACQ_BODY_EL",*reinterpret_cast<const double*>(radar+2008));
+    AcquireSRWLockShared(&acquisition_metric_lock);const auto metric=acquisition_metric;ReleaseSRWLockShared(&acquisition_metric_lock);
+    const double now=api.clock ? api.clock() : -100;
+    const bool metric_valid=api.clock && metric.owner==reinterpret_cast<void*>(radar) && metric.time>=0 && std::isfinite(metric.time) && std::isfinite(now) &&
+        now>=metric.time && now-metric.time<.35;
+    write(p,"F22_RADAR_NATIVE_ACQ_METRIC_VALID",metric_valid?1:0);
+    if (metric_valid) {
+        write(p,"F22_RADAR_NATIVE_ACQ_METRIC_AZ",metric.azimuth);write(p,"F22_RADAR_NATIVE_ACQ_METRIC_EL",metric.elevation);
+        write(p,"F22_RADAR_NATIVE_ACQ_METRIC_TIME",metric.time);
+    }
+    write(p,"F22_RADAR_NATIVE_SCAN_PHASE",*reinterpret_cast<const double*>(radar+1904));
+    const auto mode=*reinterpret_cast<const int*>(radar+2020);
+    if (mode!=1 && mode!=2 && mode!=6) return;
+    const auto beam=reinterpret_cast<const float*>(radar+1712);
+    const double bn=beam[0],bu=beam[1],be=beam[2];
+    const double world_length=std::hypot(bn,bu,be);
+    if (!std::isfinite(world_length) || std::abs(world_length-1)>1e-3) return;
+    // This is the actual native clip-volume forward direction in world axes.
+    // Project it offline with the measured aircraft pose for body angles.
+    write(p,"F22_RADAR_NATIVE_BEAM_WORLD_N",bn/world_length);
+    write(p,"F22_RADAR_NATIVE_BEAM_WORLD_U",bu/world_length);
+    write(p,"F22_RADAR_NATIVE_BEAM_WORLD_E",be/world_length);
+    write(p,"F22_RADAR_NATIVE_BEAM_WORLD_VALID",1);
+    // Full+1840 is modified by scan_for_targets: stabilization and scan-origin
+    // elevation have already been composed into this reference. It is NOT the
+    // untouched aircraft body basis. Keep these angles explicitly named.
+    const auto reference=reinterpret_cast<const float*>(radar+1840);
+    for (unsigned axis:{0u,4u,8u}) {
+        const double length=std::hypot(reference[axis],reference[axis+1],reference[axis+2]);
+        if (!std::isfinite(length) || std::abs(length-1)>1e-3) return;
+    }
+    double forward=0,right=0,up=0;
+    for (unsigned i=0;i<3;++i) {forward+=beam[i]*reference[i];right+=beam[i]*reference[i+8];up+=beam[i]*reference[i+4];}
+    const double length=std::hypot(forward,right,up);
+    if (!std::isfinite(length) || std::abs(length-1)>1e-3) return;
+    write(p,"F22_RADAR_NATIVE_SCAN_REF_BEAM_AZ",std::atan2(right,forward));
+    write(p,"F22_RADAR_NATIVE_SCAN_REF_BEAM_EL",std::atan2(up,std::hypot(forward,right)));
+    write(p,"F22_RADAR_NATIVE_SCAN_REF_BEAM_VALID",1);
+}
+void publish_launch_events(EDPARAM& p) {
+    write(p,"F22_LAUNCH_EVENTS_READY",0);
+    if (!api.profile_valid || !api.payload || read(p,"F22_RADAR_FC_ENABLE")<.5) return;
+    auto payload=reinterpret_cast<std::uintptr_t>(api.payload());
+    if (!readable(payload,8)) return;
+    auto slot=reinterpret_cast<void**>(payload);auto original=reinterpret_cast<void**>(*slot);
+    if (original!=payload_table.data()+1) {
+        if (!readable(reinterpret_cast<std::uintptr_t>(original)-8,52*8)) return;
+        unsigned count=0;
+        while (count<192 && readable(reinterpret_cast<std::uintptr_t>(original+count),8) && executable(reinterpret_cast<std::uintptr_t>(original[count]))) ++count;
+        if (count<51) return;
+        payload_original=original;payload_table[0]=original[-1];
+        for (unsigned i=0;i<count;++i) payload_table[i+1]=original[i];
+        payload_table[51]=reinterpret_cast<void*>(&record_payload_launch);
+        *slot=payload_table.data()+1;payload_slot=slot;
+    }
+    AcquireSRWLockShared(&launch_lock);
+    const auto events=launched;const auto sequence=launched_sequence;
+    ReleaseSRWLockShared(&launch_lock);
+    for (unsigned i=0;i<events.size();++i) {
+        char key[80];const auto& e=events[i];
+        const char* fields[]={"SEQUENCE","ID","TARGET","STATION","TIME","TYPE","MODE"};
+        double values[]={static_cast<double>(e.sequence),static_cast<double>(e.id),static_cast<double>(e.target),static_cast<double>(e.station),e.time,static_cast<double>(e.type),static_cast<double>(e.mode)};
+        for (unsigned j=0;j<7;++j) {std::snprintf(key,sizeof(key),"F22_SHOT_%02u_%s",i+1,fields[j]);write(p,key,values[j]);}
+        const char* predicted[]={"TOF_VALID","TOF","ACT_VALID","ACT","ESTIMATE_TIME"};
+        const double prediction[]={e.estimate.valid?1.0:0.0,e.estimate.tof,e.estimate.valid && e.estimate.act_valid?1.0:0.0,e.estimate.act,e.estimate.stamp};
+        for (unsigned j=0;j<5;++j) {std::snprintf(key,sizeof(key),"F22_SHOT_%02u_%s",i+1,predicted[j]);write(p,key,prediction[j]);}
+        // Only missiles returned by our payload launch call are eligible. Never
+        // enumerate other weapons or query the target's hidden world state.
+        bool valid=false;Direction point{};const float* velocity=nullptr;
+        float active_range=0;bool active=false;bool active_valid=false;bool seeker_track=false;bool seeker_valid=false;unsigned model=0;
+        if (e.id && api.find_object && api.missile_vtable && api.active_distance && api.clock && api.clock()-e.time<300) {
+            auto object=reinterpret_cast<std::uintptr_t>(api.find_object(e.id));
+            const bool legacy=readable(object,0x910) && *reinterpret_cast<const void**>(object)==api.missile_vtable;
+            const bool guided=readable(object,1440) && api.guided_vtable && *reinterpret_cast<const void**>(object)==api.guided_vtable;
+            const bool homing=readable(object,1576) && api.homing_vtable && *reinterpret_cast<const void**>(object)==api.homing_vtable;
+            if (legacy || guided || homing) {
+                model=legacy?1:homing?3:2;
+                const auto vt=*reinterpret_cast<void***>(object);
+                using Point=Direction* (__fastcall*)(void*,Direction*);
+                using Velocity=const float* (__fastcall*)(void*);
+                reinterpret_cast<Point>(vt[19])(reinterpret_cast<void*>(object),&point);
+                velocity=reinterpret_cast<Velocity>(vt[38])(reinterpret_cast<void*>(object));
+                active_range=legacy ? api.active_distance(reinterpret_cast<void*>(object)) : static_cast<float>(*reinterpret_cast<const double*>(object+1320));
+                active=*reinterpret_cast<const bool*>(object+(legacy ? 0x8f0 : 1314));
+                active_valid=legacy;
+                if (homing) {
+                    // The simulation scheme's actual seeker_on output, not a
+                    // future command or the generic ammunition 'active' flag.
+                    auto on=*reinterpret_cast<const std::uintptr_t*>(object+1512);
+                    if (readable(on,1)) {active=*reinterpret_cast<const bool*>(on);active_valid=true;}
+                    auto tracked=*reinterpret_cast<const std::uintptr_t*>(object+1296);
+                    if (readable(tracked,1)) {seeker_track=*reinterpret_cast<const bool*>(tracked);seeker_valid=true;}
+                }
+                valid=readable(reinterpret_cast<std::uintptr_t>(velocity),12) && std::isfinite(point.x) && std::isfinite(point.y) && std::isfinite(point.z);
+            }
+        }
+        std::snprintf(key,sizeof(key),"F22_SHOT_%02u_MODEL",i+1);write(p,key,model);
+        std::snprintf(key,sizeof(key),"F22_SHOT_%02u_SEEKER_TRACK",i+1);write(p,key,seeker_track?1:0);
+        std::snprintf(key,sizeof(key),"F22_SHOT_%02u_SEEKER_VALID",i+1);write(p,key,seeker_valid?1:0);
+        std::snprintf(key,sizeof(key),"F22_SHOT_%02u_ACTIVE_VALID",i+1);write(p,key,active_valid?1:0);
+        std::snprintf(key,sizeof(key),"F22_SHOT_%02u_ALIVE",i+1);write(p,key,valid?1:0);
+        if (valid) {
+            const char* names[]={"N","U","E","VN","VU","VE","ACTIVE_RANGE","ACTIVE"};
+            const double v[]={point.x,point.y,point.z,velocity[0],velocity[1],velocity[2],active_range,active?1.0:0.0};
+            for (unsigned j=0;j<8;++j) {std::snprintf(key,sizeof(key),"F22_SHOT_%02u_%s",i+1,names[j]);write(p,key,v[j]);}
+        }
+    }
+    write(p,"F22_LAUNCH_SEQUENCE",sequence);
+    write(p,"F22_LAUNCH_EVENTS_READY",1);
+}
+void publish_missile_data(EDPARAM& p) {
+    write(p,"F22_MISSILE_DATA_VALID",0);write(p,"F22_DLZ_NATIVE_VALID",0);
+    if (!api.ready || !api.weapon_vtable) return;
+    auto context=api.binding_context();if (!context) return;
+    auto weapon=reinterpret_cast<std::uintptr_t>(api.device(context,15));
+    if (!readable(weapon,960) || *reinterpret_cast<const void**>(weapon)!=api.weapon_vtable) return;
+    const auto descriptor=*reinterpret_cast<const std::uintptr_t*>(weapon+856);
+    if (!readable(descriptor,324)) return;
+    const auto type=*reinterpret_cast<const unsigned*>(descriptor+168);
+    write(p,"F22_MISSILE_DESCRIPTOR_TYPE",type);
+    if (type!=static_cast<unsigned>(read(p,"F22_WEAPON_TYPE4"))) return;
+    const double minimum=*reinterpret_cast<const double*>(weapon+832);
+    const double maximum=*reinterpret_cast<const double*>(weapon+840);
+    const double speed=*reinterpret_cast<const float*>(descriptor+292);
+    const double life=*reinterpret_cast<const float*>(descriptor+276);
+    if (!std::isfinite(minimum) || !std::isfinite(maximum) || minimum<0 || maximum<=minimum || maximum>600000 ||
+        !std::isfinite(speed) || speed<100 || speed>5000 || !std::isfinite(life) || life<1 || life>1000) return;
+    write(p,"F22_MISSILE_NATIVE_MIN",minimum);write(p,"F22_MISSILE_NATIVE_MAX",maximum);
+    write(p,"F22_MISSILE_AVERAGE_SPEED",speed);write(p,"F22_MISSILE_LIFETIME",life);
+    write(p,"F22_MISSILE_DATA_VALID",1);
+    // Same exported DLZ used by the Hornet (FA18C 0x180426a5d): own altitude,
+    // two unused scalars, target height minus own height, own/target velocity,
+    // relative target position; returns RMAX, turn-away range, aerodynamic max.
+    if (api.dlz && readable(descriptor,632) && *reinterpret_cast<const float*>(descriptor+584)>1 && read(p,"F22_FC_TARGET_INPUT_VALID")>.5) {
+        float own[3],target[3],relative[3];char key[64];bool valid=true;
+        const char* axes[]={"N","U","E"};
+        for (unsigned i=0;i<3;++i) {
+            std::snprintf(key,sizeof(key),"EFM_HUD_V%s",axes[i]);own[i]=static_cast<float>(read(p,key));
+            std::snprintf(key,sizeof(key),"F22_FC_TARGET_V%s",axes[i]);target[i]=static_cast<float>(read(p,key));
+            std::snprintf(key,sizeof(key),"F22_FC_TARGET_D%s",axes[i]);relative[i]=static_cast<float>(read(p,key));
+            valid=valid && std::isfinite(own[i]) && std::isfinite(target[i]) && std::isfinite(relative[i]);
+        }
+        const auto altitude=read(p,"F22_FC_OWN_ALTITUDE");
+        if (valid && std::isfinite(altitude)) {
+            float maximum=0,turn=0,aero=0;
+            api.dlz(reinterpret_cast<const void*>(descriptor),static_cast<float>(altitude),0,0,relative[1],own,target,relative,&maximum,&turn,&aero);
+            if (std::isfinite(maximum) && std::isfinite(turn) && std::isfinite(aero) && maximum>minimum && turn>=minimum && turn<=maximum && aero>=maximum && aero<600000) {
+                write(p,"F22_DLZ_RMAX",maximum);write(p,"F22_DLZ_RTR",turn);write(p,"F22_DLZ_RAERO",aero);
+                write(p,"F22_DLZ_RMIN",minimum);write(p,"F22_DLZ_TARGET_ID",read(p,"F22_FC_TARGET_INPUT_ID"));write(p,"F22_DLZ_NATIVE_VALID",1);
+            }
+        }
+    }
+}
+// Same body-vector convention as Radar_Display.body_observation. The native
+// estimator expects target course and LOS azimuth in the aircraft frame, not
+// absolute map headings. Its target-height input is absolute, its range slant.
+Direction tof_body(const Direction& v,double pitch,double roll,double heading) {
+    const double f=v.x*std::cos(heading)+v.z*std::sin(heading);
+    const double right=-v.x*std::sin(heading)+v.z*std::cos(heading);
+    const double up=-f*std::sin(pitch)+v.y*std::cos(pitch);
+    return {f*std::cos(pitch)+v.y*std::sin(pitch),right*std::sin(roll)+up*std::cos(roll),right*std::cos(roll)-up*std::sin(roll)};
+}
+void publish_time_estimate(EDPARAM& p) {
+    write(p,"F22_TOF_NATIVE_VALID",0);write(p,"F22_TOF_ACT_VALID",0);
+    api.resolve_tof();write(p,"F22_TOF_BACKEND_READY",api.aam_tof?1:0);
+    const auto type=static_cast<unsigned>(read(p,"F22_WEAPON_TYPE4"));
+    const auto target_id=static_cast<unsigned>(read(p,"F22_FC_TARGET_INPUT_ID"));
+    const double now=api.clock ? api.clock() : 0;
+    const bool eligible=api.aam_tof && api.clock && read(p,"HUD_MODE")==2 && read(p,"MAIN_POWER")>.5 &&
+        read(p,"F22_MISSILE_DATA_VALID")>.5 && read(p,"F22_FC_TARGET_INPUT_VALID")>.5 && target_id &&
+        read(p,"F22_RADAR_WEAPON_TARGET_ID")==target_id && (type==24 || type==106);
+    TimeEstimate value{};
+    if (eligible) {
+        AcquireSRWLockShared(&time_estimate_lock);value=time_estimate;ReleaseSRWLockShared(&time_estimate_lock);
+        if (target_id!=last_tof_target || type!=last_tof_type || now<last_tof_attempt || now-last_tof_attempt>=.2) {
+            last_tof_attempt=now;last_tof_target=target_id;last_tof_type=type;
+            value={};value.target=target_id;value.type=type;value.stamp=now;
+            Direction relative{read(p,"F22_FC_TARGET_DN"),read(p,"F22_FC_TARGET_DU"),read(p,"F22_FC_TARGET_DE")};
+            Direction velocity{read(p,"F22_FC_TARGET_VN"),read(p,"F22_FC_TARGET_VU"),read(p,"F22_FC_TARGET_VE")};
+            const double altitude=read(p,"F22_FC_OWN_ALTITUDE"),speed=read(p,"EFM_HUD_TAS");
+            const double pitch=read(p,"F22_FC_OWN_PITCH"),roll=read(p,"F22_FC_OWN_ROLL"),heading=read(p,"F22_FC_OWN_HEADING");
+            const double range=std::hypot(relative.x,relative.y,relative.z),target_speed=std::hypot(velocity.x,velocity.y,velocity.z);
+            bool finite=true;for (double v:{altitude,speed,pitch,roll,heading,range,target_speed,relative.x,relative.y,relative.z,velocity.x,velocity.y,velocity.z}) finite=finite && std::isfinite(v);
+            if (finite && altitude>=-500 && altitude<=30000 && speed>=0 && speed<1500 && target_speed<1500 &&
+                range>=1 && range<300000 && altitude+relative.y>=-500 && altitude+relative.y<=30000 &&
+                std::abs(pitch)<=3.15 && std::abs(roll)<=3.15 && std::abs(heading)<=6.29) {
+                const auto body_relative=tof_body(relative,pitch,roll,heading),body_velocity=tof_body(velocity,pitch,roll,heading);
+                if (!api.tof_constructed) {api.tof_construct(&api.tof_object);api.tof_constructed=true;}
+                double act=std::numeric_limits<double>::quiet_NaN();
+                // FA18C 0x1804233d2 uses enum1 for AMRAAM-C and a 16000m
+                // predicted activation crossing. This is a cockpit estimate,
+                // never proof of the C5 simulation scheme's seeker state.
+                const double tof=api.aam_tof(&api.tof_object,altitude,speed,pitch,target_speed,
+                    std::atan2(body_velocity.z,body_velocity.x),std::atan2(body_relative.z,body_relative.x),
+                    range,altitude+relative.y,16000,&act,type==106?1:0,false);
+                value.valid=std::isfinite(tof) && tof>0 && tof<=300;
+                value.tof=value.valid ? tof : 0;
+                value.act_valid=value.valid && std::isfinite(act) && act>=0 && act<=tof;
+                value.act=value.act_valid ? act : 0;
+            }
+        }
+    } else {last_tof_attempt=-1e9;last_tof_target=last_tof_type=0;}
+    AcquireSRWLockExclusive(&time_estimate_lock);time_estimate=value;ReleaseSRWLockExclusive(&time_estimate_lock);
+    if (!value.valid) return;
+    write(p,"F22_TOF_NATIVE_VALID",1);write(p,"F22_TOF_TARGET_ID",value.target);write(p,"F22_TOF_TYPE",value.type);
+    write(p,"F22_TOF_TIME",value.stamp);write(p,"F22_TOF_SECONDS",value.tof);
+    write(p,"F22_TOF_ACT_VALID",value.act_valid?1:0);write(p,"F22_TOF_ACT_SECONDS",value.act);
+}
+void reset_support() {
+    reset_radar_coordinates();
+    if (responder_slot && readable(reinterpret_cast<std::uintptr_t>(responder_slot),8) && *responder_slot==responder_table.data()+1) *responder_slot=const_cast<void*>(api.responder_vtable);
+    if (payload_slot && readable(reinterpret_cast<std::uintptr_t>(payload_slot),8) && *payload_slot==payload_table.data()+1) *payload_slot=payload_original;
+    responder_slot=nullptr;payload_slot=nullptr;
+    AcquireSRWLockExclusive(&support_lock);support={};ReleaseSRWLockExclusive(&support_lock);
+    support_queries=0;support_accepts=0;
+    AcquireSRWLockExclusive(&launch_lock);launched={};launched_sequence=0;ReleaseSRWLockExclusive(&launch_lock);
+    AcquireSRWLockExclusive(&time_estimate_lock);time_estimate={};ReleaseSRWLockExclusive(&time_estimate_lock);
+    last_tof_attempt=-1e9;last_tof_target=last_tof_type=0;
+    if (api.tof_constructed) {api.tof_destroy(&api.tof_object);api.tof_constructed=false;api.tof_object=0;}
+}
+// Same payload/gun traversal as avArcadeRadar::get_shells_count (0x18032CB00).
+// Read the real magazine; never estimate ammunition from trigger duration.
+void publish_gun_ammunition(EDPARAM& p) {
+    write(p,"F22_GUN_AMMO_VALID",0);write(p,"F22_GUN_AMMO_COUNT",0);
+    if (!api.profile_valid || !api.payload) return;
+    auto payload=reinterpret_cast<std::uintptr_t>(api.payload());
+    if (!readable(payload,sizeof(void*))) return;
+    auto table=*reinterpret_cast<std::uintptr_t*>(payload);
+    if (!readable(table,568)) return;
+    using Mount=void* (__fastcall*)(void*,unsigned char,unsigned char);
+    using Count=unsigned (__fastcall*)(void*);
+    auto get_mount=reinterpret_cast<Mount>(*reinterpret_cast<std::uintptr_t*>(table+560));
+    if (!get_mount) return;
+    unsigned total=0;
+    for (unsigned i=0;i<32;++i) {
+        auto mount=reinterpret_cast<std::uintptr_t>(get_mount(reinterpret_cast<void*>(payload),static_cast<unsigned char>(i),255));
+        if (!mount) { write(p,"F22_GUN_AMMO_COUNT",total);write(p,"F22_GUN_AMMO_VALID",1);return; }
+        if (!readable(mount,16)) return;
+        auto gun=*reinterpret_cast<std::uintptr_t*>(mount+8);
+        if (!readable(gun,sizeof(void*))) return;
+        auto gun_table=*reinterpret_cast<std::uintptr_t*>(gun);
+        if (!readable(gun_table,96)) return;
+        auto count=reinterpret_cast<Count>(*reinterpret_cast<std::uintptr_t*>(gun_table+88));
+        if (!count) return;
+        unsigned rounds=count(reinterpret_cast<void*>(gun));
+        if (rounds>100000 || total>100000-rounds) return;
+        total+=rounds;
+    }
+}
+void apply_radar_configuration(std::uintptr_t instance) {
+    *reinterpret_cast<double*>(instance+1944)=40.0;
+    *reinterpret_cast<double*>(instance+2416)=-1.0471975511965976;
+    *reinterpret_cast<double*>(instance+2424)=1.0471975511965976;
+}
+// These are observations already detected by avSimpleRadar. Never enumerate
+// scene/world objects or create contacts here. Exact ABI profile and vtable are
+// checked before this function runs; scan_contact layout is verified in IDA.
+void publish_radar_observations(EDPARAM& p,std::uintptr_t instance) {
+    write(p,"F22_RADAR_OBSERVATIONS_READY",0);
+    write(p,"F22_RADAR_OBSERVATION_COUNT",0);
+    if (!api.clock) return;
+    const auto begin=*reinterpret_cast<const std::uintptr_t*>(instance+2168);
+    const auto end=*reinterpret_cast<const std::uintptr_t*>(instance+2176);
+    if (end<begin || (end-begin)%144 || (end-begin)/144>4096) return;
+    const auto count=static_cast<unsigned>((end-begin)/144);
+    if (count && !readable(begin,static_cast<std::size_t>(end-begin))) return;
+    const double now=api.clock();
+    if (!std::isfinite(now)) return;
+    std::map<std::uint32_t,std::uintptr_t> latest;
+    for (unsigned i=0;i<count;++i) {
+        const auto record=begin+144*i;
+        const auto id=*reinterpret_cast<const std::uint32_t*>(record+128);
+        const auto age=now-*reinterpret_cast<const double*>(record+112);
+        if (!id || !std::isfinite(age) || age<-.05 || age>10) continue;
+        const char* fields[]={"NORTH","ALTITUDE","EAST","VN","VU","VE"};
+        const int offsets[]={0,8,16,48,56,64};
+        bool valid=true;
+        for (int n=0;n<6;++n) valid=valid && std::isfinite(*reinterpret_cast<const double*>(record+offsets[n]));
+        if (!valid) continue;
+        auto prior=latest.find(id);
+        if (prior==latest.end() || *reinterpret_cast<const double*>(record+112)>
+            *reinterpret_cast<const double*>(prior->second+112)) latest[id]=record;
+    }
+    unsigned published=0;
+    const char* fields[]={"NORTH","ALTITUDE","EAST","VN","VU","VE"};
+    const int offsets[]={0,8,16,48,56,64};
+    for (const auto& [id,record]:latest) {
+        if (published>=64) break;
+        const auto age=now-*reinterpret_cast<const double*>(record+112);
+        char key[80];++published;
+        for (int n=0;n<6;++n) {
+            std::snprintf(key,sizeof(key),"F22O_%02u_%s",published,fields[n]);
+            write(p,key,*reinterpret_cast<const double*>(record+offsets[n]));
+        }
+        std::snprintf(key,sizeof(key),"F22O_%02u_ID",published);write(p,key,id);
+        std::snprintf(key,sizeof(key),"F22O_%02u_AGE",published);write(p,key,age<0 ? 0 : age);
+        std::snprintf(key,sizeof(key),"F22O_%02u_IFF",published);
+        write(p,key,*reinterpret_cast<const int*>(record+76));
+    }
+    write(p,"F22_RADAR_OBSERVATION_COUNT",published);
+    write(p,"F22_RADAR_OBSERVATIONS_READY",1);
+}
+void publish_stt_motion(EDPARAM& p,std::uintptr_t instance) {
+    write(p,"F22_STT_MOTION_VALID",0);write(p,"F22_STT_ACCEL_VALID",0);
+    if (!api.clock || !readable(instance,2136)) return;
+    auto s=NativeSTTMotion::decode(reinterpret_cast<const std::byte*>(instance),2136,api.clock());
+    if (!s.valid) return;
+    const char* axes[]={"N","U","E"};char key[64];
+    for (int i=0;i<3;++i) {
+        std::snprintf(key,sizeof(key),"F22_STT_P%s",axes[i]);write(p,key,s.position[i]);
+        std::snprintf(key,sizeof(key),"F22_STT_V%s",axes[i]);write(p,key,s.velocity[i]);
+        std::snprintf(key,sizeof(key),"F22_STT_A%s",axes[i]);write(p,key,s.acceleration_valid?s.acceleration[i]:0);
+    }
+    write(p,"F22_STT_ID",s.id);write(p,"F22_STT_TIME",s.time);
+    write(p,"F22_STT_ACCEL_VALID",s.acceleration_valid?1:0);write(p,"F22_STT_MOTION_VALID",1);
+}
+void configure_radar(EDPARAM& p) {
+    write(p,"F22_RADAR_ACQ_COORDINATES_READY",0);
+    write(p,"F22_RADAR_NATIVE_BEAM_WORLD_VALID",0);write(p,"F22_RADAR_NATIVE_SCAN_REF_BEAM_VALID",0);
+    write(p,"F22_RADAR_NATIVE_ACQ_METRIC_VALID",0);
+    radar_coordinate_ready_handle=handles["F22_RADAR_ACQ_COORDINATES_READY"];
+    radar_coordinate_write=p.ed_param_api.pfn_ed_cockpit_update_parameter_with_number;
+    write(p,"F22_STT_MOTION_VALID",0);write(p,"F22_STT_ACCEL_VALID",0);
+    write(p,"F22_RADAR_NATIVE_CONFIGURED",0);
+    write(p,"F22_RADAR_OBSERVATIONS_READY",0);
+    write(p,"F22_RADAR_NATIVE_CONFIG_REASON",1);
+    if (!api.profile_valid || !api.ready) {reset_radar_coordinates();return;}
+    // Use the same context/device accessor as GetDevice. Do not transport a
+    // Lua userdata address through a simulator numeric parameter.
+    auto context=api.binding_context();
+    write(p,"F22_RADAR_NATIVE_CONFIG_REASON",2);
+    if (!context) return;
+    auto id=read(p,"F22_RADAR_DEVICE_ID");
+    if (!std::isfinite(id) || id<1 || id>255) return;
+    auto instance=reinterpret_cast<std::uintptr_t>(api.device(context,static_cast<unsigned>(id)));
+    write(p,"F22_RADAR_NATIVE_CONFIG_REASON",3);
+    if (!readable(instance,2440)) return;
+    write(p,"F22_RADAR_NATIVE_CONFIG_REASON",4);
+    const auto table=*reinterpret_cast<const void**>(instance);
+    if (table!=api.radar_vtable && (radar_coordinate_slot!=reinterpret_cast<void**>(instance) || table!=radar_coordinate_table.data()+1)) return;
+    MEMORY_BASIC_INFORMATION memory{};
+    VirtualQuery(reinterpret_cast<void*>(instance),&memory,sizeof(memory));
+    write(p,"F22_RADAR_NATIVE_CONFIG_REASON",5);
+    if (!(memory.Protect&(PAGE_READWRITE|PAGE_WRITECOPY|PAGE_EXECUTE_READWRITE|PAGE_EXECUTE_WRITECOPY))) return;
+    write(p,"F22_RADAR_NATIVE_CONFIG_REASON",6);
+    if (!install_radar_coordinates(instance)) return;
+    write(p,"F22_RADAR_ACQ_COORDINATES_READY",1);
+    publish_radar_coordinates(p,instance);
+    apply_radar_configuration(instance);
+    publish_radar_observations(p,instance);
+    publish_stt_motion(p,instance);
+    update_target_support(p,instance);
+    write(p,"F22_RADAR_NATIVE_CONFIGURED",1);
+    write(p,"F22_RADAR_NATIVE_CONFIG_REASON",0);
+    write(p,"F22_RADAR_NATIVE_MIN_METRES",*reinterpret_cast<double*>(instance+1944));
+    write(p,"F22_RADAR_NATIVE_EL_LIMIT",*reinterpret_cast<double*>(instance+2424));
+}
+}
+
+void reset() {
+    reset_support();
+    dispose();handles.clear();launch_sequence=0;launch_id=0;tick_sequence=0;
+}
+
+void update(EDPARAM& p,double dt) {
+    write(p,"F22_COMBAT_NATIVE_TICKS",++tick_sequence);
+    api.resolve();
+    launch_master_mode=static_cast<unsigned>(std::clamp(read(p,"F22_IR_MODE"),0.0,10.0));
+    configure_radar(p);
+    publish_launch_events(p);
+    publish_missile_data(p);
+    publish_time_estimate(p);
+    publish_gun_ammunition(p);
+    write(p,"F22_IR_API_READY",api.ready ? 1 : 0);
+    write(p,"F22_IR_ABI_ERROR",api.error);
+    write(p,"F22_IR_AVAILABLE",0);write(p,"F22_IR_LOCK",0);
+    write(p,"F22_IR_STRENGTH",0);write(p,"F22_IR_STATE",0);
+    write(p,"F22_IR_LAUNCH_SEQUENCE",launch_sequence);
+    write(p,"F22_IR_LAUNCH_ID",launch_id);
+    if (!api.ready || !std::isfinite(dt) || dt<=0 || dt>.1) return;
+    void** context=*api.contexts;
+    void* plane=context ? context[2] : nullptr;
+    void* aircraft=api.aircraft();
+    if (!plane || !aircraft) { dispose();return; }
+    bool enabled=read(p,"F22_IR_MODE")==3 && read(p,"MAIN_POWER")>.5;
+    int selected=static_cast<int>(read(p,"F22_IR_STATION"));
+    WeaponType type;
+    type.level1=static_cast<std::uint8_t>(read(p,"F22_IR_TYPE1"));
+    type.level2=static_cast<std::uint8_t>(read(p,"F22_IR_TYPE2"));
+    type.level3=static_cast<std::uint8_t>(read(p,"F22_IR_TYPE3"));
+    type.level4=static_cast<std::uint32_t>(read(p,"F22_IR_TYPE4"));
+    bool loaded=selected>=0 && selected<=10 && type.level1==4 && type.level2==4 && type.level3==7 && type.level4>0;
+    if (!enabled || !loaded) { dispose();return; }
+    if (!constructed || selected!=current_station || !(type==current_type)) {
+        dispose();
+        api.construct(object.data(),&type);constructed=true;
+        api.initialize(object.data());api.station(object.data(),selected,0);
+        if (type.level4==136) { // native AIM-9X setup used by the reference interface
+            constexpr double limit=1.4835298641951802;
+            auto sensor=const_cast<void*>(api.seeker(object.data()));
+            api.gimbal_limit(sensor,static_cast<float>(limit));
+            api.motor_limits(static_cast<std::byte*>(sensor)+40,-limit,limit);
+            api.motor_limits(static_cast<std::byte*>(sensor)+104,-limit,limit);
+            api.sun_filter(sensor,1.f);
+        }
+        // IwoLA::getLauncherPoint, verified against both native weapon paths.
+        LauncherPose launcher;
+        auto vtable=*reinterpret_cast<void***>(aircraft);
+        reinterpret_cast<Api::Launcher>(vtable[64])(aircraft,&launcher,static_cast<unsigned char>(selected),0);
+        Pose pose;
+        for (int i=0;i<16;++i) pose.m[i]=launcher.m[i];
+        pose.m[3]=pose.m[7]=pose.m[11]=0;pose.m[15]=1;
+        write(p,"F22_IR_MOUNT_FWD_NORM",std::hypot(pose.m[0],pose.m[1],pose.m[2]));
+        if (!normalize_mount_pose(pose)) { dispose();write(p,"F22_IR_GEOMETRY_VALID",0);return; }
+        write(p,"F22_IR_GEOMETRY_VALID",1);
+        for (int i=0;i<3;++i) pose.m[12+i]+=1.5*pose.m[i];
+        write(p,"F22_IR_APERTURE_TRAVEL",clear_observation_aperture(pose,model_min,model_max));
+        api.boresight(object.data(),&pose);
+        api.power(object.data(),true);api.status(object.data(),3);
+        api.to_boresight(object.data());
+        current_type=type;current_station=selected;
+        // A held release is not a new press when stepping/changing stations.
+        was_release=read(p,"F22_IR_RELEASE_REQUEST")>.5;
+    }
+    bool caged=read(p,"F22_IR_CAGED")>.5;
+    if (caged!=was_caged) {
+        if (caged) api.to_boresight(object.data());else api.uncage(object.data());
+        was_caged=caged;
+    }
+    api.consent(object.data(),!caged);
+    // Re-slaving an acquired seeker clears its track. Leave it autonomous once
+    // tracking; radar cueing and IR acquisition are different states.
+    if (!caged && !api.tracking(object.data()) && read(p,"F22_RADAR_STT_VALID")>.5) {
+        double az=read(p,"F22N_RADAR_STT_AZIMUTH"),el=read(p,"F22N_RADAR_STT_ELEVATION");
+        if (std::isfinite(az) && std::isfinite(el)) {
+            Direction direction{std::cos(el)*std::cos(az),std::sin(el),std::cos(el)*std::sin(az)};
+            api.slave(object.data(),&direction);
+        }
+    }
+    api.update(object.data(),dt);
+    bool locked=api.tracking(object.data());
+    Pose local;api.local_pose(api.seeker(object.data()),&local);
+    double az=std::atan2(local.m[2],local.m[0]);
+    double el=std::atan2(local.m[1],std::hypot(local.m[0],local.m[2]));
+    write(p,"F22_IR_AVAILABLE",1);write(p,"F22_IR_LOCK",locked ? 1 : 0);
+    write(p,"F22_IR_STATE",locked ? 3 : caged ? 1 : 2);
+    write(p,"F22_IR_STRENGTH",api.strength(object.data()));
+    // Read-only diagnostics for the same checked object layout. These expose
+    // real sensor search/geometry state; they never supply an IR target.
+    const auto sensor=static_cast<const std::byte*>(api.seeker(object.data()));
+    write(p,"F22_IR_SEARCH_ACTIVE",*reinterpret_cast<const unsigned char*>(sensor+648));
+    write(p,"F22_IR_SENSOR_MODE",*reinterpret_cast<const int*>(sensor+644));
+    write(p,"F22_IR_PARENT_VALID",*reinterpret_cast<const std::uintptr_t*>(sensor+32) ? 1 : 0);
+    write(p,"F22_IR_NATIVE_TARGET_ID",*reinterpret_cast<const unsigned*>(sensor+712));
+    write(p,"F22_IR_SUN",*reinterpret_cast<const unsigned char*>(sensor+649));
+    write(p,"F22_IR_ELECTRIC",*reinterpret_cast<const unsigned char*>(object.data()+8));
+    write(p,"F22_IR_SENSOR_POWER",*reinterpret_cast<const unsigned char*>(sensor+568));
+    write(p,"F22_IR_INITIALIZED",*reinterpret_cast<const unsigned char*>(sensor+624));
+    write(p,"F22_IR_APERTURE",*reinterpret_cast<const float*>(sensor+632));
+    write(p,"F22_IR_NATIVE_TYPE",static_cast<double>(*reinterpret_cast<const std::uint64_t*>(sensor+1008)));
+    write(p,"F22_IR_TIMER",*reinterpret_cast<const std::uintptr_t*>(sensor+616) ? 1 : 0);
+    auto hits_begin=*reinterpret_cast<const std::uintptr_t*>(sensor+984);
+    auto hits_end=*reinterpret_cast<const std::uintptr_t*>(sensor+992);
+    write(p,"F22_IR_CONTACTS",hits_end>=hits_begin && (hits_end-hits_begin)/24<=4096 ? (hits_end-hits_begin)/24 : -1);
+    if (api.platform_position) {
+        const auto world=static_cast<const Pose*>(api.platform_position(sensor));
+        write(p,"F22_IR_WORLD_NORTH",world->m[12]);write(p,"F22_IR_WORLD_ALT",world->m[13]);write(p,"F22_IR_WORLD_EAST",world->m[14]);
+        write(p,"F22_IR_WORLD_FWD_N",world->m[0]);write(p,"F22_IR_WORLD_FWD_U",world->m[1]);write(p,"F22_IR_WORLD_FWD_E",world->m[2]);
+    }
+    write(p,"F22_IR_AZ",az);write(p,"F22_IR_EL",el);
+    bool release=read(p,"F22_IR_RELEASE_REQUEST")>.5;
+    if (release && !was_release && locked && read(p,"MASTER_ARM")>.5 && read(p,"WoW")<.5) {
+        auto id=api.launch(object.data(),plane);
+        if (id) { launch_id=id;++launch_sequence; }
+    }
+    was_release=release;
+    write(p,"F22_IR_LAUNCH_SEQUENCE",launch_sequence);write(p,"F22_IR_LAUNCH_ID",launch_id);
+}
+}

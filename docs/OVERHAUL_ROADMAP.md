@@ -24,7 +24,7 @@ Stage 1 is a prerequisite for committing to a feature-complete independent comba
 
 ## Progress checkpoint — 24 October 2026
 
-This repository's `main` branch is the user's development branch. Initial targeted repairs and experimental NAV/A-A/A-G HUD rendering now exist. **This does not close stages 1–6**; end-to-end completion gates still need DCS runtime tests, especially the borrowed FC3 radar/weapon host interface. See [the actual implementation status matrix](../resources/research/IMPLEMENTATION_STATUS.md).
+This repository's `main` branch is the user's development branch. Initial targeted repairs and experimental NAV/A-A/A-G HUD rendering now exist. **This does not close stages 1–6**; end-to-end completion gates still need DCS runtime tests, especially the borrowed FC3 radar/weapon host interface. See [the actual implementation status matrix](resources/research/IMPLEMENTATION_STATUS.md).
 
 Verified on GitHub Actions only: Windows EFM compile, modified Lua parsing, and independent Lua 5.1 geometry test. No complete mission flight has been executed on the modified code.
 

@@ -71,7 +71,6 @@ local wheel_glide_friction_factor_NOSE          = 0.49
 
 local brake_moment_main                         = 24000
 
-local wheel_radius_factor                       = 1.0
 
 local main_wheel_kz_factor                      = 0.35
 local main_noise_k                              = 0.4

@@ -1,34 +1,43 @@
-# DCS-F22
+# DCS-F22 — standalone development build
 
-This project starts from [Grinnelli Designs’ F-22A](https://github.com/grinnellidesigns/f-22a), upstream commit `8484b44cf8bc46540376435f0ba584f9f3e8bf44`. Original credits, licences and source history are retained below and throughout the repository.
+A standalone cockpit and avionics implementation for the Grinnelli Designs F-22A, retaining its custom external flight model. This fork uses shared DCS radar, payload, weapon and RWR services; the F-15C, Flaming Cliffs and Hornet modules are not prerequisites. It installs under Saved Games without editing another aircraft's files.
 
-- [Development setup](docs/DEVELOPMENT.md): checkout, build and source map.
-- [HUD and overhaul in-game test plan](docs/HUD_AND_SYSTEMS_TEST_PLAN.md): exact NAV/A-A/A-G scenarios and known unsupported functionality.
-- [System-by-system audit](docs/audit/README.md): 16 pre-implementation system reviews with applicable resources, confirmed defects, rewrite candidates and validation checks; see the research implementation status for subsequent fixes.
-- [Chinese-language research](docs/CHINESE_RESEARCH.md): 18 journal/university/CAAC additions, manual-search results and evidence limitations.
-- [Chinese forum follow-up](docs/CHINESE_FORUM_RESEARCH.md): 22 community leads, original-source trails, access limits and HUD/manual screening.
-- [Overhaul assessment](docs/OVERHAUL_ASSESSMENT.md): dependency map, 23 source-backed findings and reproduced numerical defects.
-- [Standalone design](docs/STANDALONE_DESIGN.md): replacement architecture and the radar/weapon integration experiment needed to remove the F-15C prerequisite.
-- [Overhaul roadmap](docs/OVERHAUL_ROADMAP.md): ordered implementation work and completion criteria.
-- [Study resources](docs/RESOURCES.md): 176 public aircraft, display and engineering references, with access and evidence limits.
-- [Experimental HUD / avionics research](resources/research/README.md): sourced F-22 counter-pointer references, C-130-inspired heading design, change log and test plan. These experimental changes are committed directly to **`main`, the active development branch**. A passing build does not mean the HUD has passed in-game testing.
-- [Focused reading guide](docs/RESEARCH_GUIDE.md): avionics, HUD, thrust vectoring and flight performance, with page/figure pointers.
-- Clone with Git LFS installed and run `git lfs pull` to retrieve model, texture, audio and other large assets.
-- The inherited DCS/F-15C dependency still applies. Proprietary DCS binaries and original 3D authoring projects are not supplied by the public source repository.
+The native adapters were qualified locally on **DCS 2.9.30.28738, Windows x64**. Their private interfaces are version checked; compatibility with another DCS build requires validation. This is an actively developed community mod, not a claim to reproduce classified F-22 avionics.
 
-## Original project documentation
+## Current systems
 
-# Grinnelli Designs F-22A Raptor
-Welcome! This GitHub repository contains the source code and release versions of the F-22A Raptor community mod by Grinnelli Designs.
-If you're here for the Raptor mod, please follow [this link](https://github.com/grinnellidesigns/f-22a/releases/latest) to download it. **Please note that the DCS: F-15C or DCS: Flaming Cliffs 3 expansions are required for this mod to work properly.**
+- Own HUD and head-down displays, computed gun pipper and maneuver cues.
+- RWS, ACM acquisition, native STT and an own TWS track/scan controller with real native missile support.
+- Native stores, bay-gated release, dynamic launch envelopes and estimated missile flyout/activation timing. Actual seeker state remains separate from predictions.
+- Independent passive RWR, radar/RWR identity association and prioritized warning audio.
+- Native chaff/flare dispensing and ECM controls; status and quantities follow the common simulator service.
+- Mission-route navigation, waypoint/direct-to selection, optional automatic sequencing and HUD steering cues.
 
-### Important Note
-Because the mod relies on the F-15C Avionics, you will need to add `load_immediately = true` inside of `Mods/aircraft/F-15C/entry.lua`. See [this message on Discord](https://discord.com/channels/778817642860904468/1010337321620623410/1375669978568593419) for details.
+Local flight qualification includes operation with the F-15C and Hornet directories removed from DCS's module search path, plus loaded-module checks proving their aircraft avionics DLLs absent. See [standalone status and limits](docs/STANDALONE_DESIGN.md) for the tested scope. Multiplayer, complete rearm/respawn coverage, TACAN/ILS, advanced datalink and new AESA detection physics remain outside that acceptance.
 
-<ins>**NOTE:** This will cause integrity check to fail!</ins>
+## Build and install
 
-If you're here to help with development, please visit the [Contributing](CONTRIBUTING.md) README for relevant information.
-![f-22 raptor image](https://i0.wp.com/grinnellidesigns.com/wp-content/uploads/2022/01/F22_wepon_2.jpg?fit=1920%2C1080&ssl=1)
+1. Clone with Git LFS installed, then run `git lfs pull` to retrieve the models, textures and audio. A source ZIP containing LFS pointers is insufficient.
+2. Build `bin/f22.dll` with Visual Studio 2022 C++ tools and CMake 3.30+. See [development setup](docs/DEVELOPMENT.md).
+3. Place the aircraft root (including `entry.lua`, `bin/f22.dll`, `Cockpit`, `FM`, `Input` and the asset directories) in `Saved Games/DCS/Mods/aircraft/F-22A`. Restart DCS after installation. Remove older copies of this same mod from other aircraft-mod directories to avoid duplicate registration.
+
+The repository contains our source and public aircraft assets. Proprietary DCS DLLs, IDA databases and test-control hooks are not distributed as aircraft prerequisites. CI builds the DLL and runs the C++ and Python/Lua regressions; the DLL artifact still needs the aircraft assets from a complete checkout.
+
+## Development references
+
+- [Standalone status and architecture](docs/STANDALONE_DESIGN.md)
+- [Development setup and tests](docs/DEVELOPMENT.md)
+- [HUD/system test plan](docs/HUD_AND_SYSTEMS_TEST_PLAN.md)
+- [Research archive](docs/resources/research/README.md) and [public study catalogue](docs/RESOURCES.md)
+
+Older audit and roadmap documents describe earlier development states. The current standalone status takes precedence over their historical dependency descriptions.
+
+## Credits and original project
+
+Based on [Grinnelli Designs' F-22A](https://github.com/grinnellidesigns/f-22a), upstream commit `8484b44cf8bc46540376435f0ba584f9f3e8bf44`. Original source history, model/assets attribution, copyright notices and GPL licence are retained. Original 3D authoring projects are not supplied by this fork. See [LICENSE](LICENSE), [contributors](Contributors.md) and [contributing](CONTRIBUTING.md).
+
+The upstream release used F-15C avionics. Its aircraft-module preload workaround is superseded here by the own cockpit and common-device integration. The original aircraft overview follows.
+
 ## About the Raptor
 The Lockheed Martin F-22 Raptor is an American single-seat, twin-engine, all-weather stealth tactical fighter aircraft developed for the United States Air Force. As the result of the USAF’s Advanced Tactical Fighter program, the aircraft was designed as an air superiority fighter, but also has ground attack, electronic warfare, and signals intelligence capabilities.
 

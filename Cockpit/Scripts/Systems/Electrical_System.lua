@@ -89,22 +89,24 @@ end
 ------------------------------------------------------------------FUNCTION-SETCOMMAND---------------------------------------------------------------------------------------------------
 function SetCommand(command, value)
     -- AAR Switch
-    if (command == AAR_SWITCH or command == 10015 or command == 10016) and aar_state == 0 then
-        aar_state = 1
-        dispatch_action(nil, PlaneAirRefuel)
-        dev:performClickableAction(AAR_SWITCH, aar_state, false)
-        parameters.AAR:set(aar_state)
-    elseif (command == AAR_SWITCH or command == 10015 or command == 10016) and aar_state == 1 then
-        aar_state = 0
-        dispatch_action(nil, PlaneAirRefuel)
-        dev:performClickableAction(AAR_SWITCH, aar_state, false)
+    if command == AAR_SWITCH or command == 10015 or command == 10016 then
+        local next_state = 1 - aar_state
+        if command == AAR_SWITCH then next_state = value >= 0.5 and 1 or 0 end
+        if next_state ~= aar_state then
+            aar_state = next_state
+            dispatch_action(nil, PlaneAirRefuel)
+        end
+        -- Updating the switch invokes SetCommand again in DCS. Only keyboard
+        -- commands need to synchronize the clickable animation.
+        if command ~= AAR_SWITCH then
+            dev:performClickableAction(AAR_SWITCH, aar_state, false)
+        end
         parameters.AAR:set(aar_state)
     end
 
     -- AAR Light Knob (continuous axis)
     if command == AAR_LIGHT then
         aar_knob = math.max(0, math.min(1, value))
-        dev:performClickableAction(AAR_LIGHT, aar_knob, false)
         parameters.AAR_KNOB:set(aar_knob)
     end
 
@@ -138,7 +140,6 @@ function SetCommand(command, value)
     -- Formation Light Knob (continuous axis)
     if command == FORM_LIGHT then
         form_knob = math.max(0, math.min(1, value))
-        dev:performClickableAction(FORM_LIGHT, form_knob, false)
         parameters.FORM_KNOB:set(form_knob)
     end
 end

@@ -21,6 +21,7 @@ mount_vfs_texture_archives("Bazar/Textures/AvionicsCommon")
 
 dofile(LockOn_Options.common_script_path.."tools.lua")
 dofile(LockOn_Options.script_path.."devices.lua")
+dofile(LockOn_Options.script_path.."materials.lua")
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 layoutGeometry = {}
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -42,16 +43,31 @@ creators[devices.NAV_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Syst
 creators[devices.AG_MARK_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/AG_Mark_System.lua"}
 creators[devices.RADAR_DATA_BRIDGE] = {"avLuaDevice", LockOn_Options.script_path.."Systems/Radar_Data_Bridge.lua"}
 creators[devices.AG_BALLISTIC_COMPUTER] = {"avLuaDevice", LockOn_Options.script_path.."Systems/AG_Ballistic_Computer.lua"}
---creators[devices.FCS]					 = {"avLuaDevice"			,LockOn_Options.script_path.."Systems/FCS.lua"}
+creators[devices.HUD_FLIGHT_DATA] = {"avLuaDevice", LockOn_Options.script_path.."Systems/HUD_Flight_Data.lua"}
+local radar_config=dofile(LockOn_Options.script_path.."Systems/Radar_Config.lua")
+if radar_config.native_backend_enabled then
+    creators[devices.RADAR_NATIVE] = {"avSimpleRadar", LockOn_Options.script_path.."Systems/Radar_Native.lua"}
+end
+creators[devices.RADAR_COMPUTER] = {"avLuaDevice", LockOn_Options.script_path.."Systems/Radar_System.lua"}
+creators[devices.WEAPON_NATIVE] = {"avSimpleWeaponSystem", LockOn_Options.script_path.."Systems/Weapon_Native.lua"}
+creators[devices.COMBAT_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/Combat_System.lua"}
+creators[devices.RWR_NATIVE] = {"avSimpleRWR", LockOn_Options.script_path.."Systems/RWR_Native.lua"}
+creators[devices.RWR_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/RWR_System.lua"}
+creators[devices.ENGAGEMENT_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/Engagement_System.lua"}
+creators[devices.EW_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/EW_System.lua"}
 
 --creators[devices.KNEEBOARD] = {"avKneeboard",LockOn_Options.common_script_path.."KNEEBOARD/device/init.lua"}
 
 indicators = {}
--- Standalone experimental HUD: optical alignment/EDM connector still requires DCS verification.
+-- The shipped EDM has no HUD-CENTER/DOWN/RIGHT connector triplet.
+-- Use explicit cockpit geometry until editable HUD anchors are available.
+-- Position and optical alignment still require a 2D/VR in-game check.
 indicators[#indicators + 1] = {"ccIndicator", LockOn_Options.script_path.."HUD/init.lua",
     nil,
     {
-        {"HUD-CENTER", "HUD-DOWN", "HUD-RIGHT"}
+        {},
+        {sx = 0.0, sy = 0.0, sz = 0.0, sw = 0.14, sh = 0.12,
+         rx = 0, ry = 0, rz = 0}
     }
 }
 --PFD LEFT

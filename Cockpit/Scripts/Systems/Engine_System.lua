@@ -24,7 +24,7 @@ dofile(LockOn_Options.script_path.."command_defs.lua")
 local dt = 0.024
 make_default_activity(dt)
 
-local sensor_data		= get_base_data()
+local sensor_data = dofile(LockOn_Options.script_path.."Systems/Engine_Data.lua")(get_base_data())
 
 local APU   			= get_param_handle("APU")
 local APU_POWER			= get_param_handle ("APU_POWER")
@@ -72,6 +72,7 @@ dev:listen_event("GroundPowerOn")
 dev:listen_event("GroundPowerOff")
 
 local battery_state = 0 --track on off state
+local initializing_hot_start = false
 local apu_state 	= 0 --track if apu was set to start
 local apu_pwr		= 0 --track if the apu has full power
 local apu_rpm		= 0 --track apu spool up time
@@ -91,7 +92,6 @@ local R_throttle_pos = 1
 local L_cutoff		 = 0
 local R_cutoff		 = 0
 
-local apu_autooff = 0
 local apu_autooff_timer = 0
 
 local L_axis_value = -1
@@ -188,14 +188,19 @@ function post_initialize()
 	local birth = LockOn_Options.init_conditions.birth_place
 	
 	if birth == "GROUND_HOT" or birth == "AIR_HOT" then
+		initializing_hot_start = true
 		L_cutoff = 1
 		R_cutoff = 1
+		battery_state = 1
+		L_gen_state = 1
+		R_gen_state = 1
 		-- Battery clickable handler owns the native power toggle.
         -- No second PowerOnOff dispatch in the hot-start path.
 		dev:performClickableAction(battery_switch, 1, false)--set battery switch ON
 		dev:performClickableAction(L_gen_switch, 1, false)--set L Gen switch ON
 		dev:performClickableAction(R_gen_switch, 1, false)--set R Gen switch ON
 		dev:performClickableAction(apu_switch, -1, false)--set apu switch OFF
+		initializing_hot_start = false
 		set_aircraft_draw_argument_value(616, 0)--GPU CART ON/OFF
 		set_aircraft_draw_argument_value(617, -1)--GPU CART START LOCATION
 		--print_message_to_user("HOT START")
@@ -285,33 +290,26 @@ end
 			print_message_to_user("**COMMAND DISABLED ON GROUND||MUST USE APU TO COLD START THE JET**")
 		end	
 --Battery Switch Click
-		if (command == battery_switch or command == 10009 or command == 10010) and battery_state == 0 then
-			battery_state = 1
-			dispatch_action(nil, PowerOnOff)
-			--print_message_to_user("BAT ON")
-		elseif (command == battery_switch or command == 10009 or command == 10010) and battery_state == 1 then
-			battery_state = 0
-			dispatch_action(nil, PowerOnOff)
-			--print_message_to_user("BAT OFF")
+		if command == battery_switch or command == 10009 or command == 10010 then
+			local next_state = 1 - battery_state
+			if command == battery_switch then next_state = value >= 0.5 and 1 or 0 end
+			if next_state ~= battery_state then
+				battery_state = next_state
+				if not initializing_hot_start then dispatch_action(nil, PowerOnOff) end
+			end
 		end
 --Left Gen Switch
-		if (command == L_gen_switch or command == 10011 or command == 10012) and L_gen_state == 0 then
-			L_gen_state = 1
-			--ufd_swap_adi = 1
-			--print_message_to_user("LEFT GEN ON")
-		elseif (command == L_gen_switch or command == 10011 or command == 10012) and L_gen_state == 1 then
-			L_gen_state = 0
-			--ufd_swap_adi = 0
-			--print_message_to_user("LEFT GEN OFF")
+		if command == L_gen_switch then
+			L_gen_state = value >= 0.5 and 1 or 0
+		elseif command == 10011 or command == 10012 then
+			L_gen_state = 1 - L_gen_state
 		end
 --Right Gen Switch
-		if (command == R_gen_switch or command == 10013 or command == 10014) and R_gen_state == 0 then
-			R_gen_state = 1
-			--print_message_to_user("RIGHT GEN ON")
-		elseif (command == R_gen_switch or command == 10013 or command == 10014) and R_gen_state == 1 then
-			R_gen_state = 0
-			--print_message_to_user("RIGHT GEN OFF")
-		end	
+		if command == R_gen_switch then
+			R_gen_state = value >= 0.5 and 1 or 0
+		elseif command == 10013 or command == 10014 then
+			R_gen_state = 1 - R_gen_state
+		end
 --Engine Start	Switch 
 		if (command == L_Eng_Click or command == L_Eng_Start) and L_cutoff == 0 and apu_pwr == 0 then
 			L_cutoff = 1

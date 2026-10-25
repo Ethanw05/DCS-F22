@@ -40,14 +40,11 @@ version tag is published.
 Use a separate working copy under your DCS Saved Games aircraft-mod
 directory, conventionally `Saved Games/DCS/Mods/aircraft/F-22A`, containing
 the root `entry.lua`, compiled `bin/f22.dll`, and the aircraft's asset
-directories. See the original README and included manual for installation
-details and the inherited F-15C preload setting.
-
-The module still depends on DCS's F-15C/Flaming Cliffs avionics. Those
-proprietary binaries are supplied by the user's DCS installation, not this
-repository. Public compiled aircraft models and textures are included;
-their original Blender/other authoring projects should not be assumed
-available unless separately present and licensed.
+directories. Follow the current installation instructions in the fork README. The standalone fork uses its own cockpit and
+shared DCS core devices; installing F-15C/Flaming Cliffs or Hornet and changing
+their preload settings is not required. The common native adapters are qualified
+on DCS 2.9.30.28738 (Windows x64) and require validation after host changes.
+Original aircraft assets and licences remain required.
 
 ## Source map
 
@@ -64,10 +61,20 @@ available unless separately present and licensed.
 | `Shapes/`, `Textures/`, `Liveries/` | Aircraft assets |
 | `docs/RESOURCES.md` | Public study references and their evidence limits |
 
-The current baseline dispatches inherited avionics/HUD commands; the
-presence of Lua cockpit pages does not establish a fully independent HUD
-or radar implementation. Aircraft behaviour has not been changed as part
-of this repository import.
+## Run the regressions
+
+Install the pinned Lua test dependencies and run from the repository root:
+
+```sh
+python -m pip install luaparser==4.2.0 lupa==2.8
+python tests/run_all.py
+ctest --test-dir out/build/x64-release -C Release --output-on-failure --no-tests=error
+```
+
+The Python runner includes every `test_*.py` plus modified-Lua syntax checks.
+It requires a complete Git LFS checkout for model/font/audio asset tests. Native
+flight acceptance is separate from these mocked/numerical tests; see the current
+[standalone qualification](STANDALONE_DESIGN.md).
 
 ## Contributing
 

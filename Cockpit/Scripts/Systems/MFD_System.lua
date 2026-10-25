@@ -21,7 +21,9 @@ dofile(LockOn_Options.script_path.."devices.lua")
 dofile(LockOn_Options.script_path.."command_defs.lua")
 
 local dev = GetSelf()
-local sensor_data		= get_base_data()
+local nav_commands = dofile(LockOn_Options.script_path.."Systems/Nav_Commands.lua")
+local nav_input = dofile(LockOn_Options.script_path.."Systems/Input_Value.lua")
+local sensor_data = dofile(LockOn_Options.script_path.."Systems/Engine_Data.lua")(get_base_data())
 
 local update_time_step = 0.006 --0.006
 make_default_activity(update_time_step)
@@ -120,24 +122,6 @@ local parameters = {
     FCS_RF                    = get_param_handle("FCS_RF"),
     FCS_SB                    = get_param_handle("FCS_SB"),
     FCS_LEF                   = get_param_handle("FCS_LEF"),
-    ILSN_VIS                  = get_param_handle("ILSN_VIS"),
-    NAV_VIS                   = get_param_handle("NAV_VIS"),
-    ILS_FLAG                  = get_param_handle("ILS_FLAG"), 
-    ILS_VERT                  = get_param_handle("ILS_VERT"),
-    ILS_HORIZON               = get_param_handle("ILS_HORIZON"),
-    HSI_COMPASS               = get_param_handle("HSI_COMPASS"),
-    HSI_CRS_POINTER           = get_param_handle("HSI_CRS_POINTER"),
-    HSI_DEVIATION             = get_param_handle("HSI_DEVIATION"),
-    HSI_WP_POINTER            = get_param_handle("HSI_WP_POINTER"),
-    ILS_NAV                   = get_param_handle("ILS_NAV"),
-    MILE_1                    = get_param_handle("MILE_1"),
-    MILE_2                    = get_param_handle("MILE_2"),
-    MILE_3                    = get_param_handle("MILE_3"),
-    MILE_4                    = get_param_handle("MILE_4"),
-    COURSE_1                  = get_param_handle("COURSE_1"),
-    COURSE_2                  = get_param_handle("COURSE_2"), 
-    COURSE_3                  = get_param_handle("COURSE_3"),
-    TO_FROM                   = get_param_handle("TO_FROM"),  
     R_EGT_COLOR               = get_param_handle("R_EGT_COLOR"),
     R_RPM_COLOR               = get_param_handle("R_RPM_COLOR"),
     R_OIL_COLOR               = get_param_handle("R_OIL_COLOR"),
@@ -271,8 +255,8 @@ local PlaneModeBore 		= Keys.PlaneModeBore --4
 local PlaneModeFI0 			= Keys.PlaneModeFI0 --6
 local NextSteer			 	= Keys.PlaneChangeTarget--steer point up
 local PrevSteer 			= 1315--steer point prev
-local ChangeRWRMode         = 286
 local PlaneRadarOnOff       = 86
+dev:listen_command(10820);dev:listen_command(10821)
 local lmfd_current_page = 1 -- 0=MENU, 1=ENG, 2=FCS, 3=FUEL, 4=ADI, 5=BAY, 6=CHKLIST, 7=SMS, 8=HSI
 local rmfd_current_page = 3 -- 0=MENU, 1=ENG, 2=FCS, 3=FUEL, 4=ADI, 5=BAY, 6=CHKLIST, 7=SMS, 8=HSI
 local cmfd_current_page = 5 -- 0=MENU, 1=ENG, 2=FCS, 3=FUEL, 4=ADI, 5=BAY, 6=CHKLIST, 7=SMS, 8=HSI
@@ -281,7 +265,6 @@ local l_hyd_value           = 0--eng page
 local r_hyd_value           = 0--eng page
 local ground_oride_state    = 1 --open 0 --closed
 local bay_select			= 2 -- 1-left 2-center 3-right 4-all
-local forgot_override       = 0
 local left_select_mode      = 0
 local right_select_mode     = 0 
 
@@ -325,6 +308,24 @@ function post_initialize()
 end
 ------------------------------------------------------------------FUNCTION-SETCOMMAND---------------------------------------------------------------------------------------------------
 function SetCommand(command,value)
+    -- Navigation softkeys go directly to the owning device. Do not send
+    -- internal route changes through the inherited aircraft command stream.
+    for _,panel in ipairs({{lmfd_current_page,0,10060},{rmfd_current_page,20,10090},{cmfd_current_page,40,10110}}) do
+        if panel[1]==8 then
+            local mappings={[14]=nav_commands.direct,[16]=nav_commands.auto,[17]=nav_commands.range_in,
+                [18]=nav_commands.range_out,[19]=nav_commands.previous,[20]=nav_commands.next}
+            for button,action in pairs(mappings) do
+                if command==device_commands['Button_'..(panel[2]+button)] or command==panel[3]+button then
+                    if parameters.MAIN_POWER:get()>.5 and nav_input(value,devices.MFD_SYSTEM)>0 then
+                        dispatch_action(devices.NAV_SYSTEM,action,1)
+                    end
+                    return
+                end
+            end
+        end
+    end
+    if command==10820 then lmfd_current_page=(lmfd_current_page%8)+1;return end
+    if command==10821 then rmfd_current_page=(rmfd_current_page%8)+1;return end
     -- 0=MENU, 1=ENG, 2=FCS, 3=FUEL, 4=ADI, 5=BAY, 6=CHKLIST, 7=SMS, 8=HSI
 --Dogfight Mode 
     if command == 10005 and parameters.MAIN_POWER:get() == 1 then
@@ -334,9 +335,13 @@ function SetCommand(command,value)
         --print_message_to_user("DOGFIGHT MFD OVERRIDE")
     end
 --RWR SPO MODE
-    if command == RMFD.R_OSB_15 and parameters.MAIN_POWER:get() == 1 and rmfd_current_page == 7 then --RWR PAGE ON
-        dispatch_action(nil,ChangeRWRMode)
+    if (command == RMFD.R_OSB_15 or command == 10105) and value>0 and parameters.MAIN_POWER:get() == 1 and rmfd_current_page == 7 then
+        dispatch_action(devices.RWR_SYSTEM,10902,1)
         --print_message_to_user("CHANGE RWR/SPO MODE")
+    end
+    if rmfd_current_page==7 and parameters.MAIN_POWER:get()==1 and value>0 then
+        if command==RMFD.R_OSB_13 or command==10103 then dispatch_action(devices.RWR_SYSTEM,10900,1) end
+        if command==RMFD.R_OSB_11 or command==10101 then dispatch_action(devices.RWR_SYSTEM,10901,1) end
     end
 -----------------------------------------------------------------------------------------------------LEFT MFD PAGE LOGIC---------------------------------------------------------------------------------------------------
     if (command == LMFD.L_OSB_3 or command == 10063) and parameters.MAIN_POWER:get() == 1 and lmfd_current_page == 0 then
@@ -797,7 +802,6 @@ function update()
 --     --parameters.CMFD_BLANK_PAGE:set(0)
 -- end
 ------------------------------------------------------------------ENGINE PAGE UPDATE---------------------------------------------------------------------------------------------------
-    local hyd_light      = get_cockpit_draw_argument_value(208)
     local cabin_pressure = get_cockpit_draw_argument_value(114)
 
 	local nozzle_pos_l = sensor_data.getEngineLeftRPM()
@@ -856,53 +860,7 @@ function update()
     parameters.FCS_LEF:set(lef)
 ------------------------------------------------------------------FUEL PAGE UPDATE---------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------ADI PAGE UPDATE---------------------------------------------------------------------------------------------------
-------------------------------------------------------------------HSI PAGE UPDATE----------------------------------------------------------------------------------------------------
-    
-
-    
-       local ils_vert                  = get_cockpit_draw_argument_value(28)--up + down -
-       local ils_horizon               = get_cockpit_draw_argument_value(27)--left - right +
-       local hsi_compass               = get_cockpit_draw_argument_value(32)
-       local hsi_course_pointer        = get_cockpit_draw_argument_value(35)
-       local hsi_deviation             = get_cockpit_draw_argument_value(36)
-       local hsi_wp_pointer            = get_cockpit_draw_argument_value(140)
-       local ils_flag                  = get_cockpit_draw_argument_value(141)
-       local mile_4                    = get_cockpit_draw_argument_value(267)
-       local mile_3                    = get_cockpit_draw_argument_value(268)
-       local mile_2                    = get_cockpit_draw_argument_value(269)
-       local mile_1                    = get_cockpit_draw_argument_value(270)
-       local course_1                  = get_cockpit_draw_argument_value(275)
-       local course_2                  = get_cockpit_draw_argument_value(276)
-       local course_3                  = get_cockpit_draw_argument_value(277)
-       local to_from                   = get_cockpit_draw_argument_value(278)
-       local ils_nav                   = get_cockpit_draw_argument_value(501)
-    --print_message_to_user(ils_horizon)
-
-    parameters.ILS_VERT:set(ils_vert)  --up + down -
-    parameters.ILS_HORIZON:set(ils_horizon)--left - right +
-    parameters.HSI_COMPASS:set(hsi_compass)
-    parameters.HSI_CRS_POINTER:set(hsi_course_pointer)
-    parameters.HSI_DEVIATION:set(hsi_deviation)  
-    parameters.HSI_WP_POINTER:set(hsi_wp_pointer)
-    parameters.ILS_FLAG:set(ils_flag) 
-    parameters.ILS_NAV:set(ils_nav)       
-    parameters.MILE_1:set(mile_1)         
-    parameters.MILE_2:set(mile_2)         
-    parameters.MILE_3:set(mile_3)         
-    parameters.MILE_4:set(mile_4)        
-    parameters.COURSE_1:set(course_1)       
-    parameters.COURSE_2:set(course_2)       
-    parameters.COURSE_3:set(course_3)       
-    parameters.TO_FROM:set(to_from)
-    
-    if parameters.ILS_NAV:get() >= 0.1 then
-        parameters.ILSN_VIS:set(1)
-        parameters.NAV_VIS:set(0)
-    elseif parameters.ILS_NAV:get() <= 0.09 then
-        parameters.ILSN_VIS:set(0)
-        parameters.NAV_VIS:set(1)
-    end
-        
+    -- Route navigation is owned by Navigation_System; no inherited HSI arguments.
 ------------------------------------------------------------------ENGINE PAGE LOGIC---------------------------------------------------------------------------------------------------
     --ENGINE PAGE EGT R COLOR CHANGE
     if sensor_data.getEngineRightTemperatureBeforeTurbine() <= 729 then
@@ -953,9 +911,12 @@ function update()
         local delta = math.max(-maxChange, math.min(maxChange, target-current))
         return math.max(0, math.min(3950, current+delta))
     end
-    local hydraulicFailure = hyd_light == 1
-    r_hyd_value = advancePressure(r_hyd_value, sensor_data.getEngineRightRPM(), hydraulicFailure)
-    l_hyd_value = advancePressure(l_hyd_value, sensor_data.getEngineLeftRPM(), hydraulicFailure)
+    -- A low-pressure warning is an output, not a failed pump. Feeding the
+    -- annunciator back into supply prevents pressure recovering after startup.
+    r_hyd_value = advancePressure(r_hyd_value, sensor_data.getEngineRightRPM(),
+        get_param_handle("R_HYD_FAILURE"):get() >= 0.5)
+    l_hyd_value = advancePressure(l_hyd_value, sensor_data.getEngineLeftRPM(),
+        get_param_handle("L_HYD_FAILURE"):get() >= 0.5)
     -- Publish newly computed state instead of the previous display frame.
     parameters.R_HYD_VALUE:set(r_hyd_value)
     parameters.L_HYD_VALUE:set(l_hyd_value)
