@@ -467,6 +467,8 @@ function update()
 	put("F22_RADAR_RANGE_NM", scope_range / 1852)
 	put("F22_RADAR_HALF_RANGE_NM", scope_range / 3704)
 	put("F22_RADAR_AZ_DEG", computer.azimuth)
+	put("F22_RADAR_SEARCH_WIDTH_DEG", computer.azimuth * 2)
+	put("F22_RADAR_SEARCH_HEIGHT_DEG", computer.vertical_span)
 	put("F22_RADAR_EL_DEG", math.deg(computer.elevation))
 	put("PMFD_RADAR_SELECTION", computer.search_mode == "TWS" and 1 or 0)
 	local vertical = computer.mode == "VACQ"
@@ -484,6 +486,8 @@ function update()
 	end
 	put("F22_RADAR_SCAN_AZ_DEG", math.deg(scan_az) * 2)
 	put("F22_RADAR_SCAN_EL_DEG", math.deg(scan_el) * 2)
+	put("F22_RADAR_SCAN_CENTER_EL_DEG", math.deg(scan and scan.el or computer.elevation))
+	put("F22_RADAR_COVERAGE_CENTER_ROT", scan and -scan.az or 0)
 	put("F22_RADAR_EXPANDED", computer.expand and 1 or 0)
 	put("F22_RADAR_COVERAGE_ROT", scan_az)
 	-- Search-pattern azimuth is a native beam rotation, opposite body +Z.

@@ -16,6 +16,16 @@ The native adapters were qualified locally on **DCS 2.9.30.28738, Windows x64**.
 
 Local flight qualification includes operation with the F-15C and Hornet directories removed from DCS's module search path, plus loaded-module checks proving their aircraft avionics DLLs absent. See [standalone status and limits](docs/STANDALONE_DESIGN.md) for the tested scope. Multiplayer, complete rearm/respawn coverage, TACAN/ILS, advanced datalink and new AESA detection physics remain outside that acceptance.
 
+## Radar and HOTAS controls
+
+The DCS Controls menu separates **F-22 HOTAS - Stick** (trigger, weapon release, trim, target/display management and countermeasures) from **F-22 HOTAS - Throttle** (weapon selection, radar cursor, elevation, range and seeker cage/uncage). Labels describe each function and its short/hold behavior. Existing command IDs and saved button/axis assignments are retained.
+
+On the radar page, the five **left bezel buttons**, from top to bottom, select **AZ** scan width (30/60/120 degrees total), **HT** scan height (10/20/40 degrees), **EL UP**, **EL DN** and **CNTR** to recenter the elevation and cursor. Bottom **RNG IN/OUT** buttons change range. The blue scan readout shows the effective coverage and whether it is manual RWS coverage or automatic TWS coverage; TWS may recenter/resize around designated targets and missile-support obligations. Scan edits preserve an existing STT lock and apply to the subsequent search. These are simulation settings, not verified APG-77 controls.
+
+The combined HOTAS radar-coverage binding changes width on a short press and height on a half-second hold. Radar antenna elevation up/down are separately bindable in the throttle group. Hardware button numbers depend on the user's profile.
+
+With a missile and radar target selected, the HUD and radar page show a launch-range ruler: the long tick marks maximum range, the short tick minimum range, and the hooked tick the dynamic turning-target limit when available (blue on the radar page). The chevron shows current target range. The number above the ruler is its full-scale range in nautical miles; it adapts to the target and weapon envelope. This is a slant-range ruler, separate from the radar map's horizontal range scale. Radar MAX/MIN/RTR values give the corresponding numerical limits.
+
 ## Build and install
 
 1. Clone with Git LFS installed, then run `git lfs pull` to retrieve the models, textures and audio. A source ZIP containing LFS pointers is insufficient.

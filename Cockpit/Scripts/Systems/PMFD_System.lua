@@ -256,6 +256,13 @@ function SetCommand(command,value)
         if command == clickable.P_OSB_5 or command == 10135 then dispatch_action(nil,10619,1) end
         if command == clickable.P_OSB_6 or command == 10136 then dispatch_action(nil,10607,1) end
         if command == clickable.P_OSB_7 or command == 10137 then dispatch_action(nil,10608,1) end
+        -- Left bezel, top to bottom: width, height, elevation up/down, recenter.
+        -- Use the same radar owner as HOTAS; scan edits never reject a lock.
+        if command == clickable.P_OSB_20 or command == 10150 then dispatch_action(devices.RADAR_COMPUTER,10616,1) end
+        if command == clickable.P_OSB_19 or command == 10149 then dispatch_action(devices.RADAR_COMPUTER,10623,1) end
+        if command == clickable.P_OSB_18 or command == 10148 then dispatch_action(devices.RADAR_COMPUTER,10614,1) end
+        if command == clickable.P_OSB_17 or command == 10147 then dispatch_action(devices.RADAR_COMPUTER,10615,1) end
+        if command == clickable.P_OSB_16 or command == 10146 then dispatch_action(devices.RADAR_COMPUTER,10617,1) end
     end
 --END Radar Page
 

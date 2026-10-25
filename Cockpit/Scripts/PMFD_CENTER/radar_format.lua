@@ -212,9 +212,12 @@ text("IFF", 0.79, 0.875, nil, "white", "F22_RDR_IFF")
 text("%.0f", 0.72, 0.59, "F22_RADAR_RANGE_NM", "white", nil, 0.006)
 text("%.0f", 0.41, -0.065, "F22_RADAR_HALF_RANGE_NM", "blue", nil, 0.0055)
 -- Coverage rays originate at ownship; width follows the selected search sector.
+group("F22_RDR_COVERAGE_CENTER", { "F22_RADAR_COVERAGE_CENTER_ROT" }, {
+	{ "rotate_using_parameter", 0, 1 },
+}, nil, 0, layout.origin_y)
 for _, side in ipairs({ -1, 1 }) do
 	local name = "F22_RDR_COVERAGE_" .. side
-	group(name, { "F22_RADAR_COVERAGE_ROT" }, { { "rotate_using_parameter", 0, side } }, nil, 0, layout.origin_y)
+	group(name, { "F22_RADAR_COVERAGE_ROT" }, { { "rotate_using_parameter", 0, side } }, "F22_RDR_COVERAGE_CENTER")
 	line(0, 0, 0, layout.radius, "white", name, 0.0032)
 end
 -- White own-aircraft glyph, deliberately distinct from traffic and steerpoints.
@@ -371,14 +374,14 @@ for _, v in ipairs({
 end
 text("STPT %.0f", 0, 0.07, "F22_RADAR_WP_INDEX", "white", "F22_RDR_WAYPOINT", 0.0035)
 group("F22_RDR_SELECTED", { "F22_RADAR_SELECTED_VALID" }, { { "parameter_in_range", 0, 0.9, 1.1 } })
-text("BUG %.1f NM", -0.69, -0.775, "F22_RADAR_SELECTED_RANGE_NM", "white", "F22_RDR_SELECTED", 0.0042)
+text("BUG %.1f NM", -0.46, -0.775, "F22_RADAR_SELECTED_RANGE_NM", "white", "F22_RDR_SELECTED", 0.0042)
 group(
 	"F22_RDR_CLOSURE",
 	{ "F22_RADAR_SELECTED_CLOSURE_VALID" },
 	{ { "parameter_in_range", 0, 0.9, 1.1 } },
 	"F22_RDR_SELECTED"
 )
-text("VC %+.0f", -0.69, -0.83, "F22_RADAR_SELECTED_CLOSURE_KTS", "white", "F22_RDR_CLOSURE", 0.0042)
+text("VC %+.0f", -0.46, -0.83, "F22_RADAR_SELECTED_CLOSURE_KTS", "white", "F22_RDR_CLOSURE", 0.0042)
 text("RNG IN", -0.77, -0.969, nil, "white", nil, 0.0047)
 text("RNG OUT", -0.38, -0.969, nil, "white", nil, 0.0047)
 text("MENU", 0, -0.969, nil, "white", nil, 0.0047)
@@ -398,7 +401,7 @@ group(
 	{ "F22_RADAR_SELECTED_EW_SIGNAL", "F22_RADAR_SELECTED_VALID" },
 	{ { "parameter_in_range", 0, 0.9, 3.1 }, { "parameter_in_range", 1, 0.9, 1.1 } }
 )
-text("SENS R+EW", -0.69, -0.882, nil, "green", "F22_SA_SELECTED_SENSOR", 0.0035)
+text("SENS R+EW", -0.46, -0.882, nil, "green", "F22_SA_SELECTED_SENSOR", 0.0035)
 text("PRI", -0.77, 1.025, nil, "white", nil, 0.004)
 text("SEC", -0.38, 1.025, nil, "white", nil, 0.004)
 group("F22_SA_SWAP_READY", { "F22_RADAR_SECONDARY_SWAP_AVAILABLE" }, { { "parameter_in_range", 0, 0.9, 1.1 } })
@@ -414,6 +417,29 @@ text("MAX %.1f", 0.68, 0.44, "F22_FC_MAX_NM", "white", "F22_RDR_DLZ", 0.0037)
 text("MIN %.1f", 0.68, 0.38, "F22_FC_MIN_NM", "white", "F22_RDR_DLZ", 0.0037)
 group("F22_RDR_DLZ_DYNAMIC", { "F22_FC_DLZ_DYNAMIC" }, { { "parameter_in_range", 0, 0.9, 1.1 } }, "F22_RDR_DLZ")
 text("RTR %.1f", 0.68, 0.32, "F22_FC_TURN_NM", "blue", "F22_RDR_DLZ_DYNAMIC", 0.0037)
+
+-- Dedicated slant-range ruler. Its labelled adaptive scale is independent of
+-- the heading-up map's horizontal range; HUD and radar share the same limits.
+local dlz_x, dlz_y, dlz_height = 0.90, -0.55, 1.06
+line(dlz_x, dlz_y, dlz_x, dlz_y + dlz_height, "white", "F22_RDR_DLZ")
+line(dlz_x - 0.01, dlz_y, dlz_x + 0.01, dlz_y, "white", "F22_RDR_DLZ")
+line(dlz_x - 0.01, dlz_y + dlz_height, dlz_x + 0.01, dlz_y + dlz_height, "white", "F22_RDR_DLZ")
+text("DLZ", 0.88, 0.74, nil, "white", "F22_RDR_DLZ", 0.0037)
+text("%.1f NM", 0.86, 0.67, "F22_FC_DLZ_SCALE_NM", "white", "F22_RDR_DLZ", 0.0033)
+for _, spec in ipairs({ { "MIN", 0.045 }, { "MAX", 0.075 }, { "TURN", 0.06 } }) do
+	local name = "F22_RDR_DLZ_" .. spec[1]
+	local parent = spec[1] == "TURN" and "F22_RDR_DLZ_DYNAMIC" or "F22_RDR_DLZ"
+	group(name, { "F22_FC_DLZ_" .. spec[1] .. "_Y" },
+		{ { "move_up_down_using_parameter", 0, dlz_height / 0.46 } }, parent, dlz_x, dlz_y)
+	line(-spec[2], 0, 0, 0, spec[1] == "TURN" and "blue" or "white", name)
+	if spec[1] == "TURN" then
+		line(-spec[2], -0.015, -spec[2], 0.015, "blue", name)
+	end
+end
+group("F22_RDR_DLZ_RANGE", { "F22_FC_DLZ_RANGE_Y" },
+	{ { "move_up_down_using_parameter", 0, dlz_height / 0.46 } }, "F22_RDR_DLZ", dlz_x, dlz_y)
+line(0.035, 0.022, 0, 0, "green", "F22_RDR_DLZ_RANGE")
+line(0, 0, 0.035, -0.022, "green", "F22_RDR_DLZ_RANGE")
 group("F22_RDR_SHOOT", { "F22_FC_SHOOT" }, { { "parameter_in_range", 0, 0.9, 1.1 } }, "F22_RDR_DLZ")
 text("SHOOT", 0.67, 0.23, nil, "green", "F22_RDR_SHOOT", 0.0042)
 group("F22_RDR_TIMER", { "F22_FC_TIMER_VALID" }, { { "parameter_in_range", 0, 0.9, 1.1 } })
@@ -475,3 +501,37 @@ group(
 	"F22_RDR_SUPPORT_WARN"
 )
 text("SUPPORT COAST", 0, -0.89, nil, "yellow", "F22_RDR_SUPPORT_COAST", 0.0036)
+
+-- Left-bezel search controls. Keep the labels readable over moving tracks.
+local function scan_button(y, label, param)
+	local e = CreateElement("ceMeshPoly")
+	e.material = materials.background
+	e.primitivetype = "triangles"
+	e.vertices = {
+		{ -0.985 * content_scale, (y - 0.041) * content_scale },
+		{ -0.65 * content_scale, (y - 0.041) * content_scale },
+		{ -0.65 * content_scale, (y + 0.041) * content_scale },
+		{ -0.985 * content_scale, (y + 0.041) * content_scale },
+	}
+	e.indices = { 0, 1, 2, 2, 3, 0 }
+	seq = seq + 1
+	add(e, "F22_RDR_SCAN_BUTTON_BG_" .. seq, root)
+	text(label, -0.82, y, param, "white", nil, 0.0044)
+end
+scan_button(0.60, "AZ %.0f", "F22_RADAR_SEARCH_WIDTH_DEG")
+scan_button(0.24, "HT %.0f", "F22_RADAR_SEARCH_HEIGHT_DEG")
+scan_button(-0.12, "EL UP")
+scan_button(-0.48, "EL DN")
+scan_button(-0.84, "CNTR")
+text("EL %+.0f", -0.82, -0.21, "F22_RADAR_EL_DEG", "blue", nil, 0.0038)
+
+-- Distinguish the pilot's requested volume from TWS's automatic coverage.
+group("F22_RDR_SCAN_SEARCH", { "F22_RADAR_MODE_CODE" }, { { "parameter_in_range", 0, 1.9, 3.1 } })
+for _, spec in ipairs({ { 0, "MAN" }, { 1, "AUTO" } }) do
+	local name = "F22_RDR_SCAN_STATUS_" .. spec[1]
+	group(name, { "F22_RADAR_SCAN_AUTO" }, { { "parameter_in_range", 0, spec[1] - 0.1, spec[1] + 0.1 } }, "F22_RDR_SCAN_SEARCH")
+	text("SCAN " .. spec[2], 0, -0.76, nil, "blue", name, 0.0038)
+end
+text("AZ %.0f", -0.14, -0.815, "F22_RADAR_SCAN_AZ_DEG", "blue", "F22_RDR_SCAN_SEARCH", 0.0038)
+text("HT %.0f", 0.15, -0.815, "F22_RADAR_SCAN_EL_DEG", "blue", "F22_RDR_SCAN_SEARCH", 0.0038)
+text("EL %+.0f", 0, -0.865, "F22_RADAR_SCAN_CENTER_EL_DEG", "blue", "F22_RDR_SCAN_SEARCH", 0.0038)

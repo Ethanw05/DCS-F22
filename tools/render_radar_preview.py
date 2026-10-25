@@ -65,7 +65,7 @@ for index,code in re.findall(r'\[(\d+)\]\s*=\s*\{(\d+),\s*141,\s*256\}',source):
 SS=3;S=900;PIX=S*SS;F=PIX/2
 caption=ImageFont.truetype('C:/Windows/Fonts/segoeui.ttf',20)
 images=[];screens={}
-for mode,command,locked in [('RWS',10601,False),('TWS',10602,False),('STT',10602,True),('VACQ',10604,False),('BORE',10605,False),('IFF',10602,False),('BVR-launches',10602,False)]:
+for mode,command,locked in [('RWS',10601,False),('TWS',10602,False),('STT',10602,True),('VACQ',10604,False),('BORE',10605,False),('IFF',10602,False),('BVR-launches',10602,False),('RWS-scan-controls',10601,False)]:
     sim=runtime()
     sim.execute('''
         function get_base_data() return {
@@ -87,6 +87,8 @@ for mode,command,locked in [('RWS',10601,False),('TWS',10602,False),('STT',10602
     if mode not in ('VACQ','BORE'):
         sim.globals().SetCommand(10608,1);sim.globals().SetCommand(10608,1)
         sim.globals().SetCommand(10617,1)
+    if mode=='RWS-scan-controls':
+        for c in (10616,10616,10623,10614,10614,10614):sim.globals().SetCommand(c,1)
     fixtures=[(8*1852,-12,5364,1),(7*1852,-12,5382,1),(4.5*1852,-8,6410,1)]
     if mode=='IFF':fixtures=[(10*1852,-28,5364,1),(7*1852,5,5382,-1),(11*1852,32,6410,0),(3.5*1852,-35,5200,2)]
     if mode in ('VACQ','BORE'):fixtures=[(3*1852,0,5364,-1)]

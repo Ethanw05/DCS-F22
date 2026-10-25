@@ -68,6 +68,7 @@ function update()
     put('F22_FC_DLZ_VALID',zone and 1 or 0);put('F22_FC_DLZ_DYNAMIC',native_dlz and 1 or 0)
     put('F22_FC_MIN_NM',minimum/1852);put('F22_FC_MAX_NM',maximum/1852);put('F22_FC_TURN_NM',(turn or 0)/1852)
     local scale=math.max(range*1.2,maximum*1.2,1852)
+    put('F22_FC_DLZ_SCALE_NM',scale/1852)
     put('F22_FC_DLZ_MIN_Y',minimum/scale*.46);put('F22_FC_DLZ_MAX_Y',maximum/scale*.46)
     put('F22_FC_DLZ_TURN_Y',(turn or 0)/scale*.46);put('F22_FC_DLZ_RANGE_Y',range/scale*.46)
     local friendly=get('F22_RADAR_SELECTED_FRIENDLY')>.5

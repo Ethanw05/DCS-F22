@@ -55,6 +55,8 @@ return function(api)
 			local dlz = gate(root .. "_DLZ", "F22_FC_DLZ_VALID", 1, root)
 			local x, y = 0.40, -0.58
 			line(x, y, x, y + 0.46, 0.003, dlz)
+			line(x - 0.009, y + 0.46, x + 0.009, y + 0.46, 0.003, dlz)
+			label(x, y + 0.495, "F22_FC_DLZ_SCALE_NM", "%.1f NM", 0.019, dlz, "CenterCenter")
 			for _, s in ipairs({ { "MIN", -0.016 }, { "MAX", -0.026 }, { "TURN", -0.020 } }) do
 				local name = root .. "_TICK_" .. s[1]
 				local parent = s[1] == "TURN" and gate(root .. "_TURN_NATIVE", "F22_FC_DLZ_DYNAMIC", 1, dlz) or dlz
@@ -63,10 +65,14 @@ return function(api)
 					x,
 					y,
 					{ "F22_FC_DLZ_" .. s[1] .. "_Y" },
-					{ { "move_up_down_using_parameter", 0, api.layout_scale } },
+					-- Values are page-layout distances; group() applies the optical scale.
+					{ { "move_up_down_using_parameter", 0, 1 } },
 					parent
 				)
 				line(s[2], 0, 0, 0, 0.003, name)
+				if s[1] == "TURN" then
+					line(s[2], -0.008, s[2], 0.008, 0.003, name)
+				end
 			end
 			local pointer = root .. "_RANGE"
 			group(
@@ -74,7 +80,7 @@ return function(api)
 				x,
 				y,
 				{ "F22_FC_DLZ_RANGE_Y" },
-				{ { "move_up_down_using_parameter", 0, api.layout_scale } },
+				{ { "move_up_down_using_parameter", 0, 1 } },
 				dlz
 			)
 			line(0.024, 0.012, 0, 0, 0.003, pointer)

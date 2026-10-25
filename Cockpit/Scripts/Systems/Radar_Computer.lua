@@ -244,7 +244,7 @@ function M.new()
 		self.acquire_id = nil
 	end
 	function r:command(c)
-		if c == "elevation_up" or c == "elevation_down" or c == "azimuth" or c == "recenter" then
+		if c == "elevation_up" or c == "elevation_down" or c == "azimuth" or c == "vertical_span" or c == "recenter" then
 			self.scan = nil
 		end
 		if c:find("cursor_", 1, true) == 1 or c == "recenter" then
