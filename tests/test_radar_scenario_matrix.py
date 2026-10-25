@@ -29,7 +29,7 @@ for _,mode in ipairs({'rws','tws','boresight','vertical','wide'})do
  accepted=accepted+1;totals[mode].accepted=totals[mode].accepted+1
  r:geometry(d,pose);local t=r.tracks[1]
  assert(t and t.native_id==123 and math.abs(t.current_range-o.range)<1e-6)
- r.cursor_range=o.range;r.cursor_az=o.az
+ r.cursor_range,r.cursor_az=d.scope_observation(t,pose,0)
  if mode=='tws'then r:command('designate');assert(r.selected==1 and not r.acquire);r:command('designate');assert(r.acquire)
  elseif not p then r:command('designate');assert(r.acquire)
  else assert(r.acquire,'ACM acquisition omitted')end

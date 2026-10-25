@@ -25,8 +25,14 @@ for n, c in pairs(colors) do
 	materials[n] = MakeMaterial(nil, c)
 end
 -- Original F-22 LCD bitmap atlas. HUD resources are independent.
-local fonts =
-	{ white = UFD_FONT, blue = UFD_RADAR_BLUE, green = UFD_GRN, yellow = UFD_YEL, red = UFD_RED, magenta = UFD_RADAR_MAGENTA }
+local fonts = {
+	white = UFD_FONT,
+	blue = UFD_RADAR_BLUE,
+	green = UFD_GRN,
+	yellow = UFD_YEL,
+	red = UFD_RED,
+	magenta = UFD_RADAR_MAGENTA,
+}
 -- This page owns its LCD aperture. It does not borrow clipping masks from
 -- unrelated MENU/SYS subsets. FOV coordinates use the real connector aspect.
 local function mask(name, relation)
@@ -160,29 +166,21 @@ end
 for i = 1, 19 do
 	local p = string.format("F22_COMPASS_%02d_", i)
 	local name = "F22_RDR_COMPASS_" .. i
-	group(
-		name,
-		{ p .. "X", p .. "Y", p .. "ROT", p .. "TICK_VISIBLE" },
-		{
-			{ "move_left_right_using_parameter", 0, 1 },
-			{ "move_up_down_using_parameter", 1, 1 },
-			{ "rotate_using_parameter", 2, 1 },
-			{ "parameter_in_range", 3, 0.9, 1.1 },
-		}
-	)
+	group(name, { p .. "X", p .. "Y", p .. "ROT", p .. "TICK_VISIBLE" }, {
+		{ "move_left_right_using_parameter", 0, 1 },
+		{ "move_up_down_using_parameter", 1, 1 },
+		{ "rotate_using_parameter", 2, 1 },
+		{ "parameter_in_range", 3, 0.9, 1.1 },
+	})
 	line(0, 0, 0, -0.026, "blue", name)
 	group(name .. "_MAJOR", { p .. "MAJOR" }, { { "parameter_in_range", 0, 0.9, 1.1 } }, name)
 	line(0, -0.026, 0, -0.055, "blue", name .. "_MAJOR")
-	group(
-		name .. "_LABEL",
-		{ p .. "LABEL_X", p .. "LABEL_Y", p .. "VISIBLE", p .. "MAJOR" },
-		{
-			{ "move_left_right_using_parameter", 0, 1 },
-			{ "move_up_down_using_parameter", 1, 1 },
-			{ "parameter_in_range", 2, 0.9, 1.1 },
-			{ "parameter_in_range", 3, 0.9, 1.1 },
-		}
-	)
+	group(name .. "_LABEL", { p .. "LABEL_X", p .. "LABEL_Y", p .. "VISIBLE", p .. "MAJOR" }, {
+		{ "move_left_right_using_parameter", 0, 1 },
+		{ "move_up_down_using_parameter", 1, 1 },
+		{ "parameter_in_range", 2, 0.9, 1.1 },
+		{ "parameter_in_range", 3, 0.9, 1.1 },
+	})
 	group(name .. "_NUMERIC", { p .. "CARDINAL" }, { { "parameter_in_range", 0, -0.1, 0.1 } }, name .. "_LABEL")
 	text("%02.0f", 0, 0, p .. "LABEL_NUMBER", "blue", name .. "_NUMERIC", 0.0055)
 	for code, letter in ipairs({ "N", "E", "S", "W" }) do
@@ -253,40 +251,45 @@ end
 group(
 	"F22_RDR_CURSOR",
 	{ "F22_RADAR_CURSOR_X", "F22_RADAR_CURSOR_Y", "RADAR_PWR" },
-	{ { "move_left_right_using_parameter", 0, 1 }, { "move_up_down_using_parameter", 1, 1 }, {
-		"parameter_in_range",
-		2,
-		0.9,
-		1.1,
-	} }
+	{
+		{ "move_left_right_using_parameter", 0, 1 },
+		{ "move_up_down_using_parameter", 1, 1 },
+		{
+			"parameter_in_range",
+			2,
+			0.9,
+			1.1,
+		},
+	}
 )
 line(-0.025, -0.025, -0.025, 0.025, "white", "F22_RDR_CURSOR")
 line(0.025, -0.025, 0.025, 0.025, "white", "F22_RDR_CURSOR")
 for i = 1, 24 do
 	local p = string.format("F22_SCOPE_%02d_", i)
 	local name = "F22_RDR_TRACK_" .. i
-	group(
-		name,
-		{ p .. "X", p .. "Y", p .. "VALID", "RADAR_PWR" },
-		{
-			{ "move_left_right_using_parameter", 0, 1 },
-			{ "move_up_down_using_parameter", 1, 1 },
-			{ "parameter_in_range", 2, 0.9, 1.1 },
-			{ "parameter_in_range", 3, 0.9, 1.1 },
-		}
-	)
+	group(name, { p .. "X", p .. "Y", p .. "VALID", "RADAR_PWR" }, {
+		{ "move_left_right_using_parameter", 0, 1 },
+		{ "move_up_down_using_parameter", 1, 1 },
+		{ "parameter_in_range", 2, 0.9, 1.1 },
+		{ "parameter_in_range", 3, 0.9, 1.1 },
+	})
 	-- Keep identity separate from selection and track-memory state.
 	for _, spec in ipairs({ { 1, "green" }, { -1, "yellow" }, { 0, "red" }, { 2, "white" } }) do
 		local code, color = spec[1], spec[2]
 		local symbol = name .. "_IFF_" .. code
 		group(symbol, { p .. "AFFILIATION" }, { { "parameter_in_range", 0, code - 0.1, code + 0.1 } }, name)
 		if code == 0 then
-			for _, v in ipairs({ { 0, 0.029, 0.029, 0 }, { 0.029, 0, 0, -0.029 }, { 0, -0.029, -0.029, 0 }, {
-				-0.029,
-				0,
-				0,
-				0.029,
-			} }) do
+			for _, v in ipairs({
+				{ 0, 0.029, 0.029, 0 },
+				{ 0.029, 0, 0, -0.029 },
+				{ 0, -0.029, -0.029, 0 },
+				{
+					-0.029,
+					0,
+					0,
+					0.029,
+				},
+			}) do
 				line(v[1], v[2], v[3], v[4], color, symbol, 0.002)
 			end
 		elseif code == 2 then
@@ -323,20 +326,47 @@ for i = 1, 24 do
 	line(0.047, 0, 0, -0.047, "white", name .. "_BUG")
 	line(0, -0.047, -0.047, 0, "white", name .. "_BUG")
 	line(-0.047, 0, 0, 0.047, "white", name .. "_BUG")
+	group(
+		name .. "_RETAINED",
+		{ p .. "DESIGNATED", p .. "SELECTED" },
+		{ { "parameter_in_range", 0, 0.9, 1.1 }, { "parameter_in_range", 1, -0.1, 0.1 } },
+		name
+	)
+	for _, v in ipairs({
+		{ -0.04, 0.04, -0.02, 0.04 },
+		{ -0.04, 0.04, -0.04, 0.02 },
+		{ 0.04, 0.04, 0.02, 0.04 },
+		{ 0.04, 0.04, 0.04, 0.02 },
+		{ -0.04, -0.04, -0.02, -0.04 },
+		{ -0.04, -0.04, -0.04, -0.02 },
+		{ 0.04, -0.04, 0.02, -0.04 },
+		{ 0.04, -0.04, 0.04, -0.02 },
+	}) do
+		line(v[1], v[2], v[3], v[4], "white", name .. "_RETAINED")
+	end
 	group(name .. "_COAST", { p .. "COAST" }, { { "parameter_in_range", 0, 0.9, 1.1 } }, name)
 	text("C", 0.062, 0, nil, "white", name .. "_COAST", 0.0036)
 end
 group(
 	"F22_RDR_WAYPOINT",
 	{ "F22_RADAR_WP_X", "F22_RADAR_WP_Y", "F22_RADAR_WP_VALID" },
-	{ { "move_left_right_using_parameter", 0, 1 }, { "move_up_down_using_parameter", 1, 1 }, {
-		"parameter_in_range",
-		2,
-		0.9,
-		1.1,
-	} }
+	{
+		{ "move_left_right_using_parameter", 0, 1 },
+		{ "move_up_down_using_parameter", 1, 1 },
+		{
+			"parameter_in_range",
+			2,
+			0.9,
+			1.1,
+		},
+	}
 )
-for _, v in ipairs({ { 0, 0.034, 0.034, 0 }, { 0.034, 0, 0, -0.034 }, { 0, -0.034, -0.034, 0 }, { -0.034, 0, 0, 0.034 } }) do
+for _, v in ipairs({
+	{ 0, 0.034, 0.034, 0 },
+	{ 0.034, 0, 0, -0.034 },
+	{ 0, -0.034, -0.034, 0 },
+	{ -0.034, 0, 0, 0.034 },
+}) do
 	line(v[1], v[2], v[3], v[4], "magenta", "F22_RDR_WAYPOINT", 0.003)
 end
 text("STPT %.0f", 0, 0.07, "F22_RADAR_WP_INDEX", "white", "F22_RDR_WAYPOINT", 0.0035)
@@ -408,12 +438,16 @@ for i = 1, 8 do
 	group(
 		name,
 		{ p .. "X", p .. "Y", p .. "PLOT_VALID" },
-		{ { "move_left_right_using_parameter", 0, 1 }, { "move_up_down_using_parameter", 1, 1 }, {
-			"parameter_in_range",
-			2,
-			0.9,
-			1.1,
-		} }
+		{
+			{ "move_left_right_using_parameter", 0, 1 },
+			{ "move_up_down_using_parameter", 1, 1 },
+			{
+				"parameter_in_range",
+				2,
+				0.9,
+				1.1,
+			},
+		}
 	)
 	line(0, 0.017, 0.017, -0.012, "blue", name)
 	line(0.017, -0.012, -0.017, -0.012, "blue", name)

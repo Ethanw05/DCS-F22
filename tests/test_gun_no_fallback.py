@@ -11,11 +11,16 @@ values={WS_GUN_PIPER_AVAILABLE=1,WS_GUN_PIPER_AZIMUTH=.1,WS_GUN_PIPER_ELEVATION=
 function get_param_handle(n)return{get=function()return values[n]or 0 end,set=function(_,v)values[n]=v end}end
 native_ready=true;mode_state=5;parameters={MAIN_POWER={get=function()return 1 end}}
 gun_director={update=function()return nil end}
+local funnel_enabled
+gun_funnel={update=function(_,enabled)funnel_enabled=enabled end}
 assert(loadstring(BLOCK))()
 assert(values.HUD_GUN_NATIVE_VALID==0,'native gyro substituted for missing director')
 assert(values.HUD_GUN_NATIVE_AZ==0 and values.HUD_GUN_NATIVE_EL==0)
 gun_director.update=function()return 0,.02 end
 assert(loadstring(BLOCK))()
 assert(values.HUD_GUN_NATIVE_VALID==1 and values.HUD_GUN_NATIVE_AZ==0 and values.HUD_GUN_NATIVE_EL==.02)
+native_ready=false;gun_director.update=function()return nil end
+assert(loadstring(BLOCK))()
+assert(not funnel_enabled and values.HUD_GUN_NATIVE_VALID==0,'unavailable backend supplied a gun cue')
 ''')
 print('Gun aiming: computed director only; no gyro/manual substitute')

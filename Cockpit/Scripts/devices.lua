@@ -45,3 +45,5 @@ devices["RWR_SYSTEM"] = counter()--18: warnings, threat memory and fusion export
 
 devices["ENGAGEMENT_SYSTEM"] = counter()--19: per-target launch zones and native missile flyout
 devices["EW_SYSTEM"] = counter()--20: own countermeasure and ECM controls
+devices["MWS_NATIVE"] = counter()--21: common optical missile detector
+devices["MWS_SYSTEM"] = counter()--22: independent missile warning and audio

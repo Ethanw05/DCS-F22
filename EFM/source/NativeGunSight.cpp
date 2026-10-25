@@ -12,6 +12,7 @@
 #include <string>
 #include <limits>
 #include <cstdio>
+#include <vector>
 namespace NativeGunSight {
 namespace {
 using GunIntercept::V;
@@ -143,6 +144,82 @@ bool failed = false;
 GunManeuver::CueSet maneuver_cues;
 GunIntercept::Result previous;
 double previous_time = -1, previous_id = -1;
+struct FunnelShot { double time; V muzzle,bore,velocity,wind; };
+std::vector<FunnelShot> funnel_history;
+bool shot_at(double time,FunnelShot &out) {
+    for (std::size_t i=1;i<funnel_history.size();++i) {
+        const auto &a=funnel_history[i-1],&b=funnel_history[i];
+        if (time<a.time || time>b.time) continue;
+        const double f=(time-a.time)/(b.time-a.time);
+        out={time,a.muzzle*(1-f)+b.muzzle*f,a.bore*(1-f)+b.bore*f,
+            a.velocity*(1-f)+b.velocity*f,a.wind*(1-f)+b.wind*f};
+        const double n=out.bore.norm();
+        if (!std::isfinite(n) || n<.9) return false;
+        out.bore=out.bore*(1/n);return true;
+    }
+    return false;
+}
+// Unlocked funnel: a virtual stream of rounds fired along the actual historical
+// gun axis. Integrate each round with the SAME installed shell/wind service as
+// the locked director. This is a wingspan reference, never a target solution.
+void calculate_funnel(EDPARAM &p) {
+    put(p,"F22_FUNNEL_NATIVE_VALID",0);
+    for (unsigned i=1;i<=7;++i) {
+        char key[64];std::snprintf(key,sizeof(key),"F22_FUNNEL_%02u_VALID",i);put(p,key,0);
+    }
+    if (failed || get(p,"F22_FUNNEL_REQUEST_VALID")<.5) {funnel_history.clear();return;}
+    if (!api.resolve()) return;
+    const double now=api.clock(),requested=get(p,"F22_FUNNEL_REQUEST_TIME");
+    if (!std::isfinite(now) || !std::isfinite(requested) || now-requested<-.01 || now-requested>.15) return;
+    auto ctx=api.context();
+    const double id=get(p,"F22_GUN_DEVICE_ID");
+    if (!ctx || !std::isfinite(id) || id<1 || id>255) return;
+    auto device=api.device(ctx,static_cast<unsigned>(id));
+    if (!readable(device,32) || *reinterpret_cast<const void **>(device)!=api.vtable) return;
+    const auto shell=api.shell(device);
+    if (!readable(shell,184)) return;
+    const double speed=*reinterpret_cast<const double *>(static_cast<const std::byte *>(shell)+176);
+    if (!std::isfinite(speed) || speed<100 || speed>2000) return;
+    V muzzle,bore;
+    if (!gun_pose(device,muzzle,bore)) return;
+    const V own_position{get(p,"F22_FUNNEL_OWN_N"),get(p,"F22_FUNNEL_OWN_U"),get(p,"F22_FUNNEL_OWN_E")};
+    const V velocity{get(p,"EFM_HUD_VN"),get(p,"EFM_HUD_VU"),get(p,"EFM_HUD_VE")};
+    const V air{get(p,"EFM_HUD_WN"),get(p,"EFM_HUD_WU"),get(p,"EFM_HUD_WE")};
+    if (!std::isfinite(own_position.norm()) || (muzzle-own_position).norm()>30 ||
+        !std::isfinite(velocity.norm()) || velocity.norm()>1500 || !std::isfinite(air.norm()) || air.norm()>300) return;
+    if (!funnel_history.empty()) {
+        const auto &last=funnel_history.back();
+        const double dt=now-last.time;
+        if (dt<0 || dt>.15 || (muzzle-last.muzzle-last.velocity*dt).norm()>30)
+            funnel_history.clear(); // reload, teleport, replay discontinuity
+    }
+    if (funnel_history.empty() || now>funnel_history.back().time)
+        funnel_history.push_back({now,muzzle,bore,velocity,air});
+    while (funnel_history.size()>2 && now-funnel_history[1].time>1.4)
+        funnel_history.erase(funnel_history.begin());
+    // Keep history through STT, so a genuine lock loss restores the funnel.
+    if (get(p,"F22_RADAR_STT_VALID")>.5) return;
+    alignas(16) std::array<std::byte,80> sight{};api.ctor(sight.data(),shell);
+    unsigned count=0;
+    for (unsigned i=0;i<7;++i) {
+        const double age=.15+.175*i;
+        FunnelShot shot;
+        if (!shot_at(now-age,shot)) continue;
+        Wind wind{wind_table,{static_cast<float>(shot.wind.x),static_cast<float>(shot.wind.y),static_cast<float>(shot.wind.z)}};
+        const V launch=shot.bore*speed+shot.velocity;
+        V displacement{};
+        if (!api.time(sight.data(),shot.muzzle.y,age,&launch,&wind,&displacement,4.0) || !std::isfinite(displacement.norm())) continue;
+        displacement.y-=shot.muzzle.y;
+        const V point=shot.muzzle+displacement;
+        const double range=(point-own_position).norm();
+        if (range<50 || range>2500) continue;
+        const char *axes[]={"N","U","E"};const double values[]={point.x,point.y,point.z};char key[64];
+        for (unsigned k=0;k<3;++k) {std::snprintf(key,sizeof(key),"F22_FUNNEL_%02u_%s",i+1,axes[k]);put(p,key,values[k]);}
+        std::snprintf(key,sizeof(key),"F22_FUNNEL_%02u_VALID",i+1);put(p,key,1);++count;
+    }
+    api.dtor(sight.data());
+    put(p,"F22_FUNNEL_RESULT_TIME",now);put(p,"F22_FUNNEL_NATIVE_VALID",count>=2 ? 1 : 0);
+}
 void calculate(EDPARAM &p) {
     put(p, "F22_GUN_SOLUTION_VALID", 0);
     put(p, "F22_GUN_MNV_VALID", 0);
@@ -308,16 +385,19 @@ void reset() {
     previous_time = -1;
     previous_id = -1;
     failed = false;
+    funnel_history.clear();
 }
 void update(EDPARAM &p) {
     double sequence = 0;
     __try {
         sequence = get(p, "F22_GUN_REQUEST_SEQUENCE");
+        calculate_funnel(p);
         calculate(p);
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         failed = true;
         put(p, "F22_GUN_SOLUTION_VALID", 0);
         put(p, "F22_GUN_SOLVER_REASON", 7);
+        put(p,"F22_FUNNEL_NATIVE_VALID",0);funnel_history.clear();
     }
     // Publish completion last, including failed solves. Lua may consume this next tick.
     put(p, "F22_GUN_RESPONSE_SEQUENCE", sequence);

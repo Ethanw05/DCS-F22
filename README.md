@@ -6,10 +6,11 @@ The native adapters were qualified locally on **DCS 2.9.30.28738, Windows x64**.
 
 ## Current systems
 
-- Own HUD and head-down displays, computed gun pipper and maneuver cues.
+- Own HUD and head-down displays, computed gun pipper, native ballistic funnel and maneuver cues.
 - RWS, ACM acquisition, native STT and an own TWS track/scan controller with real native missile support.
 - Native stores, bay-gated release, dynamic launch envelopes and estimated missile flyout/activation timing. Actual seeker state remains separate from predictions.
 - Independent passive RWR, radar/RWR identity association and prioritized warning audio.
+- Independent optical missile warnings with HUD clock sectors, EW bearings and distinct audio; actual R-73 attacks qualified without paid aircraft modules.
 - Native chaff/flare dispensing and ECM controls; status and quantities follow the common simulator service.
 - Mission-route navigation, waypoint/direct-to selection, optional automatic sequencing and HUD steering cues.
 

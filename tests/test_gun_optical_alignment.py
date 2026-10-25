@@ -28,5 +28,24 @@ for _,el in ipairs({-.05,0,.05}) do
  local actual=down+gun.init_pos[2]*unit+el*ygain
  assert(math.abs(actual-expected)<1e-9)
 end
+-- IR direction and unlocked gun trajectories use that same optical zero.
+for _,name in ipairs({'HUD_IR_NATIVE_3','HUD_GUN_FUNNEL'}) do
+ local root
+ for _,e in ipairs(elements)do if e.name==name then root=e end end
+ assert(root and math.abs(down+root.init_pos[2]*unit)<1e-9,name..' optical zero')
+end
+local rail_count=0
+for _,e in ipairs(elements)do
+ if e.kind=='ceSimpleLineObject' and e.parent_element=='HUD_GUN_FUNNEL' then
+  rail_count=rail_count+1
+  assert(e.vertices and #e.vertices==2 and e.width>0)
+  for _,c in ipairs(e.controllers)do
+   if c[1]=='line_object_set_point_using_parameters' then
+    assert(math.abs(c[5]-forward)<1e-12 and math.abs(c[6]-forward)<1e-12,'funnel radians/physical scale')
+   end
+  end
+ end
+end
+assert(rail_count==12,'two connected six-segment rails')
 ''')
 print("Gun optical alignment: physical zero, native angular scale and off-axis directions OK")

@@ -228,8 +228,10 @@ Api api;
 alignas(16) std::array<std::byte,0x480> object{};
 bool constructed=false;
 WeaponType current_type{};
+bool current_aim9x=false;
 int current_station=-1;
 bool was_caged=true, was_release=false;
+bool head_released=false;
 unsigned launch_sequence=0, launch_id=0;
 unsigned tick_sequence=0;
 std::map<std::string,void*> handles;
@@ -243,7 +245,7 @@ void write(EDPARAM& p,const char* name,double value) {
 }
 void dispose() {
     if (constructed) { api.power(object.data(),false);api.destroy(object.data()); }
-    constructed=false;current_station=-1;was_caged=true;was_release=false;
+    constructed=false;current_station=-1;was_caged=true;was_release=false;head_released=false;
 }
 bool readable(std::uintptr_t address,std::size_t size) {
     MEMORY_BASIC_INFORMATION info{};
@@ -874,6 +876,8 @@ void update(EDPARAM& p,double dt) {
     write(p,"F22_IR_ABI_ERROR",api.error);
     write(p,"F22_IR_AVAILABLE",0);write(p,"F22_IR_LOCK",0);
     write(p,"F22_IR_STRENGTH",0);write(p,"F22_IR_STATE",0);
+    write(p,"F22_IR_WORLD_VALID",0);write(p,"F22_IR_AIM9X_CONFIGURED",0);
+    write(p,"F22_IR_HEAD_RELEASED",0);
     write(p,"F22_IR_LAUNCH_SEQUENCE",launch_sequence);
     write(p,"F22_IR_LAUNCH_ID",launch_id);
     if (!api.ready || !std::isfinite(dt) || dt<=0 || dt>.1) return;
@@ -890,11 +894,12 @@ void update(EDPARAM& p,double dt) {
     type.level4=static_cast<std::uint32_t>(read(p,"F22_IR_TYPE4"));
     bool loaded=selected>=0 && selected<=10 && type.level1==4 && type.level2==4 && type.level3==7 && type.level4>0;
     if (!enabled || !loaded) { dispose();return; }
-    if (!constructed || selected!=current_station || !(type==current_type)) {
+    const bool aim9x=type.level4==136 || read(p,"F22_IR_AIM9X_PROFILE")>.5;
+    if (!constructed || selected!=current_station || !(type==current_type) || aim9x!=current_aim9x) {
         dispose();
         api.construct(object.data(),&type);constructed=true;
         api.initialize(object.data());api.station(object.data(),selected,0);
-        if (type.level4==136) { // native AIM-9X setup used by the reference interface
+        if (aim9x) { // Hornet classifies capabilities separately from the payload's real wsType.
             constexpr double limit=1.4835298641951802;
             auto sensor=const_cast<void*>(api.seeker(object.data()));
             api.gimbal_limit(sensor,static_cast<float>(limit));
@@ -917,16 +922,24 @@ void update(EDPARAM& p,double dt) {
         api.boresight(object.data(),&pose);
         api.power(object.data(),true);api.status(object.data(),3);
         api.to_boresight(object.data());
-        current_type=type;current_station=selected;
+        current_type=type;current_station=selected;current_aim9x=aim9x;
         // A held release is not a new press when stepping/changing stations.
         was_release=read(p,"F22_IR_RELEASE_REQUEST")>.5;
     }
     bool caged=read(p,"F22_IR_CAGED")>.5;
-    if (caged!=was_caged) {
-        if (caged) api.to_boresight(object.data());else api.uncage(object.data());
-        was_caged=caged;
+    if (caged && !was_caged) {
+        api.to_boresight(object.data());head_released=false;
     }
+    was_caged=caged;
     api.consent(object.data(),!caged);
+    // The pilot can request uncage before there is a radar/IR lock. Keep that
+    // request and native tracking consent, but release the head only on a real
+    // detection signal, as in the Hornet's 31C4A0 path. Unconditionally entering
+    // native free-head state0 starts its explicit random walk (354610).
+    if (!caged && !head_released && !api.tracking(object.data()) &&
+        api.strength(object.data())>.8f) {
+        api.uncage(object.data());head_released=true;
+    }
     // Re-slaving an acquired seeker clears its track. Leave it autonomous once
     // tracking; radar cueing and IR acquisition are different states.
     if (!caged && !api.tracking(object.data()) && read(p,"F22_RADAR_STT_VALID")>.5) {
@@ -934,16 +947,20 @@ void update(EDPARAM& p,double dt) {
         if (std::isfinite(az) && std::isfinite(el)) {
             Direction direction{std::cos(el)*std::cos(az),std::sin(el),std::cos(el)*std::sin(az)};
             api.slave(object.data(),&direction);
+            head_released=true;
         }
     }
     api.update(object.data(),dt);
     bool locked=api.tracking(object.data());
+    if (locked) head_released=true;
+    write(p,"F22_IR_HEAD_RELEASED",head_released ? 1 : 0);
     Pose local;api.local_pose(api.seeker(object.data()),&local);
     double az=std::atan2(local.m[2],local.m[0]);
     double el=std::atan2(local.m[1],std::hypot(local.m[0],local.m[2]));
     write(p,"F22_IR_AVAILABLE",1);write(p,"F22_IR_LOCK",locked ? 1 : 0);
     write(p,"F22_IR_STATE",locked ? 3 : caged ? 1 : 2);
     write(p,"F22_IR_STRENGTH",api.strength(object.data()));
+    write(p,"F22_IR_AIM9X_CONFIGURED",current_aim9x ? 1 : 0);
     // Read-only diagnostics for the same checked object layout. These expose
     // real sensor search/geometry state; they never supply an IR target.
     const auto sensor=static_cast<const std::byte*>(api.seeker(object.data()));
@@ -963,8 +980,14 @@ void update(EDPARAM& p,double dt) {
     write(p,"F22_IR_CONTACTS",hits_end>=hits_begin && (hits_end-hits_begin)/24<=4096 ? (hits_end-hits_begin)/24 : -1);
     if (api.platform_position) {
         const auto world=static_cast<const Pose*>(api.platform_position(sensor));
-        write(p,"F22_IR_WORLD_NORTH",world->m[12]);write(p,"F22_IR_WORLD_ALT",world->m[13]);write(p,"F22_IR_WORLD_EAST",world->m[14]);
-        write(p,"F22_IR_WORLD_FWD_N",world->m[0]);write(p,"F22_IR_WORLD_FWD_U",world->m[1]);write(p,"F22_IR_WORLD_FWD_E",world->m[2]);
+        if (readable(reinterpret_cast<std::uintptr_t>(world),sizeof(Pose))) {
+            const double norm=std::hypot(world->m[0],world->m[1],world->m[2]);
+            if (std::isfinite(norm) && norm>.9 && norm<1.1) {
+                write(p,"F22_IR_WORLD_NORTH",world->m[12]);write(p,"F22_IR_WORLD_ALT",world->m[13]);write(p,"F22_IR_WORLD_EAST",world->m[14]);
+                write(p,"F22_IR_WORLD_FWD_N",world->m[0]/norm);write(p,"F22_IR_WORLD_FWD_U",world->m[1]/norm);write(p,"F22_IR_WORLD_FWD_E",world->m[2]/norm);
+                write(p,"F22_IR_WORLD_VALID",1);
+            }
+        }
     }
     write(p,"F22_IR_AZ",az);write(p,"F22_IR_EL",el);
     bool release=read(p,"F22_IR_RELEASE_REQUEST")>.5;

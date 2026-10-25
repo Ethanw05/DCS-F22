@@ -104,6 +104,11 @@ function M.new()
 				add(t, t.native_id and "s" .. t.native_id or "f" .. id)
 			end
 		end
+		for id, t in pairs(self.tracks) do
+			if t.designated then
+				add(t, t.native_id and "s" .. t.native_id or "f" .. id)
+			end
+		end
 		local limit = rad(60)
 		local minaz, maxaz, minel, maxel, range
 		range = self:range()
@@ -145,9 +150,9 @@ function M.new()
 		end
 		local a, az = axis(minaz, maxaz, rad(math.min(self.azimuth, 30)), rad(5), 0)
 		-- With no designated/support target, search the pilot's complete
-        -- elevation volume. An unobserved high/low target cannot steer AUTO.
-        local minimum_el = #obligations > 0 and rad(5) or rad(self.vertical_span / 2)
-        local e, el = axis(minel, maxel, minimum_el, rad(2), self.elevation)
+		-- elevation volume. An unobserved high/low target cannot steer AUTO.
+		local minimum_el = #obligations > 0 and rad(5) or rad(self.vertical_span / 2)
+		local e, el = axis(minel, maxel, minimum_el, rad(2), self.elevation)
 		local previous = self.scan
 		if previous then
 			-- Widen/recenter immediately when an obligation reaches the margin.
@@ -191,11 +196,12 @@ function M.new()
 		for _, t in pairs(self.tracks) do
 			t.current_range, t.current_az, t.current_el =
 				display.body_observation(t, pose, math.max(0, self.clock - t.observed))
+			t.scope_range, t.scope_az = display.scope_observation(t, pose, math.max(0, self.clock - t.observed))
 		end
 		local t = self.selected and self.tracks[self.selected]
 		if self.cursor_follow and t then
-			self.cursor_range = t.current_range
-			self.cursor_az = t.current_az
+			self.cursor_range = t.scope_range
+			self.cursor_az = t.scope_az
 		end
 	end
 	function r:range()
@@ -288,6 +294,9 @@ function M.new()
 			self.locked = false
 			self.plots = {}
 		elseif c == "undesignate" then
+			for _, t in pairs(self.tracks) do
+				t.designated = false
+			end
 			self.selected = nil
 			self.secondary = nil
 			self.acquire = false
@@ -313,14 +322,18 @@ function M.new()
 			self.cursor_follow = true
 			local t = self.selected and self.tracks[self.selected]
 			if t then
-				self.cursor_az = t.az
-				self.cursor_range = t.range
+				self.cursor_az = t.scope_az or t.az
+				self.cursor_range = t.scope_range or t.range
 			end
 		elseif c == "swap_targets" then
 			if self.secondary and self.tracks[self.secondary] and not self.locked then
 				self.selected, self.secondary = self.secondary, self.selected
 			end
 		elseif c == "clear_secondary" then
+			local t = self.secondary and self.tracks[self.secondary]
+			if t then
+				t.designated = false
+			end
 			self.secondary = nil
 		elseif c == "designate" or c == "secondary" or c == "stt" then
 			if c ~= "secondary" and (self.acquire or self.locked) then
@@ -328,8 +341,9 @@ function M.new()
 			end
 			local best, score = nil, math.huge
 			for id, t in pairs(self.tracks) do
-				local cost = (angular(t.current_az or t.az, self.cursor_az) / rad(5)) ^ 2
-					+ (((t.current_range or t.range) - self.cursor_range) / (self:range() * 0.06)) ^ 2
+				local cost = (angular(t.scope_az or t.current_az or t.az, self.cursor_az) / rad(5)) ^ 2
+					+ (((t.scope_range or t.current_range or t.range) - self.cursor_range) / (self:range() * 0.06))
+						^ 2
 				if self.clock - t.observed <= self:memory_time() and cost < 1 and cost < score then
 					best = id
 					score = cost
@@ -345,6 +359,7 @@ function M.new()
 				if c == "secondary" then
 					if best ~= self.selected then
 						self.secondary = best
+						self.tracks[best].designated = true
 					end
 				else
 					if c == "stt" or self.mode ~= "TWS" or self.selected == best then
@@ -352,9 +367,16 @@ function M.new()
 						self.acquire_time = self.clock
 						self.acquire_id = best
 					end
-					if self.secondary == best then
+					if self.mode == "TWS" and self.selected ~= best then
+						local previous = self.selected and self.tracks[self.selected]
+						if previous then
+							previous.designated = true
+						end
+						self.secondary = self.selected
+					elseif self.secondary == best then
 						self.secondary = self.selected
 					end
+					self.tracks[best].designated = self.mode == "TWS" or self.tracks[best].designated
 					self.selected = best
 					self.cursor_follow = true
 				end
@@ -585,10 +607,15 @@ function M.new()
 			and not self.acquire
 		then
 			local candidate = nil
+			local profile = self:profile()
 			for _, o in ipairs(obs) do
 				local t = o.id and self.tracks[o.id]
 				if
 					o.age <= 1
+					and o.range <= profile.nm * 1852
+					and math.abs(o.az) <= rad(profile.az)
+					and o.el >= rad(profile.lo)
+					and o.el <= rad(profile.hi)
 					and o.iff ~= 1
 					and (not t or t.iff ~= 1)
 					and (not candidate or o.range < candidate.range)
@@ -597,9 +624,13 @@ function M.new()
 				end
 			end
 			if candidate then
-				self.cursor_az = candidate.az
-				self.cursor_range = candidate.range
-				self:command("designate")
+				-- An ACM observation is already selected in the body search gate;
+				-- it must not pass through the heading-up map cursor hit test.
+				self.selected = candidate.id
+				self.acquire = true
+				self.acquire_time = self.clock
+				self.acquire_id = candidate.id
+				self.cursor_follow = true
 			end
 		end
 	end

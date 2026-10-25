@@ -5,6 +5,21 @@ return function(api)
 		group(name, 0, 0, { param }, { { "parameter_in_range", 0, value - 0.1, value + 0.1 } }, parent)
 		return name
 	end
+	group(
+		"HUD_MWS_WARNING",
+		0,
+		0,
+		{ "HUD_POWER", "F22_MWS_BLINK" },
+		{ { "opacity_using_parameter", 0 }, { "parameter_in_range", 1, 0.9, 1.1 } }
+	)
+	static(0, -0.60, "MISSILE", 0.035, "HUD_MWS_WARNING")
+	label(0, -0.66, "F22_MWS_CLOCK", "%.0f CLOCK", 0.024, "HUD_MWS_WARNING", "CenterCenter")
+	for _, v in ipairs({ { -1, "LOW" }, { 1, "HIGH" } }) do
+		local n = gate("HUD_MWS_ELEVATION_" .. v[1], "F22_MWS_ELEVATION", v[1], "HUD_MWS_WARNING")
+		static(0.18, -0.66, v[2], 0.024, n)
+	end
+	local memory = gate("HUD_MWS_MEMORY", "F22_MWS_COAST", 1, "HUD_MWS_WARNING")
+	static(-0.18, -0.66, "MEM", 0.021, memory)
 	-- An airborne missile's support obligation survives weapon/master-mode changes.
 	group(
 		"HUD_MISSILE_SUPPORT",

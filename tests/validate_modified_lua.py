@@ -34,6 +34,9 @@ SCRIPTS = [
     Path("Cockpit/Scripts/HUD/optics.lua"),
     Path("Cockpit/Scripts/HUD/style.lua"),
     Path("Cockpit/Scripts/HUD/gun_maneuver.lua"),
+    Path("Cockpit/Scripts/HUD/gun_funnel.lua"),
+    Path("Cockpit/Scripts/Systems/Gun_Funnel.lua"),
+    Path("Cockpit/Scripts/Systems/IR_Seeker.lua"),
     Path("Cockpit/Scripts/Systems/Gun_Director.lua"),
     Path("Cockpit/Scripts/Systems/Gun_Motion.lua"),
     Path("Cockpit/Scripts/Systems/Gun_Frames.lua"),
@@ -54,6 +57,7 @@ SCRIPTS = [
 def main() -> None:
     extra=list(Path('Cockpit/Scripts/Systems').glob('Radar_*.lua'))
     extra+=[Path('Cockpit/Scripts/Systems/EW_System.lua')]
+    extra+=list(Path('Cockpit/Scripts/Systems').glob('MWS_*.lua'))
     extra+=list(Path('Cockpit/Scripts/Systems').glob('Nav_*.lua'))+[Path('Cockpit/Scripts/MFD_COMMON/nav_page.lua')]
     extra+=list(Path('Cockpit/Scripts/Systems').glob('Combat_*.lua'))+[Path('Cockpit/Scripts/Systems/Weapon_Native.lua'),Path('Cockpit/Scripts/Systems/Input_Value.lua'),Path('Cockpit/Scripts/Systems/PMFD_System.lua')]
     extra += [Path('Cockpit/Scripts/PMFD_CENTER/radar_format.lua'),

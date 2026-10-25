@@ -36,7 +36,8 @@ for name, native_class in [('RADAR_NATIVE','avSimpleRadar'),
                            ('WEAPON_NATIVE','avSimpleWeaponSystem'),
                            ('RWR_NATIVE','avSimpleRWR'),
                            ('NAV_SYSTEM','avLuaDevice'),
-                           ('EW_SYSTEM','avLuaDevice')]:
+                           ('EW_SYSTEM','avLuaDevice'),
+                           ('MWS_NATIVE','avMLWS'),('MWS_SYSTEM','avLuaDevice')]:
     registration = c.creators[c.devices[name]]
     assert registration[1] == native_class
     assert Path(registration[2]).is_file()

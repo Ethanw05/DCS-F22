@@ -34,6 +34,7 @@
 #include "Utility.h"
 #include "HighAlpha.h"
 #include "NativeSidewinder.h"
+#include "NativeMWS.h"
 #include "Inputs.h"
 #include "RAPTOR.h"
 
@@ -1807,6 +1808,7 @@ void ed_fm_hot_start_in_air() {
 }
 
 void ed_fm_release() {
+    NativeMWS::reset();
     NativeSidewinder::reset();
     RAPTOR::fm_clock = 0;
     RAPTOR::sim_initialised = false;
@@ -1904,6 +1906,7 @@ CockpitManager::CockpitManager() {
 }
 
 void CockpitManager::initialize() {
+    NativeMWS::reset();
     NativeGunSight::reset();
     const char* hud_names[] = {"EFM_HUD_VALID", "EFM_HUD_VN", "EFM_HUD_VE", "EFM_HUD_VU",
         "EFM_HUD_WN", "EFM_HUD_WE", "EFM_HUD_WU", "EFM_HUD_TAS",
@@ -1943,6 +1946,7 @@ void CockpitManager::updateGun() { NativeGunSight::update(param_api_); }
 
 void CockpitManager::updateCombat(double dt) {
     NativeSidewinder::update(param_api_, dt);
+    NativeMWS::update(param_api_);
 }
 
 void CockpitManager::update(double dt) {

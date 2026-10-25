@@ -22,6 +22,10 @@ end
 local function put(n, v)
 	h(n):set(v)
 end
+-- Indicators retain these handles; create them before their Lua states bind.
+for i = 1, 24 do
+	h(string.format("F22_SCOPE_%02d_DESIGNATED", i))
+end
 local telemetry_config = dofile(LockOn_Options.script_path .. "Systems/Radar_Config.lua")
 local telemetry = nil
 if telemetry_config.telemetry_enabled then
@@ -506,8 +510,10 @@ function update()
 	-- coordinate adapter supplies the opposite pattern rotation to the scanner,
 	-- so both the beam and candidate ranking follow this same selected LOS.
 	local ar, aa, ae = computer.cursor_range, computer.cursor_az, computer.elevation
-	if selected and computer.acquire then
-		ar, aa, ae = display.body_observation(selected, pose, math.max(0, computer.clock - selected.observed))
+	local acquisition_track = computer.acquire_id and computer.tracks[computer.acquire_id]
+	if acquisition_track and computer.acquire then
+		ar, aa, ae =
+			display.body_observation(acquisition_track, pose, math.max(0, computer.clock - acquisition_track.observed))
 		do
 			-- Acquire around the candidate LOS, including elevation. Keeping
 			-- VACQ's search centre here does not follow a crossing close target.
@@ -624,6 +630,10 @@ function update()
 		end
 		put(p .. "SELECTED", t and (t.stt or (t.id and t.id == computer.selected)) and 1 or 0)
 		put(p .. "SECONDARY", t and t.id == computer.secondary and 1 or 0)
+		put(
+			p .. "DESIGNATED",
+			t and (t.designated or t.id == computer.selected or t.id == computer.secondary) and 1 or 0
+		)
 		local ew_signal = 0
 		if t and t.native_id then
 			for j = 1, 16 do

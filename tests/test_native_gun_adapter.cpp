@@ -15,7 +15,8 @@ void* aircraft_table[52]{};void** aircraft=aircraft_table;
 void* context_data[3]{};
 alignas(16) std::array<std::byte,184> descriptor{};
 double queue_delay=0;
-double clock(){return values["F22_GUN_REQUEST_TIME"]+queue_delay;}
+double fake_now=-1,muzzle_n=1,muzzle_e=0,gun_yaw=0;
+double clock(){return fake_now>=0 ? fake_now : values["F22_GUN_REQUEST_TIME"]+queue_delay;}
 void* context(){return context_data;}
 void* device(void*,unsigned id){CHECK(id==15);return weapon.data();}
 const void* shell(void*){return descriptor.data();}
@@ -23,7 +24,8 @@ void* construct(void* p,const void* d){CHECK(d==descriptor.data());return p;}
 void destroy(void*){}
 void* aircraft_get(void*){return &aircraft;}
 void pose(void*,float* m,unsigned char index,unsigned zero,unsigned other){CHECK(index==255&&zero==0&&other==0);
- for(int i=0;i<16;++i)m[i]=0;m[0]=m[5]=m[10]=m[15]=1;m[12]=1;m[13]=5000.5f;}
+ for(int i=0;i<16;++i)m[i]=0;m[0]=static_cast<float>(std::cos(gun_yaw));m[2]=static_cast<float>(std::sin(gun_yaw));
+ m[5]=m[10]=m[15]=1;m[12]=static_cast<float>(muzzle_n);m[13]=5000.5f;m[14]=static_cast<float>(muzzle_e);}
 int flight(void*,double altitude,double t,const V* v,Wind* w,V* out,double max_time){
  CHECK(max_time==4&&std::abs(altitude-5000.5)<1e-5);
  WindVector actual{};auto getwind=reinterpret_cast<WindVector*(*)(Wind*,WindVector*,const float*)>(w->table[1]);float h=static_cast<float>(altitude);getwind(w,&actual,&h);
@@ -67,5 +69,36 @@ int main(){
  values["F22_GUN_REQUEST_VALID"]=0;update(p);CHECK(values["F22_GUN_SOLUTION_VALID"]==0);
  values["F22_GUN_REQUEST_VALID"]=1;double bad=NAN;std::memcpy(descriptor.data()+176,&bad,8);update(p);CHECK(values["F22_GUN_SOLUTION_VALID"]==0&&values["F22_GUN_SOLVER_REASON"]==4);CHECK(values["F22_GUN_RESPONSE_SEQUENCE"]==19);
  failed=true;NativeGunSight::reset();CHECK(!failed&&handles.empty()&&!previous.valid);
+ // No-lock funnel uses actual shell service, historical muzzle/velocity/wind.
+ values["F22_GUN_REQUEST_VALID"]=0;values["F22_FUNNEL_REQUEST_VALID"]=1;
+ values["F22_FUNNEL_OWN_U"]=5000;std::memcpy(descriptor.data()+176,&speed,8);
+ for(int i=0;i<=70;++i) {
+  fake_now=i*.02;muzzle_n=1+220*fake_now;values["F22_FUNNEL_OWN_N"]=220*fake_now;
+  values["F22_FUNNEL_REQUEST_TIME"]=fake_now;update(p);
+ }
+ CHECK(values["F22_FUNNEL_NATIVE_VALID"]==1 && values["F22_GUN_SOLUTION_VALID"]==0);
+ CHECK(values["F22_FUNNEL_07_VALID"]==1);
+ CHECK(std::abs(values["F22_FUNNEL_07_N"]-(1+220*fake_now+1030*1.2))<.01);
+ CHECK(std::abs(values["F22_FUNNEL_07_U"]-(5000.5-4.9*1.2*1.2))<1e-6);
+ // Keep gathering real history during STT, suppress the funnel, restore on loss.
+ values["F22_RADAR_STT_VALID"]=1;fake_now+=.02;muzzle_n+=4.4;
+ values["F22_FUNNEL_OWN_N"]+=4.4;values["F22_FUNNEL_REQUEST_TIME"]=fake_now;update(p);
+ CHECK(values["F22_FUNNEL_NATIVE_VALID"]==0 && !funnel_history.empty());
+ values["F22_RADAR_STT_VALID"]=0;update(p);CHECK(values["F22_FUNNEL_NATIVE_VALID"]==1);
+ // Turn-dependent native launch directions must bend the virtual stream.
+ funnel_history.clear();
+ for(int i=0;i<=70;++i) {
+  fake_now=3+i*.02;gun_yaw=.1*i*.02;
+  muzzle_n=1+2200*std::sin(gun_yaw);muzzle_e=2200*(1-std::cos(gun_yaw));
+  values["F22_FUNNEL_OWN_N"]=muzzle_n-1;values["F22_FUNNEL_OWN_E"]=muzzle_e;
+  values["EFM_HUD_VN"]=220*std::cos(gun_yaw);values["EFM_HUD_VE"]=220*std::sin(gun_yaw);
+  values["F22_FUNNEL_REQUEST_TIME"]=fake_now;update(p);
+ }
+ CHECK(values["F22_FUNNEL_NATIVE_VALID"]==1);
+ V relative{values["F22_FUNNEL_07_N"]-muzzle_n,values["F22_FUNNEL_07_U"]-5000.5,values["F22_FUNNEL_07_E"]-muzzle_e};
+ CHECK(relative.z*std::cos(gun_yaw)-relative.x*std::sin(gun_yaw)<-50);
+ fake_now+=2;values["F22_FUNNEL_REQUEST_TIME"]=fake_now;update(p);
+ CHECK(values["F22_FUNNEL_NATIVE_VALID"]==0 && funnel_history.size()==1);
+ values["F22_FUNNEL_REQUEST_VALID"]=0;update(p);CHECK(funnel_history.empty());
  std::cout<<"Gun adapter: shell input, world muzzle/bore, wind callback, intercept, response token and invalidation OK\n";
 }

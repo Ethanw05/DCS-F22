@@ -28,6 +28,9 @@ local gun_director=dofile(LockOn_Options.script_path..'Systems/Gun_Director.lua'
     sensor_data,function(n)return get_param_handle(n):get()end,
     function(n,v)get_param_handle(n):set(v)end,dispatch_action,
     dofile(LockOn_Options.script_path..'Systems/Radar_Display.lua'),devices.WEAPON_NATIVE)
+local gun_funnel=dofile(LockOn_Options.script_path..'Systems/Gun_Funnel.lua').new(
+    sensor_data,function(n)return get_param_handle(n):get()end,
+    function(n,v)get_param_handle(n):set(v)end,dispatch_action,devices.WEAPON_NATIVE)
 
 	local parameters =
 		{
@@ -159,6 +162,8 @@ local native_ready=false
 local caged=true
 local previous_mode=1;local pointer_logged=false
 local ir_audio=dofile(LockOn_Options.script_path..'Systems/IR_Audio.lua').new()
+local ir_seeker_module=dofile(LockOn_Options.script_path..'Systems/IR_Seeker.lua')
+local ir_seeker=ir_seeker_module.new(sensor_data,function(n)return get_param_handle(n):get()end)
 local selected_station=-1
 local station_refresh=0
 local last_native_diagnostic=nil
@@ -196,6 +201,7 @@ local function choose_station(native,step)
     get_param_handle('F22_WEAPON_TYPE4'):set(w.level4 or 0)
     get_param_handle('F22_IR_STATION'):set(mode_state==3 and selected_station or -1)
     for level=1,4 do get_param_handle('F22_IR_TYPE'..level):set(w['level'..level] or 0) end
+    get_param_handle('F22_IR_AIM9X_PROFILE'):set(mode_state==3 and ir_seeker_module.profile(info) or 0)
     -- Side bays are stations 0 and 10; other internal missiles use main bay.
     if selected_station>=0 then parameters.BAY_STATION:set(selected_station==0 and 1 or selected_station==10 and 3 or 2) end
 end
@@ -379,20 +385,21 @@ function update()
     get_param_handle('HUD_IR_BACKEND_READY'):set(get_param_handle('F22_IR_API_READY'):get())
     local ir_available=get_param_handle('F22_IR_AVAILABLE'):get()>.5
     local ir_locked=ir_available and get_param_handle('F22_IR_LOCK'):get()>.5
+    local ir_az,ir_el=ir_seeker:update(mode_state==3 and ir_available,update_time_step)
     local audio_ok,audio_error=pcall(ir_audio.update,ir_audio,mode_state==3 and ir_available and parameters.MAIN_POWER:get()>.5,
         get_param_handle('F22_IR_TYPE4'):get(),get_param_handle('F22_IR_STRENGTH'):get(),
-        get_param_handle('F22_IR_AZ'):get(),get_param_handle('F22_IR_EL'):get())
+        ir_az or 0,ir_el or 0,get_param_handle('F22_IR_AIM9X_PROFILE'):get()>.5,
+        get_param_handle('F22_MWS_AUDIO_PRIORITY'):get()>.5)
     get_param_handle('F22_IR_AUDIO_READY'):set(audio_ok and 1 or 0)
     -- An unavailable sound resource must not stop stores, sensors, or displays.
     if not audio_ok and not ir_audio.reported then
         ir_audio.reported=true
         if log and log.write then log.write('F22_IR_AUDIO',log.ERROR,tostring(audio_error)) end
     end
-    get_param_handle('HUD_IR_SEEKER_AVAILABLE'):set(ir_available and 1 or 0)
+    get_param_handle('HUD_IR_SEEKER_AVAILABLE'):set(ir_available and ir_az and 1 or 0)
     get_param_handle('HUD_IR_SEEKER_VALID'):set(mode_state==3 and ir_locked and 1 or 0)
-    get_param_handle('HUD_IR_SEEKER_AZ'):set(get_param_handle('F22_IR_AZ'):get())
-    local ir_az=get_param_handle('F22_IR_AZ'):get();local ir_el=get_param_handle('F22_IR_EL'):get()
-    get_param_handle('HUD_IR_SEEKER_EL'):set(math.atan2(math.sin(ir_el),math.cos(ir_el)*math.cos(ir_az)))
+    get_param_handle('HUD_IR_SEEKER_AZ'):set(ir_az or 0)
+    get_param_handle('HUD_IR_SEEKER_EL'):set(ir_el and math.atan2(math.sin(ir_el),math.cos(ir_el)*math.cos(ir_az)) or 0)
     -- Computed director is the sole gun aiming source.
     local az,el=gun_director:update(native_ready and mode_state==5 and parameters.MAIN_POWER:get()>.5)
     local valid=az~=nil and el~=nil
@@ -400,6 +407,7 @@ function update()
     get_param_handle('HUD_GUN_NATIVE_VALID'):set(valid and 1 or 0)
     get_param_handle('HUD_GUN_NATIVE_AZ'):set(valid and az or 0)
     get_param_handle('HUD_GUN_NATIVE_EL'):set(valid and el or 0)
+    gun_funnel:update(native_ready and mode_state==5 and parameters.MAIN_POWER:get()>.5)
     -- Interlock all locally dispatched weapon requests on ground, power loss,
     -- and master-arm loss. Do not confuse gear-down with weight-on-wheels.
     local ready_to_release = master_arm_state == 1

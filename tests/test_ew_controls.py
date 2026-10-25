@@ -46,6 +46,8 @@ for kind in ('keyboard','joystick'):
     source=(ROOT/f'Input/F-22A/{kind}/default.lua').read_text()
     binding_code=source.split('-- Preserve the base command names/default key combinations, but own routing.',1)[1].rsplit('return res',1)[0]
     lua.execute('''
+    function _(text)return text end
+    function join(target,extra)for _,binding in ipairs(extra)do target[#target+1]=binding end end
     iCommandPlaneDropFlareOnce=357;iCommandPlaneDropChaffOnce=358;iCommandActiveJamming=136
     original_combo={key='Insert'}
     res={keyCommands={{down=357},{down=358,combos={original_combo}},{down=136},{down=999}}}
@@ -57,5 +59,9 @@ for kind in ('keyboard','joystick'):
      assert(b.cockpit_device_id==20)
     end
     assert(res.keyCommands[2].combos[1]==original_combo and res.keyCommands[4].down==999)
+    for i=5,6 do local b=res.keyCommands[i]
+     assert(b.cockpit_device_id==22 and b.down==10915+i and b.up==b.down)
+     assert(b.value_down==1 and b.value_up==0)
+    end
     ''')
 print('EW: own physical/global controls, actual CM/ECM state, arm independence, power, rearm and reset PASS')

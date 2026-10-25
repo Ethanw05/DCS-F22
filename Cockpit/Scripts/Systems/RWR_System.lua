@@ -222,7 +222,13 @@ function update()
 		put(p .. "SIGNAL", c and c.signal or 0)
 		put(p .. "COAST", c and library.coasting(c) and 1 or 0)
 	end
-	local cue = audio:update(step, receiver.contacts, powered and ready, muted or volume < 0.01, receiver.alert)
+	local cue = audio:update(
+		step,
+		receiver.contacts,
+		powered and ready,
+		muted or volume < 0.01 or get("F22_MWS_AUDIO_PRIORITY") > 0.5,
+		receiver.alert
+	)
 	for n, s in pairs(sounds) do
 		s:update(1, volume)
 		if n == "lock" or n == "launch" then

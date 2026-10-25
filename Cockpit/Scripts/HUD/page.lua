@@ -119,6 +119,17 @@ local function group(name,x,y,params,controllers,parent)
     e.controllers = scaled
     add_base(e,name,parent,true)
 end
+local function dynamic_line(name,x1,y1,x2,y2,valid1,valid2,parent)
+    local e=CreateElement 'ceSimpleLineObject'
+    e.material=green;e.vertices={{0,0},{.001,0}};e.primitivetype='lines'
+    e.width=.7*native_unit_scale
+    local gain=1000*native_unit_scale -- parameters are radians
+    e.element_params={x1,y1,x2,y2,valid1,valid2}
+    e.controllers={{'line_object_set_point_using_parameters',0,0,1,gain,gain},
+        {'line_object_set_point_using_parameters',1,2,3,gain,gain},
+        {'parameter_in_range',4,.9,1.1},{'parameter_in_range',5,.9,1.1}}
+    add_base(e,name,parent,true)
+end
 
 -- Layout is intentionally normalized. Installed physical FOV/eyebox is unknown.
 -- Published F-22 figure has circular counter/pointer speed and altitude,
@@ -310,5 +321,5 @@ line(-0.018,0,0.018,0,0.005,"HUD_SLIP_BAR")
 
 -- Isolated per-mode presentation and sensor-validity markers.
 local drawTacticalHud = dofile(LockOn_Options.script_path.."HUD/tactical_page.lua")
-drawTacticalHud({line=line, label=label, static=static, group=group,
+drawTacticalHud({line=line, label=label, static=static, group=group,dynamic_line=dynamic_line,
     layout_scale=layout_scale,boresight_y=boresight_y})

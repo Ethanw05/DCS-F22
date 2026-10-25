@@ -11,12 +11,17 @@ void number(void* p,double v) { *static_cast<double*>(p)=v; }
 bool get_number(const void* p,double& out,bool) { out=*static_cast<const double*>(p);return true; }
 bool sensor_track=false,consent=false;
 int creations=0,destructions=0,slaves=0,launches=0;
+int uncage_calls=0;
+float detected_strength=-1;
 NativeSidewinder::WeaponType last_type;
 void* construct(void* self,const NativeSidewinder::WeaponType* type) { ++creations;last_type=*type;return self; }
 void destroy(void*) { ++destructions; }
 void method(void*) {}
+void uncage(void*) {++uncage_calls;}
 void power(void*,bool) {}
 void scalar(void*,float) {}
+int sun_filter_calls=0;
+void sun_filter(void*,float value) {CHECK(value==1.f);++sun_filter_calls;}
 void motor_limits(void*,double low,double high) { CHECK(low<-1.4 && high>1.4); }
 void set_consent(void*,bool v) { consent=v; }
 void status(void*,unsigned v) { CHECK(v==3); }
@@ -25,7 +30,7 @@ void update(void*,double) {}
 void slave(void*,const NativeSidewinder::Direction* v) { CHECK(std::abs(v->x-1)<1e-8);++slaves; }
 void boresight(void*,const NativeSidewinder::Pose* p) { CHECK(p->m[12]>NativeSidewinder::model_max[0]);CHECK(std::abs(std::hypot(p->m[0],p->m[1],p->m[2])-1)<1e-8); }
 bool tracking(void*) { return sensor_track && consent; }
-float strength(void*) { return sensor_track ? 1.f : 0.f; }
+float strength(void*) { return detected_strength>=0 ? detected_strength : sensor_track ? 1.f : 0.f; }
 const void* seeker(const void* p) { return p; }
 NativeSidewinder::Pose* local_pose(const void*,NativeSidewinder::Pose* p) { p->m[0]=1;return p; }
 unsigned launch(void*,void*) { CHECK(sensor_track && consent);++launches;return 42; }
@@ -110,11 +115,11 @@ int main() {
     p.ed_param_api.pfn_ed_cockpit_parameter_value_to_number=get_number;
     api.ready=true;api.error=0;api.profile_valid=false;
     api.construct=construct;api.destroy=destroy;api.initialize=method;
-    api.uncage=method;api.to_boresight=method;api.power=power;api.consent=set_consent;
+    api.uncage=uncage;api.to_boresight=method;api.power=power;api.consent=set_consent;
     api.status=status;api.station=station;api.update=update;api.slave=slave;api.boresight=boresight;
     api.tracking=tracking;api.strength=strength;api.seeker=seeker;api.local_pose=local_pose;
     api.launch=launch;api.aircraft=aircraft;
-    api.gimbal_limit=scalar;api.sun_filter=scalar;api.motor_limits=motor_limits;
+    api.gimbal_limit=scalar;api.sun_filter=sun_filter;api.motor_limits=motor_limits;
     void* context[3]={nullptr,nullptr,&p};void** context_ptr=context;api.contexts=&context_ptr;
     vtable[64]=reinterpret_cast<void*>(&launcher);
     values["MAIN_POWER"]=1;values["F22_IR_MODE"]=3;values["F22_IR_STATION"]=0;
@@ -125,6 +130,7 @@ int main() {
     CHECK(values["F22_IR_STATE"]==1 && slaves==0 && !consent);
     values["F22_IR_CAGED"]=0;update(p,.02);
     CHECK(creations==1 && last_type.level4==136 && values["F22_IR_AVAILABLE"]==1);
+    CHECK(sun_filter_calls==1 && values["F22_IR_AIM9X_CONFIGURED"]==1);
     CHECK(values["F22_IR_LOCK"]==0 && slaves==1);
     values["F22_IR_RELEASE_REQUEST"]=1;update(p,.02);CHECK(launches==0);
     values["F22_IR_RELEASE_REQUEST"]=0;update(p,.02);
@@ -145,6 +151,28 @@ int main() {
     values["F22_IR_STATION"]=10;values["F22_IR_TYPE4"]=22;update(p,.02);
     CHECK(creations==2 && destructions==1 && last_type.level4==22 && launches==1);
     values["MAIN_POWER"]=0;update(p,.02);CHECK(destructions==2 && values["F22_IR_AVAILABLE"]==0);
+    // Mod missile has a dynamic ID. Configure the real AIM9X capabilities,
+    // while retaining that actual type for construction and launch.
+    values["MAIN_POWER"]=1;values["F22_IR_TYPE4"]=10042;values["F22_IR_AIM9X_PROFILE"]=1;
+    values["F22_IR_RELEASE_REQUEST"]=0;update(p,.02);
+    CHECK(last_type.level4==10042 && sun_filter_calls==2 && values["F22_IR_AIM9X_CONFIGURED"]==1);
+    values["F22_IR_AIM9X_PROFILE"]=0;update(p,.02);
+    CHECK(creations==4 && sun_filter_calls==2 && values["F22_IR_AIM9X_CONFIGURED"]==0);
+    values["MAIN_POWER"]=0;update(p,.02);
+    // Latched uncage intent can precede acquisition without letting an empty
+    // native head random-walk. Detection alone (no radar lock) then releases it.
+    const int before_uncage=uncage_calls;
+    values["MAIN_POWER"]=1;values["F22_IR_CAGED"]=0;values["F22_RADAR_STT_VALID"]=0;
+    sensor_track=false;detected_strength=0;
+    for(int i=0;i<20;++i) update(p,.02);
+    CHECK(consent && uncage_calls==before_uncage && values["F22_IR_HEAD_RELEASED"]==0);
+    detected_strength=.81f;update(p,.02);
+    CHECK(uncage_calls==before_uncage+1 && values["F22_IR_HEAD_RELEASED"]==1);
+    update(p,.02);CHECK(uncage_calls==before_uncage+1);
+    sensor_track=true;update(p,.02);CHECK(values["F22_IR_LOCK"]==1);
+    values["F22_IR_CAGED"]=1;update(p,.02);
+    CHECK(!consent && values["F22_IR_HEAD_RELEASED"]==0 && values["F22_IR_LOCK"]==0);
+    values["MAIN_POWER"]=0;update(p,.02);detected_strength=-1;
     alignas(16) std::array<std::byte,2440> radar{};
     auto base=reinterpret_cast<std::uintptr_t>(radar.data());
     *reinterpret_cast<double*>(base+1944)=300;

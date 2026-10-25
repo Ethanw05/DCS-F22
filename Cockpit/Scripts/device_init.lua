@@ -55,6 +55,8 @@ creators[devices.RWR_NATIVE] = {"avSimpleRWR", LockOn_Options.script_path.."Syst
 creators[devices.RWR_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/RWR_System.lua"}
 creators[devices.ENGAGEMENT_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/Engagement_System.lua"}
 creators[devices.EW_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/EW_System.lua"}
+creators[devices.MWS_NATIVE] = {"avMLWS", LockOn_Options.script_path.."Systems/MWS_Native.lua"}
+creators[devices.MWS_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/MWS_System.lua"}
 
 --creators[devices.KNEEBOARD] = {"avKneeboard",LockOn_Options.common_script_path.."KNEEBOARD/device/init.lua"}
 

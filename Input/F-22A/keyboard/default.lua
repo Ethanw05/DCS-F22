@@ -482,4 +482,8 @@ for _, binding in ipairs(res.keyCommands) do
   binding.cockpit_device_id=20
  end
 end
+join(res.keyCommands,{
+ {down=10920,up=10920,value_down=1,value_up=0,cockpit_device_id=22,name=_('F-22 Missile warning power'),category=_('F-22 Sensors')},
+ {down=10921,up=10921,value_down=1,value_up=0,cockpit_device_id=22,name=_('F-22 Missile warning audio mute'),category=_('F-22 Sensors')},
+})
 return res

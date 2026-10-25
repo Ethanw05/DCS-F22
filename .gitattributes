@@ -1,5 +1,5 @@
 *.png filter=lfs diff=lfs merge=lfs
-*.wav filter=lfs diff=lfs merge=lfs
+*.wav filter=lfs diff=lfs merge=lfs -text
 *.jpg filter=lfs diff=lfs merge=lfs
 *.jpeg filter=lfs diff=lfs merge=lfs
 *.bmp filter=lfs diff=lfs merge=lfs

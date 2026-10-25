@@ -47,6 +47,9 @@ for element in elements:
     for controller in element.get('controllers', []):
         if controller[0] in ('move_up_down_using_parameter', 'move_left_right_using_parameter'):
             controller[2] /= lua.globals().GetScale() * 1000
+        elif controller[0]=='line_object_set_point_using_parameters':
+            controller[4] /= lua.globals().GetScale()*1000
+            controller[5] /= lua.globals().GetScale()*1000
 lookup = {e['name']: e for e in elements}
 atlas = Image.open(ROOT/'Cockpit/Scripts/IndicationTextures/FONT_PFD.dds').convert('RGBA')
 font_source = (ROOT/'Cockpit/Scripts/fonts.lua').read_text(errors='replace')
@@ -195,7 +198,32 @@ def flight_outputs(params):
             end
             dofile(SCRIPT_ROOT..'Systems/Engagement_System.lua');post_initialize();update()
         """)
-    derived={k:v['value'] for k,v in sim.globals().handles.items() if k.startswith(('HUD_','F22_FC_','F22_MSL_'))}
+    if params.get('FUNNEL_FIXTURE'):
+        # Explicitly synthetic projectile-history fixture; projection and all
+        # emitted rail controllers still execute the actual cockpit Lua.
+        sim.globals().funnel_rate=params['FUNNEL_FIXTURE'] if params['FUNNEL_FIXTURE']!=99 else 0
+        sim.execute('''
+            function get_model_time()return 5 end
+            local sensors={getHeading=function()return 0 end,getPitch=function()return 0 end,
+                getRoll=function()return 0 end,getSelfCoordinates=function()return 0,5000,0 end}
+            local function p(n,v)get_param_handle(n):set(v)end
+            p('F22_FUNNEL_NATIVE_VALID',1);p('F22_FUNNEL_RESULT_TIME',5)
+            for i=1,7 do
+                local t=.15+.175*(i-1)
+                local x,y=1030*t,-4.9*t*t
+                if funnel_rate~=0 then
+                    local a=funnel_rate*t
+                    x=-220/funnel_rate*math.sin(a)+1250*t*math.cos(a)
+                    y=220/funnel_rate*(1-math.cos(a))-1250*t*math.sin(a)-4.9*t*t
+                end
+                local prefix=string.format('F22_FUNNEL_%02d_',i)
+                p(prefix..'VALID',1);p(prefix..'N',x);p(prefix..'U',5000+y);p(prefix..'E',0)
+            end
+            local f=dofile(SCRIPT_ROOT..'Systems/Gun_Funnel.lua').new(sensors,
+                function(n)return get_param_handle(n):get()end,p,function()end,15)
+            f:update(true)
+        ''')
+    derived={k:v['value'] for k,v in sim.globals().handles.items() if k.startswith(('HUD_','F22_FC_','F22_MSL_','F22_GUN_WINGSPAN'))}
     result=dict(params);result.update(derived)
     # Background attitude is independent of the HUD sign convention. These
     # are the raw sensor angles consumed by the unchanged, ground-truth ADIs.
@@ -257,6 +285,10 @@ if args.radar:
     for code,label in [(1,'shoot-window'),(2,'outside-window'),(3,'time-to-active'),(4,'active-time-to-go')]:
         states[f'34-{code}-MRM-{label}']=dict(states['22-TWS-designated'],ENGAGEMENT_FIXTURE=code,F22_WEAPON_COUNT=5,
             F22_RADAR_DESIGNATION_RANGE=60000 if code==2 else 12000,F22_RADAR_DESIGNATION_AZ=.025,F22_RADAR_DESIGNATION_EL=-.015)
+if args.radar:
+    for index,label,rate in [(35,'level',99),(36,'pulling',.12)]:
+        states[f'{index}-GUN-unlocked-funnel-{label}-synthetic']=dict(states['02-flight'],
+            NAV=0,HUD_MODE=5,HUD_ARMED=1,FUNNEL_FIXTURE=rate,F22_GUN_AMMO_VALID=1,F22_GUN_AMMO_COUNT=480)
 states={name:flight_outputs(params) for name,params in states.items()}
 
 def controller_state(e, params):
@@ -274,6 +306,7 @@ def controller_state(e, params):
         elif name == 'move_up_down_using_parameter': y += value*values[1]
         elif name == 'rotate_using_parameter': rotation += value*values[1]
         elif name == 'text_using_parameter': text = e['formats'][int(values[1])] % value
+        elif name == 'line_object_set_point_using_parameters': pass
         else: raise ValueError('Unsupported controller: '+name)
     return x,y,rotation,alpha,text
 
@@ -341,7 +374,17 @@ def draw_state(name, params):
             continue
         if not alpha or e.get('isvisible') is False: continue
         color = (*GREEN[:3],round(alpha*255))
-        if e['kind']=='ceMeshPoly':
+        if e['kind']=='ceSimpleLineObject':
+            vertices=[list(v) for v in e['vertices']]
+            for c in e.get('controllers',[]):
+                if c[0]=='line_object_set_point_using_parameters':
+                    point,xi,yi,xgain,ygain=c[1:]
+                    vertices[int(point)]=[params.get(e['element_params'][int(xi)],0)*xgain,
+                        params.get(e['element_params'][int(yi)],0)*ygain]
+            points=[angular_pixel(x+vx*math.cos(angle)-vy*math.sin(angle),
+                y+vx*math.sin(angle)+vy*math.cos(angle)) for vx,vy in vertices]
+            draw.line(points,fill=color,width=max(SUPERSAMPLE,round(.0007*FOCAL)))
+        elif e['kind']=='ceMeshPoly':
             points=[]
             for point in e['vertices']:
                 vx,vy=point[:2]

@@ -82,8 +82,15 @@ assert(get_param_handle('F22_IR_STATION'):get()==0 and get_param_handle('F22_IR_
 for _,a in ipairs(actions) do assert(a[1]~=350,'IR launch routed to empty generic seeker') end
 SetCommand(10803,0);update();assert(get_param_handle('F22_IR_RELEASE_REQUEST'):get()==0)
 get_param_handle('F22_IR_AVAILABLE'):set(1);get_param_handle('F22_IR_LOCK'):set(0);update()
+assert(get_param_handle('HUD_IR_SEEKER_AVAILABLE'):get()==0,'unprojectable beam must not draw a circle')
+get_param_handle('F22_IR_WORLD_VALID'):set(1);get_param_handle('F22_IR_WORLD_FWD_N'):set(1);update()
 assert(get_param_handle('HUD_IR_SEEKER_AVAILABLE'):get()==1 and get_param_handle('HUD_IR_SEEKER_VALID'):get()==0)
 get_param_handle('F22_IR_LOCK'):set(1);update();assert(get_param_handle('HUD_IR_SEEKER_VALID'):get()==1)
+get_param_handle('F22_MWS_AUDIO_PRIORITY'):set(1);update()
+assert(get_param_handle('HUD_IR_SEEKER_VALID'):get()==1 and get_param_handle('F22_IR_CAGED'):get()==0,'MWS priority changed seeker state')
+native.get_station_info=function(self,i)return {count=i==0 and 1 or 0,CLSID='{AIM9X-BLKII}',weapon={level1=4,level2=4,level3=7,level4=10042}}end
+for i=1,20 do update() end
+assert(get_param_handle('F22_IR_AIM9X_PROFILE'):get()==1 and get_param_handle('F22_IR_TYPE4'):get()==10042)
 SetCommand(10800,7);update();assert(get_param_handle('HUD_MODE'):get()==7,'private A/G mode was ignored')
 assert(get_param_handle('F22_IR_RELEASE_REQUEST'):get()==0 and get_param_handle('HUD_GUN_TRIGGER'):get()==0)
 ''')
