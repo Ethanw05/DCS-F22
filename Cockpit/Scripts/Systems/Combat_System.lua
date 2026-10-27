@@ -142,10 +142,6 @@ function SetCommand(c, v)
 		else
 			physical_down[n], power_blocked[n] = nil, nil
 		end
-		if (n == "scs_depress" or n:match("^dms_")) and get("MAIN_POWER") < 0.5 then
-			publish_display_control()
-			return
-		end
 		if log and log.write then
 			log.write("F22_HOTAS", log.INFO, n .. " value=" .. tostring(v) .. string.format(
 				" decoded=%.3f mode=%d soi=%d primary=%.0f", decoded,
