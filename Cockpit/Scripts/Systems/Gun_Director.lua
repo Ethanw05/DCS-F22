@@ -1,6 +1,7 @@
 -- GPL-3.0-or-later. Original lock-associated director and conventional pipper.
 -- Motion comes from the selected owned AESA measured track.
-local M = {}
+-- Mod adapter policy: keep actual observation age within the owned STT envelope.
+local M = { maximum_measurement_age = .5 }
 local Motion = dofile(LockOn_Options.script_path .. "Systems/Gun_Motion.lua")
 local Frames = dofile(LockOn_Options.script_path .. "Systems/Gun_Frames.lua")
 local function finite(v)
@@ -157,7 +158,7 @@ function M.new(sensors, get, put, dispatch, display, device_id)
             return
         end
         local age = now - stamp
-        if age < -0.01 or age > 0.15 then
+        if age < -0.01 or age > M.maximum_measurement_age then
             reset()
             return
         end
@@ -209,7 +210,7 @@ function M.new(sensors, get, put, dispatch, display, device_id)
         end
         if self.stamp ~= stamp then
             local elapsed = stamp - self.stamp
-            if elapsed <= 0 or elapsed > 0.3 then
+            if elapsed <= 0 or elapsed > Motion.maximum_interval then
                 reset()
                 return
             end
