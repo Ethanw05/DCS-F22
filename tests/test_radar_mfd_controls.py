@@ -80,7 +80,6 @@ for kind in ('joystick', 'keyboard'):
     lua = runtime()
     lua.globals().INPUT_PROFILE = (ROOT / f'Input/F-22A/{kind}/default.lua').as_posix()
     lua.execute('''
-    dofile(SCRIPT_ROOT..'devices.lua')
     function _(s) return s end
     iCommandPlaneTrimUp=95;iCommandPlaneTrimDown=96;iCommandPlaneTrimLeft=93;iCommandPlaneTrimRight=94
     iCommandPlaneAirBrake=73;iCommandPlaneAirBrakeOn=147;iCommandPlaneAirBrakeOff=148
