@@ -86,6 +86,7 @@ for _,key in ipairs({'F22_FAULT_ACTIVE_COUNT','F22_FAULT_UNKNOWN_COUNT','F22_FAU
 put('F22_FAULT_SELECTED_TEXT','')
 for index=1,4 do put('F22_FAULT_REFERENCE_'..index,'')end
 local references=dofile(LockOn_Options.script_path..'Systems/Cockpit_References.lua').new(get,put)
+local equipment=dofile(LockOn_Options.script_path..'Systems/Equipment_Conditions.lua').new(get,conditions)
 local clock = 0
 local muted = false
 local volume = 0.8
@@ -294,20 +295,8 @@ local function update_playback(now)
 	-- Natural completion releases the slot; it never stops a sounding clip.
 	playing = nil
 end
-local function equipment_condition(index, valid, active)
-    conditions[index].valid = valid
-    conditions[index].active = active
-end
 local function equipment_snapshot()
-    local physical = get('EFM_VEHICLE_VALID') > .5 and get('MAIN_POWER') > .5
-    equipment_condition(1, get('MAIN_POWER') > .5 and get('EFM_FCS_INTEGRITY_VALID') > .5, get('EFM_FCS_DAMAGED') > .5)
-    equipment_condition(2, physical, get('L_GEN_OUT') > .5)
-    equipment_condition(3, physical, get('R_GEN_OUT') > .5)
-    equipment_condition(4, physical, get('L_HYD_COLOR') > .5)
-    equipment_condition(5, physical, get('R_HYD_COLOR') > .5)
-    equipment_condition(6, physical, get('L_OIL_COLOR') > .5)
-    equipment_condition(7, physical, get('R_OIL_COLOR') > .5)
-    equipment_condition(8, physical, get('CANOPY_LIGHT') > .5)
+    equipment.update()
 end
 local function publish_faults(priority)
     local faults = receiver.faults
@@ -359,6 +348,7 @@ function update()
 		reset()
 	end
 	clock = now
+	references.update()
 	local powered = get("MAIN_POWER") > 0.5
 	if not powered then
 		reset()
@@ -368,7 +358,6 @@ function update()
 		return
 	end
     equipment_snapshot()
-    references.update()
 	local audio_ok, all_ready = pcall(initialize_audio, now)
 	put("F22_PILOT_AUDIO_READY", audio_ok and all_ready and 1 or 0)
 	update_playback(now)

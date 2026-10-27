@@ -29,3 +29,5 @@ ground policy and attention mapping are explicit mod choices. Actual Lua tests
 exercise independent causes, ACK, recurrence, source invalidity, mission rewind
 and navigation loss. Physical fault injection, complete F-22 limits/BIT and native
 annunciator optics remain separate qualification gates.
+
+Physical integration: the registry now reads coherent EFM generator, hydraulic, oil and FCS causes rather than MFD color handles. Existing 1000 psi hydraulic / 100 psi oil thresholds remain mod policies. Canopy requires its independent provider-valid flag; cockpit argument 251 alone is unqualified. Stale/mixed/wrong-clock frames withdraw validity without creating a healthy zero.

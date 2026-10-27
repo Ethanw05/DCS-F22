@@ -12,6 +12,30 @@ local function h(name)
 end
 local function put(n,v) h(n):set(v) end
 local function read(n) return h(n):get() end
+local envelope=dofile(LockOn_Options.script_path..'Systems/Physical_Snapshot.lua')
+local physical=envelope.new(read,{
+    'EFM_HUD_VALID','EFM_HUD_VN','EFM_HUD_VE','EFM_HUD_VU','EFM_HUD_WN','EFM_HUD_WE',
+    'EFM_GROUND_VALID','EFM_WEIGHT_ON_WHEELS','EFM_GEAR_DOWN_LOCKED','EFM_GEAR_UP_LOCKED',
+    'EFM_GEAR_UNSAFE','EFM_AIRDATA_VALID','EFM_AIRDATA_STAMP','EFM_AIRDATA_CAS_MPS',
+    'EFM_AIRDATA_TAS_MPS','EFM_AIRDATA_HEALTH',
+})
+local function flight(key)
+    if not physical.owned then return read(key) end
+    return physical.valid and physical.values[key] or nil
+end
+local function sensed_speed()
+    if not physical.owned then
+        local tas=read('EFM_HUD_TAS')
+        return mathhud.cas(tas,read('EFM_HUD_SOUND'),read('EFM_HUD_PRESSURE')),tas
+    end
+    local health=flight('EFM_AIRDATA_HEALTH')
+    put('HUD_AIRDATA_DEGRADED',health and health~=0 and 1 or 0)
+    if flight('EFM_AIRDATA_VALID')~=1 or not envelope.fresh(flight('EFM_AIRDATA_STAMP'),physical.clock)
+        or (health~=0 and health~=2 and health~=3) then return end
+    local cas,tas=flight('EFM_AIRDATA_CAS_MPS'),flight('EFM_AIRDATA_TAS_MPS')
+    if not mathhud.finite(cas) or cas<0 or not mathhud.finite(tas) or tas<0 then return end
+    return cas,tas
+end
 -- Native indicators bind during construction, before post_initialize/update.
 -- Publish only render-plane defaults and invalid gates; angular data retain
 -- their existing owner/update contract.
@@ -29,6 +53,8 @@ function post_initialize()
     put("HUD_WIND_VALID",0); put("HUD_GS_VALID",0);put("HUD_ALT_VALID",0)
 end
 function update()
+    physical:update()
+    put('HUD_AIRDATA_DEGRADED',0)
     put("HUD_ALT_VALID",0)
     if read('F22_ALT_BARO_VALID')>.5 then
         local altitude=read('F22_ALT_BARO_FT')
@@ -61,18 +87,29 @@ function update()
     put("HUD_G_MAX",peak_g)
     local aoa=data.getAngleOfAttack()*180/math.pi
     put("HUD_AOA_DEG",aoa)
+    local aoa_valid=mathhud.finite(aoa)
+    if physical.owned then
+        -- Conservative shared-ADC policy; independent production AoA health is unknown.
+        aoa_valid=aoa_valid and flight('EFM_AIRDATA_VALID')==1 and flight('EFM_AIRDATA_HEALTH')==0
+            and envelope.fresh(flight('EFM_AIRDATA_STAMP'),physical.clock)
+    end
+    put('HUD_AOA_VALID',aoa_valid and 1 or 0)
     local base_wow=data.getWOW_NoseLandingGear()
-    local own_contact=read('EFM_GROUND_VALID')>.5
-    local gear=own_contact and read('EFM_WEIGHT_ON_WHEELS') or base_wow
+    local own_contact=flight('EFM_GROUND_VALID')==1
+    local gear=own_contact and flight('EFM_WEIGHT_ON_WHEELS') or base_wow
     local gear_down=get_aircraft_draw_argument_value(0)>0.95
+    if physical.owned then
+        local down,up,unsafe=flight('EFM_GEAR_DOWN_LOCKED'),flight('EFM_GEAR_UP_LOCKED'),flight('EFM_GEAR_UNSAFE')
+        gear_down=down==1 and up==0 and unsafe==0 and own_contact
+    end
     put("HUD_LANDING_CONFIG",gear_down and 1 or 0)
     -- Hornet presentation, this aircraft's existing 12-degree approach target.
     -- AOA error moves the complete bracket relative to the velocity vector.
-    local bracket_valid=gear_down and gear<.5 and mathhud.finite(aoa)
+    local bracket_valid=gear_down and gear<.5 and aoa_valid
     put('HUD_EBRACKET_VALID',bracket_valid and 1 or 0)
     put('HUD_EBRACKET_OFFSET',bracket_valid and math.tan(math.rad(mathhud.clamp(aoa-12,-10,10))) or 0)
-    put("HUD_APPROACH_LOW",(gear_down and gear<0.5 and aoa<11.5) and 1 or 0)
-    put("HUD_APPROACH_HIGH",(gear_down and gear<0.5 and aoa>12.5) and 1 or 0)
+    put("HUD_APPROACH_LOW",(bracket_valid and aoa<11.5) and 1 or 0)
+    put("HUD_APPROACH_HIGH",(bracket_valid and aoa>12.5) and 1 or 0)
     local now=type(get_model_time)=='function'and get_model_time()or diagnostic_frames*dt
     if gear_down and now>=next_landing_log and log and log.write then
         next_landing_log=now+1
@@ -84,8 +121,8 @@ function update()
     put("HUD_VS_SIGN",vs>=0 and 1 or -1)
     put("HUD_FPM_VALID",0); put("HUD_GS_VALID",0)
     put("HUD_WIND_VALID",0); put("HUD_AIRDATA_VALID",0)
-    if read("EFM_HUD_VALID")<0.5 then previous_cas=nil;return end
-    local n,e,u=read("EFM_HUD_VN"),read("EFM_HUD_VE"),read("EFM_HUD_VU")
+    if flight('EFM_HUD_VALID')~=1 then previous_cas=nil;return end
+    local n,e,u=flight('EFM_HUD_VN'),flight('EFM_HUD_VE'),flight('EFM_HUD_VU')
     if not (mathhud.finite(n) and mathhud.finite(e) and mathhud.finite(u)) then
         previous_cas=nil;return
     end
@@ -103,8 +140,7 @@ function update()
         local x,y=projection.planar(az,el)
         put("HUD_FPM_X_SLOPE",x);put("HUD_FPM_Y_SLOPE",y);put("HUD_FPM_VALID",1)
     end
-    local tas=read("EFM_HUD_TAS")
-    local cas=mathhud.cas(tas,read("EFM_HUD_SOUND"),read("EFM_HUD_PRESSURE"))
+    local cas,tas=sensed_speed()
     if cas then
         cas=cas*1.943844492
         put("HUD_CAS",cas);put("HUD_TAS",tas*1.943844492)
@@ -120,8 +156,8 @@ function update()
         previous_cas=cas
         put("HUD_ACCEL_UP",acceleration>0.5 and 1 or 0)
         put("HUD_ACCEL_DOWN",acceleration< -0.5 and 1 or 0)
-    end
-    local wn,we=read("EFM_HUD_WN"),read("EFM_HUD_WE")
+    else previous_cas=nil;put('HUD_ACCEL_UP',0);put('HUD_ACCEL_DOWN',0)end
+    local wn,we=flight('EFM_HUD_WN'),flight('EFM_HUD_WE')
     if not (mathhud.finite(wn) and mathhud.finite(we)) then return end
     local windspeed=math.sqrt(wn*wn+we*we)*1.943844492
     local bearing=mathhud.atan2(-we,-wn)

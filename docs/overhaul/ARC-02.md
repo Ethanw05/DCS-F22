@@ -23,3 +23,5 @@ completed/torn frames, bounded retry, failed conversion, schema withdrawal and
 nonfinite sequences. Controller tests independently cover terminal heading hold
 with retained BALT. Cross-thread DCS callback scheduling and native flight
 qualification remain distinct from these deterministic API fixtures.
+
+Physical cockpit consumers use Physical_Snapshot.lua: one fixed field list (at most64), before/after valid/generation/stamp/clock-kind checks and a permanent owner latch. Invalid new publications never restore legacy truth. References read achieved mass/fuel/trim/gear/supply through that envelope. All19 supported VehicleFaults IDs are registered as disabled mission-author choices in F-22A.lua. Native callback tests qualify their owner behavior; mission-editor UI delivery remains unobserved.
