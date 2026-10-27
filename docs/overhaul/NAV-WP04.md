@@ -1,4 +1,4 @@
-# NAV-WP04 — flight/landing source integration
+# NAV-WP04 â€” flight/landing source integration
 
 The HUD consumes the owned measured CAS/TAS sample after EFM_POWER_OWNER latches. It never recomputes a healthy sensor from physics truth after that point. Frozen and biased health are explicitly degraded; stale samples withdraw the speed indication independently of pressure altitude and ground-velocity FPM. The 250 ms age / 50 ms future tolerance are adapter policies on spawn-relative F22_AP_CLOCK.
 

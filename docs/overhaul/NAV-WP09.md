@@ -1,4 +1,4 @@
-# NAV-WP09 — independent altitude events and advisory protection
+# NAV-WP09 â€” independent altitude events and advisory protection
 
 The installed ED Hornet guide (24 March2024), p70 was checked directly for the selected warning analogue. Gear-up radar low repeats until explicitly disabled or a valid height resets it. Gear-down minima is a separate one-shot crossing, selectable RADAR/BARO. The existing barometric floor is another occurrence. A100ft crossing rearm and5s unspoken-event expiry are declared mod policies. Existing recordings, duration and gain are preserved.
 

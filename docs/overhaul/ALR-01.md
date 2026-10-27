@@ -31,3 +31,5 @@ and navigation loss. Physical fault injection, complete F-22 limits/BIT and nati
 annunciator optics remain separate qualification gates.
 
 Physical integration: the registry now reads coherent EFM generator, hydraulic, oil and FCS causes rather than MFD color handles. Existing 1000 psi hydraulic / 100 psi oil thresholds remain mod policies. Canopy requires its independent provider-valid flag; cockpit argument 251 alone is unqualified. Stale/mixed/wrong-clock frames withdraw validity without creating a healthy zero.
+
+Power transitions preserve fault occurrence/history and held physical ACK latches. Audio/pending crossings stop on loss; repeated down events after restoration cannot acknowledge a newly attended condition. Mission initialization/time reversal clears the history. Actual owner tests exercise these transitions.
