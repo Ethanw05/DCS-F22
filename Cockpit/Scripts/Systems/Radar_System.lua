@@ -2,6 +2,7 @@
 dofile(LockOn_Options.script_path .. "devices.lua")
 dofile(LockOn_Options.script_path .. "command_defs.lua")
 local input_value = dofile(LockOn_Options.script_path .. "Systems/Input_Value.lua")
+local radar_focus_policy = dofile(LockOn_Options.script_path .. "Systems/Radar_Focus.lua")
 local commands = dofile(LockOn_Options.script_path .. "Systems/Radar_Commands.lua")
 local computer = dofile(LockOn_Options.script_path .. "Systems/Radar_Computer.lua").new()
 local task_library = dofile(LockOn_Options.script_path .. "Systems/Radar_Sensor_Tasking.lua")
@@ -74,6 +75,7 @@ end
 dev:listen_command(10620)
 dev:listen_command(10621)
 local slew_x, slew_y = 0, 0
+local slew_focus, slew_role = nil, nil
 local pending_unlock = false
 local acquiring = false
 local native_power = nil
@@ -160,8 +162,10 @@ function SetCommand(command, value)
 	end
 	if get("HUD_MODE") == 7 and ag then
 		local name = command == 10620 and "axis_x" or command == 10621 and "axis_y" or by_id[command] or legacy[command]
-		local focus = get("F22_SOI")
-		if (name == "axis_x" or name == "axis_y") and (focus ~= 0 and focus ~= 2) then value = 0 end
+		if name == "axis_x" or name == "axis_y" then
+			slew_focus, slew_role = get("F22_SOI"), get("HUD_MODE")
+			if not radar_focus_policy.allowed(get) or not computer.power or get("MAIN_POWER") <= 0.5 then value = 0 end
+		end
 		if name == "power" then
 			if value > 0 then computer.power = not computer.power; emission_inhibited = not computer.power end
 		elseif name == "operate" then
@@ -174,14 +178,18 @@ function SetCommand(command, value)
 		return
 	end
 	if command == 10620 then
-		slew_x = value
+		slew_focus, slew_role = get("F22_SOI"), get("HUD_MODE")
+		slew_x = radar_focus_policy.allowed(get) and computer.power
+			and get("MAIN_POWER") > 0.5 and display.finite(value) and value or 0
 		if math.abs(value) > 0.08 then
 			computer.cursor_follow = false
 		end
 		return
 	end
 	if command == 10621 then
-		slew_y = value
+		slew_focus, slew_role = get("F22_SOI"), get("HUD_MODE")
+		slew_y = radar_focus_policy.allowed(get) and computer.power
+			and get("MAIN_POWER") > 0.5 and display.finite(value) and value or 0
 		if math.abs(value) > 0.08 then
 			computer.cursor_follow = false
 		end
@@ -335,8 +343,12 @@ function update()
 	latest_pose = pose
 	display.compass(heading, put)
 	put("F22_RADAR_HEADING_DEG", math.floor(math.deg(heading) + 0.5) % 360)
-	local focus = get("F22_SOI")
-	local radar_focus = focus == 0 or focus == 2
+	local radar_focus = radar_focus_policy.allowed(get)
+	local cursor_authority = radar_focus and get("MAIN_POWER") > 0.5 and computer.power
+		and slew_focus == get("F22_SOI") and slew_role == hud_mode
+	if not cursor_authority then
+		slew_x, slew_y = 0, 0
+	end
 	if radar_focus and math.abs(slew_x) > 0.08 then
 		computer.cursor_az = math.max(-math.rad(60), math.min(math.rad(60), computer.cursor_az + slew_x * dt * 0.4))
 	end
@@ -376,7 +388,7 @@ function update()
 	-- The A/G computer keeps its frozen picture powered in SIL while the
 	-- owned native transmitter is independently inhibited.
 	if hud_mode==7 then
-	 if not radar_focus then ag:command("axis_x",0,powered);ag:command("axis_y",0,powered)end
+	 if not cursor_authority then ag:command("axis_x",0,powered);ag:command("axis_y",0,powered)end
 	 ag:update(pose,computer.clock,dt,powered,ready)
 	end
 	local requested_power = powered and ready and (hud_mode~=7 or ag:emitting())
