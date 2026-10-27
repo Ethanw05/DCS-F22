@@ -13,12 +13,17 @@ function M.evidence(track, observation, sensor)
     track.identity_conflict = track.friendly_protected and track.hostile_evidence or false
 end
 function M.responder(get, put)
+    local supply = dofile(LockOn_Options.script_path..'Systems/EW_Power.lua').new(get)
     local state = { requested = false, emergency = false, sequence = 0, ready = false }
     function state:publish()
         put('F22_IFF_RESPONDER_SIMULATED', 1)
         put('F22_IFF_RESPONDER_HOST_READY', 0)
         put('F22_IFF_RESPONDER_REQUESTED', self.requested and 1 or 0)
         put('F22_IFF_RESPONDER_READY', self.ready and 1 or 0)
+        put('F22_IFF_RESPONDER_SUPPLY_VALID', supply.valid and 1 or 0)
+        put('F22_IFF_RESPONDER_PHYSICAL_OWNER', supply.snapshot.owned and 1 or 0)
+        put('F22_IFF_RESPONDER_STATUS', not self.requested and 0 or not self.clock and 4
+            or not supply.valid and 3 or not supply.electrical and 2 or 1)
         put('F22_IFF_RESPONDER_EMERGENCY', self.emergency and 1 or 0)
         put('F22_IFF_REPLY_SEQUENCE', self.sequence)
         put('F22_IFF_REPLY_TIME', self.reply_time or 0)
@@ -27,22 +32,33 @@ function M.responder(get, put)
     end
     function state:update(now)
         local valid = type(now) == 'number' and now >= 0 and now < 1e9
+        local generation = supply.snapshot.generation
+        supply:update()
+        local replaced = generation > 0 and generation ~= supply.snapshot.generation
         if self.clock and (not valid or now < self.clock) then
             self.reply_time, self.emergency = nil, false
         end
+        if replaced then self.reply_time, self.emergency = nil, false end
         self.clock = valid and now or nil
-        self.ready = valid and self.requested and get('MAIN_POWER') > 0.5
+        self.ready = valid and self.requested and supply.electrical
         if not self.ready then self.reply_time = nil end
         self:publish()
     end
     function state:command(command)
+        local now = self.clock
+        if type(get_model_time) == 'function' then
+            local ok, value = pcall(get_model_time)
+            now = ok and value or nil
+        end
+        -- Check this event's supply/epoch before a previous READY can reply.
+        self:update(now)
         if command == 11130 then self.requested = not self.requested
         elseif command == 11131 then self.emergency = not self.emergency
         elseif command == 11132 and self.ready then
             self.sequence = self.sequence + 1
             self.reply_time = self.clock -- A new, neutral game interrogation event only.
         end
-        self:update(self.clock or 0)
+        self:update(now)
     end
     state:update(0)
     return state
