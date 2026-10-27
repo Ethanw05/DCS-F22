@@ -174,6 +174,35 @@ void fixed_force_and_wind_contract(Fixture& fixture) {
     assert(std::abs(mz2-mz) < 1e-4);
 }
 
+void nonzero_spawn_cg_pitch_authority(Fixture& fixture) {
+    // Matched-state baseline from the pre-overhaul DLL: this case produced
+    // +1,167,636 Nm. Moving the wing datum to model-origin zero reduced it
+    // to +58,199 Nm despite identical achieved surfaces, thrust and force.
+    fixture.air(); fixture.fuel(7000); fixture.unlimited(true);
+    fixture.conditions(220);
+    fixture.mass_state(28000,1,0,0,100000,150000,120000);
+    fixture.atmosphere(3000,268.65,328.58,.9091,70108,0,0,0);
+    const double alpha = 10.0 * 3.141592653589793 / 180.0;
+    fixture.body(0,4*9.81,0,220*std::cos(alpha),-220*std::sin(alpha),0,
+        0,0,0,0,0,0,0,0,alpha,0,alpha,0,alpha,0);
+    fixture.command(2001,1); fixture.command(2004,-1);
+    fixture.ticks(1200);
+    double mx=0,my=0,mz=0,fx=0,fy=0,fz=0,x=0,y=0,z=0;
+    fixture.moment(mx,my,mz); fixture.force(fx,fy,fz,x,y,z);
+    assert(fixture.get("EFM_ACTUATOR_AVAILABLE") == 1);
+    assert(mz > 1100000 && mz < 1230000);
+    // A later CG change must still change the moment: the datum is captured
+    // once, rather than following the live CG and hiding fuel/store effects.
+    fixture.mass_state(28000,1.25,0,0,100000,150000,120000);
+    fixture.ticks(1);
+    double shifted_mz=0;
+    fixture.moment(mx,my,shifted_mz);
+    assert(std::abs(shifted_mz-mz+.25*fy) < 1e-4);
+    fixture.repair(); fixture.ticks(1);
+    fixture.moment(mx,my,shifted_mz);
+    assert(std::abs(shifted_mz-mz+.25*fy) < 1e-4);
+}
+
 void flow_and_sensor_separation(Fixture& fixture) {
     fixture.air(); fixture.fuel(5000); fixture.unlimited(true); fixture.conditions(200);
     fixture.command(2004,-1); fixture.ticks(2000);
@@ -479,6 +508,7 @@ int main(int argc, char** argv) {
     cold_start_failure_recovery(fixture);
     flow_and_sensor_separation(fixture);
     fixed_force_and_wind_contract(fixture);
+    nonzero_spawn_cg_pitch_authority(fixture);
     utility_and_alternate_gear(fixture);
     invalid_producer_recovery(fixture);
     fire_and_structural_recovery(fixture);
