@@ -131,6 +131,7 @@ assert(#events==2 and events[2][1]=='ground_preview_cancel','hidden-page directi
 lua=runtime()
 lua.execute('''
 local events={}
+function get_aircraft_property()return 0 end
 dofile(SCRIPT_ROOT..'Systems/MFD_System.lua');post_initialize();local mc=SetCommand
 function dispatch_action(d,c,v)if d==devices.MFD_SYSTEM then mc(c,v)else events[#events+1]={d,c,v}end end
 dofile(SCRIPT_ROOT..'Systems/PMFD_System.lua');post_initialize()
@@ -149,20 +150,27 @@ local now=10;function get_model_time()return now end
 function get_base_data()return setmetatable({getSelfCoordinates=function()return 0,3000,0 end},
  {__index=function()return function()return 0 end end})end
 package.preload.terrain=function()return {GetHeight=function()return 50 end}end
-local transmissions={};local native={set_power=function(_,v)transmissions[#transmissions+1]=v end}
-function GetDevice()return native end
+function GetDevice()error('surface controls called a mechanical radar')end
 local function p(n,v)get_param_handle(n):set(v)end
 local function g(n)return get_param_handle(n):get()end
 dofile(SCRIPT_ROOT..'Systems/Radar_System.lua');post_initialize()
 for n,v in pairs({MAIN_POWER=1,HUD_MODE=7,F22_SOI=2,F22_PMFD_PAGE=1,F22N_RADAR_MODE=1,
  F22_AG_RADAR_NATIVE_READY=1,F22_AG_VIDEO_SOURCE_PRESENT=1,F22_AG_VIDEO_READY=1,
  F22_AG_VIDEO_GEOMETRY_QUALIFIED=1,F22_AG_GMT_READY=1})do p(n,v)end
-SetCommand(10601,1);update();assert(transmissions[#transmissions]==true)
-SetCommand(10638,1);now=10.1;update()
-assert(transmissions[#transmissions]==false and g('RADAR_PWR')==1 and g('F22_AG_RADAR_OPERATING')==1 and g('F22_RADAR_EMISSION_INHIBIT')==1)
-SetCommand(10639,1);now=10.2;update();assert(transmissions[#transmissions]==true and g('F22_RADAR_EMISSION_INHIBIT')==0)
-for i=1,250 do now=10.2+i/60;update()end
-assert(transmissions[#transmissions]==false and g('F22_AG_SILENT')==1 and g('F22_AG_VIDEO_FROZEN')==1)
+local sequence=0
+local function tick(time)
+ now=time;sequence=sequence+1
+ p('F22_AESA_DRIVER_READY',1);p('F22_AESA_READY',1);p('F22_AESA_GENERATION',1)
+ p('F22_AESA_TIME',now);p('F22_AESA_SEQUENCE',sequence*2)
+ p('F22_AESA_SURFACE_SERVICE',1);p('F22_AESA_SURFACE_SEQUENCE',sequence)
+ update()
+end
+SetCommand(10601,1);tick(10);assert(g('F22_AESA_CONTROL_EMIT')==1)
+SetCommand(10638,1);tick(10.1)
+assert(g('F22_AESA_CONTROL_EMIT')==0 and g('RADAR_PWR')==1 and g('F22_AG_RADAR_OPERATING')==1 and g('F22_RADAR_EMISSION_INHIBIT')==1)
+SetCommand(10639,1);tick(10.2);assert(g('F22_AESA_CONTROL_EMIT')==1 and g('F22_RADAR_EMISSION_INHIBIT')==0)
+for i=1,250 do tick(10.2+i/60)end
+assert(g('F22_AESA_CONTROL_EMIT')==0 and g('F22_AG_SILENT')==1 and g('F22_AG_VIDEO_FROZEN')==1)
 ''')
 
 print('Ground modes: SIL/ACTIVE cycle matrix, mode ranges/autorange, antenna/gain isolation, EXP corral/stabilization/FRZ, projection inverse, directional SCS and actual bezel dispatch PASS')

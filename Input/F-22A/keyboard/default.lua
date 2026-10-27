@@ -19,6 +19,8 @@
 
 local res = external_profile("Config/Input/Aircrafts/base_keyboard_binding.lua")
 ignore_features(res.keyCommands,{"dragchute"})
+-- Input profiles run outside the cockpit devices.lua environment.
+local flight_guidance_device = 25 -- Checked against the registered device contract.
 
 local SelectLeft    = 10000
 local SelectRight   = 10001
@@ -176,14 +178,14 @@ join(res.keyCommands,{
     --    {down = 10501, value_down = 1.0, name = _('F-22: Attitude Hold Toggle'), category = _('F-22 EFM Commands')},
     --    {down = 10502, value_down = 1.0, name = _('F-22: Auto Throttle Toggle'), category = _('F-22 EFM Commands')},
     --    {down = 10503, value_down = 1.0, name = _('F-22: Autopilot Disengage'), category = _('F-22 EFM Commands')},
-		{ down = 11905, cockpit_device_id = devices.FLIGHT_GUIDANCE, value_down = 1.0, name = _("Taxi Lights Toggle"), category = _("External Lights") },
-		{ down = 11906, cockpit_device_id = devices.FLIGHT_GUIDANCE, value_down = 1.0, name = _("Landing Lights Toggle"), category = _("External Lights") },
-		{ down = 11907, cockpit_device_id = devices.FLIGHT_GUIDANCE, value_down = 1.0, name = _("Formation Light Toggle"), category = _("External Lights") },
-		{ down = 11908, cockpit_device_id = devices.FLIGHT_GUIDANCE, value_down = 1.0, name = _("Navigation White Light Toggle"), category = _("External Lights") },
-		{ down = 11909, cockpit_device_id = devices.FLIGHT_GUIDANCE, value_down = 1.0, name = _("Anti-Collision Light Toggle"), category = _("External Lights") },
-		{ down = 11910, cockpit_device_id = devices.FLIGHT_GUIDANCE, value_down = 1.0, name = _("AAR Light Toggle"), category = _("External Lights") },
-		{ down = 11911, cockpit_device_id = devices.FLIGHT_GUIDANCE, value_down = 1.0, name = _("Navigation Lights Toggle"), category = _("External Lights") },
-		{ down = 11912, cockpit_device_id = devices.FLIGHT_GUIDANCE, value_down = 1.0, name = _("Master External Lights Toggle"), category = _("External Lights") },
+		{ down = 11905, cockpit_device_id = flight_guidance_device, value_down = 1.0, name = _("Taxi Lights Toggle"), category = _("External Lights") },
+		{ down = 11906, cockpit_device_id = flight_guidance_device, value_down = 1.0, name = _("Landing Lights Toggle"), category = _("External Lights") },
+		{ down = 11907, cockpit_device_id = flight_guidance_device, value_down = 1.0, name = _("Formation Light Toggle"), category = _("External Lights") },
+		{ down = 11908, cockpit_device_id = flight_guidance_device, value_down = 1.0, name = _("Navigation White Light Toggle"), category = _("External Lights") },
+		{ down = 11909, cockpit_device_id = flight_guidance_device, value_down = 1.0, name = _("Anti-Collision Light Toggle"), category = _("External Lights") },
+		{ down = 11910, cockpit_device_id = flight_guidance_device, value_down = 1.0, name = _("AAR Light Toggle"), category = _("External Lights") },
+		{ down = 11911, cockpit_device_id = flight_guidance_device, value_down = 1.0, name = _("Navigation Lights Toggle"), category = _("External Lights") },
+		{ down = 11912, cockpit_device_id = flight_guidance_device, value_down = 1.0, name = _("Master External Lights Toggle"), category = _("External Lights") },
         {down = 11700, name = _('Alternate Landing Gear Extension (SES)'), category = _('F-22A Systems')},
         {down = 11701, value_down = 1, name = _('Nosewheel Steering Select'), category = _('F-22A Systems')},
         {down = 11701, value_down = 0, name = _('Nosewheel Steering Deselect'), category = _('F-22A Systems')},
@@ -314,8 +316,10 @@ join(res.keyCommands,{
     {down = CLIPBOARD_L,                name = _('Clipboard Left Show/Hide'),            category = _('F-22A Systems')},
     {down = CLIPBOARD_R,                name = _('Clipboard Right Show/Hide'),           category = _('F-22A Systems')},    
 --F-22 Weapons
-    {down = Detent_F, up = Detent_F,    name = _('Weapons: Trigger First Detent'),       category = _('F-22A HOTAS')},
-    {down = Detent_S, up = Detent_S,    name = _('Weapons: Trigger Second Detent'),      category = _('F-22A HOTAS')},
+    {down = Detent_F, up = Detent_F, value_down = 1, value_up = 0,
+        name = _('Weapons: Trigger First Detent'), category = _('F-22A HOTAS')},
+    {down = Detent_S, up = Detent_S, value_down = 1, value_up = 0,
+        name = _('Weapons: Trigger Second Detent'), category = _('F-22A HOTAS')},
     {down = PICKLE, up = PICKLE,        name = _('Weapons: Release'),                    category = _('F-22A HOTAS')},
 --ICP BINDS
     {down=11401,up=11401,value_down=1,value_up=0,cockpit_device_id=7,name=_('ICP IFF'),category=_('F-22A ICP')},

@@ -35,47 +35,37 @@ for heading=0,359 do
         end
     end
 end
-function get_base_data() return {
-    getSelfCoordinates=function() return 0,1500,0 end,
-    getHeading=function() return -math.rad(271) end,
-    getPitch=function() return 0 end,getRoll=function() return 0 end,
-} end
-native={set_power=function() end};function GetDevice(_) return native end
-dofile(SCRIPT_ROOT..'Systems/Radar_System.lua');dofile(SCRIPT_ROOT..'../../tests/radar_body_fixture.lua');post_initialize()
+dofile(SCRIPT_ROOT..'../../tests/owned_radar_fixture.lua')
+f.pose.altitude=1500;f.pose.heading=math.rad(271)
 local function put(n,v) get_param_handle(n):set(v) end
 local function val(n) return get_param_handle(n):get() end
 put('MAIN_POWER',1);put('F22N_RADAR_MODE',1)
-SetCommand(10602,1)
+f.command(10602,1)
+local measured={range=18520,az=.2,el=0};d.world_observation(measured,f.pose)
+f.measure(42,measured.north,measured.altitude,measured.east,0,0,-170)
 local p='F22N_RADAR_CONTACT_01_'
-put(p..'RANGE',18520);put(p..'AZIMUTH',.2);put(p..'ELEVATION',0)
-put(p..'TIME',0);put(p..'FRIENDLY',1);put(p..'VX',0);put(p..'VY',0);put(p..'VZ',-170)
-update();update();update()
+f.tick();f.tick();f.tick()
 assert(val('F22_SCOPE_01_VALID')==1)
-assert(val('F22_SCOPE_01_AFFILIATION')==1)
+assert(val('F22_SCOPE_01_AFFILIATION')==-1)
 assert(math.abs(val('F22_SCOPE_01_ALT_FT')-1500*3.280839895)<.01)
 assert(math.abs(val('F22_SCOPE_01_VECTOR_LEN')-d.radius*170*30/(80*1852))<1e-6)
 for _,iff in ipairs({-1,0,2,1}) do
-    put(p..'FRIENDLY',iff);update();assert(val('F22_SCOPE_01_AFFILIATION')==1,'retains prior positive IFF between interrogations')
+    put(p..'FRIENDLY',iff);f.tick()
+    assert(val('F22_SCOPE_01_AFFILIATION')==-1,'retired coalition cache classified an owned radar return')
 end
-SetCommand(10613,1);update()
-assert(val('F22_RADAR_CURSOR_X')>0 and val('F22N_RADAR_TDC_AZIMUTH')<0,'native candidate-ranking center reversed')
--- update_radar stores -TDCAZ as the candidate-ranking centre. The checked
--- native adapter reflects only the scanner's pattern rotation, preserving
--- the correct candidate metric for close contacts on both sides.
+f.command(10613,1);f.tick()
+assert(val('F22_RADAR_CURSOR_X')>0 and val('F22_AESA_CONTROL_AZ')==0,'TDC moved the pilot search volume')
+-- Measured world/body projections retain the physical left/right sign.
 for _,az in ipairs({math.rad(-1.2),math.rad(1.2),math.rad(-20),math.rad(20)}) do
-    local tdc=-az
-    local ranking_center=-tdc
-    local native_pattern=-ranking_center
-    local beam_right=-math.sin(native_pattern)
-    local beam_forward=math.cos(native_pattern)
-    assert(math.abs(math.atan2(beam_right,beam_forward)-az)<1e-9)
-    assert(math.abs(ranking_center-az)<1e-9)
+    local point={range=12000,az=az,el=0};d.world_observation(point,f.pose)
+    local range,bearing=d.scope_observation(point,f.pose,0)
+    assert(math.abs(range-12000)<1e-8 and math.abs(bearing-az)<1e-9)
 end
-SetCommand(10619,1);update();assert(val('F22N_IFF_INTERROGATOR_STATUS')==1)
-put('MAIN_POWER',0);update()
+f.command(10619,1);f.tick();assert(val('F22N_IFF_INTERROGATOR_STATUS')==1)
+put('MAIN_POWER',0);f.tick()
 assert(val('F22N_IFF_INTERROGATOR_STATUS')==0 and val('F22_SCOPE_01_VALID')==0)
 ''')
-print('Polar display: 25 attitude poses, full compass sweep, native TDC sign, positive friend and unknown IFF evidence, altitude, velocity vectors and power clearing OK')
+print('Polar display: 25 attitude poses, full compass sweep, owned pointing sign and unknown IFF evidence, altitude, velocity vectors and power clearing OK')
 
 lua=runtime()
 lua.execute('''
@@ -102,6 +92,6 @@ for _,e in ipairs(elements) do
     assert(e.kind~='ceStringPoly','LCD page retained the bitmap lettering')
 end
 local config=dofile(SCRIPT_ROOT..'Systems/Radar_Config.lua')
-assert(config.native_backend_enabled==true,'native radar disabled for the installed dogfight build')
+assert(config.model_version=='owned-aesa-scene-v1' and config.service_enabled==false,'owned sensor replaced or duplicated by retired service')
 ''')
 print('Actual Lua format: identity geometry, dedicated native LCD stroke fonts and LCD clipping level OK')

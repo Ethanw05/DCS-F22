@@ -1,7 +1,7 @@
 {
   "MFD_LEFT/hsi_page.lua": {
-    "elements": 694,
-    "sha256": "1ab5c81576aa79897d9037fed3df06cb013f92c7160c884882f0b91794b5abdd"
+    "elements": 695,
+    "sha256": "702c3edfaa503e8de72faa9fe72c0513f43730950841945e509894fd46085b5e"
   },
   "MFD_LEFT/fuel_page.lua": {
     "elements": 24,
@@ -12,12 +12,12 @@
     "sha256": "80b7a99c5c5684a98684276a23c5ab90c547cf35e77a0dd9f32db9ddeef045e9"
   },
   "MFD_LEFT/checklist_page.lua": {
-    "elements": 74,
-    "sha256": "ba5b85357249dd27bd150ad20ae43e8b142d03b6ac11beb465d0873c88adbc3d"
+    "elements": 75,
+    "sha256": "ec9c18858690520b312fdee28a18d308ce1119ce988df73df7f89ceafa0911eb"
   },
   "MFD_RIGHT/hsi_page.lua": {
-    "elements": 694,
-    "sha256": "1e02d77bc5319a0fdf7d8ca6394d9bff8aa5dac6882810dc2e3445a432fa5f57"
+    "elements": 695,
+    "sha256": "c87bd261c90d7deeaf4cb17560c48c7797f6cab954f01a75e76c89f20ec4c212"
   },
   "MFD_RIGHT/fuel_page.lua": {
     "elements": 24,
@@ -28,12 +28,12 @@
     "sha256": "7c7f3b88b88c9f1ca8c76e8a10973103a0203d404c28ffa8271227bbccbb2bb6"
   },
   "MFD_RIGHT/checklist_page.lua": {
-    "elements": 74,
-    "sha256": "6ae3970d04c649085d3887a834978b8f61ac3325521de5668945500c2a76c379"
+    "elements": 75,
+    "sha256": "0ba830edfd58fbad8893b24859eaad005fafaa1d25a0dc2b53d074d6a302536c"
   },
   "MFD_CENTER/hsi_page.lua": {
-    "elements": 694,
-    "sha256": "0d0cf2deee6b216d4d0d0be9a87d98093e8af6e18137f2bd835aacf96f9945c7"
+    "elements": 695,
+    "sha256": "605c2c5ed7d28c1062a836ee8be4df57fd64e2a05e3e9ca8300ba8aa3eebb355"
   },
   "MFD_CENTER/fuel_page.lua": {
     "elements": 24,
@@ -44,7 +44,7 @@
     "sha256": "c44959752244a39de46f172fee000d0afa86ff0bbdd12bf3f579c00f3eb06616"
   },
   "MFD_CENTER/checklist_page.lua": {
-    "elements": 74,
-    "sha256": "153ff789d25baa55074e3fcf3ba19ddf62d34318b33940b6562ef6c6b3331b39"
+    "elements": 75,
+    "sha256": "1d7d36615efadfed07fb7485fb9ebb93b1d9dfa8c5669c375ce30d0e1d2c7bd1"
   }
 }

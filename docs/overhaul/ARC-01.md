@@ -10,8 +10,10 @@ The historical 12-degree approach centre is retained; production scheduling and
 Targeting pod, HMD, IRDS, carrier ACLS, autoland, automatic GCAS, additional weapons
 and diagnostic weapon-truth fallbacks are not selected. The weapons owner retains
 CLSID registrations for compatibility while inhibiting unsupported employment;
-registration presence alone is not an enabled capability. Radar retains the
-documented native-constrained backend limits of its owner slice.
+registration presence alone is not an enabled capability. Radar now uses the
+owned AESA sensor and guarded scene/weapon adapters described in
+[SEN-02](SEN-02-owned-aesa.md); its numerical policies and runtime limits remain
+explicit.
 
 Clear-voice backend support remains false. COMMS MENU remains a menu action,
 not PTT or proof of tune/RX/TX. Common DLL radio symbols and reference Lua are

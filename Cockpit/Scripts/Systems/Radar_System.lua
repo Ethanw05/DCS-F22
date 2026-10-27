@@ -445,7 +445,7 @@ function update()
 		if aesa.generation_changed then computer:reset();aesa.locked,aesa.acquiring=nil,nil end
 		computer:update(step, background, 1)
 		aesa:publish(computer.clock, computer, service_resource, powered and ready, true, nil)
-		put("F22_RADAR_SUPPORT_ENABLED", powered and ready and 1 or 0)
+		put("F22_RADAR_SUPPORT_ENABLED", requested_power and aesa.ready and 1 or 0)
 		put("F22_TWS_ACTIVE",0);put("F22_TWS_TARGET_ID",0)
 		tactical.publish(computer, put, powered and ready)
 		return
@@ -891,7 +891,7 @@ function update()
 	publish_sequence = publish_sequence + 1
 	-- Support of an existing launched ID is independent of selecting a new
 	-- TWS launch target. The electronic scheduler continues servicing other files.
-	put("F22_RADAR_SUPPORT_ENABLED", powered and ready and 1 or 0)
+	put("F22_RADAR_SUPPORT_ENABLED", requested_power and aesa.ready and 1 or 0)
 	put("F22_TWS_ACTIVE", powered and ready and computer.mode == "TWS" and native_mode ~= 3 and 1 or 0)
 	put("F22_TWS_TARGET_ID", computer:supportable(selected) and selected.native_id or 0)
 	put("F22_TWS_TARGET_AGE", selected and math.max(0, computer.clock - selected.observed) or 999)

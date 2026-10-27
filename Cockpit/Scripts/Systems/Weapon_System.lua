@@ -161,6 +161,7 @@ local mode_state 			= 1 --default NAV mode
 local dogfight_mode			= 0
 local first_state		    = 0
 local fire_z_weapons 		= 0
+local trigger_input = dofile(LockOn_Options.script_path..'Systems/Weapon_Trigger_Input.lua').new(devices.WEAPON_SYSTEM)
 local air_oride				= 0
 local detent_pos			= 0
 local pickle_pos			= 0
@@ -432,6 +433,7 @@ end
 
 function post_initialize()
     reset_ir_feedback()
+    trigger_input:reset()
     simulation=false
     equipment_held={}
     ag_stores=dofile(LockOn_Options.script_path..'Systems/AG_Stores.lua').new()
@@ -469,6 +471,7 @@ function post_initialize()
 	end
 end
 local function cancel_release()
+    trigger_input:cancel()
     local held=weapon_release_state==1
     ag_stores:cancel(true)
     weapon_release_state, pickle_pos, fire_z_weapons, first_state = 0, 0, 0, 0
@@ -544,6 +547,16 @@ local function correlated_commit(sequence)
 end
 ------------------------------------------------------------------FUNCTION-SETCOMMAND---------------------------------------------------------------------------------------------------
 local function handle_command(command,value)
+    local trigger_permitted = not simulation and not ag_stores.servicing and physical_supply.mission
+        and master_arm_state == 1 and parameters.WoW:get() < .5
+    if trigger_input:input(command, value, trigger_permitted) then
+        first_state, fire_z_weapons = trigger_input:state()
+        detent_pos = fire_z_weapons == 1 and 1 or first_state * .5
+        if fire_z_weapons == 0 and gun_command_active then
+            native_command(85); gun_command_active = false
+        end
+        return
+    end
     if command==11800 then correlated_commit(value);return end
     if command==11120 or command==11121 then
         local down=dofile(LockOn_Options.script_path..'Systems/Input_Value.lua')(value,devices.WEAPON_SYSTEM)>.5
@@ -615,17 +628,13 @@ local function handle_command(command,value)
     -- Absolute private controls prevent repeated/late releases from toggling fire ON.
     if command==10800 then
         if value==1 or value==2 or value==3 or value==5 or value==7 then
+            trigger_input:cancel()
             ag_stores:cancel();mode_state=value;fire_z_weapons=0;first_state=0;weapon_release_state=0
             if value==7 then ag_first_selection=true end
             parameters.HUD_MODE:set(value)
             native_command(85);native_command(351);gun_command_active=false;native_pickle_active=false
             selected_station=-2;station_refresh=0
         end
-        return
-    elseif command==10801 then first_state=value>0 and 1 or 0;detent_pos=first_state*.5;return
-    elseif command==10802 then
-        fire_z_weapons=value>0 and 1 or 0;detent_pos=fire_z_weapons==1 and 1 or first_state*.5
-        if fire_z_weapons==0 then native_command(85);gun_command_active=false end
         return
     elseif command==10803 then
         if value>0 and mode_state==7 and ag_submode==1 then weapon_release_state=0;pickle_pos=0;return end
@@ -666,6 +675,7 @@ local function handle_command(command,value)
             if command==10813 then for _=1,3 do if store_caps.mode_available(ag_stores:group(),requested)then break end;requested=requested%3+1 end end
             if not store_caps.mode_available(ag_stores:group(),requested)then return end
             ag_submode=requested
+            trigger_input:cancel()
             ag_stores:cancel();ag_first_selection=false;station_refresh=0;selected_station=-2
             get_param_handle('F22_AG_SOLUTION_VALID'):set(0)
             if ag_submode~=1 then ag_stores:profile().mode=ag_submode end
@@ -684,27 +694,9 @@ local function handle_command(command,value)
 	elseif (command == 10006 or command == 10024) and air_oride == 1 and parameters.MAIN_POWER:get() == 1 then
 		air_oride = 0
 	end
--- --Trigger Detent
-if command == 10021 and first_state == 0 and parameters.MAIN_POWER:get() == 1 then
-	first_state = 1
-	detent_pos = 0.50
-elseif command == 10021 and first_state == 1 and parameters.MAIN_POWER:get() == 1 then
-	first_state = 0
-	detent_pos = 0
-end
---Second Trigger Detent
-if command == 10022 and fire_z_weapons == 0 and parameters.MAIN_POWER:get() == 1 then
-	fire_z_weapons = 1
-	detent_pos = 1
-	--first_state    = 1
-elseif command == 10022 and fire_z_weapons == 1 and parameters.MAIN_POWER:get() == 1 then
-	fire_z_weapons = 0
-	detent_pos = 0.50
-	--first_state    = 0
-	dispatch_action(nil,PlaneFireOff)
-end	
 -- Legacy master-mode keys obey the same captured-consent boundary.
 if command==PlaneModeNAV or command==PlaneModeBVR or command==PlaneModeVS or command==PlaneModeBore or command==PlaneModeFI0 or command==PlaneModeCannon or command==PlaneModeGround then
+ trigger_input:cancel();fire_z_weapons,first_state=0,0
  local held=weapon_release_state==1
  ag_stores:cancel(true);weapon_release_state=0;pickle_pos=0;pickle_consumed=held or pickle_consumed
  native_command(351);native_pickle_active=false
@@ -768,11 +760,11 @@ function SetCommand(command,value)
     if not physical_supply.mission then withdraw_physical_consent() end
     -- Cancellation and SAFE must reach the native callback guard within this
     -- input call, rather than leaving old consent/arm visible for 20 ms.
-    if (master_arm_state==0 or simulation) and (weapon_release_state==1 or ag_stores.program or ag_stores.pending)then
-        local held=weapon_release_state==1;local entry=ag_stores.entry
-        ag_stores:cancel(true);ag_stores.entry=entry
-        weapon_release_state=0;pickle_pos=0;pickle_consumed=held or pickle_consumed
-        native_command(351);native_pickle_active=false
+    if (master_arm_state==0 or simulation) and (weapon_release_state==1 or ag_stores.program
+        or ag_stores.pending or fire_z_weapons==1 or first_state==1 or gun_command_active)then
+        local entry=ag_stores.entry
+        cancel_release()
+        ag_stores.entry=entry
     end
     publish_control_state()
 end
@@ -876,6 +868,7 @@ function update()
         end
         fire_z_weapons = 0
         first_state = 0
+        trigger_input:cancel()
         detent_pos = 0
     end
     local ground_gun=mode_state==7 and ag_submode==1

@@ -2936,7 +2936,8 @@
       "effort": "M",
       "optional": false,
       "retain": [],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; selected capability profile implemented; native/equipment qualification remains open",
+      "implementation_note": "ARC-01.md",
       "planning_lane": "root",
       "comparison_ids": [],
       "support_ids": []
@@ -3038,7 +3039,8 @@
       "effort": "L",
       "optional": false,
       "retain": [],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; coherent physical/navigation/IR contracts integrated; remaining consumers require migration",
+      "implementation_note": "ARC-02.md",
       "planning_lane": "root",
       "comparison_ids": [
         "AX02"
@@ -3261,7 +3263,8 @@
         "Current shared bezel/controller and original-owner release routing",
         "Weapon-global ACM exception"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; command namespaces and held-input ownership integrated; obsolete paths and host controls still require qualification",
+      "implementation_note": "UI-01.md",
       "planning_lane": "root",
       "comparison_ids": [
         "AX11"
@@ -3365,7 +3368,8 @@
         "Stores completion waits for ENTRY_FIELD zero",
         "Repeated input release improvements"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; correlated owner acknowledgements implemented and tested; live cockpit entry qualification remains open",
+      "implementation_note": "UI-02.md",
       "planning_lane": "root",
       "comparison_ids": [
         "AX12",
@@ -3468,7 +3472,8 @@
       "effort": "L",
       "optional": false,
       "retain": [],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "unavailable; backend feasibility symbols identified but complete tune/RX/TX/lifetime proof is still required",
+      "implementation_note": "ARC-01.md",
       "planning_lane": "root",
       "comparison_ids": [
         "AX04"
@@ -3612,7 +3617,8 @@
         "ARC-03"
       ],
       "comparison_ids": [],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; quantity/health/authority contracts implemented; native source qualification remains open",
+      "implementation_note": "NAV-WP01.md",
       "acceptance": {
         "normal": [
           "Trace a healthy frame from pressure/GINS/radio input through HUD, UFD, NAV and AFCS; quantities, units and labels agree.",
@@ -3989,7 +3995,8 @@
       "effort": "M",
       "optional": false,
       "retain": [],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "not implemented; radio audio/preset/guard workflows require a proven clear-voice backend",
+      "implementation_note": "ARC-01.md",
       "planning_lane": "root",
       "comparison_ids": [
         "AX06",
@@ -4086,7 +4093,8 @@
       "effort": "L",
       "optional": false,
       "retain": [],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; fault identity/occurrence/attention/history implemented; source catalogue and native scenarios remain open",
+      "implementation_note": "ALR-01.md",
       "planning_lane": "root",
       "dependencies_from_integration": [
         "VEH-01"
@@ -4485,7 +4493,8 @@
       "effort": "L",
       "optional": false,
       "retain": [],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; four-panel workflow/fault references and achieved engine START states implemented; native optics remain open",
+      "implementation_note": "UI-04.md",
       "planning_lane": "root",
       "integration_exit_gates": [
         "VEH-04/07/09/11/12/14: procedures reflect actual physical systems and the selected modern oxygen fit."
@@ -4609,7 +4618,8 @@
         "Finite audio lease",
         "Live event cancels voice test"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; bounded playback/priority leases and retained recordings implemented; native perceived mix remains open",
+      "implementation_note": "ALR-02.md",
       "planning_lane": "root",
       "integration_exit_gates": [
         "VEH-04: chosen alert/audio consumer feed. CNI-01/02: radio/intercom arbitration. SEN-07/08/10: warning, CM and seeker tone consumers."
@@ -5047,7 +5057,8 @@
       "effort": "L",
       "optional": false,
       "retain": [],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; fault recall/reference and separate voice-test behavior implemented; source-bound limit/BIT depth remains open",
+      "implementation_note": "ALR-01.md",
       "planning_lane": "root",
       "integration_exit_gates": [
         "VEH-02/07/09: measured air-data health and achieved FCS/gear configuration before configuration-bound limit-cue completion."
@@ -5505,7 +5516,8 @@
         "Independent panel selection",
         "Separate warning content and presentation gain"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; flexible shared formats and current units retained; native optics/resolutions remain unqualified",
+      "implementation_note": "UI-04.md",
       "planning_lane": "root",
       "dependencies_from_integration": [
         "VEH-04"
@@ -5801,7 +5813,8 @@
         "NG03",
         "NG04"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; independent estimated GINS references/alignment implemented; native switching/failure scenarios remain open",
+      "implementation_note": "NAV-WP02.md",
       "acceptance": {
         "normal": [
           "Normal alignment follows the selected timer. Retained heading is available only after a previous full alignment with no movement.",
@@ -5992,7 +6005,8 @@
         "NT01",
         "NT02"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; measured primary/standby/radar altitude and explicit display sources implemented; host optics remain open",
+      "implementation_note": "NAV-WP03.md",
       "acceptance": {
         "normal": [
           "Change QNH through inHg/hPa entry; HUD, UFD and BALT use the same pressure indication. STD returns to saved QNH.",
@@ -6898,7 +6912,8 @@
         "NG01",
         "NG02"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; received-component admission and angular TACAN CDI implemented; station datum/audio/host scenarios remain open",
+      "implementation_note": "NAV-WP05.md",
       "acceptance": {
         "normal": [
           "Legal tuning updates the receiver owner and every readback once.",
@@ -7078,7 +7093,8 @@
         "AN28",
         "AN29"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; route passage, marks and explicit UTC/arrival planning implemented; native capture dynamics remain open",
+      "implementation_note": "NAV-WP06.md",
       "acceptance": {
         "normal": [
           "Create a mark during AUTO/CPL; route and selection stay unchanged until explicit selection.",
@@ -7442,7 +7458,8 @@
       "effort": "L",
       "optional": false,
       "retain": [],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; independent generator/receiver consent integrated; battery-only emergency receiver wiring remains unqualified",
+      "implementation_note": "CNI-03.md",
       "planning_lane": "root",
       "dependencies_from_integration": [
         "VEH-04",
@@ -8213,7 +8230,8 @@
         "AN07",
         "NG10"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; calibrated-reference HUD and contextual cage implemented; optical/approach calibration remains open",
+      "implementation_note": "NAV-WP04.md",
       "acceptance": {
         "normal": [
           "At the chosen AoA center the bracket remains visible and aligned to FPM; equal positive/negative error gives the correct direction.",
@@ -8424,7 +8442,8 @@
         "NG05",
         "NG09"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; independent AFCS axes/capture/takeover implemented; integrated flight dynamics remain unqualified",
+      "implementation_note": "NAV-WP07.md",
       "acceptance": {
         "normal": [
           "Select CPL/HSEL from AP OFF with manual pitch, then select BALT and observe independent axes.",
@@ -9082,7 +9101,8 @@
         "AN25",
         "NG06"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; independent cruise CAS/Mach A-T and limit/takeover feedback implemented; approach assistance remains disabled",
+      "implementation_note": "NAV-WP07.md",
       "acceptance": {
         "normal": [
           "CAS/Mach assistance works with pitch AP OFF and displays the controlled quantity and independent target memory.",
@@ -9249,7 +9269,8 @@
         "AN10",
         "AN11"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; distinct altitude occurrences, repeats and advisory recovery context implemented; terrain sensing remains limited",
+      "implementation_note": "NAV-WP09.md",
       "acceptance": {
         "normal": [
           "Gear-up low radar height repeats until the selected reset/disable action. Gear-down crossing produces a separate one-shot event.",
@@ -9786,7 +9807,8 @@
       "comparison_ids": [
         "AN26"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; explicit manual recovery/go-around interfaces implemented; complete native emergency scenarios remain open",
+      "implementation_note": "NAV-WP10.md",
       "acceptance": {
         "normal": [
           "Fly manual ILS with TCN steering retained and with IRS position unavailable; healthy cues remain and control stays manual.",
@@ -10280,7 +10302,8 @@
       "effort": "L",
       "optional": true,
       "retain": [],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; bounded atomic mission partitions and route/zone/preset provenance implemented; optional cartography remains disabled",
+      "implementation_note": "MIS-01.md",
       "planning_lane": "root",
       "dependencies_from_integration": [
         "SEN-05",
@@ -10434,7 +10457,8 @@
       "comparison_ids": [
         "AN30"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "profile decision implemented; automatic recovery/ACLS/autoland disabled; enabling a capability requires a complete qualified chain",
+      "implementation_note": "ARC-01.md",
       "acceptance": {
         "normal": [
           "Feature OFF produces no protection commands while advisory warnings remain.",
@@ -10619,7 +10643,8 @@
         "UI-03"
       ],
       "comparison_ids": [],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "partial; common cockpit controls and owner regressions integrated; native complete-recovery scenarios remain open",
+      "implementation_note": "NAV-WP10.md",
       "acceptance": {
         "normal": [
           "Operate physical and keybinding NAV/AP/ALT controls at every supported location; accepted readbacks and mode effects agree.",
