@@ -9,6 +9,12 @@ lua = scope['runtime']()
 lua.execute(r'''
 local function get(key)return get_param_handle(key):get()end
 local function put(key,value)get_param_handle(key):set(value)end
+local startup_conditions={};for i=1,8 do startup_conditions[i]={}end
+local startup_equipment=dofile(SCRIPT_ROOT..'Systems/Equipment_Conditions.lua').new(get,startup_conditions)
+put('MAIN_POWER',1);put('EFM_VEHICLE_VALID',1);put('L_GEN_OUT',1);put('L_HYD_COLOR',1)
+startup_equipment.update()
+for i=1,8 do assert(not startup_conditions[i].valid,
+ 'loose display/power flags granted physical fault authority without the owner')end
 local fields={EFM_POWER_OWNER=1,EFM_PHYSICAL_VALID=1,EFM_PHYSICAL_GENERATION=1,
  EFM_PHYSICAL_STAMP=10,EFM_PHYSICAL_CLOCK_KIND=1,F22_AP_CLOCK=10,EFM_HUD_VALID=1,
  EFM_HUD_VN=100,EFM_HUD_VE=0,EFM_HUD_VU=0,EFM_GROUND_VALID=1,EFM_WEIGHT_ON_WHEELS=0,

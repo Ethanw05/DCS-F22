@@ -21,7 +21,8 @@ int main() {
     api.ed_param_api.pfn_ed_cockpit_parameter_value_to_number = read;
     RaptorCni::Supply supply;
     values["MAIN_POWER"] = 1;
-    check(supply.sample(api).receiver); // Older DLL only before ownership.
+    auto absent = supply.sample(api);
+    check(!absent.owned && !absent.valid && !absent.receiver && !absent.left && !absent.right);
     values["EFM_POWER_OWNER"] = values["EFM_PHYSICAL_VALID"] = 1;
     values["EFM_PHYSICAL_GENERATION"] = values["EFM_PHYSICAL_CLOCK_KIND"] = 1;
     values["EFM_PHYSICAL_STAMP"] = values["F22_AP_CLOCK"] = 10;
@@ -43,7 +44,7 @@ int main() {
     check(!supply.sample(api).receiver);
     values["EFM_PHYSICAL_STAMP"] = 10;
     values["EFM_POWER_OWNER"] = 0;
-    check(!supply.sample(api).receiver); // No legacy revival after ownership.
+    check(!supply.sample(api).receiver); // Missing owner never grants receiver consent.
     values["EFM_POWER_OWNER"] = 1;
     values["EFM_PHYSICAL_CLOCK_KIND"] = 2;
     check(!supply.sample(api).valid);

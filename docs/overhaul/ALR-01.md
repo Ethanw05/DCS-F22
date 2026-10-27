@@ -11,7 +11,7 @@ eight records; history retains the latest occurrence per identity.
 Equipment processing is independent of terrain/navigation validity. FCS speech
 retains its declared ground inhibit; valid equipment cautions can remain on the
 ground. The exact F-22 phase/inhibit matrix is unknown. The existing physical
-indication colours remain the interim condition adapters; their 100 psi oil /
+conditions are read from achieved physical causes; their 100 psi oil /
 1000 psi hydraulic thresholds are mod estimates, not authenticated F-22 limits.
 The aircraft provider remains responsible for source, supply, isolation and
 recovery. Individual indications remain independent of display brightness.
@@ -33,3 +33,5 @@ annunciator optics remain separate qualification gates.
 Physical integration: the registry now reads coherent EFM generator, hydraulic, oil and FCS causes rather than MFD color handles. Existing 1000 psi hydraulic / 100 psi oil thresholds remain mod policies. Canopy requires its independent provider-valid flag; cockpit argument 251 alone is unqualified. Stale/mixed/wrong-clock frames withdraw validity without creating a healthy zero.
 
 Power transitions preserve fault occurrence/history and held physical ACK latches. Audio/pending crossings stop on loss; repeated down events after restoration cannot acknowledge a newly attended condition. Mission initialization/time reversal clears the history. Actual owner tests exercise these transitions.
+
+Current-contract cleanup removes the pre-owner display-color/loose-power condition adapter. Missing physical ownership leaves all eight source-valid flags false from startup; colors and old aggregate flags cannot manufacture fault authority. Actual warning/replay fixtures publish coherent physical samples and low oil pressure, including a new fault after a display-power outage while ACK remains held. The independent source history and actual generator redundancy are preserved. The separate master-attention startup consumer migration remains open.
