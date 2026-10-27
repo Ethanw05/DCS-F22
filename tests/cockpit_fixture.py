@@ -23,3 +23,23 @@ def power_frame(lua, *, battery, main, left=0, right=0, apu=0, spool=0,
     for key, value in fields.items():
         handle = lua.globals().get_param_handle(key)
         handle.set(handle, value)
+
+
+def engine_frame(lua, *, left, right, generation=1, stamp=10):
+    """A complete declared indication sample from the physical provider."""
+    fields = {
+        'EFM_POWER_OWNER': 1, 'EFM_PHYSICAL_VALID': 1,
+        'EFM_PHYSICAL_GENERATION': generation, 'EFM_PHYSICAL_STAMP': stamp,
+        'EFM_PHYSICAL_CLOCK_KIND': 1, 'F22_AP_CLOCK': stamp,
+        'EFM_ENGINE_VALID': 1, 'EFM_VEHICLE_VALID': 1,
+        'EFM_ENGINE_INDICATION_SCHEMA': 1,
+    }
+    for name, sample in (('LEFT', left), ('RIGHT', right)):
+        for metric, suffix in (('rpm', 'RPM_PCT'), ('temperature', 'TEMP_C'),
+                               ('oil', 'OIL_PSI'), ('nozzle', 'NOZZLE_PCT'),
+                               ('flow', 'FLOW_KG_S')):
+            fields[f'EFM_ENGINE_{name}_{suffix}'] = sample[metric]
+        fields[f'EFM_HYD_{name}_PSI'] = sample['hydraulic']
+    for key, value in fields.items():
+        handle = lua.globals().get_param_handle(key)
+        handle.set(handle, value)

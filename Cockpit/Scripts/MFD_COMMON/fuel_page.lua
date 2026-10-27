@@ -412,8 +412,8 @@ L_EFF_NUMBER.isdraw				= true
 L_EFF_NUMBER.use_mipfilter		= true
 L_EFF_NUMBER.h_clip_relation		= h_clip_relations.COMPARE
 L_EFF_NUMBER.level				= 2
-L_EFF_NUMBER.element_params		= {"MFD_OPACITY","L_FF_VALUE",page_parameter}
-L_EFF_NUMBER.formats				= {"%.0f"}--= {"%02.0f"}
+L_EFF_NUMBER.element_params		= {"MFD_OPACITY","F22_ENGINE_L_FLOW_TEXT",page_parameter}
+L_EFF_NUMBER.formats				= {"%s"}--= {"%02.0f"}
 L_EFF_NUMBER.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
 Add(L_EFF_NUMBER)
 --------------------------------------------------------------------------------------------------------------------LEFT FF NUMBER
@@ -429,8 +429,8 @@ L_EGT_NUMBER.isdraw				    = true
 L_EGT_NUMBER.use_mipfilter		    = true
 L_EGT_NUMBER.h_clip_relation		= h_clip_relations.COMPARE
 L_EGT_NUMBER.level				    = 2
-L_EGT_NUMBER.element_params		    = {"MFD_OPACITY","EGT_L",page_parameter}
-L_EGT_NUMBER.formats				= {"%.0f"}--= {"%02.0f"}
+L_EGT_NUMBER.element_params		    = {"MFD_OPACITY","F22_ENGINE_L_EGT_TEXT",page_parameter}
+L_EGT_NUMBER.formats				= {"%s"}--= {"%02.0f"}
 L_EGT_NUMBER.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
 Add(L_EGT_NUMBER)
 --------------------------------------------------------------------------------------------------------------------LEFT FF TEXT
@@ -482,8 +482,8 @@ R_EFF_NUMBER.isdraw				= true
 R_EFF_NUMBER.use_mipfilter		= true
 R_EFF_NUMBER.h_clip_relation		= h_clip_relations.COMPARE
 R_EFF_NUMBER.level				= 2
-R_EFF_NUMBER.element_params		= {"MFD_OPACITY","R_FF_VALUE",page_parameter}
-R_EFF_NUMBER.formats				= {"%.0f"}--= {"%02.0f"}
+R_EFF_NUMBER.element_params		= {"MFD_OPACITY","F22_ENGINE_R_FLOW_TEXT",page_parameter}
+R_EFF_NUMBER.formats				= {"%s"}--= {"%02.0f"}
 R_EFF_NUMBER.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
 Add(R_EFF_NUMBER)
 --------------------------------------------------------------------------------------------------------------------LEFT FF NUMBER
@@ -499,8 +499,8 @@ R_EGT_NUMBER.isdraw				    = true
 R_EGT_NUMBER.use_mipfilter		    = true
 R_EGT_NUMBER.h_clip_relation		= h_clip_relations.COMPARE
 R_EGT_NUMBER.level				    = 2
-R_EGT_NUMBER.element_params		    = {"MFD_OPACITY","EGT_R",page_parameter}
-R_EGT_NUMBER.formats				= {"%.0f"}--= {"%02.0f"}
+R_EGT_NUMBER.element_params		    = {"MFD_OPACITY","F22_ENGINE_R_EGT_TEXT",page_parameter}
+R_EGT_NUMBER.formats				= {"%s"}--= {"%02.0f"}
 R_EGT_NUMBER.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
 Add(R_EGT_NUMBER)
 --------------------------------------------------------------------------------------------------------------------MENU-BUTTON

@@ -180,8 +180,8 @@ R_RING_RPM_G.collimated 		= false
 R_RING_RPM_G.isvisible 			= true
 R_RING_RPM_G.init_pos 			= {0.35, 0.6, 0} --L-R,U-D,F-B
 R_RING_RPM_G.init_rot 			= {0, 0, 0}
-R_RING_RPM_G.element_params 	= {"MFD_OPACITY","R_RPM_COLOR",page_parameter} 
-R_RING_RPM_G.controllers		= {
+R_RING_RPM_G.element_params 	= {"MFD_OPACITY","R_RPM_COLOR",page_parameter,"F22_ENGINE_R_RPM_VALID"}
+R_RING_RPM_G.controllers		= {{"parameter_in_range",3,0.9,1.1},
                                     {"opacity_using_parameter",0},
                                     {"parameter_in_range",1,0.4,0.6},--
                                     {"parameter_in_range",2,0.9,1.1},--
@@ -200,8 +200,8 @@ R_RING_RPM_O.collimated 		= false
 R_RING_RPM_O.isvisible 			= true
 R_RING_RPM_O.init_pos 			= {0.35, 0.6, 0} --L-R,U-D,F-B
 R_RING_RPM_O.init_rot 			= {0, 0, 0}
-R_RING_RPM_O.element_params 	= {"MFD_OPACITY","R_RPM_COLOR",page_parameter} 
-R_RING_RPM_O.controllers		= {
+R_RING_RPM_O.element_params 	= {"MFD_OPACITY","R_RPM_COLOR",page_parameter,"F22_ENGINE_R_RPM_VALID"}
+R_RING_RPM_O.controllers		= {{"parameter_in_range",3,0.9,1.1},
                                     {"opacity_using_parameter",0},
                                     {"parameter_in_range",1,0.9,1.1},--
                                     {"parameter_in_range",2,0.9,1.1},--
@@ -220,8 +220,8 @@ R_NEEDLE_RPM_G.collimated 		    = false
 R_NEEDLE_RPM_G.isvisible 	        = true
 R_NEEDLE_RPM_G.init_pos 			= {0.35, 0.6, 0} --L-R,U-D,F-B
 R_NEEDLE_RPM_G.init_rot 			= {0, 0, 0}
-R_NEEDLE_RPM_G.element_params 	    = {"MFD_OPACITY","R_RPM_COLOR",page_parameter,"RPM_R"} 
-R_NEEDLE_RPM_G.controllers		    = {
+R_NEEDLE_RPM_G.element_params 	    = {"MFD_OPACITY","R_RPM_COLOR",page_parameter,"RPM_R","F22_ENGINE_R_RPM_VALID"}
+R_NEEDLE_RPM_G.controllers		    = {{"parameter_in_range",4,0.9,1.1},
                                         {"opacity_using_parameter",0},
                                         {"parameter_in_range",1,0.4,0.6},--Yellow
                                         {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -240,8 +240,8 @@ R_NEEDLE_RPM_O .collimated 		    = false
 R_NEEDLE_RPM_O .isvisible 	        = true
 R_NEEDLE_RPM_O .init_pos 			= {0.35, 0.6, 0} --L-R,U-D,F-B
 R_NEEDLE_RPM_O .init_rot 			= {0, 0, 0}
-R_NEEDLE_RPM_O .element_params 	    = {"MFD_OPACITY","R_RPM_COLOR",page_parameter,"RPM_R"} 
-R_NEEDLE_RPM_O .controllers		    = {
+R_NEEDLE_RPM_O .element_params 	    = {"MFD_OPACITY","R_RPM_COLOR",page_parameter,"RPM_R","F22_ENGINE_R_RPM_VALID"}
+R_NEEDLE_RPM_O .controllers		    = {{"parameter_in_range",4,0.9,1.1},
                                         {"opacity_using_parameter",0},
                                         {"parameter_in_range",1,0.9,1.1},--ORANGE
                                         {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -260,8 +260,8 @@ R_RING_EGT_G.collimated 		= false
 R_RING_EGT_G.isvisible 			= true
 R_RING_EGT_G.init_pos 			= {0.35, 0.3, 0} --L-R,U-D,F-B
 R_RING_EGT_G.init_rot 			= {0, 0, 0}
-R_RING_EGT_G.element_params 	= {"MFD_OPACITY","R_EGT_COLOR",page_parameter} 
-R_RING_EGT_G.controllers		= {
+R_RING_EGT_G.element_params 	= {"MFD_OPACITY","R_EGT_COLOR",page_parameter,"F22_ENGINE_R_EGT_VALID"}
+R_RING_EGT_G.controllers		= {{"parameter_in_range",3,0.9,1.1},
                                     {"opacity_using_parameter",0},
                                     {"parameter_in_range",1,-0.1,0.1},--Green
                                     {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -280,8 +280,8 @@ R_NEEDLE_EGT_G .collimated 		    = false
 R_NEEDLE_EGT_G .isvisible 	        = true
 R_NEEDLE_EGT_G .init_pos 			= {0.35, 0.3, 0} --L-R,U-D,F-B
 R_NEEDLE_EGT_G .init_rot 			= {0, 0, 0}
-R_NEEDLE_EGT_G .element_params 	    = {"MFD_OPACITY","R_EGT_COLOR",page_parameter,"EGT_R"} 
-R_NEEDLE_EGT_G .controllers		    = {
+R_NEEDLE_EGT_G .element_params 	    = {"MFD_OPACITY","R_EGT_COLOR",page_parameter,"EGT_R","F22_ENGINE_R_EGT_VALID"}
+R_NEEDLE_EGT_G .controllers		    = {{"parameter_in_range",4,0.9,1.1},
                                         {"opacity_using_parameter",0},
                                         {"parameter_in_range",1,-0.1,0.1},--Green
                                         {"parameter_in_range",2, 0.9,1.1},--ENGINE PAGE = 1
@@ -300,8 +300,8 @@ R_RING_EGT_Y.collimated 		= false
 R_RING_EGT_Y.isvisible 		    = true
 R_RING_EGT_Y.init_pos 		    = {0.35, 0.3, 0} --L-R,U-D,F-B
 R_RING_EGT_Y.init_rot 		    = {0, 0, 0}
-R_RING_EGT_Y.element_params 	= {"MFD_OPACITY","R_EGT_COLOR",page_parameter} 
-R_RING_EGT_Y.controllers		= {
+R_RING_EGT_Y.element_params 	= {"MFD_OPACITY","R_EGT_COLOR",page_parameter,"F22_ENGINE_R_EGT_VALID"}
+R_RING_EGT_Y.controllers		= {{"parameter_in_range",3,0.9,1.1},
                                     {"opacity_using_parameter",0},
                                     {"parameter_in_range",1,0.4,0.6},--Green
                                     {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -320,8 +320,8 @@ R_NEEDLE_EGT_Y .collimated 		    = false
 R_NEEDLE_EGT_Y .isvisible 	        = true
 R_NEEDLE_EGT_Y .init_pos 			= {0.35, 0.3, 0} --L-R,U-D,F-B
 R_NEEDLE_EGT_Y .init_rot 			= {0, 0, 0}
-R_NEEDLE_EGT_Y .element_params 	    = {"MFD_OPACITY","R_EGT_COLOR",page_parameter,"EGT_R"} 
-R_NEEDLE_EGT_Y .controllers		    = {
+R_NEEDLE_EGT_Y .element_params 	    = {"MFD_OPACITY","R_EGT_COLOR",page_parameter,"EGT_R","F22_ENGINE_R_EGT_VALID"}
+R_NEEDLE_EGT_Y .controllers		    = {{"parameter_in_range",4,0.9,1.1},
                                         {"opacity_using_parameter",0},
                                         {"parameter_in_range",1,0.4,0.6},--Yellow
                                         {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -340,8 +340,8 @@ R_RING_EGT_R.collimated 		= false
 R_RING_EGT_R.isvisible 		    = true
 R_RING_EGT_R.init_pos 		    = {0.35, 0.3, 0} --L-R,U-D,F-B
 R_RING_EGT_R.init_rot 		    = {0, 0, 0}
-R_RING_EGT_R.element_params 	= {"MFD_OPACITY","R_EGT_COLOR",page_parameter} 
-R_RING_EGT_R.controllers		= {
+R_RING_EGT_R.element_params 	= {"MFD_OPACITY","R_EGT_COLOR",page_parameter,"F22_ENGINE_R_EGT_VALID"}
+R_RING_EGT_R.controllers		= {{"parameter_in_range",3,0.9,1.1},
                                     {"opacity_using_parameter",0},
                                     {"parameter_in_range",1,0.9,1.1},-- RED
                                     {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -360,8 +360,8 @@ R_NEEDLE_EGT_R.collimated 		    = false
 R_NEEDLE_EGT_R.isvisible 	        = true
 R_NEEDLE_EGT_R.init_pos 			= {0.35, 0.3, 0} --L-R,U-D,F-B
 R_NEEDLE_EGT_R.init_rot 			= {0, 0, 0}
-R_NEEDLE_EGT_R.element_params 	    = {"MFD_OPACITY","R_EGT_COLOR",page_parameter,"EGT_R"} 
-R_NEEDLE_EGT_R.controllers		    = {
+R_NEEDLE_EGT_R.element_params 	    = {"MFD_OPACITY","R_EGT_COLOR",page_parameter,"EGT_R","F22_ENGINE_R_EGT_VALID"}
+R_NEEDLE_EGT_R.controllers		    = {{"parameter_in_range",4,0.9,1.1},
                                         {"opacity_using_parameter",0},
                                         {"parameter_in_range",1,0.9,1.1},--RED
                                         {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -380,8 +380,8 @@ R_RING_OIL_R.collimated 		= false
 R_RING_OIL_R.isvisible 			= true
 R_RING_OIL_R.init_pos 			= {0.33, 0.03, 0} --L-R,U-D,F-B
 R_RING_OIL_R.init_rot 			= {0, 0, 0}
-R_RING_OIL_R.element_params 	= {"MFD_OPACITY","R_OIL_COLOR",page_parameter} 
-R_RING_OIL_R.controllers		= {
+R_RING_OIL_R.element_params 	= {"MFD_OPACITY","R_OIL_COLOR",page_parameter,"F22_ENGINE_R_OIL_VALID"}
+R_RING_OIL_R.controllers		= {{"parameter_in_range",3,0.9,1.1},
                                     {"opacity_using_parameter",0},
                                     {"parameter_in_range",1,0.9,1.1},
                                     {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -400,8 +400,8 @@ R_NEEDLE_OIL_R.collimated 		    = false
 R_NEEDLE_OIL_R.isvisible 	        = true
 R_NEEDLE_OIL_R.init_pos 			= {0.33, 0.03, 0} --L-R,U-D,F-B
 R_NEEDLE_OIL_R.init_rot 			= {0, 0, 0}
-R_NEEDLE_OIL_R.element_params 	    = {"MFD_OPACITY","R_OIL_COLOR",page_parameter,"OIL_R"} 
-R_NEEDLE_OIL_R.controllers		    = {
+R_NEEDLE_OIL_R.element_params 	    = {"MFD_OPACITY","R_OIL_COLOR",page_parameter,"OIL_R","F22_ENGINE_R_OIL_VALID"}
+R_NEEDLE_OIL_R.controllers		    = {{"parameter_in_range",4,0.9,1.1},
                                         {"opacity_using_parameter",0},
                                         {"parameter_in_range",1,0.9,1.1},--RED
                                         {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -420,8 +420,8 @@ R_RING_OIL_G.collimated 		= false
 R_RING_OIL_G.isvisible 			= true
 R_RING_OIL_G.init_pos 			= {0.33, 0.03, 0} --L-R,U-D,F-B
 R_RING_OIL_G.init_rot 			= {0, 0, 0}
-R_RING_OIL_G.element_params 	= {"MFD_OPACITY","R_OIL_COLOR",page_parameter} 
-R_RING_OIL_G.controllers		= {
+R_RING_OIL_G.element_params 	= {"MFD_OPACITY","R_OIL_COLOR",page_parameter,"F22_ENGINE_R_OIL_VALID"}
+R_RING_OIL_G.controllers		= {{"parameter_in_range",3,0.9,1.1},
                                     {"opacity_using_parameter",0},
                                     {"parameter_in_range",1,-0.1,0.1},--Green
                                     {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -440,8 +440,8 @@ R_NEEDLE_OIL_G.collimated 		    = false
 R_NEEDLE_OIL_G.isvisible 	        = true
 R_NEEDLE_OIL_G.init_pos 			= {0.33, 0.03, 0} --L-R,U-D,F-B
 R_NEEDLE_OIL_G.init_rot 			= {0, 0, 0}
-R_NEEDLE_OIL_G.element_params 	    = {"MFD_OPACITY","R_OIL_COLOR",page_parameter,"OIL_R"} 
-R_NEEDLE_OIL_G.controllers		    = {
+R_NEEDLE_OIL_G.element_params 	    = {"MFD_OPACITY","R_OIL_COLOR",page_parameter,"OIL_R","F22_ENGINE_R_OIL_VALID"}
+R_NEEDLE_OIL_G.controllers		    = {{"parameter_in_range",4,0.9,1.1},
                                         {"opacity_using_parameter",0},
                                         {"parameter_in_range",1,-0.1,0.1},--green
                                         {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -460,8 +460,8 @@ L_RING_RPM_G.collimated 		= false
 L_RING_RPM_G.isvisible 			= true
 L_RING_RPM_G.init_pos 			= {-0.35, 0.6, 0} --L-R,U-D,F-B
 L_RING_RPM_G.init_rot 			= {0, 0, 0}
-L_RING_RPM_G.element_params 	= {"MFD_OPACITY","L_RPM_COLOR",page_parameter} 
-L_RING_RPM_G.controllers		= {
+L_RING_RPM_G.element_params 	= {"MFD_OPACITY","L_RPM_COLOR",page_parameter,"F22_ENGINE_L_RPM_VALID"}
+L_RING_RPM_G.controllers		= {{"parameter_in_range",3,0.9,1.1},
                                     {"opacity_using_parameter",0},
                                     {"parameter_in_range",1,0.4,0.6},--
                                     {"parameter_in_range",2,0.9,1.1},--
@@ -480,8 +480,8 @@ L_RING_RPM_O.collimated 		= false
 L_RING_RPM_O.isvisible 			= true
 L_RING_RPM_O.init_pos 			= {-0.35, 0.6, 0} --L-R,U-D,F-B
 L_RING_RPM_O.init_rot 			= {0, 0, 0}
-L_RING_RPM_O.element_params 	= {"MFD_OPACITY","L_RPM_COLOR",page_parameter} 
-L_RING_RPM_O.controllers		= {
+L_RING_RPM_O.element_params 	= {"MFD_OPACITY","L_RPM_COLOR",page_parameter,"F22_ENGINE_L_RPM_VALID"}
+L_RING_RPM_O.controllers		= {{"parameter_in_range",3,0.9,1.1},
                                     {"opacity_using_parameter",0},
                                     {"parameter_in_range",1,0.9,1.1},--
                                     {"parameter_in_range",2,0.9,1.1},--
@@ -500,8 +500,8 @@ L_NEEDLE_RPM_G.collimated 		    = false
 L_NEEDLE_RPM_G.isvisible 	        = true
 L_NEEDLE_RPM_G.init_pos 			= {-0.35, 0.6, 0} --L-R,U-D,F-B
 L_NEEDLE_RPM_G.init_rot 			= {0, 0, 0}
-L_NEEDLE_RPM_G.element_params 	    = {"MFD_OPACITY","L_RPM_COLOR",page_parameter,"RPM_L"} 
-L_NEEDLE_RPM_G.controllers		    = {
+L_NEEDLE_RPM_G.element_params 	    = {"MFD_OPACITY","L_RPM_COLOR",page_parameter,"RPM_L","F22_ENGINE_L_RPM_VALID"}
+L_NEEDLE_RPM_G.controllers		    = {{"parameter_in_range",4,0.9,1.1},
                                         {"opacity_using_parameter",0},
                                         {"parameter_in_range",1,0.4,0.6},--Yellow
                                         {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -520,8 +520,8 @@ L_NEEDLE_RPM_O .collimated 		    = false
 L_NEEDLE_RPM_O .isvisible 	        = true
 L_NEEDLE_RPM_O .init_pos 			= {-0.35, 0.6, 0} --L-R,U-D,F-B
 L_NEEDLE_RPM_O .init_rot 			= {0, 0, 0}
-L_NEEDLE_RPM_O .element_params 	    = {"MFD_OPACITY","L_RPM_COLOR",page_parameter,"RPM_L"} 
-L_NEEDLE_RPM_O .controllers		    = {
+L_NEEDLE_RPM_O .element_params 	    = {"MFD_OPACITY","L_RPM_COLOR",page_parameter,"RPM_L","F22_ENGINE_L_RPM_VALID"}
+L_NEEDLE_RPM_O .controllers		    = {{"parameter_in_range",4,0.9,1.1},
                                         {"opacity_using_parameter",0},
                                         {"parameter_in_range",1,0.9,1.1},--ORANGE
                                         {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -540,8 +540,8 @@ L_RING_OIL_R.collimated 		= false
 L_RING_OIL_R.isvisible 			= true
 L_RING_OIL_R.init_pos 			= {-0.33, 0.03, 0} --L-R,U-D,F-B
 L_RING_OIL_R.init_rot 			= {0, 0, 0}
-L_RING_OIL_R.element_params 	= {"MFD_OPACITY","L_OIL_COLOR",page_parameter} 
-L_RING_OIL_R.controllers		= {
+L_RING_OIL_R.element_params 	= {"MFD_OPACITY","L_OIL_COLOR",page_parameter,"F22_ENGINE_L_OIL_VALID"}
+L_RING_OIL_R.controllers		= {{"parameter_in_range",3,0.9,1.1},
                                     {"opacity_using_parameter",0},
                                     {"parameter_in_range",1,0.9,1.1},
                                     {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -560,8 +560,8 @@ L_NEEDLE_OIL_L.collimated 		    = false
 L_NEEDLE_OIL_L.isvisible 	        = true
 L_NEEDLE_OIL_L.init_pos 			= {-0.33, 0.03, 0} --L-R,U-D,F-B
 L_NEEDLE_OIL_L.init_rot 			= {0, 0, 0}
-L_NEEDLE_OIL_L.element_params 	    = {"MFD_OPACITY","L_OIL_COLOR",page_parameter,"OIL_L"} 
-L_NEEDLE_OIL_L.controllers		    = {
+L_NEEDLE_OIL_L.element_params 	    = {"MFD_OPACITY","L_OIL_COLOR",page_parameter,"OIL_L","F22_ENGINE_L_OIL_VALID"}
+L_NEEDLE_OIL_L.controllers		    = {{"parameter_in_range",4,0.9,1.1},
                                         {"opacity_using_parameter",0},
                                         {"parameter_in_range",1,0.9,1.1},--RED
                                         {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -580,8 +580,8 @@ L_RING_OIL_G.collimated 		= false
 L_RING_OIL_G.isvisible 			= true
 L_RING_OIL_G.init_pos 			= {-0.33, 0.03, 0} --L-R,U-D,F-B
 L_RING_OIL_G.init_rot 			= {0, 0, 0}
-L_RING_OIL_G.element_params 	= {"MFD_OPACITY","L_OIL_COLOR",page_parameter} 
-L_RING_OIL_G.controllers		= {
+L_RING_OIL_G.element_params 	= {"MFD_OPACITY","L_OIL_COLOR",page_parameter,"F22_ENGINE_L_OIL_VALID"}
+L_RING_OIL_G.controllers		= {{"parameter_in_range",3,0.9,1.1},
                                     {"opacity_using_parameter",0},
                                     {"parameter_in_range",1,-0.1,0.1},--Green
                                     {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -600,8 +600,8 @@ L_NEEDLE_OIL_G.collimated 		    = false
 L_NEEDLE_OIL_G.isvisible 	        = true
 L_NEEDLE_OIL_G.init_pos 			= {-0.33, 0.03, 0} --L-R,U-D,F-B
 L_NEEDLE_OIL_G.init_rot 			= {0, 0, 0}
-L_NEEDLE_OIL_G.element_params 	    = {"MFD_OPACITY","L_OIL_COLOR",page_parameter,"OIL_L"} 
-L_NEEDLE_OIL_G.controllers		    = {
+L_NEEDLE_OIL_G.element_params 	    = {"MFD_OPACITY","L_OIL_COLOR",page_parameter,"OIL_L","F22_ENGINE_L_OIL_VALID"}
+L_NEEDLE_OIL_G.controllers		    = {{"parameter_in_range",4,0.9,1.1},
                                         {"opacity_using_parameter",0},
                                         {"parameter_in_range",1,-0.1,0.1},--green
                                         {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -620,8 +620,8 @@ L_RING_EGT_G.collimated 		= false
 L_RING_EGT_G.isvisible 			= true
 L_RING_EGT_G.init_pos 			= {-0.35, 0.3, 0} --L-R,U-D,F-B
 L_RING_EGT_G.init_rot 			= {0, 0, 0}
-L_RING_EGT_G.element_params 	= {"MFD_OPACITY","L_EGT_COLOR",page_parameter} 
-L_RING_EGT_G.controllers		= {
+L_RING_EGT_G.element_params 	= {"MFD_OPACITY","L_EGT_COLOR",page_parameter,"F22_ENGINE_L_EGT_VALID"}
+L_RING_EGT_G.controllers		= {{"parameter_in_range",3,0.9,1.1},
                                     {"opacity_using_parameter",0},
                                     {"parameter_in_range",1,-0.1,0.1},--Green
                                     {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -640,8 +640,8 @@ L_NEEDLE_EGT_G .collimated 		    = false
 L_NEEDLE_EGT_G .isvisible 	        = true
 L_NEEDLE_EGT_G .init_pos 			= {-0.35, 0.3, 0} --L-R,U-D,F-B
 L_NEEDLE_EGT_G .init_rot 			= {0, 0, 0}
-L_NEEDLE_EGT_G .element_params 	    = {"MFD_OPACITY","L_EGT_COLOR",page_parameter,"EGT_L"} 
-L_NEEDLE_EGT_G .controllers		    = {
+L_NEEDLE_EGT_G .element_params 	    = {"MFD_OPACITY","L_EGT_COLOR",page_parameter,"EGT_L","F22_ENGINE_L_EGT_VALID"}
+L_NEEDLE_EGT_G .controllers		    = {{"parameter_in_range",4,0.9,1.1},
                                         {"opacity_using_parameter",0},
                                         {"parameter_in_range",1,-0.1,0.1},--Green
                                         {"parameter_in_range",2, 0.9,1.1},--ENGINE PAGE = 1
@@ -660,8 +660,8 @@ L_RING_EGT_Y.collimated 		= false
 L_RING_EGT_Y.isvisible 		    = true
 L_RING_EGT_Y.init_pos 		    = {-0.35, 0.3, 0} --L-R,U-D,F-B
 L_RING_EGT_Y.init_rot 		    = {0, 0, 0}
-L_RING_EGT_Y.element_params 	= {"MFD_OPACITY","L_EGT_COLOR",page_parameter} 
-L_RING_EGT_Y.controllers		= {
+L_RING_EGT_Y.element_params 	= {"MFD_OPACITY","L_EGT_COLOR",page_parameter,"F22_ENGINE_L_EGT_VALID"}
+L_RING_EGT_Y.controllers		= {{"parameter_in_range",3,0.9,1.1},
                                     {"opacity_using_parameter",0},
                                     {"parameter_in_range",1,0.4,0.6},--Green
                                     {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -680,8 +680,8 @@ L_NEEDLE_EGT_Y .collimated 		    = false
 L_NEEDLE_EGT_Y .isvisible 	        = true
 L_NEEDLE_EGT_Y .init_pos 			= {-0.35, 0.3, 0} --L-R,U-D,F-B
 L_NEEDLE_EGT_Y .init_rot 			= {0, 0, 0}
-L_NEEDLE_EGT_Y .element_params 	    = {"MFD_OPACITY","L_EGT_COLOR",page_parameter,"EGT_L"} 
-L_NEEDLE_EGT_Y .controllers		    = {
+L_NEEDLE_EGT_Y .element_params 	    = {"MFD_OPACITY","L_EGT_COLOR",page_parameter,"EGT_L","F22_ENGINE_L_EGT_VALID"}
+L_NEEDLE_EGT_Y .controllers		    = {{"parameter_in_range",4,0.9,1.1},
                                         {"opacity_using_parameter",0},
                                         {"parameter_in_range",1,0.4,0.6},--Yellow
                                         {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -700,8 +700,8 @@ L_RING_EGT_R.collimated 		= false
 L_RING_EGT_R.isvisible 		    = true
 L_RING_EGT_R.init_pos 		    = {-0.35, 0.3, 0} --L-R,U-D,F-B
 L_RING_EGT_R.init_rot 		    = {0, 0, 0}
-L_RING_EGT_R.element_params 	= {"MFD_OPACITY","L_EGT_COLOR",page_parameter} 
-L_RING_EGT_R.controllers		= {
+L_RING_EGT_R.element_params 	= {"MFD_OPACITY","L_EGT_COLOR",page_parameter,"F22_ENGINE_L_EGT_VALID"}
+L_RING_EGT_R.controllers		= {{"parameter_in_range",3,0.9,1.1},
                                     {"opacity_using_parameter",0},
                                     {"parameter_in_range",1,0.9,1.1},-- RED
                                     {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -720,8 +720,8 @@ L_NEEDLE_EGT_R.collimated 		    = false
 L_NEEDLE_EGT_R.isvisible 	        = true
 L_NEEDLE_EGT_R.init_pos 			= {-0.35, 0.3, 0} --L-R,U-D,F-B
 L_NEEDLE_EGT_R.init_rot 			= {0, 0, 0}
-L_NEEDLE_EGT_R.element_params 	    = {"MFD_OPACITY","L_EGT_COLOR",page_parameter,"EGT_L"} 
-L_NEEDLE_EGT_R.controllers		    = {
+L_NEEDLE_EGT_R.element_params 	    = {"MFD_OPACITY","L_EGT_COLOR",page_parameter,"EGT_L","F22_ENGINE_L_EGT_VALID"}
+L_NEEDLE_EGT_R.controllers		    = {{"parameter_in_range",4,0.9,1.1},
                                         {"opacity_using_parameter",0},
                                         {"parameter_in_range",1,0.9,1.1},--RED
                                         {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -816,8 +816,8 @@ NOZR.isdraw				    = true
 NOZR.use_mipfilter		    = true
 NOZR.h_clip_relation		= h_clip_relations.COMPARE
 NOZR.level				    = 2
-NOZR.element_params		    = {"MFD_OPACITY","R_NOZZLE_POS",page_parameter}
-NOZR.formats				= {"%02.0f"}--= {"%02.0f"}
+NOZR.element_params		    = {"MFD_OPACITY","F22_ENGINE_R_NOZZLE_TEXT",page_parameter}
+NOZR.formats				= {"%s"}--= {"%02.0f"}
 NOZR.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
 Add(NOZR)
 ----------------------------------------------------------------------------------------------------------------FUEL FLOW NUMBERS RIGHT
@@ -833,8 +833,8 @@ NOZL.isdraw				    = true
 NOZL.use_mipfilter		    = true
 NOZL.h_clip_relation		= h_clip_relations.COMPARE
 NOZL.level				    = 2
-NOZL.element_params		    = {"MFD_OPACITY","L_NOZZLE_POS",page_parameter}
-NOZL.formats				= {"%02.0f"}--= {"%02.0f"}
+NOZL.element_params		    = {"MFD_OPACITY","F22_ENGINE_L_NOZZLE_TEXT",page_parameter}
+NOZL.formats				= {"%s"}--= {"%02.0f"}
 NOZL.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
 Add(NOZL)
 ----------------------------------------------------------------------------------------------------------------FUEL FLOW NUMBERS RIGHT
@@ -850,8 +850,8 @@ FUELFR.isdraw				= true
 FUELFR.use_mipfilter		= true
 FUELFR.h_clip_relation		= h_clip_relations.COMPARE
 FUELFR.level				= 2
-FUELFR.element_params		= {"MFD_OPACITY","R_FF_VALUE",page_parameter}
-FUELFR.formats				= {"%02.0f"}--= {"%02.0f"}
+FUELFR.element_params		= {"MFD_OPACITY","F22_ENGINE_R_FLOW_TEXT",page_parameter}
+FUELFR.formats				= {"%s"}--= {"%02.0f"}
 FUELFR.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
 Add(FUELFR)
 ----------------------------------------------------------------------------------------------------------------FUEL FLOW NUMBERS LEFT
@@ -867,8 +867,8 @@ FUELFL.isdraw				= true
 FUELFL.use_mipfilter		= true
 FUELFL.h_clip_relation		= h_clip_relations.COMPARE
 FUELFL.level				= 2
-FUELFL.element_params		= {"MFD_OPACITY","L_FF_VALUE",page_parameter}
-FUELFL.formats				= {"%02.0f"}--= {"%02.0f"}
+FUELFL.element_params		= {"MFD_OPACITY","F22_ENGINE_L_FLOW_TEXT",page_parameter}
+FUELFL.formats				= {"%s"}--= {"%02.0f"}
 FUELFL.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
 Add(FUELFL)
 ----------------------------------------------------------------------------------------------------------------CHK
@@ -1136,8 +1136,8 @@ L_RING_HYD_R.collimated 		= false
 L_RING_HYD_R.isvisible 			= true
 L_RING_HYD_R.init_pos 			= {-0.66, -0.68, 0} --L-R,U-D,F-B
 L_RING_HYD_R.init_rot 			= {0, 0, 0}
-L_RING_HYD_R.element_params 	= {"MFD_OPACITY","L_HYD_COLOR",page_parameter} 
-L_RING_HYD_R.controllers		= {
+L_RING_HYD_R.element_params 	= {"MFD_OPACITY","L_HYD_COLOR",page_parameter,"F22_ENGINE_L_HYD_VALID"}
+L_RING_HYD_R.controllers		= {{"parameter_in_range",3,0.9,1.1},
                                     {"opacity_using_parameter",0},
                                     {"parameter_in_range",1,0.9,1.1},
                                     {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -1156,8 +1156,8 @@ L_NEEDLE_HYD_R.collimated 		    = false
 L_NEEDLE_HYD_R.isvisible 	        = true
 L_NEEDLE_HYD_R.init_pos 			= {-0.66, -0.68, 0} --L-R,U-D,F-B
 L_NEEDLE_HYD_R.init_rot 			= {0, 0, 0}
-L_NEEDLE_HYD_R.element_params 	    = {"MFD_OPACITY","L_HYD_COLOR",page_parameter,"L_HYD_VALUE"} 
-L_NEEDLE_HYD_R.controllers		    = {
+L_NEEDLE_HYD_R.element_params 	    = {"MFD_OPACITY","L_HYD_COLOR",page_parameter,"L_HYD_VALUE","F22_ENGINE_L_HYD_VALID"}
+L_NEEDLE_HYD_R.controllers		    = {{"parameter_in_range",4,0.9,1.1},
                                         {"opacity_using_parameter",0},
                                         {"parameter_in_range",1,0.9,1.1},--RED
                                         {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -1176,8 +1176,8 @@ L_RING_HYD_G.collimated 		= false
 L_RING_HYD_G.isvisible 			= true
 L_RING_HYD_G.init_pos 			= {-0.66, -0.68, 0} --L-R,U-D,F-B
 L_RING_HYD_G.init_rot 			= {0, 0, 0}
-L_RING_HYD_G.element_params 	= {"MFD_OPACITY","L_HYD_COLOR",page_parameter} 
-L_RING_HYD_G.controllers		= {
+L_RING_HYD_G.element_params 	= {"MFD_OPACITY","L_HYD_COLOR",page_parameter,"F22_ENGINE_L_HYD_VALID"}
+L_RING_HYD_G.controllers		= {{"parameter_in_range",3,0.9,1.1},
                                     {"opacity_using_parameter",0},
                                     {"parameter_in_range",1,-0.1,0.1},--Green
                                     {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -1196,8 +1196,8 @@ L_NEEDLE_HYD_G.collimated 		    = false
 L_NEEDLE_HYD_G.isvisible 	        = true
 L_NEEDLE_HYD_G.init_pos 			= {-0.66, -0.68, 0} --L-R,U-D,F-B
 L_NEEDLE_HYD_G.init_rot 			= {0, 0, 0}
-L_NEEDLE_HYD_G.element_params 	    = {"MFD_OPACITY","L_HYD_COLOR",page_parameter,"L_HYD_VALUE"} 
-L_NEEDLE_HYD_G.controllers		    = {
+L_NEEDLE_HYD_G.element_params 	    = {"MFD_OPACITY","L_HYD_COLOR",page_parameter,"L_HYD_VALUE","F22_ENGINE_L_HYD_VALID"}
+L_NEEDLE_HYD_G.controllers		    = {{"parameter_in_range",4,0.9,1.1},
                                         {"opacity_using_parameter",0},
                                         {"parameter_in_range",1,-0.1,0.1},--green
                                         {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -1216,8 +1216,8 @@ R_RING_HYD_G.collimated 		= false
 R_RING_HYD_G.isvisible 			= true
 R_RING_HYD_G.init_pos 			= {-0.21, -0.68, 0} --L-R,U-D,F-B
 R_RING_HYD_G.init_rot 			= {0, 0, 0}
-R_RING_HYD_G.element_params 	= {"MFD_OPACITY","R_HYD_COLOR",page_parameter} 
-R_RING_HYD_G.controllers		= {
+R_RING_HYD_G.element_params 	= {"MFD_OPACITY","R_HYD_COLOR",page_parameter,"F22_ENGINE_R_HYD_VALID"}
+R_RING_HYD_G.controllers		= {{"parameter_in_range",3,0.9,1.1},
                                     {"opacity_using_parameter",0},
                                     {"parameter_in_range",1,-0.1,0.1},--Green
                                     {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -1236,8 +1236,8 @@ R_NEEDLE_HYD_G.collimated 		    = false
 R_NEEDLE_HYD_G.isvisible 	        = true
 R_NEEDLE_HYD_G.init_pos 			= {-0.21, -0.68, 0} --L-R,U-D,F-B
 R_NEEDLE_HYD_G.init_rot 			= {0, 0, 0}
-R_NEEDLE_HYD_G.element_params 	    = {"MFD_OPACITY","R_HYD_COLOR",page_parameter,"R_HYD_VALUE"} 
-R_NEEDLE_HYD_G.controllers		    = {
+R_NEEDLE_HYD_G.element_params 	    = {"MFD_OPACITY","R_HYD_COLOR",page_parameter,"R_HYD_VALUE","F22_ENGINE_R_HYD_VALID"}
+R_NEEDLE_HYD_G.controllers		    = {{"parameter_in_range",4,0.9,1.1},
                                         {"opacity_using_parameter",0},
                                         {"parameter_in_range",1,-0.1,0.1},--green
                                         {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -1256,8 +1256,8 @@ R_RING_HYD_R.collimated 		= false
 R_RING_HYD_R.isvisible 			= true
 R_RING_HYD_R.init_pos 			= {-0.21, -0.68, 0} --L-R,U-D,F-B
 R_RING_HYD_R.init_rot 			= {0, 0, 0}
-R_RING_HYD_R.element_params 	= {"MFD_OPACITY","R_HYD_COLOR",page_parameter} 
-R_RING_HYD_R.controllers		= {
+R_RING_HYD_R.element_params 	= {"MFD_OPACITY","R_HYD_COLOR",page_parameter,"F22_ENGINE_R_HYD_VALID"}
+R_RING_HYD_R.controllers		= {{"parameter_in_range",3,0.9,1.1},
                                     {"opacity_using_parameter",0},
                                     {"parameter_in_range",1,0.9,1.1},--red
                                     {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -1276,8 +1276,8 @@ R_NEEDLE_HYD_R.collimated 		    = false
 R_NEEDLE_HYD_R.isvisible 	        = true
 R_NEEDLE_HYD_R.init_pos 			= {-0.21, -0.68, 0} --L-R,U-D,F-B
 R_NEEDLE_HYD_R.init_rot 			= {0, 0, 0}
-R_NEEDLE_HYD_R.element_params 	    = {"MFD_OPACITY","R_HYD_COLOR",page_parameter,"R_HYD_VALUE"} 
-R_NEEDLE_HYD_R.controllers		    = {
+R_NEEDLE_HYD_R.element_params 	    = {"MFD_OPACITY","R_HYD_COLOR",page_parameter,"R_HYD_VALUE","F22_ENGINE_R_HYD_VALID"}
+R_NEEDLE_HYD_R.controllers		    = {{"parameter_in_range",4,0.9,1.1},
                                         {"opacity_using_parameter",0},
                                         {"parameter_in_range",1,0.9,1.1},--red
                                         {"parameter_in_range",2,0.9,1.1},--ENGINE PAGE = 1
@@ -1300,8 +1300,8 @@ R_RPM_TEXT_G.isdraw				= true
 R_RPM_TEXT_G.use_mipfilter		= true
 R_RPM_TEXT_G.h_clip_relation	= h_clip_relations.COMPARE
 R_RPM_TEXT_G.level				= 2
-R_RPM_TEXT_G.element_params		= {"MFD_OPACITY","RPM_R",page_parameter,"R_RPM_COLOR"}
-R_RPM_TEXT_G.formats			= {"%.0f"}--= {"%02.0f"}
+R_RPM_TEXT_G.element_params		= {"MFD_OPACITY","F22_ENGINE_R_RPM_TEXT",page_parameter,"R_RPM_COLOR"}
+R_RPM_TEXT_G.formats			= {"%s"}--= {"%02.0f"}
 R_RPM_TEXT_G.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1323,8 +1323,8 @@ R_RPM_TEXT_O.isdraw				= true
 R_RPM_TEXT_O.use_mipfilter		= true
 R_RPM_TEXT_O.h_clip_relation	= h_clip_relations.COMPARE
 R_RPM_TEXT_O.level				= 2
-R_RPM_TEXT_O.element_params		= {"MFD_OPACITY","RPM_R",page_parameter,"R_RPM_COLOR"}
-R_RPM_TEXT_O.formats			= {"%.0f"}--= {"%02.0f"}
+R_RPM_TEXT_O.element_params		= {"MFD_OPACITY","F22_ENGINE_R_RPM_TEXT",page_parameter,"R_RPM_COLOR"}
+R_RPM_TEXT_O.formats			= {"%s"}--= {"%02.0f"}
 R_RPM_TEXT_O.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1346,8 +1346,8 @@ L_RPM_TEXT_G.isdraw				= true
 L_RPM_TEXT_G.use_mipfilter		= true
 L_RPM_TEXT_G.h_clip_relation	= h_clip_relations.COMPARE
 L_RPM_TEXT_G.level				= 2
-L_RPM_TEXT_G.element_params		= {"MFD_OPACITY","RPM_L",page_parameter,"L_RPM_COLOR"}
-L_RPM_TEXT_G.formats			= {"%.0f"}--= {"%02.0f"}
+L_RPM_TEXT_G.element_params		= {"MFD_OPACITY","F22_ENGINE_L_RPM_TEXT",page_parameter,"L_RPM_COLOR"}
+L_RPM_TEXT_G.formats			= {"%s"}--= {"%02.0f"}
 L_RPM_TEXT_G.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1369,8 +1369,8 @@ L_RPM_TEXT_O.isdraw				= true
 L_RPM_TEXT_O.use_mipfilter		= true
 L_RPM_TEXT_O.h_clip_relation	= h_clip_relations.COMPARE
 L_RPM_TEXT_O.level				= 2
-L_RPM_TEXT_O.element_params		= {"MFD_OPACITY","RPM_L",page_parameter,"L_RPM_COLOR"}
-L_RPM_TEXT_O.formats			= {"%.0f"}--= {"%02.0f"}
+L_RPM_TEXT_O.element_params		= {"MFD_OPACITY","F22_ENGINE_L_RPM_TEXT",page_parameter,"L_RPM_COLOR"}
+L_RPM_TEXT_O.formats			= {"%s"}--= {"%02.0f"}
 L_RPM_TEXT_O.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1392,8 +1392,8 @@ R_EGT_TEXT_G.isdraw				= true
 R_EGT_TEXT_G.use_mipfilter		= true
 R_EGT_TEXT_G.h_clip_relation	= h_clip_relations.COMPARE
 R_EGT_TEXT_G.level				= 2
-R_EGT_TEXT_G.element_params		= {"MFD_OPACITY","EGT_R",page_parameter,"R_EGT_COLOR"}
-R_EGT_TEXT_G.formats			= {"%.0f"}--= {"%02.0f"}
+R_EGT_TEXT_G.element_params		= {"MFD_OPACITY","F22_ENGINE_R_EGT_TEXT",page_parameter,"R_EGT_COLOR"}
+R_EGT_TEXT_G.formats			= {"%s"}--= {"%02.0f"}
 R_EGT_TEXT_G.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1415,8 +1415,8 @@ R_EGT_TEXT_Y.isdraw				= true
 R_EGT_TEXT_Y.use_mipfilter		= true
 R_EGT_TEXT_Y.h_clip_relation	= h_clip_relations.COMPARE
 R_EGT_TEXT_Y.level				= 2
-R_EGT_TEXT_Y.element_params		= {"MFD_OPACITY","EGT_R",page_parameter,"R_EGT_COLOR"}
-R_EGT_TEXT_Y.formats			= {"%.0f"}--= {"%02.0f"}
+R_EGT_TEXT_Y.element_params		= {"MFD_OPACITY","F22_ENGINE_R_EGT_TEXT",page_parameter,"R_EGT_COLOR"}
+R_EGT_TEXT_Y.formats			= {"%s"}--= {"%02.0f"}
 R_EGT_TEXT_Y.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1438,8 +1438,8 @@ R_EGT_TEXT_R.isdraw				= true
 R_EGT_TEXT_R.use_mipfilter		= true
 R_EGT_TEXT_R.h_clip_relation	= h_clip_relations.COMPARE
 R_EGT_TEXT_R.level				= 2
-R_EGT_TEXT_R.element_params		= {"MFD_OPACITY","EGT_R",page_parameter,"R_EGT_COLOR"}
-R_EGT_TEXT_R.formats			= {"%.0f"}--= {"%02.0f"}
+R_EGT_TEXT_R.element_params		= {"MFD_OPACITY","F22_ENGINE_R_EGT_TEXT",page_parameter,"R_EGT_COLOR"}
+R_EGT_TEXT_R.formats			= {"%s"}--= {"%02.0f"}
 R_EGT_TEXT_R.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1461,8 +1461,8 @@ L_EGT_TEXT_G.isdraw				= true
 L_EGT_TEXT_G.use_mipfilter		= true
 L_EGT_TEXT_G.h_clip_relation	= h_clip_relations.COMPARE
 L_EGT_TEXT_G.level				= 2
-L_EGT_TEXT_G.element_params		= {"MFD_OPACITY","EGT_L",page_parameter,"L_EGT_COLOR"}
-L_EGT_TEXT_G.formats			= {"%.0f"}--= {"%02.0f"}
+L_EGT_TEXT_G.element_params		= {"MFD_OPACITY","F22_ENGINE_L_EGT_TEXT",page_parameter,"L_EGT_COLOR"}
+L_EGT_TEXT_G.formats			= {"%s"}--= {"%02.0f"}
 L_EGT_TEXT_G.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1484,8 +1484,8 @@ L_EGT_TEXT_Y.isdraw				= true
 L_EGT_TEXT_Y.use_mipfilter		= true
 L_EGT_TEXT_Y.h_clip_relation	= h_clip_relations.COMPARE
 L_EGT_TEXT_Y.level				= 2
-L_EGT_TEXT_Y.element_params		= {"MFD_OPACITY","EGT_L",page_parameter,"L_EGT_COLOR"}
-L_EGT_TEXT_Y.formats			= {"%.0f"}--= {"%02.0f"}
+L_EGT_TEXT_Y.element_params		= {"MFD_OPACITY","F22_ENGINE_L_EGT_TEXT",page_parameter,"L_EGT_COLOR"}
+L_EGT_TEXT_Y.formats			= {"%s"}--= {"%02.0f"}
 L_EGT_TEXT_Y.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1507,8 +1507,8 @@ L_EGT_TEXT_R.isdraw				= true
 L_EGT_TEXT_R.use_mipfilter		= true
 L_EGT_TEXT_R.h_clip_relation	= h_clip_relations.COMPARE
 L_EGT_TEXT_R.level				= 2
-L_EGT_TEXT_R.element_params		= {"MFD_OPACITY","EGT_L",page_parameter,"L_EGT_COLOR"}
-L_EGT_TEXT_R.formats			= {"%.0f"}--= {"%02.0f"}
+L_EGT_TEXT_R.element_params		= {"MFD_OPACITY","F22_ENGINE_L_EGT_TEXT",page_parameter,"L_EGT_COLOR"}
+L_EGT_TEXT_R.formats			= {"%s"}--= {"%02.0f"}
 L_EGT_TEXT_R.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1530,8 +1530,8 @@ L_OIL_TEXT_G.isdraw				= true
 L_OIL_TEXT_G.use_mipfilter		= true
 L_OIL_TEXT_G.h_clip_relation	= h_clip_relations.COMPARE
 L_OIL_TEXT_G.level				= 2
-L_OIL_TEXT_G.element_params		= {"MFD_OPACITY","OIL_L",page_parameter,"L_OIL_COLOR"}
-L_OIL_TEXT_G.formats			= {"%.0f"}--= {"%02.0f"}
+L_OIL_TEXT_G.element_params		= {"MFD_OPACITY","F22_ENGINE_L_OIL_TEXT",page_parameter,"L_OIL_COLOR"}
+L_OIL_TEXT_G.formats			= {"%s"}--= {"%02.0f"}
 L_OIL_TEXT_G.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1553,8 +1553,8 @@ L_OIL_TEXT_R.isdraw				= true
 L_OIL_TEXT_R.use_mipfilter		= true
 L_OIL_TEXT_R.h_clip_relation	= h_clip_relations.COMPARE
 L_OIL_TEXT_R.level				= 2
-L_OIL_TEXT_R.element_params		= {"MFD_OPACITY","OIL_L",page_parameter,"L_OIL_COLOR"}
-L_OIL_TEXT_R.formats			= {"%.0f"}--= {"%02.0f"}
+L_OIL_TEXT_R.element_params		= {"MFD_OPACITY","F22_ENGINE_L_OIL_TEXT",page_parameter,"L_OIL_COLOR"}
+L_OIL_TEXT_R.formats			= {"%s"}--= {"%02.0f"}
 L_OIL_TEXT_R.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1576,8 +1576,8 @@ R_OIL_TEXT_G.isdraw				= true
 R_OIL_TEXT_G.use_mipfilter		= true
 R_OIL_TEXT_G.h_clip_relation	= h_clip_relations.COMPARE
 R_OIL_TEXT_G.level				= 2
-R_OIL_TEXT_G.element_params		= {"MFD_OPACITY","OIL_R",page_parameter,"R_OIL_COLOR"}
-R_OIL_TEXT_G.formats			= {"%.0f"}--= {"%02.0f"}
+R_OIL_TEXT_G.element_params		= {"MFD_OPACITY","F22_ENGINE_R_OIL_TEXT",page_parameter,"R_OIL_COLOR"}
+R_OIL_TEXT_G.formats			= {"%s"}--= {"%02.0f"}
 R_OIL_TEXT_G.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1599,8 +1599,8 @@ R_OIL_TEXT_R.isdraw				= true
 R_OIL_TEXT_R.use_mipfilter		= true
 R_OIL_TEXT_R.h_clip_relation	= h_clip_relations.COMPARE
 R_OIL_TEXT_R.level				= 2
-R_OIL_TEXT_R.element_params		= {"MFD_OPACITY","OIL_R",page_parameter,"R_OIL_COLOR"}
-R_OIL_TEXT_R.formats			= {"%.0f"}--= {"%02.0f"}
+R_OIL_TEXT_R.element_params		= {"MFD_OPACITY","F22_ENGINE_R_OIL_TEXT",page_parameter,"R_OIL_COLOR"}
+R_OIL_TEXT_R.formats			= {"%s"}--= {"%02.0f"}
 R_OIL_TEXT_R.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1622,8 +1622,8 @@ L_HYD_TEXT_G.isdraw				= true
 L_HYD_TEXT_G.use_mipfilter		= true
 L_HYD_TEXT_G.h_clip_relation	= h_clip_relations.COMPARE
 L_HYD_TEXT_G.level				= 2
-L_HYD_TEXT_G.element_params		= {"MFD_OPACITY","L_HYD_VALUE",page_parameter,"L_HYD_COLOR"}
-L_HYD_TEXT_G.formats			= {"%.0f"}--= {"%02.0f"}
+L_HYD_TEXT_G.element_params		= {"MFD_OPACITY","F22_ENGINE_L_HYD_TEXT",page_parameter,"L_HYD_COLOR"}
+L_HYD_TEXT_G.formats			= {"%s"}--= {"%02.0f"}
 L_HYD_TEXT_G.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1645,8 +1645,8 @@ L_HYD_TEXT_R.isdraw				= true
 L_HYD_TEXT_R.use_mipfilter		= true
 L_HYD_TEXT_R.h_clip_relation	= h_clip_relations.COMPARE
 L_HYD_TEXT_R.level				= 2
-L_HYD_TEXT_R.element_params		= {"MFD_OPACITY","L_HYD_VALUE",page_parameter,"L_HYD_COLOR"}
-L_HYD_TEXT_R.formats			= {"%.0f"}--= {"%02.0f"}
+L_HYD_TEXT_R.element_params		= {"MFD_OPACITY","F22_ENGINE_L_HYD_TEXT",page_parameter,"L_HYD_COLOR"}
+L_HYD_TEXT_R.formats			= {"%s"}--= {"%02.0f"}
 L_HYD_TEXT_R.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1668,8 +1668,8 @@ R_HYD_TEXT_G.isdraw				= true
 R_HYD_TEXT_G.use_mipfilter		= true
 R_HYD_TEXT_G.h_clip_relation	= h_clip_relations.COMPARE
 R_HYD_TEXT_G.level				= 2
-R_HYD_TEXT_G.element_params		= {"MFD_OPACITY","R_HYD_VALUE",page_parameter,"R_HYD_COLOR"}
-R_HYD_TEXT_G.formats			= {"%.0f"}--= {"%02.0f"}
+R_HYD_TEXT_G.element_params		= {"MFD_OPACITY","F22_ENGINE_R_HYD_TEXT",page_parameter,"R_HYD_COLOR"}
+R_HYD_TEXT_G.formats			= {"%s"}--= {"%02.0f"}
 R_HYD_TEXT_G.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1691,8 +1691,8 @@ R_HYD_TEXT_R.isdraw				= true
 R_HYD_TEXT_R.use_mipfilter		= true
 R_HYD_TEXT_R.h_clip_relation	= h_clip_relations.COMPARE
 R_HYD_TEXT_R.level				= 2
-R_HYD_TEXT_R.element_params		= {"MFD_OPACITY","R_HYD_VALUE",page_parameter,"R_HYD_COLOR"}
-R_HYD_TEXT_R.formats			= {"%.0f"}--= {"%02.0f"}
+R_HYD_TEXT_R.element_params		= {"MFD_OPACITY","F22_ENGINE_R_HYD_TEXT",page_parameter,"R_HYD_COLOR"}
+R_HYD_TEXT_R.formats			= {"%s"}--= {"%02.0f"}
 R_HYD_TEXT_R.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},

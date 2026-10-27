@@ -24,7 +24,6 @@ dofile(LockOn_Options.script_path.."command_defs.lua")
 local dt = 0.024
 make_default_activity(dt)
 
-local sensor_data = dofile(LockOn_Options.script_path.."Systems/Engine_Data.lua")(get_base_data())
 
 local GROUND_POWER		= get_param_handle("GROUND_POWER")
 local SOUND_APU     	= get_param_handle("SOUND_APU")
@@ -224,6 +223,47 @@ function CockpitEvent(event,val)
 		--gpu_cart = 1
 	end
 end
+-- All source, starter and relight admission belongs to the EFM. These
+-- handlers transport requests and animate detents; they do not cancel a start
+-- using a second RPM/APU test or dispatch a start again from its callback.
+local left_engine_commands = {[0] = L_Eng_Stop, [1] = L_Eng_Start}
+local right_engine_commands = {[0] = R_Eng_Stop, [1] = R_Eng_Start}
+local function engine_detent(left, value)
+    if value ~= 0 and value ~= 1 then return end
+    local previous, command
+    if left then
+        previous, L_cutoff = L_cutoff, value
+        command = left_engine_commands[value]
+    else
+        previous, R_cutoff = R_cutoff, value
+        command = right_engine_commands[value]
+    end
+    if previous ~= value then dispatch_action(nil, command, 1) end
+end
+
+local function engine_selection(command)
+    if command == EnginesStart then L_cutoff, R_cutoff = 1, 1
+    elseif command == EnginesStop then L_cutoff, R_cutoff = 0, 0
+    elseif command == L_Eng_Start then L_cutoff = 1
+    elseif command == R_Eng_Start then R_cutoff = 1
+    elseif command == L_Eng_Stop then L_cutoff = 0
+    elseif command == R_Eng_Stop then R_cutoff = 0
+    end
+end
+
+local function engine_command(command, value)
+    if command == 10028 then engine_detent(true, value)
+    elseif command == 10029 then engine_detent(false, value)
+    elseif command == L_Eng_Click and value == 1 then
+        L_cutoff = 1
+        dispatch_action(nil, L_Eng_Start, 1)
+    elseif command == R_Eng_Click and value == 1 then
+        R_cutoff = 1
+        dispatch_action(nil, R_Eng_Start, 1)
+    end
+    engine_selection(command)
+end
+
 -----------------------------------------------------------------FUNCTION-SETCOMMAND---------------------------------------------------------------------------------------------------
 	function SetCommand(command,value)
 
@@ -260,21 +300,6 @@ end
         elseif command == 10020 then
             park_state = 1 - park_state
         end
---Disable Engines Start Keyboard Command on Ground	
-		if command == EnginesStart and apu_pwr == 0 and sensor_data.getWOW_NoseLandingGear() == 1 and sensor_data.getEngineLeftRPM() < 3 and sensor_data.getEngineRightRPM() < 3 then
-			dispatch_action(nil,EnginesStop)
-			print_message_to_user("**COMMAND DISABLED ON GROUND||MUST USE APU TO COLD START THE JET**")
-		end
---Disable Left Engine Keyboard Command on Ground	
-		if (command == L_Eng_Start or command == L_Eng_Click) and apu_pwr == 0 and sensor_data.getWOW_NoseLandingGear() == 1 and sensor_data.getEngineLeftRPM() < 3 then
-			dispatch_action(nil,L_Eng_Stop)
-			print_message_to_user("**COMMAND DISABLED ON GROUND||MUST USE APU TO COLD START THE JET**")
-		end
---Disable Right Engine Keyboard Command on Ground	
-		if (command == R_Eng_Start or command == R_Eng_Click) and apu_pwr == 0 and sensor_data.getWOW_NoseLandingGear() == 1 and sensor_data.getEngineRightRPM() < 3 then
-			dispatch_action(nil,R_Eng_Stop)
-			print_message_to_user("**COMMAND DISABLED ON GROUND||MUST USE APU TO COLD START THE JET**")
-		end	
 --Battery Switch Click
 		if command == battery_switch or command == 10009 or command == 10010 then
 			local next_state = 1 - battery_state
@@ -296,52 +321,7 @@ end
 		elseif command == 10013 or command == 10014 then
 			R_gen_state = 1 - R_gen_state
 		end
---Engine Start	Switch 
-		if (command == L_Eng_Click or command == L_Eng_Start) and L_cutoff == 0 and apu_pwr == 0 then
-			L_cutoff = 1
-		elseif (command == R_Eng_Click or command == R_Eng_Start) and R_cutoff == 0 and apu_pwr == 0 then
-			R_cutoff = 1
-		elseif (command == L_Eng_Click or command == L_Eng_Start) and L_cutoff == 0 and apu_pwr == 1 then
-			L_cutoff = 1
-			dispatch_action(nil,L_Eng_Start)
-		elseif (command == R_Eng_Click or command == R_Eng_Start) and R_cutoff == 0 and apu_pwr == 1 then
-			R_cutoff = 1
-			dispatch_action(nil,R_Eng_Start)
-		elseif command == 10028 and L_cutoff == 0 and apu_pwr == 0 and sensor_data.getEngineLeftRPM() < 39 then
-			L_cutoff = 1
-			--print_message_to_user("LEFT ENG BYPASS ON")--WARTHOG DETENT
-		elseif command == 10028 and L_cutoff == 0 and (apu_pwr == 1 or sensor_data.getEngineLeftRPM() > 40) then
-			L_cutoff = 1
-			dispatch_action(nil,L_Eng_Start)
-			--print_message_to_user("LEFT ENG START WARTHORG")
-		elseif command == 10028 and L_cutoff == 1 then
-			L_cutoff = 0
-			dispatch_action(nil,L_Eng_Stop)
-			--print_message_to_user("LEFT ENG OFF WARTHOG")
-		elseif command == L_Eng_Stop then
-			L_cutoff = 0
-			--print_message_to_user("LEFT ENG STOP")
-		elseif command == 10029 and R_cutoff == 0 and apu_pwr == 0 and sensor_data.getEngineRightRPM() < 39 then
-			R_cutoff = 1
-			--print_message_to_user("RIGHT ENG BYPASS ON")--WARTHOG DETENT
-		elseif command == 10029 and R_cutoff == 0 and (apu_pwr == 1 or sensor_data.getEngineRightRPM() > 40) then
-			R_cutoff = 1
-			dispatch_action(nil,R_Eng_Start)
-			--print_message_to_user("RIGHT ENG START WARTHORG")
-		elseif command == 10029 and R_cutoff == 1 then
-			R_cutoff = 0
-			dispatch_action(nil,R_Eng_Stop)
-			--print_message_to_user("RIGHT ENG OFF WARTHOG")
-		elseif command == R_Eng_Stop then
-			R_cutoff = 0
-			--print_message_to_user("RIGHT ENG STOP")
-		elseif command == EnginesStart then
-			L_cutoff = 1
-			R_cutoff = 1
-		elseif command == EnginesStop then
-			L_cutoff = 0
-			R_cutoff = 0
-		end
+        engine_command(command, value)
 --THROTTLE ANIMATION: each lever follows its own cutoff, including mixed engines.
     if command == 2004 then
         L_throttle_pos = (L_cutoff == 1) and value or 1
@@ -483,7 +463,6 @@ function update()
 	--print_message_to_user(B_throttle_pos)
 	--print_message_to_user(GROUND_POWER:get())
 	--print_message_to_user(APU_POWER:get())
-	--print_message_to_user(sensor_data.getEngineLeftRPM())
 
 	if L_cutoff == 0 then
 		L_throttle_pos = 1
