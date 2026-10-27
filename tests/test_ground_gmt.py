@@ -10,6 +10,7 @@ local v={F22_AG_RADAR_NATIVE_READY=1,F22_AG_GMT_READY=1,F22_AG_GMT_COUNT=1}
 local function get(n)return v[n]or 0 end;local function put(n,x)v[n]=x end
 package.preload.terrain=function()return {GetHeight=function()return 50 end}end
 local s=dofile(SCRIPT_ROOT..'Systems/AG_Radar_System.lua').new(get,put,function()end)
+dofile(SCRIPT_ROOT..'../../tests/surface_grant_fixture.lua')(s,put)
 s:command('tws',1,true,10)
 assert(get('F22_AG_INTERLEAVE')==0,'GMT must open on a clean background')
 s:command('interrogate',1,true,10)

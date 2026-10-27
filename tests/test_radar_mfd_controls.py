@@ -10,14 +10,13 @@ with contextlib.redirect_stdout(io.StringIO()):
 
 lua = runtime()
 lua.execute('''
-native={set_power=function() end};function GetDevice(_) return native end
-dofile(SCRIPT_ROOT..'Systems/Radar_System.lua')
-dofile(SCRIPT_ROOT..'../../tests/radar_body_fixture.lua');post_initialize()
-radar_command=SetCommand;radar_update=update
+dofile(SCRIPT_ROOT..'../../tests/owned_radar_fixture.lua')
+radar_command=f.command;radar_update=function()f.tick()end
 local function put(n,v) get_param_handle(n):set(v) end
 local function val(n) return get_param_handle(n):get() end
 put('MAIN_POWER',1);put('F22N_RADAR_MODE',1)
 radar_command(10601,1);radar_update()
+function get_aircraft_property()return 0 end
 dofile(SCRIPT_ROOT..'Systems/MFD_System.lua');post_initialize();local mfd_command=SetCommand
 dofile(SCRIPT_ROOT..'Systems/PMFD_System.lua');post_initialize()
 local routed={}
@@ -45,14 +44,14 @@ for _,commands in ipairs({
  click(commands[1]);assert(routed[1][2]==10616)
  local nextwidth=width==120 and 60 or width==60 and 30 or 120
  assert(val('F22_RADAR_SEARCH_WIDTH_DEG')==nextwidth)
- assert(math.abs(val('F22N_SCAN_ZONE_VOLUME_AZIMUTH')-math.rad(nextwidth))<1e-8)
+ assert(math.abs(2*val('F22_AESA_CONTROL_HALF_AZ')-math.rad(nextwidth))<1e-8)
  local height=val('F22_RADAR_SEARCH_HEIGHT_DEG')
  click(commands[2]);assert(routed[1][2]==10623)
  local nextheight=height==10 and 20 or height==20 and 40 or 10
  assert(val('F22_RADAR_SEARCH_HEIGHT_DEG')==nextheight)
- assert(math.abs(val('F22N_SCAN_ZONE_VOLUME_ELEVATION')-math.rad(nextheight))<1e-8)
+ assert(math.abs(2*val('F22_AESA_CONTROL_HALF_EL')-math.rad(nextheight))<1e-8)
  click(commands[3]);assert(routed[1][2]==10614 and math.abs(val('F22_RADAR_EL_DEG')-2)<1e-8)
- assert(math.abs(val('F22N_SCAN_ZONE_ORIGIN_ELEVATION')-math.rad(2))<1e-8)
+ assert(math.abs(val('F22_AESA_CONTROL_EL')-math.rad(2))<1e-8)
  click(commands[4]);assert(routed[1][2]==10615 and math.abs(val('F22_RADAR_EL_DEG'))<1e-8)
  click(commands[3]);click(commands[5])
  assert(routed[1][2]==10617 and math.abs(val('F22_RADAR_EL_DEG'))<1e-8)
@@ -66,9 +65,7 @@ assert(val('F22_RADAR_SEARCH_HEIGHT_DEG')~=previous)
 assert(val('F22_RADAR_SCAN_EL_DEG')==val('F22_RADAR_SEARCH_HEIGHT_DEG'),
  'TWS retained old scan height after pilot changed it')
 -- Editing the next search pattern must never issue a native STT reject.
-put('F22N_RADAR_MODE',3);put('F22N_RADAR_STT_RANGE',12964)
-put('F22N_RADAR_STT_AZIMUTH',0);put('F22N_RADAR_STT_ELEVATION',0)
-radar_update();assert(val('F22_RADAR_STT_VALID')==1)
+f.lock(42);assert(val('F22_RADAR_STT_VALID')==1)
 for _,command in ipairs({10150,10149,10148,10147,10146}) do
  click(command);assert(val('F22_RADAR_STT_VALID')==1,'scan edit rejected STT')
 end
