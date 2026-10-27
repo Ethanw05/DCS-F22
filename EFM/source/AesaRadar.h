@@ -31,6 +31,7 @@ struct Beam {
     double started{}, completes{}, azimuth{}, elevation{};
     std::uint32_t task_source{};
     bool priority{}, surface{};
+    double deadline{}, integration_s{};
 };
 // Environment truth is private input. It is never a published measurement.
 struct Truth {
@@ -56,14 +57,17 @@ struct Controls {
     double resource = 1, azimuth{}, elevation{}, half_azimuth = 60 * degree;
     double half_elevation = 10 * degree, range_m = 160 * 1852.0;
     std::array<std::uint32_t, 10> priority_ids{};
-    std::uint32_t selected_id{};
+    std::uint32_t selected_id{}, fire_control_id{};
+    bool gun_tracking{};
     std::uint64_t generation = 1;
 };
 // All numeric performance choices are bounded GAME ESTIMATES, not APG-77 data.
 struct Policy {
-    double dwell_s = .02, processing_s = .06, beam_half_angle = 3 * degree;
-    double reference_range_m = 80000, track_revisit_s = .25, track_memory_s = 12;
+    double dwell_s = .02, processing_s = .012, beam_half_angle = 3 * degree;
+    double reference_range_m = 80000, track_revisit_s = .1, track_memory_s = 12;
     double range_error_m = 30, angular_error_rad = .08 * degree;
+    double minimum_track_dwell_s = .004, fire_control_revisit_s = .05;
+    double gun_revisit_s = .025, support_revisit_s = .05;
 };
 struct Measurement {
     std::uint32_t id{}, hits{};
@@ -85,7 +89,8 @@ struct Status {
     double time{}, resource{}, processing_s{};
     bool surface_service{};
     double surface_azimuth{};
-    std::uint32_t surface_sequence{};
+    std::uint32_t surface_sequence{}, fire_control_id{}, deadline_misses{};
+    double fire_control_revisit_s{}, fire_control_last_look = -100;
 };
 class Model {
 public:
@@ -96,6 +101,10 @@ public:
     const Status& status() const noexcept { return status_; }
 private:
     struct Pending { Measurement value{}; AesaTrackFilter::Sample sample{}; double release{}; bool occupied{}; };
+    struct Task {
+        Measurement* track{};
+        double dwell{}, deadline{};
+    };
     Policy policy_;
     Controls previous_{};
     std::array<Measurement, maximum_tracks> tracks_{};
@@ -104,7 +113,7 @@ private:
     std::array<double, maximum_tracks> last_priority_look_{};
     std::array<Truth, maximum_candidates> candidates_{};
     Status status_{};
-    double clock_ = -1, next_start_{};
+    double clock_ = -1, next_start_{}, priority_run_s_{};
     std::uint64_t generation_{};
     std::uint32_t random_ = 0x1a2b3c4d, cell_{}, turn_{}, surface_cell_{}, array_turn_{}, candidate_cursor_{};
     double uniform() noexcept;
@@ -114,8 +123,15 @@ private:
     void release(double now) noexcept;
     bool assimilate(Pending&, Measurement&) noexcept;
     void start_surface(double, const Controls&, const Pose&) noexcept;
+    double revisit(std::uint32_t id, std::size_t priority, const Controls&) const noexcept;
+    double track_dwell(const Measurement&, const Pose&) const noexcept;
+    Task priority_task(double now, const Controls&, const Pose&) noexcept;
+    void search_angles(const Controls&, double& azimuth, double& elevation) noexcept;
     void start(double now, const Controls&, const Pose&) noexcept;
+    void completed_look(double now, const Controls&) noexcept;
     void observe(double now, const Controls&, const Pose&, Environment&) noexcept;
+    void reduce_resource(double now, const Controls&) noexcept;
+    bool prepare(double now, const Controls&) noexcept;
     void detect(double now, const Controls&, const Pose&, const Truth&, QueryStats&, Environment&) noexcept;
     void queue(double now, const Pose&, const Truth&, double signal) noexcept;
     Measurement* find(std::uint32_t id) noexcept;

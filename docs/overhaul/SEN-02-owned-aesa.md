@@ -1,4 +1,4 @@
-# SEN-01–04: owned AESA sensor
+# SEN-01â€“04: owned AESA sensor
 
 This replaces the earlier native-constrained slice. Device13 is an owned
 `avLuaDevice` clock; no `avSimpleRadar` detector, mechanical scan, observation
@@ -10,9 +10,10 @@ These work items remain partial pending the qualification limits below.
 ## Physical model and evidence
 
 - Electronic pointing steps between search cells and priority targets. Dwell,
-  processing delay and observation age are distinct. At least one in four air
-  jobs reserves discovery; ten priorities cover two designations and eight
-  missile obligations. A/G reserves two surface jobs per three array jobs;
+  processing delay and observation age are distinct. A quarter of air RF time
+  reserves discovery; ten priorities cover two designations and eight missile
+  obligations. [The service-deadline correction](SEN-02-revisit.md) adds distinct
+  GUN, acquisition/STT, missile-support and routine deadlines. A/G reserves two surface jobs per three array jobs;
   completed surface grants gate search, acquisition, tracking and ranging.
 - Range-fourth-power response, off-axis gain, visibility, detection probability,
   a simple look-down penalty and noisy range/angles/radial Doppler precede
@@ -34,20 +35,20 @@ These work items remain partial pending the qualification limits below.
   released native owner. The integrated physical owner remains authoritative.
 
 All numerical policies are estimates: 20ms dwell, 60ms processing, 3deg beam
-half-angle, 250ms priority revisit, reference80km at1m², noise laws and continuous
-acceleration intensity100m²/s³. Callback cadence quantizes these requested times.
+half-angle, 250ms priority revisit, reference80km at1mÂ², noise laws and continuous
+acceleration intensity100mÂ²/sÂ³. Callback cadence quantizes these requested times.
 The ground 8..55kt discovery predicate is an APG-73 game analogue. Exact RCS,
 waveforms/PRFs, ambiguity resolution, ECM/CFAR, false alarms and crossing-target
 association ambiguity are not modeled. Simulator IDs correlate reports/native
 weapons; this is not authenticated APG-77 processing or performance.
 
-Sources consulted: [Brower, 2001, ch32 §32.3.2 p8](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf)
+Sources consulted: [Brower, 2001, ch32 Â§32.3.2 p8](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf)
 for interleaved electronic service; [NOAA PAR](https://www.nssl.noaa.gov/tools/radar/par/)
 and [RTX APG-79](https://www.rtx.com/raytheon/what-we-do/air/apg79aesa) for steering
 context; [IEEE AESS nonlinear radar tracking tutorial](https://ieee-aess.org/media/basic-tracking-using-nonlinear-3d-monostatic-and-bistatic-measurements)
 and [MathWorks measurement model](https://www.mathworks.com/help/fusion/ug/introduction-to-radar-for-object-tracking.html)
 for range/angles/Doppler, pose and uncertainty. The installed ED Hornet guide
-pp171–176 supplies named ACM/TWS procedural analogues; mod VACQ/WIDE choices
+pp171â€“176 supplies named ACM/TWS procedural analogues; mod VACQ/WIDE choices
 remain estimates. These references do not authenticate the tuning above.
 
 ## Native and consumer contracts
@@ -95,6 +96,9 @@ bezel9 on all four panels. Raw `PROC Qn` debug text is removed; telemetry keeps
 queue depth, and actual sensor degradation retains its warning.
 
 ## Verification and limits
+
+The historical qualification below predates the service-deadline correction.
+See [current scheduler verification](SEN-02-revisit.md) for its tests and limits.
 
 - MSVC19.51 / VS18 Release DLL build and **28/28 CTests pass** (unused decoder test retired). New model/provider
   tests use `/W4 /WX /analyze`. Mocked native sensor callbacks allocate no C++ heap

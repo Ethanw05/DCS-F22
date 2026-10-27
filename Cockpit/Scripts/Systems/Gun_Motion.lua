@@ -1,5 +1,6 @@
 -- GPL-3.0-or-later. Estimate rotation of velocity rather than lagging world acceleration.
-local M={}
+-- Match the owned radar's bounded lock/update envelope, not cockpit tick rate.
+local M={maximum_interval=.5}
 local function finite(v)return type(v)=='number'and v==v and math.abs(v)<1e8 end
 local function norm(v)return math.sqrt(v[1]^2+v[2]^2+v[3]^2)end
 local function cross(a,b)return{a[2]*b[3]-a[3]*b[2],a[3]*b[1]-a[1]*b[3],a[1]*b[2]-a[2]*b[1]}end
@@ -11,7 +12,10 @@ function M.new()
   if self.t==t then return self.a end
   local previous=self.v;local dt=self.t and t-self.t or 0
   self.t=t;self.v={v[1],v[2],v[3]}
-  if not previous or dt<=0 or dt>.3 then self.omega=nil;self.tangent=nil;self.a=nil;return end
+  if not previous or dt<=0 or dt>M.maximum_interval then
+   self.omega,self.tangent,self.a=nil,nil,nil
+   return
+  end
   local speed,prior=norm(v),norm(previous);if speed>1500 or prior>1500 then self:reset();return end
   local c=cross(previous,v);local length=norm(c);local omega={0,0,0}
   local dot=previous[1]*v[1]+previous[2]*v[2]+previous[3]*v[3]

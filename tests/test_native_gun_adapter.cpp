@@ -63,6 +63,14 @@ int main(){
  values["F22_GUN_REQUEST_SEQUENCE"]=18;update(p);CHECK(values["F22_GUN_SOLUTION_VALID"]==1);
  CHECK(values["F22_GUN_RESPONSE_SEQUENCE"]==18);CHECK(std::abs(values["F22_GUN_RESULT_TIME"]-.12)<1e-9);
  CHECK(std::abs(values["F22_GUN_CURRENT_N"]-(801+220*.05+15*.05*.05))<1e-6);
+ // Owned AESA observations arrive at a finite interleaved cadence. Queue
+ // latency remains independently bounded, and the actual sample age is kept.
+ values["F22_GUN_MEASUREMENT_AGE"]=.306;values["F22_GUN_REQUEST_SEQUENCE"]=20;
+ update(p);CHECK(values["F22_GUN_SOLUTION_VALID"]==1);
+ CHECK(std::abs(values["F22_GUN_CURRENT_N"]-(801+220*.326+15*.326*.326))<1e-6);
+ values["F22_GUN_MEASUREMENT_AGE"]=.49;update(p);
+ CHECK(values["F22_GUN_SOLUTION_VALID"]==0&&values["F22_GUN_SOLVER_REASON"]==8);
+ values["F22_GUN_MEASUREMENT_AGE"]=.03;
  queue_delay=.3;values["F22_GUN_REQUEST_SEQUENCE"]=19;update(p);
  CHECK(values["F22_GUN_SOLUTION_VALID"]==0&&values["F22_GUN_RESPONSE_SEQUENCE"]==19&&values["F22_GUN_SOLVER_REASON"]==8);
  queue_delay=0;

@@ -275,8 +275,12 @@ void calculate(EDPARAM &p) {
     double age = get(p, "F22_GUN_MEASUREMENT_AGE") + std::max(0.0, delay);
     const double identity = get(p, "F22_GUN_TRACK_ID");
     put(p, "F22_GUN_QUEUE_DELAY", delay);
-    if (!std::isfinite(now) || !std::isfinite(delay) || delay < -.01 || delay > .15 ||
-        !std::isfinite(age) || age < 0 || age > .15) {
+    // Same bounded measured-state envelope as the owned radar/gun consumer.
+    // Queue freshness is independent: delayed work cannot renew the sample.
+    constexpr double maximum_measurement_age = .5;
+    constexpr double maximum_queue_delay = .15;
+    if (!std::isfinite(now) || !std::isfinite(delay) || delay < -.01 || delay > maximum_queue_delay ||
+        !std::isfinite(age) || age < 0 || age > maximum_measurement_age) {
         put(p, "F22_GUN_SOLVER_REASON", 8);
         api.dtor(sight.data());
         return;

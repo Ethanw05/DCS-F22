@@ -185,7 +185,8 @@ void sample(void *owned_radar, const ArrayService* service) {
     if(!c.active){range_pending={};range_report={};measurements.clear();tracks.clear();selected={};acquiring=false;fixed=false;}stats.agr_valid=false;stats.contacts.clear();stats.selected={};stats.fixed=false;
     std::lock_guard<std::mutex>lock(state_mutex);if(epoch.load()==generation)output=stats;return;
   }
-  if(now>=last_query&&now-last_query<.015)return;
+  // A completed array grant is an RF event, not an optional coast refresh.
+  if(!c.illuminated&&now>=last_query&&now-last_query<.015)return;
   const double dt=last_query<0?.02:std::clamp(now-last_query,0.,.1);
   last_query=now;tracks.advance(now);
   measurements.release(now,[&](const Contact& measured,bool for_track) {
