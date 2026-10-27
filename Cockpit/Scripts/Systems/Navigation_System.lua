@@ -120,7 +120,7 @@ function post_initialize()
 end
 for _,c in pairs(commands) do dev:listen_command(c) end
 dev:listen_command(Keys.PlaneChangeTarget);dev:listen_command(1315)
-function SetCommand(command,value)
+local function apply_command(command,value)
     if command>=10830 and command<=10842 then value=decode(value,devices.NAV_SYSTEM) end
     if value and value<=0 then return end
     if get('MAIN_POWER')<.5 then
@@ -188,6 +188,28 @@ function SetCommand(command,value)
     if old_designation and computer.designation~=old_designation then
         set('F22_NAV_TARGET_REQUEST_VALID',0);designation_status(0,'')
     end
+end
+local transaction=dofile(LockOn_Options.script_path..'Systems/Entry_Transaction.lua').channel('NAV',get,set)
+for _,key in ipairs({'ID','LAT','LON','ALT_FT'})do get('F22_NAV_EDIT_ACK_'..key);get('F22_ENTRY_NAV_'..key)end
+dev:listen_command(11800)
+function SetCommand(command,value)
+    if command~=11800 then apply_command(command,value);return end
+    local requested=transaction:take(value)
+    if not requested then return end
+    if requested~=commands.commit or get('MAIN_POWER')<.5 then
+        transaction:finish(value,false);return
+    end
+    for _,key in ipairs({'ID','LAT','LON','ALT_FT'})do
+        set('F22_NAV_EDIT_'..key,get('F22_ENTRY_NAV_'..key))
+    end
+    apply_command(requested,1)
+    local accepted=get('F22_NAV_EDIT_STATUS')=='STPT STORED'
+    if accepted then
+        for _,key in ipairs({'ID','LAT','LON','ALT_FT'})do
+            set('F22_NAV_EDIT_ACK_'..key,get('F22_NAV_EDIT_'..key))
+        end
+    end
+    transaction:finish(value,accepted)
 end
 local next_diagnostic=-1
 local function diagnostic(own,s)

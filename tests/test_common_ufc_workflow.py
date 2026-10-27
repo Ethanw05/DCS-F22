@@ -79,7 +79,8 @@ events={};key(3035);assert(events[1].c==10953,'explicit AP/AT disconnect missing
 -- STPT uses the same transaction and retains leading zeros in the scratchpad.
 put('HUD_WP_INDEX',2);put('F22_NAV_FIX_LAT',41.5);put('F22_NAV_FIX_LON',42.5);put('F22_NAV_FIX_ALT_FT',10000);put('F22_NAV_FIX_GEO_VALID',1)
 key(3004);key(3009);digits('4130000');assert(get('F22_UFC_SCRATCH')=='4130000_')
-assert(get('F22_UFC_ROW_2'):find('41',1,true));key(3009);assert(get('F22_UFC_SELECTED')==0)
+assert(get('F22_UFC_ROW_2'):find('41',1,true));key(3009)
+assert(get('F22_UFC_SELECTED')==2 and get('F22_ENTRY_NAV_ACTIVE')==1,'missing NAV owner falsely completed same-ID edit')
 -- Actual indicator binds typed digits to the left scratchpad aperture only.
 dofile(SCRIPT_ROOT..'ICP/page_1.lua')
 local scratch,rows=0,0

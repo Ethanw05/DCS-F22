@@ -14,6 +14,15 @@ for _,k in ipairs({'F22_AP_ACTIVE','F22_AP_ROLL_MODE','F22_AP_PITCH_MODE','F22_A
  'F22_NAV_CRS_TEXT','F22_NAV_SOURCE_TEXT','F22_TCN_TUNE_TEXT','F22_ILS_TUNE_TEXT','F22_INS_READY','F22_INS_MODEL_ENABLED','F22_INS_STATUS_TEXT','F22_GPS_AID'})do h(k)end
 for _,key in ipairs({'F22_AP_STATUS_TEXT','F22_AP_HDG_TEXT','F22_AP_ALT_TEXT','F22_AP_SPEED_TEXT','F22_AP_VS_TEXT',
  'F22_NAV_CRS_TEXT','F22_NAV_SOURCE_TEXT','F22_TCN_TUNE_TEXT','F22_ILS_TUNE_TEXT','F22_INS_STATUS_TEXT'})do set(key,'')end
+local light_control=dofile(LockOn_Options.script_path..'Systems/External_Light_Control.lua').new(
+ get_cockpit_draw_argument_value,function(owner,command,value)
+  local device=GetDevice(devices[owner])
+  if device and type(device.performClickableAction)=='function' then
+   device:performClickableAction(command,value,false)
+  end
+ end)
+for command=10505,10512 do dev:listen_command(command)end
+for command=11905,11912 do dev:listen_command(command)end
 local frequencies={}
 for f=108100,111900,200 do frequencies[#frequencies+1]=f;frequencies[#frequencies+1]=f+50 end
 local frequency_index=23 -- 110.30 MHz
@@ -34,10 +43,14 @@ end
 for c=10930,10949 do dev:listen_command(c)end
 for c=10950,10969 do dev:listen_command(c)end
 for c=11010,11015 do dev:listen_command(c)end
-function SetCommand(command,value)
+local function apply_command(command,value)
+ if command>=10505 and command<=10512 or command>=11905 and command<=11912 then
+  if type(value)=='number' and decode(value,devices.FLIGHT_GUIDANCE)>0 then light_control:command(command)end
+  return
+ end
  if command>=11010 and command<=11015 then
   if type(value)=='number'and value==value and math.abs(value)<1e7 and get('MAIN_POWER')>.5 then
-   dispatch_action(nil,10520+command-11010,value)
+   dispatch_action(nil,11620+command-11010,value)
   end
   return
  end
@@ -53,11 +66,11 @@ function SetCommand(command,value)
  end
  value=decode(value,devices.FLIGHT_GUIDANCE)
  -- The paddle release is a separate command and must work without main power.
- if command==10962 and value>0 then dispatch_action(nil,10512,1);return end
+ if command==10962 and value>0 then dispatch_action(nil,11612,1);return end
  if value<=0 then return end
- if command==10953 then dispatch_action(nil,10503,1);return end
+ if command==10953 then dispatch_action(nil,11603,1);return end
  if get('MAIN_POWER')<.5 then return end
- if command>=10950 and command<=10969 then dispatch_action(nil,command-450,1);return end
+ if command>=10950 and command<=10969 then dispatch_action(nil,command+650,1);return end
  if command==10930 then set('F22_NAV_SOURCE',(get('F22_NAV_SOURCE')+1)%3)
  elseif command==10931 or command==10932 then set('F22_NAV_OBS',1);set('F22_NAV_COURSE',(get('F22_NAV_COURSE')+(command==10931 and 1 or -1))%360)
  elseif command==10933 or command==10934 then set('F22_TCN_CHANNEL',math.max(1,math.min(126,get('F22_TCN_CHANNEL')+(command==10933 and 1 or -1))))
@@ -74,6 +87,22 @@ function SetCommand(command,value)
  elseif command==10945 then set('F22_NAV_SOURCE',2)
  elseif command==10948 then set('F22_NAV_OBS',1-get('F22_NAV_OBS'))
  end
+end
+local transaction=dofile(LockOn_Options.script_path..'Systems/Entry_Transaction.lua').channel('GUIDANCE',get,set)
+dev:listen_command(11800)
+function SetCommand(command,value)
+ if command~=11800 then apply_command(command,value);return end
+ local requested,wanted=transaction:take(value)
+ if not requested then return end
+ if get('MAIN_POWER')<.5 then transaction:finish(value,false);return end
+ if requested>=11010 and requested<=11015 then
+  dispatch_action(nil,11800,value)
+  return
+ end
+ local key=({[10946]='F22_TCN_CHANNEL',[10947]='F22_ILS_FREQ_KHZ',[10949]='F22_NAV_COURSE'})[requested]
+ if not key then transaction:finish(value,false);return end
+ apply_command(requested,wanted)
+ transaction:finish(value,math.abs(get(key)-wanted)<.01,get(key))
 end
 function update()
  local powered=get('MAIN_POWER')>.5

@@ -1,4 +1,5 @@
-﻿#include "NativeGunSight.h"
+﻿#include "CommandRouting.h"
+#include "NativeGunSight.h"
 /*    Grinnelli Designs F-22A Raptor
     Copyright (C) 2025, Branden Hooper
 
@@ -1103,6 +1104,7 @@ void ed_fm_set_current_state_body_axis(double ax, double ay, double az, double v
 }
 
 void ed_fm_set_command(int command, float value) {
+    if (command == 11800) { cockpit_manager.commitGuidanceEntry(value); return; }
     // Cockpit-scheduled work continues during active pause, independently of
     // physics integration. The Lua device supplies its fixed activity period.
     if (command == 10851) { cockpit_manager.updateGun(); return; }
@@ -1110,8 +1112,11 @@ void ed_fm_set_command(int command, float value) {
         cockpit_manager.updateCombat(static_cast<double>(value));
         return;
     }
-    if ((command>=10500 && command<=10525) || command==62 || command==389 || command==408 || command==538 || command==427 || command==428 || command==429) {
-        if (value>0 || command==428 || command>=10520&&command<=10525) autopilot.command(command,ap_frame(),value);
+    if (const int afcs_command = RaptorCommands::afcs(command)) {
+        if (value > 0 || afcs_command == 428 ||
+            (afcs_command >= 11620 && afcs_command <= 11625)) {
+            autopilot.command(afcs_command, ap_frame(), value);
+        }
         return;
     }
     if ((command>=93 && command<=99) || command==215) {
@@ -1897,6 +1902,9 @@ void CockpitManager::initialize() {
         "EFM_GROUND_VALID", "EFM_WEIGHT_ON_WHEELS", "F22_NAV_STEER_VALID", "F22_NAV_STEER_TRACK",
         "F22_NAV_STEER_STAMP", "F22_AP_ACTIVE", "F22_AP_ROLL_MODE", "F22_AP_PITCH_MODE", "F22_AP_AT",
         "F22_AP_MACH_HOLD", "F22_AP_HEADING", "F22_AP_ALT", "F22_AP_VS", "F22_AP_SPEED", "F22_AP_MACH",
+        "F22_ENTRY_GUIDANCE_REQUEST", "F22_ENTRY_GUIDANCE_ACTIVE",
+        "F22_ENTRY_GUIDANCE_COMMAND", "F22_ENTRY_GUIDANCE_VALUE",
+        "F22_ENTRY_GUIDANCE_ACK_REQUEST", "F22_ENTRY_GUIDANCE_RESULT", "F22_ENTRY_GUIDANCE_ACK_VALUE",
         "F22_AP_REASON", "F22_AP_OVERRIDE", "F22_AP_READY", "F22_AP_CLOCK", "F22_AP_RALT",
         "EFM_FCS_INTEGRITY_VALID", "EFM_FCS_DAMAGED", "F22_ALT_PRESSURE_REQUEST_VALID",
         "EFM_VEHICLE_VALID", "EFM_HYD_LEFT_PSI", "EFM_HYD_RIGHT_PSI", "EFM_ACTUATOR_AVAILABLE",
@@ -2118,6 +2126,42 @@ void CockpitManager::updateGearLights(double dt) {
     param_api_.setParamNumber(param_handles_["N_GEAR_LIGHT"], nose_gear_light);
     param_api_.setParamNumber(param_handles_["R_GEAR_LIGHT"], right_gear_light);
     param_api_.setParamNumber(param_handles_["L_GEAR_LIGHT"], left_gear_light);
+}
+
+void CockpitManager::commitGuidanceEntry(double sequence) {
+    constexpr double maximum_sequence = 16777215.;
+    if (!std::isfinite(sequence) || sequence < 1 || sequence > maximum_sequence ||
+        sequence != std::floor(sequence) || getParameter("F22_ENTRY_GUIDANCE_ACTIVE") != 1 ||
+        getParameter("F22_ENTRY_GUIDANCE_REQUEST") != sequence ||
+        getParameter("F22_ENTRY_GUIDANCE_ACK_REQUEST") >= sequence) return;
+    const double requested = getParameter("F22_ENTRY_GUIDANCE_COMMAND");
+    const double value = getParameter("F22_ENTRY_GUIDANCE_VALUE");
+    const bool valid_command = std::isfinite(requested) && requested >= 11010 &&
+        requested <= 11015 && requested == std::floor(requested);
+    const int command = valid_command ? static_cast<int>(requested) : 0;
+    const bool accepted = getParameter("MAIN_POWER") > .5 &&
+        RaptorCommands::target_valid(command, value);
+    double committed = 0;
+    if (accepted) {
+        autopilot.command(11620 + command - 11010, ap_frame(), value);
+        switch (command) {
+        case 11010: committed = autopilot.selected_heading / RaptorAP::rad; break;
+        case 11011: committed = autopilot.selected_alt * 3.280839895; break;
+        case 11012: committed = autopilot.selected_vs * 196.850394; break;
+        case 11013: committed = autopilot.selected_speed * 1.943844492; break;
+        case 11014: committed = autopilot.selected_mach; break;
+        case 11015: committed = autopilot.captured_agl * 3.280839895; break;
+        default: break;
+        }
+    }
+    const auto ack_value = param_handles_.find("F22_ENTRY_GUIDANCE_ACK_VALUE");
+    const auto result = param_handles_.find("F22_ENTRY_GUIDANCE_RESULT");
+    const auto ack_request = param_handles_.find("F22_ENTRY_GUIDANCE_ACK_REQUEST");
+    if (ack_value == param_handles_.end() || result == param_handles_.end() ||
+        ack_request == param_handles_.end()) return;
+    param_api_.setParamNumber(ack_value->second, committed);
+    param_api_.setParamNumber(result->second, accepted ? 1. : 2.);
+    param_api_.setParamNumber(ack_request->second, sequence);
 }
 
 void CockpitManager::updateTaxiLandingLights(double dt) {

@@ -34,13 +34,13 @@ function get(k)return get_param_handle(k):get()end
 function put(k,v)get_param_handle(k):set(v)end
 put('MAIN_POWER',1);function dispatch_action(d,c,v)actions[#actions+1]={d,c,v}end
 SetCommand(10950,25.375);SetCommand(10950,25.25)
-assert(#actions==1 and actions[1][2]==10500,'one native AP command per physical press')
+assert(#actions==1 and actions[1][2]==11600,'one native AP command per physical press')
 assert(get('F22_ILS_FREQ_KHZ')==110300)
 for i=1,200 do SetCommand(10937,1)end;assert(get('F22_ILS_FREQ_KHZ')==111950)
 for i=1,200 do SetCommand(10938,1)end;assert(get('F22_ILS_FREQ_KHZ')==108100)
 for i=1,200 do SetCommand(10934,1)end;assert(get('F22_TCN_CHANNEL')==1)
-SetCommand(10953,1);assert(actions[#actions][2]==10503)
-put('MAIN_POWER',0);SetCommand(10962,1);assert(actions[#actions][2]==10512)
+SetCommand(10953,1);assert(actions[#actions][2]==11603)
+put('MAIN_POWER',0);SetCommand(10962,1);assert(actions[#actions][2]==11612)
 """)
 sim=runtime()
 sim.execute("""

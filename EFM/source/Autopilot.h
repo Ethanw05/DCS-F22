@@ -108,29 +108,29 @@ public:
   }
   void command(int c, const Frame &f, double value=1) {
     // Editing a selected target never engages a flight mode.
-    if(c>=10520&&c<=10525){
+    if(c>=11620&&c<=11625){
       if(!std::isfinite(value))return;
-      if(c==10520&&value>=0&&value<360){selected_heading=value*rad;heading_preset=true;}
-      else if(c==10521&&value>=0&&value<=65000){selected_alt=value/3.280839895;altitude_preset=true;}
-      else if(c==10522&&std::abs(value)<=6000){selected_vs=value/196.850394;vs_preset=true;}
-      else if(c==10523&&value>=160&&value<=700){selected_speed=value/1.943844492;speed_preset=true;}
-      else if(c==10524&&value>=.2&&value<=2){selected_mach=value;mach_preset=true;}
-      else if(c==10525&&value>=200&&value<=5000){captured_agl=value/3.280839895;radar_preset=true;}
+      if(c==11620&&value>=0&&value<360){selected_heading=value*rad;heading_preset=true;}
+      else if(c==11621&&value>=0&&value<=65000){selected_alt=value/3.280839895;altitude_preset=true;}
+      else if(c==11622&&std::abs(value)<=6000){selected_vs=value/196.850394;vs_preset=true;}
+      else if(c==11623&&value>=160&&value<=700){selected_speed=value/1.943844492;speed_preset=true;}
+      else if(c==11624&&value>=.2&&value<=2){selected_mach=value;mach_preset=true;}
+      else if(c==11625&&value>=200&&value<=5000){captured_agl=value/3.280839895;radar_preset=true;}
       return;
     }
     // IDs retained from the original EFM, plus dedicated selections.
-    if (c == 408 || c == 538 || c == 10503) {
+    if (c == 408 || c == 538 || c == 11603) {
       disconnect();
       at = false;
       override_held = false;
       return;
     }
-    if (c == 427 || c == 10511) {
+    if (c == 427 || c == 11611) {
       override_held = true;
       integral = 0;
       return;
     }
-    if (c == 428 || c == 10512) {
+    if (c == 428 || c == 11612) {
       override_held = false;
       if (active()) {
         captured_pitch = f.pitch;
@@ -146,43 +146,43 @@ public:
       }
       return;
     }
-    if (c == 10506) {
+    if (c == 11606) {
       if(!heading_preset)selected_heading=f.heading;
       selected_heading = wrap(selected_heading - rad);
       heading_preset=true;
       return;
     }
-    if (c == 10507) {
+    if (c == 11607) {
       if(!heading_preset)selected_heading=f.heading;
       selected_heading = wrap(selected_heading + rad);
       heading_preset=true;
       return;
     }
-    if (c == 10508) {
+    if (c == 11608) {
       if(!altitude_preset)selected_alt=f.alt;
       selected_alt = clamp(selected_alt - 30.48, 0, 19812);
       altitude_preset=true;
       return;
     }
-    if (c == 10509) {
+    if (c == 11609) {
       if(!altitude_preset)selected_alt=f.alt;
       selected_alt = clamp(selected_alt + 30.48, 0, 19812);
       altitude_preset=true;
       return;
     }
-    if (c == 10513) {
+    if (c == 11613) {
       if(!vs_preset)selected_vs=f.vs;
       selected_vs = clamp(selected_vs - .508, -30.48, 30.48);
       vs_preset=true;
       return;
     }
-    if (c == 10514) {
+    if (c == 11614) {
       if(!vs_preset)selected_vs=f.vs;
       selected_vs = clamp(selected_vs + .508, -30.48, 30.48);
       vs_preset=true;
       return;
     }
-    if (c == 10515) {
+    if (c == 11615) {
       if(!speed_preset)selected_speed=f.ias;
       if(!mach_preset)selected_mach=f.mach;
       selected_speed = clamp(selected_speed - 2.57222, 82.31, 360);
@@ -190,7 +190,7 @@ public:
       speed_preset=mach_preset=true;
       return;
     }
-    if (c == 10516) {
+    if (c == 11616) {
       if(!speed_preset)selected_speed=f.ias;
       if(!mach_preset)selected_mach=f.mach;
       selected_speed = clamp(selected_speed + 2.57222, 82.31, 360);
@@ -198,15 +198,15 @@ public:
       speed_preset=mach_preset=true;
       return;
     }
-    if (c == 10517) {
+    if (c == 11617) {
       if (std::isfinite(f.heading)) {
         selected_heading = f.heading;
         heading_preset=true;
       }
       return;
     }
-    if (c == 10502 || c == 10518) {
-      if (at && mach_hold==(c==10518)) {
+    if (c == 11602 || c == 11618) {
+      if (at && mach_hold==(c==11618)) {
         at = false;
         return;
       }
@@ -215,7 +215,7 @@ public:
         return;
       }
       at = true;
-      mach_hold = c == 10518;
+      mach_hold = c == 11618;
       if(!speed_preset)selected_speed = f.ias;
       if(!mach_preset)selected_mach = f.mach;
       throttle = (f.left_throttle + f.right_throttle) * .5;
@@ -226,18 +226,18 @@ public:
       speed_rate = 0;
       return;
     }
-    if (c == 10500 || c == 389) {
+    if (c == 11600 || c == 389) {
       engage(Altitude, active() ? lateral : Attitude, f);
       return;
     }
-    if (c == 10501 || c == 62) {
+    if (c == 11601 || c == 62) {
       if (active() && vertical == Att && lateral == Attitude)
         disconnect();
       else
         engage(Att, Attitude, f);
       return;
     }
-    if (c == 10504) {
+    if (c == 11604) {
       if (!f.eligible()) {
         reason = 1;
         return;
@@ -250,7 +250,7 @@ public:
         engage(Altitude, Heading, f);
       return;
     }
-    if (c == 10505 || c == 429) {
+    if (c == 11605 || c == 429) {
       if (!f.eligible() || !f.navigation()) {
         reason = 1;
         return;
@@ -262,11 +262,11 @@ public:
         engage(Altitude, Navigation, f);
       return;
     }
-    if (c == 10510) {
+    if (c == 11610) {
       engage(RadarAltitude, active() ? lateral : Attitude, f);
       return;
     }
-    if (c == 10519) {
+    if (c == 11619) {
       engage(VerticalSpeed, active() ? lateral : Attitude, f);
       return;
     }

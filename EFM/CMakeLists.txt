@@ -104,3 +104,8 @@ if(BUILD_TESTING)
     endif()
     add_test(NAME trim_control_rate_and_release COMMAND f22_trim_control_test)
 endif()
+
+option(F22_NAV_ANALYSIS "Run MSVC analysis on the AFCS/command contract fixture" OFF)
+if(MSVC AND BUILD_TESTING AND F22_NAV_ANALYSIS)
+    target_compile_options(f22_autopilot_test PRIVATE /W4 /analyze /analyze:external-)
+endif()

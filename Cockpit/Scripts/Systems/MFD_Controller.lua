@@ -18,8 +18,16 @@ function M.new(param,send,ground_override)
   for page in pairs(R.suffix)do put(R.flag(name,page),0)end
  end
  put('F22_MFD_LABEL_ONE',1);put('F22_MFD_LAYOUT_READY',1);put('F22_DEF_DISPLAY_RANGE_NM',40)
+ function s:release_panel(panel)
+  for button=1,20 do
+   local key=panel..':'..button
+   local owner=self.forwarded[key]
+   if owner then send(owner.device,owner.command,0);self.forwarded[key]=nil end
+  end
+ end
  function s:select(panel,page)
   local p=self.panels[panel];if not R.suffix[page]then return end
+  if p.page~=page or p.view~=0 then self:release_panel(panel)end
   if page==R.pages.menu and p.page~=R.pages.menu then p.last=p.page end
   p.page=page;p.view=0;self:publish()
   if log and log.write then log.write('F22_MFD_ROUTE',log.INFO,'panel='..R.panels[panel]..' format='..R.names[page])end
@@ -47,7 +55,7 @@ function M.new(param,send,ground_override)
   if a.action=='menu'or a.page==0 then self:select(panel,R.pages.menu)
   elseif a.action=='return'then self:select(panel,p.last)
   elseif a.action=='page'then self:select(panel,a.value)
-  elseif a.action=='view'or a.view~=nil then p.view=a.view or a.value;self:publish()
+  elseif a.action=='view'or a.view~=nil then self:release_panel(panel);p.view=a.view or a.value;self:publish()
   elseif a.action=='ground_override'then ground_override()
   elseif a.action=='def_range'then
    local ranges={5,10,20,40,80,160};local v=get('F22_DEF_DISPLAY_RANGE_NM');local index=4
@@ -103,8 +111,14 @@ function M.new(param,send,ground_override)
    for key,owner in pairs(self.forwarded)do send(owner.device,owner.command,0);self.forwarded[key]=nil end
    self.held={}
   end
+  local focus=get('F22_SOI')
+  if self.focus~=nil and focus~=self.focus then
+   for panel=1,4 do self:release_panel(panel)end
+  end
+  self.focus=focus
   local role=get('HUD_MODE')==7 and'AG'or'AA'
   if self.role~=role then
+   for panel=1,4 do self:release_panel(panel)end
    for _,p in ipairs(self.panels)do
     if p.page==R.pages.tsd then p.view=0
     elseif p.page==R.pages.stores and role=='AA'and p.view~=2 and p.view~=5 then p.view=0 end

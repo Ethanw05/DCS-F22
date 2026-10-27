@@ -78,6 +78,30 @@ int main(int argc,char** argv) {
     set("MAIN_POWER",0);set("BATTERY_POWER",0);cmd(145,1);ticks(200);draw(args.data(),args.size());assert(args[9]>.99);
     set("MAIN_POWER",1);ticks(200);draw(args.data(),args.size());assert(args[9]==0);
 
+    // Actual DLL callback routing: saved light IDs must not change AFCS.
+    setup(true);body(210);ticks(2);cmd(11600,1);ticks(1);
+    const double old_ap=get("F22_AP_ACTIVE");
+    const double old_pitch=get("F22_AP_PITCH_MODE"), old_roll=get("F22_AP_ROLL_MODE");
+    for(int command=10505;command<=10512;++command)cmd(command,1);
+    for(int command=11905;command<=11912;++command)cmd(command,1);
+    ticks(1);
+    assert(get("F22_AP_ACTIVE")==old_ap && get("F22_AP_PITCH_MODE")==old_pitch && get("F22_AP_ROLL_MODE")==old_roll);
+    set("F22_ENTRY_GUIDANCE_REQUEST",1);set("F22_ENTRY_GUIDANCE_ACTIVE",1);
+    set("F22_ENTRY_GUIDANCE_COMMAND",11010);set("F22_ENTRY_GUIDANCE_VALUE",123);
+    cmd(11800,1);
+    assert(get("F22_ENTRY_GUIDANCE_ACK_REQUEST")==1 && get("F22_ENTRY_GUIDANCE_RESULT")==1);
+    assert(std::abs(get("F22_ENTRY_GUIDANCE_ACK_VALUE")-123)<1e-8);
+    set("F22_ENTRY_GUIDANCE_VALUE",359);cmd(11800,1); // Duplicate token is inert.
+    assert(std::abs(get("F22_ENTRY_GUIDANCE_ACK_VALUE")-123)<1e-8);
+    set("F22_ENTRY_GUIDANCE_REQUEST",2);set("F22_ENTRY_GUIDANCE_ACTIVE",0);cmd(11800,2);
+    assert(get("F22_ENTRY_GUIDANCE_ACK_REQUEST")==1); // Cancel before delayed delivery.
+    set("F22_ENTRY_GUIDANCE_REQUEST",3);set("F22_ENTRY_GUIDANCE_ACTIVE",1);set("F22_ENTRY_GUIDANCE_VALUE",0);cmd(11800,3);
+    assert(get("F22_ENTRY_GUIDANCE_ACK_REQUEST")==3 && get("F22_ENTRY_GUIDANCE_RESULT")==1);
+    assert(get("F22_ENTRY_GUIDANCE_ACK_VALUE")==0);
+    set("F22_ENTRY_GUIDANCE_REQUEST",4);set("F22_ENTRY_GUIDANCE_VALUE",360);cmd(11800,4);
+    assert(get("F22_ENTRY_GUIDANCE_ACK_REQUEST")==4 && get("F22_ENTRY_GUIDANCE_RESULT")==2);
+    cmd(11603,1);
+
     // DCS's repeated trim binding delivers value zero as a valid command.
     // Event bursts alone must not move trim; elapsed simulation time does.
     setup(true);body(210);ticks(100);

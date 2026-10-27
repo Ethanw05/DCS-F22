@@ -25,21 +25,21 @@ assert(g('F22_NAV_DESIGNATED')==0 and g('HUD_WP_CUE_VALID')==0 and g('HUD_AG_TAR
 """)
 sim=runtime()
 sim.execute("""
+dofile(SCRIPT_ROOT..'Systems/Flight_Guidance.lua');post_initialize();local guidance=SetCommand
 dofile(SCRIPT_ROOT..'Systems/ICP_System.lua');post_initialize()
 get_param_handle('MAIN_POWER'):set(1)
 function dispatch_action(d,c,v)
  actions[#actions+1]={d,c,v}
- local names={[10946]='F22_TCN_CHANNEL',[10947]='F22_ILS_FREQ_KHZ',[10949]='F22_NAV_COURSE'}
- if d==25 and names[c]then get_param_handle(names[c]):set(v)end
+ if d==devices.FLIGHT_GUIDANCE then guidance(c,v)end
 end
 local function key(c)SetCommand(c,7.375);SetCommand(c,7.25);update()end
 local function digits(s)for c in s:gmatch('.')do local n=tonumber(c);key(n==0 and 3027 or 3016+n)end end
 key(3003);key(3008);digits('016');key(3008)
-assert(actions[#actions][1]==25 and actions[#actions][2]==10946 and actions[#actions][3]==16)
+assert(actions[#actions][1]==25 and actions[#actions][2]==11800 and get_param_handle('F22_TCN_CHANNEL'):get()==16)
 key(3009);digits('11030');key(3009)
-assert(actions[#actions][2]==10947 and actions[#actions][3]==110300)
+assert(get_param_handle('F22_ENTRY_GUIDANCE_COMMAND'):get()==10947 and get_param_handle('F22_ILS_FREQ_KHZ'):get()==110300)
 key(3010);digits('000');key(3010)
-assert(actions[#actions][2]==10949 and actions[#actions][3]==0,'north course entry accepted')
+assert(get_param_handle('F22_ENTRY_GUIDANCE_COMMAND'):get()==10949 and get_param_handle('F22_NAV_COURSE'):get()==0,'north course entry accepted')
 """)
 print('Ordinary NAV has no target diamond; WPDSG/UNDES share ground designation; CNI keypad tuning PASS')
 

@@ -26,7 +26,7 @@ function post_initialize()
  put('F22_ALT_PRESSURE_REQUEST_VALID',0);put('F22_ALT_BARO_VALID',0);put('F22_ALT_RADAR_VALID',0);publish()
 end
 for c=11020,11026 do dev:listen_command(c)end
-function SetCommand(c,v)
+local function apply_command(c,v)
  if get('MAIN_POWER')<.5 or not finite(v)then return end
  if c>=11024 and c<=11026 then
   if c==11024 and v>=650 and v<=820 then settings.qnh=v;settings.saved_qnh=v;settings.standard=false;adopted=true
@@ -39,6 +39,17 @@ function SetCommand(c,v)
   elseif c==11021 or c==11022 then settings.field=1;settings:adjust(c==11021 and 1 or -1);adopted=true end
  end
  publish()
+end
+local transaction=dofile(LockOn_Options.script_path..'Systems/Entry_Transaction.lua').channel('ALT',get,put)
+dev:listen_command(11800)
+function SetCommand(command,value)
+ if command~=11800 then apply_command(command,value);return end
+ local requested,wanted=transaction:take(value)
+ if not requested then return end
+ local key=({[11024]='F22_ALT_PRESSURE_MMHG',[11025]='F22_ALT_BARO_FLOOR',[11026]='F22_ALT_RADAR_FLOOR'})[requested]
+ if not key or get('MAIN_POWER')<.5 then transaction:finish(value,false);return end
+ apply_command(requested,wanted)
+ transaction:finish(value,math.abs(get(key)-wanted)<.02,get(key))
 end
 function update()
  local now=type(get_model_time)=='function'and get_model_time()or 0
