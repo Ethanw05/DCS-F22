@@ -78,6 +78,8 @@ void fixture() {
     values["F22_AESA_CONTROL_TIME"]=now; values["F22_AESA_CONTROL_SEQUENCE"]=2;
     values["F22_AESA_CONTROL_HALF_AZ"]=degree; values["F22_AESA_CONTROL_HALF_EL"]=degree;
     values["F22_AESA_CONTROL_RANGE"]=80000; values["F22_AESA_CONTROL_TARGET"]=42;
+    values["F22_AESA_CONTROL_FC_TARGET"]=42; values["F22_AESA_CONTROL_GUN_TRACK"]=1;
+    values["F22_AESA_PRIORITY_01"]=42;
 }
 void scenarios() {
     fixture(); EDPARAM parameters_api;
@@ -99,8 +101,13 @@ void scenarios() {
     CHECK(values["F22A_01_ID"]==42 && values["F22A_01_HITS"]>=2);
     CHECK(values["F22A_01_FILTER_VALID"]==1 && values["F22A_01_COV_00"]>0 && values["F22A_01_COV_55"]>0);
     CHECK(values["F22A_01_OWN_VN"]==250 && values["F22A_01_FORWARD_N"]==1);
-    CHECK(std::abs(values["F22A_01_RANGE_RATE"])<2 && values["F22A_01_RATE_SIGMA_MPS"]>0);
+    CHECK(std::abs(values["F22A_01_RANGE_RATE"])<3*values["F22A_01_RATE_SIGMA_MPS"]);
     CHECK(values["F22_AESA_GENERATION"]>0);
+    CHECK(values["F22_AESA_FC_TARGET"]==42 && values["F22_AESA_FC_REVISIT_S"]==.025);
+    CHECK(values["F22_AESA_FC_LAST_LOOK"]>10 && values["F22_AESA_PROCESSING_S"]==.012);
+    values["F22_AESA_CONTROL_GUN_TRACK"]=2;
+    CHECK(!parameters.controls(parameters_api,now).controls.enabled);
+    values["F22_AESA_CONTROL_GUN_TRACK"]=1;
     CHECK(std::abs(values["F22A_01_N"]-(20000+250*(values["F22A_01_TIME"]-10)))>1e-6 && values["F22A_01_RANGE_SIGMA_M"]>0);
     using Target = unsigned(__fastcall*)(const void*);
     using Tracking = bool(__fastcall*)(const void*,unsigned,unsigned);

@@ -117,6 +117,9 @@ function M:publish(now, computer, resource, powered, surface, plan)
     put("F22_AESA_CONTROL_CUE_VALID",plan and plan.rf_cued and 1 or 0)
     put("F22_AESA_CONTROL_CUE_AZ",plan and plan.az or 0); put("F22_AESA_CONTROL_CUE_EL",plan and plan.el or 0)
     local selected = computer.selected and computer.tracks[computer.selected]
+    local focus = not surface and (self.acquiring or self.locked) or 0
+    put("F22_AESA_CONTROL_FC_TARGET",focus)
+    put("F22_AESA_CONTROL_GUN_TRACK",focus ~= 0 and self.get("HUD_MODE") == 5 and 1 or 0)
     put("F22_AESA_CONTROL_TARGET",not surface and (self.locked
         or computer.mode == "TWS" and computer:supportable(selected) and selected.native_id) or 0)
     put("F22_AESA_PRIORITY_01",self.acquiring or self.locked or selected and selected.native_id or 0)

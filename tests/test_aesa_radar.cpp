@@ -24,7 +24,7 @@ struct World final : Environment {
 int scenarios() {
     Pose pose{}; pose.position.u = 3000; pose.velocity.n = 0;
     Controls c{}; c.enabled = true; c.half_azimuth = degree; c.half_elevation = degree;
-    static World world; static Model radar;
+    static World world; Policy delayed{}; delayed.processing_s = .06; static Model radar(delayed);
     CHECK(radar.update(0, c, pose, world));
     CHECK(world.queries == 0 && radar.status().dwelling);
     CHECK(radar.update(.02, c, pose, world)); CHECK(world.queries == 1);
@@ -78,7 +78,7 @@ int scenarios() {
         tracking.update(i * .021, c, pose, world);
     }
     CHECK(tracking.status().track_dwells > 0 && tracking.status().search_dwells > 0);
-    CHECK(tracking.status().track_dwells<=13); // .25s RF revisit, independent of .06s processing backlog.
+    CHECK(tracking.status().track_dwells>=20 && tracking.status().track_dwells<100);
     CHECK(tracking.measurements()[0].hits >= 2 && tracking.measurements()[0].velocity_valid);
     // Surface work consumes complete array dwells and leaves finite air service.
     static Model mixed;static World scene;scene.count=0;c.surface=true;

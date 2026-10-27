@@ -33,6 +33,12 @@ if(BUILD_TESTING)
         target_compile_options(f22_aesa_radar_test PRIVATE /W4 /WX /analyze)
     endif()
     add_test(NAME owned_aesa_radar COMMAND f22_aesa_radar_test)
+    add_executable(f22_aesa_scheduling_test "${CMAKE_SOURCE_DIR}/tests/test_aesa_scheduling.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/source/AesaRadar.cpp")
+    if(MSVC)
+        target_compile_options(f22_aesa_scheduling_test PRIVATE /W4 /WX /analyze)
+    endif()
+    add_test(NAME owned_aesa_scheduling COMMAND f22_aesa_scheduling_test)
     add_executable(f22_native_aesa_test "${CMAKE_SOURCE_DIR}/tests/test_native_aesa.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/source/AesaRadar.cpp")
     target_include_directories(f22_native_aesa_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
