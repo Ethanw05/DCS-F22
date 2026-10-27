@@ -6525,7 +6525,7 @@
         "AV37",
         "PF22"
       ],
-      "status": "causal engine operation implemented; deeper F119 failure calibration open; see vehicle-implementation.json",
+      "status": "guarded automatic engine operation implemented; separate fuel/ignition and FADEC failure workflows incomplete; see vehicle-implementation.json",
       "target": "Each engine separates shaft motion, starter source, fuel/ignition, combustion, augmentation, lubrication, control health and fire isolation; indications reflect the achieved physical state."
     },
     {
@@ -9614,7 +9614,7 @@
         "AV29",
         "VG06"
       ],
-      "status": "owned damage/failure/repair paths implemented; mission UI registration open; see vehicle-implementation.json",
+      "status": "owned damage/failure/repair and mission registration implemented; combined native qualification open; see vehicle-implementation.json",
       "target": "Registered structural/equipment failures affect the corresponding owned capability; reset, servicing and repair restore only the appropriate states."
     },
     {

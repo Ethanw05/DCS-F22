@@ -1,7 +1,7 @@
 {
   "kind": "fixed-state callback bench, not DCS flight qualification",
   "samples": 288,
-  "source_commit": "cbfb44b1fff10d517551cf7f78dd0b5c15b952b8",
+  "source_commit": "cd7f92a127d332d0920f04bedc10a9661c53d179",
   "empty_mass_kg": 19700,
   "inertia_kgm2": [
     100000,
@@ -12,7 +12,7 @@
   "contact": false,
   "ground_effect": "not added; native ownership unqualified",
   "coefficients": "legacy/estimated F-22 mod deck, no production calibration",
-  "efm_sha256": "4ab5f4cbbab27c2b353d72b0b1b4f1b3dc5a55042f7db15189e6647c5814ec08",
+  "efm_sha256": "027cb5c7a3574407bce7a9e9ca3c65c6100d4b4b79672ab24728735a8ce933ca",
   "case_duration_s": 8,
   "dt_s": 0.01
 }
