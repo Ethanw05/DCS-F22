@@ -32,3 +32,25 @@ assert(policy.faults.active==0 and policy.faults.records[2].cleared==20)
 s.now=1;policy:update(s,nil);assert(policy.faults.occurrence==0,'mission time reversal retained old fault history')
 ''')
 print('Fault identities: independent causes, new attention, ACK, recurrence, invalid source, history and reset PASS')
+lua = scope['runtime']()
+lua.execute(r'''
+local now=10
+function get_model_time()return now end
+function get_base_data()return setmetatable({getSelfCoordinates=function()return 0,1000,0 end},
+ {__index=function()return function()return 0 end end})end
+function get_aircraft_draw_argument_value()return 0 end
+local function get(k)return get_param_handle(k):get()end
+local function put(k,v)get_param_handle(k):set(v)end
+put('MAIN_POWER',1);put('EFM_VEHICLE_VALID',1);put('L_GEN_OUT',1)
+dofile(SCRIPT_ROOT..'Systems/Pilot_Warning_System.lua');post_initialize();update()
+assert(get('F22_FAULT_GEN_L_OCCURRENCE')==1)
+SetCommand(11000,1);now=11;update();assert(get('F22_FAULT_UNACK_COUNT')==0)
+put('MAIN_POWER',0);now=12;update();now=13;update()
+assert(get('F22_FAULT_GEN_L_OCCURRENCE')==1,'power loss erased fault history')
+put('MAIN_POWER',1);now=14;update();SetCommand(11000,1);update()
+assert(get('F22_FAULT_UNACK_COUNT')>0,'held ACK re-fired after power restore')
+SetCommand(11000,0);SetCommand(11000,1);update();assert(get('F22_FAULT_UNACK_COUNT')==0)
+post_initialize()
+now=15;update();assert(get('F22_FAULT_GEN_L_OCCURRENCE')==1,'fresh mission retained prior occurrence sequence')
+''')
+print('Actual alert owner: fault history and physical ACK latch survive power loss; deliberate release/repress and mission reset PASS')

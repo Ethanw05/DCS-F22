@@ -6,7 +6,8 @@ local function finite(v)return type(v)=='number'and v==v and math.abs(v)<1e9 end
 function M.new(get,put,send,_sensors)
  local s={page='',entry=nil,pending=nil,status='',clock=0,point=nil}
  local channels={}
- for owner,lane in pairs({FLIGHT_GUIDANCE='GUIDANCE',ALTITUDE_SYSTEM='ALT',NAV_SYSTEM='NAV',WEAPON_SYSTEM='STORES'})do
+ for owner,lane in pairs({FLIGHT_GUIDANCE='GUIDANCE',ALTITUDE_SYSTEM='ALT',NAV_SYSTEM='NAV',WEAPON_SYSTEM='STORES',
+  PILOT_WARNING_SYSTEM='WARN'})do
   channels[owner]=Transaction.channel(lane,get,put)
  end
  local function trace(event,option,detail)
@@ -169,8 +170,17 @@ function M.new(get,put,send,_sensors)
     return request('ALTITUDE_SYSTEM',11028,value,equal('F22_ALT_MINIMA_FT',value))end,5)
    rows[3]=action(get('F22_ALT_MINIMA_SOURCE')==1 and'MINIMA BARO'or'MINIMA RDR',function()
     self:request_action('ALTITUDE_SYSTEM',11029,1-get('F22_ALT_MINIMA_SOURCE'))end)
-   rows[4]={label=get('F22_ALT_STANDBY_VALID')==1 and'STBY PRESSURE VALID'or'STBY UNAVAILABLE',kind='read'}
-   rows[5]=action('RTN',function()self:open('ALT',true)end)
+   rows[4]=action(get('F22_ALT_LOW_DISABLED')==1 and'RDR LOW DISABLED'or'DISABLE CURRENT RDR LOW',function()
+    self:request_action('PILOT_WARNING_SYSTEM',11035,1)end)
+   rows[5]=action('RECOVERY',function()self:open('RECOVERY',true)end)
+  elseif page=='RECOVERY'then
+   local intent=get('F22_RECOVERY_INTENT')
+   rows[1]=action('INTENT '..(({'NONE','ILS','VISUAL'})[intent+1]or'--'),function()
+    self:request_action('ALTITUDE_SYSTEM',11036,(intent+1)%3)end)
+   rows[2]={label=text('F22_RECOVERY_STATE_TEXT','RECOVERY UNAVAILABLE'),kind='read'}
+   rows[3]={label='MANUAL FLIGHT / NO AUTOLAND',kind='read'}
+   rows[4]={label=text('F22_ALT_ALERT_SOURCE','NO ALTITUDE ALERT'),kind='read'}
+   rows[5]=action('RTN',function()self:open('ALT DISPLAY',true)end)
   elseif page=='AP'then
    local active=get('F22_AP_ACTIVE')>.5;local roll=get('F22_AP_ROLL_MODE');local pitch=get('F22_AP_PITCH_MODE')
    for i,d in ipairs({{'ATTH',10951,active and roll==1 and pitch==1},{'HSEL',10954,active and roll==2},

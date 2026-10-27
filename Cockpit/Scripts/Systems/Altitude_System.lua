@@ -37,6 +37,7 @@ local function publish()
  put('F22_ALT_RADAR_FLOOR',settings.radar_floor)
  put('F22_ALT_SELECTION',settings.display);put('F22_ALT_MINIMA_FT',settings.minima)
  put('F22_ALT_MINIMA_SOURCE',settings.minima_source)
+ put('F22_RECOVERY_INTENT',settings.recovery)
 end
 function post_initialize()
  settings=dofile(LockOn_Options.script_path..'Systems/Altitude_Settings.lua').new();adopted=false
@@ -44,9 +45,14 @@ function post_initialize()
  put('F22_ALT_PRESSURE_REQUEST_VALID',0);put('F22_ALT_BARO_VALID',0);put('F22_ALT_RADAR_VALID',0);publish()
 end
 for c=11020,11029 do dev:listen_command(c)end
+dev:listen_command(11036)
 local function apply_command(c,v)
  physical:update()
  if not power(false)or not finite(v)then return end
+ if c==11036 then
+  if v>=0 and v<=2 and v%1==0 then settings.recovery=v;publish()end
+  return
+ end
  if c>=11024 and c<=11029 then
   if c==11024 and v>=650 and v<=820 then settings.qnh=v;settings.saved_qnh=v;settings.standard=false;adopted=true
   elseif c==11025 and v>=0 and v<=25000 and v%1==0 then settings.baro_floor=v
@@ -70,7 +76,8 @@ function SetCommand(command,value)
  if not requested then return end
  physical:update()
  local key=({[11024]='F22_ALT_PRESSURE_MMHG',[11025]='F22_ALT_BARO_FLOOR',[11026]='F22_ALT_RADAR_FLOOR',
-  [11027]='F22_ALT_SELECTION',[11028]='F22_ALT_MINIMA_FT',[11029]='F22_ALT_MINIMA_SOURCE'})[requested]
+  [11027]='F22_ALT_SELECTION',[11028]='F22_ALT_MINIMA_FT',[11029]='F22_ALT_MINIMA_SOURCE',
+  [11036]='F22_RECOVERY_INTENT'})[requested]
  if not key or not power(false)then transaction:finish(value,false);return end
  apply_command(requested,wanted)
  transaction:finish(value,math.abs(get(key)-wanted)<.02,get(key))

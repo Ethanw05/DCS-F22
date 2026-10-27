@@ -21,11 +21,17 @@ local w=W.new();s=state();w:update(s,nil)
 s.now=10.1;s.radar=490
 local r=w:update(s,nil);assert(r.event=='altitude'and r.text=='ALTITUDE')
 s.now=10.2;r=w:update(s,nil);assert(not r.event and r.text=='ALTITUDE','single crossing, persistent visual')
-for i=1,30 do s.now=10.2+i*.1;assert(not w:update(s,nil).event,'no below-floor chatter')end
-s.radar=550;s.now=14;w:update(s,nil);s.radar=490;s.now=14.1;assert(not w:update(s,nil).event,'100ft rearm band')
+local repeats=0
+for i=1,30 do s.now=10.2+i*.1;if w:update(s,nil).event then repeats=repeats+1 end end
+assert(repeats==1,'persistent radar-low did not repeat at the bounded voice cadence')
+s.radar=550;s.now=14;w:update(s,nil);s.radar=490;s.now=14.1;assert(w:update(s,nil).event=='altitude','height above low index did not reset warning')
 s.radar=650;s.now=15;w:update(s,nil);s.radar=450;s.now=15.1;assert(w:update(s,nil).event=='altitude')
-w=W.new();s=state();s.radar=400;assert(not w:update(s,nil).event,'setting a floor while below does not invent crossing')
+w=W.new();s=state();s.radar=400;assert(w:update(s,nil).event=='altitude','valid first activation below radar-low was suppressed')
 s.radar=700;w:update(s,nil);s.gear=true;s.radar=400;s.now=11;assert(not w:update(s,nil).event)
+w=W.new();s=state();s.radar_floor=0;s.baro_floor=500;s.baro=700;w:update(s,nil)
+s.now=11;s.baro=490;assert(w:update(s,nil).event=='altitude')
+s.now=15;s.baro=550;w:update(s,nil);s.now=15.1;s.baro=490;assert(not w:update(s,nil).event,'baro floor lost100ft rearm band')
+s.now=16;s.baro=650;w:update(s,nil);s.now=16.1;s.baro=490;assert(w:update(s,nil).event=='altitude')
 w=W.new();s=state();w:update(s,nil);s.radar=400;s.now=11;s.missile_warning=true
 r=w:update(s,nil);assert(r.text=='ALTITUDE'and not r.event,'missile audio gets precedence')
 s.now=12;s.missile_warning=false;assert(w:update(s,nil).event=='altitude')

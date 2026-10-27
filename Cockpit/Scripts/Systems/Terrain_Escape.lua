@@ -171,7 +171,7 @@ function M.solve(s, height, director, visible)
     local terrain, count, trace = query(height, visible)
     local current = simulate(s, terrain, nil, trace)
     if not current.valid then return {valid = false, reason = 3, queries = count()} end
-    -- Existing captured-ILS landing exemption, restricted to stable flat approach.
+    -- Explicit manual recovery context, restricted to stable flat approach.
     if s.approach and s.gear and s.cas >= 70 and s.cas <= 180 and s.vu <= -1 and s.vu >= -12
         and math.abs(s.roll) < math.rad(20) and s.nz >= 0.7 and s.nz <= 1.4
         and current.terrain_rise <= 5 and not current.obstruction then

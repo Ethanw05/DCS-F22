@@ -8,7 +8,7 @@ from lupa.lua51 import LuaRuntime
 ROOT = Path(__file__).resolve().parents[1]
 FILES = ["Systems/" + name + ".lua" for name in (
     "Physical_Snapshot", "Equipment_Conditions", "Combat_Logic", "Combat_System", "Entry_Transaction", "External_Light_Control", "Cockpit_References", "Equipment_Profile", "UFC_Controller",
-    "Flight_Guidance", "Altitude_System", "Navigation_System", "MFD_Controller",
+    "Flight_Guidance", "Altitude_System", "Altitude_Settings", "Altitude_Alerts", "Recovery_Context", "Navigation_System", "MFD_Controller",
     "Fault_Registry", "Pilot_Warnings", "Pilot_Warning_System", "Warning_Audio_Gate",
     "IR_Audio", "Avionics", "Mission_Data", "Nav_Entry", "INS_Model", "Nav_Marks_Time", "Nav_Publication", "Nav_Computer", "Nav_Guidance", "Nav_Display_Controls", "ICP_System", "HUD_Flight_Data", "Weapon_System")]
 FILES.extend(["MFD_COMMON/checklist_page.lua", "MFD_COMMON/nav_page.lua"])

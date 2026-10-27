@@ -3,6 +3,7 @@ dofile(LockOn_Options.script_path .. "devices.lua")
 local dev, base = GetSelf(), get_base_data()
 local policy = dofile(LockOn_Options.script_path .. "Systems/Pilot_Warnings.lua")
 local recovery_cue = dofile(LockOn_Options.script_path .. "Systems/Terrain_Recovery_Cue.lua")
+local recovery_context = dofile(LockOn_Options.script_path .. 'Systems/Recovery_Context.lua')
 local receiver = policy.new()
 local fault_definitions = dofile(LockOn_Options.script_path .. 'Systems/Fault_Registry.lua').definitions
 local conditions = {}
@@ -87,7 +88,12 @@ put('F22_FAULT_SELECTED_TEXT','')
 for index=1,4 do put('F22_FAULT_REFERENCE_'..index,'')end
 local references=dofile(LockOn_Options.script_path..'Systems/Cockpit_References.lua').new(get,put)
 local equipment=dofile(LockOn_Options.script_path..'Systems/Equipment_Conditions.lua').new(get,conditions)
+local Envelope=dofile(LockOn_Options.script_path..'Systems/Physical_Snapshot.lua')
+local physical=Envelope.new(get,{'MAIN_POWER','EFM_HUD_VALID','EFM_GROUND_VALID','EFM_WEIGHT_ON_WHEELS',
+ 'EFM_GEAR_DOWN_LOCKED','EFM_GEAR_UP_LOCKED','EFM_GEAR_UNSAFE','EFM_AIRDATA_VALID',
+ 'EFM_AIRDATA_STAMP','EFM_AIRDATA_CAS_MPS','EFM_AIRDATA_HEALTH'})
 local clock = 0
+local was_powered = false
 local muted = false
 local volume = 0.8
 local held = {}
@@ -121,15 +127,28 @@ local function stop()
     put("F22_PILOT_AUDIO_STATUS_VALID",0)
     put("F22_PILOT_AUDIO_INFERRED",0)
 end
-local function reset()
+local function reset(preserve)
+	local faults = preserve and receiver.faults
+	local altitude = preserve and receiver.altitude
 	stop()
 	receiver = policy.new()
+	if faults then
+		receiver.faults = faults
+		local fcs = faults.records[1]
+		receiver.fcs_occurrence = fcs.occurrence
+		receiver.fault_ack = fcs.valid and fcs.active and fcs.acknowledged == fcs.occurrence
+	end
+	if altitude then receiver.altitude = altitude; altitude:power_lost() end
 	test = nil
-	held = {}
+	if not preserve then held = {} end
+	was_powered = false
 	put("F22_PILOT_WARNING_TEXT", "")
 	put("F22_PILOT_WARNING_VALID", 0)
 	put("F22_PILOT_WARNING_PRIORITY", 0)
 	put("F22_PILOT_TEST_ACTIVE", 0)
+	put('F22_ALT_ALERT_SOURCE','')
+	put('F22_ALT_LOW_DISABLED',receiver.altitude.low.disabled and 1 or 0)
+	put('F22_ENTRY_WARN_ACTIVE',0)
 	previous_pose = nil
 	unavailable_since = nil
 	diagnostic_signature = nil
@@ -150,7 +169,26 @@ end
 for c = 11000, 11007 do
 	dev:listen_command(c)
 end
+local warning_entry=dofile(LockOn_Options.script_path..'Systems/Entry_Transaction.lua').channel('WARN',get,put)
+dev:listen_command(11800)
+local function disable_low()
+    physical:update()
+    local powered=get('MAIN_POWER')==1
+    if physical.owned then powered=physical.valid and physical.values.MAIN_POWER==1 end
+    local now=type(get_model_time)=='function'and get_model_time()or clock
+    if not powered or not Envelope.finite(now)or now<clock or now-clock>.25 then return false end
+    local accepted,ticket=receiver.altitude:disable_current()
+    put('F22_ALT_LOW_DISABLED',receiver.altitude.low.disabled and 1 or 0)
+    return accepted,ticket
+end
 function SetCommand(c, v)
+    if c==11800 then
+        local requested,wanted=warning_entry:take(v)
+        if not requested then return end
+        local accepted,ticket=false,nil
+        if requested==11035 and wanted==1 then accepted,ticket=disable_low()end
+        warning_entry:finish(v,accepted,ticket);return
+    end
 	local down = decode(v, devices.PILOT_WARNING_SYSTEM) > 0.5
 	local old = held[c]
 	held[c] = down
@@ -222,7 +260,7 @@ local function initialize_audio(now)
 	for _, name in ipairs(policy.names) do if not sounds[name] then return false end end
 	return true
 end
-local function speak(name, priority, now, test_step)
+local function speak(name, priority, now, test_step, altitude_ticket)
 	local sound = sounds[name]
 	if playing or muted or volume <= 0.01 or not sound or now < (start_retry[name] or -1) then
 		return false
@@ -234,7 +272,8 @@ local function speak(name, priority, now, test_step)
 		return false
 	end
 	playing = { name = name, priority = priority, started = now,
-		until_time = now + (duration[name] or 2) + 0.15, test_step = test_step }
+		until_time = now + (duration[name] or 2) + 0.15, test_step = test_step,
+        altitude_ticket = altitude_ticket }
 	return true
 end
 local function confirm_playback(now)
@@ -253,7 +292,7 @@ local function confirm_playback(now)
 			test.at = now + (duration[playing.name] or 2) + 0.5
 		end
 	else
-		receiver:played(playing.name, now)
+		receiver:played(playing.name, now, playing.altitude_ticket)
 	end
 end
 local function update_playback(now)
@@ -297,6 +336,27 @@ local function update_playback(now)
 end
 local function equipment_snapshot()
     equipment.update()
+end
+local function qualify_gear(state,v)
+    local valid=physical.valid and Envelope.boolean(v.EFM_GEAR_DOWN_LOCKED)
+        and Envelope.boolean(v.EFM_GEAR_UP_LOCKED) and Envelope.boolean(v.EFM_GEAR_UNSAFE)
+        and v.EFM_GEAR_DOWN_LOCKED+v.EFM_GEAR_UP_LOCKED<=1
+    state.gear_down=valid and v.EFM_GEAR_DOWN_LOCKED==1 and v.EFM_GEAR_UNSAFE==0
+    state.gear_up=valid and v.EFM_GEAR_UP_LOCKED==1 and v.EFM_GEAR_UNSAFE==0
+    state.gear=state.gear_down
+end
+local function qualify_flight(state)
+    if not physical.owned then return end
+    local v=physical.values
+    local contact=physical.valid and v.EFM_GROUND_VALID==1 and Envelope.boolean(v.EFM_WEIGHT_ON_WHEELS)
+    state.ground=contact and v.EFM_WEIGHT_ON_WHEELS==1
+    qualify_gear(state,v)
+    local air=v.EFM_AIRDATA_VALID==1 and v.EFM_AIRDATA_HEALTH==0
+        and Envelope.fresh(v.EFM_AIRDATA_STAMP,physical.clock)
+        and Envelope.finite(v.EFM_AIRDATA_CAS_MPS) and v.EFM_AIRDATA_CAS_MPS>=0
+    state.valid=state.valid and physical.valid and contact and air
+    state.cas=air and v.EFM_AIRDATA_CAS_MPS or nil
+    state.fcs_valid,state.fcs_fault=conditions[1].valid,conditions[1].active
 end
 local function publish_faults(priority)
     local faults = receiver.faults
@@ -350,13 +410,16 @@ function update()
 	clock = now
 	references.update()
 	local powered = get("MAIN_POWER") > 0.5
+    physical:update()
+    if physical.owned then powered=physical.valid and physical.values.MAIN_POWER==1 end
 	if not powered then
-		reset()
+		if was_powered then reset(true) end
         equipment_snapshot()
         receiver.faults:update(now, conditions)
         publish_faults(0)
 		return
 	end
+	was_powered = true
     equipment_snapshot()
 	local audio_ok, all_ready = pcall(initialize_audio, now)
 	put("F22_PILOT_AUDIO_READY", audio_ok and all_ready and 1 or 0)
@@ -407,6 +470,8 @@ function update()
 		baro = get("F22_ALT_BARO_FT"),
 		baro_valid = get("F22_ALT_BARO_VALID") > 0.5,
 		baro_floor = get("F22_ALT_BARO_FLOOR"),
+        minima_floor = get('F22_ALT_MINIMA_FT'),
+        minima_source = get('F22_ALT_MINIMA_SOURCE'),
 		radar = get("F22_ALT_RADAR_FT"),
 		radar_valid = get("F22_ALT_RADAR_VALID") > 0.5,
 		radar_floor = get("F22_ALT_RADAR_FLOOR"),
@@ -421,14 +486,14 @@ function update()
 		audio_busy = playing ~= nil or muted or volume <= 0.01 or not audio_ok or not host,
 		defer_audio_commit = true,
 	}
-	state.approach = get("F22_NAV_SOURCE") == 2
-		and get("HUD_ILS_LOC_VALID") > 0.5
-		and get("HUD_ILS_GS_VALID") > 0.5
-		and math.abs(get("HUD_ILS_LOC")) < 0.35
-		and math.abs(get("HUD_ILS_GS")) < 0.35
+    qualify_flight(state)
+	put('F22_TAWS_IAS_MPS',state.cas or 0)
+	state.approach = recovery_context.update(state,get,put)
 	local height = terrain and terrain.GetHeight
 	local visible = terrain and terrain.isVisible
 	local result = receiver:update(state, height, visible)
+    put('F22_ALT_ALERT_SOURCE',result.altitude_label or '')
+    put('F22_ALT_LOW_DISABLED',receiver.altitude.low.disabled and 1 or 0)
     publish_faults(result.priority)
 	-- The display follows the current prediction immediately. Speech completes
 	-- before the latest still-active directive gets the next slot (Hornet intercom
@@ -437,7 +502,7 @@ function update()
 		test = nil
 	end
 	if result.event then
-		speak(result.event, result.priority, now)
+		speak(result.event, result.priority, now, nil, result.altitude_ticket)
 	end
 	if test and not muted and not state.missile_warning and not playing and now >= test.at then
 		local name = policy.names[test.index]
