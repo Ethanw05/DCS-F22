@@ -1322,7 +1322,7 @@ double ed_fm_get_param(unsigned index) {
 }
 
 void ed_fm_refueling_add_fuel(double fuel) {
-    if (!std::isfinite(fuel) || fuel <= 0.0) return;
+    if (!vehicle.alive || !std::isfinite(fuel) || fuel <= 0.0) return;
     double accepted_total = 0.0;
     const double accepted = vehicle.fuel.accept_internal(fuel, vehicle.mass);
     RAPTOR::internal_fuel = vehicle.fuel.internal_kg();
@@ -1352,7 +1352,7 @@ void ed_fm_set_easy_flight(bool value) { RAPTOR::easy_flight = value; }
 void ed_fm_set_immortal(bool value) { RAPTOR::invincible = value; }
 
 void ed_fm_on_damage(int Element, double element_integrity_factor) {
-    if (Element < 0 || Element >= 137 || !std::isfinite(element_integrity_factor)) return;
+    if (!vehicle.alive || Element < 0 || Element >= 137 || !std::isfinite(element_integrity_factor)) return;
     element_integrity_factor = RaptorVehicle::unit(element_integrity_factor);
     if (RAPTOR::invincible) return;
     RAPTOR::element_integrity[Element] = element_integrity_factor;
@@ -1544,6 +1544,7 @@ void ed_fm_release() {
     RAPTOR::external_fuel_positions.clear();
     RAPTOR::external_fuel = 0.0;
     RAPTOR::internal_fuel = RAPTOR::total_fuel = 0.0;
+    vehicle.fuel.set_internal(0.0);
     RAPTOR::external_tanks_equipped = false;
     NativeDatalink::reset();
     NativeAltimetry::reset();

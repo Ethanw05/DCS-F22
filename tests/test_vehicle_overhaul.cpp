@@ -39,6 +39,7 @@ struct Fixture {
     void (*command)(int, float) = nullptr;
     double (*parameter)(unsigned) = nullptr;
     void (*fuel)(double) = nullptr;
+    void (*refuel)(double) = nullptr;
     double (*getfuel)() = nullptr;
     void (*unlimited)(bool) = nullptr;
     void (*atmosphere)(double,double,double,double,double,double,double,double) = nullptr;
@@ -75,6 +76,7 @@ struct Fixture {
         command = load<decltype(command)>(fm, "ed_fm_set_command");
         parameter = load<decltype(parameter)>(fm, "ed_fm_get_param");
         fuel = load<decltype(fuel)>(fm, "ed_fm_set_internal_fuel");
+        refuel = load<decltype(refuel)>(fm, "ed_fm_refueling_add_fuel");
         getfuel = load<decltype(getfuel)>(fm, "ed_fm_get_internal_fuel");
         unlimited = load<decltype(unlimited)>(fm, "ed_fm_unlimited_fuel");
         atmosphere = load<decltype(atmosphere)>(fm, "ed_fm_set_atmosphere");
@@ -332,6 +334,10 @@ void force_and_release_boundaries(Fixture& fixture) {
     for (const auto* name : {"EFM_FORCE_VALID", "EFM_MASS_VALID", "EFM_ENGINE_VALID",
                              "EFM_HUD_VALID", "EFM_GROUND_VALID", "EFM_TRIM_VALID"})
         assert(fixture.get(name) == 0);
+    fixture.damage(53,0); fixture.refuel(100);
+    assert(!fixture.needs_repair() && fixture.getfuel() == 0 && fixture.drain_mass() == 0);
+    fixture.fuel(1000); fixture.cold(); fixture.conditions(0); fixture.ticks(1);
+    assert(fixture.getfuel() == 1000); // Initial absolute fuel loading before spawn remains supported.
 }
 
 void live_ground_power(Fixture& fixture) {
