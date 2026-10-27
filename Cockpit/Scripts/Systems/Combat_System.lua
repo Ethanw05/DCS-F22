@@ -166,9 +166,8 @@ function update()
 		logic:cancel_ground_preview()
 		for _, held in pairs(logic.held) do held.done = true end
 		for name in pairs(physical_down) do power_blocked[name] = true end
-		emit("trigger_first", 0)
-		emit("trigger_second", 0)
-		emit("pickle", 0)
+		-- The weapon owner cancels consent from its physical supply snapshot.
+		-- Fabricated UP events here erase physical ownership across recovery.
 	end
 	publish_display_control()
 	put("F22_DOGFIGHT", logic.dogfight and 1 or 0)

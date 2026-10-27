@@ -314,8 +314,10 @@ join(res.keyCommands,{
     {down = CLIPBOARD_L,                name = _('Clipboard Left Show/Hide'),            category = _('F-22A Systems')},
     {down = CLIPBOARD_R,                name = _('Clipboard Right Show/Hide'),           category = _('F-22A Systems')},    
 --F-22 Weapons
-    {down = Detent_F, up = Detent_F,    name = _('Weapons: Trigger First Detent'),       category = _('F-22A HOTAS')},
-    {down = Detent_S, up = Detent_S,    name = _('Weapons: Trigger Second Detent'),      category = _('F-22A HOTAS')},
+    {down = Detent_F, up = Detent_F, value_down = 1, value_up = 0,
+        name = _('Weapons: Trigger First Detent'), category = _('F-22A HOTAS')},
+    {down = Detent_S, up = Detent_S, value_down = 1, value_up = 0,
+        name = _('Weapons: Trigger Second Detent'), category = _('F-22A HOTAS')},
     {down = PICKLE, up = PICKLE,        name = _('Weapons: Release'),                    category = _('F-22A HOTAS')},
 --ICP BINDS
     {down=11401,up=11401,value_down=1,value_up=0,cockpit_device_id=7,name=_('ICP IFF'),category=_('F-22A ICP')},

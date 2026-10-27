@@ -291,8 +291,10 @@ join(res.keyCommands,{
     {down = ICP_OP4,                    name = _('ICP Option 4'),                        category = _('F-22A ICP')},
     {down = ICP_OP5,                    name = _('ICP Option 5'),                        category = _('F-22A ICP')},
 --F-22 Weapons
-    {down = Detent_F, up = Detent_F,    name = _('Weapons: Trigger First Detent'),      category = _('F-22A HOTAS')},
-    {down = Detent_S, up = Detent_S,    name = _('Weapons: Trigger Second Detent'),     category = _('F-22A HOTAS')},
+    {down = Detent_F, up = Detent_F, value_down = 1, value_up = 0,
+        name = _('Weapons: Trigger First Detent'), category = _('F-22A HOTAS')},
+    {down = Detent_S, up = Detent_S, value_down = 1, value_up = 0,
+        name = _('Weapons: Trigger Second Detent'), category = _('F-22A HOTAS')},
     {down = PICKLE, up = PICKLE,        name = _('Weapons: Release'),                   category = _('F-22A HOTAS')},
 --F-22 CUSTOM BINDS
     {down = SelectLeft,                 name = _('Weapon Bay: Select Left'),            category = _('F-22A HOTAS')},
