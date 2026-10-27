@@ -351,6 +351,26 @@ void live_ground_power(Fixture& fixture) {
     assert(fixture.get("MAIN_POWER") == 0); // A ground connector cannot follow the aircraft.
     fixture.set("GROUND_POWER",0);
 }
+
+void damaged_rudder_braking(Fixture& fixture) {
+    std::array<double,2> lateral{}, longitudinal{};
+    for (unsigned side=0;side<2;++side) {
+        fixture.air(); fixture.fuel(5000); fixture.unlimited(true); fixture.conditions(200);
+        fixture.immortal(false);
+        fixture.command(147,1); fixture.ticks(1000);
+        double fx=0,fy=0,fz=0,x=0,y=0,z=0;
+        fixture.force(fx,fy,fz,x,y,z);
+        const double healthy_drag = fx;
+        assert(std::abs(fz) < 1e-8);
+        fixture.damage(side == 0 ? 53 : 54,0); fixture.ticks(2);
+        fixture.force(fx,fy,fz,x,y,z);
+        assert(fx > healthy_drag + 1000); // A missing rudder cannot keep full braking drag.
+        assert(std::abs(fz) > 1000); // The surviving splayed rudder is asymmetric.
+        lateral[side]=fz; longitudinal[side]=fx;
+    }
+    assert(std::abs(lateral[0]+lateral[1]) < 1e-6);
+    assert(std::abs(longitudinal[0]-longitudinal[1]) < 1e-6);
+}
 } // namespace
 
 int main(int argc, char** argv) {
@@ -368,5 +388,6 @@ int main(int argc, char** argv) {
     configuration_and_lifecycle(fixture);
     force_and_release_boundaries(fixture);
     live_ground_power(fixture);
+    damaged_rudder_braking(fixture);
     std::cout << "vehicle DLL: cold/APU/start, burn/mass, feed/repair, sensor truth, limits and lifecycle OK\n";
 }
