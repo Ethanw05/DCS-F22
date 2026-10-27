@@ -346,7 +346,8 @@ join(res.keyCommands,{
     {down = AirORIDE, up = AirORIDE,    name = _('Weapon Bay Override (AIR)'),          category = _('F-22A HOTAS')},
     {down = AirORIDE_T,                 name = _('Weapon Bay Override Toggle (AIR)'),   category = _('F-22A HOTAS')},
     {down = Dogfight,                   name = _('Dogfight MFD Override'),              category = _('F-22A HOTAS')},
-    {down = APU, up = APU,              name = _('APU Start'),                          category = _('F-22A HOTAS')},
+    {down = APU, up = APU, value_down = 1, value_up = 0,
+        name = _('APU Start'), category = _('F-22A HOTAS')},
 
     {down = L_cutoff, up = L_cutoff,   name = _('Throttle (Left) - OFF/IDLE'),          category = _('F-22A HOTAS')},
     {down = R_cutoff, up = R_cutoff,   name = _('Throttle (Right) - OFF/IDLE'),         category = _('F-22A HOTAS')},

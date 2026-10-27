@@ -26,15 +26,8 @@ make_default_activity(dt)
 
 local sensor_data = dofile(LockOn_Options.script_path.."Systems/Engine_Data.lua")(get_base_data())
 
-local APU   			= get_param_handle("APU")
-local APU_POWER			= get_param_handle ("APU_POWER")
-local BATTERY_POWER		= get_param_handle ("BATTERY_POWER")
-local L_GEN_POWER		= get_param_handle ("L_GEN_POWER")
-local R_GEN_POWER		= get_param_handle ("R_GEN_POWER")
-local MAIN_POWER		= get_param_handle ("MAIN_POWER")
 local GROUND_POWER		= get_param_handle("GROUND_POWER")
 local SOUND_APU     	= get_param_handle("SOUND_APU")
-local APU_RPM_STATE		= get_param_handle("APU_RPM_STATE")
 local UFD_ADI	        = get_param_handle ("UFD_ADI")
 local L_TOE	        	= get_param_handle ("L_TOE")
 local R_TOE	        	= get_param_handle ("R_TOE")
@@ -43,11 +36,9 @@ local L_THROTTLE_CUT 	= get_param_handle ("L_THROTTLE_CUT")
 local L_THROTTLE_POS 	= get_param_handle ("L_THROTTLE_POS")
 local R_THROTTLE_CUT 	= get_param_handle ("R_THROTTLE_CUT")
 local R_THROTTLE_POS 	= get_param_handle ("R_THROTTLE_POS")
-local APU_READY			= get_param_handle("APU_READY")
 local ufd_swap_adi 		= 0
 local PARK			    = get_param_handle("PARK")
 local parking_request = get_param_handle("F22_PARK_REQUEST")
-local IAS				= get_param_handle("IAS")
 local PowerOnOff      	= Keys.PowerOnOff
 local EnginesStart 		= Keys.EnginesStart
 local EnginesStop 		= Keys.EnginesStop
@@ -74,25 +65,13 @@ dev:listen_event("GroundPowerOff")
 
 local physical_power = dofile(LockOn_Options.script_path.."Systems/Vehicle_Power_Adapter.lua").new()
 local engine_status = dofile(LockOn_Options.script_path.."Systems/Engine_Status.lua").new(get_param_handle)
-local electrical = dofile(LockOn_Options.script_path.."Systems/Electrical_Computer.lua").new()
-local battery_fault = get_param_handle("BATTERY_FAILURE")
-local left_gen_fault = get_param_handle("L_GEN_FAILURE")
-local right_gen_fault = get_param_handle("R_GEN_FAILURE")
-local apu_fault = get_param_handle("APU_FAILURE")
-local battery_soc = get_param_handle("F22_BATTERY_SOC")
-local dc_volts = get_param_handle("F22_DC_VOLTS")
-local essential_power = get_param_handle("F22_ESSENTIAL_POWER")
-local electrical_valid = get_param_handle("F22_ELECTRICAL_VALID")
 local battery_state = 0 -- requested switch state; availability comes from reserve
 local initializing_hot_start = false
 local apu_state 	= 0 --track if apu was set to start
-local apu_pwr		= 0 --track if the apu has full power
-local apu_rpm		= 0 --track apu spool up time
+local apu_pwr = nil -- unavailable until a coherent physical sample
+local apu_rpm = nil -- achieved spool; this device never advances it
 local L_gen_state 	= 0 --track on off state
 local R_gen_state 	= 0 --track on off state
-local L_gen_pwr 	= 0
-local R_gen_pwr 	= 0
-local main_pwr		= 0
 local B_axis_value  = -1
 local park_state    = 0 
 local gpu_cart		= 0
@@ -104,7 +83,6 @@ local R_throttle_pos = 1
 local L_cutoff		 = 0
 local R_cutoff		 = 0
 
-local apu_autooff_timer = 0
 
 local L_axis_value = -1
 local R_axis_value = -1
@@ -220,8 +198,6 @@ function post_initialize()
 	elseif birth =="GROUND_COLD" then
 		dev:performClickableAction(apu_switch, -1, false)--set apu switch OFF
 		--dev:performClickableAction(PARK_BRAKE, 1, false)--set parking brakes ON
-		set_aircraft_draw_argument_value(610, 1)--set open
-		set_aircraft_draw_argument_value(611, 1)--set open
 		--set_aircraft_draw_argument_value(15, -0.5)--set down
 		--set_aircraft_draw_argument_value(16, -0.5)--set down
 		--set_aircraft_draw_argument_value(600, 1)--set open
@@ -284,7 +260,6 @@ end
         elseif command == 10020 then
             park_state = 1 - park_state
         end
-	local apu_switch_pos = get_cockpit_draw_argument_value(701)
 --Disable Engines Start Keyboard Command on Ground	
 		if command == EnginesStart and apu_pwr == 0 and sensor_data.getWOW_NoseLandingGear() == 1 and sensor_data.getEngineLeftRPM() < 3 and sensor_data.getEngineRightRPM() < 3 then
 			dispatch_action(nil,EnginesStop)
@@ -376,23 +351,19 @@ end
     elseif command == 2006 then
         R_throttle_pos = (R_cutoff == 1) and value or 1
     end
---APU START/RUN/STOP	
-		if command == apu_switch and battery_state == 1 and apu_state == 0 and apu_switch_pos == 1 then
-			apu_state = 1
-			-- print_message_to_user("APU START")
-		elseif command == apu_switch and battery_state >= 0 and apu_state == 1 and apu_switch_pos == -1 then --made a change here bat state was == 1. grin
-			apu_state = 0
-			--print_message_to_user("APU SHUTDOWN")
-		end
-		if command == 10025 and battery_state == 1 and apu_state == 0 and apu_switch_pos < 1 then
-			apu_state = 1
-			dev:performClickableAction(apu_switch, 1, false)	
-			--dev:performClickableAction(apu_switch, 0, false)
-			--print_message_to_user("APU START")
-		elseif command == 10025 and battery_state == 1 and apu_state == 1 and apu_switch_pos == 1 then
-			dev:performClickableAction(apu_switch, 0, false)
-			--print_message_to_user("else")		
-		end
+-- APU is a latched request with a spring-return switch. Neutral release
+-- cannot reverse START, including a reentrant callback during auto-shutdown.
+        if command == apu_switch then
+            if value == 1 then apu_state = 1 end
+            if value == -1 then apu_state = 0 end
+        elseif command == 10025 then
+            if value == 1 then
+                apu_state = 1
+                dev:performClickableAction(apu_switch, 1, false)
+            elseif value == 0 then
+                dev:performClickableAction(apu_switch, 0, false)
+            end
+        end
 --Gear Handle Click
 		if command == Gear_Click then
 			dispatch_action(nil, PlaneGear)
@@ -479,6 +450,31 @@ end
 	end
 	local prev_L_throttle_val = -1
 	local prev_R_throttle_val = -1
+-- Audio follows achieved rotation, including spin-down. Unknown supply stops
+-- the local loop without pretending a physical shutdown occurred.
+local function update_apu_sound()
+    if not physical_power.valid then
+        if apu_played then stopLoopSound(sound_apu, false) end
+        SOUND_APU:set(-999)
+        apu_played = false
+        return
+    end
+    if apu_played and apu_rpm <= 0.01 then
+        SOUND_APU:set(0)
+        apu_played = false
+    elseif not apu_played and apu_rpm > 0.01 then
+        apu_played = true
+        if apu_pwr == 1 or apu_state == 0 then
+            sound_apu.sound_loop:play_continue()
+            sound_apu.isPlaying = true
+            sound_apu.timePlaying = sound_apu.startLength
+        else
+            SOUND_APU:set(5)
+        end
+    end
+    playLoopingSoundFromParam(SOUND_APU, sound_apu)
+end
+
 ------------------------------------------------------------------FUNCTION-UPDATE---------------------------------------------------------------------------------------------------
 function update()
     engine_status:update()
@@ -512,21 +508,12 @@ function update()
     dispatch_action(nil, 10541, right_brake)
 
 	--Param
-    local efm_owned = physical_power:update(battery_state, L_gen_state, R_gen_state, apu_state)
-    if efm_owned then
-        apu_pwr, apu_rpm = physical_power.apu_power, physical_power.apu_rpm
-        L_gen_pwr, R_gen_pwr = physical_power.left_generator, physical_power.right_generator
-        main_pwr = physical_power.main
-        if physical_power.auto_shutdown then
-            apu_state = 0
-            dev:performClickableAction(apu_switch, -1, false)
-        end
-    else
-        APU_POWER:set(apu_pwr)
-        APU_RPM_STATE:set(apu_rpm)
+    physical_power:update(battery_state, L_gen_state, R_gen_state, apu_state)
+    apu_pwr, apu_rpm = physical_power.apu_power, physical_power.apu_rpm
+    if physical_power.valid and physical_power.auto_shutdown and apu_state == 1 then
+        apu_state = 0
+        dev:performClickableAction(apu_switch, -1, false)
     end
-	-- Battery availability is published after the reserve model below.
-	-- MAIN_POWER is published after the generator supply model below.
 	UFD_ADI			:set(ufd_swap_adi)
 	-- Generator power is measured availability, not switch position.
 	-- Supply is published after RPM-dependent state update.
@@ -543,74 +530,7 @@ function update()
 
 	--print_message_to_user(B_axis_value)
 	
-	playLoopingSoundFromParam(SOUND_APU, sound_apu)
-	
-	local apu_switch_pos = get_cockpit_draw_argument_value(701)
-	--APU SOUND START
-	if apu_played == false and battery_state == 1 and apu_state == 1 and apu_switch_pos == 1 then
-		SOUND_APU:set(5)
-		apu_played = true
-		--print_message_to_user("APU STARTING!!")
-	end
-    -- APU start/run/stop is a bounded timed state, not an update-count rate.
-    -- 0.01 per 0.024s preserves the earlier nominal ramp speed.
-    if not efm_owned then
-    local apu_rate = 0.01 / 0.024
-    local apu_can_start = electrical:available(battery_state == 1, battery_fault:get() > .5) and apu_state == 1
-        and apu_fault:get() < .5
-        and apu_switch_pos == 0
-    if apu_can_start then
-        apu_rpm = math.min(4.0, apu_rpm + apu_rate * dt)
-    else
-        apu_rpm = math.max(0.0, apu_rpm - apu_rate * dt)
-    end
-    -- Supply is an independently published availability state.
-    apu_pwr = apu_can_start and apu_rpm >= 3.8 and 1 or 0
-    -- Update the current tick's published values after advancing the model.
-    APU_POWER:set(apu_pwr)
-    APU_RPM_STATE:set(apu_rpm)
-	--APU SOUND SHUTDOWN
-	if apu_played == true and battery_state >= 0 and apu_state == 0 and apu_switch_pos == -1 then		
-		SOUND_APU:set(0)
-		apu_played = false
-		--print_message_to_user("APU SHUTDOWN!!")
-	end
-	-- Generator output derived from switch + sensed engine RPM, with hysteresis.
-    -- 59/61% thresholds are preserved/moderated gameplay approximations.
-    local left_rpm = sensor_data.getEngineLeftRPM()
-    local right_rpm = sensor_data.getEngineRightRPM()
-    if L_gen_state == 0 or left_gen_fault:get() > .5 or left_rpm < 59 then
-        L_gen_pwr = 0
-    elseif left_rpm >= 61 then
-        L_gen_pwr = 1
-    end
-    if R_gen_state == 0 or right_gen_fault:get() > .5 or right_rpm < 59 then
-        R_gen_pwr = 0
-    elseif right_rpm >= 61 then
-        R_gen_pwr = 1
-    end
-    --FULL POWER
-	if L_gen_pwr == 1 or R_gen_pwr == 1 or GROUND_POWER:get() == 1 then
-		main_pwr = 1
-	else
-		main_pwr = 0
-	end
-    -- Current frame availability must be propagated before other devices read it.
-    L_GEN_POWER:set(L_gen_pwr)
-    R_GEN_POWER:set(R_gen_pwr)
-    MAIN_POWER:set(main_pwr)
-    electrical:update(dt, battery_state == 1, main_pwr == 1,
-        apu_can_start and apu_rpm < 3.8, battery_fault:get() > .5)
-    BATTERY_POWER:set(electrical.battery)
-    battery_soc:set(electrical.soc)
-    dc_volts:set(electrical.volts)
-    essential_power:set(electrical.essential)
-    electrical_valid:set(1)
-    end
-    if efm_owned and apu_played and apu_rpm <= 0.01 then
-        SOUND_APU:set(0)
-        apu_played = false
-    end
+    update_apu_sound()
 	--Update Connectors On moving Throttles	
 	local L_THROTTLE = get_cockpit_draw_argument_value(768)
 	if prev_L_throttle_val ~= L_THROTTLE then
@@ -673,80 +593,7 @@ function update()
 
 	--print_message_to_user(left_throttle_pos)
 
-    -- Require a CONTINUOUS 60 seconds with both generators available and
-    -- both engines running. Interrupted conditions reset the qualification.
-    local apu_autooff_qualified = apu_state == 1 and apu_switch_pos == 0
-        and sensor_data.getEngineLeftRPM() >= 67
-        and sensor_data.getEngineRightRPM() >= 67
-        and L_gen_pwr == 1 and R_gen_pwr == 1
-    if not efm_owned and apu_autooff_qualified then
-        apu_autooff_timer = apu_autooff_timer + dt
-    else
-        apu_autooff_timer = 0
-    end
-    if apu_autooff_timer >= 60 then
-        apu_autooff_timer = 0
-        dev:performClickableAction(apu_switch, -1, false)
-    end
 
 end
 ------------------------------------------------------------------FUNCTION-UPDATE-END-----------------------------------------------------------------------------------------------
-function delay_time()
-    if mTime > 0 then
-        mTime = mTime + dt
-        if mTime > 0.4 then
-            mTime = 0
-        end
-    end
-end
-
 need_to_be_closed = false
---[[
-getAngleOfAttack
-getAngleOfSlide
-getBarometricAltitude
-getCanopyPos
-getCanopyState
-getEngineLeftFuelConsumption
-getEngineLeftRPM
-getEngineLeftTemperatureBeforeTurbine
-getEngineRightFuelConsumption
-getEngineRightRPM
-getEngineRightTemperatureBeforeTurbine
-getFlapsPos
-getFlapsRetracted
-getHeading
-getHelicopterCollective
-getHelicopterCorrection
-getHorizontalAcceleration
-getIndicatedAirSpeed
-getLandingGearHandlePos
-getLateralAcceleration
-getLeftMainLandingGearDown
-getLeftMainLandingGearUp
-getMachNumber
-getMagneticHeading
-getNoseLandingGearDown
-getNoseLandingGearUp
-getPitch
-getRadarAltitude
-getRateOfPitch
-getRateOfRoll
-getRateOfYaw
-getRightMainLandingGearDown
-getRightMainLandingGearUp
-getRoll
-getRudderPosition
-getSpeedBrakePos
-getStickPitchPosition
-getStickRollPosition
-getThrottleLeftPosition
-getThrottleRightPosition
-getTotalFuelWeight
-getTrueAirSpeed
-getVerticalAcceleration
-getVerticalVelocity
-getWOW_LeftMainLandingGear
-getWOW_NoseLandingGear
-getWOW_RightMainLandingGear
---]]

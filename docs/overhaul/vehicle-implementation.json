@@ -119,7 +119,8 @@
         "limited ground APU electrical/hydraulic/air service",
         "finite normalized SES and explicit servicing",
         "continuous dual-generator 60-second shutdown analogue",
-        "abort/reset and separate mission-equipment power qualifier"
+        "abort/reset and separate mission-equipment power qualifier",
+        "unconditional pilot request transport; coherent EFM-only achieved power; recorded audio follows qualified rotation"
       ],
       "remaining": [
         "source-supported consumer capacities and AC conversion topology",
@@ -146,6 +147,14 @@
           "VEH-04.06": "partial"
         },
         "all_acceptance_confirmed": false
+      },
+      "source_cleanup": {
+        "removed": "Electrical_Computer.lua and Engine_System battery/generator/APU/autooff integrators, physical-supply writes and cold clam writes",
+        "adapter": "Requests publish before ownership; coherent generation/clock/freshness and finite/binary payload checks; absent/invalid supply is unavailable",
+        "controls": "APU START press latches once; neutral release never cancels/restarts; automatic shutdown does not read a stale drawing as a new request",
+        "verification": "Lua5.1 before/after owner, malformed/torn/stale/new-generation samples, no physical writes, both generator readbacks, hot/cold startups, independent brakes, recorded APU spin-down/unavailable/recovery; no new focused Lua lint warnings",
+        "deployment": "Source only; installed flight-turn hotfix is untouched",
+        "remaining": "Engine_Data and MFD/Avionics engine gauge substitutions remain a separate physical-consumer migration"
       }
     },
     {
@@ -673,5 +682,11 @@
       "cd7f92a127d332d0920f04bedc10a9661c53d179"
     ],
     "subsequent_implementation": "Engine start/control follow-through: see VEH-05 and ../engine-start-profile.md; counts reflect current source implementation, not completed host acceptance."
+  },
+  "source_cleanup_next": {
+    "scope": "User requested removal of obsolete production paths after the combined playtest freeze",
+    "physical_owner": "Power/APU duplicate owner removed; next migrate Engine_Data and physical MFD/Avionics gauges to qualified current engine snapshots",
+    "preserve": "Saved controls, preferred HUD, recorded audio, current DCS Lua5.1/ABI and native capability guards",
+    "status": "Power adapter/device cutover implemented and verified in source; engine display/data cutover outstanding"
   }
 }
