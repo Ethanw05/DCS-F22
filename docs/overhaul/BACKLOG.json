@@ -3912,7 +3912,7 @@
         "ARC-03"
       ],
       "comparison_ids": [],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "physical ownership and callback baseline implemented; host qualification open; see vehicle-implementation.json",
       "target": "A command is a request; supply, achieved physical state, displayed indication and failure are separate. Each physical state has one integrator and a declared reset policy."
     },
     {
@@ -4401,7 +4401,7 @@
         "VG11",
         "VT01"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "SI air data and degraded scheduling implemented; host probes/Nz open; see vehicle-implementation.json",
       "target": "True atmosphere and motion drive physics; a separately valid sensor frame drives HUD/FCS/AFCS schedules. CAS, EAS, TAS, Mach and signed normal load have explicit meanings."
     },
     {
@@ -4962,7 +4962,7 @@
         "AV35",
         "VG01"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "estimated feed/transfer and conserved mass model implemented; host installation/MOI open; see vehicle-implementation.json",
       "target": "Fuel is conserved by location and supply path. Installed tanks survive empty contents, combustion and auxiliaries draw finite fuel, and refuel/rearm transactions update mass once."
     },
     {
@@ -5406,7 +5406,7 @@
         "AV31",
         "VT05"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "single-owner finite supply model implemented; production distribution open; see vehicle-implementation.json",
       "target": "Battery/charger, engine generators, GPU, APU services and SES are distinct finite sources. The documented ground APU roles can supply declared consumers with engines stopped."
     },
     {
@@ -5619,7 +5619,7 @@
       "retain": [
         "Existing incremental-kg host refuel callback, internal-then-external fill and queued mass-change accounting in RAPTOR.cpp1583–1619; qualify contact/door gating before adding a duplicate host interlock"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "physical door/transfer/refuel provider implemented; native adapter pending; see vehicle-implementation.json",
       "planning_lane": "root",
       "dependencies_from_integration": [
         "VEH-03",
@@ -6525,7 +6525,7 @@
         "AV37",
         "PF22"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "causal engine operation implemented; deeper F119 failure calibration open; see vehicle-implementation.json",
       "target": "Each engine separates shaft motion, starter source, fuel/ignition, combustion, augmentation, lubrication, control health and fire isolation; indications reflect the achieved physical state."
     },
     {
@@ -6636,7 +6636,7 @@
       "comparison_ids": [
         "VT03"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "native ownership retained; required host characterization pending; see vehicle-implementation.json",
       "target": "Canopy command, position, hold, secondary lock, power availability and warning/seal status form an intentional chain."
     },
     {
@@ -6720,7 +6720,7 @@
       "effort": "M",
       "optional": false,
       "retain": [],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "continuous owned intensity implemented; native emitter qualification pending; see vehicle-implementation.json",
       "planning_lane": "root",
       "dependencies_from_integration": [
         "VEH-04"
@@ -7222,7 +7222,7 @@
         "AV04",
         "AV05"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "four-pump and finite hydraulic abstractions implemented; schematic detail open; see vehicle-implementation.json",
       "target": "Pump source status, circuit pressure/flow availability, routed consumer supply and accumulator energy are distinct; loss of one source has the correct declared survival behavior."
     },
     {
@@ -7348,7 +7348,7 @@
         "VT02",
         "VT04"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "reduced-order source/cabin/cooling model implemented; native rendering and calibration open; see vehicle-implementation.json",
       "target": "Conditioned-air supply, coolant/fuel heat removal, cabin pressure and visibility follow causal sources and loads; engine EGT alone cannot represent them."
     },
     {
@@ -7803,7 +7803,7 @@
         "VG05",
         "VG12"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "configuration, allocation and reversion implemented; handling law remains estimated; see vehicle-implementation.json",
       "target": "Pilot intent, control mode, rate/load/AoA protection, allocation, power/supply and achieved surfaces form one chain; cruise, approach/refuel and engine-out configuration can differ."
     },
     {
@@ -7930,7 +7930,7 @@
         "AV26",
         "AV33"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "physical requests and emergency sources implemented; host gear/cable qualification open; see vehicle-implementation.json",
       "target": "Gear requests, doors, struts, locks, WOW, steering and pneumatic emergency/recovery hardware have coherent commanded and achieved states."
     },
     {
@@ -8043,7 +8043,7 @@
         "AV10",
         "AV11"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "era-aware finite oxygen-source model implemented; SDK response open; see vehicle-implementation.json",
       "target": "Primary oxygen availability depends on conditioned supply and cabin environment; modern automatic backup is a separate finite source. Export unit semantics and host effects remain explicitly qualified."
     },
     {
@@ -8796,7 +8796,7 @@
         "PF17",
         "PF19"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "concrete force/deck defects corrected; performance calibration open; see vehicle-implementation.json",
       "target": "Lift, drag, moments, thrust, mass and fuel burn explain performance together over declared conditions. Public F-22 bounds and physical consistency are separate from unknown numerical curves."
     },
     {
@@ -8937,7 +8937,7 @@
         "VG07",
         "VG09"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "brake ownership/reserve corrections implemented; native controller/thermal replacement open; see vehicle-implementation.json",
       "target": "Pedal demand commands a declared deceleration response through one brake authority; wheel slip, reference motion, supply, brake energy and tire condition remain distinct."
     },
     {
@@ -9614,7 +9614,7 @@
         "AV29",
         "VG06"
       ],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "owned damage/failure/repair paths implemented; mission UI registration open; see vehicle-implementation.json",
       "target": "Registered structural/equipment failures affect the corresponding owned capability; reset, servicing and repair restore only the appropriate states."
     },
     {
@@ -10193,7 +10193,7 @@
         "VEH-14"
       ],
       "comparison_ids": [],
-      "status": "planned; implementation and runtime qualification remain separate",
+      "status": "automated source/model/callback verification implemented; flight release qualification open; see vehicle-implementation.json",
       "target": "A documented source-limited simulation profile can complete normal, limit and degraded aircraft workflows with traceable physical behavior. Unresolved real-aircraft curves are labelled rather than scored as wrong."
     },
     {

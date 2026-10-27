@@ -75,6 +75,12 @@ Detailed tasks and source anchors for ARC-01, ARC-02, ARC-03, VEH-01, NAV-WP01, 
 
 ## Flight model and aircraft systems
 
+Physical implementation and remaining qualification are tracked in the
+[vehicle package notes](vehicle-implementation.json), with the provider and
+lifecycle contract in [vehicle-state-contract.md](../vehicle-state-contract.md).
+Implemented source behavior, estimated calibration and actual DCS qualification
+remain separate statuses.
+
 <a id="pkg-veh-02"></a>
 <a id="case-pf20"></a>
 <a id="case-vg02"></a>

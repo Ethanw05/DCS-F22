@@ -1,0 +1,217 @@
+{
+  "schema": 1,
+  "base": "c5ebbcc309061b2edf0bed5e9df8678adf73684a",
+  "implementation_commit": "cbfb44b1fff10d517551cf7f78dd0b5c15b952b8",
+  "native": {
+    "configuration": "MSVC 19.51.36252.0, C++23, Debug, Windows SDK10.0.26100.0",
+    "passed": 22,
+    "total": 22,
+    "scope": "model and actual DLL callbacks with test CockpitBase; not DCS flights"
+  },
+  "static_analysis": {
+    "models": "MSVC /W4 /WX /analyze",
+    "physical_adapter": "RAPTOR.cpp /W4 /analyze",
+    "legacy_reference": "same source tag compiled with /W4 /analyze",
+    "introduced_unique_diagnostics": [],
+    "retained": [
+      "legacy unused parameters and conversions",
+      "legacy force-callback shadowing",
+      "SDK CockpitBase lookup C6387"
+    ]
+  },
+  "complexity": {
+    "tool": "lizard",
+    "version": "1.17.31",
+    "scope": "focused physical headers; excludes retained legacy force callback",
+    "functions": 134,
+    "maximum_ccn": 13,
+    "maximum_nloc": 33,
+    "above_preferred_ccn_10": [
+      {
+        "file": "AirData.h",
+        "name": "RaptorAirData::calibrated_speed",
+        "line": 22,
+        "ccn": 12,
+        "nloc": 16
+      },
+      {
+        "file": "VehicleLedger.h",
+        "name": "RaptorVehicle::MassLedger::add",
+        "line": 20,
+        "ccn": 11,
+        "nloc": 18
+      },
+      {
+        "file": "VehicleIntegration.h",
+        "name": "vehicle_sample_power",
+        "line": 87,
+        "ccn": 11,
+        "nloc": 27
+      },
+      {
+        "file": "VehicleIntegration.h",
+        "name": "vehicle_sample_hydraulic_sources",
+        "line": 115,
+        "ccn": 12,
+        "nloc": 22
+      },
+      {
+        "file": "VehicleIntegration.h",
+        "name": "vehicle_sample_air",
+        "line": 182,
+        "ccn": 11,
+        "nloc": 22
+      },
+      {
+        "file": "VehicleIntegration.h",
+        "name": "vehicle_publish_services",
+        "line": 447,
+        "ccn": 13,
+        "nloc": 26
+      }
+    ],
+    "violations": [],
+    "source_sha256": {
+      "AirData.h": "36d04979c0727cff576b79d4a42bd664e6dd295d603b73bcee48f40bf2a66235",
+      "VehicleLedger.h": "d32dcad763b1ff110c59787239eddb08e307a31922caa7cd19d2d61467ce382a",
+      "FuelSystem.h": "29265f9ec3f610f58d36db780efd6f790e9fd26a5e897db34fa6359b3d1afa48",
+      "VehiclePower.h": "14eb29a33ae4207c33ef85e053de64548970fcfc9db0ef5a0a69aecdc75089b4",
+      "EngineController.h": "d5eabce1103c1c62bd427eff25d6167c1184fca8f987b0c78d0502b9df750bba",
+      "VehicleSystems.h": "29277adbd5af9aad3a999404e4e32c3a7fbc40fde505ad6daea5b9bddfd61cb6",
+      "VehicleConfiguration.h": "c8a62e98c6818aba742d0955a0e3eee5d128596e087950fb31868a13d7101acc",
+      "VehicleEnvironment.h": "201fda0fc337d5f13a4a2f37da6b30075111d0aa6e0580c3893375c3658d9fa3",
+      "BrakeEnergy.h": "ec71212e2bf420a71d56982353413868824a4a44db15192fdc80ec1879048668",
+      "VehicleContext.h": "774037c7abd16d58e4e1ddfb8d97910272469b6ad60f42c5286f1a54ccd8fc52",
+      "VehicleSignals.h": "0d639cfd95d4bbce58ed0593de8c9297eb6b6a7f0704f08a9e3cca30f83bf6e8",
+      "VehicleFaults.h": "59a48d593000d8b068947a6f18535c023d9ad090948c231ae3bbaac9e8c5761f",
+      "VehicleIntegration.h": "b0a297bffcae97937ce4426595e416e728ab721d41c8c8cbe3815894617abc7e",
+      "ThrustDeck.h": "8280a88540eb583a9599328c4196e1f50a0b4bfff7665360a695d7c7e93f1c9f"
+    }
+  },
+  "lua": {
+    "runtime": "lupa2.6 Lua5.1",
+    "syntax_files": [
+      "Cockpit/Scripts/Systems/Engine_System.lua",
+      "Cockpit/Scripts/Systems/Vehicle_Power_Adapter.lua",
+      "Input/F-22A/keyboard/default.lua",
+      "Input/F-22A/joystick/default.lua"
+    ],
+    "lint": {
+      "tool": "luacheck 1.2.0 / lupa 2.6 Lua 5.1",
+      "files": [
+        {
+          "path": "Cockpit/Scripts/Systems/Engine_System.lua",
+          "legacy_warnings": 61,
+          "current_warnings": 61,
+          "new_warnings": []
+        },
+        {
+          "path": "Cockpit/Scripts/Systems/Vehicle_Power_Adapter.lua",
+          "legacy_warnings": 0,
+          "current_warnings": 0,
+          "new_warnings": []
+        }
+      ]
+    },
+    "baseline": {
+      "passed": 105,
+      "total": 130
+    },
+    "current": {
+      "passed": 106,
+      "total": 131
+    },
+    "introduced_failures": [],
+    "unchanged_failures": [
+      "test_ag_radar.py",
+      "test_ag_usability.py",
+      "test_ew_geolocation_transport.py",
+      "test_ground_gmt.py",
+      "test_ground_radar_modes.py",
+      "test_human_factors_workflow.py",
+      "test_icp_flight_pages.py",
+      "test_mfd_menu_contract.py",
+      "test_mfd_shared_pages.py",
+      "test_nav_data_workflow.py",
+      "test_nav_entry.py",
+      "test_nav_workflow.py",
+      "test_navigation.py",
+      "test_overhaul_attack_context.py",
+      "test_overhaul_defensive_overview.py",
+      "test_overhaul_menu_routes.py",
+      "test_overhaul_stores_display.py",
+      "test_pmfd_local_pages.py",
+      "test_radar_launch_zone.py",
+      "test_radar_mfd_controls.py",
+      "test_radar_native_units.py",
+      "test_radar_presentation.py",
+      "test_sensor_control.py",
+      "test_stores_context.py",
+      "test_ufc_entry_display.py"
+    ],
+    "baseline_note": "Full tracked tag snapshot; loader-existence placeholder only, native baseline separately built/tested"
+  },
+  "bench": {
+    "kind": "fixed-state callback bench, not DCS flight qualification",
+    "samples": 288,
+    "source_commit": "cbfb44b1fff10d517551cf7f78dd0b5c15b952b8",
+    "empty_mass_kg": 19700,
+    "inertia_kgm2": [
+      100000,
+      150000,
+      120000
+    ],
+    "atmosphere": "tropospheric ISA estimate through 10km",
+    "contact": false,
+    "ground_effect": "not added; native ownership unqualified",
+    "coefficients": "legacy/estimated F-22 mod deck, no production calibration",
+    "efm_sha256": "4ab5f4cbbab27c2b353d72b0b1b4f1b3dc5a55042f7db15189e6647c5814ec08",
+    "case_duration_s": 8,
+    "dt_s": 0.01
+  },
+  "refactor_replay": "all288 CSV rows identical before/after the complexity refactor",
+  "tested_chains": [
+    "cold battery/APU/SES -> hydraulic/electrical supply -> guarded engine start",
+    "start and running fuel -> feed/transfer -> conserved mass -> source loss/repair/explicit restart",
+    "unlimited fuel -> changing dry/AB indicated consumption -> fixed quantities/no debit",
+    "invalid/frozen sensed air data -> AFCS withdrawal/FCS scheduling -> unchanged true motion",
+    "fixed airframe force state -> CG shift moment identity and airborne wind invariance",
+    "normal utility loss with surviving flight controls -> finite SES alternate gear",
+    "fire detection -> isolation -> finite discharge -> persistent detection -> repair without engine start",
+    "mirrored wing/tail damage -> symmetric destruction policy and aileron force loss",
+    "invalid physical/mass producer -> invalidity/finite fallback -> valid recovery",
+    "supply-qualified lighting intensity, pause/substep bounds, release and next generation"
+  ],
+  "source_sha256": {
+    "Cockpit/Scripts/Systems/Engine_System.lua": "dee1c07d33eaa23d6126e3abeb75e7f3ef8b2dde6a0fc7116e35239e3dcd686c",
+    "Cockpit/Scripts/Systems/Vehicle_Power_Adapter.lua": "744ef29f23bdb2e0bb536f5f9b844f92dd9bc75b83eedbc8daa6d39b107fa460",
+    "EFM/source/AirData.h": "36d04979c0727cff576b79d4a42bd664e6dd295d603b73bcee48f40bf2a66235",
+    "EFM/source/Autopilot.h": "4cf2faeca88de690b85d947cc1bcb66e371467bd0c2bce272f1bdebf13d231dc",
+    "EFM/source/BrakeEnergy.h": "ec71212e2bf420a71d56982353413868824a4a44db15192fdc80ec1879048668",
+    "EFM/source/EngineController.h": "d5eabce1103c1c62bd427eff25d6167c1184fca8f987b0c78d0502b9df750bba",
+    "EFM/source/FuelSystem.h": "29265f9ec3f610f58d36db780efd6f790e9fd26a5e897db34fa6359b3d1afa48",
+    "EFM/source/RAPTOR.cpp": "600c409b3da468184450545dcc65445d9354eeb764b583a6b5905707e40e8c61",
+    "EFM/source/RAPTOR.h": "ab76b4515097825c5bb37712f1d1a8434d261f6d76d9cb934e0b23e75e5a1397",
+    "EFM/source/ThrustDeck.h": "8280a88540eb583a9599328c4196e1f50a0b4bfff7665360a695d7c7e93f1c9f",
+    "EFM/source/VehicleConfiguration.h": "c8a62e98c6818aba742d0955a0e3eee5d128596e087950fb31868a13d7101acc",
+    "EFM/source/VehicleContext.h": "774037c7abd16d58e4e1ddfb8d97910272469b6ad60f42c5286f1a54ccd8fc52",
+    "EFM/source/VehicleEnvironment.h": "201fda0fc337d5f13a4a2f37da6b30075111d0aa6e0580c3893375c3658d9fa3",
+    "EFM/source/VehicleFaults.h": "59a48d593000d8b068947a6f18535c023d9ad090948c231ae3bbaac9e8c5761f",
+    "EFM/source/VehicleIntegration.h": "b0a297bffcae97937ce4426595e416e728ab721d41c8c8cbe3815894617abc7e",
+    "EFM/source/VehicleLedger.h": "d32dcad763b1ff110c59787239eddb08e307a31922caa7cd19d2d61467ce382a",
+    "EFM/source/VehiclePower.h": "14eb29a33ae4207c33ef85e053de64548970fcfc9db0ef5a0a69aecdc75089b4",
+    "EFM/source/VehicleSignals.h": "0d639cfd95d4bbce58ed0593de8c9297eb6b6a7f0704f08a9e3cca30f83bf6e8",
+    "EFM/source/VehicleSystems.h": "29277adbd5af9aad3a999404e4e32c3a7fbc40fde505ad6daea5b9bddfd61cb6",
+    "Input/F-22A/joystick/default.lua": "03855ff073a98f40b9677b635b194e3815a742c29064b35c7685f57aaebc70f5",
+    "Input/F-22A/keyboard/default.lua": "1b580a9e1850bf5f8e9f6c56616c6eb9619738367f7eda4391776decc109dd8f",
+    "tests/test_vehicle_contract.cpp": "653a2508cd1e92736fa86d435a8623dc2065159df17086ea1b5f19c26488363b",
+    "tests/test_vehicle_efm.cpp": "4d529f5d0868c7209fd45fc2071524de33dad06be85924c2b5b1d9d4342f386c",
+    "tests/test_vehicle_overhaul.cpp": "e61007115f1c6d2b8d10d0ed58a9b3411226a623b4a946ed81f42838c0daab3b",
+    "tests/test_vehicle_systems.cpp": "205a35c1a41e08c68774bd0f689f8b852713251ce50db31fd5417112b5271fe3"
+  },
+  "efm_sha256": "4ab5f4cbbab27c2b353d72b0b1b4f1b3dc5a55042f7db15189e6647c5814ec08",
+  "python": "3.12.10",
+  "coverage": "branch coverage not measured; no coverage tool available",
+  "dcs_runtime": "not used; user excluded flight tests",
+  "release_qualified": false
+}

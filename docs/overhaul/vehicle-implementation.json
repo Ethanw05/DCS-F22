@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "branch": "codex/flight-aircraft-overhaul",
+  "base": "c5ebbcc309061b2edf0bed5e9df8678adf73684a",
+  "contract": "../vehicle-state-contract.md",
+  "release_qualified": false,
+  "runtime": "DCS flight tests excluded by the user's later instruction; installed mod and running simulator untouched",
+  "packages": [
+    {
+      "id": "VEH-01", "status": "physical ownership and callback baseline implemented; host qualification open",
+      "implemented": ["EFM power owner with latched Lua adapter", "typed prebound signal bus", "bounded simulation substeps, mass/damage ledgers", "generation, clock kind and publication protocol", "distinct spawn/release/repair/refuel/service semantics"],
+      "remaining": ["actual host callback ordering and thread scheduling", "continued focused extraction of the legacy force callback"]
+    },
+    {
+      "id": "VEH-02", "status": "SI air data and degraded scheduling implemented; host probes/Nz open",
+      "implemented": ["shared CAS/EAS/TAS/Mach/static/impact calculations", "invalid/frozen/biased measured frame separate from true forces", "AFCS health withdrawal and held last-qualified FCS scheduling", "raw body ay instrumentation and callback wind invariance"],
+      "remaining": ["banked/inverted/ballistic host gravity experiment", "probe heat, native weather and airframe/inlet icing ownership"]
+    },
+    {
+      "id": "VEH-03", "status": "estimated feed/transfer and conserved mass model implemented; host installation/MOI open",
+      "implemented": ["3 feed and 5 transfer cells with explicitly estimated splits and positions", "hydraulic boost and bleed/electrical transfer dependence", "proportional external-first transfer", "atomic mass-neutral transfers and actual burn/refill ledger", "main-engine/start/augmentation/APU consumption", "unlimited-fuel current flow", "independent feed low, availability and adjustable bingo"],
+      "remaining": ["initially empty installed tank versus zero removal host evidence", "DCS inertia contribution and source-supported cell geometry", "cockpit warning/audio adoption"]
+    },
+    {
+      "id": "VEH-04", "status": "single-owner finite supply model implemented; production distribution open",
+      "implemented": ["battery/SOC/charging and generator hysteresis in EFM", "limited ground APU electrical/hydraulic/air service", "finite normalized SES and explicit servicing", "continuous dual-generator 60-second shutdown analogue", "abort/reset and separate mission-equipment power qualifier"],
+      "remaining": ["source-supported consumer capacities and AC conversion topology", "cold-soak/preheat profile if adopted", "native source transfer qualification"]
+    },
+    {
+      "id": "VEH-05", "status": "causal engine operation implemented; deeper F119 failure calibration open",
+      "implemented": ["OFF/CRANKING/LIGHTING/ACCELERATING/RUNNING/SHUTTING_DOWN/WINDMILLING", "one guarded start path for host commands", "source loss abort and explicit relight consent", "actual delivered combustion flow/thrust and augmentation synchronization", "independent fire detection/isolation/discharge inventory"],
+      "remaining": ["hot/hung-start and FADEC degradation calibration", "production windmill/relight envelope", "fueldraulic nozzle-source topology; legacy side-hydraulic mapping remains an estimate"]
+    },
+    {
+      "id": "VEH-06", "status": "four-pump and finite hydraulic abstractions implemented; schematic detail open",
+      "implemented": ["four main pump statuses and lower-capacity APU source", "independent circuit pressure, inventory and demand response", "normal utility supply distinct from ground maintenance transfer", "separate brake application reserve and tow/hand-pump service"],
+      "remaining": ["complete production consumer routing", "integrated bay/gun demand adapter", "actual valve/flow and nozzle supply evidence"]
+    },
+    {
+      "id": "VEH-07", "status": "configuration, allocation and reversion implemented; handling law remains estimated",
+      "implemented": ["achieved CRUISE/APPROACH/REFUEL configuration", "historical speed-brake surface groups with estimated amplitudes", "pitch-priority finite collective/differential allocation", "single-engine approach eligibility output", "manual trim preserved and degraded scheduling bounded"],
+      "remaining": ["independent EDM surface-angle qualification", "1998 selectable single-engine law adoption and coordinated alternate AoA", "weight/configuration-aware command-law calibration with navigation/HUD/ATC"]
+    },
+    {
+      "id": "VEH-08", "status": "concrete force/deck defects corrected; performance calibration open",
+      "implemented": ["airframe-fixed force points and callback CG moment identity", "bounded labelled continuation instead of high-Mach sentinel-zero thrust", "declared matched-state wind invariance checks", "288-condition fixed-state callback force/mass/energy/fuel grid and plot"],
+      "remaining": ["joint matched-condition thrust/drag/mass/energy/fuel calibration", "actual sustained flight and approach envelopes", "host ground effect, stores drag and inertia ownership; no duplicate terms added"]
+    },
+    {
+      "id": "VEH-09", "status": "physical requests and emergency sources implemented; host gear/cable qualification open",
+      "implemented": ["common gear toggle/up/down guard with WOW and explicit EAS/data rejection", "finite SES alternate extension", "continuous selected NWS authority", "finite pneumatic hook requests and achieved output"],
+      "remaining": ["native EDM door/leg phases and independent locks", "actual runway-cable capture and hook connector behavior"]
+    },
+    {
+      "id": "VEH-10", "status": "brake ownership/reserve corrections implemented; native controller/thermal replacement open",
+      "implemented": ["independent pressure-qualified wheel requests", "idempotent parking set/release with distinct achieved hold", "application/leak reserve separated from rolling heat", "bounded diagnostic work/temperature upper estimate and raw suspension wheel sample"],
+      "remaining": ["native wheel-speed units, anti-skid/deceleration and heat/fade ownership", "validated torque/controller replacement before removal of legacy 0.60 stop assist", "actual heat soak, fade and tire consequences"]
+    },
+    {
+      "id": "VEH-11", "status": "reduced-order source/cabin/cooling model implemented; native rendering and calibration open",
+      "implemented": ["independent engine bleed and ground APU air", "bounded equipment/coolant/fuel/ram/refrigeration heat paths", "separate cabin absolute/differential pressure", "source-dependent defog estimate and pilot requests"],
+      "remaining": ["native canopy seal adapter and actual visibility rendering", "equipment-specific heat loads and production regulation/limits"]
+    },
+    {
+      "id": "VEH-12", "status": "era-aware finite oxygen-source model implemented; SDK response open",
+      "implemented": ["conditioned-air-dependent OBOGS", "modern automatic backup after primary interruption", "historical manual selection option", "separate reserve depletion, servicing and pressure indication"],
+      "remaining": ["ABOS capacity and detailed transfer calibration", "controlled host oxygen pressure-response experiment; healthy SDK baseline retained", "no clinical incapacitation model claimed"]
+    },
+    {
+      "id": "VEH-13", "status": "native ownership retained; required host characterization pending",
+      "implemented": ["native canopy/escape writers left intact", "explicit valid position/lock provider boundary for ECS"],
+      "remaining": ["actual inherited UP/HOLD/DOWN, lock and no-power behavior", "native action83 press/release/ejection outcome and teardown", "only add missing supported adapter behavior after observation"]
+    },
+    {
+      "id": "VEH-14", "status": "owned damage/failure/repair paths implemented; mission UI registration open",
+      "implemented": ["bounded planned-failure ID producer table and repair-needed callback", "registered aileron/elevon/rudder damage reduces force", "explicit symmetric destruction expression", "repair restores supported equipment faults without replenishing resources or starting engines"],
+      "remaining": ["shared F-22A.lua mission-failure registration", "full native damaged-geometry and combined-fault qualification"]
+    },
+    {
+      "id": "VEH-15", "status": "automated source/model/callback verification implemented; flight release qualification open",
+      "implemented": ["actual MSVC/C++23 DLL build and static analysis", "normal/limit/failure/recovery numerical and DLL tests", "Lua5.1 ownership and parking tests", "pinned lint with explicit DCS globals and legacy baseline", "exact broad-suite baseline comparison", "pinned lizard: 134 focused functions, maximum complexity13 and NLOC33", "288-condition callback replay unchanged after complexity refactor"],
+      "remaining": ["branch coverage measurement tool unavailable", "combined normal/degraded DCS mission and actual performance plots", "full integration of cockpit/radar/weapons consumers"]
+    },
+    {
+      "id": "AUX-01", "status": "physical door/transfer/refuel provider implemented; native adapter pending",
+      "implemented": ["achieved door distinct from request and ready", "accepted host fuel delta conserves cell/station mass", "transfer indication does not infer contact", "explicit disconnect request via SDK interrupt"],
+      "remaining": ["native door/contact/argument mapping and boom workflow adapter owned by navigation integration"]
+    },
+    {
+      "id": "AUX-02", "status": "continuous owned intensity implemented; native emitter qualification pending",
+      "implemented": ["normalized formation/AAR intensity and draw exports", "supply loss preserves preference and stops emission"],
+      "remaining": ["native material/connector intensity and day/night visual qualification owned by integration"]
+    }
+  ]
+}
