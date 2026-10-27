@@ -49,6 +49,25 @@ class Supply {
             if (!flag(values[index])) return false;
         return true;
     }
+    Power legacy(EDPARAM& api) const noexcept {
+        Power result;
+        double main = 0;
+        result.valid = read(api, 12, main) && flag(main);
+        result.left = result.right = result.receiver = result.valid && main == 1;
+        return result;
+    }
+    static Power decode(const std::array<double, 13>& values) noexcept {
+        Power result;
+        result.owned = true;
+        result.valid = values[9] == 1;
+        result.left = result.valid && values[6] == 1;
+        result.right = result.valid && values[7] == 1;
+        result.thermal = values[10] != 1 || values[11] == 1;
+        // No qualified battery-to-AC bridge. One surviving generator supports
+        // both low-load receivers; cooling loss withdraws receiver consent.
+        result.receiver = result.valid && values[8] == 1 && (result.left || result.right) && !result.thermal;
+        return result;
+    }
 public:
     Power sample(EDPARAM& api) noexcept {
         if (!initialized_) initialize(api);
@@ -56,22 +75,10 @@ public:
         double owner = 0;
         if (read(api, 0, owner) && owner == 1) owned_ = true;
         result.owned = owned_;
-        if (!owned_) {
-            double main = 0;
-            result.valid = read(api, 12, main) && flag(main);
-            result.left = result.right = result.receiver = result.valid && main == 1;
-            return result;
-        }
+        if (!owned_) return legacy(api);
         std::array<double, 13> values{};
         if (!frame_values(api, values) || !epoch(values) || !payload(values)) return result;
-        result.valid = values[9] == 1;
-        result.left = result.valid && values[6] == 1;
-        result.right = result.valid && values[7] == 1;
-        result.thermal = values[10] != 1 || values[11] == 1;
-        // This profile has no qualified battery-to-AC bridge. One surviving
-        // generator supports both low-load receivers; cooling loss withdraws them.
-        result.receiver = result.valid && values[8] == 1 && (result.left || result.right) && !result.thermal;
-        return result;
+        return decode(values);
     }
 };
 } // namespace RaptorCni

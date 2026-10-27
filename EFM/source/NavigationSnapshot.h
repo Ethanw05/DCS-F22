@@ -16,6 +16,18 @@ class Snapshot {
         const auto read = api.ed_param_api.pfn_ed_cockpit_parameter_value_to_number;
         return handle && read && read(handle,value,false) && std::isfinite(value);
     }
+    static bool sequence(double value) noexcept {
+        return value>=1 && value<=16777215 && value==std::floor(value);
+    }
+    static bool flags(const std::array<double,4>& values) noexcept {
+        return (values[0]==0 || values[0]==1) && (values[3]==0 || values[3]==1);
+    }
+    bool fields(EDPARAM& api, unsigned slot, std::array<double,4>& values) const noexcept {
+        bool complete=true;
+        for (std::size_t field=0;field<values.size();++field)
+            complete=number(api,handles_[2+slot*4+field],values[field]) && complete;
+        return complete && flags(values);
+    }
 public:
     void initialize(EDPARAM& api) noexcept {
         constexpr std::array<const char*,10> names = {
@@ -37,16 +49,12 @@ public:
         if (schema!=1) return result;
         for (unsigned attempt=0;attempt<2;++attempt) {
             double before=0,after=0;
-            if (!number(api,handles_[1],before) || before<1 || before>16777215 ||
-                before!=std::floor(before)) return result;
+            if (!number(api,handles_[1],before) || !sequence(before)) return result;
             const auto slot=static_cast<unsigned>(before)%2;
             std::array<double,4> values{};
-            bool complete=true;
-            for (std::size_t field=0;field<values.size();++field)
-                complete=number(api,handles_[2+slot*4+field],values[field]) && complete;
+            const bool complete=fields(api,slot,values);
             if (!number(api,handles_[1],after) || before!=after) continue;
-            if (!complete || (values[0]!=0 && values[0]!=1) ||
-                (values[3]!=0 && values[3]!=1)) return result;
+            if (!complete) return result;
             result.valid=values[0]==1;
             result.track=values[1];result.time=values[2];result.terminal=values[3]==1;
             return result;

@@ -15,19 +15,24 @@ local function array(items, limit)
     end
     return count == #items
 end
+local function route_position(point)
+    return type(point)=='table' and finite(point.x) and finite(point.y)
+        and math.abs(point.x)<=1e7 and math.abs(point.y)<=1e7
+end
+local function route_height(point)
+    if point.alt~=nil and(not finite(point.alt)or point.alt< -1000 or point.alt>32000)then
+        return 'ROUTE ALTITUDE'
+    end
+    if point.alt_type~=nil and point.alt_type~='BARO'and point.alt_type~='RADIO'then return 'ROUTE DATUM' end
+end
 local function route(items)
     if not array(items, M.route_limit) then return nil, 'ROUTE CAPACITY' end
     local accepted = {}
     for index = 1, #items do
         local point = items[index]
-        if type(point) ~= 'table' or not finite(point.x) or not finite(point.y)
-            or math.abs(point.x) > 1e7 or math.abs(point.y) > 1e7 then return nil, 'ROUTE POSITION' end
-        if point.alt ~= nil and (not finite(point.alt) or point.alt < -1000 or point.alt > 32000) then
-            return nil, 'ROUTE ALTITUDE'
-        end
-        if point.alt_type ~= nil and point.alt_type ~= 'BARO' and point.alt_type ~= 'RADIO' then
-            return nil, 'ROUTE DATUM'
-        end
+        if not route_position(point)then return nil,'ROUTE POSITION'end
+        local reason=route_height(point)
+        if reason then return nil,reason end
         accepted[index] = { x = point.x, y = point.y, alt = point.alt, alt_type = point.alt_type,
             name = type(point.name) == 'string' and point.name:sub(1,64) or nil }
     end
