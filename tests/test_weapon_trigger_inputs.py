@@ -24,6 +24,13 @@ for _,kind in ipairs({'joystick','keyboard'})do
  end
  profiles[kind]=profile
 end
+dofile(SCRIPT_ROOT..'devices.lua')
+for _,profile in pairs(profiles)do
+ for id=11905,11912 do
+  assert(binding(profile,id).cockpit_device_id==devices.FLIGHT_GUIDANCE,
+   'standalone input profile routed lights to the wrong device')
+ end
+end
 local detent=binding(profiles.joystick,10022)
 local first=binding(profiles.keyboard,10021)
 local hotas=binding(profiles.joystick,10717)
@@ -110,6 +117,13 @@ weapon_set(detent.up,devices.WEAPON_SYSTEM+.25);tick();assert(g('HUD_GUN_TRIGGER
 for _,bad in ipairs({0/0,math.huge,-math.huge,'bad',2,-1})do
  weapon_set(detent.down,bad);tick();assert(g('HUD_GUN_TRIGGER')==0,'malformed trigger value started cannon')
 end
+for _,bad in ipairs({0/0,math.huge,-math.huge,'bad',2,-1})do
+ weapon_set(detent.up,0);weapon_set(detent.down,1);tick(30);assert(g('HUD_GUN_TRIGGER')==1)
+ weapon_set(10806,0);weapon_set(detent.down,bad)
+ weapon_set(10806,1);weapon_set(detent.down,1);tick(30)
+ assert(g('HUD_GUN_TRIGGER')==0,'malformed value erased held trigger ownership before real UP')
+end
+weapon_set(detent.up,0)
 combat_set(hotas.down,1);tick(30);assert(g('HUD_GUN_TRIGGER')==1)
 p('MAIN_POWER',0);combat_update();tick();assert(g('HUD_GUN_TRIGGER')==0)
 local routed_starts=starts

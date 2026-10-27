@@ -5,9 +5,11 @@ local decode = dofile(LockOn_Options.script_path..'Systems/Input_Value.lua')
 local slots = {[10021] = 1, [10801] = 2, [10022] = 3, [10802] = 4}
 
 local function down(value, device)
-    if type(value) ~= 'number' or value ~= value or math.abs(value) == math.huge then return false end
+    if type(value) ~= 'number' or value ~= value or math.abs(value) == math.huge then return nil end
     local normalized = decode(value, device)
-    return normalized > .5 and normalized <= 1.0001
+    if math.abs(normalized) <= .0001 then return false end
+    if math.abs(normalized - 1) <= .0001 then return true end
+    return nil
 end
 
 function M.new(device)
@@ -33,6 +35,7 @@ function M:input(command, value, permitted)
     if not index then return false end
     local source = self.sources[index]
     local pressed = down(value, self.device)
+    if pressed == nil then source.accepted = false; return true end
     if pressed and not source.down then source.accepted = permitted == true end
     if not pressed then source.accepted = false end
     source.down = pressed
