@@ -343,8 +343,11 @@ static void simulate_vehicle_step(double dt) {
 
     x_offset = x_offset_normal;
 
-    RAPTOR::left_wing_pos = Vec3(x_offset, 0.5, -RAPTOR::wingspan / 2);
-    RAPTOR::right_wing_pos = Vec3(x_offset, 0.5, RAPTOR::wingspan / 2);
+    vehicle_capture_wing_reference();
+    const double wing_x = vehicle.wing_reference_x_m + x_offset;
+    const double wing_y = vehicle.wing_reference_y_m + 0.5;
+    RAPTOR::left_wing_pos = Vec3(wing_x, wing_y, -RAPTOR::wingspan / 2);
+    RAPTOR::right_wing_pos = Vec3(wing_x, wing_y, RAPTOR::wingspan / 2);
 
     double ias_ms = vehicle.air_truth.valid ? vehicle.air_truth.eas_mps : 0.0;
     double ias_knots = ias_ms * 1.94384;
