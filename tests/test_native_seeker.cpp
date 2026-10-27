@@ -122,10 +122,13 @@ int main() {
     api.status=status;api.station=station;api.update=update;api.slave=slave;api.boresight=boresight;
     api.tracking=tracking;api.strength=strength;api.seeker=seeker;api.local_pose=local_pose;
     api.launch=launch;api.aircraft=aircraft;
+    api.clock=model_clock;
     api.gimbal_limit=scalar;api.sun_filter=sun_filter;api.motor_limits=motor_limits;
     void* context[3]={nullptr,nullptr,&p};void** context_ptr=context;api.contexts=&context_ptr;
     vtable[64]=reinterpret_cast<void*>(&launcher);
     values["MAIN_POWER"]=1;values["F22_IR_MODE"]=3;values["F22_IR_STATION"]=0;
+    values["F22_IR_EXPOSURE_VALID"]=1;values["F22_IR_EXPOSED"]=1;
+    values["F22_IR_EXPOSURE_TIME"]=now_model;
     values["F22_IR_TYPE1"]=4;values["F22_IR_TYPE2"]=4;values["F22_IR_TYPE3"]=7;
     values["F22_IR_TYPE4"]=136;values["F22_RADAR_STT_VALID"]=1;
     values["MASTER_ARM"]=1;values["WoW"]=0;
@@ -176,6 +179,32 @@ int main() {
     values["F22_IR_CAGED"]=1;update(p,.02);
     CHECK(!consent && values["F22_IR_HEAD_RELEASED"]==0 && values["F22_IR_LOCK"]==0);
     values["MAIN_POWER"]=0;update(p,.02);detected_strength=-1;
+    // Achieved exposure and weapon generation bound the actual native sensor.
+    const int before_generation=creations;
+    const int before_generation_launches=launches;
+    values["MAIN_POWER"]=1;values["WoW"]=0;values["F22_IR_CAGED"]=0;
+    values["F22_IR_STORE_GENERATION"]=42;values["F22_IR_RELEASE_REQUEST"]=1;
+    sensor_track=true;update(p,.02);
+    CHECK(creations==before_generation+1 && values["F22_IR_AVAILABLE"]==1);
+    values["F22_IR_STORE_GENERATION"]=43;update(p,.02);
+    CHECK(creations==before_generation+2 && launches==before_generation_launches);
+    values["F22_IR_EXPOSED"]=0;update(p,.02);
+    CHECK(values["F22_IR_AVAILABLE"]==0 && values["F22_IR_LOCK"]==0);
+    values["F22_IR_EXPOSED"]=1;values["F22_IR_EXPOSURE_TIME"]=now_model-.2;update(p,.02);
+    CHECK(values["F22_IR_AVAILABLE"]==0);
+    values["F22_IR_EXPOSURE_TIME"]=now_model;update(p,.02);
+    CHECK(values["F22_IR_AVAILABLE"]==1 && launches==before_generation_launches);
+    for (double bad:{std::numeric_limits<double>::quiet_NaN(),
+                     std::numeric_limits<double>::infinity(),1.5,11.}) {
+        values["F22_IR_STATION"]=bad;update(p,.02);
+        CHECK(values["F22_IR_AVAILABLE"]==0 && launches==before_generation_launches);
+    }
+    values["F22_IR_STATION"]=0;
+    for (double bad:{-1.,std::numeric_limits<double>::quiet_NaN(),4294967296.}) {
+        values["F22_IR_TYPE4"]=bad;update(p,.02);
+        CHECK(values["F22_IR_AVAILABLE"]==0);
+    }
+    values["MAIN_POWER"]=0;update(p,.02);
     alignas(16) std::array<std::byte,2440> radar{};
     auto base=reinterpret_cast<std::uintptr_t>(radar.data());
     *reinterpret_cast<double*>(base+1944)=300;
@@ -396,6 +425,9 @@ int main() {
     void* recording_table[51]{};recording_table[20]=reinterpret_cast<void*>(&store_type);recording_table[50]=reinterpret_cast<void*>(&launch_payload);
     payload_original=recording_table;launch_master_mode=2;
     CHECK(record_payload_launch(nullptr,2,0,101,nullptr,true)==9876);
+    const unsigned before_jettison=launched_sequence;
+    CHECK(record_payload_launch(nullptr,2,0,101,nullptr,false)==9876);
+    CHECK(launched_sequence==before_jettison);
     CHECK(launched_sequence==1 && launched[0].target==101 && launched[0].mode==2 && launched[0].estimate.valid);
     CHECK(launched[0].estimate.act==12 && launched[0].estimate.stamp==now_model);
     const auto frozen=launched[0];payload_launch_allowed=false;launch_master_mode=2;
@@ -466,6 +498,12 @@ int main() {
     launch_master_mode=7;CHECK(record_payload_launch(nullptr,4,0,0,original_point,true)==0);
     update_ground_release(p);launch_master_mode=7;CHECK(record_payload_launch(nullptr,4,0,0,original_point,true)==9876);
     CHECK(payload_point[0]==11000);
+    // Unarmed jettison bypasses target transfer/consent without generating a shot.
+    const unsigned before_guided_jettison=launched_sequence;
+    values["F22_AG_RELEASE_CONSENT"]=0;
+    CHECK(record_payload_launch(nullptr,4,0,0,original_point,false)==9876);
+    CHECK(launched_sequence==before_guided_jettison && payload_point[0]==1);
+    values["F22_AG_RELEASE_CONSENT"]=1;
     values["MASTER_ARM"]=0;launch_master_mode=7;CHECK(record_payload_launch(nullptr,4,0,0,original_point,true)==0);values["MASTER_ARM"]=1;
     values["F22_AG_SOLUTION_TIME"]=now_model-.19;update_ground_release(p);CHECK(values["F22_AG_GUIDANCE_CACHE_VALID"]==1);
     now_model+=.02;launch_master_mode=7;CHECK(record_payload_launch(nullptr,4,0,0,original_point,true)==0);

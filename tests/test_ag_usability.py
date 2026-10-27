@@ -28,7 +28,14 @@ function set_aircraft_draw_argument_value(n,v)draws[n]=v end
 local counts={[4]=3,[6]=1};local launches={};local selected
 native={get_station_info=function(_,i)return {count=counts[i]or 0,CLSID=i==6 and '{GBU_32_V_2B}' or '{F22-MK83-TRAINING}',
  weapon={level1=4,level2=5,level3=i==6 and 36 or 9,level4=i==6 and 85 or 32}}end,
- select_station=function(_,i)selected=i end,launch_station=function(_,i)assert(counts[i]>0);launches[#launches+1]={station=i,t=now};counts[i]=counts[i]-1 end,
+ select_station=function(_,i)selected=i end,launch_station=function(_,i)
+  assert(counts[i]>0);launches[#launches+1]={station=i,t=now};counts[i]=counts[i]-1
+  local sequence=#launches
+  for key,value in pairs({SEQUENCE=sequence,ID=500+sequence,STATION=i,MODE=7,TYPE=i==6 and 85 or 32,TIME=now})do
+   get_param_handle('F22_SHOT_01_'..key):set(value)
+  end
+  get_param_handle('F22_LAUNCH_SEQUENCE'):set(sequence)
+ end,
  get_chaff_count=function()return 120 end,get_flare_count=function()return 120 end}
 function GetDevice()return native end
 local function put(n,v)get_param_handle(n):set(v)end

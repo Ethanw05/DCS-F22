@@ -646,6 +646,8 @@ join(res.keyCommands,{
   name=_('CM - Neutral Scripted Event (Test)'),category=_('F-22 Countermeasures')},
  {down=11113,up=11113,value_down=1,value_up=0,cockpit_device_id=20,
   name=_('CM - Stop Program'),category=_('F-22 Countermeasures')},
+ {down=11120,up=11120,value_down=1,value_up=0,cockpit_device_id=4,
+  name=_('Stores - Simulation Mode'),category=_('F-22 Weapons')},
 })
 
 return res

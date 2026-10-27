@@ -19,7 +19,8 @@ local models={
  {'{AIM9X-BLKII}','AIM-9X II'},{'{LAU_115_2xAIM9X-II}','AIM-9X II'}}
 for _,m in ipairs(models)do
  local cap=caps.describe({CLSID=m[1],count=1,weapon={level1=4,level2=4,level3=7,level4=900}})
- assert(cap.hud==m[2]and cap.supported,m[1]..' missing model identity')
+ assert(cap.hud==m[2],m[1]..' missing model identity')
+ assert(cap.supported==(not cap.optional_equipment),m[1]..' ignored selected equipment profile')
 end
 local function store(id,count,type4,bomb)
  return {CLSID=id,count=count,weapon={level1=4,level2=bomb and 5 or 4,level3=bomb and 36 or 7,level4=type4}}

@@ -47,9 +47,11 @@ local decremented=info(1);m:refresh({[4]=decremented})
 assert(m:station_ready(4),'matching inventory did not reconcile the prior release')
 assert(m:request(4,decremented,100.3,{n=600,e=300,vn=200,ve=0},11))
 assert(m:acknowledge({[4]=decremented},100.31,shot())==nil,'the same shot acknowledged a second request')
--- Authoritative station count evidence also acknowledges, without a shot event.
+-- A station count decrease has no action identity. It cannot acknowledge a shot.
 local empty=info(0)
-accepted,complete=m:acknowledge({[4]=empty},100.32,nil)
+assert(m:acknowledge({[4]=empty},100.32,nil)==nil)
+local second=shot();second.sequence=12;second.time=100.31;second.id=124
+accepted,complete=m:acknowledge({[4]=empty},100.32,second)
 assert(accepted and complete and not m.program and not m.pending)
 assert(m:acknowledge({[4]=empty},100.33,shot())==nil,'completed request acknowledged twice')
 -- Clock discontinuities and late polling terminate consent before count evidence.
@@ -83,4 +85,4 @@ assert(not t.pending and not t.program and t.entry)
 t:digit(2);t:digit(0);t:digit(0);assert(t:commit() and t:profile().interval==.2)
 assert(t:acknowledge({[4]=info(1)},100.1,shot())==nil,'cancelled program accepted a late acknowledgement')
 ''')
-print('Overhaul release contract: native/count evidence, identity, time boundaries, duplicate prevention and edit cancellation PASS')
+print('Overhaul release contract: actual launch identity, count-only rejection, time boundaries, quarantine and cancellation PASS')

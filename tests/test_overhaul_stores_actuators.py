@@ -11,7 +11,17 @@ function get_aircraft_draw_argument_value(n)return draws[n]or 0 end
 function set_aircraft_draw_argument_value(n,v)draws[n]=v end
 local count,launches,accept=1,0,true
 native={get_station_info=function(_,i)return {count=i==4 and count or 0,CLSID='{F22-MK83-TRAINING}',weapon={level1=4,level2=5,level3=9,level4=32}}end,
- select_station=function()end,launch_station=function()launches=launches+1;if accept then count=count-1 end end,
+ select_station=function()end,launch_station=function(_,station)
+  launches=launches+1
+  if accept then
+   count=count-1
+   local sequence=get_param_handle('F22_LAUNCH_SEQUENCE'):get()+1
+   for key,value in pairs({SEQUENCE=sequence,ID=100+sequence,STATION=station,MODE=7,TYPE=32,TIME=now})do
+    get_param_handle('F22_SHOT_01_'..key):set(value)
+   end
+   get_param_handle('F22_LAUNCH_SEQUENCE'):set(sequence)
+  end
+ end,
  get_chaff_count=function()return 120 end,get_flare_count=function()return 120 end}
 function GetDevice()return native end
 local function put(n,v)get_param_handle(n):set(v)end

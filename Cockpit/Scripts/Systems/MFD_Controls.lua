@@ -25,8 +25,11 @@ function M.for_page(page,view,get)
    end
   elseif view==2 then
    if get('WoW')>.5 then c[10]=row('GND OVR','ground_override')end
+  elseif view==3 then
+   c[12]=row('RTN','view',1)
   else
    c[20]=row('MASTER','view',5);c[10]=row('DOORS','view',2)
+   c[19]={label='SIM',device='WEAPON_SYSTEM',command=11120,selected=get('F22_SMS_SIM')>.5}
    if aa then c[18]={label='STEP',device='WEAPON_SYSTEM',command=10804}
    else
     for b=1,5 do
@@ -41,9 +44,11 @@ function M.for_page(page,view,get)
      c[8]={label='UFC',device='ICP_SYSTEM',command=10989}
      if view==0 then c[11]=row('DATA','view',1)end
      if view==1 then
+      c[14]=row('COORD','view',3)
       c[18]={label='STN STEP',device='WEAPON_SYSTEM',command=10804}
       c[17]={label='TGT CLR',device='WEAPON_SYSTEM',command=10988}
       c[16]={label='TGT SET',device='WEAPON_SYSTEM',command=10987}
+      c[15]={label='PP SLOT',device='WEAPON_SYSTEM',command=11121}
      end
     end
    end

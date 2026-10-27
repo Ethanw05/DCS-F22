@@ -16,6 +16,10 @@ native={get_station_info=function(_,i)return {count=i==4 and count or 0,CLSID='{
  select_station=function(_,i)selected=i end,launch_station=function(_,i)
   assert(i==4 and val('F22_AG_GUIDANCE_CACHE_TARGET_N')==val('F22_AG_DELIVERY_TARGET_N'),'wrong prepared station/point launched')
   calls=calls+1;count=count-1
+  for key,value in pairs({SEQUENCE=calls,ID=500+calls,STATION=i,MODE=7,TYPE=85,TIME=now})do
+   put('F22_SHOT_01_'..key,value)
+  end
+  put('F22_LAUNCH_SEQUENCE',calls)
  end,get_chaff_count=function()return 120 end,get_flare_count=function()return 120 end}
 function GetDevice()return native end
 dofile(SCRIPT_ROOT..'Systems/Weapon_System.lua');post_initialize()

@@ -10042,7 +10042,8 @@
         "AS35",
         "SG04"
       ],
-      "status": "planned; implementation and runtime qualification remain separate"
+      "status": "transaction, station mission, SIM and service boundaries implemented offline; native health/service qualification remains",
+      "implementation_notes": "SEN-09.md"
     },
     {
       "id": "VEH-15",

@@ -2,7 +2,62 @@
 local caps=dofile(LockOn_Options.script_path..'Systems/Store_Capabilities.lua')
 local M={labels=caps.labels,short_labels=caps.short_labels,
  limits={quantity=8,interval_min_ms=50,interval_max_ms=2000,spacing_min_ft=10,spacing_max_ft=9999}}
-function M.new()return setmetatable({groups={},profiles={},profile_indices={},targets={},inventory_expectations={},target_sequence=0,selected=nil,program=nil}, {__index=M})end
+function M.new()
+ return setmetatable({groups={},profiles={},profile_indices={},targets={},missions={},mission_slots={},mission_modes={},
+  stations={},inventory_expectations={},target_sequence=0,service_sequence=0}, {__index=M})
+end
+local function valid_count(value)
+ return type(value)=='number' and value>=0 and value<=128 and value%1==0
+end
+local function finite(value)
+ return type(value)=='number' and value==value and math.abs(value)<1e9
+end
+local function shot_matches(shot,request,now)
+ if type(shot)~='table'then return false end
+ for _,field in ipairs({'sequence','id','station','mode','type4','time'})do
+  if not finite(shot[field])then return false end
+ end
+ return shot.sequence%1==0 and shot.id%1==0 and shot.sequence>request.sequence
+  and shot.id>0 and shot.station==request.station and shot.mode==7 and shot.type4==request.type4
+  and shot.time>=request.time-.02 and shot.time<=now+.02 and shot.time<=request.time+.8
+end
+function M:observe_stations(infos)
+ for station=0,10 do
+  local info=infos[station]
+  local valid=type(info)=='table' and valid_count(info.count)
+  local old=self.stations[station]
+  if valid then
+   local key=caps.key(info)
+   local replaced=old and (old.key~=key and info.count>0 and old.count>0 or info.count>old.count)
+   local generation=old and old.generation or self.service_sequence+1
+   if replaced then
+    generation=generation+1
+    self:cancel(true)
+    self.targets[station]=nil
+    self.inventory_expectations[station]=nil
+   end
+   self.stations[station]={key=info.count==0 and old and old.key or key,
+    count=info.count,generation=generation,valid=true}
+  elseif old then old.valid=false end
+ end
+end
+function M:generation(station)
+ local state=self.stations[station]
+ return state and state.generation or 0
+end
+function M:service(complete)
+ self:cancel(true)
+ self.servicing=not complete
+ if not complete then return end
+ self.service_sequence=self.service_sequence+1
+ self.inventory_expectations={}
+ self.targets={} -- Retain mission memory, require deliberate reassignment to new stores.
+ self.mission_modes={}
+ for station=0,10 do
+  local state=self.stations[station]
+  if state then state.generation=state.generation+1 end
+ end
+end
 function M:group()for _,g in ipairs(self.groups)do if g.key==self.selected then return g end end end
 function M:profile_index()return self.profile_indices[self.selected or ''] or 1 end
 function M:profile()
@@ -11,10 +66,11 @@ function M:profile()
  return p
 end
 function M:refresh(infos)
+ self:observe_stations(infos)
  local groups,by={},{ };self.infos=infos
  for station,target in pairs(self.targets)do local info=infos[station];if info and (caps.key(info)~=target.key or (info.count or 0)<=0)then self.targets[station]=nil end end
  for i=0,10 do local g=caps.describe(infos[i])
-  if g and g.kind==7 then
+  if g and g.kind==7 and valid_count(infos[i].count) then
    local existing=by[g.key]
    if not existing then g.index=#groups+1;g.count=0;g.stations={};groups[#groups+1]=g;by[g.key]=g;existing=g end
    existing.count=existing.count+infos[i].count;existing.stations[#existing.stations+1]=i
@@ -47,12 +103,15 @@ function M:edit(action)
  elseif action=='pair'then p.pair=p.pair==1 and 2 or 1;p.quantity=math.max(p.pair,math.floor(p.quantity/p.pair)*p.pair)end
 end
 function M:start(now,target,live_point)
- if self.entry or self.pending or self.program then return false end
+ if not finite(now)then return false end
+ if self.entry or self.pending or self.program or self.servicing then return false end
  local p,g=self:profile(),self:group()
  if not g or not g.supported or p.quantity>self:ready_count()or p.quantity%p.pair~=0 then return false end
  self.failed=false;self.pending=nil
  local targets={};for _,station in ipairs(g.stations)do local assigned=self:target(station);if assigned then targets[station]=assigned end end
  self.program={key=g.key,remaining=p.quantity,quantity=p.quantity,interval=p.interval,interval_mode=p.interval_mode,spacing=p.spacing_ft*.3048,pair=p.pair,pulse_remaining=p.pair,next=now,target=target,last=now,targets=targets}
+ self.program.generations={}
+ for _,station in ipairs(g.stations)do self.program.generations[station]=self:generation(station) end
  if live_point then self.program.live_target={n=live_point.n,u=live_point.u,e=live_point.e,sequence=live_point.sequence}end
  return true
 end
@@ -66,10 +125,39 @@ function M:capture_target(station,point)
  for _,axis in ipairs({'n','u','e'})do local v=point[axis];if type(v)~='number'or v~=v or math.abs(v)>1e7 then return false end end
  if point.u< -1000 or point.u>=20000 then return false end
  self:cancel();self.target_sequence=self.target_sequence+1
- self.targets[station]={n=point.n,u=point.u,e=point.e,key=cap.key,sequence=self.target_sequence}
+ local slot=self.mission_slots[station]or 1
+ local target={n=point.n,u=point.u,e=point.e,key=cap.key,sequence=self.target_sequence,
+  source=point.source or 0,source_sequence=point.sequence or 0,time=point.time,
+  generation=self:generation(station),slot=slot}
+ self.targets[station]=target
+ self.mission_modes[station]=2
+ self.missions[station]=self.missions[station]or {}
+ self.missions[station][slot]=target
  return true
 end
-function M:clear_target(station)self:cancel();self.targets[station]=nil end
+function M:clear_target(station)
+ self:cancel();self.targets[station]=nil;self.mission_modes[station]=1
+end
+function M:mission_mode(station)return self.mission_modes[station]or 1 end
+function M:select_mission(station,slot)
+ if type(slot)~='number' or slot%1~=0 or slot<1 or slot>4 then return false end
+ local mission=(self.missions[station]or {})[slot]
+ local info=self.infos and self.infos[station]
+ self:cancel()
+ self.mission_slots[station]=slot
+ self.mission_modes[station]=2
+ self.targets[station]=nil
+ if not mission or not info or caps.key(info)~=mission.key then return false end
+ self.targets[station]=mission
+ return true
+end
+function M:consent_current(station,live_sequence)
+ local program=self.program
+ if not program or program.generations[station]~=self:generation(station)then return false end
+ local mission=program.targets[station]
+ if mission then return self:target(station)==mission end
+ return program.target==nil or program.target==live_sequence
+end
 function M:due(now,impact)
  local p=self.program
  if not p or now<p.last then self:cancel();return false end
@@ -93,11 +181,17 @@ function M:released(now,impact)
  return false
 end
 function M:request(station,info,now,impact,sequence)
+ if not finite(now)or not finite(station)or station%1~=0 or station<0 or station>10
+  or not info or not valid_count(info.count)or info.count<1
+  or sequence~=nil and (not finite(sequence)or sequence<0 or sequence%1~=0)then return false end
  if not self.program or self.pending or not info or not self:station_ready(station)then return false end
- self.pending={station=station,count=info.count,key=caps.key(info),type4=(info.weapon or {}).level4 or 0,time=now,impact=impact,sequence=sequence or 0}
+ self.pending={station=station,count=info.count,key=caps.key(info),generation=self:generation(station),
+  type4=(info.weapon or {}).level4 or 0,time=now,impact=impact,sequence=sequence or 0}
  return true
 end
 function M:station_ready(station)
+ local state=self.stations[station]
+ if self.servicing or state and not state.valid then return false end
  local expectation=self.inventory_expectations[station]
  if not expectation then return true end
  local info=self.infos and self.infos[station]
@@ -106,15 +200,16 @@ function M:station_ready(station)
 end
 function M:acknowledge(infos,now,shot)
  local q=self.pending;if not q then return nil end
- if now<q.time or now-q.time>.8 then self:fail_request();return false,false,q end
+ if not finite(now)or now<q.time or now-q.time>.8 then self:fail_request();return false,false,q end
  local info=infos[q.station];local same=info and caps.key(info)==q.key
  local inventory=(same and (info.count or 0)<q.count) or (info and (info.count or 0)==0)
- local native=shot and shot.sequence>q.sequence and shot.id>0 and shot.station==q.station and shot.mode==7 and shot.type4==q.type4 and shot.time>=q.time-.02 and shot.time<=now+.02 and shot.time<=q.time+.8
- if inventory or native then
+ local native=shot_matches(shot,q,now)
+ if q.generation~=self:generation(q.station) or self.servicing then self:fail_request();return false,false,q end
+ if native then
   -- A shot may be published before the payload count changes. Quarantine
   -- that station so its delayed decrement cannot acknowledge a second shot.
   if native and not inventory then self.inventory_expectations[q.station]={key=q.key,count=q.count-1}end
-  q.evidence=native and 2 or 1;q.native_id=native and shot.id or 0;q.native_sequence=native and shot.sequence or 0;q.native_time=native and shot.time or 0
+  q.evidence=2;q.native_id=shot.id;q.native_sequence=shot.sequence;q.native_time=shot.time
   self.pending=nil;return true,self:released(now,q.impact),q
  end
  return nil

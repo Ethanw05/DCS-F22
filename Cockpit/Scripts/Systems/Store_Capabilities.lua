@@ -1,5 +1,6 @@
 -- GPL-3.0-or-later. Explicit payload capabilities; labels are a public display contract.
 local M={}
+local equipment=dofile(LockOn_Options.script_path..'Systems/Equipment_Profile.lua')
 M.labels={'MK-83 TRAINING','GBU-32 JDAM','GBU-32 LEGACY','BOMB','AIM-9M','AIM-9X','AIM-120','AIM-120D','AIM-260','MAKO A/A','MAKO A/G','FUEL','IRST','OTHER','CATM-9M'}
 M.short_labels={'MK83','GB32','GB32','BOMB','9M','9X','120','120D','260','MAKO','MAKO','TANK','IRST','OTHER','CATM'}
 local definitions={}
@@ -20,6 +21,10 @@ add({'{MAKO_A2G_C}'},11,7,'unsupported',false,true)
 add({'{LDTP_FUEL_Tank}','{E1F29B21-F291-4589-9FD8-3272EEC69506}'},12,nil,'fuel',false)
 add({'{F22_IRST}'},13,nil,'sensor',false)
 add({'CATM-9M','{CATM-9M}'},15,nil,'training',false)
+for _,id in ipairs({'{AIM-260A}','{LAU_115_2xAIM-260A}','{MAKO_A2A_C}','{MAKO_A2G_C}'})do
+ definitions[id].optional_equipment='additional_weapons'
+ definitions[id].evidence='experimental community equipment; production F-22 fit unestablished'
+end
 -- Keep existing stores-page label IDs stable. Weapon identity is independent
 -- of carriage/rack identity, so single and paired racks share a HUD count.
 local function identity(ids,name,hud)
@@ -34,12 +39,14 @@ identity({'{AIM-260A}','{LAU_115_2xAIM-260A}'},'AIM-260A')
 identity({'{MAKO_A2A_C}'},'MAKO A/A')
 identity({'{AIM9X-BLKII}','{LAU_115_2xAIM9X-II}','{LAU_115_2xAIM9X-II}}'},'AIM-9X II')
 function M.key(info)
- local w=info and info.weapon or {}
+ if type(info)~='table'then return ''end
+ local w=type(info.weapon)=='table'and info.weapon or {}
  local id=info and (info.CLSID or info.clsid)
  return type(id)=='string'and id~=''and id or table.concat({w.level1 or 0,w.level2 or 0,w.level3 or 0,w.level4 or 0},':')
 end
 function M.describe(info)
- if not info or (info.count or 0)<=0 then return nil end
+ if type(info)~='table'or type(info.count)~='number'or info.count~=info.count
+  or info.count<=0 or info.count>128 or info.count%1~=0 then return nil end
  local key=M.key(info);local original=definitions[key];local w=info.weapon or {}
  local cap={key=key,count=info.count,type4=w.level4 or 0}
  if original then for k,v in pairs(original)do cap[k]=v end
@@ -50,6 +57,9 @@ function M.describe(info)
  elseif w.level1==4 and w.level2==4 and w.level3==7 and (w.level4==22 or w.level4==136)then
   cap.label=w.level4==136 and 6 or 5;cap.name=w.level4==136 and 'AIM-9X' or 'AIM-9M';cap.kind=3;cap.delivery='ir';cap.supported=true
  else cap.label=14;cap.name=info.displayName or info.name or 'OTHER';cap.supported=false end
+ if cap.optional_equipment and not equipment.supports(cap.optional_equipment)then
+  cap.supported=false
+ end
  cap.identity=cap.identity or cap.name;cap.hud=cap.hud or cap.identity
  return cap
 end

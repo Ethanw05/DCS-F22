@@ -237,6 +237,7 @@ bool constructed=false;
 WeaponType current_type{};
 bool current_aim9x=false;
 int current_station=-1;
+double current_store_generation=-1;
 bool was_caged=true, was_release=false;
 bool head_released=false;
 unsigned launch_sequence=0, launch_id=0;
@@ -252,7 +253,8 @@ void write(EDPARAM& p,const char* name,double value) {
 }
 void dispose() {
     if (constructed) { api.power(object.data(),false);api.destroy(object.data()); }
-    constructed=false;current_station=-1;was_caged=true;was_release=false;head_released=false;
+    constructed=false;current_station=-1;current_store_generation=-1;
+    was_caged=true;was_release=false;head_released=false;
 }
 bool readable(std::uintptr_t address,std::size_t size) {
     MEMORY_BASIC_INFORMATION info{};
@@ -441,16 +443,17 @@ unsigned __fastcall record_payload_launch(void* self,unsigned station,unsigned s
     AcquireSRWLockShared(&ground_release_lock);const auto ground=ground_release;ReleaseSRWLockShared(&ground_release_lock);
     // The stock guided bomb consumes a real world coordinate at release.
     // Never redirect an AA missile or substitute a fabricated ground point.
-    if(mode==7 && readable(reinterpret_cast<std::uintptr_t>(wt),sizeof(WeaponType)) && wt->level1==4 && wt->level2==5 && wt->level3==36) {
+    if(armed && mode==7 && readable(reinterpret_cast<std::uintptr_t>(wt),sizeof(WeaponType)) &&
+       wt->level1==4 && wt->level2==5 && wt->level3==36) {
         const double now=api.clock?api.clock():-100;
-        if(!armed || !ground.valid || ground.station!=station || !std::isfinite(now) || now<ground.stamp || now-ground.stamp>.2 ||
+        if(!ground.valid || ground.station!=station || !std::isfinite(now) || now<ground.stamp || now-ground.stamp>.2 ||
            now<ground.solution_time || now-ground.solution_time>.2 ||
            !ground_identity_current(ground))return 0;
         point=ground.point.data();target=0;
     }
     auto estimate=launch_time_estimate(target,type,mode,api.clock ? api.clock() : 0);
     auto id=reinterpret_cast<PayloadLaunch>(payload_original[50])(self,station,sub,target,point,armed);
-    if (id) {
+    if (id && armed) {
         const double now=api.clock ? api.clock() : 0;
         estimate.stamp=now;
         AcquireSRWLockExclusive(&launch_lock);
@@ -624,7 +627,7 @@ void publish_radar_coordinates(EDPARAM& p,std::uintptr_t radar) {
 }
 void publish_launch_events(EDPARAM& p) {
     write(p,"F22_LAUNCH_EVENTS_READY",0);
-    if (!api.profile_valid || !api.payload || read(p,"F22_RADAR_FC_ENABLE")<.5) return;
+    if (!api.profile_valid || !api.payload) return;
     auto payload=reinterpret_cast<std::uintptr_t>(api.payload());
     if (!readable(payload,8)) return;
     auto slot=reinterpret_cast<void**>(payload);auto original=reinterpret_cast<void**>(*slot);
@@ -681,6 +684,11 @@ void publish_launch_events(EDPARAM& p) {
         }
         std::snprintf(key,sizeof(key),"F22_SHOT_%02u_MODEL",i+1);write(p,key,model);
         std::snprintf(key,sizeof(key),"F22_SHOT_%02u_SEEKER_TRACK",i+1);write(p,key,seeker_track?1:0);
+        // The checked scheme output can latch acquired-ever. It is diagnostic
+        // game state and cannot establish continuous current seeker lock.
+        std::snprintf(key,sizeof(key),"F22_SHOT_%02u_SEEKER_ACQUIRED_EVER",i+1);write(p,key,seeker_track?1:0);
+        std::snprintf(key,sizeof(key),"F22_SHOT_%02u_CURRENT_LOCK_VALID",i+1);write(p,key,0);
+        std::snprintf(key,sizeof(key),"F22_SHOT_%02u_STATE_SOURCE",i+1);write(p,key,valid?2:0);
         std::snprintf(key,sizeof(key),"F22_SHOT_%02u_SEEKER_VALID",i+1);write(p,key,seeker_valid?1:0);
         std::snprintf(key,sizeof(key),"F22_SHOT_%02u_ACTIVE_VALID",i+1);write(p,key,active_valid?1:0);
         std::snprintf(key,sizeof(key),"F22_SHOT_%02u_ALIVE",i+1);write(p,key,valid?1:0);
@@ -970,10 +978,29 @@ void reset() {
     dispose();handles.clear();launch_sequence=0;launch_id=0;tick_sequence=0;
 }
 
+bool read_store_configuration(EDPARAM& p,int& selected,WeaponType& type) {
+    const std::array<double,5> values={read(p,"F22_IR_STATION"),read(p,"F22_IR_TYPE1"),
+        read(p,"F22_IR_TYPE2"),read(p,"F22_IR_TYPE3"),read(p,"F22_IR_TYPE4")};
+    constexpr std::array<double,5> maximum={10,255,255,255,4294967295.0};
+    for (unsigned i=0;i<values.size();++i) {
+        if (!std::isfinite(values[i]) || values[i]<0 || values[i]>maximum[i] ||
+            values[i]!=std::floor(values[i])) return false;
+    }
+    selected=static_cast<int>(values[0]);
+    type.level1=static_cast<std::uint8_t>(values[1]);
+    type.level2=static_cast<std::uint8_t>(values[2]);
+    type.level3=static_cast<std::uint8_t>(values[3]);
+    type.level4=static_cast<std::uint32_t>(values[4]);
+    return type.level1==4 && type.level2==4 && type.level3==7 && type.level4>0;
+}
+
 void update(EDPARAM& p,double dt) {
     write(p,"F22_COMBAT_NATIVE_TICKS",++tick_sequence);
     api.resolve();
-    launch_master_mode=static_cast<unsigned>(std::clamp(read(p,"F22_IR_MODE"),0.0,10.0));
+    const double requested_mode=read(p,"F22_IR_MODE");
+    const bool valid_mode=std::isfinite(requested_mode) && requested_mode>=0 &&
+        requested_mode<=10 && requested_mode==std::floor(requested_mode);
+    launch_master_mode=valid_mode ? static_cast<unsigned>(requested_mode) : 0;
     configure_radar(p);
     publish_launch_events(p);
     update_ground_release(p);
@@ -994,16 +1021,20 @@ void update(EDPARAM& p,double dt) {
     void* aircraft=api.aircraft();
     if (!plane || !aircraft) { dispose();return; }
     bool enabled=read(p,"F22_IR_MODE")==3 && read(p,"MAIN_POWER")>.5;
-    int selected=static_cast<int>(read(p,"F22_IR_STATION"));
-    WeaponType type;
-    type.level1=static_cast<std::uint8_t>(read(p,"F22_IR_TYPE1"));
-    type.level2=static_cast<std::uint8_t>(read(p,"F22_IR_TYPE2"));
-    type.level3=static_cast<std::uint8_t>(read(p,"F22_IR_TYPE3"));
-    type.level4=static_cast<std::uint32_t>(read(p,"F22_IR_TYPE4"));
-    bool loaded=selected>=0 && selected<=10 && type.level1==4 && type.level2==4 && type.level3==7 && type.level4>0;
-    if (!enabled || !loaded) { dispose();return; }
+    int selected=-1;
+    WeaponType type{};
+    const bool loaded=read_store_configuration(p,selected,type);
+    const double exposure_time=read(p,"F22_IR_EXPOSURE_TIME");
+    const double now=api.clock ? api.clock() : -100;
+    const bool exposed=read(p,"F22_IR_EXPOSURE_VALID")>.5 && read(p,"F22_IR_EXPOSED")>.5 &&
+        std::isfinite(exposure_time) && std::isfinite(now) && now>=exposure_time-.05 && now-exposure_time<=.1;
+    const double store_generation=read(p,"F22_IR_STORE_GENERATION");
+    const bool generation_valid=std::isfinite(store_generation) && store_generation>=0 &&
+        store_generation<=16777215 && store_generation==std::floor(store_generation);
+    if (!enabled || !loaded || !exposed || !generation_valid) { dispose();return; }
     const bool aim9x=type.level4==136 || read(p,"F22_IR_AIM9X_PROFILE")>.5;
-    if (!constructed || selected!=current_station || !(type==current_type) || aim9x!=current_aim9x) {
+    if (!constructed || selected!=current_station || !(type==current_type) || aim9x!=current_aim9x ||
+        store_generation!=current_store_generation) {
         dispose();
         api.construct(object.data(),&type);constructed=true;
         api.initialize(object.data());api.station(object.data(),selected,0);
@@ -1031,6 +1062,7 @@ void update(EDPARAM& p,double dt) {
         api.power(object.data(),true);api.status(object.data(),3);
         api.to_boresight(object.data());
         current_type=type;current_station=selected;current_aim9x=aim9x;
+        current_store_generation=store_generation;
         // A held release is not a new press when stepping/changing stations.
         was_release=read(p,"F22_IR_RELEASE_REQUEST")>.5;
     }
