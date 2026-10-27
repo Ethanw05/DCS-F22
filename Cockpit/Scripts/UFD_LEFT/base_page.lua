@@ -699,8 +699,8 @@ LENGRPM.isdraw				= true
 LENGRPM.use_mipfilter		= true
 LENGRPM.h_clip_relation		= h_clip_relations.COMPARE
 LENGRPM.level				= 6
-LENGRPM.element_params		= {"UFD_OPACITY","RPM_L","L_ADI_OPACITY"}
-LENGRPM.formats				= {"%.0f"}--= {"%02.0f"}
+LENGRPM.element_params		= {"UFD_OPACITY","F22_ENGINE_L_RPM_TEXT","L_ADI_OPACITY"}
+LENGRPM.formats				= {"%s"}--= {"%02.0f"}
 LENGRPM.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
 Add(LENGRPM)
 -----------------------------------------------------------------------------------------
@@ -751,8 +751,8 @@ LENGEGT.isdraw				= true
 LENGEGT.use_mipfilter		= true
 LENGEGT.h_clip_relation		= h_clip_relations.COMPARE
 LENGEGT.level				= 6
-LENGEGT.element_params		= {"UFD_OPACITY","EGT_L","L_ADI_OPACITY"}
-LENGEGT.formats				= {"%.0f"}--= {"%02.0f"}
+LENGEGT.element_params		= {"UFD_OPACITY","F22_ENGINE_L_EGT_TEXT","L_ADI_OPACITY"}
+LENGEGT.formats				= {"%s"}--= {"%02.0f"}
 LENGEGT.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
 Add(LENGEGT)
 -----------------------------------------------------------------------------------------
@@ -871,8 +871,8 @@ RENGRPM.isdraw				= true
 RENGRPM.use_mipfilter		= true
 RENGRPM.h_clip_relation		= h_clip_relations.COMPARE
 RENGRPM.level				= 6
-RENGRPM.element_params		= {"UFD_OPACITY","RPM_R","L_ADI_OPACITY"}
-RENGRPM.formats				= {"%.0f"}--= {"%02.0f"}
+RENGRPM.element_params		= {"UFD_OPACITY","F22_ENGINE_R_RPM_TEXT","L_ADI_OPACITY"}
+RENGRPM.formats				= {"%s"}--= {"%02.0f"}
 RENGRPM.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
 Add(RENGRPM)
 -----------------------------------------------------------------------------------------
@@ -925,8 +925,8 @@ RENGEGT.isdraw				= true
 RENGEGT.use_mipfilter		= true
 RENGEGT.h_clip_relation		= h_clip_relations.COMPARE
 RENGEGT.level				= 6
-RENGEGT.element_params		= {"UFD_OPACITY","EGT_R","L_ADI_OPACITY"}
-RENGEGT.formats				= {"%.0f"}--= {"%02.0f"}
+RENGEGT.element_params		= {"UFD_OPACITY","F22_ENGINE_R_EGT_TEXT","L_ADI_OPACITY"}
+RENGEGT.formats				= {"%s"}--= {"%02.0f"}
 RENGEGT.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
 Add(RENGEGT)
 ----------------------------------

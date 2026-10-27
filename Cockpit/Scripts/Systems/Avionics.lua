@@ -18,7 +18,11 @@
 
 
 local dev = GetSelf()
-local sensor_data = dofile(LockOn_Options.script_path.."Systems/Engine_Data.lua")(get_base_data())
+local sensor_data = get_base_data()
+local EngineIndications = dofile(LockOn_Options.script_path..'Systems/Engine_Indications.lua')
+local engine_indications = EngineIndications.new(get_param_handle)
+local left_rpm_valid = get_param_handle('F22_ENGINE_L_RPM_VALID')
+local right_rpm_valid = get_param_handle('F22_ENGINE_R_RPM_VALID')
 local reference_handles={}
 local function reference_handle(key)
  if not reference_handles[key]then reference_handles[key]=get_param_handle(key)end
@@ -213,6 +217,7 @@ function SetCommand(command,value)
 end
 
 function update()
+    engine_indications:update()
 	startup_diagnostic_ticks = startup_diagnostic_ticks + 1
 	--print_message_to_user(parameters.FLAPS_DOWN:get())
 
@@ -296,13 +301,9 @@ function update()
 	--parameters.NAV			:set((359 - sensor_data.getHeading() * 180/math.pi))
 	parameters.RADALT       :set(sensor_data.getRadarAltitude() * 3.280839895 ) -- Working, don't change
 	if get_param_handle('F22_ALT_BARO_VALID'):get()>.5 then parameters.BARO:set(get_param_handle('F22_ALT_BARO_FT'):get())end	
-	parameters.RPM_L        :set(sensor_data.getEngineLeftRPM())-- Needs to be tested (might not need to multiply by 2750 cause that was from fixed prop? maybe)
-	parameters.RPM_R        :set(sensor_data.getEngineRightRPM())
 	parameters.FUELL        :set(sensor_data.getTotalFuelWeight() * 0.01 ) -- Working, don't change: 0.36622 
 	parameters.FUEL         :set(sensor_data.getTotalFuelWeight() * 2.20462 ) -- Working, don't change: 0.36622
 	parameters.FUELT        :set(fuel_external_kg * 2.20462262) -- Working, don't change: 0.36622 **25725 - 17500 = 8225**
-	parameters.EGT_L        :set(sensor_data.getEngineLeftTemperatureBeforeTurbine())
-	parameters.EGT_R        :set(sensor_data.getEngineRightTemperatureBeforeTurbine())
 
 	parameters.CANOPY_LIGHT :set(CANOPY_ARG)
 	parameters.SPD_BRK_LIGHT:set(SPD_BRK_ARG)	
@@ -403,12 +404,14 @@ function update()
 		parameters.APU_READY:set(0)
 	end
 	--GEN OUT LIGHT FORCE
-	if parameters.L_GEN_POWER:get() == 0 and parameters.RPM_L:get() >= 40 and sensor_data.getWOW_NoseLandingGear() == 1 then
+	if left_rpm_valid:get()==1 and parameters.L_GEN_POWER:get() == 0
+        and parameters.RPM_L:get() >= 40 and sensor_data.getWOW_NoseLandingGear() == 1 then
 		parameters.L_GEN_OUT:set(1)
 
 	end
 	--GEN OUT LIGHT FORCE
-	if parameters.R_GEN_POWER:get() == 0 and parameters.RPM_R:get() >= 40 and sensor_data.getWOW_NoseLandingGear() == 1 then
+	if right_rpm_valid:get()==1 and parameters.R_GEN_POWER:get() == 0
+        and parameters.RPM_R:get() >= 40 and sensor_data.getWOW_NoseLandingGear() == 1 then
 		parameters.R_GEN_OUT:set(1)
 
 	end

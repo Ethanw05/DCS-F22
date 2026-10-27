@@ -55,7 +55,8 @@ enum class Signal : std::size_t {
     RightPurgeSeconds, LeftStartElapsed, RightStartElapsed,
     LeftAugmentationAvailable, RightAugmentationAvailable,
     LeftControlAvailable, RightControlAvailable,
-    LeftStartResetReady, RightStartResetReady, Count
+    LeftStartResetReady, RightStartResetReady,
+    EngineIndicationSchema, LeftEngineFlow, RightEngineFlow, Count
 };
 
 inline constexpr std::array<const char*, static_cast<std::size_t>(Signal::Count)> signal_names = {
@@ -115,7 +116,8 @@ inline constexpr std::array<const char*, static_cast<std::size_t>(Signal::Count)
     "EFM_R_PURGE_S", "EFM_L_START_ELAPSED_S", "EFM_R_START_ELAPSED_S",
     "EFM_L_AUG_AVAILABLE", "EFM_R_AUG_AVAILABLE",
     "EFM_L_CONTROL_AVAILABLE", "EFM_R_CONTROL_AVAILABLE",
-    "EFM_L_START_RESET_READY", "EFM_R_START_RESET_READY"
+    "EFM_L_START_RESET_READY", "EFM_R_START_RESET_READY",
+    "EFM_ENGINE_INDICATION_SCHEMA", "EFM_ENGINE_LEFT_FLOW_KG_S", "EFM_ENGINE_RIGHT_FLOW_KG_S"
 };
 static_assert([] {
     for (const auto* name : signal_names) if (name == nullptr) return false;

@@ -99,5 +99,6 @@ for page in ['MFD_CENTER/stores_program.lua','MFD_CENTER/bay_page.lua','PMFD_CEN
         assert parent is None or parent in names,(page,e['name'],'invalid native parent')
         for _,fmt in (e['formats'].items() if e['formats'] else []):
             if e['controllers'] and any(c[1]=='text_using_parameter' for _,c in e['controllers'].items()):
-                assert '%s' not in fmt or e['element_params'][1]=='F22_WEAPON_NAME',(page,'numeric handle used as native string')
+                strings = {'F22_WEAPON_NAME', 'F22_ENGINE_L_RPM_TEXT', 'F22_ENGINE_R_RPM_TEXT'}
+                assert '%s' not in fmt or e['element_params'][1] in strings,(page,'numeric handle used as native string')
 print('Actual formats and stores bezel: contextual MODE, selected-store HUD/keypad routing, RTN/MENU hierarchy and suppressed release edges PASS')

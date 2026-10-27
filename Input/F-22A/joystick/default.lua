@@ -310,8 +310,10 @@ join(res.keyCommands,{
     {down = APU, up = APU, value_down = 1, value_up = 0,
         name = _('APU Start'), category = _('F-22A HOTAS')},
 
-    {down = L_cutoff, up = L_cutoff,   name = _('Throttle (Left) - OFF/IDLE'),          category = _('F-22A HOTAS')},
-    {down = R_cutoff, up = R_cutoff,   name = _('Throttle (Right) - OFF/IDLE'),         category = _('F-22A HOTAS')},
+    {down = L_cutoff, up = L_cutoff, value_down = 1, value_up = 0,
+        name = _('Throttle (Left) - OFF/IDLE'),          category = _('F-22A HOTAS')},
+    {down = R_cutoff, up = R_cutoff, value_down = 1, value_up = 0,
+        name = _('Throttle (Right) - OFF/IDLE'),         category = _('F-22A HOTAS')},
 --Special Switch Functionality
     {down = Battery, up = Battery,      name = _('Battery On/Off'),                     category = _('F-22A Systems')},
     {down = Battery_T,                  name = _('Battery Toggle'),                     category = _('F-22A Systems')},

@@ -26,6 +26,15 @@ The Lua electrical tests now check request transport, explicit achieved supply,
 snapshot rejection, independent brake axes and preserved APU audio. Startup
 fixtures declare physical provider frames instead of integrating energy in Lua.
 
+Engine indication tests now require the current physical indication schema and
+check stale/torn/unsupported frames, independent field failure, true zero versus
+`---`, source recovery, no display hydraulic integration, and absolute engine
+detent/release transport. Native callback checks reconcile both new delivered
+flow exports with the SDK. The shared fuel-page snapshots retain their 24
+elements and layout; only their four engine text bindings/formats change to
+carry unavailable markers. Engine needles retain their numeric channels and
+gain individual validity gates.
+
 The combined snapshot adds one NAV scale legend per panel and one net START
 reference element after replacing generic rows with achieved engine status/control
 rows. Their graph updates were checked against the corresponding source changes,

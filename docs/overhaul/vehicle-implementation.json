@@ -154,7 +154,7 @@
         "controls": "APU START press latches once; neutral release never cancels/restarts; automatic shutdown does not read a stale drawing as a new request",
         "verification": "Lua5.1 before/after owner, malformed/torn/stale/new-generation samples, no physical writes, both generator readbacks, hot/cold startups, independent brakes, recorded APU spin-down/unavailable/recovery; no new focused Lua lint warnings",
         "deployment": "Source only; installed flight-turn hotfix is untouched",
-        "remaining": "Engine_Data and MFD/Avionics engine gauge substitutions remain a separate physical-consumer migration"
+        "remaining": "Power/engine consumers now use current physical snapshots; remaining fuel-quantity, FCS/cabin indication contracts and host qualification are separate tasks"
       }
     },
     {
@@ -200,7 +200,18 @@
         },
         "all_acceptance_confirmed": false
       },
-      "profile": "../engine-start-profile.md"
+      "profile": "../engine-start-profile.md",
+      "source_cleanup": {
+        "schema": "EFM_ENGINE_INDICATION_SCHEMA1; two prebound per-engine actual delivered fuel-flow outputs in kg/s",
+        "owner": "Engine_Data reads only coherent qualified EFM data; Engine_Indications is the sole cockpit RPM/temperature/oil/nozzle/flow/hydraulic indication producer invoked by Avionics",
+        "removed": "Native/base engine substitutions; RPM-derived oil/nozzle; MFD hydraulic pressure integration and invented hot-start pressure; second Lua engine-start admission controller",
+        "unavailable": "Per-field flags and --- text;36 independent engine gauge gates; valid opposite engine/other fields remain available; zero remains a valid physical reading",
+        "controls": "Existing OFF/IDLE commands10028/10029 are absolute0/1; repeated values are idempotent; start release is neutral; global starts are not redispatched",
+        "retained": "Existing numeric gauge channels, styles, recorded audio, binding IDs and source-limited physical schedules/thresholds",
+        "verification": "Actual DLL flow/SDK reconciliation and native29/29; Lua5.1 coherent/schema/invalid/torn/recovery, writer/refresh and release tests;0new focused/nav lint; new Lua helpers CCN<=9/NLOC<=24",
+        "deployment": "Source only; requires a coordinated native+Lua package. Installed turn-rate DLL and weapon hotfixes were not changed",
+        "limits": "Computational indication payload bounds do not authenticate production F119 limits; native DCS render and flight qualification remain open"
+      }
     },
     {
       "id": "VEH-06",
@@ -687,8 +698,8 @@
   },
   "source_cleanup_next": {
     "scope": "User requested removal of obsolete production paths after the combined playtest freeze",
-    "physical_owner": "Power/APU duplicate owner removed; next migrate Engine_Data and physical MFD/Avionics gauges to qualified current engine snapshots",
+    "physical_owner": "Power and engine indication substitutions/duplicate integrators removed. Continue the remaining fuel-quantity, FCS/cabin indication contracts and unfinished physical work items",
     "preserve": "Saved controls, preferred HUD, recorded audio, current DCS Lua5.1/ABI and native capability guards",
-    "status": "Power adapter/device cutover implemented and verified in source; engine display/data cutover outstanding"
+    "status": "Power and engine reader/indication/transport cutovers implemented in source; integration/runtime qualification and other assigned work remain"
   }
 }

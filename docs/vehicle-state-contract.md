@@ -126,6 +126,7 @@ array. The exact channel list is [VehicleSignals.h](../EFM/source/VehicleSignals
 | Fuel | Host initial/installed station/refuel callbacks; EFM cells, supply and burn | Existing internal/external/total kg and engine flow kg/s; `EFM_L_FEED_KG`, `EFM_R_FEED_KG`, `EFM_COMMON_FEED_KG`, `EFM_FUEL_BOOST/PRESSURIZATION` 0..1; feed available/low and bingo are distinct |
 | Mass properties | Host current-mass callback | `EFM_MASS_VALID`, `EFM_MASS_KG`, `EFM_CG_X_M/Y_M/Z_M`, `EFM_INERTIA_X_KGM2/Y_KGM2/Z_KGM2`; x forward/roll, y up/yaw, z right/pitch. Inertia is retained, not supplemented with an unqualified second contribution. |
 | Engines | Unified guarded start/stop commands | `EFM_L/R_ENGINE_PHASE`: 0 OFF, 1 CRANKING, 2 LIGHTING, 3 ACCELERATING, 4 RUNNING, 5 SHUTTING_DOWN, 6 WINDMILLING. `EFM_L/R_START_REJECTION`: 0 none, 1 fuel, 2 power, 3 starter, 4 damage, 5 isolation. Existing core/fan, oil, temperature, thrust and nozzle exports remain. |
+| Engine indications | Physical snapshot, `EFM_ENGINE_INDICATION_SCHEMA=1`, engine/vehicle validity | `EFM_ENGINE_LEFT/RIGHT_FLOW_KG_S` is actual delivered combustion flow, matching the SDK fuel-flow callbacks. `Engine_Data` admits each RPM/temperature/oil/nozzle/flow/circuit field independently; Avionics invokes the sole `Engine_Indications` UI producer. Unsupported, incomplete, stale or out-of-range data displays `---` and withdraws the corresponding gauge geometry. No base-engine substitution or RPM-derived pressure/nozzle model remains. |
 | Hydraulics | Four pump statuses, APU, circuit leak faults, local and declared bay/gun demand | Existing left/right psi and actuator authority; `EFM_L/R_HYD_PUMP_1/2`, `EFM_L/R_HYD_INVENTORY` normalized, `EFM_BRAKE_RESERVE` normalized stored pressure. `F22_HYD_DEMAND_VALID` qualifies `F22_L/R_HYD_LOAD` 0..1 from integration. Circuit inventories are independent. |
 | FCS/configuration | Achieved gear and receptacle door; existing stick/trim | `EFM_FCS_CONFIGURATION`: 0 cruise, 1 approach, 2 refuel. `EFM_SINGLE_ENGINE_APPROACH` identifies one-engine approach eligibility, not adoption of the 1998 selectable law. `EFM_APPROACH_AOA_DEG=12` retains the normal reference. Trim remains dimensionless ±0.2; achieved surface/vector fields remain degrees. |
 | Gear/NWS/hook | Existing gear requests, new physical commands | `EFM_GEAR_REJECTION`: 0 accepted, 1 WOW, 2 estimated overspeed, 3 source, 4 alternate latched, 5 invalid air data; GEAR_UNSAFE, DOWN_LOCKED/UP_LOCKED scalar proxies, ALTERNATE_GEAR, NWS_SELECTED, HOOK_POSITION. Independent leg locks and cable arrestment remain unqualified. |
@@ -189,6 +190,10 @@ Physical commands 11700–11729 are separate from navigation's 11600 AFCS and
 existing saved bindings are retained. The sequence is battery/APU request →
 achieved APU supply → guarded engine start → generator qualification. Direct
 keyboard, click and automatic starts reach the same EFM guard.
+The cockpit no longer makes a second start/admission decision from display RPM
+or APU state. OFF/IDLE detents use absolute 0/1 requests with the existing
+command IDs; repeated values do not repeat a start/stop. A start-button neutral
+release sends no start, and a global host start is not dispatched recursively.
 
 | Command | Meaning |
 | --- | --- |

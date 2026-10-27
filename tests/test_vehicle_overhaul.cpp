@@ -209,6 +209,10 @@ void flow_and_sensor_separation(Fixture& fixture) {
     assert(fixture.getfuel() == 5000);
     const double augmented = fixture.parameter(ED_FM_ENGINE_1_FUEL_FLOW);
     assert(augmented > 5 && fixture.drain_mass() == 0);
+    assert(fixture.get("EFM_ENGINE_INDICATION_SCHEMA") == 1);
+    assert(fixture.get("EFM_ENGINE_LEFT_FLOW_KG_S") == augmented);
+    assert(fixture.get("EFM_ENGINE_RIGHT_FLOW_KG_S") ==
+        fixture.parameter(ED_FM_ENGINE_2_FUEL_FLOW));
     fixture.command(2004,1); fixture.ticks(1500);
     assert(fixture.parameter(ED_FM_ENGINE_1_FUEL_FLOW) < augmented * .1);
     assert(fixture.get("EFM_AIRDATA_VALID") == 1);

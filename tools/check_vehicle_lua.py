@@ -14,7 +14,9 @@ from lupa.lua51 import LuaRuntime
 ROOT = Path(__file__).resolve().parents[1]
 FILES = ['Cockpit/Scripts/Systems/Engine_System.lua',
          'Cockpit/Scripts/Systems/Vehicle_Power_Adapter.lua',
-         'Cockpit/Scripts/Systems/Engine_Status.lua']
+         'Cockpit/Scripts/Systems/Engine_Status.lua',
+         'Cockpit/Scripts/Systems/Engine_Data.lua',
+         'Cockpit/Scripts/Systems/Engine_Indications.lua']
 
 def main():
     parser = argparse.ArgumentParser()

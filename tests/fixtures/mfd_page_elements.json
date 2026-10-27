@@ -5,7 +5,7 @@
   },
   "MFD_LEFT/fuel_page.lua": {
     "elements": 24,
-    "sha256": "f024d17c4c1d9fd0c394ed4f3bf8c25aaad3dd47ace433b695a391016d51c36a"
+    "sha256": "daa8b23dce44ae1857ec2a78e8a1b41ff31f4ad98ea19127048f0271d974ac06"
   },
   "MFD_LEFT/adi_page.lua": {
     "elements": 25,
@@ -21,7 +21,7 @@
   },
   "MFD_RIGHT/fuel_page.lua": {
     "elements": 24,
-    "sha256": "fdd43eefc29b30897a65d18c1fc5789c413ef73522b708cfbb8f9a76221d14fb"
+    "sha256": "aa8effcbca6d56d46020785655998fff7623e1a22da83a66bf120f15428cfc46"
   },
   "MFD_RIGHT/adi_page.lua": {
     "elements": 25,
@@ -37,7 +37,7 @@
   },
   "MFD_CENTER/fuel_page.lua": {
     "elements": 24,
-    "sha256": "06693868347063d533137a636e576f77beb2ed7a89b7bb394414af32bb5732e4"
+    "sha256": "a4bc7339b009111532d75cfad94e25afaf3c19b05e01a741ef16aeb08400a823"
   },
   "MFD_CENTER/adi_page.lua": {
     "elements": 25,
