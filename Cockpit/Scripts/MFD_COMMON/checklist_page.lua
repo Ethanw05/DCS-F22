@@ -17,13 +17,24 @@
 --]]
 
 -- Mod workflow references; no authentic F-22 checklist or automatic completion claim.
+local function start_reference(D, parent)
+ D.text('BATTERY / SUPPLY - CHECK',0,.46,nil,'green',.0043,parent)
+ D.text('%s',0,.31,'F22_ENGINE_L_STATUS','white',.0043,parent)
+ D.text('%s',0,.19,'F22_ENGINE_L_CONTROL','white',.0043,parent)
+ D.text('%s',0,.02,'F22_ENGINE_R_STATUS','white',.0043,parent)
+ D.text('%s',0,-.10,'F22_ENGINE_R_CONTROL','white',.0043,parent)
+ D.text('FLIGHT INSTRUMENTS - CHECK',0,-.27,nil,'green',.0043,parent)
+ D.text('GINS ALIGNMENT - VERIFY',0,-.41,nil,'green',.0043,parent)
+ D.text('NAV / RADIOS - SET',0,-.55,nil,'green',.0043,parent)
+ D.text('%s',0,-.69,'F22_REFERENCE_FUEL','white',.0043,parent)
+end
+
 return function(page_parameter)
  local panel=page_parameter:match('^(.-)_CHECKLIST_PAGE$') or 'PMFD'
  local view='F22_'..panel..'_VIEW'
  local D=dofile(LockOn_Options.script_path..'MFD_COMMON/lcd.lua')(page_parameter,'F22_REFERENCE_'..panel)
  local pages={
-  {'START',{'BATTERY / SUPPLY - CHECK','APU / ENGINE START - AS REQUIRED',
-   'FLIGHT INSTRUMENTS - CHECK','GINS ALIGNMENT - VERIFY','NAV / RADIOS - SET'}},
+  {'START',{}}, -- Read-only achieved engine states have their own rows above.
   {'TAXI',{'CANOPY / RESTRAINTS - CHECK','BRAKES / STEERING - CHECK',
    'FLIGHT CONTROLS - CHECK','FLIGHT INSTRUMENTS - CROSSCHECK','LIGHTS - AS REQUIRED'}},
   {'TAKEOFF',{'RUNWAY / DEPARTURE - CHECK','FUEL / CONFIGURATION - CHECK',
@@ -36,10 +47,14 @@ return function(page_parameter)
  for index,page in ipairs(pages)do
   local parent=D.choice(view,index-1)
   D.text(page[1]..' REFERENCE',0,.65,nil,'blue',.0048,parent)
-  for line,text in ipairs(page[2])do D.text(text,0,.42-(line-1)*.14,nil,'green',.0043,parent)end
-  D.text('%s',0,-.35,'F22_REFERENCE_MASS','white',.0043,parent)
-  D.text('%s',0,-.49,index==4 and 'F22_REFERENCE_GEAR'or'F22_REFERENCE_TRIM','white',.0043,parent)
-  D.text('%s',0,-.63,'F22_REFERENCE_FUEL','white',.0043,parent)
+  if index==1 then
+   start_reference(D,parent)
+  else
+   for line,text in ipairs(page[2])do D.text(text,0,.42-(line-1)*.14,nil,'green',.0043,parent)end
+   D.text('%s',0,-.35,'F22_REFERENCE_MASS','white',.0043,parent)
+   D.text('%s',0,-.49,index==4 and 'F22_REFERENCE_GEAR'or'F22_REFERENCE_TRIM','white',.0043,parent)
+   D.text('%s',0,-.63,'F22_REFERENCE_FUEL','white',.0043,parent)
+  end
  end
  local faults=D.choice(view,5)
  D.text('FAULTS / RECALL',0,.65,nil,'blue',.0048,faults)
