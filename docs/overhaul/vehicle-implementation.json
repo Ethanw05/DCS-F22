@@ -159,7 +159,7 @@
     },
     {
       "id": "VEH-05",
-      "status": "independent start, protection and control failure/recovery implemented as an estimated profile; cockpit placement and host qualification open",
+      "status": "independent start, protection, control failure/recovery and START indications implemented as an estimated profile; host qualification open",
       "implemented": [
         "OFF/CRANKING/LIGHTING/ACCELERATING/RUNNING/SHUTTING_DOWN/WINDMILLING",
         "one guarded start path for host commands",
@@ -170,10 +170,10 @@
         "dry crank; no-light, cold/warm hung, hot-start and starter-duty protection",
         "finite fuel debit for unlit admission; purge/cooling/rest and guarded reset",
         "logical control normal/degraded/unavailable and augmentation failure policies",
-        "read-only schema/epoch-qualified engine status consumer and disabled planned producers"
+        "read-only schema/epoch-qualified engine status consumer and disabled planned producers",
+        "schema-qualified left/right status, control, purge and reset readiness on CHECKS/START across all four displays"
       ],
       "remaining": [
-        "navigation integration placement of tested engine status/control strings on pilot displays",
         "production windmill/relight, thermal and starter operating limits",
         "fueldraulic nozzle-source topology; legacy side-hydraulic mapping remains an estimate",
         "complete fire isolation of ventilation/air/electrical consumers and associated cockpit workflow"
@@ -243,7 +243,8 @@
         "historical speed-brake surface groups with estimated amplitudes",
         "pitch-priority finite collective/differential allocation",
         "single-engine approach eligibility output",
-        "manual trim preserved and degraded scheduling bounded"
+        "manual trim preserved and degraded scheduling bounded",
+        "held joystick roll ownership survives unrelated/opposite keyboard releases; actual DLL regression failed before correction and passes after"
       ],
       "remaining": [
         "independent EDM surface-angle qualification",
@@ -269,7 +270,8 @@
           "VEH-07.07": "partial"
         },
         "all_acceptance_confirmed": false
-      }
+      },
+      "input_release_regression": "../roll-input-ownership.md"
     },
     {
       "id": "VEH-08",

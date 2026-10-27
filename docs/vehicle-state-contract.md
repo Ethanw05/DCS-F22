@@ -1,6 +1,6 @@
 # Physical aircraft contract — VEH-01–15, AUX-01/02
 
-Implementation branch: `codex/flight-aircraft-overhaul`, based on
+Implementation branch: `codex/flight-resource-verification`, based on
 `f22-overhaul-start-2026-10-27` (`c5ebbcc`). This is a source-limited simulation
 profile. Package progress and remaining work are in
 [vehicle-implementation.json](overhaul/vehicle-implementation.json).
@@ -13,9 +13,11 @@ They impose motion and do not establish level equilibrium or sustained flight.
 ## Resource recheck, 27 October 2026
 
 All 17 packages and their 96 tasks were compared with the collected sources and
-integrated code at `a70f525`. Individual dispositions are in the package notes:
-33 implemented within the declared simulation profile, 41 partial, 17 awaiting
-host qualification, and 5 with required behavior still missing. **The assignment
+integrated code at `a70f525`. That initial review found 33 tasks implemented
+within the declared simulation profile, 41 partial, 17 awaiting host
+qualification and 5 missing. Engine start/control follow-through subsequently
+brings the current package notes to **36 implemented, 40 partial, 17 awaiting
+host qualification and 3 missing**. **The assignment
 is not fully implemented or release qualified.** Unknown production coefficients
 are not counted as demonstrated errors.
 
@@ -25,7 +27,7 @@ are not counted as demonstrated errors.
 | VEH-02 air data | SFTE relationships and separate sensed health; Nz, probe heat and icing remain unconfirmed. |
 | VEH-03 fuel/mass | Feed/transfer roles and delivered-kg ledger; empty-at-install tanks, native MOI and SES bottle mass accounting remain incomplete. |
 | VEH-04 power/APU/SES | Finite sources and analogue shutdown policy; corrected live GPU sampling. Full consumer loads, AC topology and APU-door integration remain incomplete. |
-| VEH-05 engines | Guarded phases and estimated windmill relight; separate starter/fuel/ignition, dry crank, hot/hung starts and FADEC failure workflows are missing. |
+| VEH-05 engines | Separate starter/fuel/ignition, dry crank, no-light/hot/hung protection, logical control failures and guarded recovery now implemented; production limits, fire isolation topology and nozzle supply remain open. See [engine profile](engine-start-profile.md). |
 | VEH-06 hydraulics | Four pumps, inventories, APU and tow-service abstractions; full consumer routing and bay/gun demand remain incomplete. |
 | VEH-07 FCS | Historical surface groups and pitch-priority allocation; selectable single-engine law, weight-aware bounds and resettable FCS faults remain incomplete. |
 | VEH-08 performance | Fixed force locations, wind invariance and table continuation; sustained calibration and native ground effect/store drag/MOI remain unqualified. |
@@ -34,7 +36,7 @@ are not counted as demonstrated errors.
 | VEH-11 ECS | Causal cooling/cabin/fog estimates; native seal/visibility and actual equipment loads remain incomplete. |
 | VEH-12 oxygen | Historical versus modern source behavior; corrected manual selection and independent backup. Capacity, production schedule and SDK response remain unqualified. |
 | VEH-13 canopy/escape | Native ownership preserved; hold/lock/no-power/escape behavior remains uncharacterized. |
-| VEH-14 damage/repair | All 19 mission IDs match; corrected destroyed forces, release and missing-rudder effects. Geometry/page and resettable FCS coverage remain incomplete. |
+| VEH-14 damage/repair | All 33 mission IDs match, including independent engine start/control producers; corrected destroyed forces, release and missing-rudder effects. Geometry/page and resettable FCS coverage remain incomplete. |
 | VEH-15 verification | Owner/DLL and source checks; full normal/degraded DCS mission and flight qualification remain open. |
 | AUX-01 refueling | Accepted host fuel/mass changes; pilot door/ready/contact/disconnect and argument mapping remain integration/native work. |
 | AUX-02 lights | Owned intensity and source-loss memory; actual emitter dimming, photometry and emitter-specific loads remain unqualified. |
@@ -51,6 +53,12 @@ Chuck guides were not newly available; prior planning access is not presented
 as a new read. VS12's catalogue title was corrected to W. Hewitt Phillips,
 *Journey Into Space Research*, NASA/SP-2005-4540; printed pp17-18 still support
 the inertia relationship.
+
+The [held roll comparison and regression](roll-input-ownership.md) records
+the earlier GitHub input behavior and the corrected release ownership boundary.
+A keyboard release cannot take ownership from a held joystick axis or clear
+the opposite keyboard direction. The actual event stream from the reported
+flight has not been captured.
 
 ## Ownership and timing
 
@@ -258,8 +266,10 @@ lines. Six functions exceed the preferred complexity 10; none exceed the hard
 limit 15. The 288-condition callback CSV is identical before and after the
 complexity refactor. Branch coverage is not measured because
 a coverage tool was not available. See the package evidence for actual results.
-The resource recheck covers 136 focused helper functions with the same maxima;
-the new release invalidation helper is complexity 6 and 22 non-comment lines.
+The engine/control follow-through covers 177 focused helper functions with the
+same maxima; the release invalidation helper is complexity 6 and 22 non-comment
+lines. Current source hashes and exact combined test totals are in the
+verification JSON.
 
 Reproduce with CMake/VS18 x64 Debug in an isolated build directory, then
 `ctest -C Debug --output-on-failure`. Python tooling is pinned in
@@ -269,6 +279,10 @@ Reproduce with CMake/VS18 x64 Debug in an isolated build directory, then
 optionally writes a JSON report with source hashes.
 `tools/diagnostics/sample_vehicle_envelope.py` requires explicit test CockpitBase
 and EFM DLL paths; `plot_vehicle_envelope.py` renders the resulting directory.
-The broad Python suite retains the same 25 failures as the complete baseline
-tag snapshot (105/130 baseline; 106/131 with the added ownership test). Those
-failures are recorded individually, not reported as successful checks.
+The initial complete tag snapshot had 25 failing Python checks (105/130).
+Obsolete display routes, uncalled format factories, old graph names/scales and
+superseded UFC entry assumptions were subsequently migrated to current owners.
+Three fully superseded UI tests were retired with their replacement coverage
+mapped in [tests/README.md](../tests/README.md). Numerical and physical model
+checks were retained. The verification JSON records the actual final combined
+result; source tests do not establish DCS flight qualification.
