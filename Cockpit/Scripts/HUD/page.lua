@@ -171,6 +171,8 @@ local counter_x=0.62
 dial(-counter_x,0.02,0.085,"HUD_CAS","HUD_IAS_POINTER")
 dial(counter_x,0.02,0.115,"HUD_ALT_FT","HUD_ALT_POINTER","HUD_ALT_DATA","HUD_NO_ALT_DATA")
 label(counter_x,-.16,'HUD_ALT_SOURCE_TEXT','%s',.020)
+group('HUD_PRESSURE_CONFIRM',0,0,{'HUD_QNH_VISIBLE'},{{'parameter_in_range',0,.9,1.1}})
+label(counter_x,-.21,'F22_ALT_DISPLAY_TEXT','%s',.018,'HUD_PRESSURE_CONFIRM')
 
 -- Geometric attitude reference: moves in pitch, rotates as aircraft rolls.
 -- Every conformal cue shares the fixed nose-reference origin.

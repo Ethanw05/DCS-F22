@@ -22,10 +22,17 @@ for _,k in ipairs({'MAIN_POWER','EFM_HUD_VALID','F22_ALTIMETER_NATIVE_READY','F2
  'F22_ALT_DISPLAY_TEXT','F22_ALT_BARO_VALID','F22_ALT_RADAR_VALID','F22_ALT_BARO_FT','F22_ALT_RADAR_FT'})do h(k)end
 put('F22_ALT_DISPLAY_TEXT','BARO 29.92 INHG')
 local adopted=false
+local previous_pressure_text
 local function finite(v)return type(v)=='number'and v==v and math.abs(v)<1e8 end
 local function publish()
  put('F22_ALT_PRESSURE_MMHG',settings:pressure());put('F22_ALT_STD',settings.standard and 1 or 0)
- put('F22_ALT_DISPLAY_TEXT',settings:pressure_text()..(settings.standard and ' STD' or ''))
+ local pressure_text=settings:pressure_text()..(settings.standard and ' STD' or '')
+ if pressure_text~=previous_pressure_text then
+  previous_pressure_text=pressure_text
+  local now=type(get_model_time)=='function'and get_model_time()or 0
+  put('F22_ALT_CONFIRM_UNTIL',now+5)
+ end
+ put('F22_ALT_DISPLAY_TEXT',pressure_text)
  put('F22_ALT_UNITS',settings.units);put('F22_ALT_BARO_FLOOR',settings.baro_floor)
  put('F22_ALT_RADAR_FLOOR',settings.radar_floor)
  put('F22_ALT_SELECTION',settings.display);put('F22_ALT_MINIMA_FT',settings.minima)
@@ -33,6 +40,7 @@ local function publish()
 end
 function post_initialize()
  settings=dofile(LockOn_Options.script_path..'Systems/Altitude_Settings.lua').new();adopted=false
+ previous_pressure_text=nil
  put('F22_ALT_PRESSURE_REQUEST_VALID',0);put('F22_ALT_BARO_VALID',0);put('F22_ALT_RADAR_VALID',0);publish()
 end
 for c=11020,11029 do dev:listen_command(c)end

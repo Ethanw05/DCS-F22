@@ -51,6 +51,8 @@ local acceleration=0
 local diagnostic_frames=0
 local next_landing_log=0
 local caged=false
+local high_fast=false
+local approach_pressure=false
 dev:listen_command(11840)
 function SetCommand(command,value)
     if command==11840 and decode(value,devices.HUD_FLIGHT_DATA)>0 and read('MAIN_POWER')==1 then
@@ -60,6 +62,7 @@ function SetCommand(command,value)
 end
 function post_initialize()
     caged=false;put('HUD_FPM_CAGED',0)
+    high_fast=false;approach_pressure=false
     peak_g=1; previous_cas=nil; acceleration=0
     put("HUD_FPM_VALID",0); put("HUD_AIRDATA_VALID",0)
     put("HUD_WIND_VALID",0); put("HUD_GS_VALID",0);put("HUD_ALT_VALID",0)
@@ -96,11 +99,26 @@ local function altitude()
         put('HUD_ALT_VALID',1)
     end
 end
+local function pressure_confirmation()
+    local now=type(get_model_time)=='function'and get_model_time()or 0
+    local until_time=read('F22_ALT_CONFIRM_UNTIL')
+    local timed=mathhud.finite(until_time)and until_time>now and until_time-now<=5
+    put('HUD_QNH_VISIBLE',(timed or approach_pressure)and 1 or 0)
+end
+local function approach_pressure_context(cas)
+    if read('F22_ALT_BARO_VALID')~=1 then approach_pressure=false;return end
+    local baro=read('F22_ALT_BARO_FT')
+    if not mathhud.finite(baro)then approach_pressure=false;return end
+    if baro>=10000 and cas>=300 then high_fast=true;approach_pressure=false
+    elseif high_fast and baro<10000 and cas<300 then approach_pressure=true end
+end
 function update()
     physical:update()
     put('HUD_AIRDATA_DEGRADED',0)
     put('HUD_FPM_COMPUTED_VALID',0);put('HUD_FPM_OFFGLASS',0);put('HUD_FPM_GHOST_VALID',0)
     altitude()
+    if read('F22_ALT_BARO_VALID')~=1 or flight('EFM_HUD_VALID')~=1 then approach_pressure=false end
+    pressure_confirmation()
     local pitch,roll=data.getPitch(),data.getRoll()
     local heading=(2*math.pi-data.getHeading())%(2*math.pi)
     -- The existing UFD/MFD ADIs use raw getRoll() with rotation gain +1.
@@ -186,6 +204,7 @@ function update()
         put("HUD_IAS_POINTER",-(cas%100)*2*math.pi/100)
 
         put("HUD_AIRDATA_VALID",1)
+        approach_pressure_context(cas);pressure_confirmation()
         if previous_cas then
             local raw=(cas-previous_cas)/dt
             if math.abs(raw)<50 then acceleration=acceleration+(raw-acceleration)*(1-math.exp(-dt/0.5))
@@ -194,7 +213,10 @@ function update()
         previous_cas=cas
         put("HUD_ACCEL_UP",acceleration>0.5 and 1 or 0)
         put("HUD_ACCEL_DOWN",acceleration< -0.5 and 1 or 0)
-    else previous_cas=nil;put('HUD_ACCEL_UP',0);put('HUD_ACCEL_DOWN',0)end
+    else
+        previous_cas=nil;put('HUD_ACCEL_UP',0);put('HUD_ACCEL_DOWN',0)
+        approach_pressure=false;pressure_confirmation()
+    end
     local wn,we=flight('EFM_HUD_WN'),flight('EFM_HUD_WE')
     if not (mathhud.finite(wn) and mathhud.finite(we)) then return end
     local windspeed=math.sqrt(wn*wn+we*we)*1.943844492

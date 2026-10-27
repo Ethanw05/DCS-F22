@@ -30,6 +30,9 @@ ui:option(1);ui:update(0);assert(not ui.pending and get('F22_ALT_SELECTION')==1)
 dofile(SCRIPT_ROOT..'Systems/HUD_Flight_Data.lua');post_initialize()
 local hud_update=update
 hud_update();assert(get('HUD_ALT_SOURCE_TEXT')=='RDR' and math.abs(get('HUD_ALT_FT')-328.0839895)<.01)
+assert(get('HUD_QNH_VISIBLE')==1)
+now=106;hud_update();assert(get('HUD_QNH_VISIBLE')==0,'pressure confirmation exceeded five seconds')
+now=100
 radar=0/0;altitude_update();hud_update()
 assert(get('HUD_ALT_SOURCE_TEXT')=='BARO FB' and get('HUD_ALT_VALID')==1)
 ui:option(1);ui:update(0);assert(get('F22_ALT_SELECTION')==2)

@@ -69,10 +69,10 @@ void update_standby(EDPARAM& p, double static_pressure_pa, bool sample_valid) {
   if (!std::isfinite(computed) || computed < -3000 || computed > 32000) reason = 6;
   else { standby_value = computed; standby_stamp = now; }
  }
- put(p, "F22_ALT_STANDBY_NATIVE_VALID", reason == 0 ? 1 : 0);
  put(p, "F22_ALT_STANDBY_NATIVE_REASON", reason);
  put(p, "F22_ALT_STANDBY_NATIVE_M", standby_value);
  put(p, "F22_ALT_STANDBY_NATIVE_STAMP", standby_stamp);
+ put(p, "F22_ALT_STANDBY_NATIVE_VALID", reason == 0 ? 1 : 0);
 }
 bool altitude(double& metres){if(!valid||!clock_fn)return false;double now=clock_fn();
  if(!std::isfinite(now)||now<stamp||now-stamp>.2)return false;metres=value;return true;}
