@@ -18,7 +18,7 @@ for n,v in pairs({MAIN_POWER=1,RADAR_PWR=1,HUD_MODE=2,F22_RADAR_WEAPON_TARGET_ID
  F22_RADAR_OBSERVATIONS_READY=1,F22_RADAR_OBSERVATION_COUNT=1,F22O_01_ID=101,
  F22O_01_ALTITUDE=5000,F22_DLZ_NATIVE_VALID=1,F22_DLZ_TARGET_ID=101,
  F22_DLZ_RMIN=700,F22_DLZ_RMAX=20000,F22_DLZ_RTR=10000})do get_param_handle(n):set(v)end
-dofile(SCRIPT_ROOT..'Systems/Engagement_System.lua');post_initialize()
+dofile(SCRIPT_ROOT..'Systems/Engagement_System.lua');post_initialize();dofile(SCRIPT_ROOT..'../../tests/legacy_measurement_fixture.lua')
 ''')
 
 

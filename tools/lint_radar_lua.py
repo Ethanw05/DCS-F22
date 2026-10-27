@@ -7,8 +7,8 @@ from lupa.lua51 import LuaRuntime
 
 ROOT = Path(__file__).resolve().parents[1]
 FILES = ["Systems/" + name + ".lua" for name in (
-    "Radar_Focus", "Radar_Service_State", "Radar_Service_Adapter", "Radar_Config",
-    "Radar_Computer", "Radar_System", "Radar_Tactical", "Radar_Telemetry", "AG_Radar_System")]
+    "AESA_Control", "Radar_Track_Metadata", "Radar_Native", "Radar_Focus", "Radar_Service_State", "Radar_Service_Adapter", "Radar_Config",
+    "Radar_Computer", "Radar_System", "Radar_Tactical", "Radar_Telemetry", "Radar_Launch_Zone", "AG_Radar_System", "AG_Radar_Modes")]
 FILES.append("PMFD_CENTER/radar_format.lua")
 HOST = ["LockOn_Options", "GetSelf", "get_base_data", "get_param_handle", "make_default_activity",
         "GetDevice", "get_model_time", "dispatch_action", "log", "devices", "Keys",

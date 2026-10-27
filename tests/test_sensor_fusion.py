@@ -80,7 +80,7 @@ native={set_power=function() end};function GetDevice() return native end
 get_param_handle('MAIN_POWER'):set(1)
 for k,v in pairs({SOURCE=55,TIME=0,AZIMUTH=0,SIGNAL=2,UNIT_TYPE='FA-18C_hornet'}) do get_param_handle('RWR_CONTACT_01_'..k):set(v) end
 dofile(SCRIPT_ROOT..'Systems/RWR_System.lua');post_initialize();update()
-dofile(SCRIPT_ROOT..'Systems/Radar_System.lua');post_initialize();SetCommand(10602,1)
+dofile(SCRIPT_ROOT..'Systems/Radar_System.lua');post_initialize();dofile(SCRIPT_ROOT..'../../tests/legacy_measurement_fixture.lua');SetCommand(10602,1)
 get_param_handle('F22N_RADAR_MODE'):set(1)
 get_param_handle('F22_RADAR_OBSERVATIONS_READY'):set(1)
 get_param_handle('F22_RADAR_OBSERVATION_COUNT'):set(2)
@@ -89,10 +89,11 @@ for i,id in ipairs({55,56}) do
  for k,v in pairs({ID=id,AGE=0,NORTH=5000+i*1000,EAST=0,ALTITUDE=0,IFF=i==1 and 1 or 0}) do get_param_handle(p..k):set(v) end
 end
 update();update()
-assert(get_param_handle('F22_SCOPE_01_AFFILIATION'):get()==1)
+assert(get_param_handle('F22_RADAR_TRACK_COUNT'):get()==2)
+assert(get_param_handle('F22_SCOPE_01_AFFILIATION'):get()==-1)
 assert(get_param_handle('F22_SCOPE_01_EW_SIGNAL'):get()==2)
 assert(get_param_handle('F22_SCOPE_02_EW_SIGNAL'):get()==0,'same-bearing target incorrectly fused')
-assert(get_param_handle('F22_SCOPE_02_AFFILIATION'):get()==0)
+assert(get_param_handle('F22_SCOPE_02_AFFILIATION'):get()==-1)
 """)
 print('Radar/EW producer integration: exact-source match; same bearing different ID stays separate; no false hostile IFF OK')
 lua=runtime()

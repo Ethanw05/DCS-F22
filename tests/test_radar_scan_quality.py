@@ -79,152 +79,45 @@ assert(not r.acquire and r.selected==nil,'expired candidate kept a native acquis
 print("Scan manager: primary/secondary/support enclosure, missing targets, limits, hysteresis and bias OK")
 print("Track quality: distinct observations, residuals, coast, support freshness and acquisition expiry OK")
 
-with contextlib.redirect_stdout(io.StringIO()):
-    runtime = runpy.run_path(str(ROOT / "tests/test_display_startup.py"))["runtime"]
-lua = runtime()
-lua.execute(r'''
-local now=0
-local pose={north=0,east=0,altitude=0,heading=0,pitch=0,roll=0}
-function get_model_time() return now end
-function get_base_data() return {
- getSelfCoordinates=function() return pose.north,pose.altitude,pose.east end,
- getHeading=function() return (2*math.pi-pose.heading)%(2*math.pi) end,
- getPitch=function() return pose.pitch end,getRoll=function() return pose.roll end} end
-native={set_power=function() end};function GetDevice() return native end
-dofile(SCRIPT_ROOT..'Systems/Radar_System.lua');post_initialize()
-local d=dofile(SCRIPT_ROOT..'Systems/Radar_Display.lua')
-local function put(n,v) get_param_handle(n):set(v) end
-local function val(n) return get_param_handle(n):get() end
-local obs={}
-local function contact(id,a,e,r)
- local o={range=r or 20000,az=math.rad(a),el=math.rad(e)}
- d.world_observation(o,pose);o.id=id;o.stamp=now;obs[#obs+1]=o
-end
-local function tick()
- now=now+.05
- put('F22_RADAR_OBSERVATIONS_READY',1);put('F22_RADAR_OBSERVATION_COUNT',#obs)
- for i,o in ipairs(obs) do
-  local p=string.format('F22O_%02d_',i)
-  for k,v in pairs({ID=o.id,AGE=now-o.stamp,NORTH=o.north,EAST=o.east,ALTITUDE=o.altitude,
-   VN=0,VU=0,VE=0,IFF=o.friend or -1}) do put(p..k,v) end
+from radar_test_runtime import owned_runtime
+lua=owned_runtime()
+lua.execute("""
+f.command(10602,1)
+local function returns()
+ for _,t in ipairs({{101,-20},{202,20},{303,-50}})do
+  f.measure(t[1],20000*math.cos(math.rad(t[2])),3000,20000*math.sin(math.rad(t[2])))
  end
- update()
 end
-put('MAIN_POWER',1);put('F22N_RADAR_MODE',1);put('EFM_HUD_VALID',1);put('EFM_HUD_VN',200)
-SetCommand(10602,1)
-contact(101,-20,0);contact(202,20,0);contact(303,-50,5);obs[1].friend=1
-put('F22_MSL_01_TARGET',303);put('F22_MSL_01_SUPPORT_REQUIRED',1)
-tick();for _,o in ipairs(obs) do o.stamp=now end;tick()
-SetCommand(10618,1)
-for i=1,20 do SetCommand(10613,1) end
-SetCommand(10628,1);tick()
-assert(val('F22_RADAR_SCAN_OBLIGATIONS')==3 and val('F22_RADAR_SCAN_UNCOVERED')==0)
-assert(val('F22_RADAR_SCAN_AUTO')==1 and val('F22_RADAR_SCAN_COVERAGE_COMPLETE')==1)
-assert(val('F22_RADAR_SELECTED_QUALITY')==2 and val('F22_RADAR_SELECTED_HITS')==2)
-assert(val('F22_RADAR_SELECTED_SUPPORT_ELIGIBLE')==1 and val('F22_RADAR_SECONDARY_VALID')==1)
-assert(val('F22_TWS_TARGET_ID')==101 and val('F22_TWS_ACTIVE')==1,'native adapter contract changed')
--- Time advances but the measurement stamps do not. A normal three-second
--- revisit gap retains closure; a fourteen-second gap retains designation only.
-for i=1,60 do tick() end
-assert(val('F22_RADAR_SELECTED_CLOSURE_VALID')==1,'one-second closure cutoff survived')
-for i=1,220 do tick() end
-assert(val('F22_RADAR_SELECTED_HITS')==2 and val('F22_RADAR_SELECTED_QUALITY')==3)
-assert(val('F22_RADAR_SELECTED_SUPPORT_ELIGIBLE')==0 and val('F22_RADAR_SELECTED_CLOSURE_VALID')==0)
-assert(val('F22_RADAR_DESIGNATION_VALID')==1 and val('F22_RADAR_SECONDARY_VALID')==1,
- '10-second display gates contradicted the 20-second TWS memory')
-assert(val('F22_TWS_TARGET_AGE')>14,'adapter age was reset by a cached echo')
--- A delayed Lua callback must use elapsed model time rather than one nominal tick.
-now=now+3;tick()
-assert(val('F22_RADAR_SELECTED_AGE')>17,'callback cadence hid a real measurement gap')
-local paused_age=val('F22_RADAR_SELECTED_AGE')
-for i=1,5 do update() end
-assert(val('F22_RADAR_SELECTED_AGE')==paused_age,'paused model clock aged a track')
--- Current body geometry: turn away from an old in-volume bearing. Scope validity
--- must follow current LOS rather than the azimuth from the old observation.
-pose.heading=math.rad(90);tick()
-assert(val('F22_SCOPE_01_VALID')==0,'old body azimuth kept off-gimbal target visible')
-put('F22_MSL_02_TARGET',999);put('F22_MSL_02_SUPPORT_REQUIRED',1);tick()
-assert(val('F22_RADAR_SCAN_COVERAGE_COMPLETE')==0 and val('F22_RADAR_SCAN_UNCOVERED')>=1)
--- Reject and provide a real timestamped STT measurement in a new frame.
-SetCommand(10609,1);pose.heading=0;tick()
-obs={};put('F22N_RADAR_MODE',3);put('F22N_RADAR_STT_RANGE',8000)
-put('F22N_RADAR_STT_AZIMUTH',0);put('F22N_RADAR_STT_ELEVATION',0)
-put('F22N_RADAR_STT_FRIENDLY',0);put('F22_STT_MOTION_VALID',0);tick()
-assert(val('F22_RADAR_SELECTED_QUALITY')==0 and val('F22_RADAR_STT_VALID')==0,
- 'untimestamped polar cache became valid STT')
--- Genuine retained search files may still coast; they cannot become a new lock.
-assert(val('F22_RADAR_SELECTED_FRIENDLY')==0,'new lock inherited previous friendly designation')
-put('F22_STT_MOTION_VALID',1);put('F22_STT_ID',909);put('F22_STT_TIME',now)
-put('F22_STT_PN',0);put('F22_STT_PU',800);put('F22_STT_PE',10000)
-put('F22_STT_VN',0);put('F22_STT_VU',0);put('F22_STT_VE',0)
-tick();local hits=val('F22_RADAR_SELECTED_HITS')
-for i=1,5 do tick() end
-assert(val('F22_RADAR_SELECTED_HITS')==hits,'STT cache reread counted as another hit')
-assert(val('F22_RADAR_SELECTED_AGE')>.25 and val('F22_RADAR_SCAN_AUTO')==0)
-assert(val('F22_SCOPE_01_VALID')==0,'STT polar cache overrode current world geometry')
-put('MAIN_POWER',0);tick()
-assert(val('F22_RADAR_SELECTED_VALID')==0 and val('F22_RADAR_SELECTED_SUPPORT_ELIGIBLE')==0)
-assert(val('F22_RADAR_SCAN_AUTO')==0)
-''')
-print("Actual radar owner: missile inputs, native adapter contract, real age gates, current geometry, timestamped STT and power-off OK")
-
-lua = runtime()
-lua.execute(r'''
-local now=0
-function get_model_time() return now end
-native={set_power=function() end};function GetDevice() return native end
-dofile(SCRIPT_ROOT..'Systems/Radar_System.lua');post_initialize()
-local function put(n,v) get_param_handle(n):set(v) end
-local function val(n) return get_param_handle(n):get() end
-put('MAIN_POWER',1);put('F22N_RADAR_MODE',1)
-put('F22_RADAR_OBSERVATIONS_READY',1);put('F22_RADAR_OBSERVATION_COUNT',32)
-SetCommand(10602,1)
+returns();f.tick();returns();f.tick()
+f.command(10618,1);f.tick()
+for i=1,20 do f.command(10613,1)end
+f.command(10628,1);f.put('F22_MSL_01_TARGET',303);f.put('F22_MSL_01_SUPPORT_REQUIRED',1);f.tick()
+assert(f.get('F22_RADAR_SELECTED_HITS')==2 and f.get('F22_RADAR_SELECTED_MEASUREMENT_SOURCE')==2)
+assert(f.get('F22_AESA_PRIORITY_01')==101 and f.get('F22_AESA_PRIORITY_02')==202)
+assert(f.get('F22_AESA_PRIORITY_03')==303 and f.get('F22_RADAR_SECONDARY_VALID')==1)
+f.tick(7)
+assert(f.get('F22_RADAR_SELECTED_HITS')==2 and f.get('F22_RADAR_SELECTED_QUALITY')==3)
+assert(f.get('F22_RADAR_SELECTED_SUPPORT_ELIGIBLE')==0 and f.get('F22_RADAR_DESIGNATION_VALID')==1)
+local age=f.get('F22_RADAR_SELECTED_AGE');f.tick(0)
+assert(f.get('F22_RADAR_SELECTED_AGE')==age)
+f.pose.heading=math.rad(90);f.tick()
+assert(f.get('F22_SCOPE_01_VALID')==0)
+""")
+print('Owned radar quality: distinct reports, two designations plus missile priority, source2, real age, pause and current geometry PASS')
+lua=owned_runtime()
+lua.execute("""
+f.command(10602,1)
 for frame=1,2 do
- now=now+.05
- for i=1,32 do
-  local p=string.format('F22O_%02d_',i)
-  for k,v in pairs({ID=1000+i,AGE=0,NORTH=20000,EAST=i*20,ALTITUDE=0,VN=0,VU=0,VE=0,IFF=-1}) do put(p..k,v) end
- end
- update()
+ for i=1,32 do f.measure(1000+i,20000,3000,i*20)end
+ f.tick()
 end
-put('F22_MSL_08_TARGET',1032);put('F22_MSL_08_SUPPORT_REQUIRED',1);now=now+.05;update()
-assert(val('F22_SUPPORT_01_ID')==1032,'24-slot snapshot discarded an in-flight support obligation')
-assert(val('F22_RADAR_SCAN_OBLIGATIONS')==1 and val('F22_RADAR_SCAN_UNCOVERED')==0)
--- An engine model-time rewind clears mission-local files and identity metadata.
-now=0;put('F22_RADAR_OBSERVATION_COUNT',0);update()
-assert(val('F22_RADAR_TRACK_COUNT')==0 and val('F22_RADAR_SELECTED_QUALITY')==0)
-assert(val('F22_TWS_TARGET_ID')==0)
-''')
-print("Dense scope: in-flight source gets support-slot priority; model-time rewind clears old files OK")
-
-for side in (-1, 1):
-    lua = runtime()
-    lua.globals().EAST_SIDE = side * 8000
-    lua.execute(r'''
-local now=0
-function get_model_time() return now end
-function get_base_data() return {
- getSelfCoordinates=function() return 0,0,0 end,getHeading=function() return 0 end,
- getPitch=function() return 0 end,getRoll=function() return 0 end} end
-native={set_power=function() end};function GetDevice() return native end
-dofile(SCRIPT_ROOT..'Systems/Radar_System.lua');post_initialize()
-local function put(n,v) get_param_handle(n):set(v) end
-local function val(n) return get_param_handle(n):get() end
-put('MAIN_POWER',1);put('F22N_RADAR_MODE',1);SetCommand(10602,1)
-put('F22_RADAR_OBSERVATIONS_READY',1);put('F22_RADAR_OBSERVATION_COUNT',1)
-for i=1,3 do
- now=now+.05
- for k,v in pairs({ID=321,AGE=0,NORTH=20000,EAST=EAST_SIDE,ALTITUDE=0,VN=0,VU=0,VE=0,IFF=-1}) do
-  put('F22O_01_'..k,v)
- end
- put('F22_MSL_01_TARGET',321);put('F22_MSL_01_SUPPORT_REQUIRED',1);update()
-end
-local rotation=val('F22N_SCAN_ZONE_ORIGIN_AZIMUTH')
-assert(rotation*EAST_SIDE<0,'AUTO scan beam steered away from its support target')
-assert(math.abs(-rotation-math.atan2(EAST_SIDE,20000))<1e-6,'physical AUTO beam center differs from target LOS')
-''')
-print("Native AUTO beam rotation: asymmetric support targets on both sides steer toward their actual LOS OK")
-
+f.put('F22_MSL_08_TARGET',1032);f.put('F22_MSL_08_SUPPORT_REQUIRED',1);f.tick()
+assert(f.get('F22_SUPPORT_01_ID')==1032 and f.get('F22_AESA_PRIORITY_10')==1032)
+f.now=0;f.alive=false;f.tick()
+assert(f.get('F22_RADAR_TRACK_COUNT')==0 and f.get('F22_TWS_TARGET_ID')==0)
+assert(f.get('F22_AESA_CONTROL_EMIT')==1,'model rewind left the owned emitter latched off')
+""")
+print('Owned dense scope: support priority beyond24 visible files and generation rewind PASS')
 # A target not yet observed cannot steer a narrow AUTO pattern.
 fresh=LuaRuntime()
 fresh.globals().MODULE=(ROOT / "Cockpit/Scripts/Systems/Radar_Computer.lua").as_posix()

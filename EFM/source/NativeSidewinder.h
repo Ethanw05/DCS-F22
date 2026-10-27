@@ -3,5 +3,6 @@
 class EDPARAM;
 namespace NativeSidewinder {
 void update(EDPARAM& parameters, double dt);
-void reset();
+void start_feedback();
+void reset(EDPARAM* parameters = nullptr);
 }

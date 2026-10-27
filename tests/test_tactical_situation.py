@@ -17,6 +17,8 @@ local t=TSD.new(get,put,sensors)
 local rf={source=100,signal=2,az=.2,el=0,age=0,selected=true,observations={
  rf={time=5,az=.2,el=0}}}
 t:update(5,{rf},true)
+assert(v.F22_TSD_NAV_VALID==0 and v.F22_TSD_NAV_LEG_01_VALID==0,'default radar picture included a route ray')
+t:command(10915);t:update(5,{rf},true)
 assert(v.F22_TSD_NAV_VALID==1 and v.F22_TSD_NAV_ID==3)
 assert(math.abs(v.F22_TSD_NAV_X-1.45*.25)<1e-10)
 assert(math.abs(v.F22_TSD_NAV_Y-(-.66+1.45*.5))<1e-10)

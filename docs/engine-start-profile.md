@@ -101,8 +101,11 @@ values; added rejection meanings are declared in `EngineStart.h`.
 `Engine_Status.lua` reads this snapshot and publishes `F22_ENGINE_L/R_STATUS`,
 `F22_ENGINE_L/R_CONTROL` and `F22_ENGINE_L/R_STATUS_VALID`. Invalid payload,
 schema, epoch or stale owner produces UNKNOWN with validity 0; it never falls
-back to a second controller. Navigation integration owns placement of these
-strings on START/reference/engine displays.
+back to a second controller. The existing CHECKS / START reference shows each
+engine's state and control availability, including purge countdown and reset
+eligibility. Its standard MENU and reference selectors remain in place; the
+engine gauge format retains its established layout. This is a read-only workflow
+reference. Starter, fuel, ignition and reset use the controls described above.
 
 Fourteen additional disabled-by-default planned failures cover independent
 left/right starter, ignition, hung start, hot start, degraded control, failed

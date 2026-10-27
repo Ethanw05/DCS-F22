@@ -1,7 +1,34 @@
 -- GPL-3.0-or-later. Read-only, bounded radar test telemetry in dcs.log.
 -- Changed values indicate export changes, not confirmed sensor refreshes.
 local M = {}
+local aesa_fields = {"ID","TIME","N","U","E","VN","VU","VE","FILTER_VALID","VELOCITY_VALID",
+    "RAW_N","RAW_U","RAW_E","MEASURED_RANGE","MEASURED_AZ","MEASURED_EL","RANGE_RATE",
+    "RANGE_SIGMA_M","ANGLE_SIGMA_RAD","RATE_SIGMA_MPS","POSITION_SIGMA_M","VELOCITY_SIGMA_MPS","HITS",
+    "ORIGIN_N","ORIGIN_U","ORIGIN_E","OWN_VN","OWN_VU","OWN_VE",
+    "FORWARD_N","FORWARD_U","FORWARD_E","UP_N","UP_U","UP_E","RIGHT_N","RIGHT_U","RIGHT_E"}
+for i = 0, 5 do
+    for j = i, 5 do aesa_fields[#aesa_fields+1] = string.format("COV_%d%d",i,j) end
+end
+local aesa_prefixes = {}
+for i = 1, 64 do aesa_prefixes[i] = string.format("F22A_%02d_",i) end
 local service_fields = {
+	"F22_AESA_DRIVER_READY",
+	"F22_AESA_READY",
+	"F22_AESA_REASON",
+	"F22_AESA_TIME",
+	"F22_AESA_SEQUENCE",
+	"F22_AESA_COUNT",
+	"F22_AESA_DWELLS",
+	"F22_AESA_SEARCH_DWELLS",
+	"F22_AESA_TRACK_DWELLS",
+	"F22_AESA_DETECTIONS",
+	"F22_AESA_PENDING",
+	"F22_AESA_BEAM_AZ",
+	"F22_AESA_BEAM_EL",
+	"F22_AESA_SURFACE_SERVICE",
+	"F22_AESA_GENERATION",
+	"F22_TSD_NAV_LAYER", "F22_TSD_NAV_LEG_01_VALID", "F22_RDR_LAR_VISIBLE", "F22_RDR_LAR_AXIS_VALID",
+
 	"F22_RADAR_SERVICE_ENABLED", "F22_RADAR_SERVICE_STATE", "F22_RADAR_SERVICE_RESOURCE",
 	"F22_RADAR_SERVICE_HEALTH_KNOWN", "F22_RADAR_SERVICE_PENDING", "F22_RADAR_SERVICE_DROPPED",
 	"F22_RADAR_SERVICE_ACCEPTED", "F22_RADAR_SERVICE_WORK_S", "F22_RADAR_SERVICE_PROCESSING_S",
@@ -252,6 +279,21 @@ function M.new(get, write, limit)
 		end
 	end
 	function r:observations(t)
+		local sequence, generation = get("F22_AESA_SEQUENCE"), get("F22_AESA_GENERATION")
+		if generation ~= self.aesa_generation then self.aesa_observed={};self.aesa_generation=generation end
+		if get("F22_AESA_READY") == 1 and sequence % 2 == 0 then
+			for i = 1, 64 do
+				local p = aesa_prefixes[i]
+				local stamp = get(p.."TIME")
+				if get(p.."VALID") == 1 and self.aesa_observed[i] ~= stamp then
+					local row = {"v2","aesa",number(t),tostring(generation),tostring(i)}
+					for j = 1, #aesa_fields do row[#row+1] = number(get(p..aesa_fields[j])) end
+					if get("F22_AESA_SEQUENCE") == sequence then
+						self:emit(table.concat(row,","));self.aesa_observed[i]=stamp
+					end
+				end
+			end
+		end
 		if get("F22_RADAR_OBSERVATIONS_READY") > 0.5 then
 			for i = 1, math.min(64, math.max(0, get("F22_RADAR_OBSERVATION_COUNT"))) do
 				local p = string.format("F22O_%02d_", i)
@@ -325,6 +367,8 @@ function M.new(get, write, limit)
 			self:emit("v1,avionics_schema,t_model_s," .. table.concat(avionics_fields, ","))
 			self:emit("v1,missile_schema,t_model_s,slot," .. table.concat(missile_fields, ","))
 			self:emit("v1,service_schema,t_model_s," .. table.concat(service_fields, ","))
+			self:emit("v2,aesa_schema,t_model_s,generation,slot," .. table.concat(aesa_fields, ","))
+			self.aesa_observed = {}
 			self.started = t
 			self.next_time = t
 			self.next_contacts = t

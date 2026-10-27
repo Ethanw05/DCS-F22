@@ -11,6 +11,7 @@ local v={F22_AG_RADAR_NATIVE_READY=1,F22_AG_VIDEO_SOURCE_PRESENT=1,F22_AG_VIDEO_
 local function get(n)return v[n]or 0 end;local function put(n,x)v[n]=x end
 package.preload.terrain=function()return {GetHeight=function()return 50 end}end
 local s=dofile(SCRIPT_ROOT..'Systems/AG_Radar_System.lua').new(get,put,function()end)
+dofile(SCRIPT_ROOT..'../../tests/surface_grant_fixture.lua')(s,put)
 local pose={north=0,altitude=3000,east=0,heading=0,pitch=0,roll=0}
 assert(s.model.mode==1,'A/G does not start in MAP')
 s:update(pose,10,.05,true,true)

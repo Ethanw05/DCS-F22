@@ -80,16 +80,13 @@ for _,width in ipairs({120,60,30})do
  local now=80;v:update(p,now,.05,true,true)
  local erased=rd('F22_AG_VIDEO_ERASE_SEQUENCE')
  local center=rd('F22_AG_RADAR_SCAN_CENTER_AZ_DEG')
- local body=rd('F22N_SCAN_ZONE_ORIGIN_AZIMUTH')
  for tick=1,100 do
   now=80+tick*.05;p.roll=math.rad(tick*.3);p.pitch=math.rad(tick*.1)
   v:update(p,now,.05,true,true)
   assert(rd('F22_AG_VIDEO_ERASE_SEQUENCE')==erased,'attitude erased accumulated map')
   assert(rd('F22_AG_RADAR_SCAN_CENTER_AZ_DEG')==center,'body attitude moved map sector')
  end
- if width<120 then
-  assert(math.abs(rd('F22N_SCAN_ZONE_ORIGIN_AZIMUTH')-body)>1e-3,'body acquisition lost attitude compensation')
- end
+ assert(rd('F22N_SCAN_ZONE_ORIGIN_AZIMUTH')==0,'map drove a retired mechanical scan command')
  v.model.cursor_az=math.rad(-20);now=now+.05;v:update(p,now,.05,true,true)
  assert(rd('F22_AG_VIDEO_ERASE_SEQUENCE')==erased,'TDC steering erased accumulated map')
  v:command('azimuth',1,true,now);now=now+.05;v:update(p,now,.05,true,true)

@@ -40,5 +40,17 @@ assert(g(parameter)==moved,'reopen resumed old axis without input')
 SetCommand(10620,.8);tick();assert(g(parameter)>moved,'fresh axis did not recover')
 local before=g(parameter);p('MAIN_POWER',0);tick();p('MAIN_POWER',1);tick()
 assert(g(parameter)==before,'power recovery resumed stale axis')
+-- A zero on the other axis must not rebind a held X input to a new focus
+-- before the activity callback has had a chance to retire the old owner.
+SetCommand(10620,.8);tick();local held=g(parameter)
+SetCommand(10621,0);tick()
+assert(g(parameter)>held,'same-owner Y release cancelled independent held X input')
+held=g(parameter)
+for _,panel in ipairs({'LMFD','RMFD','CMFD','PMFD'})do p('F22_'..panel..'_FORMAT',1)end
+p('F22_SOI',FOCUS==2 and 3 or 2)
+SetCommand(10621,FOCUS%2==0 and 0 or devices.RADAR_COMPUTER+.25);tick();tick()
+assert(g(parameter)==held,'other-axis release transferred held slew to another display')
+SetCommand(10620,.6);tick();tick()
+assert(g(parameter)>held,'fresh input failed to acquire the new display owner')
 ''')
 print("Final owner: relocated A/A and A/G axes on all four panels; page/power loss and deliberate recovery PASS")

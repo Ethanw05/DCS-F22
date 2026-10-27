@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MODULES = (
     'Gins_Alignment', 'Gins_References', 'Attitude_References', 'Altitude_Alerts',
     'Recovery_Context', 'Physical_Snapshot', 'Equipment_Conditions', 'Entry_Transaction',
-    'Cockpit_References', 'Nav_Marks_Time', 'Nav_Publication', 'Mission_Data',
+    'Cockpit_References', 'Nav_Marks_Time', 'Nav_Publication', 'Mission_Data', 'Radio_Navigation',
 )
 NAV_HELPERS = {
     'reference_estimates', 'observed_angle', 'host_observations', 'estimate_observations',

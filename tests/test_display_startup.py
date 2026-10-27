@@ -72,9 +72,9 @@ def runtime(service_enabled=False):
             end
             return handles[name]
         end
-        -- The default native fixture has the checked coordinate adapter.
+        -- The default fixture has the qualified owned avLua clock adapter.
         -- Missing/incompatible adapter behavior is exercised explicitly.
-        get_param_handle('F22_RADAR_ACQ_COORDINATES_READY'):set(1)
+        get_param_handle('F22_AESA_DRIVER_READY'):set(1)
         function dispatch_action(_,command,value)
             table.insert(actions,{command,value})
         end

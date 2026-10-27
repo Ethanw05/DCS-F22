@@ -71,56 +71,8 @@ print(string.format('Service core: 10000 updates %.4fs; stopped-GC heap growth %
 ''')
 print("Service: distinct timestamps, finite work/processing, load, off-axis cost, resource loss, fairness, overflow and resets PASS")
 
-lua = runtime(service_enabled=True)
-lua.execute(r'''
-local now=10
-function get_model_time()return now end
-function get_base_data()return {
- getSelfCoordinates=function()return 0,3000,0 end,getHeading=function()return 0 end,
- getPitch=function()return 0 end,getRoll=function()return 0 end}end
-local transmissions={};native={set_power=function(_,v)transmissions[#transmissions+1]=v end}
-function GetDevice()return native end
-local function p(n,v)get_param_handle(n):set(v)end
-local function g(n)return get_param_handle(n):get()end
-dofile(SCRIPT_ROOT..'Systems/Radar_System.lua');post_initialize()
-p('MAIN_POWER',1);p('HUD_MODE',2);p('F22N_RADAR_MODE',1)
-p('F22_RADAR_OBSERVATIONS_READY',1);p('F22_RADAR_OBSERVATION_COUNT',1)
-for k,v in pairs({ID=17,AGE=0,NORTH=10000,ALTITUDE=3000,EAST=0,VN=0,VU=0,VE=0,IFF=-1})do p('F22O_01_'..k,v)end
-SetCommand(10602,1);update()
-assert(g('F22_RADAR_SERVICE_ENABLED')==1 and g('F22_RADAR_TRACK_COUNT')==0)
-assert(g('F22_RADAR_NATIVE_RESTRICTED')==1 and g('F22_RADAR_SERVICE_HEALTH_KNOWN')==0)
-local stamp=now
-local function tick(dt,new)
- now=now+dt;if new then stamp=now end
- p('F22O_01_AGE',now-stamp);update()
-end
-for i=1,10 do tick(.05,false)end
-assert(g('F22_RADAR_TRACK_COUNT')==1 and g('F22_RADAR_TACTICAL_01_MEASUREMENT_SOURCE')==1)
-assert(g('F22_RADAR_TACTICAL_01_QUALITY')==1)
-assert(math.abs(g('F22_RADAR_TACTICAL_01_AGE')-.5)<1e-7,'queue renewed measurement age')
-tick(.05,true);for i=1,10 do tick(.05,false)end
-assert(g('F22_RADAR_TACTICAL_01_QUALITY')==2)
-SetCommand(10618,1);update()
-assert(g('F22_RADAR_SELECTED_SUPPORT_ELIGIBLE')==1)
--- Optional health producer: fresh coherent fractional values, no guessed ECS.
-local function health(resource)
- for k,v in pairs({SCHEMA=1,SEQUENCE=1,TIME=now,VALID=1,SUPPLY=1,COOLING=resource,ARRAY=1})do p('F22_RADAR_RESOURCE_'..k,v)end
-end
-health(.5);update();assert(g('F22_RADAR_SERVICE_STATE')==2 and g('F22_RADAR_SERVICE_HEALTH_KNOWN')==1)
-health(0);update();assert(g('F22_RADAR_BACKEND_READY')==0 and transmissions[#transmissions]==false)
-assert(g('F22_TWS_TARGET_ID')==0 and g('F22_RADAR_SUPPORT_ENABLED')==0)
-health(1);update();assert(g('F22_RADAR_TRACK_COUNT')==0,'repair resurrected cached contact')
-for i=1,12 do tick(.05,false)end
-assert(g('F22_RADAR_BACKEND_READY')==0,'stale resource publication remained healthy')
-p('F22_RADAR_RESOURCE_SCHEMA',0);tick(.05,true)
-for i=1,10 do tick(.05,false)end
-assert(g('F22_RADAR_TRACK_COUNT')==1 and g('F22_RADAR_TACTICAL_01_QUALITY')==1)
--- A/G is exclusive; INTL is surface MAP/GMT and cannot claim airborne search.
-p('HUD_MODE',7);update()
-assert(g('F22_RADAR_BACKGROUND_AVAILABLE')==0 and g('F22_RADAR_AIR_SURFACE_CONCURRENT')==0)
-''')
-print("Actual owner: service timing, provenance, age, TWS maturity, health, native power request withdrawal and A/G exclusivity PASS")
-
+# Production sensing/processing now lives in C++ AesaRadar; owner acquisition,
+# source2 and stale publication are covered by test_owned_aesa_lua.py.
 lua = runtime(service_enabled=True)
 lua.execute(r'''
 local v={F22_RADAR_RESOURCE_SCHEMA=1,F22_RADAR_RESOURCE_SEQUENCE=2,F22_RADAR_RESOURCE_TIME=1,

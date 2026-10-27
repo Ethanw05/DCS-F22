@@ -10,9 +10,11 @@ local sensors=get_base_data();local dt=.05;make_default_activity(dt)
 local handles={};local function h(n) if not handles[n] then handles[n]=get_param_handle(n) end;return handles[n] end
 local function get(n)return h(n):get()end
 local function put(n,v)h(n):set(v)end
+local ir_feedback=dofile(LockOn_Options.script_path..'Systems/IR_Feedback.lua').new(get)
 for _,name in ipairs(launch_zone.segments)do
     for _,field in ipairs({'X1','Y1','X2','Y2','VALID'})do h('F22_RDR_LAR_'..name..'_'..field)end
 end
+local radar_observations=dofile(LockOn_Options.script_path.."Systems/AESA_Control.lua").new(get,put)
 local clock=0;local next_log=0;local last_sequence=0;local missiles={};local files={}
 local file_count=0
 local function vector(p,a,b,c)return {get(p..a),get(p..b),get(p..c)}end
@@ -36,19 +38,12 @@ local function remember(id,position,velocity,time)
     return true
 end
 local function observe(now)
-    if get('F22_RADAR_OBSERVATIONS_READY')>.5 then
-        for i=1,math.min(64,get('F22_RADAR_OBSERVATION_COUNT')) do
-            local p=string.format('F22O_%02d_',i);local id=get(p..'ID');local time=now-get(p..'AGE')
-            if id>0 and get(p..'AGE')>=0 and get(p..'AGE')<=10 and (not files[id] or time>files[id].time+.01) then
-                local accepted=remember(id,vector(p,'NORTH','ALTITUDE','EAST'),vector(p,'VN','VU','VE'),time)
-                if not accepted then put('F22_FC_REJECTED_INPUT',1)end
-            end
-        end
-    end
-    if get('F22_STT_MOTION_VALID')>.5 and get('F22N_RADAR_MODE')==3 then
-        local id=get('F22_STT_ID');local stamp=get('F22_STT_TIME')
-        if id>0 and now-stamp>=-.05 and now-stamp<1 and (not files[id] or stamp>files[id].time) then
-            local accepted=remember(id,vector('F22_STT_','PN','PU','PE'),vector('F22_STT_','VN','VU','VE'),stamp)
+    local observations=radar_observations:read(now)
+    if radar_observations.generation_changed then files={};file_count=0 end
+    for i=1,#observations do
+        local o=observations[i];local id,time=o.native_id,o.observed
+        if o.velocity_valid and (not files[id] or time>files[id].time+.01) then
+            local accepted=remember(id,{o.north,o.altitude,o.east},{o.vn,o.vu,o.ve},time)
             if not accepted then put('F22_FC_REJECTED_INPUT',1)end
         end
     end
@@ -59,11 +54,6 @@ end
 local function support_status(id,now,track)
     if get('RADAR_PWR')<.5 or get('F22_RADAR_BACKEND_READY')<.5 or not track or track.age>6 then
         return 3,0
-    end
-    local stt_age=now-get('F22_STT_TIME')
-    if get('F22N_RADAR_MODE')==3 and get('F22_STT_ID')==id
-        and get('F22_STT_MOTION_VALID')>.5 and stt_age>=-.05 and stt_age<=.35 then
-        return 1,1 -- Qualified native fallback remains independent of the custom owner.
     end
     local publication_age=now-get('F22_RADAR_TACTICAL_TIME')
     if get('F22_RADAR_SUPPORT_ENABLED')>.5 and get('F22_TWS_GUIDANCE_BACKEND_READY')>.5
@@ -99,6 +89,7 @@ function update()
     local id=get('F22_RADAR_WEAPON_TARGET_ID');local t=target(id,now)
     local valid=t and t.age<=6 and get('RADAR_PWR')>.5 and physical_supply.mission
     local mode=get('HUD_MODE');local missile_mode=mode==2 or mode==3
+    ir_feedback:update(mode==3 and physical_supply.mission,now)
     put('F22_FC_TARGET_VALID',valid and 1 or 0);put('F22_FC_TARGET_INPUT_VALID',valid and 1 or 0)
     put('F22_FC_TARGET_INPUT_ID',valid and id or 0);put('F22_FC_OWN_ALTITUDE',u)
     put('F22_FC_OWN_PITCH',pose.pitch);put('F22_FC_OWN_ROLL',pose.roll);put('F22_FC_OWN_HEADING',pose.heading)
@@ -150,7 +141,9 @@ function update()
     -- the radar missile steering gate must not truncate AIM-9X to 30 degrees.
     local alignment=mode==3 or math.abs(az)<math.rad(30) and math.abs(el)<math.rad(30)
     local shoot=ready and zone and zone.inside and alignment
-    if mode==3 then shoot=shoot and get('F22_IR_LOCK')>.5 and get('F22_IR_CAGED')<.5 end
+    if mode==3 then
+        shoot=shoot and ir_feedback.locked and get('F22_IR_CAGED')<.5
+    end
     put('F22_FC_SHOOT',missile_mode and shoot and 1 or 0);put('F22_FC_TURN_WINDOW',shoot and zone.turn and 1 or 0)
     put('F22_FC_TOO_CLOSE',zone and zone.too_close and 1 or 0)
     put('F22_FC_WAIT_VALID',zone and range>maximum and closure>5 and 1 or 0)

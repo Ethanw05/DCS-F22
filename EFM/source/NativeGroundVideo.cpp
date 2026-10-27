@@ -178,11 +178,10 @@ const void *__fastcall camera(void *object) {
     render.have_last=false;
   }
   if(safe.accepted) {
-    // RBM rebuilds its orthographic source at reversal, range/FOV change,
-    // or source initialization (enlight::AGRadar::update 0x180006530).
-    // The displayed source remains in that world frame for the sweep.
+    // Refresh the shared scene renderer on completed owned image collections
+    // and geometry changes. This renderer supplies pixels, never detections.
     const auto&v=safe.view;
-    if(!render.have_last || v.scan_direction!=render.last.scan_direction ||
+    if(!render.have_last || v.collection!=render.last.collection || v.scan_direction!=render.last.scan_direction ||
        v.range_nm!=render.last.range_nm || (v.expansion==0&&v.width_deg!=render.last.width_deg) ||
        v.erase_sequence!=render.last.erase_sequence || v.mode!=render.last.mode || v.expansion!=render.last.expansion) {
       render.refresh=true;
@@ -314,6 +313,7 @@ void update(EDPARAM &p) {
   next.north=get(p,"F22_AG_VIDEO_NORTH"); next.altitude=get(p,"F22_AG_VIDEO_ALTITUDE");
   next.east=get(p,"F22_AG_VIDEO_EAST"); next.heading=get(p,"F22_AG_VIDEO_HEADING");
   next.range_nm=get(p,"F22_AG_RADAR_RANGE_NM");next.width_deg=get(p,"F22_AG_VIDEO_FOV_DEG");
+  next.collection=get(p,"F22_AG_VIDEO_COLLECTION");
   next.scan_direction=get(p,"F22_AG_VIDEO_SCAN_DIRECTION");next.scan_fraction=get(p,"F22_AG_VIDEO_SCAN_FRACTION");
   next.gain=get(p,"F22_AG_VIDEO_GAIN");next.erase_sequence=get(p,"F22_AG_VIDEO_ERASE_SEQUENCE");
   next.mode=static_cast<int>(get(p,"F22_AG_MODE"));

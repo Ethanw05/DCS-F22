@@ -10,13 +10,47 @@ end
 function M.new()
     return setmetatable({ service = Service.new(), priorities = {}, eligible = {}, admitted = {} }, { __index = M })
 end
+-- Flight publication uses the spawn-relative F22_AP_CLOCK. It is never
+-- compared with absolute World model seconds used by radar observations.
+function M:physical(get)
+    if get("EFM_POWER_OWNER") == 1 then self.physical_owned = true end
+    self.power_known, self.thermal_known = false, false
+    if not self.physical_owned then return 1 end
+    local generation, stamp = get("EFM_PHYSICAL_GENERATION"), get("EFM_PHYSICAL_STAMP")
+    local clock = get("F22_AP_CLOCK")
+    if get("EFM_POWER_OWNER") ~= 1 or get("EFM_PHYSICAL_VALID") ~= 1
+        or get("EFM_PHYSICAL_CLOCK_KIND") ~= 1 or not finite(generation)
+        or generation < 1 or generation % 1 ~= 0 or not finite(stamp) or not finite(clock)
+        or clock-stamp < -.05 or clock-stamp > .25 then return 0 end
+    local mission, electrical = get("EFM_MISSION_POWER_AVAILABLE"), get("F22_ELECTRICAL_VALID")
+    local environmental = get("EFM_ENVIRONMENT_VALID")
+    local temperature, fault = get("EFM_EQUIPMENT_TEMP_C"), get("EFM_THERMAL_FAULT")
+    if generation ~= get("EFM_PHYSICAL_GENERATION") or stamp ~= get("EFM_PHYSICAL_STAMP")
+        or get("EFM_PHYSICAL_VALID") ~= 1 or get("EFM_POWER_OWNER") ~= 1 then return 0 end
+    self.power_known = true
+    if mission ~= 1 or electrical ~= 1 then return 0 end
+    if environmental ~= 1 or not finite(temperature) or (fault ~= 0 and fault ~= 1) then return 0 end
+    self.thermal_known = true
+    if fault == 1 then return 0 end
+    -- Declared game estimate: thermal derating from 60C to shutdown at 100C.
+    -- No APG-77 equipment limit is claimed. Array condition stays separate.
+    return math.max(0,math.min(1,(100-temperature)/40))
+end
 -- Schema 0 explicitly retains legacy MAIN_POWER supply; cooling/damage are UNKNOWN.
 -- Schema 1 is a coherent, timestamped normalized achieved-resource publication.
 function M:health(get, now, powered)
     self.health_known = false
     if not powered then return 0 end
+    local physical = self:physical(get)
+    if physical <= 0 then return 0 end
     local schema = get("F22_RADAR_RESOURCE_SCHEMA")
-    if schema == 0 then return 1 end
+    if get("F22_AESA_ARRAY_KNOWN") == 1 then
+        local array = get("F22_AESA_ARRAY_HEALTH")
+        if not fraction(array) then return 0 end
+        physical = math.min(physical,array)
+        self.health_known = self.power_known and self.thermal_known
+    end
+    if schema == 0 then return physical end
     if schema ~= 1 then return 0 end
     local sequence, stamp = get("F22_RADAR_RESOURCE_SEQUENCE"), get("F22_RADAR_RESOURCE_TIME")
     local supply, cooling = get("F22_RADAR_RESOURCE_SUPPLY"), get("F22_RADAR_RESOURCE_COOLING")
@@ -26,7 +60,7 @@ function M:health(get, now, powered)
         or not fraction(cooling) or not fraction(array) or get("F22_RADAR_RESOURCE_VALID") ~= 1
         or sequence ~= get("F22_RADAR_RESOURCE_SEQUENCE") then return 0 end
     self.health_known = true
-    return math.min(supply, cooling, array)
+    return math.min(physical, supply, cooling, array)
 end
 function M:reset(now)
     self.service:reset(now)
@@ -71,7 +105,7 @@ function M:publish(put, resource, enabled, native_mode, surface, ready)
     put("F22_RADAR_SERVICE_WORK_S", s.busy and s.work or 0)
     put("F22_RADAR_SERVICE_PROCESSING_S", resource > 0 and Service.processing_s / resource or 0)
     -- Capability readback, not an inference that a native pointing command moved a beam.
-    put("F22_RADAR_NATIVE_RESTRICTED", 1)
+    put("F22_RADAR_NATIVE_RESTRICTED", 0)
     local background = ready and not surface and (native_mode == 1 or native_mode == 6)
         and resource >= Service.minimum_resource
     put("F22_RADAR_BACKGROUND_AVAILABLE", background and 1 or 0)

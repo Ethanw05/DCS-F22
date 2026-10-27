@@ -24,7 +24,10 @@ dofile(SCRIPT_ROOT..'Systems/AG_Mark_System.lua');post_initialize()
 local mark_update=update
 put('MAIN_POWER',1);put('HUD_MODE',7);put('F22_SOI',2);put('F22N_RADAR_MODE',1)
 for _,n in ipairs({'RADAR_NATIVE_READY','VIDEO_SOURCE_PRESENT','VIDEO_READY','VIDEO_GEOMETRY_QUALIFIED'})do put('F22_AG_'..n,1)end
+local grant=0
 local function tick()
+ grant=grant+1;put('F22_AESA_SURFACE_SERVICE',1);put('F22_AESA_SURFACE_SEQUENCE',grant)
+ put('F22_AESA_SURFACE_AZ',math.sin(grant*.3)*.5)
  now=now+.05;radar_update();mark_update()
 end
 local function command(c)radar_command(c,1)end
@@ -64,6 +67,7 @@ local v={F22_AG_RADAR_NATIVE_READY=1,F22_AG_VIDEO_SOURCE_PRESENT=1,F22_AG_VIDEO_
 local function get(n)return v[n]or 0 end;local function put(n,x)v[n]=x end
 package.preload.terrain=function()return {GetHeight=function()return 50 end}end
 local s=dofile(SCRIPT_ROOT..'Systems/AG_Radar_System.lua').new(get,put,function()end)
+dofile(SCRIPT_ROOT..'../../tests/surface_grant_fixture.lua')(s,put)
 local pose={north=0,altitude=3000,east=0,heading=0,pitch=0,roll=0}
 s:command('rws',1,true,10);s:update(pose,10,.05,true,true)
 s:command('designate',1,true,10);s:update(pose,10.05,.05,true,true)

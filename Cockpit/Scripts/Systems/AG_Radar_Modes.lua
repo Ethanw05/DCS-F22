@@ -32,15 +32,15 @@ function M.new()
   antenna=0,data=false,declutter=false,expansion=0,pending=0,patch=nil,
   sweep=0,units=0,direction=1}
 end
-function M.advance(c,dt,width,enabled)
- if not enabled then return false end
- -- Completion is a return to the saved scan phase/direction after a full
- -- antenna cycle. No fixed seconds-to-scan timer is used.
- local increment=math.max(0,dt)/math.max(.5,width/60)*(c.fast and c.expansion>0 and 2 or 1)
- local next_units=c.units+increment;local complete=c.active and next_units>=c.active_end
+function M.advance(c, width, enabled, granted)
+ if not enabled or not granted then return false end
+ -- Collection advances only when the owned AESA completes a surface dwell.
+ -- It is a finite image job count; electronic pointing has no traverse time.
+ local increment=1/math.max(1,math.ceil(width/4.2))
+ local next_units=c.units+increment
+ local complete=c.active and c.active_end and next_units>=c.active_end
  if complete then next_units=c.active_end end
- c.units=next_units;c.sweep=next_units%1
- c.direction=math.floor(next_units)%2==0 and 1 or -1
+ c.units=next_units;c.sweep=next_units%1;c.direction=1
  return complete
 end
 function M.exp_geometry(pose,point,level)

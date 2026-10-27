@@ -2,6 +2,15 @@
 -- Input observations come from a sensor; this module never enumerates world objects.
 -- RWS/TWS/VACQ/BORE are simulation workflows, not claimed classified F-22 logic.
 local M = { fresh_seconds = 6, support_seconds = 6, maximum_tracks = 64, maximum_hits = 255 }
+-- Keep this numerical owner independent of host globals/file loading.
+local metadata_fields = {"filter_valid","position_sigma_m","velocity_sigma_mps","range_sigma_m",
+    "angle_sigma_rad","raw_north","raw_altitude","raw_east","measured_range","measured_azimuth",
+    "measured_elevation","range_rate","rate_sigma_mps"}
+local function copy_metadata(target, observation)
+    for i = 1, #metadata_fields do target[metadata_fields[i]] = observation[metadata_fields[i]] end
+    target.covariance = target.covariance or {}
+    for i = 1, 21 do target.covariance[i] = observation.covariance and observation.covariance[i] or 0 end
+end
 local rad = math.rad
 -- Reference: installed Hornet guide p171. BST is a 3.3-degree full
 -- cone; VACQ -13..+46 degrees. Our VACQ uses 10 NM for the F-22
@@ -69,6 +78,7 @@ function M.new()
 	end
 	function r:supportable(t)
 		return t and finite(t.native_id) and t.native_id > 0 and t.hits >= 2 and self:age(t) <= M.support_seconds
+			and (t.measurement_source ~= 2 or t.velocity_valid == true)
 			or false
 	end
 	function r:source(id)
@@ -251,8 +261,11 @@ function M.new()
 	end
 	-- Display scale is independent of the sensing volume. A close gun target
 	-- must not remain buried against ownship on an 80-NM search display.
-	function r:scope_range(locked_range)
+	function r:scope_range(locked_range, envelope_range)
 		if finite(locked_range) and locked_range >= 40 then
+			if finite(envelope_range) and envelope_range > locked_range then
+				locked_range = envelope_range
+			end
 			local scales = { 1, 2, 5, 10, 20, 40, 80, 160, 320 }
 			local current = self.lock_scope_nm
 			if not current or locked_range > current * 1852 * 0.85 or locked_range < current * 1852 * 0.28 then
@@ -599,6 +612,7 @@ function M.new()
 					t.velocity_valid = o.velocity_valid
 					t.native_id = o.native_id
 					t.measurement_source = o.measurement_source or 1
+					copy_metadata(t,o)
 				end
 				if o.iff == 1 then
 					t.friend_until = math.max(t.friend_until or 0, self.clock - o.age + 30)
@@ -643,6 +657,7 @@ function M.new()
 					vu = o.vu,
 					velocity_valid = o.velocity_valid,
 				}
+				copy_metadata(self.tracks[id],o)
 				if o.iff == 1 or o.iff == 0 then
 					self.tracks[id].ident_class = o.iff
 					self.tracks[id].ident_time = self.clock - o.age

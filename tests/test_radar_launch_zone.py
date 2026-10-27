@@ -50,7 +50,7 @@ for n,v in pairs({MAIN_POWER=1,RADAR_PWR=1,HUD_MODE=2,F22_RADAR_WEAPON_TARGET_ID
  F22_RADAR_OBSERVATIONS_READY=1,F22_RADAR_OBSERVATION_COUNT=1,F22O_01_ID=101,
  F22O_01_NORTH=10000,F22O_01_ALTITUDE=5000,F22_DLZ_NATIVE_VALID=1,F22_DLZ_TARGET_ID=101,
  F22_DLZ_RMIN=700,F22_DLZ_RMAX=24000,F22_DLZ_RTR=12000,F22_RADAR_RANGE_NM=40,F22N_RADAR_MODE=3})do get_param_handle(n):set(v)end
-dofile(SCRIPT_ROOT..'Systems/Engagement_System.lua');post_initialize();update()
+dofile(SCRIPT_ROOT..'Systems/Engagement_System.lua');post_initialize();dofile(SCRIPT_ROOT..'../../tests/legacy_measurement_fixture.lua');update()
 ''')
 def get(name):
     h=sim.globals().get_param_handle(name)
@@ -62,7 +62,7 @@ assert abs(get('F22_RDR_LAR_MAX_Y1')-(layout.origin_y+24000/(40*1852)*layout.rad
 for scale in (.07,.18):
     ui=runtime();ui.globals().native_scale=scale
     ui.execute('function GetScale()return native_scale end;dofile(SCRIPT_ROOT.."PMFD_CENTER/radar_page.lua")')
-    elements={e['name']:e for e in ui.globals().elements.values()}
+    elements={e['name'].removeprefix('F22_COMPAT_AA_'):e for e in ui.globals().elements.values()}
     assert 'F22_RDR_DLZ_RANGE' not in elements,'old HUD-style radar caret remained'
     assert 'F22_RDR_LAR_STEER' not in elements
     for name in ('MIN','MAX','TURN','AXIS'):
@@ -70,12 +70,12 @@ for scale in (.07,.18):
         assert e['kind']=='ceSimpleLineObject' and e['width']>0
         for _,c in e['controllers'].items():
             if c[1]=='line_object_set_point_using_parameters':
-                assert abs(c[5]-scale*.95)<1e-12 and abs(c[6]-scale*.95)<1e-12
-    assert elements['F22_RDR_COVERAGE_-1']['parent_element']=='F22_RDR_SEARCH_COVERAGE'
+                assert abs(c[5]-scale*.82)<1e-12 and abs(c[6]-scale*.82)<1e-12
+    assert elements['F22_RDR_COVERAGE_-1']['parent_element']=='F22_COMPAT_AA_F22_RDR_SEARCH_COVERAGE'
     assert elements['F22_RDR_SEARCH_COVERAGE']['element_params'][1]=='F22N_RADAR_MODE'
-    fallback=elements['F22_RDR_TRACK_WITHOUT_ENVELOPE']
-    assert fallback['element_params'][2]=='F22_RDR_LAR_VISIBLE'
-    assert any(c[1]=='parameter_in_range' and c[2]==1 and c[4]==.1 for _,c in fallback['controllers'].items())
+    assert 'F22_RDR_TRACK_WITHOUT_ENVELOPE' not in elements
+    coverage=elements['F22_RDR_SEARCH_COVERAGE']
+    assert any(c[1]=='parameter_in_range' and c[4]==3.1 for _,c in coverage['controllers'].items())
 def put(name,value):
     h=sim.globals().get_param_handle(name);h.set(h,value)
 # The actual engagement owner must use this geometry for both radar and IR

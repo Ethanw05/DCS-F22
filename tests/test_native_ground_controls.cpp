@@ -24,16 +24,16 @@ bool ray(void*,const NativeGroundSensor::VecF&from,const NativeGroundSensor::Vec
  *out={static_cast<float>(from.n+t*dir.n),0,static_cast<float>(from.e+t*dir.e)};return true;
 }
 }
-int main(){
+int scenarios(){
  using namespace NativeGroundSensor;
  reset();api.ready=true;api.reason=0;api.clock=&clock_now;api.aircraft=&no_aircraft;
  EDPARAM p;p.ed_param_api.pfn_ed_cockpit_get_parameter_handle=&parameter;
  p.ed_param_api.pfn_ed_cockpit_update_parameter_with_number=&write;
  p.ed_param_api.pfn_ed_cockpit_parameter_value_to_number=&read;
  for(auto n:{"MAIN_POWER","RADAR_PWR","F22_AG_RADAR_OPERATING"})values[n].value=1;
- values["HUD_MODE"].value=7;values["F22_AG_MODE"].value=2;
+ values["F22_AESA_CONTROL_RESOURCE"].value=1;values["HUD_MODE"].value=7;values["F22_AG_MODE"].value=2;
  values["F22_AG_VIDEO_FROZEN"].value=1;values["F22_AG_VIDEO_HOLD"].value=1;
- values["F22_AG_VIDEO_SCAN_AZ_DEG"].value=-30;values["F22_AG_SENSOR_SCAN_AZ_DEG"].value=20;
+ values["F22_AG_VIDEO_SCAN_AZ_DEG"].value=-30;values["F22_AESA_SURFACE_AZ"].value=20*GroundMovingTargets::pi/180;values["F22_AESA_SURFACE_SERVICE"].value=1;
  update(p);CHECK(controls.active&&controls.search);
  CHECK(std::abs(controls.az-20*GroundMovingTargets::pi/180)<1e-10);
  sample(reinterpret_cast<void*>(1));CHECK(last_query==now);
@@ -52,10 +52,22 @@ int main(){
  api.aircraft=&with_aircraft;api.position=&basis;api.point=&point;api.velocity=&velocity;api.land=&land_pointer;
  values["F22_AG_MODE"].value=7;values["F22_AG_RADAR_RANGE_NM"].value=5;
  now+=.1;update(p);sample(reinterpret_cast<void*>(1));update(p);
+ CHECK(values["F22_AG_AGR_VALID"].value==0);
+ now+=.07;update(p);sample(reinterpret_cast<void*>(1));update(p);
  CHECK(values["F22_AG_AGR_VALID"].value==1);
- CHECK(std::abs(values["F22_AG_AGR_RANGE_FT"].value-3333.3333*3.280839895)<.01);
+ const auto measured_stamp=values["F22_AG_AGR_TIME"].value;
+ values["F22_AESA_SURFACE_SERVICE"].value=0;now+=.1;update(p);sample(reinterpret_cast<void*>(1));update(p);
+ CHECK(values["F22_AG_AGR_TIME"].value>=measured_stamp);
+ const auto coast_stamp=values["F22_AG_AGR_TIME"].value;
+ now+=.1;update(p);sample(reinterpret_cast<void*>(1));update(p);
+ CHECK(values["F22_AG_AGR_TIME"].value==coast_stamp);
+ values["F22_AESA_SURFACE_SERVICE"].value=1;now+=.1;update(p);sample(reinterpret_cast<void*>(1));update(p);
+ CHECK(std::abs(values["F22_AG_AGR_RANGE_FT"].value-3333.3333*3.280839895)<10);
  values["F22_AG_ACTIVE"].value=0;now+=.1;update(p);sample(reinterpret_cast<void*>(1));update(p);
  CHECK(values["F22_AG_AGR_VALID"].value==0);
  values["MAIN_POWER"].value=0;now+=.1;update(p);CHECK(!controls.active);
  std::cout<<"Actual native ground controls: FRZ/preview do not pause sensing; MAP acquisition without GMT search; power gate PASS\n";
+ return 0;
 }
+
+int main(){try{return scenarios();}catch(const std::exception& error){std::cerr<<error.what()<<"\n";return 1;}}

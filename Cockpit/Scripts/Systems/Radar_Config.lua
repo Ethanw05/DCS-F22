@@ -1,7 +1,7 @@
--- Shared DCS radar supplies real observations and a native target responder.
--- Presentation/control logic is ours; this is not an APG-77 RF simulation.
+-- Owned AESA scene-provider sensor and own shared target responder.
+-- Performance parameters are declared game estimates, not APG-77 data.
 return {
-    native_backend_enabled = true, telemetry_enabled = true,
-    model_version = "native-constrained-service-v3", rf_tasking_enabled = true,
-    service_enabled = true,
+    native_backend_enabled = false, telemetry_enabled = true,
+    model_version = "owned-aesa-scene-v1", rf_tasking_enabled = true,
+    service_enabled = false,
 }

@@ -16,6 +16,7 @@ local function fixture()
  local put=function(n,x)v[n]=x end
  package.preload.terrain=function()return {GetHeight=function(n,e)return 50+n*.001+e*.002 end}end
  local s=dofile(SCRIPT_ROOT..'Systems/AG_Radar_System.lua').new(get,put,function()end)
+dofile(SCRIPT_ROOT..'../../tests/surface_grant_fixture.lua')(s,put)
  return s,get,put
 end
 local pose={north=2000,altitude=4000,east=-3000,heading=.3,pitch=0,roll=0}
@@ -32,7 +33,7 @@ for _,width in ipairs({20,45,90,120})do for _,units in ipairs({.23,1.61})do
  assert(g('F22_AG_RADAR_EMITTING')==0 and g('F22_AG_VIDEO_HOLD')==1)
  local saved=s.controls.units
  s:command('active',1,true,t+.04)
- local end_units=s.controls.active_end;close(end_units-saved,2)
+ local end_units=s.controls.active_end;close(end_units-saved,1)
  local i=0;t=t+.04
  repeat t=t+.037;s:update(pose,t,.037,true,true);i=i+1;assert(i<300)until not s.controls.active
  close(s.controls.units,end_units)

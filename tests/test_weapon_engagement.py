@@ -51,14 +51,13 @@ function dofile(path)
  return original(path)
 end
 dofile(SCRIPT_ROOT..'Systems/Engagement_System.lua');post_initialize()
+dofile(SCRIPT_ROOT..'../../tests/legacy_measurement_fixture.lua')
 local engagement_update=update
 function update()
  p('F22_RADAR_TACTICAL_TIME',now)
  p('F22_TWS_GUIDANCE_BACKEND_READY',1)
  p('F22_RADAR_SUPPORT_ENABLED',v('HUD_MODE')~=7 and 1 or 0)
  p('F22_SUPPORT_01_ID',101);p('F22_SUPPORT_02_ID',202)
- -- Native STT on another target cannot custom-support the first one.
- if v('F22N_RADAR_MODE')==3 then p('F22_RADAR_SUPPORT_ENABLED',0)end
  engagement_update()
 end
 update()
@@ -79,7 +78,7 @@ assert(v('F22_MSL_01_TTG_VALID')==1 and v('F22_MSL_01_TTG_SOURCE')==2,'missing s
 assert(v('F22_FC_TTA_VALID')==1 and v('F22_FC_TTA')>0)
 assert(v('F22_MSL_01_SUPPORT_STATE')==1)
 p('F22N_RADAR_MODE',3);p('F22_STT_ID',202);update()
-assert(v('F22_MSL_01_SUPPORT_STATE')==2 and v('F22_FC_SUPPORT_DEGRADED')==1,'STT on another target hid support coast')
+assert(v('F22_MSL_01_SUPPORT_STATE')==1 and v('F22_FC_SUPPORT_DEGRADED')==0,'priority lock disabled another fresh AESA-supported target')
 p('RADAR_PWR',0);update();assert(v('F22_MSL_01_SUPPORT_STATE')==3 and v('F22_FC_SUPPORT_LOST')==1)
 p('RADAR_PWR',1);p('F22N_RADAR_MODE',1);update();assert(v('F22_MSL_01_SUPPORT_STATE')==1 and v('F22_FC_SUPPORT_DEGRADED')==0)
 p('F22_RADAR_WEAPON_TARGET_ID',202);p('F22_DLZ_TARGET_ID',202);shot(2,2,1002,202);update()
@@ -88,7 +87,7 @@ assert(v('F22_MSL_01_SUPPORT_REQUIRED')==1 and v('F22_MSL_02_SUPPORT_REQUIRED')=
 p('HUD_MODE',7);update()
 assert(v('F22_MSL_01_SUPPORT_STATE')==2,'A/G suppressed custom support but cockpit still claimed supported')
 p('F22N_RADAR_MODE',3);p('F22_STT_ID',101);p('F22_STT_MOTION_VALID',1);p('F22_STT_TIME',now);update()
-assert(v('F22_MSL_01_SUPPORT_STATE')==1 and v('F22_MSL_01_SUPPORT_SOURCE')==1,'qualified native STT fallback was hidden')
+assert(v('F22_MSL_01_SUPPORT_STATE')==2 and v('F22_MSL_01_SUPPORT_SOURCE')==0,'retired STT aliases granted support without a current owned support list')
 p('F22N_RADAR_MODE',1);p('F22_STT_MOTION_VALID',0)
 p('HUD_MODE',5);update();assert(v('F22_MSL_01_TARGET')==101 and v('F22_FC_SHOOT')==0)
 p('F22_SHOT_01_ACTIVE',1);update();assert(v('F22_MSL_01_SUPPORT_REQUIRED')==1,'emitting without acquisition dropped support')
@@ -135,7 +134,7 @@ p('F22_SHOT_04_ALIVE',0);update();assert(v('F22_MSL_04_VALID')==0)
 -- A native AIM-9X lock beyond 30 degrees is not vetoed by an MRM gate.
 now=400;p('HUD_MODE',3);p('F22_RADAR_WEAPON_TARGET_ID',101);p('F22_DLZ_TARGET_ID',101)
 p('F22O_01_NORTH',5000);p('F22O_01_EAST',6000);p('F22O_01_ALTITUDE',5000);p('F22O_01_AGE',0)
-p('F22O_02_AGE',0);p('F22_IR_LOCK',1);p('F22_IR_CAGED',0);p('F22_WEAPON_COUNT',1)
+p('F22O_02_AGE',0);p('F22_IR_AVAILABLE',1);p('F22_IR_LOCK',1);p('F22_IR_CAGED',0);p('F22_WEAPON_COUNT',1)
 update();assert(v('F22_FC_SHOOT')==1,'native HOBS lock truncated by radar-missile angle gate')
 p('F22_IR_LOCK',0);update();assert(v('F22_FC_SHOOT')==0)
 p('F22_IR_LOCK',1);p('F22_IR_CAGED',1);update();assert(v('F22_FC_SHOOT')==0)

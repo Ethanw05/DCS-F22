@@ -5,6 +5,7 @@ local sources = {{'radar', 'RADAR'}, {'rf', 'RF'}, {'datalink', 'DONOR'}}
 local fields = {'VALID', 'KIND', 'FRIENDLY', 'HOSTILE', 'AGE', 'AGE_KNOWN',
     'FRIEND_AGE', 'FRIEND_AGE_KNOWN', 'HOSTILE_AGE', 'HOSTILE_AGE_KNOWN',
     'RECEIVE_AGE', 'RECEIVE_AGE_KNOWN'}
+local empty_evidence = { kind = 0, friendly = false, hostile = false, time_known = false }
 
 local function finite(value)
     return type(value) == 'number' and value == value and math.abs(value) < 1e12
@@ -17,26 +18,28 @@ local function age(time, now, known)
     return math.max(0, now - time), true
 end
 
+local function publish_flag(put, name, value)
+    put(name, value and 1 or 0)
+end
+
+local function publish_age(put, name, known_name, time, now, known)
+    local seconds, valid = age(time, now, known)
+    put(name, seconds)
+    publish_flag(put, known_name, valid)
+end
+
 local function publish(put, names, evidence, now)
-    local friendly, hostile = evidence and evidence.friendly, evidence and evidence.hostile
-    local time, known = age(evidence and evidence.time, now, evidence and evidence.time_known)
-    local friend_time, friend_known = age(evidence and evidence.time, now,
-        friendly and evidence.time_known)
-    local hostile_time, hostile_known = age(evidence and evidence.hostile_time, now,
-        hostile and evidence.time_known)
-    local receipt, receipt_known = age(evidence and evidence.received, now, evidence ~= nil)
-    put(names.VALID, evidence and 1 or 0)
-    put(names.KIND, evidence and evidence.kind or 0)
-    put(names.FRIENDLY, friendly and 1 or 0)
-    put(names.HOSTILE, hostile and 1 or 0)
-    put(names.AGE, time)
-    put(names.AGE_KNOWN, known and 1 or 0)
-    put(names.FRIEND_AGE, friend_time)
-    put(names.FRIEND_AGE_KNOWN, friend_known and 1 or 0)
-    put(names.HOSTILE_AGE, hostile_time)
-    put(names.HOSTILE_AGE_KNOWN, hostile_known and 1 or 0)
-    put(names.RECEIVE_AGE, receipt)
-    put(names.RECEIVE_AGE_KNOWN, receipt_known and 1 or 0)
+    local record = evidence or empty_evidence
+    publish_flag(put, names.VALID, evidence ~= nil)
+    put(names.KIND, record.kind or 0)
+    publish_flag(put, names.FRIENDLY, record.friendly)
+    publish_flag(put, names.HOSTILE, record.hostile)
+    publish_age(put, names.AGE, names.AGE_KNOWN, record.time, now, record.time_known)
+    publish_age(put, names.FRIEND_AGE, names.FRIEND_AGE_KNOWN, record.time, now,
+        record.friendly and record.time_known)
+    publish_age(put, names.HOSTILE_AGE, names.HOSTILE_AGE_KNOWN, record.hostile_time, now,
+        record.hostile and record.time_known)
+    publish_age(put, names.RECEIVE_AGE, names.RECEIVE_AGE_KNOWN, record.received, now, evidence ~= nil)
 end
 
 function M.new(put, prefix)

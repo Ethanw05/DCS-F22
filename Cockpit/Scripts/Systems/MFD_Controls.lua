@@ -100,6 +100,7 @@ function M.for_page(page,view,get)
   else
    radar(1,'PRI',10606);radar(2,'SEC',10628);radar(3,'SWAP',10629);radar(4,'CLR2',10630);radar(5,'IFF',10619)
    radar(7,'RWS/TWS',10603);c[8]=row('ACM','view',1)
+   c[9]={label='NAV',device='RWR_SYSTEM',command=10915,selected=get('F22_TSD_NAV_LAYER')>.5}
    radar(19,string.format('HT %.0f',get('F22_RADAR_SEARCH_HEIGHT_DEG')),10623)
    radar(18,'EL UP',10614);radar(17,'EL DN',10615)
   end

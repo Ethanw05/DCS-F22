@@ -16,9 +16,9 @@ local function inside(x, y)
 	return finite(x) and finite(y) and math.abs(x) < 0.94 and y > -0.91 and y < 0.97
 end
 function M.new(get, put, sensors)
-	local s = { nav = true, passive = true }
+	local s = { nav = false, passive = true }
 	function s:reset()
-		self.nav = true
+		self.nav = false
 		self.passive = true
 	end
 	function s:command(c)
