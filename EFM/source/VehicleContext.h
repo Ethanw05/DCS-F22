@@ -31,11 +31,17 @@ struct VehicleContext {
     double discarded_time_s = 0.0;
     double achieved_speedbrake = 0.0;
     double apu_flow_kg_s = 0.0;
+    // The inherited wing coefficients use offsets from the spawn CG, not
+    // absolute EDM-origin coordinates. Capture that calibration once; later
+    // fuel/store CG changes must retain their moment effect.
+    double wing_reference_x_m = 0.0;
+    double wing_reference_y_m = 0.0;
     unsigned generation = 0;
     bool atmosphere_valid = false;
     bool motion_valid = false;
     bool world_motion_valid = false;
     bool mass_valid = false;
+    bool wing_reference_valid = false;
     bool air_data_reversion = true;
     bool power_requests_seen = false;
     bool left_fire_isolated = false;

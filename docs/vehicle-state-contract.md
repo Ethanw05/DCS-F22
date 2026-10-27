@@ -156,6 +156,20 @@ anchor to Mach 2.4; this does not calibrate supercruise or authenticate an F119
 deck. Ground effect, store drag, stopping assist and native contact behavior
 must be characterized before replacing/duplicating host contributions.
 
+The 17:13 flight log exposed a turn-authority regression in `12cf760`: fixing
+wing forces directly around model-origin zero discarded the inherited wing
+coefficient reference. Full stick saturated the elevator while AP was off and
+actuator availability remained one. The correction captures the first qualified
+physics-step CG as the wing's fixed spawn datum; repair and subsequent mass
+changes do not move it. This is an explicit calibration estimate, not recovered
+F-22 geometry. At a declared 1 m spawn CG, the actual DLL regression restores
+the pre-overhaul +1,167,636 Nm pitch moment from +58,199 Nm with identical force,
+surfaces and thrust; subsequent CG translation still changes moment by the force
+cross-product. The test failed before the correction and all 29 native checks
+passed afterward. The Release DLL was installed on 27 October at 17:21 MDT;
+the existing simulator process requires a restart. Corrected DCS turn performance
+has not yet been observed.
+
 ## Pilot inputs and servicing
 
 Physical commands 11700–11729 are separate from navigation's 11600 AFCS and

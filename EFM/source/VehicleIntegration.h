@@ -21,7 +21,17 @@ bool vehicle_feed(bool left) {
 }
 
 bool vehicle_force_valid() {
-    return vehicle.air_truth.valid && vehicle.mass_valid;
+    return vehicle.air_truth.valid && vehicle.mass_valid && vehicle.wing_reference_valid;
+}
+
+void vehicle_capture_wing_reference() {
+    if (vehicle.wing_reference_valid || !vehicle.mass_valid) return;
+    // Sample in the first physics step, after the host's mass callbacks.
+    // This is a spawn-reference calibration of the existing coefficient deck,
+    // not recovered production F-22 geometry or a moving force location.
+    vehicle.wing_reference_x_m = RAPTOR::center_of_mass.x;
+    vehicle.wing_reference_y_m = RAPTOR::center_of_mass.y;
+    vehicle.wing_reference_valid = true;
 }
 
 void vehicle_engine_failures(bool left, RaptorVehicle::EngineInputs& input) {
