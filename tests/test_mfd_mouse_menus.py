@@ -50,7 +50,7 @@ for _,panel in ipairs(panels)do
  -- DEF has one picture; former DATA/RTN buttons cannot open a hidden view.
  click(stem,11);click(stem,12)
  assert(get('F22_'..name..'_VIEW')==0 and get('F22_DEF_DETAIL_'..name)==0)
- assert(get('F22_MFD_'..name..'_KEY_11')==''and get('F22_MFD_'..name..'_KEY_12')=='')
+ assert(get('F22_MFD_'..name..'_KEY_11')=='DIRECT'and get('F22_MFD_'..name..'_KEY_12')=='CM MODE')
  local selected=get('F22_CM_PROGRAM_SELECTED')
  events={};click(stem,1);click(stem,1)
  local downs,ups=0,0
@@ -62,13 +62,17 @@ for _,panel in ipairs(panels)do
  assert(downs==2 and ups==2,'countermeasure program button stayed latched on '..name)
  assert(get('F22_CM_PROGRAM_SELECTED')==(selected-1+2)%3+1,'PROG sent a command without changing the EW program')
  -- Verify every other visible edit reaches the real EW owner as well.
- local p='F22_CM_PROGRAM_'..get('F22_CM_PROGRAM_SELECTED')..'_'
+ local p='F22_CM_PROGRAM_'
  local chaff,flare=get(p..'CHAFF'),get(p..'FLARE')
  local interval,reps=get(p..'INTERVAL'),get(p..'REPETITIONS')
  click(stem,2);assert(get(p..'CHAFF')==(chaff+1)%5)
  click(stem,3);assert(get(p..'FLARE')==(flare+1)%5)
  click(stem,4);assert(get(p..'INTERVAL')~=interval)
  click(stem,5);assert(get(p..'REPETITIONS')==reps%8+1)
+ assert(get('F22_CM_DRAFT_DIRTY')==1)
+ click(stem,8);assert(get('F22_CM_DRAFT_DIRTY')==0,'SAVE did not commit the draft')
+ local bank='F22_CM_PROGRAM_'..get('F22_CM_PROGRAM_SELECTED')..'_'
+ assert(get(bank..'CHAFF')==get(p..'CHAFF')and get(bank..'FLARE')==get(p..'FLARE'))
  for b=1,20 do
   local e=clickable[stem..b..'_PNT']
   assert(e.use_release_message[1]and e.stop_action[1]==e.action[1],'missing physical button release')
@@ -97,7 +101,7 @@ for panel in ('LMFD','RMFD','CMFD','PMFD'):
       if p:find('F22_CM_PROGRAM_',1,true)==1 then readouts[p]=true end
      end
     end
-    for _,field in ipairs({'SELECTED','CHAFF','FLARE','INTERVAL','REPETITIONS'})do
+    for _,field in ipairs({'SELECTED','CHAFF','FLARE','INTERVAL','CYCLES'})do
      assert(readouts['F22_CM_PROGRAM_'..field],'main DEF omitted program readback '..field)
     end
     ''')

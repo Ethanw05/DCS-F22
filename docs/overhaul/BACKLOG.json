@@ -6204,7 +6204,8 @@
         "CP11",
         "CP01"
       ],
-      "status": "planned; implementation and runtime qualification remain separate"
+      "status": "game control lifecycle implemented and tested offline; DCS dispensing acceptance remains",
+      "implementation_notes": "SEN-08.md"
     },
     {
       "id": "SEN-13",

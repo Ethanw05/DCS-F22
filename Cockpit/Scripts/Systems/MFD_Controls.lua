@@ -107,8 +107,13 @@ function M.for_page(page,view,get)
   c[6]={label='PREV',device='RWR_SYSTEM',command=10907}
   c[7]={label='NEXT',device='RWR_SYSTEM',command=10906}
   c[15]=row('RNG-','def_range',-1);c[14]=row('RNG+','def_range',1)
-  for i,spec in ipairs({{'PROG',10910},{'CHAFF',10911},{'FLARE',10912},{'INTVL',10913},{'REPS',10914}})do
+  for i,spec in ipairs({{'EDIT',10910},{'CHAFF',10911},{'FLARE',10912},{'INTVL',10913},{'CYCLES',10914}})do
    c[i]={label=spec[1],device='EW_SYSTEM',command=spec[2]}
+  end
+  for _,spec in ipairs({{8,'SAVE',11103},{9,'CANCEL',11104},{10,'NORMAL',11105},
+   {11,'DIRECT',11106},{12,'CM MODE',11107},
+   {16,'CM STOP',11113},{17,'CM PWR',11108}})do
+   c[spec[1]]={label=spec[2],device='EW_SYSTEM',command=spec[3]}
   end
  end
  return c

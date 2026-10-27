@@ -29,11 +29,6 @@ end
 local function send(id, c, v)
 	dispatch_action(id, c, v or 1)
 end
-local bursts = 0
-local next_burst = 0
-local program_library = dofile(LockOn_Options.script_path .. "Systems/EW_Programs.lua")
-local active_program = nil
-local clock = 0
 local function emit(n, v)
 	if n == "weapon_mode" then
 		send(devices.WEAPON_SYSTEM, 10800, v)
@@ -82,12 +77,13 @@ local function emit(n, v)
 	elseif n == "autopilot_off" then
 		dispatch_action(nil, 408, 1)
 	elseif n == "defense_program" then
-		active_program = program_library.read(get, v)
-		bursts = active_program and active_program.repetitions or 0
-		next_burst = clock
+		local command = 11099 + v
+		send(devices.EW_SYSTEM, command, 1)
+		send(devices.EW_SYSTEM, command, 0)
 	elseif n == "defense_consent" then
-		-- No automatic threat responder is claimed. Consent is stored, not automatic release.
-		put("F22_CM_CONSENT", v)
+		local command = v > 0 and 11111 or 11112
+		send(devices.EW_SYSTEM, command, 1)
+		send(devices.EW_SYSTEM, command, 0)
 	elseif n == "expand" then
 		send(devices.RADAR_COMPUTER, 10624)
 	elseif n == "interrogate_los" then
@@ -122,9 +118,6 @@ local function publish_display_control()
 end
 function post_initialize()
 	put("F22_SOI", 2)
-	put("F22_CM_CONSENT", 0)
-	put("F22_CM_AUTO_AVAILABLE", 0)
-	bursts = 0;active_program = nil
 	publish_display_control()
 end
 function SetCommand(c, v)
@@ -153,7 +146,6 @@ function SetCommand(c, v)
 	end
 end
 function update()
-	clock = clock + dt
 	-- Mirror keyboard/cockpit mode changes without re-emitting them.
 	local mode = get("HUD_MODE")
 	if mode >= 1 and mode <= 7 and mode ~= logic.mode then
@@ -167,31 +159,11 @@ function update()
 	else
 		logic:cancel_ground_preview()
 		logic.held = {}
-		bursts = 0
 		emit("trigger_first", 0)
 		emit("trigger_second", 0)
 		emit("pickle", 0)
 	end
 	publish_display_control()
 	put("F22_DOGFIGHT", logic.dogfight and 1 or 0)
-	if bursts > 0 and active_program and clock >= next_burst and get("MAIN_POWER") > 0.5 then
-		local ok, native = pcall(GetDevice, devices.WEAPON_NATIVE)
-		local released = false
-		if ok and native and type(native.drop_chaff) == "function" and type(native.drop_flare) == "function"
-			and type(native.get_chaff_count) == "function" and type(native.get_flare_count) == "function" then
-			local success = pcall(function()
-				local c,f = native:get_chaff_count(),native:get_flare_count()
-				if type(c)~='number' or type(f)~='number' or c~=c or f~=f or c<0 or f<0 then return end
-				local nc,nf = math.min(c,active_program.chaff),math.min(f,active_program.flare)
-				if nc>0 then native:drop_chaff(nc);released=true end
-				if nf>0 then native:drop_flare(nf);released=true end
-			end)
-			if not success then released = false end
-		end
-		bursts = released and bursts-1 or 0
-		next_burst = clock + active_program.interval
-	end
-	put("F22_CM_PROGRAM_RUNNING", bursts > 0 and 1 or 0)
-	put("F22_CM_BURSTS_REMAINING", bursts)
 end
 need_to_be_closed = false

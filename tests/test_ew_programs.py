@@ -1,49 +1,110 @@
-"""Editable manual programs captured at trigger time, with actual inventory gates."""
-from test_display_startup import runtime
-lua=runtime()
-lua.execute('''
+"""Execute saved/draft banks, physical HOTAS routing and actual CM callbacks."""
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[1]
+fixture = ROOT / 'tests/test_display_startup.py'
+ns = {'__file__': str(fixture)}
+exec(compile(fixture.read_text().split('\nfor page in ', 1)[0], str(fixture), 'exec'), ns)
+lua = ns['runtime']()
+lua.execute(r'''
 local P=dofile(SCRIPT_ROOT..'Systems/EW_Programs.lua')
-local programs=P.new();local values={}
-local function put(k,v)values[k]=v end
-local function get(k)return values[k]or 0 end
-programs:publish(put)
-local captured=P.read(get,1)
-assert(captured.chaff==1 and captured.flare==1 and captured.repetitions==4)
-programs:command(10911);programs:command(10913);programs:command(10914);programs:publish(put)
-assert(captured.chaff==1 and captured.interval==.25,'editing mutated a running program')
-local edited=P.read(get,1)
-assert(edited.chaff==2 and edited.interval==.5 and edited.repetitions==5)
-values.F22_CM_PROGRAM_1_INTERVAL=0/0;assert(not P.read(get,1))
-values.F22_CM_PROGRAM_1_INTERVAL=.5;values.F22_CM_PROGRAM_1_CHAFF=0
-values.F22_CM_PROGRAM_1_FLARE=0;assert(not P.read(get,1),'empty program dispenses')
+local banks=P.new()
+local first=banks:capture(1)
+banks:command(10911);banks:command(10913);banks:command(10914)
+assert(banks.dirty and banks:capture(1).chaff==1 and first.chaff==1)
+assert(banks:command(11103) and banks:capture(1).chaff==2)
+assert(banks:capture(1).interval==.5 and banks:capture(1).repetitions==5)
+banks:command(10911);banks:command(11104)
+assert(not banks.dirty and banks.draft.chaff==2)
+banks.draft.chaff=0;banks.draft.flare=0
+assert(not banks:command(11103) and banks.error and banks:capture(1).chaff==2)
+for _,bad in ipairs({0/0,math.huge,-1,1.5})do
+ banks.draft.chaff=bad;assert(not banks:command(11103))
+end
+banks:command(10910)
+assert(banks.selected==2 and banks.normal==1 and banks.direct==2 and not banks.dirty)
+banks:command(11105);banks:command(11106)
+assert(banks.normal==2 and banks.direct==3)
 
--- Actual EW owner accepts one edit per physical press; power inhibits edits.
-get_param_handle('MAIN_POWER'):set(1)
-function GetDevice()return {drop_chaff=function()end,drop_flare=function()end,
- get_chaff_count=function()return 8 end,get_flare_count=function()return 8 end,
- get_ECM_status=function()return false end,set_ECM_status=function()end}end
-dofile(SCRIPT_ROOT..'Systems/EW_System.lua');post_initialize()
-SetCommand(10911,1);SetCommand(10911,1);SetCommand(10911,0)
-assert(get_param_handle('F22_CM_PROGRAM_1_CHAFF'):get()==2)
-get_param_handle('MAIN_POWER'):set(0);SetCommand(10911,1);SetCommand(10911,0)
-assert(get_param_handle('F22_CM_PROGRAM_1_CHAFF'):get()==2)
--- Actual Combat owner snapshots the program, clips to inventory and completes
--- only its scheduled requests. Mid-program edits must not change the sequence.
-get_param_handle('MAIN_POWER'):set(1)
-local chaff,flare,calls=7,5,0
-function GetDevice()return {
+local now,chaff,flare,blocked=10,40,40,false
+local ecmbroken=false
+function get_model_time()return now end
+local native={
  get_chaff_count=function()return chaff end,get_flare_count=function()return flare end,
- drop_chaff=function(self,n)assert(n>0 and n<=chaff);chaff=chaff-n;calls=calls+1 end,
- drop_flare=function(self,n)assert(n>0 and n<=flare);flare=flare-n;calls=calls+1 end}end
+ drop_chaff=function(_,n)if not blocked then chaff=chaff-n end end,
+ drop_flare=function(_,n)if not blocked then flare=flare-n end end,
+ get_ECM_status=function()if ecmbroken then error('no ECM')end;return false end,
+ set_ECM_status=function()end}
+function GetDevice()return native end
+local function p(k,v)get_param_handle(k):set(v)end
+local function g(k)return get_param_handle(k):get()end
+p('MAIN_POWER',1)
+dofile(SCRIPT_ROOT..'Systems/EW_System.lua');post_initialize()
+local ew_command,ew_update=SetCommand,update
+local function command(c)ew_command(c,1);ew_command(c,0)end
+local function tick(n)for _=1,n or 1 do now=now+.05;ew_update()end end
+tick()
+-- Edit selection cannot silently select the normal bank; SAVE is explicit.
+command(10910);command(10912)
+assert(g('F22_CM_PROGRAM_SELECTED')==2 and g('F22_CM_NORMAL_BANK')==1)
+assert(g('F22_CM_PROGRAM_2_FLARE')==1 and g('F22_CM_DRAFT_DIRTY')==1)
+command(11100);tick(2)
+assert(g('F22_CM_RUNNING_BANK')==1 and chaff==39 and flare==39)
+command(11103);tick(30)
+assert(chaff==36 and flare==36 and g('F22_CM_STATUS')==3)
+assert(g('F22_CM_COMPLETED_SEQUENCE')==1)
+command(11105);command(11100);tick(20)
+assert(chaff==36 and flare==32,'normal bank ignored committed selection')
+assert(g('F22_CM_LAST_BANK')==2 and g('F22_CM_STATUS')==3)
+-- Direct uses its declared bank without changing normal or edit selection.
+command(11106);command(11101);tick(2)
+assert(g('F22_CM_RUNNING_BANK')==3 and g('F22_CM_NORMAL_BANK')==2)
+local running=g('F22_CM_BURSTS_REMAINING')
+command(11100)
+assert(g('F22_CM_REJECTION')==9 and g('F22_CM_BURSTS_REMAINING')==running)
+command(11113);local before=chaff;tick(40)
+assert(chaff==before and g('F22_CM_PROGRAM_RUNNING')==0)
+-- A category exhausting cannot falsely complete a mixed program.
+chaff=1;flare=30;command(11102);tick(15)
+assert(g('F22_CM_STATUS')==4 and g('F22_CM_COMPLETED_SEQUENCE')==2)
+chaff=0;flare=0;command(11100);tick()
+assert(g('F22_CM_STATUS')==5 and g('F22_CM_PROGRAM_RUNNING')==0)
+-- CM inventory is independent from a missing/broken optional ECM service.
+chaff=40;flare=40;ecmbroken=true;tick()
+assert(g('F22_CM_READY')==1 and g('F22_ECM_HOST_VALID')==0)
+command(11100);tick(2);p('MAIN_POWER',0);tick();before=flare
+p('MAIN_POWER',1);tick(40)
+assert(flare==before and g('F22_CM_PROGRAM_RUNNING')==0)
+-- SEMI requires new per-event consent and snapshots the saved event bank.
+command(11107);command(11110);tick(10)
+assert(g('F22_CM_MODE')==2 and g('F22_CM_AWAITING_CONSENT')==1 and flare==before)
+command(11105);command(11111);tick(25)
+assert(g('F22_CM_LAST_BANK')==2 and g('F22_CM_CONSENT')==0)
+command(11110);command(11112);command(11111);tick(10)
+assert(g('F22_CM_PROGRAM_RUNNING')==0 and g('F22_CM_AWAITING_CONSENT')==0)
+-- AUTO only runs after authorization; revocation does not queue old events.
+command(11107);before=chaff;command(11110);tick(10);assert(chaff==before)
+command(11111);command(11110);tick(2);assert(g('F22_CM_AUTHORIZED')==1)
+command(11112);before=chaff;tick(40);assert(chaff==before)
+command(11111);tick(20);assert(chaff==before)
+-- OFF/STBY/test/failure revoke and never resume; presets survive power/refill.
+command(11108);assert(g('F22_CM_SYSTEM')==0 and g('F22_CM_READY')==0)
+command(11100);tick();assert(g('F22_CM_PROGRAM_RUNNING')==0)
+command(11108);tick();assert(g('F22_CM_SYSTEM')==1 and g('F22_CM_READY')==0)
+command(11108);tick();command(11109);tick(10)
+assert(g('F22_CM_SELF_TEST')==1 and g('F22_CM_READY')==0)
+tick(12);assert(g('F22_CM_READY')==1)
+-- A successful API call with no observed decrement is a failed transaction.
+blocked=true;command(11100);tick(20)
+assert(g('F22_CM_STATUS')==8 and g('F22_CM_UNCONFIRMED')==1)
+command(11100);assert(g('F22_CM_REJECTION')==9)
+chaff=100;flare=100;blocked=false;tick()
+command(11100);tick(2);assert(g('F22_CM_PROGRAM_RUNNING')==1)
+command(11113);tick()
+-- Preserve saved HOTAS bindings; Combat dispatches to the sole EW owner.
 dofile(SCRIPT_ROOT..'Systems/Combat_System.lua');post_initialize()
-SetCommand(10708,1);SetCommand(10708,0);update()
-get_param_handle('F22_CM_PROGRAM_1_CHAFF'):set(4)
-get_param_handle('F22_CM_PROGRAM_1_INTERVAL'):set(.1)
-for i=1,60 do update()end
-assert(chaff==0 and flare==1,'program edited mid-flight or ignored actual cartridge count')
-assert(get_param_handle('F22_CM_PROGRAM_RUNNING'):get()==0)
-flare=0;local before=calls
-SetCommand(10708,1);SetCommand(10708,0);update()
-assert(calls==before and get_param_handle('F22_CM_BURSTS_REMAINING'):get()==0,'empty inventory keeps dispensing')
+local combat_command=SetCommand
+function dispatch_action(device,c,v)if device==devices.EW_SYSTEM then ew_command(c,v)end end
+combat_command(10708,1);combat_command(10708,0);tick(2)
+assert(g('F22_CM_RUNNING_BANK')==g('F22_CM_NORMAL_BANK'))
 ''')
-print('EW programs: bounded settings, immutable capture, empty/invalid rejection, press edge and power gates PASS')
+print('EW programs: saved/draft selection, actual effects, partial/empty, consent, power, test, quarantine and HOTAS PASS')

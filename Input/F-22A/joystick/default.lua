@@ -634,4 +634,18 @@ join(res.keyCommands,{
  {down=10651,up=10651,value_down=1,value_up=0,cockpit_device_id=14,name=_('A/G Radar - AGR Mode'),category=_('F-22 Ground Radar')},
 })
 
+-- Additional controls have no default combos; saved physical assignments remain intact.
+join(res.keyCommands,{
+ {down=11100,up=11100,value_down=1,value_up=0,cockpit_device_id=20,
+  name=_('CM - Normal Selected Program'),category=_('F-22 Countermeasures')},
+ {down=11101,up=11101,value_down=1,value_up=0,cockpit_device_id=20,
+  name=_('CM - Direct Access Program'),category=_('F-22 Countermeasures')},
+ {down=11109,up=11109,value_down=1,value_up=0,cockpit_device_id=20,
+  name=_('CM - Self Test'),category=_('F-22 Countermeasures')},
+ {down=11110,up=11110,value_down=1,value_up=0,cockpit_device_id=20,
+  name=_('CM - Neutral Scripted Event (Test)'),category=_('F-22 Countermeasures')},
+ {down=11113,up=11113,value_down=1,value_up=0,cockpit_device_id=20,
+  name=_('CM - Stop Program'),category=_('F-22 Countermeasures')},
+})
+
 return res
