@@ -126,10 +126,16 @@ void simulate_fuel_consumption(double dt) {
     const double density_ratio = RAPTOR::atmosphere_density / 1.225;
     const double left_request = vehicle.left_engine.fuel_flow_kg_s(density_ratio, RAPTOR::mach) * dt;
     const double right_request = vehicle.right_engine.fuel_flow_kg_s(density_ratio, RAPTOR::mach) * dt;
-    const double apu_request = vehicle.power.apu_running || vehicle.power.apu_starting ? 0.04 * dt : 0.0;
+    // Estimated APU service plus pneumatic starter load; no production fuel deck.
+    const double starter_load = static_cast<double>(vehicle.left_engine.start_state.starter_engaged) +
+        static_cast<double>(vehicle.right_engine.start_state.starter_engaged);
+    const double apu_request = vehicle.power.apu_running || vehicle.power.apu_starting ?
+        (0.04 + 0.015 * starter_load) * dt : 0.0;
     const double left_delivered = vehicle.fuel.burn(1, left_request, RAPTOR::infinite_fuel, vehicle.mass);
     const double right_delivered = vehicle.fuel.burn(2, right_request, RAPTOR::infinite_fuel, vehicle.mass);
     const double apu_delivered = vehicle.fuel.burn(0, apu_request, RAPTOR::infinite_fuel, vehicle.mass);
+    vehicle.left_engine.delivered_fuel(left_delivered);
+    vehicle.right_engine.delivered_fuel(right_delivered);
     vehicle.apu_flow_kg_s = apu_delivered / dt;
     if (apu_delivered < apu_request - 1e-12) {
         vehicle.power.apu_inhibit = true;
@@ -646,8 +652,10 @@ static void simulate_vehicle_step(double dt) {
         RAPTOR::last_tv_cmd = tv_command;
 
         const double nozzle_envelope = RAPTOR::rad(max_tv_deflection);
-        const double left_nozzle_supply = control_power && !RAPTOR::is_destroyed ? hydraulics.left() : 0;
-        const double right_nozzle_supply = control_power && !RAPTOR::is_destroyed ? hydraulics.right() : 0;
+        const double left_nozzle_supply = control_power && !RAPTOR::is_destroyed ?
+            hydraulics.left() * vehicle.left_engine.vector_authority() : 0.0;
+        const double right_nozzle_supply = control_power && !RAPTOR::is_destroyed ?
+            hydraulics.right() * vehicle.right_engine.vector_authority() : 0.0;
         RAPTOR::left_tv_angle = RaptorVehicle::nozzle(RAPTOR::left_tv_angle,
             -tv_command, nozzle_envelope, tv_rate, left_nozzle_supply, dt);
         RAPTOR::right_tv_angle = RaptorVehicle::nozzle(RAPTOR::right_tv_angle,

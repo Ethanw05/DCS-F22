@@ -73,6 +73,7 @@ dev:listen_event("GroundPowerOn")
 dev:listen_event("GroundPowerOff")
 
 local physical_power = dofile(LockOn_Options.script_path.."Systems/Vehicle_Power_Adapter.lua").new()
+local engine_status = dofile(LockOn_Options.script_path.."Systems/Engine_Status.lua").new(get_param_handle)
 local electrical = dofile(LockOn_Options.script_path.."Systems/Electrical_Computer.lua").new()
 local battery_fault = get_param_handle("BATTERY_FAILURE")
 local left_gen_fault = get_param_handle("L_GEN_FAILURE")
@@ -480,6 +481,7 @@ end
 	local prev_R_throttle_val = -1
 ------------------------------------------------------------------FUNCTION-UPDATE---------------------------------------------------------------------------------------------------
 function update()
+    engine_status:update()
 	--print_message_to_user(L_throttle_pos)
 	--print_message_to_user(R_throttle_pos)
 	--print_message_to_user(B_throttle_pos)

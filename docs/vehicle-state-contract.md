@@ -191,8 +191,14 @@ keyboard, click and automatic starts reach the same EFM guard.
 `ed_fm_on_planned_failure` supports the exact bounded ID table in
 [VehicleFaults.h](../EFM/source/VehicleFaults.h). `ed_fm_need_to_be_repaired`
 reports structural/equipment faults, not normal resource depletion. Mission UI
-registration in shared `F-22A.lua` remains an integration patch; direct callback
-tests establish the producer path only.
+registration in shared `F-22A.lua` declares the exact 33 bounded IDs with
+failures disabled by default. Actual mission-editor activation remains host
+qualification; callback and registration tests establish the source chain.
+
+The [engine start profile](engine-start-profile.md) defines independent
+starter/fuel/ignition commands, protection/recovery, control degradation and
+the schema-qualified read-only cockpit status interface. Its numeric limits
+are estimates with dated ED workflow analogues, not F119 operating data.
 
 ## Evidence, estimates and verification boundary
 

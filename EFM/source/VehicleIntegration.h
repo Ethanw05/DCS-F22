@@ -24,17 +24,40 @@ bool vehicle_force_valid() {
     return vehicle.air_truth.valid && vehicle.mass_valid;
 }
 
+void vehicle_engine_failures(bool left, RaptorVehicle::EngineInputs& input) {
+    constexpr VehicleSignal left_faults[] = {
+        VehicleSignal::LeftStarterFault, VehicleSignal::LeftIgnitionFault,
+        VehicleSignal::LeftHungStartFault, VehicleSignal::LeftHotStartFault,
+        VehicleSignal::LeftControlDegradedFault, VehicleSignal::LeftControlFailedFault,
+        VehicleSignal::LeftAugmentationFault};
+    constexpr VehicleSignal right_faults[] = {
+        VehicleSignal::RightStarterFault, VehicleSignal::RightIgnitionFault,
+        VehicleSignal::RightHungStartFault, VehicleSignal::RightHotStartFault,
+        VehicleSignal::RightControlDegradedFault, VehicleSignal::RightControlFailedFault,
+        VehicleSignal::RightAugmentationFault};
+    const auto* faults = left ? left_faults : right_faults;
+    input.starter_failed = vehicle_fault(faults[0]);
+    input.ignition_failed = vehicle_fault(faults[1]);
+    input.hung_start = vehicle_fault(faults[2]);
+    input.hot_start = vehicle_fault(faults[3]);
+    input.control = vehicle_fault(faults[5]) ? RaptorVehicle::EngineControl::Unavailable :
+        (vehicle_fault(faults[4]) ? RaptorVehicle::EngineControl::Degraded : RaptorVehicle::EngineControl::Normal);
+    input.augmentation_failed = vehicle_fault(faults[6]);
+}
+
 RaptorVehicle::EngineInputs vehicle_engine_inputs(bool left) {
     RaptorVehicle::EngineInputs input;
     input.throttle = ap_output.throttle_active ? ap_output.throttle :
         (left ? RAPTOR::left_throttle_input : RAPTOR::right_throttle_input);
     input.tas_mps = RAPTOR::V_scalar;
     input.health = left ? RAPTOR::left_engine_integrity : RAPTOR::right_engine_integrity;
+    input.temperature_c = left ? left_engine_instruments.temperature_c : right_engine_instruments.temperature_c;
     input.ground = RAPTOR::on_ground;
     input.powered = vehicle.power.essential;
     input.starter = vehicle.power.apu_running;
     input.feed = vehicle_feed(left);
     input.isolated = left ? vehicle.left_fire_isolated : vehicle.right_fire_isolated;
+    vehicle_engine_failures(left, input);
     return input;
 }
 
@@ -49,7 +72,7 @@ void vehicle_start_engine(bool left) {
 
 void vehicle_stop_engine(bool left) {
     auto& engine = left ? vehicle.left_engine : vehicle.right_engine;
-    engine.requested = false;
+    engine.stop();
     if (left) RAPTOR::left_engine_switch = false;
     else RAPTOR::right_engine_switch = false;
 }
@@ -63,7 +86,7 @@ void vehicle_advance_engine(bool left, double idle_n, double dry_n, double ab_n,
     engine.update(input, dt);
     auto& instruments = left ? left_engine_instruments : right_engine_instruments;
     instruments.update(engine.spool, engine.burning, engine.augmentation_fraction(),
-        RAPTOR::atmosphere_temperature, dt);
+        RAPTOR::atmosphere_temperature, dt, engine.extra_start_heat_c, engine.start_state.starter_engaged);
     auto& state = left ? RAPTOR::left_engine_state : RAPTOR::right_engine_state;
     state = engine.phase == RaptorVehicle::EnginePhase::Running ? RAPTOR::RUNNING :
         (engine.phase == RaptorVehicle::EnginePhase::Off ? RAPTOR::OFF :
@@ -146,8 +169,7 @@ void vehicle_sample_hydraulic_sources() {
 void vehicle_qualify_fuel_delivery(bool left, double requested_kg, double delivered_kg) {
     if (requested_kg <= 0.0 || delivered_kg >= requested_kg - 1e-12) return;
     auto& engine = left ? vehicle.left_engine : vehicle.right_engine;
-    engine.requested = engine.burning = false;
-    engine.phase = RaptorVehicle::EnginePhase::ShuttingDown;
+    engine.lose_feed();
     const double fraction = RaptorVehicle::unit(delivered_kg / requested_kg);
     if (left) {
         RAPTOR::left_thrust_force *= fraction;
@@ -252,6 +274,21 @@ void vehicle_configuration_command(int command, float value) {
     else if (command == 11702) config.request_hook(value > 0.5f, vehicle.ses);
 }
 
+void vehicle_engine_command(int command, float value) {
+    const bool left = command % 2 == 1;
+    auto& engine = left ? vehicle.left_engine : vehicle.right_engine;
+    const bool selected = value > 0.5f;
+    switch ((command - 11719) / 2) {
+    case 0: engine.select_starter(selected); break;
+    case 1: engine.select_fuel(selected); break;
+    case 2: engine.select_ignition(selected); break;
+    case 3:
+        if (selected) static_cast<void>(engine.reset_fault(vehicle_engine_inputs(left)));
+        break;
+    default: break;
+    }
+}
+
 void vehicle_fire_command(int command, float value) {
     if (value <= 0.5f) return;
     if (command == 11703) vehicle.left_fire_isolated = true;
@@ -304,6 +341,7 @@ bool vehicle_command(int command, float value) {
     if (!std::isfinite(value)) return true;
     if (command <= 11702) vehicle_configuration_command(command, value);
     else if (command <= 11705) vehicle_fire_command(command, value);
+    else if (command >= 11719 && command <= 11726) vehicle_engine_command(command, value);
     else vehicle_parameter_command(command, value);
     return true;
 }
@@ -477,6 +515,48 @@ void vehicle_publish_services() {
     for (const auto& value : values) vehicle_bus.write(value.first, value.second);
 }
 
+void vehicle_publish_left_engine_controls() {
+    const auto& engine = vehicle.left_engine;
+    const std::pair<VehicleSignal, double> values[] = {
+        {VehicleSignal::LeftStarterSelected, vehicle_status(engine.start_state.starter_selected)},
+        {VehicleSignal::LeftStarterEngaged, vehicle_status(engine.start_state.starter_engaged)},
+        {VehicleSignal::LeftFuelSelected, vehicle_status(engine.start_state.fuel_selected)},
+        {VehicleSignal::LeftFuelValve, vehicle_status(engine.start_state.fuel_valve)},
+        {VehicleSignal::LeftIgnitionSelected, vehicle_status(engine.start_state.ignition_selected)},
+        {VehicleSignal::LeftStartFault, static_cast<double>(engine.start_state.fault)},
+        {VehicleSignal::LeftEngineControl, static_cast<double>(engine.control)},
+        {VehicleSignal::LeftPurgeSeconds, static_cast<double>(engine.start_state.purge_remaining_s)},
+        {VehicleSignal::LeftStartElapsed, static_cast<double>(engine.start_state.combustion_start_s)},
+        {VehicleSignal::LeftAugmentationAvailable, vehicle_status(engine.augmentation_available)},
+        {VehicleSignal::LeftControlAvailable, vehicle_status(engine.control_available)},
+        {VehicleSignal::LeftStartResetReady, vehicle_status(engine.reset_ready)}};
+    for (const auto& value : values) vehicle_bus.write(value.first, value.second);
+}
+
+void vehicle_publish_right_engine_controls() {
+    const auto& engine = vehicle.right_engine;
+    const std::pair<VehicleSignal, double> values[] = {
+        {VehicleSignal::RightStarterSelected, vehicle_status(engine.start_state.starter_selected)},
+        {VehicleSignal::RightStarterEngaged, vehicle_status(engine.start_state.starter_engaged)},
+        {VehicleSignal::RightFuelSelected, vehicle_status(engine.start_state.fuel_selected)},
+        {VehicleSignal::RightFuelValve, vehicle_status(engine.start_state.fuel_valve)},
+        {VehicleSignal::RightIgnitionSelected, vehicle_status(engine.start_state.ignition_selected)},
+        {VehicleSignal::RightStartFault, static_cast<double>(engine.start_state.fault)},
+        {VehicleSignal::RightEngineControl, static_cast<double>(engine.control)},
+        {VehicleSignal::RightPurgeSeconds, static_cast<double>(engine.start_state.purge_remaining_s)},
+        {VehicleSignal::RightStartElapsed, static_cast<double>(engine.start_state.combustion_start_s)},
+        {VehicleSignal::RightAugmentationAvailable, vehicle_status(engine.augmentation_available)},
+        {VehicleSignal::RightControlAvailable, vehicle_status(engine.control_available)},
+        {VehicleSignal::RightStartResetReady, vehicle_status(engine.reset_ready)}};
+    for (const auto& value : values) vehicle_bus.write(value.first, value.second);
+}
+
+void vehicle_publish_engine_controls() {
+    vehicle_publish_left_engine_controls();
+    vehicle_publish_right_engine_controls();
+    vehicle_bus.write(VehicleSignal::EngineControlSchema, 1.0);
+}
+
 void vehicle_publish() {
     vehicle_publish_power();
     vehicle_publish_air();
@@ -484,6 +564,7 @@ void vehicle_publish() {
     vehicle_publish_configuration();
     vehicle_publish_fuel();
     vehicle_publish_services();
+    vehicle_publish_engine_controls();
     const std::pair<VehicleSignal, double> values[] = {
         {VehicleSignal::Generation, static_cast<double>(vehicle.generation)},
         {VehicleSignal::ClockKind, 1.0}, // spawn-relative RAPTOR clock, not World model time
@@ -519,16 +600,6 @@ void vehicle_update_brake_energy(double dt) {
 }
 
 void vehicle_repair_injected_faults() {
-    constexpr VehicleSignal faults[] = {
-        VehicleSignal::BatteryFault, VehicleSignal::LeftGeneratorFault,
-        VehicleSignal::RightGeneratorFault, VehicleSignal::ApuFault,
-        VehicleSignal::LeftHydraulicFault, VehicleSignal::RightHydraulicFault,
-        VehicleSignal::LeftFeedFault, VehicleSignal::RightFeedFault,
-        VehicleSignal::TransferFault, VehicleSignal::AirDataHealth,
-        VehicleSignal::EcsFault, VehicleSignal::CoolingFault, VehicleSignal::OxygenFault,
-        VehicleSignal::LeftPumpOneFault, VehicleSignal::LeftPumpTwoFault,
-        VehicleSignal::RightPumpOneFault, VehicleSignal::RightPumpTwoFault,
-        VehicleSignal::LeftFireFault, VehicleSignal::RightFireFault};
-    for (const auto fault : faults) vehicle_bus.write(fault, 0.0);
+    for (const auto& fault : RaptorVehicle::planned_faults) vehicle_bus.write(fault.channel, 0.0);
 }
 } // namespace

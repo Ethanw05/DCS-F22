@@ -73,15 +73,21 @@ struct Engine {
         if (spool <= .90) return (0.90 - spool) / .20 * 100;
         return unit((spool - 1.035) / .065) * 100;
     }
-    void update(double spool, bool burning, double ab_fraction, double ambient_k, double dt) {
+    void update(double spool, bool burning, double ab_fraction, double ambient_k, double dt,
+                double extra_start_heat_c = 0.0, bool motoring = false) {
         spool = std::clamp(finite(spool), 0.0, 1.1);
         core = lag(core, spool, .35, dt);
         fan = lag(fan, fan_target(spool), .8, dt);
         const double ambient_c = finite(ambient_k, 288.15) - 273.15;
-        const double hot = burning ? heat_target(spool) + 120 * unit(ab_fraction) : 0;
-        temperature_c = lag(temperature_c, ambient_c + hot, burning ? 4.0 : 22.0, dt);
+        const double hot = burning ? heat_target(spool) + 120 * unit(ab_fraction) +
+            std::clamp(finite(extra_start_heat_c), 0.0, 1600.0) : 0.0;
+        const double thermal_lag_s = burning ? 4.0 : (motoring ? 8.0 : 22.0);
+        temperature_c = lag(temperature_c, ambient_c + hot, thermal_lag_s, dt);
         oil_psi = lag(oil_psi, spool > .2 ? std::min(270.0, spool * 270.0) : 0, 1.5, dt);
-        nozzle_pct = slew(nozzle_pct, nozzle_target(spool), 60, dt);
+        // Above the dry-area schedule, achieved augmentation drives the area
+        // command. Failed augmentation cannot retain an AB-only area request.
+        const double area = spool > .90 ? 100.0 * unit(ab_fraction) : nozzle_target(spool);
+        nozzle_pct = slew(nozzle_pct, area, 60, dt);
     }
     double raw_fan_rpm() const { return fan * fan_reference_rpm; }
     double raw_core_rpm() const { return core * core_reference_rpm; }

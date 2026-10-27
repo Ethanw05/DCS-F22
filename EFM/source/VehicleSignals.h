@@ -41,7 +41,21 @@ enum class Signal : std::size_t {
     RightFeedQuantity, CommonFeedQuantity, FuelBoost, FuelPressurization,
     ParkRequest, ParkHeld, PowerRequestSequence, AirDataReversion,
     ControlScheduleMach, ControlScheduleEas, UtilityAvailable, ClockKind,
-    ForceValid, Count
+    ForceValid,
+    EngineControlSchema, LeftStarterFault, RightStarterFault,
+    LeftIgnitionFault, RightIgnitionFault, LeftHungStartFault,
+    RightHungStartFault, LeftHotStartFault, RightHotStartFault,
+    LeftControlDegradedFault, RightControlDegradedFault, LeftControlFailedFault,
+    RightControlFailedFault, LeftAugmentationFault, RightAugmentationFault,
+    LeftStarterSelected, RightStarterSelected, LeftStarterEngaged,
+    RightStarterEngaged, LeftFuelSelected, RightFuelSelected,
+    LeftFuelValve, RightFuelValve, LeftIgnitionSelected,
+    RightIgnitionSelected, LeftStartFault, RightStartFault,
+    LeftEngineControl, RightEngineControl, LeftPurgeSeconds,
+    RightPurgeSeconds, LeftStartElapsed, RightStartElapsed,
+    LeftAugmentationAvailable, RightAugmentationAvailable,
+    LeftControlAvailable, RightControlAvailable,
+    LeftStartResetReady, RightStartResetReady, Count
 };
 
 inline constexpr std::array<const char*, static_cast<std::size_t>(Signal::Count)> signal_names = {
@@ -87,7 +101,21 @@ inline constexpr std::array<const char*, static_cast<std::size_t>(Signal::Count)
     "EFM_L_FEED_KG", "EFM_R_FEED_KG", "EFM_COMMON_FEED_KG", "EFM_FUEL_BOOST",
     "EFM_FUEL_PRESSURIZATION", "F22_PARK_REQUEST", "EFM_PARK_HELD", "F22_POWER_REQUEST_SEQUENCE",
     "EFM_FCS_AIRDATA_REVERSION", "EFM_FCS_SCHEDULE_MACH", "EFM_FCS_SCHEDULE_EAS_MPS",
-    "EFM_UTILITY_AVAILABLE", "EFM_PHYSICAL_CLOCK_KIND", "EFM_FORCE_VALID"
+    "EFM_UTILITY_AVAILABLE", "EFM_PHYSICAL_CLOCK_KIND", "EFM_FORCE_VALID",
+    "EFM_ENGINE_CONTROL_SCHEMA", "F22_L_STARTER_FAILURE", "F22_R_STARTER_FAILURE",
+    "F22_L_IGNITION_FAILURE", "F22_R_IGNITION_FAILURE", "F22_L_HUNG_START_FAILURE",
+    "F22_R_HUNG_START_FAILURE", "F22_L_HOT_START_FAILURE", "F22_R_HOT_START_FAILURE",
+    "F22_L_CONTROL_DEGRADED_FAILURE", "F22_R_CONTROL_DEGRADED_FAILURE", "F22_L_CONTROL_FAILED_FAILURE",
+    "F22_R_CONTROL_FAILED_FAILURE", "F22_L_AUGMENTATION_FAILURE", "F22_R_AUGMENTATION_FAILURE",
+    "EFM_L_STARTER_SELECTED", "EFM_R_STARTER_SELECTED", "EFM_L_STARTER_ENGAGED",
+    "EFM_R_STARTER_ENGAGED", "EFM_L_FUEL_SELECTED", "EFM_R_FUEL_SELECTED",
+    "EFM_L_FUEL_VALVE", "EFM_R_FUEL_VALVE", "EFM_L_IGNITION_SELECTED",
+    "EFM_R_IGNITION_SELECTED", "EFM_L_START_FAULT", "EFM_R_START_FAULT",
+    "EFM_L_ENGINE_CONTROL", "EFM_R_ENGINE_CONTROL", "EFM_L_PURGE_S",
+    "EFM_R_PURGE_S", "EFM_L_START_ELAPSED_S", "EFM_R_START_ELAPSED_S",
+    "EFM_L_AUG_AVAILABLE", "EFM_R_AUG_AVAILABLE",
+    "EFM_L_CONTROL_AVAILABLE", "EFM_R_CONTROL_AVAILABLE",
+    "EFM_L_START_RESET_READY", "EFM_R_START_RESET_READY"
 };
 static_assert([] {
     for (const auto* name : signal_names) if (name == nullptr) return false;
