@@ -100,8 +100,9 @@ struct Fixture {
         assert(count >= 0 && count <= 100000);
         for (int index = 0; index < count; ++index) simulate(.01);
     }
-    void conditions(double speed, double uniform_wind = 0) const {
+    void conditions(double speed, double uniform_wind = 0, double cg_x = 0) const {
         const double altitude = speed > 0.0 ? 3000.0 : 0.0;
+        mass_state(30000,cg_x,0,0,100000,150000,120000);
         atmosphere(altitude, 288.15, 340, 1.225, 101325, uniform_wind, 0, 0);
         surface(0,0,0,0,1,0);
         world(0,0,0,speed+uniform_wind,0,0,0,altitude,0,0,0,0,0,0,0,0,0,0,1);
@@ -165,7 +166,7 @@ void fixed_force_and_wind_contract(Fixture& fixture) {
     fixture.force(fx2,fy2,fz2,x,y,z); fixture.moment(mx2,my2,mz2);
     assert(std::abs(fx2-fx) < 1e-5 && std::abs(fy2-fy) < 1e-5 && std::abs(fz2-fz) < 1e-5);
     assert(std::abs((mz2-mz) + .5*fy) < 1e-4);
-    fixture.conditions(300,40); fixture.ticks(1);
+    fixture.conditions(300,40,.5); fixture.ticks(1);
     fixture.force(fx,fy,fz,x,y,z); fixture.moment(mx,my,mz);
     assert(std::abs(fx2-fx) < 1e-5 && std::abs(fy2-fy) < 1e-5 && std::abs(fz2-fz) < 1e-5);
     assert(std::abs(mz2-mz) < 1e-4);
@@ -297,6 +298,59 @@ void configuration_and_lifecycle(Fixture& fixture) {
     assert(fixture.get("EFM_PHYSICAL_STAMP") == fixture.get("F22_AP_CLOCK"));
     assert(fixture.get("EFM_PHYSICAL_STAMP") == .01);
 }
+
+void force_and_release_boundaries(Fixture& fixture) {
+    fixture.air(); fixture.fuel(5000); fixture.unlimited(false); fixture.conditions(200);
+    fixture.immortal(false);
+    fixture.mass_state(30000,0,0,0,100000,150000,120000); fixture.ticks(10);
+    double fx=0,fy=0,fz=0,x=0,y=0,z=0,mx=0,my=0,mz=0;
+    fixture.force(fx,fy,fz,x,y,z);
+    assert(std::abs(fx) + std::abs(fy) + std::abs(fz) > 100);
+    fixture.damage(103,0); fixture.damage(104,0); fixture.damage(23,0); fixture.damage(55,0);
+    fixture.ticks(1);
+    std::array<float,800> arguments{};
+    fixture.draw(arguments.data(),arguments.size());
+    assert(arguments[114] == 1);
+    fixture.force(fx,fy,fz,x,y,z); fixture.moment(mx,my,mz);
+    assert(fx == 0 && fy == 0 && fz == 0 && mx == 0 && my == 0 && mz == 0);
+    fixture.repair(); fixture.ticks(1);
+    const double invalid = std::numeric_limits<double>::quiet_NaN();
+    fixture.mass_state(30000,invalid,0,0,100000,150000,120000); fixture.ticks(1);
+    fixture.force(fx,fy,fz,x,y,z); fixture.moment(mx,my,mz);
+    assert(fixture.get("EFM_FORCE_VALID") == 0);
+    assert(fx == 0 && fy == 0 && fz == 0 && mx == 0 && my == 0 && mz == 0);
+    fixture.mass_state(30000,0,0,0,100000,150000,120000); fixture.ticks(1);
+    assert(fixture.get("EFM_FORCE_VALID") == 1);
+    fixture.air(); fixture.fuel(5000); fixture.conditions(200);
+    fixture.mass_state(30000,0,0,0,100000,150000,120000); fixture.ticks(10);
+    fixture.release();
+    fixture.force(fx,fy,fz,x,y,z); fixture.moment(mx,my,mz);
+    assert(fx == 0 && fy == 0 && fz == 0 && mx == 0 && my == 0 && mz == 0);
+    assert(fixture.drain_mass() == 0);
+    assert(fixture.parameter(ED_FM_ENGINE_1_COMBUSTION) == 0);
+    assert(fixture.parameter(ED_FM_ENGINE_1_THRUST) == 0);
+    for (const auto* name : {"EFM_FORCE_VALID", "EFM_MASS_VALID", "EFM_ENGINE_VALID",
+                             "EFM_HUD_VALID", "EFM_GROUND_VALID", "EFM_TRIM_VALID"})
+        assert(fixture.get(name) == 0);
+}
+
+void live_ground_power(Fixture& fixture) {
+    fixture.cold(); fixture.fuel(5000); fixture.conditions(0);
+    fixture.set("GROUND_POWER",1); fixture.ticks(1);
+    assert(fixture.get("MAIN_POWER") == 1);
+    fixture.set("F22_POWER_REQUEST_VALID",1); fixture.set("F22_POWER_REQUEST_SEQUENCE",5);
+    fixture.set("F22_BATTERY_REQUEST",0); fixture.set("F22_L_GEN_REQUEST",0);
+    fixture.set("F22_R_GEN_REQUEST",0); fixture.set("F22_APU_REQUEST",0);
+    fixture.ticks(1);
+    fixture.set("F22_POWER_REQUEST_VALID",0); fixture.set("GROUND_POWER",0);
+    fixture.ticks(1);
+    assert(fixture.get("MAIN_POWER") == 0 && fixture.get("F22_ESSENTIAL_POWER") == 0);
+    fixture.set("GROUND_POWER",1); fixture.ticks(1);
+    assert(fixture.get("MAIN_POWER") == 1);
+    fixture.conditions(200); fixture.ticks(2);
+    assert(fixture.get("MAIN_POWER") == 0); // A ground connector cannot follow the aircraft.
+    fixture.set("GROUND_POWER",0);
+}
 } // namespace
 
 int main(int argc, char** argv) {
@@ -312,5 +366,7 @@ int main(int argc, char** argv) {
     invalid_producer_recovery(fixture);
     fire_and_structural_recovery(fixture);
     configuration_and_lifecycle(fixture);
+    force_and_release_boundaries(fixture);
+    live_ground_power(fixture);
     std::cout << "vehicle DLL: cold/APU/start, burn/mass, feed/repair, sensor truth, limits and lifecycle OK\n";
 }

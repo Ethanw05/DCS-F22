@@ -273,8 +273,8 @@ static void simulate_vehicle_step(double dt) {
         RAPTOR::pitch_rate = RAPTOR::roll_rate = RAPTOR::yaw_rate = 0.0;
     }
 
-    // Engine_System owns bus availability; this EFM owns pressure and
-    // achieved effectors. A healthy engine must not bypass a failed bus.
+    // The EFM owns bus availability, pressure and achieved effectors.
+    // A healthy engine must not bypass a failed bus.
     vehicle_sample_power(dt);
     vehicle_sample_hydraulic_sources();
     const bool control_power = vehicle.power.essential;
@@ -809,7 +809,7 @@ static void simulate_vehicle_step(double dt) {
         if (RAPTOR::mach > 2.31) RAPTOR::shake_amplitude += (RAPTOR::mach - 2.31) / 2;
     }
 
-    if (!vehicle.air_truth.valid) {
+    if (!vehicle_force_valid() || RAPTOR::is_destroyed) {
         // Missing/invalid physical producer: explicit zero-force fallback plus
         // EFM_FORCE_VALID=0, rather than NaNs crossing the host boundary.
         RAPTOR::common_force = Vec3();
@@ -1237,6 +1237,7 @@ void ed_fm_configure(const char* cfg_path) {
 }
 
 double ed_fm_get_param(unsigned index) {
+    if (!vehicle.alive) return 0.0;
     switch (index) {
     case ED_FM_SUSPENSION_0_WHEEL_YAW: {
         if (!RAPTOR::on_ground || RAPTOR::gear_pos < 0.99) return 0.0;
@@ -1530,12 +1531,10 @@ void ed_fm_hot_start_in_air() {
 
 void ed_fm_release() {
     vehicle.alive = false;
-    vehicle_bus.write(VehicleSignal::Valid, 0.0);
-    vehicle_bus.write(VehicleSignal::AirValid, 0.0);
-    vehicle_bus.write(VehicleSignal::ElectricalValid, 0.0);
-    vehicle_bus.write(VehicleSignal::EnvironmentValid, 0.0);
-    vehicle_bus.write(VehicleSignal::MainPower, 0.0);
-    vehicle_bus.write(VehicleSignal::BatteryPower, 0.0);
+    vehicle.mass.clear();
+    RAPTOR::common_force = Vec3();
+    RAPTOR::common_moment = Vec3();
+    cockpit_manager.invalidatePhysical();
     RAPTOR::external_fuel_stations.clear();
     RAPTOR::external_fuel_positions.clear();
     RAPTOR::external_fuel = 0.0;
@@ -1707,6 +1706,29 @@ void CockpitManager::initialize() {
 
     param_api_.setParamNumber(param_handles_["MAIN_POWER"], (RAPTOR::left_engine_state == RAPTOR::RUNNING || RAPTOR::right_engine_state == RAPTOR::RUNNING) ? 1.0 : 0.0);
     param_api_.setParamNumber(param_handles_["BATTERY_POWER"], (RAPTOR::left_engine_switch || RAPTOR::right_engine_switch) ? 1.0 : 0.0);
+}
+
+void CockpitManager::invalidatePhysical() {
+    constexpr VehicleSignal signals[] = {
+        VehicleSignal::Valid, VehicleSignal::AirValid, VehicleSignal::ElectricalValid,
+        VehicleSignal::EnvironmentValid, VehicleSignal::MassValid, VehicleSignal::ForceValid,
+        VehicleSignal::MainPower, VehicleSignal::BatteryPower, VehicleSignal::EssentialPower,
+        VehicleSignal::LeftGeneratorPower, VehicleSignal::RightGeneratorPower,
+        VehicleSignal::ApuPower, VehicleSignal::ApuReady, VehicleSignal::ApuHydraulics,
+        VehicleSignal::ApuAir, VehicleSignal::MissionPowerAvailable,
+        VehicleSignal::UtilityAvailable, VehicleSignal::ConditionedAir,
+        VehicleSignal::Obogs, VehicleSignal::OxygenBackup,
+        VehicleSignal::FormationIntensity, VehicleSignal::RefuelIntensity};
+    for (const auto signal : signals) vehicle_bus.write(signal, 0.0);
+    constexpr const char* legacy[] = {
+        "EFM_HUD_VALID", "EFM_GROUND_VALID", "EFM_ENGINE_VALID",
+        "EFM_VEHICLE_VALID", "EFM_TRIM_VALID", "EFM_FCS_INTEGRITY_VALID"};
+    const auto write = param_api_.ed_param_api.pfn_ed_cockpit_update_parameter_with_number;
+    if (!write) return;
+    for (const auto* name : legacy) {
+        const auto entry = param_handles_.find(name);
+        if (entry != param_handles_.end() && entry->second) write(entry->second, 0.0);
+    }
 }
 
 void CockpitManager::navigationFrame(RaptorAP::Frame& f) {

@@ -394,6 +394,7 @@ public:
     void updateCombat(double dt);
     void updateGun();
     void navigationFrame(RaptorAP::Frame& frame);
+    void invalidatePhysical();
     void commitGuidanceEntry(double sequence);
     double readVehicleParameter(const std::string& name) { return getParameter(name); }
 
