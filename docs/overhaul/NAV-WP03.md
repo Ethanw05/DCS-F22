@@ -1,0 +1,9 @@
+# NAV-WP03 — independent altimetry and explicit display selection
+
+Primary pressure altitude consumes the measured ADC static sample and its health/freshness; ADC invalidity or an expired frozen sample cannot silently become raw atmospheric truth. The standalone ISA calculation retains the pilot QNH/STD datum and weather-related geometric disagreement. Its numerical pressure/height sanity bounds are adapter limits, not authenticated instrument ceilings.
+
+A generic standby pressure sensor independently consumes the same atmosphere. F22_ALT_STANDBY_FAILURE is an explicit diagnostic fault input; native conversion failure also withdraws it. The standby shares the selected pressure setting and declared ISA equation, not primary ADC failure state. It is a simulation backup, not a recovered production standby mechanism or independent weather source. Its measurement time/valid/reason fields are separate. A displayed standby needs coherent usable DC; it can survive loss of MAIN_POWER. Native optical and electrical effects remain unobserved.
+
+The active UFC ALT page's rocker opens ALT DISPLAY. BARO is default; RDR displays fresh radar height and labels unavailable-receiver fallback BARO FB. STBY is explicit and never silently selects another source. All source/minima setting requests use the existing correlated ALT owner mailbox. The HUD counter and pointer use the same selected measurement; UFD/MFD pressure references remain BARO. Existing glyphs, fonts, color and pointer geometry are retained.
+
+Actual DLL callbacks prove primary ADC loss with valid standby, standby failure with primary recovery, and ISA/QNH behavior. Actual ALT/UFC/HUD Lua owners prove accepted source selection, radar loss/fallback, distinct measurement expiry, surviving DC, mixed/invalid physical state and restoration without legacy revival. HUD pressure-confirmation duration/approach redisplay and native 2D/VR/source-failure scenarios remain open.

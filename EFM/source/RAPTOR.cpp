@@ -1740,7 +1740,15 @@ void CockpitManager::updateGun() {
 
 void CockpitManager::updateCombat(double dt) {
     NativeDatalink::update(param_api_);
-    NativeAltimetry::update(param_api_,RAPTOR::hud_static_pressure_pa,RAPTOR::sim_initialised);
+    const auto& sensed = vehicle.air_sensor.measured;
+    const double sensed_age = RAPTOR::fm_clock - sensed.stamp_s;
+    const bool primary_pressure = sensed.valid && sensed_age >= 0 && sensed_age <= .25 &&
+        vehicle.air_sensor.health != RaptorAirData::Health::Invalid;
+    NativeAltimetry::update(param_api_, sensed.static_pa, RAPTOR::sim_initialised && primary_pressure);
+    // Generic independently failed standby sensor shares the atmosphere, not
+    // the primary ADC's failure state. This is a declared simulation backup.
+    NativeAltimetry::update_standby(param_api_, RAPTOR::hud_static_pressure_pa,
+        RAPTOR::sim_initialised);
     NativeSidewinder::update(param_api_, dt);
     NativeMWS::update(param_api_);
     NativeGroundRadar::update(param_api_);

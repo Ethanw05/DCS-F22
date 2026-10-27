@@ -160,6 +160,17 @@ function M.new(get,put,send,_sensors)
    end
    rows[4]=action(hpa and'UNIT HPA'or'UNIT INHG',function()send('ALTITUDE_SYSTEM',11023,1)end)
    rows[5]=action(get('F22_ALT_STD')>.5 and'STD'or'QNH',function()send('ALTITUDE_SYSTEM',11020,1)end)
+  elseif page=='ALT DISPLAY'then
+   local selected=get('F22_ALT_SELECTION')
+   rows[1]=action('HUD '..(({'BARO','RDR','STBY'})[selected+1]or'--'),function()
+    self:request_action('ALTITUDE_SYSTEM',11027,(selected+1)%3)end)
+   rows[2]=number(string.format('MINIMA %.0f FT',get('F22_ALT_MINIMA_FT')),0,function(buffer)
+    local value,error=integer(buffer,0,25000);if not value then return nil,error end
+    return request('ALTITUDE_SYSTEM',11028,value,equal('F22_ALT_MINIMA_FT',value))end,5)
+   rows[3]=action(get('F22_ALT_MINIMA_SOURCE')==1 and'MINIMA BARO'or'MINIMA RDR',function()
+    self:request_action('ALTITUDE_SYSTEM',11029,1-get('F22_ALT_MINIMA_SOURCE'))end)
+   rows[4]={label=get('F22_ALT_STANDBY_VALID')==1 and'STBY PRESSURE VALID'or'STBY UNAVAILABLE',kind='read'}
+   rows[5]=action('RTN',function()self:open('ALT',true)end)
   elseif page=='AP'then
    local active=get('F22_AP_ACTIVE')>.5;local roll=get('F22_AP_ROLL_MODE');local pitch=get('F22_AP_PITCH_MODE')
    for i,d in ipairs({{'ATTH',10951,active and roll==1 and pitch==1},{'HSEL',10954,active and roll==2},
@@ -257,6 +268,7 @@ function M.new(get,put,send,_sensors)
  function s:page_step(direction)
   if self.entry or self.pending then return end
   if self.page=='NAV'or self.page=='NAV SETUP'then self:open(self.page=='NAV'and'NAV SETUP'or'NAV',true)end
+  if self.page=='ALT'or self.page=='ALT DISPLAY'then self:open(self.page=='ALT'and'ALT DISPLAY'or'ALT',true)end
  end
  function s:update(dt)
   self.clock=self.clock+(dt or .006)
@@ -300,7 +312,7 @@ function M.new(get,put,send,_sensors)
   end
   put('ICP_STORES_MENU',self.page=='STORES'and 1 or 0)
   put('ICP_NAV_MENU',self.page=='STPT'and 1 or 0);put('ICP_CNI_MENU',self.page=='NAV'and 1 or 0)
-  put('ICP_FLIGHT_MENU',self.page=='AP'and 1 or self.page=='ALT'and 4 or 0)
+  put('ICP_FLIGHT_MENU',self.page=='AP'and 1 or(self.page=='ALT'or self.page=='ALT DISPLAY')and 4 or 0)
   put('ICP_AP_MENU',0);put('ICP_HUD_MENU',0)
  end
  s:update(0);return s

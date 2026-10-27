@@ -158,7 +158,7 @@ local function dial(cx,cy,r,n,param,available,missing)
         e.vertices=vertices;e.indices=indices
         add_base(e,id("HUD_DIAL_DOT"))
     end
-    label(cx,cy,n,n=="BAROALT" and "%.0f" or "%03.0f",0.045,available)
+    label(cx,cy,n,n=="HUD_ALT_FT" and "%.0f" or "%03.0f",0.045,available)
     static(cx,cy,"---",0.045,missing)
     local name=id("HUD_POINTER_ROOT")
     group(name,cx,cy,{param,"HUD_POWER"},
@@ -169,7 +169,8 @@ local function dial(cx,cy,r,n,param,available,missing)
 end
 local counter_x=0.62
 dial(-counter_x,0.02,0.085,"HUD_CAS","HUD_IAS_POINTER")
-dial(counter_x,0.02,0.115,"BAROALT","HUD_ALT_POINTER","HUD_ALT_DATA","HUD_NO_ALT_DATA")
+dial(counter_x,0.02,0.115,"HUD_ALT_FT","HUD_ALT_POINTER","HUD_ALT_DATA","HUD_NO_ALT_DATA")
+label(counter_x,-.16,'HUD_ALT_SOURCE_TEXT','%s',.020)
 
 -- Geometric attitude reference: moves in pitch, rotates as aircraft rolls.
 -- Every conformal cue shares the fixed nose-reference origin.
