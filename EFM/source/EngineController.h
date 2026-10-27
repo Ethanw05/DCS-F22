@@ -76,31 +76,43 @@ struct EngineController {
             if (spool >= 0.67) { phase = EnginePhase::Running; phase_time_s = 0.0; }
         }
     }
-    void update(const EngineInputs& input, double dt) {
+    void enforce_stop(const EngineInputs& input) {
         if (!input.feed || input.health <= 0.3 || input.isolated) requested = false;
         if (!requested && phase != EnginePhase::Off && phase != EnginePhase::Windmilling)
             phase = EnginePhase::ShuttingDown;
-        if (phase == EnginePhase::Running) {
-            const double target = 0.67 + unit(input.throttle) * 0.43;
-            spool = slew(spool, target, target > spool ?
-                         input.spool_up_per_s : input.spool_down_per_s, dt);
-            const double ramp_s = installed_thrust(1.65, 1.1, input.tas_mps);
-            augmentation = slew(augmentation,
-                spool >= 1.035 && target > 1.035 ? 1.0 : 0.0, 1.0 / ramp_s, dt);
-        } else if (phase == EnginePhase::Cranking || phase == EnginePhase::Lighting ||
-                   phase == EnginePhase::Accelerating) {
-            advance_start(input, dt);
-            augmentation = 0.0;
-        } else {
-            const double windmill = input.ground ? 0.0 : 0.3 * unit(input.tas_mps / 250.0);
-            spool = slew(spool, windmill, spool > windmill ? 0.041 : 0.03, dt);
-            phase = spool <= 0.0 ? EnginePhase::Off :
-                (std::abs(spool - windmill) < 0.001 ? EnginePhase::Windmilling : phase);
-            augmentation = 0.0;
-        }
-        burning = requested && input.feed && !input.isolated &&
+    }
+    void advance_running(const EngineInputs& input, double dt) {
+        const double target = 0.67 + unit(input.throttle) * 0.43;
+        spool = slew(spool, target, target > spool ?
+                     input.spool_up_per_s : input.spool_down_per_s, dt);
+        const double ramp_s = installed_thrust(1.65, 1.1, input.tas_mps);
+        augmentation = slew(augmentation,
+            spool >= 1.035 && target > 1.035 ? 1.0 : 0.0, 1.0 / ramp_s, dt);
+    }
+    void advance_unpowered(const EngineInputs& input, double dt) {
+        const double windmill = input.ground ? 0.0 : 0.3 * unit(input.tas_mps / 250.0);
+        spool = slew(spool, windmill, spool > windmill ? 0.041 : 0.03, dt);
+        phase = spool <= 0.0 ? EnginePhase::Off :
+            (std::abs(spool - windmill) < 0.001 ? EnginePhase::Windmilling : phase);
+        augmentation = 0.0;
+    }
+    bool starting() const {
+        return phase == EnginePhase::Cranking || phase == EnginePhase::Lighting ||
+            phase == EnginePhase::Accelerating;
+    }
+    bool combustion_ready(const EngineInputs& input) const {
+        return requested && input.feed && !input.isolated &&
             (phase == EnginePhase::Lighting || phase == EnginePhase::Accelerating ||
              phase == EnginePhase::Running);
+    }
+    void update(const EngineInputs& input, double dt) {
+        enforce_stop(input);
+        if (phase == EnginePhase::Running) advance_running(input, dt);
+        else if (starting()) {
+            advance_start(input, dt);
+            augmentation = 0.0;
+        } else advance_unpowered(input, dt);
+        burning = combustion_ready(input);
     }
     double augmentation_fraction() const {
         const double fraction = unit((spool - 1.03) / 0.07);

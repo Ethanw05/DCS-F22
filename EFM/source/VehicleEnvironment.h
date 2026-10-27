@@ -63,17 +63,16 @@ struct Environment {
         if (equipment_c >= 85.0) thermal_fault = true;
         else if (equipment_c < 75.0) thermal_fault = false;
     }
-    void update(const EnvironmentInputs& input, double dt) {
-        valid = std::isfinite(input.ambient_pa) && input.ambient_pa > 0.0 &&
+    static bool valid_inputs(const EnvironmentInputs& input) {
+        return std::isfinite(input.ambient_pa) && input.ambient_pa > 0.0 &&
             std::isfinite(input.ambient_k) && input.ambient_k > 100.0 &&
             std::isfinite(input.canopy_position);
-        if (!valid) {
-            obogs = backup = conditioned_air = false;
-            oxygen_delivery_pa = 0.0;
-            return;
-        }
-        conditioned_air = input.powered && input.bleed_selected && !input.ecs_failed &&
+    }
+    static bool source_available(const EnvironmentInputs& input) {
+        return input.powered && input.bleed_selected && !input.ecs_failed &&
             (input.left_bleed || input.right_bleed || input.apu_air);
+    }
+    void update_cabin(const EnvironmentInputs& input, double dt) {
         const bool sealed = input.canopy_locked && input.canopy_position < 0.01;
         // Estimated regulation target: at most 35 kPa differential, with an
         // approximately 75 kPa cabin target. Never interpret SAB inlet psi as cabin.
@@ -81,6 +80,8 @@ struct Environment {
             std::clamp(75000.0 - input.ambient_pa, 0.0, 35000.0) : 0.0;
         cabin_overpressure_pa = lag(cabin_overpressure_pa, target_pa, sealed ? 8.0 : 1.0, dt);
         cabin_absolute_pa = input.ambient_pa + cabin_overpressure_pa;
+    }
+    void update_oxygen(const EnvironmentInputs& input, double dt) {
         obogs = conditioned_air && !input.oxygen_failed;
         primary_seen = primary_seen || obogs;
         backup = !obogs && backup_reserve > 0.0 &&
@@ -89,10 +90,25 @@ struct Environment {
         // Preserve the healthy SDK pressure baseline pending an actual host test.
         // The reserve duration is an estimate, not an ABOS hardware capacity.
         oxygen_delivery_pa = obogs || backup ? 101000.0 : 0.0;
-        update_cooling(input, dt);
+    }
+    void update_fog(const EnvironmentInputs& input, double dt) {
+        const bool sealed = input.canopy_locked && input.canopy_position < 0.01;
         const double fog_target = input.ambient_k < 283.15 && sealed &&
             !(conditioned_air && input.defog_selected) ? 1.0 : 0.0;
         fog = lag(fog, fog_target, fog_target > fog ? 180.0 : 30.0, dt);
+    }
+    void update(const EnvironmentInputs& input, double dt) {
+        valid = valid_inputs(input);
+        if (!valid) {
+            obogs = backup = conditioned_air = false;
+            oxygen_delivery_pa = 0.0;
+            return;
+        }
+        conditioned_air = source_available(input);
+        update_cabin(input, dt);
+        update_oxygen(input, dt);
+        update_cooling(input, dt);
+        update_fog(input, dt);
     }
     void service_oxygen() { backup_reserve = 1.0; }
 };

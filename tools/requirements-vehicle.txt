@@ -1,3 +1,4 @@
 lupa==2.6
 luaparser==3.3.0
 matplotlib==3.10.7
+lizard==1.17.31

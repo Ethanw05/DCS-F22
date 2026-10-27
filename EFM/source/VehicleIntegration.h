@@ -238,53 +238,67 @@ void vehicle_sample_environment(double dt) {
     vehicle.environment.update(input, dt);
 }
 
-bool vehicle_command(int command, float value) {
-    if (command < 11700 || command > 11729) return false;
-    if (!std::isfinite(value)) return true;
+void vehicle_configuration_command(int command, float value) {
     auto& config = vehicle.configuration;
+    if (command == 11700 && value > 0.5f)
+        static_cast<void>(config.extend_alternate(vehicle.ses, RAPTOR::gear_switch));
+    else if (command == 11701) config.steering_selected = value > 0.5f;
+    else if (command == 11702) config.request_hook(value > 0.5f, vehicle.ses);
+}
+
+void vehicle_fire_command(int command, float value) {
+    if (value <= 0.5f) return;
+    if (command == 11703) vehicle.left_fire_isolated = true;
+    else if (command == 11704) vehicle.right_fire_isolated = true;
+    else if (command == 11705 && vehicle.fire_bottle_available &&
+             (vehicle.left_fire_isolated || vehicle.right_fire_isolated)) {
+        vehicle.fire_bottle_available = false;
+        vehicle.extinguishing_attempt = true;
+        // A discharge command does not prove the fire was extinguished.
+    }
+}
+
+void vehicle_service_command(int command, float value) {
+    if (value <= 0.5f || !RAPTOR::on_ground) return;
+    if (command == 11717) {
+        // Ground hand-pump/tow service, not a new normal brake source.
+        hydraulics.brake_reserve = 1.0;
+        return;
+    }
+    if (vehicle.left_engine.burning || vehicle.right_engine.burning) return;
+    if (command == 11706) {
+        vehicle.ses.service();
+        vehicle.environment.service_oxygen();
+    } else if (command == 11716) {
+        hydraulics.left_inventory = hydraulics.right_inventory = 1.0;
+    }
+}
+
+void vehicle_maintenance_command(float value) {
+    if (RAPTOR::on_ground && RAPTOR::ground_speed_knots < 1.0)
+        vehicle.configuration.hydraulic_maintenance_transfer = value > 0.5f;
+}
+
+void vehicle_parameter_command(int command, float value) {
     constexpr VehicleSignal controls[] = {
         VehicleSignal::LeftBleedRequest, VehicleSignal::RightBleedRequest,
         VehicleSignal::EcsRequest, VehicleSignal::DefogRequest, VehicleSignal::BackupManual};
     if (command >= 11707 && command <= 11711) {
         vehicle_bus.write(controls[static_cast<std::size_t>(command - 11707)], value > 0.5f ? 1.0 : 0.0);
-        return true;
-    }
-    if (command == 11714) {
+    } else if (command == 11714) {
         const double current = RaptorVehicle::finite(vehicle_bus.read(VehicleSignal::BingoRequest));
         vehicle_bus.write(VehicleSignal::BingoRequest,
             std::clamp(current + static_cast<double>(value), 0.0, 12000.0));
-        return true;
-    }
-    if (command == 11716 && value > 0.5f && RAPTOR::on_ground &&
-        !vehicle.left_engine.burning && !vehicle.right_engine.burning) {
-        hydraulics.left_inventory = hydraulics.right_inventory = 1.0;
-        return true;
-    }
-    if (command == 11717 && value > 0.5f && RAPTOR::on_ground) {
-        // Declared ground hand-pump/tow service, not a new normal brake source.
-        hydraulics.brake_reserve = 1.0;
-        return true;
-    }
-    if (command == 11718 && RAPTOR::on_ground && RAPTOR::ground_speed_knots < 1.0) {
-        config.hydraulic_maintenance_transfer = value > 0.5f;
-        return true;
-    }
-    if (command == 11700 && value > 0.5f)
-        static_cast<void>(config.extend_alternate(vehicle.ses, RAPTOR::gear_switch));
-    else if (command == 11701) config.steering_selected = value > 0.5f;
-    else if (command == 11702) config.request_hook(value > 0.5f, vehicle.ses);
-    else if (command == 11703 && value > 0.5f) vehicle.left_fire_isolated = true;
-    else if (command == 11704 && value > 0.5f) vehicle.right_fire_isolated = true;
-    else if (command == 11705 && value > 0.5f && vehicle.fire_bottle_available &&
-             (vehicle.left_fire_isolated || vehicle.right_fire_isolated)) {
-        vehicle.fire_bottle_available = false;
-        vehicle.extinguishing_attempt = true;
-        // A discharge command does not prove the fire was extinguished.
-    } else if (command == 11706 && value > 0.5f && RAPTOR::on_ground &&
-               !vehicle.left_engine.burning && !vehicle.right_engine.burning) {
-        vehicle.ses.service();
-        vehicle.environment.service_oxygen();
-    }
+    } else if (command == 11718) vehicle_maintenance_command(value);
+    else vehicle_service_command(command, value);
+}
+
+bool vehicle_command(int command, float value) {
+    if (command < 11700 || command > 11729) return false;
+    if (!std::isfinite(value)) return true;
+    if (command <= 11702) vehicle_configuration_command(command, value);
+    else if (command <= 11705) vehicle_fire_command(command, value);
+    else vehicle_parameter_command(command, value);
     return true;
 }
 
@@ -306,29 +320,39 @@ double vehicle_utility_supply() {
         hydraulics.shared() : hydraulics.right();
 }
 
+double vehicle_status(bool available) {
+    return static_cast<double>(available);
+}
+
+double vehicle_main_source() {
+    const auto& power = vehicle.power;
+    if (power.left_generator || power.right_generator) return 1.0;
+    if (power.requests.ground_power && RAPTOR::on_ground) return 2.0;
+    if (power.apu_running && RAPTOR::on_ground) return 3.0;
+    return 0.0;
+}
+
 void vehicle_publish_power() {
     const auto& power = vehicle.power;
     const std::pair<VehicleSignal, double> values[] = {
         {VehicleSignal::Owner, 1.0},
-        {VehicleSignal::MainPower, power.main ? 1.0 : 0.0},
-        {VehicleSignal::BatteryPower, power.battery ? 1.0 : 0.0},
-        {VehicleSignal::LeftGeneratorPower, power.left_generator ? 1.0 : 0.0},
-        {VehicleSignal::RightGeneratorPower, power.right_generator ? 1.0 : 0.0},
+        {VehicleSignal::MainPower, vehicle_status(power.main)},
+        {VehicleSignal::BatteryPower, vehicle_status(power.battery)},
+        {VehicleSignal::LeftGeneratorPower, vehicle_status(power.left_generator)},
+        {VehicleSignal::RightGeneratorPower, vehicle_status(power.right_generator)},
         {VehicleSignal::BatterySoc, power.soc}, {VehicleSignal::DcVolts, power.volts},
-        {VehicleSignal::EssentialPower, power.essential ? 1.0 : 0.0},
+        {VehicleSignal::EssentialPower, vehicle_status(power.essential)},
         {VehicleSignal::ElectricalValid, 1.0},
-        {VehicleSignal::MissionPowerAvailable, power.left_generator || power.right_generator ||
-            (power.requests.ground_power && RAPTOR::on_ground) ? 1.0 : 0.0},
-        {VehicleSignal::MainSource, power.left_generator || power.right_generator ? 1.0 :
-            (power.requests.ground_power && RAPTOR::on_ground ? 2.0 :
-             (power.apu_running && RAPTOR::on_ground ? 3.0 : 0.0))},
-        {VehicleSignal::ApuPower, power.apu_running ? 1.0 : 0.0},
+        {VehicleSignal::MissionPowerAvailable, vehicle_status(power.left_generator || power.right_generator ||
+            (power.requests.ground_power && RAPTOR::on_ground))},
+        {VehicleSignal::MainSource, vehicle_main_source()},
+        {VehicleSignal::ApuPower, vehicle_status(power.apu_running)},
         {VehicleSignal::ApuRpm, power.apu_spool * 4.0},
-        {VehicleSignal::ApuReady, power.apu_running ? 1.0 : 0.0},
-        {VehicleSignal::ApuHydraulics, power.apu_hydraulics ? 1.0 : 0.0},
-        {VehicleSignal::ApuAir, power.conditioned_air ? 1.0 : 0.0},
-        {VehicleSignal::ApuAbort, power.apu_abort ? 1.0 : 0.0},
-        {VehicleSignal::ApuAutomaticShutdown, power.automatic_shutdown ? 1.0 : 0.0},
+        {VehicleSignal::ApuReady, vehicle_status(power.apu_running)},
+        {VehicleSignal::ApuHydraulics, vehicle_status(power.apu_hydraulics)},
+        {VehicleSignal::ApuAir, vehicle_status(power.conditioned_air)},
+        {VehicleSignal::ApuAbort, vehicle_status(power.apu_abort)},
+        {VehicleSignal::ApuAutomaticShutdown, vehicle_status(power.automatic_shutdown)},
         {VehicleSignal::SesAir, vehicle.ses.air},
         {VehicleSignal::SesFuel, vehicle.ses.start_fuel}};
     for (const auto& value : values) vehicle_bus.write(value.first, value.second);
@@ -337,7 +361,7 @@ void vehicle_publish_power() {
 void vehicle_publish_air() {
     const auto& air = vehicle.air_sensor.measured;
     const std::pair<VehicleSignal, double> values[] = {
-        {VehicleSignal::AirValid, air.valid ? 1.0 : 0.0},
+        {VehicleSignal::AirValid, vehicle_status(air.valid)},
         {VehicleSignal::AirStamp, air.stamp_s}, {VehicleSignal::Tas, air.tas_mps},
         {VehicleSignal::Eas, air.eas_mps}, {VehicleSignal::Cas, air.cas_mps},
         {VehicleSignal::Mach, air.mach}, {VehicleSignal::StaticPressure, air.static_pa},
@@ -352,14 +376,14 @@ void vehicle_publish_environment() {
     const std::pair<VehicleSignal, double> values[] = {
         {VehicleSignal::CabinPressure, environment.cabin_absolute_pa},
         {VehicleSignal::CabinOverpressure, environment.cabin_overpressure_pa},
-        {VehicleSignal::EnvironmentValid, environment.valid ? 1.0 : 0.0},
+        {VehicleSignal::EnvironmentValid, vehicle_status(environment.valid)},
         {VehicleSignal::EquipmentTemperature, environment.equipment_c},
         {VehicleSignal::CoolantTemperature, environment.coolant_c},
         {VehicleSignal::FuelTemperature, environment.fuel_sink_c},
-        {VehicleSignal::ThermalFault, environment.thermal_fault ? 1.0 : 0.0},
-        {VehicleSignal::ConditionedAir, environment.conditioned_air ? 1.0 : 0.0},
-        {VehicleSignal::Obogs, environment.obogs ? 1.0 : 0.0},
-        {VehicleSignal::OxygenBackup, environment.backup ? 1.0 : 0.0},
+        {VehicleSignal::ThermalFault, vehicle_status(environment.thermal_fault)},
+        {VehicleSignal::ConditionedAir, vehicle_status(environment.conditioned_air)},
+        {VehicleSignal::Obogs, vehicle_status(environment.obogs)},
+        {VehicleSignal::OxygenBackup, vehicle_status(environment.backup)},
         {VehicleSignal::OxygenReserve, environment.backup_reserve},
         {VehicleSignal::OxygenPressure, environment.oxygen_delivery_pa},
         {VehicleSignal::CanopyFog, environment.fog}};
@@ -372,27 +396,78 @@ void vehicle_publish_configuration() {
         RAPTOR::element_integrity[15] <= 0.5 || RAPTOR::element_integrity[16] <= 0.5;
     const std::pair<VehicleSignal, double> values[] = {
         {VehicleSignal::FcsMode, static_cast<double>(config.mode)},
-        {VehicleSignal::SingleEngineApproach, config.single_engine_approach ? 1.0 : 0.0},
+        {VehicleSignal::SingleEngineApproach, vehicle_status(config.single_engine_approach)},
         {VehicleSignal::ApproachAoa, 12.0}, // retained historical reference; single-engine value unresolved
         {VehicleSignal::GearRejection, static_cast<double>(config.gear_rejection)},
-        {VehicleSignal::AirDataReversion, vehicle.air_data_reversion ? 1.0 : 0.0},
+        {VehicleSignal::AirDataReversion, vehicle_status(vehicle.air_data_reversion)},
         {VehicleSignal::ControlScheduleMach, vehicle.control_air.mach},
         {VehicleSignal::ControlScheduleEas, vehicle.control_air.eas_mps},
-        {VehicleSignal::GearUnsafe, gear_damaged ||
-            (RAPTOR::gear_pos > 0.001 && RAPTOR::gear_pos < 0.999) ? 1.0 : 0.0},
-        {VehicleSignal::GearDownLocked, !gear_damaged && RAPTOR::gear_pos >= 0.999 ? 1.0 : 0.0},
-        {VehicleSignal::GearUpLocked, RAPTOR::gear_pos <= 0.001 ? 1.0 : 0.0},
-        {VehicleSignal::AlternateGear, config.alternate_gear ? 1.0 : 0.0},
+        {VehicleSignal::GearUnsafe, vehicle_status(gear_damaged ||
+            (RAPTOR::gear_pos > 0.001 && RAPTOR::gear_pos < 0.999))},
+        {VehicleSignal::GearDownLocked, vehicle_status(!gear_damaged && RAPTOR::gear_pos >= 0.999)},
+        {VehicleSignal::GearUpLocked, vehicle_status(RAPTOR::gear_pos <= 0.001)},
+        {VehicleSignal::AlternateGear, vehicle_status(config.alternate_gear)},
         {VehicleSignal::HookPosition, config.hook_position},
-        {VehicleSignal::SteeringSelected, config.steering_selected ? 1.0 : 0.0},
+        {VehicleSignal::SteeringSelected, vehicle_status(config.steering_selected)},
         {VehicleSignal::RefuelDoorPosition, config.refuel_door},
-        {VehicleSignal::RefuelReady, config.refuel_door > 0.99 && !config.refuel_disconnect ? 1.0 : 0.0},
-        {VehicleSignal::RefuelTransfer, config.refuel_transfer ? 1.0 : 0.0},
-        {VehicleSignal::FireBottle, vehicle.fire_bottle_available ? 1.0 : 0.0},
-        {VehicleSignal::LeftFireIsolated, vehicle.left_fire_isolated ? 1.0 : 0.0},
-        {VehicleSignal::RightFireIsolated, vehicle.right_fire_isolated ? 1.0 : 0.0},
+        {VehicleSignal::RefuelReady, vehicle_status(config.refuel_door > 0.99 && !config.refuel_disconnect)},
+        {VehicleSignal::RefuelTransfer, vehicle_status(config.refuel_transfer)},
+        {VehicleSignal::FireBottle, vehicle_status(vehicle.fire_bottle_available)},
+        {VehicleSignal::LeftFireIsolated, vehicle_status(vehicle.left_fire_isolated)},
+        {VehicleSignal::RightFireIsolated, vehicle_status(vehicle.right_fire_isolated)},
         {VehicleSignal::FormationIntensity, RAPTOR::form_light},
         {VehicleSignal::RefuelIntensity, RAPTOR::aar_light}};
+    for (const auto& value : values) vehicle_bus.write(value.first, value.second);
+}
+
+void vehicle_publish_fuel() {
+    const double apu_flow = vehicle.apu_flow_kg_s;
+    const double bingo = vehicle_bus.read(VehicleSignal::BingoRequest);
+    const std::pair<VehicleSignal, double> values[] = {
+        {VehicleSignal::LeftEnginePhase, static_cast<double>(vehicle.left_engine.phase)},
+        {VehicleSignal::RightEnginePhase, static_cast<double>(vehicle.right_engine.phase)},
+        {VehicleSignal::LeftStartRejection, static_cast<double>(vehicle.left_engine.rejection)},
+        {VehicleSignal::RightStartRejection, static_cast<double>(vehicle.right_engine.rejection)},
+        {VehicleSignal::LeftFeedAvailable, vehicle_status(vehicle_feed(true))},
+        {VehicleSignal::RightFeedAvailable, vehicle_status(vehicle_feed(false))},
+        {VehicleSignal::TotalFlow, RAPTOR::left_fuel_rate + RAPTOR::right_fuel_rate + apu_flow},
+        {VehicleSignal::ApuFlow, apu_flow},
+        {VehicleSignal::MassOverflow, vehicle_status(vehicle.mass.overflow)},
+        {VehicleSignal::FuelBingo, vehicle_status(std::isfinite(bingo) && bingo > 0.0 && RAPTOR::total_fuel < bingo)},
+        {VehicleSignal::LeftFeedLow, vehicle_status(vehicle.fuel.cells[1].quantity_kg < RaptorVehicle::FuelSystem::low_feed_kg)},
+        {VehicleSignal::RightFeedLow, vehicle_status(vehicle.fuel.cells[2].quantity_kg < RaptorVehicle::FuelSystem::low_feed_kg)},
+        {VehicleSignal::LeftFeedQuantity, vehicle.fuel.cells[1].quantity_kg},
+        {VehicleSignal::RightFeedQuantity, vehicle.fuel.cells[2].quantity_kg},
+        {VehicleSignal::CommonFeedQuantity, vehicle.fuel.cells[0].quantity_kg},
+        {VehicleSignal::FuelBoost, vehicle.fuel.boost},
+        {VehicleSignal::FuelPressurization, vehicle.fuel.pressurization}};
+    for (const auto& value : values) vehicle_bus.write(value.first, value.second);
+}
+
+void vehicle_publish_services() {
+    const std::pair<VehicleSignal, double> values[] = {
+        {VehicleSignal::BrakeReserve, hydraulics.brake_reserve},
+        {VehicleSignal::UtilityAvailable, vehicle_utility_supply()},
+        {VehicleSignal::ParkHeld, vehicle_status(vehicle_on(VehicleSignal::ParkRequest) && RAPTOR::on_ground &&
+            RAPTOR::left_brake_achieved > 0.95 && RAPTOR::right_brake_achieved > 0.95)},
+        {VehicleSignal::LeftHydraulicInventory, hydraulics.left_inventory},
+        {VehicleSignal::RightHydraulicInventory, hydraulics.right_inventory},
+        {VehicleSignal::LeftBleedAvailable, vehicle_status(vehicle.left_engine.burning &&
+            !vehicle.left_fire_isolated && left_engine_instruments.core >= 0.59 &&
+            (!vehicle.power_requests_seen || vehicle_on(VehicleSignal::LeftBleedRequest)))},
+        {VehicleSignal::RightBleedAvailable, vehicle_status(vehicle.right_engine.burning &&
+            !vehicle.right_fire_isolated && right_engine_instruments.core >= 0.59 &&
+            (!vehicle.power_requests_seen || vehicle_on(VehicleSignal::RightBleedRequest)))},
+        {VehicleSignal::LeftBrakeTemperature, vehicle.left_brake.temperature_c},
+        {VehicleSignal::RightBrakeTemperature, vehicle.right_brake.temperature_c},
+        {VehicleSignal::LeftBrakeEnergy, vehicle.left_brake.energy_j},
+        {VehicleSignal::RightBrakeEnergy, vehicle.right_brake.energy_j},
+        {VehicleSignal::LeftWheelSpeedRaw, vehicle.left_brake.wheel_speed_raw},
+        {VehicleSignal::RightWheelSpeedRaw, vehicle.right_brake.wheel_speed_raw},
+        {VehicleSignal::BrakeEnergyEstimated, 1.0},
+        {VehicleSignal::LeftFireDetected, vehicle_status(vehicle.left_fire)},
+        {VehicleSignal::RightFireDetected, vehicle_status(vehicle.right_fire)},
+        {VehicleSignal::FireDischarge, vehicle_status(vehicle.extinguishing_attempt)}};
     for (const auto& value : values) vehicle_bus.write(value.first, value.second);
 }
 
@@ -401,60 +476,21 @@ void vehicle_publish() {
     vehicle_publish_air();
     vehicle_publish_environment();
     vehicle_publish_configuration();
-    const double apu_flow = vehicle.apu_flow_kg_s;
-    const double bingo = vehicle_bus.read(VehicleSignal::BingoRequest);
+    vehicle_publish_fuel();
+    vehicle_publish_services();
     const std::pair<VehicleSignal, double> values[] = {
-        {VehicleSignal::LeftEnginePhase, static_cast<double>(vehicle.left_engine.phase)},
-        {VehicleSignal::RightEnginePhase, static_cast<double>(vehicle.right_engine.phase)},
-        {VehicleSignal::LeftStartRejection, static_cast<double>(vehicle.left_engine.rejection)},
-        {VehicleSignal::RightStartRejection, static_cast<double>(vehicle.right_engine.rejection)},
-        {VehicleSignal::LeftFeedAvailable, vehicle_feed(true) ? 1.0 : 0.0},
-        {VehicleSignal::RightFeedAvailable, vehicle_feed(false) ? 1.0 : 0.0},
-        {VehicleSignal::TotalFlow, RAPTOR::left_fuel_rate + RAPTOR::right_fuel_rate + apu_flow},
-        {VehicleSignal::ApuFlow, apu_flow},
-        {VehicleSignal::MassOverflow, vehicle.mass.overflow ? 1.0 : 0.0},
-        {VehicleSignal::FuelBingo, std::isfinite(bingo) && bingo > 0.0 && RAPTOR::total_fuel < bingo ? 1.0 : 0.0},
-        {VehicleSignal::LeftFeedLow, vehicle.fuel.cells[1].quantity_kg < RaptorVehicle::FuelSystem::low_feed_kg ? 1.0 : 0.0},
-        {VehicleSignal::RightFeedLow, vehicle.fuel.cells[2].quantity_kg < RaptorVehicle::FuelSystem::low_feed_kg ? 1.0 : 0.0},
-        {VehicleSignal::LeftFeedQuantity, vehicle.fuel.cells[1].quantity_kg},
-        {VehicleSignal::RightFeedQuantity, vehicle.fuel.cells[2].quantity_kg},
-        {VehicleSignal::CommonFeedQuantity, vehicle.fuel.cells[0].quantity_kg},
-        {VehicleSignal::FuelBoost, vehicle.fuel.boost},
-        {VehicleSignal::FuelPressurization, vehicle.fuel.pressurization},
         {VehicleSignal::Generation, static_cast<double>(vehicle.generation)},
         {VehicleSignal::ClockKind, 1.0}, // spawn-relative RAPTOR clock, not World model time
-        {VehicleSignal::ForceValid, vehicle.air_truth.valid ? 1.0 : 0.0},
+        {VehicleSignal::ForceValid, vehicle_status(vehicle.air_truth.valid)},
         {VehicleSignal::Stamp, vehicle.time_s},
-        {VehicleSignal::DroppedTime, vehicle.discarded_time_s},
-        {VehicleSignal::BrakeReserve, hydraulics.brake_reserve},
-        {VehicleSignal::UtilityAvailable, vehicle_utility_supply()},
-        {VehicleSignal::ParkHeld, vehicle_on(VehicleSignal::ParkRequest) && RAPTOR::on_ground &&
-            RAPTOR::left_brake_achieved > 0.95 && RAPTOR::right_brake_achieved > 0.95 ? 1.0 : 0.0},
-        {VehicleSignal::LeftHydraulicInventory, hydraulics.left_inventory},
-        {VehicleSignal::RightHydraulicInventory, hydraulics.right_inventory},
-        {VehicleSignal::LeftBleedAvailable, vehicle.left_engine.burning &&
-            !vehicle.left_fire_isolated && left_engine_instruments.core >= 0.59 &&
-            (!vehicle.power_requests_seen || vehicle_on(VehicleSignal::LeftBleedRequest)) ? 1.0 : 0.0},
-        {VehicleSignal::RightBleedAvailable, vehicle.right_engine.burning &&
-            !vehicle.right_fire_isolated && right_engine_instruments.core >= 0.59 &&
-            (!vehicle.power_requests_seen || vehicle_on(VehicleSignal::RightBleedRequest)) ? 1.0 : 0.0},
-        {VehicleSignal::LeftBrakeTemperature, vehicle.left_brake.temperature_c},
-        {VehicleSignal::RightBrakeTemperature, vehicle.right_brake.temperature_c},
-        {VehicleSignal::LeftBrakeEnergy, vehicle.left_brake.energy_j},
-        {VehicleSignal::RightBrakeEnergy, vehicle.right_brake.energy_j},
-        {VehicleSignal::LeftWheelSpeedRaw, vehicle.left_brake.wheel_speed_raw},
-        {VehicleSignal::RightWheelSpeedRaw, vehicle.right_brake.wheel_speed_raw},
-        {VehicleSignal::BrakeEnergyEstimated, 1.0},
-        {VehicleSignal::LeftFireDetected, vehicle.left_fire ? 1.0 : 0.0},
-        {VehicleSignal::RightFireDetected, vehicle.right_fire ? 1.0 : 0.0},
-        {VehicleSignal::FireDischarge, vehicle.extinguishing_attempt ? 1.0 : 0.0}};
+        {VehicleSignal::DroppedTime, vehicle.discarded_time_s}};
     for (const auto& value : values) vehicle_bus.write(value.first, value.second);
-    vehicle_bus.write(VehicleSignal::Valid, vehicle.alive ? 1.0 : 0.0);
+    vehicle_bus.write(VehicleSignal::Valid, vehicle_status(vehicle.alive));
 }
 
 void vehicle_publish_mass() {
     const std::pair<VehicleSignal, double> values[] = {
-        {VehicleSignal::MassValid, vehicle.mass_valid ? 1.0 : 0.0},
+        {VehicleSignal::MassValid, vehicle_status(vehicle.mass_valid)},
         {VehicleSignal::MassKg, RAPTOR::current_mass},
         {VehicleSignal::CgX, RAPTOR::center_of_mass.x},
         {VehicleSignal::CgY, RAPTOR::center_of_mass.y},
