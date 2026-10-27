@@ -29,6 +29,7 @@ struct Fixture {
     bool (*needs_repair)() = nullptr;
     void (*damage)(int,double) = nullptr;
     void (*immortal)(bool) = nullptr;
+    void (*draw)(float*,size_t) = nullptr;
     using MassState = void(*)(double,double,double,double,double,double,double);
     MassState mass_state = nullptr;
     using Force = void(*)(double&,double&,double&,double&,double&,double&);
@@ -66,6 +67,7 @@ struct Fixture {
         needs_repair = load<decltype(needs_repair)>(fm, "ed_fm_need_to_be_repaired");
         damage = load<decltype(damage)>(fm, "ed_fm_on_damage");
         immortal = load<decltype(immortal)>(fm, "ed_fm_set_immortal");
+        draw = load<decltype(draw)>(fm, "ed_fm_set_draw_args_v2");
         mass_state = load<MassState>(fm, "ed_fm_set_current_mass_state");
         force = load<Force>(fm, "ed_fm_add_local_force");
         moment = load<decltype(moment)>(fm, "ed_fm_add_local_moment");
@@ -255,6 +257,13 @@ void fire_and_structural_recovery(Fixture& fixture) {
     double damaged_mx=0;
     fixture.moment(damaged_mx,my,mz);
     assert(std::abs(damaged_mx) < std::abs(mx));
+    fixture.damage(103,0); fixture.damage(104,0); fixture.damage(23,0); fixture.damage(55,0);
+    fixture.ticks(1);
+    std::array<float,800> arguments{};
+    fixture.draw(arguments.data(),arguments.size());
+    assert(arguments[114] == 1);
+    fixture.repair(); fixture.ticks(1); fixture.draw(arguments.data(),arguments.size());
+    assert(arguments[114] == 0 && fixture.parameter(ED_FM_ENGINE_1_COMBUSTION) == 0);
     fixture.immortal(true);
 }
 
