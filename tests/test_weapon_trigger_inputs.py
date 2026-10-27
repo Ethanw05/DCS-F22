@@ -24,13 +24,6 @@ for _,kind in ipairs({'joystick','keyboard'})do
  end
  profiles[kind]=profile
 end
-dofile(SCRIPT_ROOT..'devices.lua')
-for _,profile in pairs(profiles)do
- for id=11905,11912 do
-  assert(binding(profile,id).cockpit_device_id==devices.FLIGHT_GUIDANCE,
-   'standalone input profile routed lights to the wrong device')
- end
-end
 local detent=binding(profiles.joystick,10022)
 local first=binding(profiles.keyboard,10021)
 local hotas=binding(profiles.joystick,10717)
@@ -50,6 +43,13 @@ function dispatch_action(device,command,value)
 end
 p('MAIN_POWER',1);p('WoW',0)
 dofile(SCRIPT_ROOT..'Systems/Weapon_System.lua');post_initialize()
+-- Profiles above construct without cockpit globals; compare IDs after normal initialization.
+for _,profile in pairs(profiles)do
+ for id=11905,11912 do
+  assert(binding(profile,id).cockpit_device_id==devices.FLIGHT_GUIDANCE,
+   'standalone input profile routed lights to the wrong device')
+ end
+end
 weapon_set=SetCommand
 local weapon_update=update
 local function tick(count)for i=1,count or 1 do weapon_update()end end
