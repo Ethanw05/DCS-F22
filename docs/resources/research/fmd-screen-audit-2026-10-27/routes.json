@@ -1,0 +1,12751 @@
+[
+  {
+    "panel": "LMFD",
+    "page": "MENU",
+    "button": 1,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "MENU",
+    "button": 2,
+    "before": 0,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "MENU",
+    "button": 3,
+    "before": 0,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "MENU",
+    "button": 4,
+    "before": 0,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "MENU",
+    "button": 5,
+    "before": 0,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "MENU",
+    "button": 6,
+    "before": 0,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "MENU",
+    "button": 7,
+    "before": 0,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "MENU",
+    "button": 8,
+    "before": 0,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "MENU",
+    "button": 9,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "MENU",
+    "button": 10,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "MENU",
+    "button": 11,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "MENU",
+    "button": 12,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "MENU",
+    "button": 13,
+    "before": 0,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "MENU",
+    "button": 14,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "MENU",
+    "button": 15,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "MENU",
+    "button": 16,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "MENU",
+    "button": 17,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "MENU",
+    "button": 18,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "MENU",
+    "button": 19,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "MENU",
+    "button": 20,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "STORES",
+    "button": 1,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "STORES",
+    "button": 2,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "STORES",
+    "button": 3,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "STORES",
+    "button": 4,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "STORES",
+    "button": 5,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "STORES",
+    "button": 6,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "STORES",
+    "button": 7,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10982
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "STORES",
+    "button": 8,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "STORES",
+    "button": 9,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "STORES",
+    "button": 10,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "STORES",
+    "button": 11,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "STORES",
+    "button": 12,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "STORES",
+    "button": 13,
+    "before": 5,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "STORES",
+    "button": 14,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "STORES",
+    "button": 15,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "STORES",
+    "button": 16,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "STORES",
+    "button": 17,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "STORES",
+    "button": 18,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "STORES",
+    "button": 19,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "STORES",
+    "button": 20,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "NAV",
+    "button": 1,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "NAV",
+    "button": 2,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "NAV",
+    "button": 3,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "NAV",
+    "button": 4,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "NAV",
+    "button": 5,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "NAV",
+    "button": 6,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "device": 25,
+        "value": 1,
+        "command": 10943
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "NAV",
+    "button": 7,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "device": 25,
+        "value": 1,
+        "command": 10944
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "NAV",
+    "button": 8,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "device": 25,
+        "value": 1,
+        "command": 10945
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "NAV",
+    "button": 9,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10841
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "NAV",
+    "button": 10,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "NAV",
+    "button": 11,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "NAV",
+    "button": 12,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "NAV",
+    "button": 13,
+    "before": 8,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "NAV",
+    "button": 14,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10835
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "NAV",
+    "button": 15,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "NAV",
+    "button": 16,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10832
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "NAV",
+    "button": 17,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10833
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "NAV",
+    "button": 18,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10834
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "NAV",
+    "button": 19,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10831
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "NAV",
+    "button": 20,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10830
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ENG",
+    "button": 1,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ENG",
+    "button": 2,
+    "before": 1,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ENG",
+    "button": 3,
+    "before": 1,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ENG",
+    "button": 4,
+    "before": 1,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ENG",
+    "button": 5,
+    "before": 1,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ENG",
+    "button": 6,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ENG",
+    "button": 7,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ENG",
+    "button": 8,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ENG",
+    "button": 9,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ENG",
+    "button": 10,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ENG",
+    "button": 11,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ENG",
+    "button": 12,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ENG",
+    "button": 13,
+    "before": 1,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ENG",
+    "button": 14,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ENG",
+    "button": 15,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ENG",
+    "button": 16,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ENG",
+    "button": 17,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ENG",
+    "button": 18,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ENG",
+    "button": 19,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ENG",
+    "button": 20,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FCS",
+    "button": 1,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FCS",
+    "button": 2,
+    "before": 2,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FCS",
+    "button": 3,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FCS",
+    "button": 4,
+    "before": 2,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FCS",
+    "button": 5,
+    "before": 2,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FCS",
+    "button": 6,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FCS",
+    "button": 7,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FCS",
+    "button": 8,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FCS",
+    "button": 9,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FCS",
+    "button": 10,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FCS",
+    "button": 11,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FCS",
+    "button": 12,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FCS",
+    "button": 13,
+    "before": 2,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FCS",
+    "button": 14,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FCS",
+    "button": 15,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FCS",
+    "button": 16,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FCS",
+    "button": 17,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FCS",
+    "button": 18,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FCS",
+    "button": 19,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FCS",
+    "button": 20,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FUEL",
+    "button": 1,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FUEL",
+    "button": 2,
+    "before": 3,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FUEL",
+    "button": 3,
+    "before": 3,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FUEL",
+    "button": 4,
+    "before": 3,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FUEL",
+    "button": 5,
+    "before": 3,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FUEL",
+    "button": 6,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FUEL",
+    "button": 7,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FUEL",
+    "button": 8,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FUEL",
+    "button": 9,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FUEL",
+    "button": 10,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FUEL",
+    "button": 11,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FUEL",
+    "button": 12,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FUEL",
+    "button": 13,
+    "before": 3,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FUEL",
+    "button": 14,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FUEL",
+    "button": 15,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FUEL",
+    "button": 16,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FUEL",
+    "button": 17,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FUEL",
+    "button": 18,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FUEL",
+    "button": 19,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "FUEL",
+    "button": 20,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ADI",
+    "button": 1,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ADI",
+    "button": 2,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ADI",
+    "button": 3,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ADI",
+    "button": 4,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ADI",
+    "button": 5,
+    "before": 4,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ADI",
+    "button": 6,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ADI",
+    "button": 7,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ADI",
+    "button": 8,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ADI",
+    "button": 9,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ADI",
+    "button": 10,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ADI",
+    "button": 11,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ADI",
+    "button": 12,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ADI",
+    "button": 13,
+    "before": 4,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ADI",
+    "button": 14,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ADI",
+    "button": 15,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ADI",
+    "button": 16,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ADI",
+    "button": 17,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ADI",
+    "button": 18,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ADI",
+    "button": 19,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "ADI",
+    "button": 20,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "CHECKS",
+    "button": 1,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "CHECKS",
+    "button": 2,
+    "before": 6,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "CHECKS",
+    "button": 3,
+    "before": 6,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "CHECKS",
+    "button": 4,
+    "before": 6,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "CHECKS",
+    "button": 5,
+    "before": 6,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "CHECKS",
+    "button": 6,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "CHECKS",
+    "button": 7,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "CHECKS",
+    "button": 8,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "CHECKS",
+    "button": 9,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "CHECKS",
+    "button": 10,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "CHECKS",
+    "button": 11,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "CHECKS",
+    "button": 12,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "CHECKS",
+    "button": 13,
+    "before": 6,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "CHECKS",
+    "button": 14,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "CHECKS",
+    "button": 15,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "CHECKS",
+    "button": 16,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "CHECKS",
+    "button": 17,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "CHECKS",
+    "button": 18,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "CHECKS",
+    "button": 19,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "LMFD",
+    "page": "CHECKS",
+    "button": 20,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 3,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "MENU",
+    "button": 1,
+    "before": 0,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "MENU",
+    "button": 2,
+    "before": 0,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "MENU",
+    "button": 3,
+    "before": 0,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "MENU",
+    "button": 4,
+    "before": 0,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "MENU",
+    "button": 5,
+    "before": 0,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "MENU",
+    "button": 6,
+    "before": 0,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "MENU",
+    "button": 7,
+    "before": 0,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "MENU",
+    "button": 8,
+    "before": 0,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "MENU",
+    "button": 9,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "MENU",
+    "button": 10,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "MENU",
+    "button": 11,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "MENU",
+    "button": 12,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "MENU",
+    "button": 13,
+    "before": 0,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "MENU",
+    "button": 14,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "MENU",
+    "button": 15,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "MENU",
+    "button": 16,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "MENU",
+    "button": 17,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "MENU",
+    "button": 18,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "MENU",
+    "button": 19,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "MENU",
+    "button": 20,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "STORES",
+    "button": 1,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "STORES",
+    "button": 2,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "STORES",
+    "button": 3,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "STORES",
+    "button": 4,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "STORES",
+    "button": 5,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "STORES",
+    "button": 6,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "STORES",
+    "button": 7,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10982
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "STORES",
+    "button": 8,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "STORES",
+    "button": 9,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "STORES",
+    "button": 10,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "STORES",
+    "button": 11,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "STORES",
+    "button": 12,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "STORES",
+    "button": 13,
+    "before": 5,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "STORES",
+    "button": 14,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "STORES",
+    "button": 15,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "STORES",
+    "button": 16,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "STORES",
+    "button": 17,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "STORES",
+    "button": 18,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "STORES",
+    "button": 19,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "STORES",
+    "button": 20,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "NAV",
+    "button": 1,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "NAV",
+    "button": 2,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "NAV",
+    "button": 3,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "NAV",
+    "button": 4,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "NAV",
+    "button": 5,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "NAV",
+    "button": 6,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 25,
+        "value": 1,
+        "command": 10943
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "NAV",
+    "button": 7,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 25,
+        "value": 1,
+        "command": 10944
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "NAV",
+    "button": 8,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 25,
+        "value": 1,
+        "command": 10945
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "NAV",
+    "button": 9,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10841
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "NAV",
+    "button": 10,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "NAV",
+    "button": 11,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "NAV",
+    "button": 12,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "NAV",
+    "button": 13,
+    "before": 8,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "NAV",
+    "button": 14,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10835
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "NAV",
+    "button": 15,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "NAV",
+    "button": 16,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10832
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "NAV",
+    "button": 17,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10833
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "NAV",
+    "button": 18,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10834
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "NAV",
+    "button": 19,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10831
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "NAV",
+    "button": 20,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10830
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ENG",
+    "button": 1,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ENG",
+    "button": 2,
+    "before": 1,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ENG",
+    "button": 3,
+    "before": 1,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ENG",
+    "button": 4,
+    "before": 1,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ENG",
+    "button": 5,
+    "before": 1,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ENG",
+    "button": 6,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ENG",
+    "button": 7,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ENG",
+    "button": 8,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ENG",
+    "button": 9,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ENG",
+    "button": 10,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ENG",
+    "button": 11,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ENG",
+    "button": 12,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ENG",
+    "button": 13,
+    "before": 1,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ENG",
+    "button": 14,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ENG",
+    "button": 15,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ENG",
+    "button": 16,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ENG",
+    "button": 17,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ENG",
+    "button": 18,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ENG",
+    "button": 19,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ENG",
+    "button": 20,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FCS",
+    "button": 1,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FCS",
+    "button": 2,
+    "before": 2,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FCS",
+    "button": 3,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FCS",
+    "button": 4,
+    "before": 2,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FCS",
+    "button": 5,
+    "before": 2,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FCS",
+    "button": 6,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FCS",
+    "button": 7,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FCS",
+    "button": 8,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FCS",
+    "button": 9,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FCS",
+    "button": 10,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FCS",
+    "button": 11,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FCS",
+    "button": 12,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FCS",
+    "button": 13,
+    "before": 2,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FCS",
+    "button": 14,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FCS",
+    "button": 15,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FCS",
+    "button": 16,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FCS",
+    "button": 17,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FCS",
+    "button": 18,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FCS",
+    "button": 19,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FCS",
+    "button": 20,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FUEL",
+    "button": 1,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FUEL",
+    "button": 2,
+    "before": 3,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FUEL",
+    "button": 3,
+    "before": 3,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FUEL",
+    "button": 4,
+    "before": 3,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FUEL",
+    "button": 5,
+    "before": 3,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FUEL",
+    "button": 6,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FUEL",
+    "button": 7,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FUEL",
+    "button": 8,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FUEL",
+    "button": 9,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FUEL",
+    "button": 10,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FUEL",
+    "button": 11,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FUEL",
+    "button": 12,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FUEL",
+    "button": 13,
+    "before": 3,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FUEL",
+    "button": 14,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FUEL",
+    "button": 15,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FUEL",
+    "button": 16,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FUEL",
+    "button": 17,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FUEL",
+    "button": 18,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FUEL",
+    "button": 19,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "FUEL",
+    "button": 20,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ADI",
+    "button": 1,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ADI",
+    "button": 2,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ADI",
+    "button": 3,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ADI",
+    "button": 4,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ADI",
+    "button": 5,
+    "before": 4,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ADI",
+    "button": 6,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ADI",
+    "button": 7,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ADI",
+    "button": 8,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ADI",
+    "button": 9,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ADI",
+    "button": 10,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ADI",
+    "button": 11,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ADI",
+    "button": 12,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ADI",
+    "button": 13,
+    "before": 4,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ADI",
+    "button": 14,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ADI",
+    "button": 15,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ADI",
+    "button": 16,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ADI",
+    "button": 17,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ADI",
+    "button": 18,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ADI",
+    "button": 19,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "ADI",
+    "button": 20,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "CHECKS",
+    "button": 1,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "CHECKS",
+    "button": 2,
+    "before": 6,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "CHECKS",
+    "button": 3,
+    "before": 6,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "CHECKS",
+    "button": 4,
+    "before": 6,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "CHECKS",
+    "button": 5,
+    "before": 6,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "CHECKS",
+    "button": 6,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "CHECKS",
+    "button": 7,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "CHECKS",
+    "button": 8,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "CHECKS",
+    "button": 9,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "CHECKS",
+    "button": 10,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "CHECKS",
+    "button": 11,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "CHECKS",
+    "button": 12,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "CHECKS",
+    "button": 13,
+    "before": 6,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "CHECKS",
+    "button": 14,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "CHECKS",
+    "button": 15,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "CHECKS",
+    "button": 16,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "CHECKS",
+    "button": 17,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "CHECKS",
+    "button": 18,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "CHECKS",
+    "button": 19,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "CHECKS",
+    "button": 20,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "DEF",
+    "button": 1,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 18,
+        "value": 1,
+        "command": 10900
+      },
+      {
+        "device": 18,
+        "value": 0,
+        "command": 10900
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "DEF",
+    "button": 2,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "DEF",
+    "button": 3,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "DEF",
+    "button": 4,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "DEF",
+    "button": 5,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "DEF",
+    "button": 6,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 18,
+        "value": 1,
+        "command": 10906
+      },
+      {
+        "device": 18,
+        "value": 0,
+        "command": 10906
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "DEF",
+    "button": 7,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 18,
+        "value": 1,
+        "command": 10907
+      },
+      {
+        "device": 18,
+        "value": 0,
+        "command": 10907
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "DEF",
+    "button": 8,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 18,
+        "value": 1,
+        "command": 10908
+      },
+      {
+        "device": 18,
+        "value": 0,
+        "command": 10908
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "DEF",
+    "button": 9,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "DEF",
+    "button": 10,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "DEF",
+    "button": 11,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 18,
+        "value": 1,
+        "command": 10901
+      },
+      {
+        "device": 18,
+        "value": 0,
+        "command": 10901
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "DEF",
+    "button": 12,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "DEF",
+    "button": 13,
+    "before": 7,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "DEF",
+    "button": 14,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "DEF",
+    "button": 15,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 18,
+        "value": 1,
+        "command": 10902
+      },
+      {
+        "device": 18,
+        "value": 0,
+        "command": 10902
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "DEF",
+    "button": 16,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 20,
+        "value": 1,
+        "command": 10914
+      },
+      {
+        "device": 20,
+        "value": 0,
+        "command": 10914
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "DEF",
+    "button": 17,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 20,
+        "value": 1,
+        "command": 10913
+      },
+      {
+        "device": 20,
+        "value": 0,
+        "command": 10913
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "DEF",
+    "button": 18,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 20,
+        "value": 1,
+        "command": 10912
+      },
+      {
+        "device": 20,
+        "value": 0,
+        "command": 10912
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "DEF",
+    "button": 19,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 20,
+        "value": 1,
+        "command": 10911
+      },
+      {
+        "device": 20,
+        "value": 0,
+        "command": 10911
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "RMFD",
+    "page": "DEF",
+    "button": 20,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 4,
+        "command": 10742
+      },
+      {
+        "device": 20,
+        "value": 1,
+        "command": 10910
+      },
+      {
+        "device": 20,
+        "value": 0,
+        "command": 10910
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "MENU",
+    "button": 1,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "device": 6,
+        "value": 1,
+        "command": 10825
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "MENU",
+    "button": 2,
+    "before": 0,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "MENU",
+    "button": 3,
+    "before": 0,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "MENU",
+    "button": 4,
+    "before": 0,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "MENU",
+    "button": 5,
+    "before": 0,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "MENU",
+    "button": 6,
+    "before": 0,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "MENU",
+    "button": 7,
+    "before": 0,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "MENU",
+    "button": 8,
+    "before": 0,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "MENU",
+    "button": 9,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "MENU",
+    "button": 10,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "MENU",
+    "button": 11,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "MENU",
+    "button": 12,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "MENU",
+    "button": 13,
+    "before": 0,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "MENU",
+    "button": 14,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "MENU",
+    "button": 15,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "MENU",
+    "button": 16,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "MENU",
+    "button": 17,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "MENU",
+    "button": 18,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "MENU",
+    "button": 19,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "MENU",
+    "button": 20,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "STORES",
+    "button": 1,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "STORES",
+    "button": 2,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "STORES",
+    "button": 3,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "STORES",
+    "button": 4,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "STORES",
+    "button": 5,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "STORES",
+    "button": 6,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "STORES",
+    "button": 7,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10982
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "STORES",
+    "button": 8,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "STORES",
+    "button": 9,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "STORES",
+    "button": 10,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "STORES",
+    "button": 11,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "STORES",
+    "button": 12,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "STORES",
+    "button": 13,
+    "before": 5,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "STORES",
+    "button": 14,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "STORES",
+    "button": 15,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "STORES",
+    "button": 16,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "STORES",
+    "button": 17,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "STORES",
+    "button": 18,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "STORES",
+    "button": 19,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "STORES",
+    "button": 20,
+    "before": 5,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "NAV",
+    "button": 1,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "NAV",
+    "button": 2,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "NAV",
+    "button": 3,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "NAV",
+    "button": 4,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "NAV",
+    "button": 5,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "NAV",
+    "button": 6,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "device": 25,
+        "value": 1,
+        "command": 10943
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "NAV",
+    "button": 7,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "device": 25,
+        "value": 1,
+        "command": 10944
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "NAV",
+    "button": 8,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "device": 25,
+        "value": 1,
+        "command": 10945
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "NAV",
+    "button": 9,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10841
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "NAV",
+    "button": 10,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "NAV",
+    "button": 11,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "NAV",
+    "button": 12,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "NAV",
+    "button": 13,
+    "before": 8,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "NAV",
+    "button": 14,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10835
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "NAV",
+    "button": 15,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "NAV",
+    "button": 16,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10832
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "NAV",
+    "button": 17,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10833
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "NAV",
+    "button": 18,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10834
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "NAV",
+    "button": 19,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10831
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "NAV",
+    "button": 20,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10830
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ENG",
+    "button": 1,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ENG",
+    "button": 2,
+    "before": 1,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ENG",
+    "button": 3,
+    "before": 1,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ENG",
+    "button": 4,
+    "before": 1,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ENG",
+    "button": 5,
+    "before": 1,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ENG",
+    "button": 6,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ENG",
+    "button": 7,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ENG",
+    "button": 8,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ENG",
+    "button": 9,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ENG",
+    "button": 10,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ENG",
+    "button": 11,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ENG",
+    "button": 12,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ENG",
+    "button": 13,
+    "before": 1,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ENG",
+    "button": 14,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ENG",
+    "button": 15,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ENG",
+    "button": 16,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ENG",
+    "button": 17,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ENG",
+    "button": 18,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ENG",
+    "button": 19,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ENG",
+    "button": 20,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FCS",
+    "button": 1,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FCS",
+    "button": 2,
+    "before": 2,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FCS",
+    "button": 3,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FCS",
+    "button": 4,
+    "before": 2,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FCS",
+    "button": 5,
+    "before": 2,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FCS",
+    "button": 6,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FCS",
+    "button": 7,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FCS",
+    "button": 8,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FCS",
+    "button": 9,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FCS",
+    "button": 10,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FCS",
+    "button": 11,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FCS",
+    "button": 12,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FCS",
+    "button": 13,
+    "before": 2,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FCS",
+    "button": 14,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FCS",
+    "button": 15,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FCS",
+    "button": 16,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FCS",
+    "button": 17,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FCS",
+    "button": 18,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FCS",
+    "button": 19,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FCS",
+    "button": 20,
+    "before": 2,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FUEL",
+    "button": 1,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FUEL",
+    "button": 2,
+    "before": 3,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FUEL",
+    "button": 3,
+    "before": 3,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FUEL",
+    "button": 4,
+    "before": 3,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FUEL",
+    "button": 5,
+    "before": 3,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FUEL",
+    "button": 6,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FUEL",
+    "button": 7,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FUEL",
+    "button": 8,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FUEL",
+    "button": 9,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FUEL",
+    "button": 10,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FUEL",
+    "button": 11,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FUEL",
+    "button": 12,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FUEL",
+    "button": 13,
+    "before": 3,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FUEL",
+    "button": 14,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FUEL",
+    "button": 15,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FUEL",
+    "button": 16,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FUEL",
+    "button": 17,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FUEL",
+    "button": 18,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FUEL",
+    "button": 19,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "FUEL",
+    "button": 20,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ADI",
+    "button": 1,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ADI",
+    "button": 2,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ADI",
+    "button": 3,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ADI",
+    "button": 4,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ADI",
+    "button": 5,
+    "before": 4,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ADI",
+    "button": 6,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ADI",
+    "button": 7,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ADI",
+    "button": 8,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ADI",
+    "button": 9,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ADI",
+    "button": 10,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ADI",
+    "button": 11,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ADI",
+    "button": 12,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ADI",
+    "button": 13,
+    "before": 4,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ADI",
+    "button": 14,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ADI",
+    "button": 15,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ADI",
+    "button": 16,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ADI",
+    "button": 17,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ADI",
+    "button": 18,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ADI",
+    "button": 19,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "ADI",
+    "button": 20,
+    "before": 4,
+    "after": 4,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "CHECKS",
+    "button": 1,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "CHECKS",
+    "button": 2,
+    "before": 6,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "CHECKS",
+    "button": 3,
+    "before": 6,
+    "after": 5,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "CHECKS",
+    "button": 4,
+    "before": 6,
+    "after": 2,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "CHECKS",
+    "button": 5,
+    "before": 6,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "CHECKS",
+    "button": 6,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "CHECKS",
+    "button": 7,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "CHECKS",
+    "button": 8,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "CHECKS",
+    "button": 9,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "CHECKS",
+    "button": 10,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "CHECKS",
+    "button": 11,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "CHECKS",
+    "button": 12,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "CHECKS",
+    "button": 13,
+    "before": 6,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "CHECKS",
+    "button": 14,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "CHECKS",
+    "button": 15,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "CHECKS",
+    "button": 16,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "CHECKS",
+    "button": 17,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "CHECKS",
+    "button": 18,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "CHECKS",
+    "button": 19,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "CMFD",
+    "page": "CHECKS",
+    "button": 20,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 5,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "MENU",
+    "button": 1,
+    "before": 0,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "MENU",
+    "button": 2,
+    "before": 0,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "MENU",
+    "button": 3,
+    "before": 0,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11222
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "MENU",
+    "button": 4,
+    "before": 0,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "MENU",
+    "button": 5,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "MENU",
+    "button": 6,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "MENU",
+    "button": 7,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "MENU",
+    "button": 8,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "MENU",
+    "button": 9,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "MENU",
+    "button": 10,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "MENU",
+    "button": 11,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "MENU",
+    "button": 12,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "MENU",
+    "button": 13,
+    "before": 0,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "MENU",
+    "button": 14,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "MENU",
+    "button": 15,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "MENU",
+    "button": 16,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "MENU",
+    "button": 17,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "MENU",
+    "button": 18,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "MENU",
+    "button": 19,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "MENU",
+    "button": 20,
+    "before": 0,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "STORES",
+    "button": 1,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11201
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "STORES",
+    "button": 2,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11202
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "STORES",
+    "button": 3,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11203
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "STORES",
+    "button": 4,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11204
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "STORES",
+    "button": 5,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11205
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "STORES",
+    "button": 6,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11206
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "STORES",
+    "button": 7,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11207
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10982
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "STORES",
+    "button": 8,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11208
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "STORES",
+    "button": 9,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11209
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "STORES",
+    "button": 10,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11210
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "STORES",
+    "button": 11,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11211
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "STORES",
+    "button": 12,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11212
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "STORES",
+    "button": 13,
+    "before": 6,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11213
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "device": 6,
+        "value": 1,
+        "command": 11221
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "STORES",
+    "button": 14,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11214
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "STORES",
+    "button": 15,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11215
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "STORES",
+    "button": 16,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11216
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "STORES",
+    "button": 17,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11217
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "STORES",
+    "button": 18,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11218
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "STORES",
+    "button": 19,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11219
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "STORES",
+    "button": 20,
+    "before": 6,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11220
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "NAV",
+    "button": 1,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11201
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "NAV",
+    "button": 2,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11202
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "NAV",
+    "button": 3,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11203
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "NAV",
+    "button": 4,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11204
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "NAV",
+    "button": 5,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11205
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "NAV",
+    "button": 6,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11206
+      },
+      {
+        "device": 25,
+        "value": 1,
+        "command": 10943
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "NAV",
+    "button": 7,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11207
+      },
+      {
+        "device": 25,
+        "value": 1,
+        "command": 10944
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "NAV",
+    "button": 8,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11208
+      },
+      {
+        "device": 25,
+        "value": 1,
+        "command": 10945
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "NAV",
+    "button": 9,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11209
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10841
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "NAV",
+    "button": 10,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11210
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "NAV",
+    "button": 11,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11211
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "NAV",
+    "button": 12,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11212
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "NAV",
+    "button": 13,
+    "before": 7,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11213
+      },
+      {
+        "device": 6,
+        "value": 1,
+        "command": 11221
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "NAV",
+    "button": 14,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11214
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10835
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "NAV",
+    "button": 15,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11215
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "NAV",
+    "button": 16,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11216
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10832
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "NAV",
+    "button": 17,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11217
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10833
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "NAV",
+    "button": 18,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11218
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10834
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "NAV",
+    "button": 19,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11219
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10831
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "NAV",
+    "button": 20,
+    "before": 7,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11220
+      },
+      {
+        "device": 8,
+        "value": 1,
+        "command": 10830
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ENG",
+    "button": 1,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ENG",
+    "button": 2,
+    "before": 8,
+    "after": 11,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ENG",
+    "button": 3,
+    "before": 8,
+    "after": 9,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ENG",
+    "button": 4,
+    "before": 8,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11222
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ENG",
+    "button": 5,
+    "before": 8,
+    "after": 10,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ENG",
+    "button": 6,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ENG",
+    "button": 7,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ENG",
+    "button": 8,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ENG",
+    "button": 9,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ENG",
+    "button": 10,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ENG",
+    "button": 11,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ENG",
+    "button": 12,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ENG",
+    "button": 13,
+    "before": 8,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ENG",
+    "button": 14,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ENG",
+    "button": 15,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ENG",
+    "button": 16,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ENG",
+    "button": 17,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ENG",
+    "button": 18,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ENG",
+    "button": 19,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ENG",
+    "button": 20,
+    "before": 8,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FCS",
+    "button": 1,
+    "before": 9,
+    "after": 9,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FCS",
+    "button": 2,
+    "before": 9,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11222
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FCS",
+    "button": 3,
+    "before": 9,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FCS",
+    "button": 4,
+    "before": 9,
+    "after": 10,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FCS",
+    "button": 5,
+    "before": 9,
+    "after": 9,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FCS",
+    "button": 6,
+    "before": 9,
+    "after": 9,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FCS",
+    "button": 7,
+    "before": 9,
+    "after": 9,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FCS",
+    "button": 8,
+    "before": 9,
+    "after": 9,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FCS",
+    "button": 9,
+    "before": 9,
+    "after": 9,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FCS",
+    "button": 10,
+    "before": 9,
+    "after": 9,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FCS",
+    "button": 11,
+    "before": 9,
+    "after": 9,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FCS",
+    "button": 12,
+    "before": 9,
+    "after": 9,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FCS",
+    "button": 13,
+    "before": 9,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FCS",
+    "button": 14,
+    "before": 9,
+    "after": 9,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FCS",
+    "button": 15,
+    "before": 9,
+    "after": 9,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FCS",
+    "button": 16,
+    "before": 9,
+    "after": 9,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FCS",
+    "button": 17,
+    "before": 9,
+    "after": 9,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FCS",
+    "button": 18,
+    "before": 9,
+    "after": 9,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FCS",
+    "button": 19,
+    "before": 9,
+    "after": 9,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FCS",
+    "button": 20,
+    "before": 9,
+    "after": 9,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FUEL",
+    "button": 1,
+    "before": 10,
+    "after": 10,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FUEL",
+    "button": 2,
+    "before": 10,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11222
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FUEL",
+    "button": 3,
+    "before": 10,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FUEL",
+    "button": 4,
+    "before": 10,
+    "after": 9,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FUEL",
+    "button": 5,
+    "before": 10,
+    "after": 10,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FUEL",
+    "button": 6,
+    "before": 10,
+    "after": 10,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FUEL",
+    "button": 7,
+    "before": 10,
+    "after": 10,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FUEL",
+    "button": 8,
+    "before": 10,
+    "after": 10,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FUEL",
+    "button": 9,
+    "before": 10,
+    "after": 10,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FUEL",
+    "button": 10,
+    "before": 10,
+    "after": 10,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FUEL",
+    "button": 11,
+    "before": 10,
+    "after": 10,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FUEL",
+    "button": 12,
+    "before": 10,
+    "after": 10,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FUEL",
+    "button": 13,
+    "before": 10,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FUEL",
+    "button": 14,
+    "before": 10,
+    "after": 10,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FUEL",
+    "button": 15,
+    "before": 10,
+    "after": 10,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FUEL",
+    "button": 16,
+    "before": 10,
+    "after": 10,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FUEL",
+    "button": 17,
+    "before": 10,
+    "after": 10,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FUEL",
+    "button": 18,
+    "before": 10,
+    "after": 10,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FUEL",
+    "button": 19,
+    "before": 10,
+    "after": 10,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "FUEL",
+    "button": 20,
+    "before": 10,
+    "after": 10,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ADI",
+    "button": 1,
+    "before": 11,
+    "after": 11,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ADI",
+    "button": 2,
+    "before": 11,
+    "after": 11,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ADI",
+    "button": 3,
+    "before": 11,
+    "after": 11,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ADI",
+    "button": 4,
+    "before": 11,
+    "after": 11,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ADI",
+    "button": 5,
+    "before": 11,
+    "after": 7,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ADI",
+    "button": 6,
+    "before": 11,
+    "after": 11,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ADI",
+    "button": 7,
+    "before": 11,
+    "after": 11,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ADI",
+    "button": 8,
+    "before": 11,
+    "after": 11,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ADI",
+    "button": 9,
+    "before": 11,
+    "after": 11,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ADI",
+    "button": 10,
+    "before": 11,
+    "after": 11,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ADI",
+    "button": 11,
+    "before": 11,
+    "after": 11,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ADI",
+    "button": 12,
+    "before": 11,
+    "after": 11,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ADI",
+    "button": 13,
+    "before": 11,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ADI",
+    "button": 14,
+    "before": 11,
+    "after": 11,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ADI",
+    "button": 15,
+    "before": 11,
+    "after": 11,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ADI",
+    "button": 16,
+    "before": 11,
+    "after": 11,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ADI",
+    "button": 17,
+    "before": 11,
+    "after": 11,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ADI",
+    "button": 18,
+    "before": 11,
+    "after": 11,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ADI",
+    "button": 19,
+    "before": 11,
+    "after": 11,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "ADI",
+    "button": 20,
+    "before": 11,
+    "after": 11,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "CHECKS",
+    "button": 1,
+    "before": 12,
+    "after": 12,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "CHECKS",
+    "button": 2,
+    "before": 12,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "CHECKS",
+    "button": 3,
+    "before": 12,
+    "after": 9,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "CHECKS",
+    "button": 4,
+    "before": 12,
+    "after": 6,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 5,
+        "value": 1,
+        "command": 11222
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "device": 4,
+        "value": 1,
+        "command": 10980
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "CHECKS",
+    "button": 5,
+    "before": 12,
+    "after": 10,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "CHECKS",
+    "button": 6,
+    "before": 12,
+    "after": 12,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "CHECKS",
+    "button": 7,
+    "before": 12,
+    "after": 12,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "CHECKS",
+    "button": 8,
+    "before": 12,
+    "after": 12,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "CHECKS",
+    "button": 9,
+    "before": 12,
+    "after": 12,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "CHECKS",
+    "button": 10,
+    "before": 12,
+    "after": 12,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "CHECKS",
+    "button": 11,
+    "before": 12,
+    "after": 12,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "CHECKS",
+    "button": 12,
+    "before": 12,
+    "after": 12,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "CHECKS",
+    "button": 13,
+    "before": 12,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "CHECKS",
+    "button": 14,
+    "before": 12,
+    "after": 12,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "CHECKS",
+    "button": 15,
+    "before": 12,
+    "after": 12,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "CHECKS",
+    "button": 16,
+    "before": 12,
+    "after": 12,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "CHECKS",
+    "button": 17,
+    "before": 12,
+    "after": 12,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "CHECKS",
+    "button": 18,
+    "before": 12,
+    "after": 12,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "CHECKS",
+    "button": 19,
+    "before": 12,
+    "after": 12,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "CHECKS",
+    "button": 20,
+    "before": 12,
+    "after": 12,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "SYSTEMS",
+    "button": 1,
+    "before": 3,
+    "after": 8,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "SYSTEMS",
+    "button": 2,
+    "before": 3,
+    "after": 9,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "SYSTEMS",
+    "button": 3,
+    "before": 3,
+    "after": 10,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "SYSTEMS",
+    "button": 4,
+    "before": 3,
+    "after": 11,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "SYSTEMS",
+    "button": 5,
+    "before": 3,
+    "after": 12,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "SYSTEMS",
+    "button": 6,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "SYSTEMS",
+    "button": 7,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "SYSTEMS",
+    "button": 8,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "SYSTEMS",
+    "button": 9,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "SYSTEMS",
+    "button": 10,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "SYSTEMS",
+    "button": 11,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "SYSTEMS",
+    "button": 12,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "SYSTEMS",
+    "button": 13,
+    "before": 3,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "SYSTEMS",
+    "button": 14,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "SYSTEMS",
+    "button": 15,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "SYSTEMS",
+    "button": 16,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "SYSTEMS",
+    "button": 17,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "SYSTEMS",
+    "button": 18,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "SYSTEMS",
+    "button": 19,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "SYSTEMS",
+    "button": 20,
+    "before": 3,
+    "after": 3,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "TSD",
+    "button": 1,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 10606,
+        "value": 1
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "TSD",
+    "button": 2,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 10628,
+        "value": 1
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "TSD",
+    "button": 3,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 10629,
+        "value": 1
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "TSD",
+    "button": 4,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 10630,
+        "value": 1
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "TSD",
+    "button": 5,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 10619,
+        "value": 1
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "TSD",
+    "button": 6,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 10607,
+        "value": 1
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "TSD",
+    "button": 7,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 10608,
+        "value": 1
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "TSD",
+    "button": 8,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "TSD",
+    "button": 9,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "TSD",
+    "button": 10,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "TSD",
+    "button": 11,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 10603,
+        "value": 1
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "TSD",
+    "button": 12,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 10600,
+        "value": 1
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "TSD",
+    "button": 13,
+    "before": 1,
+    "after": 0,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "TSD",
+    "button": 14,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 10607,
+        "value": 1
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "TSD",
+    "button": 15,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "command": 10608,
+        "value": 1
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "TSD",
+    "button": 16,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 14,
+        "value": 1,
+        "command": 10617
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "TSD",
+    "button": 17,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 14,
+        "value": 1,
+        "command": 10615
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "TSD",
+    "button": 18,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 14,
+        "value": 1,
+        "command": 10614
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "TSD",
+    "button": 19,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 14,
+        "value": 1,
+        "command": 10623
+      },
+      {
+        "command": 230
+      }
+    ]
+  },
+  {
+    "panel": "PMFD",
+    "page": "TSD",
+    "button": 20,
+    "before": 1,
+    "after": 1,
+    "events": [
+      {
+        "device": 16,
+        "value": 2,
+        "command": 10742
+      },
+      {
+        "device": 14,
+        "value": 1,
+        "command": 10616
+      },
+      {
+        "command": 230
+      }
+    ]
+  }
+]

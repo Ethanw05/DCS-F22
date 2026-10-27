@@ -1,0 +1,45 @@
+"""Actual route transactions and ICP keypad; rejects malformed data without mutations."""
+from test_display_startup import runtime
+sim=runtime()
+sim.execute("""
+local E=dofile(SCRIPT_ROOT..'Systems/Nav_Entry.lua')
+local e=E.new(2,41.5,42.5,10000,true)
+e:choose(2);for c in ('4130123'):gmatch('.')do e:digit(tonumber(c))end
+assert(e:accept() and math.abs(e.lat-(41+30.123/60))<1e-9)
+e:hemisphere();assert(e.lat<0)
+e:choose(3);e.buffer='04260123';assert(not e:accept(),'minutes 60 rejected')
+e.buffer='18000001';assert(not e:accept(),'beyond date line rejected')
+e.buffer='17959999';assert(e:accept())
+local n=E.new(2,0,0,1000,false);assert(not n:ready(),'unknown coordinates must be entered explicitly')
+local N=dofile(SCRIPT_ROOT..'Systems/Nav_Computer.lua')
+local c=N.new({{x=0,y=0,alt=1000},{x=100,y=0,alt=1000}})
+assert(c:edit(2,500,600,2000) and c.route[1].x==500)
+assert(c:undo_edit() and c.route[1].x==100)
+assert(c:edit(3,700,800,1000) and #c.route==2 and c.selected==2)
+assert(c:undo_edit() and #c.route==1 and c.selected==1)
+assert(not c:edit(200,0,0,1000) and #c.route==1,'reject sparse IDs')
+assert(not c:edit(3,0/0,0,1000) and #c.route==1)
+assert(not c:undo_edit())
+assert(c:select_id(2) and not c:select_id(3))
+""")
+sim=runtime()
+sim.execute("""
+function get_base_data()return {}end
+function send(d,c,v)actions[#actions+1]={d,c,v}end
+function dispatch_action(d,c,v)send(d,c,v)end
+dofile(SCRIPT_ROOT..'Systems/ICP_System.lua');post_initialize()
+get_param_handle('MAIN_POWER'):set(1)
+SetCommand(3014,7.125);assert(actions[#actions][2]==10831,'negative rocker press selects previous')
+SetCommand(3015,7.375);SetCommand(3015,7.25)
+SetCommand(3011,7.375);assert(actions[#actions][1]==25 and actions[#actions][2]==10954,'OP4 heading select')
+SetCommand(3012,7.375);assert(actions[#actions][2]==10955,'OP5 nav coupling')
+get_param_handle('HUD_WP_INDEX'):set(2);get_param_handle('F22_NAV_FIX_LAT'):set(41.5)
+get_param_handle('F22_NAV_FIX_LON'):set(42.5);get_param_handle('F22_NAV_FIX_ALT_FT'):set(10000)
+get_param_handle('F22_NAV_FIX_GEO_VALID'):set(1)
+SetCommand(3004,7.375);update();assert(get_param_handle('ICP_NAV_MENU'):get()==1)
+local before=#actions;SetCommand(3028,7.375);update();assert(#actions==before and get_param_handle('ICP_NAV_MENU'):get()==0,'UNDO cancels transaction')
+SetCommand(3004,7.375);SetCommand(3012,7.375)
+assert(actions[#actions][1]==8 and actions[#actions][2]==10839)
+assert(get_param_handle('F22_NAV_EDIT_LAT'):get()==41.5)
+""")
+print('Coordinate entry validation, route commit/undo, ICP option routing and negative rocker press PASS')

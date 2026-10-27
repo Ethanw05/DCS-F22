@@ -35,6 +35,8 @@ for name,setup in [('route-north',''),('route-east','own.h=-math.pi/2'),
         route={{x=0,y=0,alt=3000},{x=27780,y=3704,alt=3000,name='INGRESS'},
             {x=46300,y=22224,alt=5000,name='TURN EAST'},{x=18520,y=-18520,alt=2000,name='RECOVERY'}}
         function get_mission_route()return route end
+        get_param_handle('MAIN_POWER'):set(1)
+        dofile(SCRIPT_ROOT..'Systems/Flight_Guidance.lua');post_initialize();update()
         dofile(SCRIPT_ROOT..'Systems/Navigation_System.lua');post_initialize()
         get_param_handle('MAIN_POWER'):set(1);get_param_handle('HUD_GS_VALID'):set(1);get_param_handle('HUD_GS_MPS'):set(200)
     ''')

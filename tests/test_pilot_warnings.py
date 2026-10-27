@@ -1,0 +1,43 @@
+"""Warning policy under real-valued flight/terrain inputs, not display snapshots."""
+from test_display_startup import runtime
+lua=runtime()
+lua.execute('''
+local W=dofile(SCRIPT_ROOT..'Systems/Pilot_Warnings.lua')
+local function state()
+ return {now=10,powered=true,valid=true,ground=false,gear=false,n=0,u=1000,e=0,
+  vn=200,vu=0,ve=0,roll=0,heading=0,cas=200,nz=1,baro=4000,radar=700,baro_floor=0,radar_floor=500,
+  baro_valid=true,radar_valid=true,fcs_valid=true}
+end
+local flat=function()return 0 end
+local s=state();assert(not W.terrain(s,flat),'level over flat terrain is safe')
+s.u=200;s.vu=-120;assert(W.terrain(s,flat)=='pull_up')
+s.u=200;s.roll=math.rad(80);assert(W.terrain(s,flat)=='pull_up','snapshot equal-onset recovery uses oblique')
+s.roll=-math.rad(80);assert(W.terrain(s,flat)=='pull_up')
+s.vu=120;assert(not W.terrain(s,flat),'climb away must not call PULL UP')
+s=state();s.u=400;assert(W.terrain(s,function(n)return n>500 and 600 or 0 end))
+assert(not W.terrain(s,function()return 0/0 end),'invalid terrain fails closed')
+s.n=0/0;assert(not W.terrain(s,flat))
+local w=W.new();s=state();w:update(s,nil)
+s.now=10.1;s.radar=490
+local r=w:update(s,nil);assert(r.event=='altitude'and r.text=='ALTITUDE')
+s.now=10.2;r=w:update(s,nil);assert(not r.event and r.text=='ALTITUDE','single crossing, persistent visual')
+for i=1,30 do s.now=10.2+i*.1;assert(not w:update(s,nil).event,'no below-floor chatter')end
+s.radar=550;s.now=14;w:update(s,nil);s.radar=490;s.now=14.1;assert(not w:update(s,nil).event,'100ft rearm band')
+s.radar=650;s.now=15;w:update(s,nil);s.radar=450;s.now=15.1;assert(w:update(s,nil).event=='altitude')
+w=W.new();s=state();s.radar=400;assert(not w:update(s,nil).event,'setting a floor while below does not invent crossing')
+s.radar=700;w:update(s,nil);s.gear=true;s.radar=400;s.now=11;assert(not w:update(s,nil).event)
+w=W.new();s=state();w:update(s,nil);s.radar=400;s.now=11;s.missile_warning=true
+r=w:update(s,nil);assert(r.text=='ALTITUDE'and not r.event,'missile audio gets precedence')
+s.now=12;s.missile_warning=false;assert(w:update(s,nil).event=='altitude')
+w=W.new();s=state();s.u=250;s.vu=-120;s.missile_warning=true
+assert(not w:update(s,flat).event,'terrain debounce');s.now=10.25
+r=w:update(s,flat);assert(r.event=='pull_up'and r.priority==3,'urgent terrain overrides missile audio')
+w:acknowledge();s.now=13;assert(w:update(s,flat).event=='pull_up','urgent recovery is not acknowledgeable')
+w=W.new();s=state();s.fcs_fault=true;s.fcs_valid=false;w:update(s,nil)
+s.now=12;assert(not w:update(s,nil).event,'unknown control health is not a failure')
+s.fcs_valid=true;w:update(s,nil);s.now=12.6;assert(w:update(s,nil).event=='flight_controls')
+w:acknowledge();s.now=40;assert(not w:update(s,nil).event)
+s.ground=true;assert(w:update(s,flat).priority==0)
+s.ground=false;s.powered=false;assert(w:update(s,flat).priority==0)
+''')
+print('Pilot warnings: terrain/recovery handedness, debounce, real fault validity, floor crossing/rearm, gear/power gates and audio priorities PASS')

@@ -71,7 +71,16 @@ dev:listen_command(2006)
 dev:listen_event("GroundPowerOn")
 dev:listen_event("GroundPowerOff")
 
-local battery_state = 0 --track on off state
+local electrical = dofile(LockOn_Options.script_path.."Systems/Electrical_Computer.lua").new()
+local battery_fault = get_param_handle("BATTERY_FAILURE")
+local left_gen_fault = get_param_handle("L_GEN_FAILURE")
+local right_gen_fault = get_param_handle("R_GEN_FAILURE")
+local apu_fault = get_param_handle("APU_FAILURE")
+local battery_soc = get_param_handle("F22_BATTERY_SOC")
+local dc_volts = get_param_handle("F22_DC_VOLTS")
+local essential_power = get_param_handle("F22_ESSENTIAL_POWER")
+local electrical_valid = get_param_handle("F22_ELECTRICAL_VALID")
+local battery_state = 0 -- requested switch state; availability comes from reserve
 local initializing_hot_start = false
 local apu_state 	= 0 --track if apu was set to start
 local apu_pwr		= 0 --track if the apu has full power
@@ -488,33 +497,21 @@ function update()
 	end
 
 
---Brakes
-	if B_axis_value > 0.1 or (L_axis_value > 0.1 or R_axis_value > 0.1) or park_state == 1 then   
-		dispatch_action(nil,74)
-		--print_message_to_user("brake")
-	else
-		dispatch_action(nil,75)
-		--print_message_to_user("no brakes")
-	end
-
-	-- if L_axis_value > 0.1 then  
-	-- 	dispatch_action(nil,74)
-	-- 	print_message_to_user(L_axis_value)
-	-- else
-	-- 	dispatch_action(nil,75)
-	-- end
-
-	-- if R_axis_value > 0.1 then  
-	-- 	dispatch_action(nil,74)
-	-- 	print_message_to_user(R_axis_value)
-	-- else
-	-- 	dispatch_action(nil,75)
-	-- end
+-- Keep the independent axes proportional all the way to the EFM.
+    -- Raw DCS brake axes are -1 released .. +1 fully applied.
+    local function brake_demand(axis)
+        if type(axis) ~= "number" or axis ~= axis then return 0 end
+        return math.max(0, math.min(1, (axis + 1) * .5))
+    end
+    local left_brake = park_state == 1 and 1 or brake_demand(L_axis_value)
+    local right_brake = park_state == 1 and 1 or brake_demand(R_axis_value)
+    dispatch_action(nil, 10540, left_brake)
+    dispatch_action(nil, 10541, right_brake)
 
 	--Param
 	APU_POWER		:set(apu_pwr)
 	APU_RPM_STATE	:set(apu_rpm)
-	BATTERY_POWER	:set(battery_state)
+	-- Battery availability is published after the reserve model below.
 	-- MAIN_POWER is published after the generator supply model below.
 	UFD_ADI			:set(ufd_swap_adi)
 	-- Generator power is measured availability, not switch position.
@@ -543,7 +540,8 @@ function update()
     -- APU start/run/stop is a bounded timed state, not an update-count rate.
     -- 0.01 per 0.024s preserves the earlier nominal ramp speed.
     local apu_rate = 0.01 / 0.024
-    local apu_can_start = battery_state == 1 and apu_state == 1
+    local apu_can_start = electrical:available(battery_state == 1, battery_fault:get() > .5) and apu_state == 1
+        and apu_fault:get() < .5
         and apu_switch_pos == 0
     if apu_can_start then
         apu_rpm = math.min(4.0, apu_rpm + apu_rate * dt)
@@ -565,12 +563,12 @@ function update()
     -- 59/61% thresholds are preserved/moderated gameplay approximations.
     local left_rpm = sensor_data.getEngineLeftRPM()
     local right_rpm = sensor_data.getEngineRightRPM()
-    if L_gen_state == 0 or left_rpm < 59 then
+    if L_gen_state == 0 or left_gen_fault:get() > .5 or left_rpm < 59 then
         L_gen_pwr = 0
     elseif left_rpm >= 61 then
         L_gen_pwr = 1
     end
-    if R_gen_state == 0 or right_rpm < 59 then
+    if R_gen_state == 0 or right_gen_fault:get() > .5 or right_rpm < 59 then
         R_gen_pwr = 0
     elseif right_rpm >= 61 then
         R_gen_pwr = 1
@@ -585,6 +583,13 @@ function update()
     L_GEN_POWER:set(L_gen_pwr)
     R_GEN_POWER:set(R_gen_pwr)
     MAIN_POWER:set(main_pwr)
+    electrical:update(dt, battery_state == 1, main_pwr == 1,
+        apu_can_start and apu_rpm < 3.8, battery_fault:get() > .5)
+    BATTERY_POWER:set(electrical.battery)
+    battery_soc:set(electrical.soc)
+    dc_volts:set(electrical.volts)
+    essential_power:set(electrical.essential)
+    electrical_valid:set(1)
 	--Update Connectors On moving Throttles	
 	local L_THROTTLE = get_cockpit_draw_argument_value(768)
 	if prev_L_throttle_val ~= L_THROTTLE then

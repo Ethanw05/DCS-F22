@@ -32,7 +32,7 @@ local function put(n,v)get_param_handle(n):set(v)end
 local function get(n)return get_param_handle(n):get()end
 put('MAIN_POWER',1);put('F22_MWS_NATIVE_READY',1);put('F22_MWS_NATIVE_TIME',10)
 local p='F22_MWS_NATIVE_01_'
-put(p..'VALID',1);put(p..'SOURCE',123);put(p..'TIME',10);put(p..'AZ',math.pi);put(p..'EL',.2)
+put(p..'VALID',1);put(p..'THREAT',1);put(p..'SOURCE',123);put(p..'TIME',10);put(p..'AZ',math.pi);put(p..'EL',.2)
 update();assert(get('F22_MWS_ALERT')==1 and get('F22_MWS_CLOCK')==6 and get('F22_MWS_ELEVATION')==1)
 assert(playing and get('F22_MWS_AUDIO_PRIORITY')==1)
 SetCommand(10921,22.375);SetCommand(10921,22.375);SetCommand(10921,22.25);update()
@@ -40,6 +40,8 @@ assert(get('F22_MWS_ALERT')==1 and not playing and get('F22_MWS_AUDIO_PRIORITY')
 SetCommand(10921,1);SetCommand(10921,0);update();assert(playing)
 now=10.4;update();assert(get('F22_MWS_READY')==0 and get('F22_MWS_ALERT')==0,'frozen native publication stayed ready')
 put('F22_MWS_NATIVE_TIME',now);put(p..'TIME',now);update();assert(get('F22_MWS_ALERT')==1)
+put(p..'THREAT',0);update();assert(get('F22_MWS_ALERT')==0,'known outgoing missile remained in warning memory')
+put(p..'THREAT',1);put(p..'TIME',now+.01);update();assert(get('F22_MWS_ALERT')==1)
 put('MAIN_POWER',0);update();assert(get('F22_MWS_ALERT')==0 and not playing)
 put('MAIN_POWER',1);put(p..'VALID',0);update();assert(get('F22_MWS_ALERT')==0)
 ''')

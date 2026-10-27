@@ -24,6 +24,7 @@
 #include <cstddef> 
 #include <array>
 #include <map>
+#include "VehicleSystems.h"
 
     // ----- Aerodynamics, etc. -----
 
@@ -110,6 +111,7 @@ namespace RAPTOR {
     double right_aileron_angle = 0.0;
     bool roll_analog = true;
     double yaw_input = 0, yaw_discrete = 0, yaw_trim = 0, rudder_command = 0;
+    double rudder_angle = 0;
     bool yaw_analog = true;
     static double beta_integral = 0.0;
 
@@ -120,15 +122,18 @@ namespace RAPTOR {
     double right_throttle_input = 0, right_throttle_output = 0, right_engine_power_readout = 0, right_thrust_force = 0;
     double right_ab_timer = 0;
 
-    bool airbrake_switch = false, flaps_switch = false;
+    bool airbrake_switch = false;
+    int flap_override = -1; // -1 automatic, 0 up, 1 down (estimated mod override)
     double airbrake_pos = 0, flaps_pos = 0, slats_pos = 0;
     bool gear_switch = false;
     double gear_pos = 0;
-    double wheel_brake = 0;
+    double wheel_brake = 0; // common legacy command
+    double left_brake_request = 0, right_brake_request = 0;
+    double left_brake_achieved = 0, right_brake_achieved = 0;
     double landing_brake_assist = 0;
 
     const double max_internal_fuel = 8200.0;
-    const double max_external_fuel = 3700.0;
+    const double max_external_fuel = 2 * RaptorVehicle::external_tank_capacity_kg;
     const double ground_refuel_rate = 45.36;
     const double min_usable_fuel = 25.0;
     double internal_fuel = 0, external_fuel = 0, total_fuel = internal_fuel + external_fuel;
@@ -174,7 +179,13 @@ namespace RAPTOR {
     double autotrim_elevator_cmd = 0.0;
     bool manual_trim_applied = false;
     double takeoff_trim_cmd = 0.0;
-    double tv_angle = 0.0;
+    double tv_angle = 0.0; // mean, compatibility/diagnostics only
+    double left_tv_angle = 0.0, right_tv_angle = 0.0;
+    double current_mass = 19700.0;
+    Vec3 current_inertia;
+    Vec3 body_air_velocity;
+    double max_available_left_thrust = 0, max_available_right_thrust = 0;
+    double max_dry_left_thrust = 0, max_dry_right_thrust = 0;
 
     double g_assist_pos = 0;
     double g_limit_positive = 9.0; // Official USAF +9 g public limit
@@ -380,6 +391,8 @@ public:
     void update(double dt);
     void updateCombat(double dt);
     void updateGun();
+    void navigationFrame(RaptorAP::Frame& frame);
+    double readVehicleParameter(const std::string& name) { return getParameter(name); }
 
     void updateDrawArgs(float* drawargs, size_t size);
 

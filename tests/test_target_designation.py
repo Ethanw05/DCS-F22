@@ -29,7 +29,7 @@ local function put(n,v) get_param_handle(n):set(v) end
 local function val(n) return get_param_handle(n):get() end
 put('MAIN_POWER',1);put('HUD_MODE',5);put('F22N_RADAR_MODE',1);SetCommand(10602,1)
 SetCommand(10604,1);update();put('F22N_RADAR_MODE',3);put('F22N_RADAR_STT_RANGE',12964);update()
-assert(val('F22_ACM_MODE')==2 and val('F22_RADAR_STT_VALID')==1)
+assert(val('F22_ACM_MODE')==0 and val('F22_RADAR_STT_VALID')==1,'native track still displayed its prior acquisition pattern')
 local old=#actions;put('HUD_MODE',2);update()
 assert(val('F22_ACM_MODE')==0 and val('F22_RADAR_STT_VALID')==1,'MRM reset confirmed lock or retained VACQ')
 assert(val('PMFD_RADAR_SELECTION')==1,'MRM did not restore TWS preference')
@@ -58,12 +58,12 @@ assert(val('HUD_TD_VALID')==1 and val('HUD_TD_BOX_VALID')==1 and val('HUD_TD_LOC
 assert(val('HUD_AA_TARGET_VALID')==0 and val('HUD_GUN_TARGET_VALID')==0,'designation became weapon lock')
 put('F22_RADAR_DESIGNATION_AGE',2);update();assert(val('HUD_TD_COAST')==1)
 put('F22_RADAR_DESIGNATION_AGE',11);update();assert(val('HUD_TD_VALID')==0,'expired designation survived')
-put('F22N_RADAR_MODE',3);put('F22N_RADAR_STT_RANGE',12964)
-put('F22N_RADAR_STT_AZIMUTH',.03);put('F22N_RADAR_STT_ELEVATION',-.04);update()
+dofile(SCRIPT_ROOT..'../../tests/stt_snapshot_fixture.lua')
+publish_test_stt(12964,.03,-.04,-1);update()
 assert(val('HUD_TD_LOCKED')==1 and val('HUD_AA_TARGET_VALID')==1)
 assert(math.abs(val('HUD_TD_X')-math.tan(.03))<1e-9)
 for _,p in ipairs({{.5,0},{-.5,0},{0,.5},{0,-.5}}) do
- put('F22N_RADAR_STT_AZIMUTH',p[1]);put('F22N_RADAR_STT_ELEVATION',p[2]);update()
+ publish_test_stt(12964,p[1],p[2],-1);update()
  assert(val('HUD_TD_ARROW_VALID')==1 and val('HUD_TD_BOX_VALID')==0)
  assert(val('HUD_TD_ARROW_X')*p[1]+val('HUD_TD_ARROW_Y')*p[2]>0,'locator pointed away from target')
 end

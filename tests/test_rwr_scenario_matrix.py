@@ -60,17 +60,19 @@ local function put(n,v)get_param_handle(n):set(v)end
 local function val(n)return get_param_handle(n):get()end
 local function contact(az,el,signal,age)
  for k,v in pairs({SOURCE=123,TIME=age or 0,AZIMUTH=az,ELEVATION=el,SIGNAL=signal,
- UNIT_TYPE='MiG-29S',GENERAL_TYPE=1,PRIORITY=10})do put('RWR_CONTACT_01_'..k,v)end
+ UNIT_TYPE='MiG-29S',GENERAL_TYPE=1,PRIORITY=10,POWER=.25})do put('RWR_CONTACT_01_'..k,v)end
 end
 put('MAIN_POWER',1);put('RADAR_PWR',0)
 dofile(SCRIPT_ROOT..'Systems/RWR_System.lua');post_initialize()
 for bearing=-180,175,5 do for elevation=-80,80,20 do for signal=1,3 do
  now=now+.05;contact(math.rad(bearing),math.rad(elevation),signal);update()
- local radius=({.78,.53,.28})[signal]
+ -- Native relative proximity is independent of the warning/launch state.
+ local radius=.84*.75
  assert(val('F22_RWR_POWER')==1 and val('F22_RWR_COUNT')==1 and val('F22_RWR_ALERT')==signal)
  assert(math.abs(val('F22_EW_01_X')+math.sin(math.rad(bearing))*radius)<1e-10)
  assert(math.abs(val('F22_EW_01_Y')-math.cos(math.rad(bearing))*radius)<1e-10)
  assert(val('F22_EW_01_SOURCE')==123)
+ assert(val('F22_EW_01_POWER')==.25 and val('F22_EW_01_PROXIMITY_VALID')==1)
 end end end
 -- A native service outage clears warning output and retries cleanly.
 available=false;now=now+.1;update()
@@ -97,6 +99,6 @@ assert((starts['Aircrafts/F-22A/RWR/ping'] or 0)==event_count)
 -- Rewind discards cached identity even if the producer has not reset yet.
 now=0;update();assert(val('F22_EW_01_AFFILIATION')==-1)
 put('F22_TWS_PUBLISH_SEQUENCE',1);put('F22_IDENT_01_CLASS',0);update()
-assert(val('F22_EW_01_AFFILIATION')==0)
+assert(val('F22_EW_01_AFFILIATION')==0,'qualified simulator hostile classification was discarded')
 ''')
 print('Actual RWR owner: 1,944 bearing/elevation/severity cases, radar-off, API outage, mute/power, identity freeze/expiry, pause and rewind PASS')

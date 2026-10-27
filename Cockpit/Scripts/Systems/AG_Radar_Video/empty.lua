@@ -1,0 +1,1 @@
+-- GPL-3.0-or-later. The shared engine supplies radar video; no bitmap/tiles.

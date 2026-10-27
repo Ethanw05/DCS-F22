@@ -40,6 +40,12 @@ c=N.new(route);c.automatic=true
 N.solution(c,{x=19000,y=200,alt=3000,heading=0,gs=200});assert(c.selected==2,'passed-waypoint gate')
 c=N.new(route);c.automatic=true
 N.solution(c,{x=19000,y=4000,alt=3000,heading=0,gs=200});assert(c.selected==1,'far abeam must not sequence')
+c:step(1);assert(c.automatic,'manual NEXT silently disabled AUTO')
+c:select_id(2);assert(c.automatic,'manual waypoint selection silently disabled AUTO')
+c.designation={id=2}
+N.solution(c,{x=18520,y=0,alt=3000,heading=0,gs=200});assert(c.selected==1 and c.automatic,'designation must suspend, not erase AUTO')
+c.designation=nil;N.solution(c,{x=18520,y=0,alt=3000,heading=0,gs=200})
+assert(c.selected==2 and c.sequence_count==1,'AUTO failed to resume after clearing designation')
 assert(not N.solution(c,{x=0/0,y=0,alt=0,heading=0}))
 local bad=N.new({route[1],{x=0/0,y=0},{x=100,y=0,alt=0}});assert(#bad.route==1 and bad.route[1].id==3)
 local agl=N.new(route);assert(agl.route[2].reference=='AGL' and agl.route[2].msl==nil)
@@ -62,13 +68,17 @@ function p(n,v)get_param_handle(n):set(v)end
 function g(n)return get_param_handle(n):get()end
 p('MAIN_POWER',1);p('HUD_GS_VALID',1);p('HUD_GS_MPS',200);update()
 assert(g('HUD_WP_VALID')==1 and g('HUD_WP_INDEX')==2 and g('F22_NAV_ROUTE_COUNT')==2)
-assert(g('HUD_WP_CUE_VALID')==1 and g('HUD_WP_OFFSCREEN')==0)
+assert(g('HUD_WP_CUE_VALID')==0 and g('HUD_WP_OFFSCREEN')==0,'ordinary waypoint is steering-only')
 assert(g('HUD_WP_RANGE_NM')==20 and g('HUD_WP_TTG_TEXT')=='00:03:05')
 SetCommand(10830,8.375);SetCommand(10830,8.25);update()
 assert(g('HUD_WP_INDEX')==3,'physical press/release only steps once')
-assert(g('HUD_WP_CUE_VALID')==0 and g('HUD_WP_OFFSCREEN')==1)
+assert(g('HUD_WP_CUE_VALID')==0 and g('HUD_WP_OFFSCREEN')==0,'offscreen ordinary waypoint does not get target cues')
 SetCommand(10831,1);SetCommand(10831,0);update();assert(g('HUD_WP_INDEX')==2)
 SetCommand(10832,1);SetCommand(10832,0);update();assert(g('F22_NAV_AUTO')==1)
+SetCommand(10830,1);SetCommand(10831,1);update();assert(g('F22_NAV_AUTO')==1,'manual browse cancelled AUTO')
+p('HUD_GS_VALID',0);p('EFM_HUD_VALID',1);p('EFM_HUD_VN',200);p('EFM_HUD_VE',0)
+own.n=37040;update();assert(g('HUD_WP_INDEX')==3 and g('F22_NAV_SEQUENCE_COUNT')==1,'HUD invalidation stopped independent NAV sequencing')
+SetCommand(10831,1);own.n=0;p('HUD_GS_VALID',1);p('HUD_GS_MPS',200);update()
 p('MAIN_POWER',0);update();assert(g('HUD_WP_VALID')==0 and g('F22_NAV_PT_01_VALID')==0)
 SetCommand(10830,1);p('MAIN_POWER',1);update();assert(g('HUD_WP_INDEX')==2)
 own.n=0/0;update();assert(g('F22_NAV_VALID')==0 and g('HUD_WP_CUE_VALID')==0)
@@ -105,16 +115,21 @@ function get_aircraft_property()return 0 end
 dofile(SCRIPT_ROOT..'Systems/MFD_System.lua');post_initialize()
 get_param_handle('MAIN_POWER'):set(1)
 local sends={}
-function dispatch_action(device,command,value)sends[#sends+1]={device,command,value}end
-for _,b in ipairs({10060,10090,10110})do
- SetCommand(b+1,1);SetCommand(b+6,1)
+function dispatch_action(device,command,value)
+ if command==10742 then assert(device==devices.COMBAT_SYSTEM and value>=3 and value<=5);return end
+ sends[#sends+1]={device,command,value}
+end
+for _,panel in ipairs({{10060,13},{10090,13},{10110,13}})do
+ local b=panel[1]
+ SetCommand(b+panel[2],1);SetCommand(b+panel[2],0)
+ SetCommand(b+2,1);SetCommand(b+2,0) -- root MENU PB2 opens NAV
  local before=#sends
  SetCommand(b+20,5.375);SetCommand(b+20,5.25)
  assert(#sends==before+1 and sends[#sends][1]==8 and sends[#sends][2]==10830)
  SetCommand(b+19,1);assert(sends[#sends][2]==10831)
  SetCommand(b+16,1);assert(sends[#sends][2]==10832)
- SetCommand(b+17,1);assert(sends[#sends][2]==10833)
  SetCommand(b+18,1);assert(sends[#sends][2]==10834)
+ SetCommand(b+17,1);assert(sends[#sends][2]==10833)
  SetCommand(b+14,1);assert(sends[#sends][2]==10835)
 end
 ''')

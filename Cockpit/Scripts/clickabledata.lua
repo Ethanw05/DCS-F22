@@ -522,3 +522,30 @@ for i,o in pairs(elements) do
 	   o.use_OBB   = true
 	end
 end
+
+-- Shared MFD routing debounces held keys, so every physical bezel button
+-- must deliver its mouse release as well as its press.
+for _,stem in ipairs({"L_MFD_","R_MFD_","B_MFD_","PMFD_"})do
+ for button=1,20 do
+  elements[stem..button.."_PNT"].use_release_message={true}
+ end
+end
+
+-- Common UFC: left click opens AP; right click explicitly disconnects AP/A/T.
+do
+ local e=elements["ICP_AP_PNT"]
+ e.hint=_("AP menu (left click); AP + A/T disconnect (right click)")
+ e.class={class_type.BTN,class_type.BTN};e.action={device_commands.Button_15,device_commands.Button_35}
+ e.stop_action={device_commands.Button_15,device_commands.Button_35};e.arg={904,904};e.arg_value={1,1};e.arg_lim={{0,1},{0,1}}
+ e.use_release_message={false,false}
+end
+
+-- UFC pushbuttons must release the transport latch so the same option can
+-- submit its draft, repeated digits register, and AP mouse actions can repeat.
+for name,e in pairs(elements)do
+ if name:sub(1,4)=="ICP_" and e.device==devices.ICP_SYSTEM then
+  for button,kind in ipairs(e.class)do
+   if kind==class_type.BTN then e.use_release_message[button]=true end
+  end
+ end
+end

@@ -1,43 +1,32 @@
+return function(page_parameter,prefix,detail_parameter)
 -- GPL-3.0-or-later. Top Mach manual p24 PMFD visual conventions, original code.
 -- Heading-up polar display; actual radar and navigation data only at runtime.
 dofile(LockOn_Options.script_path .. "PMFD_CENTER/definitions.lua")
 dofile(LockOn_Options.script_path .. "fonts.lua")
 local layout = dofile(LockOn_Options.script_path .. "Systems/Radar_Display.lua")
+local identity=dofile(LockOn_Options.script_path..'Systems/Tactical_Identity.lua')
 SetScale(FOV)
 local native_page_scale = GetScale()
 local aspect = GetAspect and GetAspect() or 1
-local content_scale = 0.95 * math.min(1, aspect)
+local content_scale = 0.82 * math.min(1, aspect)
 local draw_level = 20
 if get_param_handle then
 	get_param_handle("F22_RADAR_PAGE_SCALE"):set(native_page_scale)
 end
-local colors = {
-	blue = { 113, 188, 240, 255 },
-	white = { 240, 247, 246, 255 },
-	green = { 0, 255, 0, 255 },
-	yellow = { 255, 220, 0, 255 },
-	red = { 255, 35, 20, 255 },
-	magenta = { 235, 80, 211, 255 },
-	background = { 3, 3, 12, 255 },
-}
+local palette=dofile(LockOn_Options.script_path..'MFD_COMMON/radar_palette.lua')
 local materials = {}
-for n, c in pairs(colors) do
-	materials[n] = MakeMaterial(nil, c)
+local fonts = {}
+for name in pairs(palette.linear)do
+	materials[name]=palette.line(name)
+	fonts[name]=palette.font(name)
 end
--- Original F-22 LCD bitmap atlas. HUD resources are independent.
-local fonts = {
-	white = UFD_FONT,
-	blue = UFD_RADAR_BLUE,
-	green = UFD_GRN,
-	yellow = UFD_YEL,
-	red = UFD_RED,
-	magenta = UFD_RADAR_MAGENTA,
-}
+-- The background matches the upper UFD material; it is already calibrated.
+materials.background=MakeMaterial(nil,{3,3,3,255})
 -- This page owns its LCD aperture. It does not borrow clipping masks from
 -- unrelated MENU/SYS subsets. FOV coordinates use the real connector aspect.
 local function mask(name, relation)
 	local e = CreateElement("ceMeshPoly")
-	e.name = name
+	e.name = prefix..name
 	e.material = materials.background
 	e.primitivetype = "triangles"
 	e.vertices = { { -1, -aspect }, { 1, -aspect }, { 1, aspect }, { -1, aspect } }
@@ -54,9 +43,9 @@ mask("F22_RDR_LCD_CONTENT", h_clip_relations.INCREASE_IF_LEVEL)
 local root = "F22_RADAR_FORMAT"
 local seq = 0
 local function add(e, name, parent)
-	e.name = name
+	e.name = prefix..name
 	if parent then
-		e.parent_element = parent
+		e.parent_element = prefix..parent
 	end
 	e.collimated = false
 	e.h_clip_relation = h_clip_relations.COMPARE
@@ -66,8 +55,9 @@ local function add(e, name, parent)
 	Add(e)
 end
 local main = CreateElement("ceSimple")
-main.element_params = { "MFD_OPACITY", "PMFD_RDR_PAGE" }
-main.controllers = { { "opacity_using_parameter", 0 }, { "parameter_in_range", 1, 0.9, 1.1 } }
+main.element_params = { "MFD_OPACITY", page_parameter, "F22_AG_RADAR_PAGE" }
+main.controllers = { { "opacity_using_parameter", 0 }, { "parameter_in_range", 1, 0.9, 1.1 },
+    { "parameter_in_range", 2, -0.1, 0.1 } }
 add(main, root)
 local function group(name, params, controllers, parent, x, y)
 	local e = CreateElement("ceSimple")
@@ -100,14 +90,14 @@ local function line(x1, y1, x2, y2, color, parent, width)
 	e.draw_as_wire = false
 	add(e, "F22_RDR_LINE_" .. seq, parent or root)
 end
-local function text(value, x, y, param, color, parent, size)
+local function text(value, x, y, param, color, parent, size, alignment)
 	seq = seq + 1
-	local e = CreateElement("ceStringPoly")
+	local e = CreateElement("ceStringSLine")
 	e.material = fonts[color or "white"]
 	e.init_pos = { x * content_scale, y * content_scale, 0 }
-	e.alignment = "CenterCenter"
+	e.alignment = alignment or "CenterCenter"
 	local h = (size or 0.0052) * content_scale
-	e.stringdefs = { h, h, h * 0.08, 0 }
+	e.stringdefs = { h, (h) * 0.60, h * 0.08, 0 }
 	if param then
 		e.formats = { value }
 		e.element_params = { param }
@@ -200,26 +190,37 @@ line(0.092, 0.984, 0.092, 0.885, "blue")
 line(-0.092, 0.885, 0, 0.844, "blue")
 line(0.092, 0.885, 0, 0.844, "blue")
 line(0, 0.844, 0, 0.79, "blue")
-text("LDR", -0.83, 0.936)
-text("30 S", -0.83, 0.875)
+local left_edge = -.74
+text("LDR", left_edge, 0.936, nil, nil, nil, nil, "LeftCenter")
+text("30 S", left_edge, 0.875, nil, nil, nil, nil, "LeftCenter")
 for code, value in ipairs({ "OFF", "STBY", "RWS", "TWS", "ACQ", "STT", "BORE", "VACQ", "WIDE", "SENSOR N/A" }) do
 	local name = "F22_RDR_MODE_" .. code
 	group(name, { "F22_RADAR_MODE_CODE" }, { { "parameter_in_range", 0, code - 1.1, code - 0.9 } })
 	text(value, 0.79, 0.936, nil, "white", name)
 end
 group("F22_RDR_IFF", { "F22_RADAR_IFF_ON" }, { { "parameter_in_range", 0, 0.9, 1.1 } })
-text("IFF", 0.79, 0.875, nil, "white", "F22_RDR_IFF")
 text("%.0f", 0.72, 0.59, "F22_RADAR_RANGE_NM", "white", nil, 0.006)
 text("%.0f", 0.41, -0.065, "F22_RADAR_HALF_RANGE_NM", "blue", nil, 0.0055)
 -- Coverage rays originate at ownship; width follows the selected search sector.
-group("F22_RDR_COVERAGE_CENTER", { "F22_RADAR_COVERAGE_CENTER_ROT" }, {
+group("F22_RDR_COVERAGE_CENTER", { "F22_RADAR_COVERAGE_CENTER_ROT", "F22_RADAR_COVERAGE_VALID" }, {
 	{ "rotate_using_parameter", 0, 1 },
+	{ "parameter_in_range", 1, 0.9, 1.1 },
 }, nil, 0, layout.origin_y)
+group("F22_RDR_SEARCH_COVERAGE", { "F22N_RADAR_MODE" }, {
+	{ "parameter_in_range", 0, -0.1, 2.9 },
+}, "F22_RDR_COVERAGE_CENTER")
 for _, side in ipairs({ -1, 1 }) do
 	local name = "F22_RDR_COVERAGE_" .. side
-	group(name, { "F22_RADAR_COVERAGE_ROT" }, { { "rotate_using_parameter", 0, side } }, "F22_RDR_COVERAGE_CENTER")
+	group(name, { "F22_RADAR_COVERAGE_ROT" }, { { "rotate_using_parameter", 0, side } }, "F22_RDR_SEARCH_COVERAGE")
 	line(0, 0, 0, layout.radius, "white", name, 0.0032)
 end
+-- With a valid weapon envelope, its target-aligned ray supplies the STT
+-- tracking line too. Avoid a second line from a different update owner.
+group("F22_RDR_TRACK_WITHOUT_ENVELOPE", { "F22N_RADAR_MODE", "F22_RDR_LAR_VISIBLE" }, {
+	{ "parameter_in_range", 0, 2.9, 3.1 },
+	{ "parameter_in_range", 1, -0.1, 0.1 },
+}, "F22_RDR_COVERAGE_CENTER")
+line(0, 0, 0, layout.radius, "white", "F22_RDR_TRACK_WITHOUT_ENVELOPE", 0.0032)
 -- White own-aircraft glyph, deliberately distinct from traffic and steerpoints.
 local ship = {
 	{ 0, 0.058 },
@@ -277,7 +278,7 @@ for i = 1, 24 do
 		{ "parameter_in_range", 3, 0.9, 1.1 },
 	})
 	-- Keep identity separate from selection and track-memory state.
-	for _, spec in ipairs({ { 1, "green" }, { -1, "yellow" }, { 0, "red" }, { 2, "white" } }) do
+	for _, spec in ipairs(identity.styles) do
 		local code, color = spec[1], spec[2]
 		local symbol = name .. "_IFF_" .. code
 		group(symbol, { p .. "AFFILIATION" }, { { "parameter_in_range", 0, code - 0.1, code + 0.1 } }, name)
@@ -295,13 +296,8 @@ for i = 1, 24 do
 			}) do
 				line(v[1], v[2], v[3], v[4], color, symbol, 0.002)
 			end
-		elseif code == 2 then
-			line(-0.024, -0.024, 0.024, -0.024, color, symbol)
-			line(0.024, -0.024, 0.024, 0.024, color, symbol)
-			line(0.024, 0.024, -0.024, 0.024, color, symbol)
-			line(-0.024, 0.024, -0.024, -0.024, color, symbol)
 		else
-			for a = -90, (code == 1 and 255 or 75), 15 do
+			for a = -90, ((code == 1 or code==3)and 255 or 75), 15 do
 				local x, y = math.rad(a), math.rad(a + 15)
 				line(
 					0.029 * math.sin(x),
@@ -313,6 +309,7 @@ for i = 1, 24 do
 					0.002
 				)
 			end
+			if code==3 then line(0,.03,0,.055,color,symbol)end
 		end
 		group(symbol .. "_ALT", { p .. "ALT_VALID" }, { { "parameter_in_range", 0, 0.9, 1.1 } }, symbol)
 		text("%.0f", 0, 0.061, p .. "ALT_FT", color, symbol .. "_ALT", 0.0038)
@@ -352,7 +349,7 @@ for i = 1, 24 do
 end
 group(
 	"F22_RDR_WAYPOINT",
-	{ "F22_RADAR_WP_X", "F22_RADAR_WP_Y", "F22_RADAR_WP_VALID" },
+	{ "F22_TSD_NAV_X", "F22_TSD_NAV_Y", "F22_TSD_NAV_VALID" },
 	{
 		{ "move_left_right_using_parameter", 0, 1 },
 		{ "move_up_down_using_parameter", 1, 1 },
@@ -372,7 +369,7 @@ for _, v in ipairs({
 }) do
 	line(v[1], v[2], v[3], v[4], "magenta", "F22_RDR_WAYPOINT", 0.003)
 end
-text("STPT %.0f", 0, 0.07, "F22_RADAR_WP_INDEX", "white", "F22_RDR_WAYPOINT", 0.0035)
+text("STPT %.0f", 0, 0.07, "F22_TSD_NAV_ID", "white", "F22_RDR_WAYPOINT", 0.0035)
 group("F22_RDR_SELECTED", { "F22_RADAR_SELECTED_VALID" }, { { "parameter_in_range", 0, 0.9, 1.1 } })
 text("BUG %.1f NM", -0.46, -0.775, "F22_RADAR_SELECTED_RANGE_NM", "white", "F22_RDR_SELECTED", 0.0042)
 group(
@@ -382,11 +379,6 @@ group(
 	"F22_RDR_SELECTED"
 )
 text("VC %+.0f", -0.46, -0.83, "F22_RADAR_SELECTED_CLOSURE_KTS", "white", "F22_RDR_CLOSURE", 0.0042)
-text("RNG IN", -0.77, -0.969, nil, "white", nil, 0.0047)
-text("RNG OUT", -0.38, -0.969, nil, "white", nil, 0.0047)
-text("MENU", 0, -0.969, nil, "white", nil, 0.0047)
-text("EMIT", 0.38, -0.969, nil, "white", nil, 0.0047)
-text("RWS/TWS", 0.77, -0.969, nil, "white", nil, 0.0047)
 
 -- Sensor provenance and second designation remain distinct from affiliation.
 for i = 1, 24 do
@@ -402,46 +394,26 @@ group(
 	{ { "parameter_in_range", 0, 0.9, 3.1 }, { "parameter_in_range", 1, 0.9, 1.1 } }
 )
 text("SENS R+EW", -0.46, -0.882, nil, "green", "F22_SA_SELECTED_SENSOR", 0.0035)
-text("PRI", -0.77, 1.025, nil, "white", nil, 0.004)
-text("SEC", -0.38, 1.025, nil, "white", nil, 0.004)
 group("F22_SA_SWAP_READY", { "F22_RADAR_SECONDARY_SWAP_AVAILABLE" }, { { "parameter_in_range", 0, 0.9, 1.1 } })
 group("F22_SA_SWAP_UNAVAILABLE", { "F22_RADAR_SECONDARY_SWAP_AVAILABLE" }, { { "parameter_in_range", 0, -0.1, 0.1 } })
-text("SWAP", 0, 1.025, nil, "white", "F22_SA_SWAP_READY", 0.004)
-text("SWAP", 0, 1.025, nil, "blue", "F22_SA_SWAP_UNAVAILABLE", 0.004)
-text("CLR2", 0.38, 1.025, nil, "white", nil, 0.004)
-text("IFF", 0.77, 1.025, nil, "white", nil, 0.004)
 
--- Selected-weapon launch zone, sharing the real engagement producer with HUD.
-group("F22_RDR_DLZ", { "F22_FC_DLZ_VALID" }, { { "parameter_in_range", 0, 0.9, 1.1 } })
-text("MAX %.1f", 0.68, 0.44, "F22_FC_MAX_NM", "white", "F22_RDR_DLZ", 0.0037)
-text("MIN %.1f", 0.68, 0.38, "F22_FC_MIN_NM", "white", "F22_RDR_DLZ", 0.0037)
-group("F22_RDR_DLZ_DYNAMIC", { "F22_FC_DLZ_DYNAMIC" }, { { "parameter_in_range", 0, 0.9, 1.1 } }, "F22_RDR_DLZ")
-text("RTR %.1f", 0.68, 0.32, "F22_FC_TURN_NM", "blue", "F22_RDR_DLZ_DYNAMIC", 0.0037)
-
--- Dedicated slant-range ruler. Its labelled adaptive scale is independent of
--- the heading-up map's horizontal range; HUD and radar share the same limits.
-local dlz_x, dlz_y, dlz_height = 0.90, -0.55, 1.06
-line(dlz_x, dlz_y, dlz_x, dlz_y + dlz_height, "white", "F22_RDR_DLZ")
-line(dlz_x - 0.01, dlz_y, dlz_x + 0.01, dlz_y, "white", "F22_RDR_DLZ")
-line(dlz_x - 0.01, dlz_y + dlz_height, dlz_x + 0.01, dlz_y + dlz_height, "white", "F22_RDR_DLZ")
-text("DLZ", 0.88, 0.74, nil, "white", "F22_RDR_DLZ", 0.0037)
-text("%.1f NM", 0.86, 0.67, "F22_FC_DLZ_SCALE_NM", "white", "F22_RDR_DLZ", 0.0033)
-for _, spec in ipairs({ { "MIN", 0.045 }, { "MAX", 0.075 }, { "TURN", 0.06 } }) do
-	local name = "F22_RDR_DLZ_" .. spec[1]
-	local parent = spec[1] == "TURN" and "F22_RDR_DLZ_DYNAMIC" or "F22_RDR_DLZ"
-	group(name, { "F22_FC_DLZ_" .. spec[1] .. "_Y" },
-		{ { "move_up_down_using_parameter", 0, dlz_height / 0.46 } }, parent, dlz_x, dlz_y)
-	line(-spec[2], 0, 0, 0, spec[1] == "TURN" and "blue" or "white", name)
-	if spec[1] == "TURN" then
-		line(-spec[2], -0.015, -spec[2], 0.015, "blue", name)
-	end
+-- Selected-weapon native range envelope, on the ownship -> contact ray.
+group("F22_RDR_DLZ", { "F22_RDR_LAR_VISIBLE" }, { { "parameter_in_range", 0, 0.9, 1.1 } })
+for _,name in ipairs({'MIN','MAX','TURN','AXIS'})do
+ local p='F22_RDR_LAR_'..name..'_'
+ local e=CreateElement('ceSimpleLineObject')
+ e.material=materials.white;e.vertices={{0,0},{.001,0}};e.primitivetype='lines'
+ e.width=.004*native_page_scale*content_scale
+ e.element_params={p..'X1',p..'Y1',p..'X2',p..'Y2',p..'VALID'}
+ local gain=native_page_scale*content_scale
+ e.controllers={{'line_object_set_point_using_parameters',0,0,1,gain,gain},
+  {'line_object_set_point_using_parameters',1,2,3,gain,gain},{'parameter_in_range',4,.9,1.1}}
+ add(e,'F22_RDR_LAR_'..name,'F22_RDR_DLZ')
 end
-group("F22_RDR_DLZ_RANGE", { "F22_FC_DLZ_RANGE_Y" },
-	{ { "move_up_down_using_parameter", 0, dlz_height / 0.46 } }, "F22_RDR_DLZ", dlz_x, dlz_y)
-line(0.035, 0.022, 0, 0, "green", "F22_RDR_DLZ_RANGE")
-line(0, 0, 0.035, -0.022, "green", "F22_RDR_DLZ_RANGE")
+
 group("F22_RDR_SHOOT", { "F22_FC_SHOOT" }, { { "parameter_in_range", 0, 0.9, 1.1 } }, "F22_RDR_DLZ")
-text("SHOOT", 0.67, 0.23, nil, "green", "F22_RDR_SHOOT", 0.0042)
+-- RDR_AA.lua places the enlarged shoot cue at the lower tactical-area centre.
+text("SHOOT", -0.05, -0.50, nil, "green", "F22_RDR_SHOOT", 0.0063)
 group("F22_RDR_TIMER", { "F22_FC_TIMER_VALID" }, { { "parameter_in_range", 0, 0.9, 1.1 } })
 group(
 	"F22_RDR_PREACTIVE",
@@ -502,29 +474,6 @@ group(
 )
 text("SUPPORT COAST", 0, -0.89, nil, "yellow", "F22_RDR_SUPPORT_COAST", 0.0036)
 
--- Left-bezel search controls. Keep the labels readable over moving tracks.
-local function scan_button(y, label, param)
-	local e = CreateElement("ceMeshPoly")
-	e.material = materials.background
-	e.primitivetype = "triangles"
-	e.vertices = {
-		{ -0.985 * content_scale, (y - 0.041) * content_scale },
-		{ -0.65 * content_scale, (y - 0.041) * content_scale },
-		{ -0.65 * content_scale, (y + 0.041) * content_scale },
-		{ -0.985 * content_scale, (y + 0.041) * content_scale },
-	}
-	e.indices = { 0, 1, 2, 2, 3, 0 }
-	seq = seq + 1
-	add(e, "F22_RDR_SCAN_BUTTON_BG_" .. seq, root)
-	text(label, -0.82, y, param, "white", nil, 0.0044)
-end
-scan_button(0.60, "AZ %.0f", "F22_RADAR_SEARCH_WIDTH_DEG")
-scan_button(0.24, "HT %.0f", "F22_RADAR_SEARCH_HEIGHT_DEG")
-scan_button(-0.12, "EL UP")
-scan_button(-0.48, "EL DN")
-scan_button(-0.84, "CNTR")
-text("EL %+.0f", -0.82, -0.21, "F22_RADAR_EL_DEG", "blue", nil, 0.0038)
-
 -- Distinguish the pilot's requested volume from TWS's automatic coverage.
 group("F22_RDR_SCAN_SEARCH", { "F22_RADAR_MODE_CODE" }, { { "parameter_in_range", 0, 1.9, 3.1 } })
 for _, spec in ipairs({ { 0, "MAN" }, { 1, "AUTO" } }) do
@@ -535,3 +484,7 @@ end
 text("AZ %.0f", -0.14, -0.815, "F22_RADAR_SCAN_AZ_DEG", "blue", "F22_RDR_SCAN_SEARCH", 0.0038)
 text("HT %.0f", 0.15, -0.815, "F22_RADAR_SCAN_EL_DEG", "blue", "F22_RDR_SCAN_SEARCH", 0.0038)
 text("EL %+.0f", 0, -0.865, "F22_RADAR_SCAN_CENTER_EL_DEG", "blue", "F22_RDR_SCAN_SEARCH", 0.0038)
+dofile(LockOn_Options.script_path..'PMFD_CENTER/tactical_overlay.lua')(
+ {group=group,line=line,text=text,add=add,materials=materials},layout,native_page_scale*content_scale,root)
+
+end

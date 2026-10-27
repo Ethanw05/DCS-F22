@@ -4,10 +4,15 @@ dofile(LockOn_Options.script_path .. "command_defs.lua")
 local input_value = dofile(LockOn_Options.script_path .. "Systems/Input_Value.lua")
 local commands = dofile(LockOn_Options.script_path .. "Systems/Radar_Commands.lua")
 local computer = dofile(LockOn_Options.script_path .. "Systems/Radar_Computer.lua").new()
+local task_library = dofile(LockOn_Options.script_path .. "Systems/Radar_Sensor_Tasking.lua")
+local sensor_tasks = task_library.new()
 local display = dofile(LockOn_Options.script_path .. "Systems/Radar_Display.lua")
+local tactical = dofile(LockOn_Options.script_path .. "Systems/Radar_Tactical.lua")
+local stt_contract = dofile(LockOn_Options.script_path .. "Systems/Radar_STT.lua")
+local identification = dofile(LockOn_Options.script_path .. "Systems/Radar_IFF.lua").new()
 local sensors = get_base_data()
 local dev = GetSelf()
-local dt = 0.05
+local dt = 1/60
 make_default_activity(dt)
 local handles = {}
 local function h(n)
@@ -22,10 +27,21 @@ end
 local function put(n, v)
 	h(n):set(v)
 end
+tactical.publish({tracks={},clock=0}, put, false)
+sensor_tasks:publish(put,0)
 -- Indicators retain these handles; create them before their Lua states bind.
 for i = 1, 24 do
 	h(string.format("F22_SCOPE_%02d_DESIGNATED", i))
 end
+-- Native-video consumers must bind their handles before indicators initialize.
+for _, name in ipairs({
+ "F22_AG_VIDEO_SOURCE_PRESENT", "F22_AG_VIDEO_GEOMETRY_QUALIFIED", "F22_AG_VIDEO_READY",
+ "F22_AG_VIDEO_REASON", "F22_AG_VIDEO_FRAMES", "F22_AG_VIDEO_ENABLE", "F22_AG_VIDEO_TIME",
+ "F22_AG_VIDEO_NORTH", "F22_AG_VIDEO_ALTITUDE", "F22_AG_VIDEO_EAST", "F22_AG_VIDEO_HEADING",
+ "F22_AG_VIDEO_FOV_DEG", "F22_AG_VIDEO_SCAN_DIRECTION", "F22_AG_VIDEO_SCAN_FRACTION",
+ "F22_AG_VIDEO_SCAN_AZ_DEG", "F22_AG_VIDEO_GAIN", "F22_AG_VIDEO_GAIN_PCT",
+ "F22_AG_VIDEO_FROZEN", "F22_AG_VIDEO_ERASE_SEQUENCE",
+}) do h(name) end
 local telemetry_config = dofile(LockOn_Options.script_path .. "Systems/Radar_Config.lua")
 local telemetry = nil
 if telemetry_config.telemetry_enabled then
@@ -62,16 +78,21 @@ local pending_unlock = false
 local acquiring = false
 local native_power = nil
 local last_diagnostic = nil
+local last_sensor_task_diagnostic = nil
 local next_scope_diagnostic = 0
-local iff_until = 0
+local emission_inhibited = false
 local was_stt = false
 local lock_iff = nil
 local previous_hud_mode = 0
+-- ACM is a weapon-specific request, not a global return mode. GUN starts in
+-- WIDE; SRM keeps search until the pilot explicitly selects an ACM pattern.
+local weapon_patterns = { [5] = "WIDE" }
 local last_fusion = nil
 local latest_pose = nil
 local publish_sequence = 0
 local last_acquire_request = -100
 local previous_acquire_mode = -1
+local ag = nil
 local function sync_model_clock()
 	if type(get_model_time) ~= "function" then
 		return
@@ -90,10 +111,67 @@ local function sync_model_clock()
 	computer.clock = now
 	return now
 end
+local function sync_weapon_mode()
+	local mode = get("HUD_MODE")
+	if mode == previous_hud_mode or not ({[1]=true,[2]=true,[3]=true,[5]=true,[7]=true})[mode] then
+		return
+	end
+	local old_mode, old_pattern = previous_hud_mode, computer.return_mode
+	if old_mode == 3 or old_mode == 5 then
+		weapon_patterns[old_mode] = computer:profile() and computer.mode or "SEARCH"
+	end
+	previous_hud_mode = mode
+	local pattern = weapon_patterns[mode]
+	local next_mode = pattern and pattern ~= "SEARCH" and pattern or computer.search_mode
+	local native_mode = get("F22N_RADAR_MODE")
+	if mode == 2 and not emission_inhibited then computer.power = true end
+	if next_mode ~= computer.mode or computer.acquire or native_mode == 2 then
+		if native_mode == 3 then
+			-- Keep the confirmed target; reject/track loss must return to the
+			-- new weapon's scan, never resurrect the previous GUN pattern.
+			computer.mode, computer.return_mode = next_mode, next_mode
+		else
+			local command = ({VACQ="vertical",BORE="boresight",WIDE="wide"})[next_mode] or string.lower(next_mode)
+			computer:command(command)
+			computer.acquire_id = nil
+			pending_unlock = true
+			acquiring = false
+		end
+	end
+	computer.return_mode = next_mode
+	computer.scan, computer.effective_scan = nil, nil
+	computer.rf_scan_windows = {}
+	sensor_tasks:reset()
+	if mode == 7 or old_mode == 7 then slew_x, slew_y = 0, 0 end
+	if log and log.write then
+		log.write("F22_RADAR_WEAPON_MODE", log.INFO, string.format(
+			"t=%.3f from=%d to=%d previous=%s requested=%s return=%s native=%d acquire=%d pending_unlock=%d",
+			computer.clock, old_mode, mode, old_pattern, next_mode, computer.return_mode,
+			native_mode, computer.acquire and 1 or 0, pending_unlock and 1 or 0))
+	end
+end
 function SetCommand(command, value)
-	sync_model_clock()
-	if command >= 10600 and command <= 10632 then
+	local command_time = sync_model_clock()
+	-- Synchronize before accepting a pattern command as well as on update:
+	-- weapon mode and its scan request can arrive during the same frame.
+	sync_weapon_mode()
+	if command >= 10600 and command <= 10652 then
 		value = input_value(value, devices.RADAR_COMPUTER)
+	end
+	if get("HUD_MODE") == 7 and ag then
+		local name = command == 10620 and "axis_x" or command == 10621 and "axis_y" or by_id[command] or legacy[command]
+		local focus = get("F22_SOI")
+		if (name == "axis_x" or name == "axis_y") and (focus ~= 0 and focus ~= 2) then value = 0 end
+		if name == "power" then
+			if value > 0 then computer.power = not computer.power; emission_inhibited = not computer.power end
+		elseif name == "operate" then
+			if value > 0 and not emission_inhibited then computer.power = true end
+		elseif name == "iff_auto" then
+			if value > 0 then identification:toggle_auto() end
+		else
+			ag:command(name, value, computer.power and get("MAIN_POWER") > .5, command_time)
+		end
+		return
 	end
 	if command == 10620 then
 		slew_x = value
@@ -114,18 +192,18 @@ function SetCommand(command, value)
 		return
 	end
 	if name == "operate" then
-		computer.power = true
+		if not emission_inhibited then computer.power = true end
 		return
 	end
 	if name == "bvr" then
-		computer.power = true
+		if not emission_inhibited then computer.power = true end
 		name = string.lower(computer.search_mode)
 		if computer.mode == computer.search_mode then
 			return
 		end
 	end
 	local pattern = ({ vertical = "VACQ", boresight = "BORE", wide = "WIDE" })[name]
-	if pattern or name == "rws" or name == "tws" or name == "toggle" or name == "designate" then
+	if not emission_inhibited and (name == "rws" or name == "tws" or name == "toggle" or name == "designate") then
 		computer.power = true
 	end
 	if pattern and computer.mode == pattern then
@@ -144,12 +222,19 @@ function SetCommand(command, value)
 		end
 		return
 	end
-	if name == "interrogate" or name == "interrogate_los" then
-		iff_until = computer.clock + 3
+	if name == "iff_auto" then
+		identification:toggle_auto()
 		return
 	end
-	if name == "designate" or name == "secondary" then
-		iff_until = computer.clock + 3
+	if name == "interrogate" or name == "interrogate_los" then
+		local t = computer.selected and computer.tracks[computer.selected]
+		local a, e = computer.cursor_az, computer.elevation
+		if t and latest_pose then
+			local _, az, el = display.body_observation(t, latest_pose, computer:age(t))
+			a, e = az, el
+		end
+		identification:request(name, computer.clock, a, e)
+		return
 	end
 	-- The shared backend can guide one STT target. Reject before swapping.
 	if name == "swap_targets" and get("F22N_RADAR_MODE") == 3 then
@@ -170,7 +255,9 @@ function SetCommand(command, value)
 	if latest_pose then
 		computer:geometry(display, latest_pose)
 	end
+	sensor_tasks:command(name,computer.clock)
 	computer:command(name)
+	if name == "power" then emission_inhibited = not computer.power end
 	if (name == "designate" or name == "stt") and log and log.write then
 		local t = computer.selected and computer.tracks[computer.selected]
 		log.write(
@@ -191,17 +278,23 @@ function SetCommand(command, value)
 	end
 end
 function post_initialize()
-	-- Standby until explicitly selected. A numeric zero must not masquerade as
-	-- evidence that the native device is installed and exporting.
-	computer.power = false
+	sensor_tasks:reset()
+	last_sensor_task_diagnostic = nil
+	sensor_tasks:publish(put,0)
+	-- Default to radar operation. Actual emission still requires electrical
+	-- supply and a qualified native backend; deliberate OFF remains respected.
+	computer.power = true
 	put("RADAR_PWR", 0)
 	put("F22_RADAR_SUPPLY", 0)
 	put("F22_RADAR_BACKEND_READY", 0)
 	put("F22_RADAR_FC_ENABLE", 1)
+	put("F22_RADAR_STT_VALID", 0)
+	put("F22_RADAR_EMISSION_INHIBIT", 0)
 end
 local function native_command(c)
 	dispatch_action(devices.RADAR_NATIVE, c, 1)
 end
+ag = dofile(LockOn_Options.script_path .. "Systems/AG_Radar_System.lua").new(get, put, native_command)
 local function publish_quality(prefix, t)
 	local age = computer:age(t)
 	put(prefix .. "AGE", display.finite(age) and age or 999)
@@ -214,12 +307,9 @@ end
 function update()
 	local model_time = sync_model_clock()
 	local step = model_time and 0 or dt
-	-- Also cover keyboard/legacy weapon selections outside the HOTAS owner.
+	-- Radar owns weapon-entry/exit state regardless of the input source.
 	local hud_mode = get("HUD_MODE")
-	if hud_mode == 2 and previous_hud_mode ~= 2 then
-		SetCommand(commands.bvr, 1)
-	end
-	previous_hud_mode = hud_mode
+	sync_weapon_mode()
 	local north, altitude, east = sensors.getSelfCoordinates()
 	local heading = (2 * math.pi - sensors.getHeading()) % (2 * math.pi)
 	local pose = nil
@@ -245,26 +335,30 @@ function update()
 	latest_pose = pose
 	display.compass(heading, put)
 	put("F22_RADAR_HEADING_DEG", math.floor(math.deg(heading) + 0.5) % 360)
-	if math.abs(slew_x) > 0.08 then
+	local focus = get("F22_SOI")
+	local radar_focus = focus == 0 or focus == 2
+	if radar_focus and math.abs(slew_x) > 0.08 then
 		computer.cursor_az = math.max(-math.rad(60), math.min(math.rad(60), computer.cursor_az + slew_x * dt * 0.4))
 	end
-	if math.abs(slew_y) > 0.08 then
+	if radar_focus and math.abs(slew_y) > 0.08 then
 		computer.cursor_range =
 			math.max(40, math.min(computer:range(), computer.cursor_range + slew_y * dt * computer:range() * 0.4))
 	end
 	local powered = computer.power and get("MAIN_POWER") > 0.5
 	local now_stt = get("F22N_RADAR_MODE") == 3
 	if now_stt and not was_stt then
-		iff_until = computer.clock + 3
 		lock_iff = nil
 	end
 	if not now_stt then
 		lock_iff = nil
 	end
 	was_stt = now_stt
-	-- Auto IFF stays available for every sensor revisit. A one-second pulse
-	-- every five seconds can miss a six-second radar revisit for many scans.
-	local iff_enabled = true
+	identification:update(computer.clock, powered)
+	local iff_enabled = identification:enabled()
+	put("F22_RADAR_EMISSION_INHIBIT", emission_inhibited and 1 or 0)
+	put("F22_RADAR_IFF_AUTO", identification.automatic and 1 or 0)
+	put("F22_RADAR_IFF_REQUEST", identification.mode)
+	put("F22_RADAR_IFF_REMAINING", identification.mode ~= 0 and math.max(0, identification.until_time - computer.clock) or 0)
 	put("F22_RADAR_SUPPLY", powered and 1 or 0)
 	put("RADAR_PWR", powered and 1 or 0)
 	put("F22N_IFF_INTERROGATOR_STATUS", powered and iff_enabled and 1 or 0)
@@ -279,7 +373,14 @@ function update()
 	local available = native and type(native.set_power) == "function"
 	local ready = available and get("F22_RADAR_ACQ_COORDINATES_READY") > 0.5
 	put("F22_RADAR_DEVICE_ID", devices.RADAR_NATIVE)
-	local requested_power = powered and ready
+	-- The A/G computer keeps its frozen picture powered in SIL while the
+	-- owned native transmitter is independently inhibited.
+	if hud_mode==7 then
+	 if not radar_focus then ag:command("axis_x",0,powered);ag:command("axis_y",0,powered)end
+	 ag:update(pose,computer.clock,dt,powered,ready)
+	end
+	local requested_power = powered and ready and (hud_mode~=7 or ag:emitting())
+	put("F22_RADAR_EMISSION_INHIBIT",(emission_inhibited or (hud_mode==7 and not ag:emitting()))and 1 or 0)
 	if available and native_power ~= requested_power then
 		local ok = pcall(function()
 			native:set_power(requested_power)
@@ -291,6 +392,21 @@ function update()
 		end
 	end
 	put("F22_RADAR_BACKEND_READY", ready and 1 or 0)
+	put("F22_AG_RADAR_PAGE", hud_mode == 7 and 1 or 0)
+	if hud_mode == 7 then
+		computer.effective_scan=nil
+		computer.rf_scan_windows={}
+		sensor_tasks:reset()
+		sensor_tasks:publish(put,computer.clock)
+		tactical.publish(computer, put, false)
+
+		return
+	end
+	put("F22_AG_RADAR_OPERATING", 0)
+	put("F22_AG_RADAR_EMITTING",0)
+	ag.controls.active=false;ag.controls.active_end=nil;ag.controls.pending=0
+	ag:cancel_preview()
+	put("F22_RADAR_FC_ENABLE", 1)
 	local native_mode = get("F22N_RADAR_MODE")
 	if pending_unlock then
 		if native_mode == 3 then
@@ -346,6 +462,7 @@ function update()
 				}
 				o.velocity_valid = display.finite(o.vn) and display.finite(o.ve) and display.finite(o.vu)
 				o.range, o.az, o.el = display.body_observation(o, pose, age)
+				o.iff = identification:reply(o.iff, o.observed, o.az, o.el, true)
 				observations[#observations + 1] = o
 			end
 		end
@@ -356,7 +473,7 @@ function update()
 	if powered and ready and native_mode == 3 and pose and model_time and get("F22_STT_MOTION_VALID") > 0.5 then
 		local stamp = get("F22_STT_TIME")
 		local age = model_time - stamp
-		if display.finite(stamp) and age >= -0.05 and age <= 0.5 then
+		if stt_contract.fresh(model_time, stamp) then
 			age = math.max(0, age)
 			local o = {
 				native_id = get("F22_STT_ID"),
@@ -373,6 +490,18 @@ function update()
 			}
 			o.velocity_valid = display.finite(o.vn) and display.finite(o.ve) and display.finite(o.vu)
 			o.range, o.az, o.el = display.body_observation(o, pose, age)
+			o.iff = identification:reply(o.iff, o.observed, o.az, o.el)
+			-- Native STT publishes a friendly boolean, not the full detected
+			-- contact class. Maintain an already confirmed affiliation while the
+			-- same exact source stays in fresh hard lock; otherwise a long dogfight
+			-- would lose known hostile ID when the old search reply aged out.
+			if o.iff == -1 then
+				local known = computer:source(o.native_id)
+				if known and ((known.friend_until and known.friend_until > computer.clock)
+					or (known.hostile_until and known.hostile_until > computer.clock)) then
+					o.iff = known.iff
+				end
+			end
 			if o.native_id > 0 and display.finite(o.range) and display.finite(o.az) and display.finite(o.el) then
 				observations[#observations + 1] = o
 				stt_observation = o
@@ -413,9 +542,35 @@ function update()
 	else
 		computer.scan = nil
 	end
+	local rf_cues={}
+	if powered and ready and pose and get("HUD_MODE")~=7 then
+		rf_cues=task_library.read(get,computer.clock,pose)
+	end
+	scan=sensor_tasks:update(computer.clock,computer,scan,rf_cues,
+		telemetry_config.rf_tasking_enabled~=false and powered and ready and pose~=nil and get("HUD_MODE")~=7)
+	computer:set_effective_scan(scan,computer.clock)
+	sensor_tasks:publish(put,computer.clock)
+	if log and log.write then
+		local task=sensor_tasks.status or{}
+		local signature=string.format("task=%d source=%d pending=%d",task.task or 0,task.source or 0,task.pending or 0)
+		if signature~=last_sensor_task_diagnostic then
+			log.write("F22_SENSOR_TASK",log.INFO,signature..string.format(
+				" rf_age=%.2f az=%.1f el=%.1f width=%.1f height=%.1f hard=%d support=%d",
+				task.age or -1,math.deg(scan and scan.az or 0),
+				math.deg(scan and scan.el or computer.elevation),
+				math.deg(scan and scan.half_az or math.rad(computer.azimuth))*2,
+				math.deg(scan and scan.half_el or math.rad(computer.vertical_span/2))*2,
+				scan and scan.obligations or 0,scan and scan.support_count or 0))
+			last_sensor_task_diagnostic=signature
+		end
+	end
 	put("F22_RADAR_SCAN_AUTO", powered and ready and scan and 1 or 0)
 	put("F22_RADAR_SCAN_OBLIGATIONS", scan and scan.obligations or 0)
 	put("F22_RADAR_SCAN_UNCOVERED", scan and scan.uncovered or 0)
+	put("F22_RADAR_SUPPORT_OVERDUE", scan and scan.support_overdue or 0)
+	put("F22_RADAR_SUPPORT_TASKS", scan and scan.support_count or 0)
+	put("F22_RADAR_REVISIT_REMAINING", scan and scan.support_count > 0 and scan.revisit_remaining or 0)
+	put("F22_RADAR_SUPPORT_DEGRADED", scan and scan.support_count > 0 and (scan.uncovered > 0 or scan.support_overdue > 0) and 1 or 0)
 	put("F22_RADAR_SCAN_COVERAGE_COMPLETE", powered and ready and scan and scan.uncovered == 0 and 1 or 0)
 	put("F22_RADAR_SCAN_RANGE_NM", scan and scan.range / 1852 or computer:range() / 1852)
 	local identities = {}
@@ -438,6 +593,7 @@ function update()
 	end
 	local mode = not powered and "OFF"
 		or (not ready or (not observations_ready and native_mode ~= 3)) and "SENSOR N/A"
+		or native_mode == 3 and not stt_observation and "SENSOR N/A"
 		or native_mode == 0 and "STBY"
 		or native_mode == 3 and "STT"
 		or computer.acquire and "ACQ"
@@ -448,13 +604,14 @@ function update()
 		({ OFF = 0, STBY = 1, RWS = 2, TWS = 3, ACQ = 4, STT = 5, BORE = 6, VACQ = 7, WIDE = 8, ["SENSOR N/A"] = 9 })[mode]
 			or 9
 	)
-	local sr, sa, se = get("F22N_RADAR_STT_RANGE"), get("F22N_RADAR_STT_AZIMUTH"), get("F22N_RADAR_STT_ELEVATION")
+	local sr, sa, se = 0, 0, 0
 	if stt_observation then
 		sr, sa, se = stt_observation.range, stt_observation.az, stt_observation.el
 	end
 	local stt_valid = powered
 		and ready
 		and native_mode == 3
+		and stt_observation ~= nil
 		and display.finite(sr)
 		and sr >= 40
 		and sr <= 300000
@@ -462,6 +619,29 @@ function update()
 		and display.finite(se)
 		and math.abs(sa) <= math.pi / 2
 		and math.abs(se) <= math.pi / 2
+	-- One timestamped contract for scope, HUD and gun-target consumers.
+	put("F22_RADAR_STT_SOURCE_ID", stt_valid and stt_observation.native_id or 0)
+	put("F22_RADAR_STT_TIME", stt_valid and stt_observation.observed or -100)
+	put("F22_RADAR_STT_RANGE", stt_valid and sr or 0)
+	put("F22_RADAR_STT_AZIMUTH", stt_valid and sa or 0)
+	put("F22_RADAR_STT_ELEVATION", stt_valid and se or 0)
+	local identified_track = stt_observation and computer:source(stt_observation.native_id)
+	local friend = stt_valid and (stt_observation.iff == 1 or identified_track and identified_track.iff == 1)
+	put("F22_RADAR_STT_IFF", friend and 1 or stt_valid and identified_track and identified_track.iff == 0 and 0 or -1)
+	local closure_valid, closure = false, 0
+	if stt_valid and stt_observation.velocity_valid and get("EFM_HUD_VALID") > .5 then
+		local age = math.max(0, computer.clock - stt_observation.observed)
+		local dn = stt_observation.north + stt_observation.vn * age - pose.north
+		local de = stt_observation.east + stt_observation.ve * age - pose.east
+		local du = stt_observation.altitude + stt_observation.vu * age - pose.altitude
+		local vn, ve, vu = get("EFM_HUD_VN"), get("EFM_HUD_VE"), get("EFM_HUD_VU")
+		if display.finite(vn) and display.finite(ve) and display.finite(vu) then
+			closure = ((vn - stt_observation.vn) * dn + (ve - stt_observation.ve) * de + (vu - stt_observation.vu) * du) / sr * 1.943844492
+			closure_valid = display.finite(closure)
+		end
+	end
+	put("F22_RADAR_STT_CLOSURE_VALID", closure_valid and 1 or 0)
+	put("F22_RADAR_STT_CLOSURE_KTS", closure_valid and closure or 0)
 	put("F22_RADAR_STT_VALID", stt_valid and 1 or 0)
 	local scope_range = computer:scope_range(stt_valid and sr or nil)
 	put("F22_RADAR_RANGE_NM", scope_range / 1852)
@@ -475,7 +655,7 @@ function update()
 	local bore = computer.mode == "BORE"
 	local wide = computer.mode == "WIDE"
 	local acm = vertical or bore or wide
-	put("F22_ACM_MODE", vertical and 2 or bore and 1 or wide and 3 or 0)
+	put("F22_ACM_MODE", native_mode ~= 3 and (vertical and 2 or bore and 1 or wide and 3 or 0) or 0)
 	-- Body-frame scan coordinates: do not mix stabilized polar returns with HUD LOS.
 	local profile = computer:profile()
 	local scan_az = math.rad(profile and profile.az or computer.azimuth)
@@ -486,10 +666,22 @@ function update()
 	end
 	put("F22_RADAR_SCAN_AZ_DEG", math.deg(scan_az) * 2)
 	put("F22_RADAR_SCAN_EL_DEG", math.deg(scan_el) * 2)
-	put("F22_RADAR_SCAN_CENTER_EL_DEG", math.deg(scan and scan.el or computer.elevation))
-	put("F22_RADAR_COVERAGE_CENTER_ROT", scan and -scan.az or 0)
+	put("F22_RADAR_SCAN_CENTER_EL_DEG", math.deg(stt_valid and se or scan and scan.el or computer.elevation))
+	-- The selected ACM profile is the search to resume after track loss. It is
+	-- not the antenna's active direction during confirmed native STT. Show that
+	-- measured tracking LOS as one line; no invented tracking beam width.
+	put("F22_RADAR_COVERAGE_VALID", powered and ready and (native_mode ~= 3 or stt_valid) and 1 or 0)
+	local tracking_bearing = 0
+	if stt_valid then
+		-- This display is heading-up: project the observed world LOS just as
+		-- the target symbol does, including during pitch/roll maneuvers.
+		local _, bearing = display.scope_observation(stt_observation, pose,
+			math.max(0, computer.clock - stt_observation.observed))
+		tracking_bearing = bearing
+	end
+	put("F22_RADAR_COVERAGE_CENTER_ROT", stt_valid and -tracking_bearing or scan and -scan.az or 0)
 	put("F22_RADAR_EXPANDED", computer.expand and 1 or 0)
-	put("F22_RADAR_COVERAGE_ROT", scan_az)
+	put("F22_RADAR_COVERAGE_ROT", native_mode == 3 and 0 or scan_az)
 	-- Search-pattern azimuth is a native beam rotation, opposite body +Z.
 	-- Unlike the TDC input below, the native owner does not negate this input.
 	put("F22N_SCAN_ZONE_ORIGIN_AZIMUTH", scan and -scan.az or 0)
@@ -555,9 +747,7 @@ function update()
 	if powered and ready and native_mode == 3 then
 		local r, a, e = sr, sa, se
 		if stt_valid and math.abs(a) <= math.rad(60) then
-			if iff_enabled then
-				lock_iff = get("F22N_RADAR_STT_FRIENDLY")
-			end
+			lock_iff = get("F22_RADAR_STT_IFF")
 			visible[1] = {
 				id = locked_track and locked_track.id or 0,
 				range = r,
@@ -657,11 +847,7 @@ function update()
 		put(p .. "ID", t and t.id or 0)
 		put(p .. "SOURCE", t and t.native_id or 0)
 		local affiliation = display.affiliation(t and t.iff)
-		-- DCS native IFF zero is a simulator coalition classification. Require
-		-- an independently detected matching emitter before presenting hostile.
-		if affiliation ~= 1 and t and t.ident_class == 0 and ew_signal > 0 then
-			affiliation = 0
-		end
+		-- A correlated emitter does not turn simulator coalition into combat ID.
 		put(p .. "AFFILIATION", affiliation)
 		put(p .. "ALT_VALID", t and display.finite(t.altitude) and 1 or 0)
 		put(p .. "ALT_FT", t and t.altitude and t.altitude * 3.280839895 or 0)
@@ -776,6 +962,7 @@ function update()
 	put("F22_TWS_TARGET_ID", selected and selected.hits >= 2 and selected.native_id or 0)
 	put("F22_TWS_TARGET_AGE", selected and math.max(0, computer.clock - selected.observed) or 999)
 	put("F22_TWS_TARGET_RANGE", selected and (selected.current_range or selected.range) or 0)
+	tactical.publish(computer, put, powered and ready, stt_observation)
 	put("F22_TWS_PUBLISH_SEQUENCE", publish_sequence)
 	local quality_track = selected
 	if native_mode == 3 then
@@ -825,8 +1012,8 @@ function update()
 	)
 	put("F22_RADAR_SELECTED_CLOSURE_KTS", selected and selected.rate and -selected.rate * 1.943844492 or 0)
 	if stt_valid then
-		put("F22_RADAR_SELECTED_CLOSURE_VALID", get("HUD_AA_CLOSURE_VALID") > 0.5 and 1 or 0)
-		put("F22_RADAR_SELECTED_CLOSURE_KTS", get("HUD_AA_TGT_CLOSURE_KTS"))
+		put("F22_RADAR_SELECTED_CLOSURE_VALID", closure_valid and 1 or 0)
+		put("F22_RADAR_SELECTED_CLOSURE_KTS", closure_valid and closure or 0)
 	end
 	-- Ownship-to-target relative velocity from the actual native world velocity
 	-- and EFM velocity, when both records are fresh and available.
@@ -856,24 +1043,6 @@ function update()
 			put("F22_RADAR_SELECTED_CLOSURE_VALID", 1)
 		end
 	end
-	local wp_range = get("HUD_WP_RANGE_NM") * 1852
-	local wp_az = display.wrap(math.rad(get("HUD_WP_BEARING_DEG")) - heading)
-	local wx, wy = display.point(wp_range, wp_az, scope_range)
-	put(
-		"F22_RADAR_WP_VALID",
-		get("HUD_WP_VALID") > 0.5
-				and get("HUD_WP_BRG_VALID") > 0.5
-				and wp_range > 100
-				and wp_range < computer:range()
-				and math.abs(wx) < 0.95
-				and wy > -0.93
-				and wy < 0.96
-				and 1
-			or 0
-	)
-	put("F22_RADAR_WP_X", wx)
-	put("F22_RADAR_WP_Y", wy)
-	put("F22_RADAR_WP_INDEX", get("HUD_WP_INDEX"))
 	if telemetry and type(get_model_time) == "function" then
 		local ok, model_time = pcall(get_model_time)
 		if ok then

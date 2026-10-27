@@ -3,7 +3,7 @@
 local M={}
 local Frames=dofile(LockOn_Options.script_path..'Systems/Gun_Frames.lua')
 local aim9x={['{5CE2FF2A-645A-4197-B48D-8720AC69394F}']=true,
-    ['{AIM9X-BLKII}']=true,['{LAU_115_2xAIM9X-II}']=true}
+    ['{AIM9X-BLKII}']=true,['{LAU_115_2xAIM9X-II}']=true,['{LAU_115_2xAIM9X-II}}']=true}
 function M.profile(info)
     if not info or (info.count or 0)<=0 then return 0 end
     local w=info.weapon or {}

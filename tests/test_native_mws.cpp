@@ -30,6 +30,19 @@ int main() {
         std::memcpy(result, static_cast<std::byte *>(c) + 64, sizeof(Polar));
         return result;
     };
+    a.world_spike=a.spike;
+    // Native optical detections must close on our aircraft. Outgoing own/wing
+    // shots and missiles crossing a kilometre away never become warning tracks.
+    ApproachFilter gate;
+    assert(!gate.observe(1,10,{0,0,10000}));
+    assert(gate.observe(1,10.11,{0,0,9890}));
+    assert(!gate.observe(2,10,{0,0,100}));
+    assert(!gate.observe(2,10.11,{0,0,210}));
+    assert(!gate.observe(3,10,{std::atan2(1000.,10000.),0,std::hypot(10000.,1000.)}));
+    assert(!gate.observe(3,10.11,{std::atan2(1000.,9890.),0,std::hypot(9890.,1000.)}));
+    assert(!gate.observe(1,11.5,{0,0,8500})); // no velocity inferred across sensor loss
+    assert(!gate.observe(1,1,{0,0,8500})); // rewind
+    gate.expire(3);assert(gate.tracks.empty());
     auto hp = reinterpret_cast<std::uintptr_t>(head.data());
     auto op = reinterpret_cast<std::uintptr_t>(one.data());
     auto tp = reinterpret_cast<std::uintptr_t>(two.data());

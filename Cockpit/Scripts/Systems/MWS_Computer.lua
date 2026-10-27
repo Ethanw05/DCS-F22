@@ -21,6 +21,10 @@ function M.new()
 		self.clock = now
 		if enabled then
 			for _, o in ipairs(observations) do
+				if finite(o.source)and o.threat==false then
+					local old=self.tracks[o.source]
+					if finite(o.time)and o.time<=now+.05 and now-o.time<=M.fresh_seconds and(not old or o.time>=old.time)then self.tracks[o.source]=nil end
+				else
 				if
 					finite(o.source)
 					and o.source >= 1
@@ -38,6 +42,7 @@ function M.new()
 					if not old or o.time > old.time then
 						self.tracks[o.source] = { source = o.source, time = o.time, az = o.az, el = o.el }
 					end
+				end
 				end
 			end
 		end

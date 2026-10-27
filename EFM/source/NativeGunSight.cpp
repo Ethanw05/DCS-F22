@@ -377,6 +377,37 @@ void calculate(EDPARAM &p) {
     put(p, "F22_GUN_SOLVER_REASON", 0);
     put(p, "F22_GUN_SOLUTION_VALID", 1);
 }
+// Current-shot trajectory for ground CCIP, using the actual muzzle, shell and wind.
+// Lua intersects these physical points with terrain; no target object is assumed.
+void calculate_ground(EDPARAM& p) {
+    put(p,"F22_AG_GUN_NATIVE_VALID",0);
+    if(failed || get(p,"F22_AG_GUN_REQUEST_VALID")<.5 || !api.resolve())return;
+    const double now=api.clock(),stamp=get(p,"F22_AG_GUN_REQUEST_TIME");
+    if(!std::isfinite(stamp)||now-stamp<-.01||now-stamp>.2)return;
+    auto ctx=api.context();if(!ctx)return;
+    auto device=api.device(ctx,15);
+    if(!readable(device,32)||*reinterpret_cast<const void**>(device)!=api.vtable)return;
+    auto shell=api.shell(device);if(!readable(shell,184))return;
+    const double speed=*reinterpret_cast<const double*>(static_cast<const std::byte*>(shell)+176);
+    V muzzle,bore;if(!std::isfinite(speed)||speed<100||speed>2000||!gun_pose(device,muzzle,bore))return;
+    const V own{get(p,"F22_AG_OWN_N"),get(p,"F22_AG_OWN_U"),get(p,"F22_AG_OWN_E")};
+    const V velocity{get(p,"EFM_HUD_VN"),get(p,"EFM_HUD_VU"),get(p,"EFM_HUD_VE")};
+    const V air{get(p,"EFM_HUD_WN"),get(p,"EFM_HUD_WU"),get(p,"EFM_HUD_WE")};
+    if(!std::isfinite(own.norm())||(muzzle-own).norm()>30||!std::isfinite(velocity.norm())||velocity.norm()>1500||!std::isfinite(air.norm())||air.norm()>300)return;
+    Wind wind{wind_table,{static_cast<float>(air.x),static_cast<float>(air.y),static_cast<float>(air.z)}};
+    alignas(16) std::array<std::byte,80> sight{};api.ctor(sight.data(),shell);
+    const V launch=bore*speed+velocity;unsigned count=0;
+    for(unsigned i=0;i<=80;++i){
+        double time=i*.05;V displacement{};V point=muzzle;
+        if(i && (!api.time(sight.data(),muzzle.y,time,&launch,&wind,&displacement,4.0)||!std::isfinite(displacement.norm())))break;
+        if(i){displacement.y-=muzzle.y;point=muzzle+displacement;}
+        char key[64];const char* axes[]={"N","U","E"};const double values[]={point.x,point.y,point.z};
+        for(unsigned k=0;k<3;++k){std::snprintf(key,sizeof(key),"F22_AG_GUN_%02u_%s",i,axes[k]);put(p,key,values[k]);}
+        ++count;
+    }
+    api.dtor(sight.data());put(p,"F22_AG_GUN_POINT_COUNT",count);put(p,"F22_AG_GUN_RESULT_TIME",now);
+    put(p,"F22_AG_GUN_NATIVE_VALID",count>1?1:0);
+}
 } // namespace
 void reset() {
     handles.clear();
@@ -393,11 +424,13 @@ void update(EDPARAM &p) {
         sequence = get(p, "F22_GUN_REQUEST_SEQUENCE");
         calculate_funnel(p);
         calculate(p);
+        calculate_ground(p);
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         failed = true;
         put(p, "F22_GUN_SOLUTION_VALID", 0);
         put(p, "F22_GUN_SOLVER_REASON", 7);
         put(p,"F22_FUNNEL_NATIVE_VALID",0);funnel_history.clear();
+        put(p,"F22_AG_GUN_NATIVE_VALID",0);
     }
     // Publish completion last, including failed solves. Lua may consume this next tick.
     put(p, "F22_GUN_RESPONSE_SEQUENCE", sequence);

@@ -930,11 +930,11 @@ local unitPayloads = {
 					["num"] = 11,
 				},
 				[7] = {
-					["CLSID"] = "{GBU32_JDAM}",
+					["CLSID"] = "{GBU_32_V_2B}",
 					["num"] = 7,
 				},
 				[8] = {
-					["CLSID"] = "{GBU32_JDAM}",
+					["CLSID"] = "{GBU_32_V_2B}",
 					["num"] = 5,
 				},
 			},

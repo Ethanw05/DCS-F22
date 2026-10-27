@@ -67,7 +67,7 @@ local GreenColor 		    = {0, 255, 0, 255}--RGBA
 local YellowColor 			= {255, 255, 0, 255}--RGBA
 local OrangeColor           = {255, 102, 0, 255}--RGBA
 local RedColor 				= {255, 0, 0, 255}--RGBA
-local ScreenColor			= {3, 3, 12, 255}--RGBA DO NOT TOUCH 3-3-12-255 is good for on screen
+local ScreenColor			= {3,3,3,255}--RGBA DO NOT TOUCH 3-3-12-255 is good for on screen
 local ADIbottom				= {8, 8, 8, 255}--RGBA
 local TealColor				= {0, 255, 255, 255}--RGBA
 local TrimColor				= {255, 255, 255, 255}--RGBA
@@ -465,12 +465,12 @@ vertices(RING,2.5)
 Add(RING)
 -----------------------------------
 --Indicated Airspeed
-IAS						= CreateElement "ceStringPoly"
+IAS						= CreateElement "ceStringSLine"
 IAS.name				= "Indicated Airspeed"
-IAS.material			= UFD_FONT
+IAS.material			= "F22_LCD_FONT_WHITE"
 IAS.init_pos			= {-0.54, 0.65, 0} --L-R,U-D,F-B
 IAS.alignment			= "RightCenter"
-IAS.stringdefs			= {0.008, 0.008, 0, 0.0} --either 004 or 005
+IAS.stringdefs			= {0.008, (0.008) * 0.60, 0, 0.0} --either 004 or 005
 IAS.additive_alpha		= true
 IAS.collimated			= false
 IAS.isdraw				= true
@@ -483,30 +483,30 @@ IAS.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},
 vertices(IAS,2.5)
 Add(IAS)
 ----------------------------------------------------------------------------------------------------------------------------------------------
-BAROALT						= CreateElement "ceStringPoly"
+BAROALT						= CreateElement "ceStringSLine"
 BAROALT.name				= "Indicated Airspeed"
-BAROALT.material			= UFD_FONT
+BAROALT.material			= "F22_LCD_FONT_WHITE"
 BAROALT.init_pos			= {0.85, 0.65, 0} --L-R,U-D,F-B
 BAROALT.alignment			= "RightCenter"
-BAROALT.stringdefs			= {0.008, 0.008, 0, 0.0} --either 004 or 005
+BAROALT.stringdefs			= {0.008, (0.008) * 0.60, 0, 0.0} --either 004 or 005
 BAROALT.additive_alpha		= true
 BAROALT.collimated			= false
 BAROALT.isdraw				= true
 BAROALT.use_mipfilter		= true
 BAROALT.h_clip_relation		= h_clip_relations.COMPARE
 BAROALT.level				= 11
-BAROALT.element_params		= {"MFD_OPACITY","BAROALT",page_parameter}
+BAROALT.element_params		= {"MFD_OPACITY","BAROALT",page_parameter,"F22_ALT_BARO_VALID"}
 BAROALT.formats				= {"%.0f"} --{"%.0f"}
-BAROALT.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
+BAROALT.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,.9,1.1}}
 vertices(BAROALT,2.5)
 Add(BAROALT)
 ----------------------------------------------------------------------------------------------------------------------------------------------
-FPM						= CreateElement "ceStringPoly"
+FPM						= CreateElement "ceStringSLine"
 FPM.name				= "Indicated Airspeed"
-FPM.material			= UFD_FONT
+FPM.material			= "F22_LCD_FONT_WHITE"
 FPM.init_pos			= {0.85, 0.75, 0} --L-R,U-D,F-B
 FPM.alignment			= "RightCenter"
-FPM.stringdefs			= {0.006, 0.006, 0, 0.0} --either 004 or 005
+FPM.stringdefs			= {0.006, (0.006) * 0.60, 0, 0.0} --either 004 or 005
 FPM.additive_alpha		= true
 FPM.collimated			= false
 FPM.isdraw				= true
@@ -519,12 +519,12 @@ FPM.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},
 vertices(FPM,2.5)
 Add(FPM)
 ----------------------------------------------------------------------------------------------------------------------------------------------
-NAV						= CreateElement "ceStringPoly"
+NAV						= CreateElement "ceStringSLine"
 NAV.name				= "heading numb"
-NAV.material			= UFD_FONT
+NAV.material			= "F22_LCD_FONT_WHITE"
 NAV.init_pos			= {0, 0.85, 0} --L-R,U-D,F-B
 NAV.alignment			= "CenterCenter"
-NAV.stringdefs			= {0.008, 0.008, 0, 0.0} --either 004 or 005
+NAV.stringdefs			= {0.008, (0.008) * 0.60, 0, 0.0} --either 004 or 005
 NAV.additive_alpha		= true
 NAV.collimated			= false
 NAV.isdraw				= true
@@ -538,40 +538,8 @@ vertices(NAV,2.5)
 Add(NAV)
 --------------------------------------------------------------------------------------------------- MENU TEXT
 --MENU TEXT
-MENU_CHK_TEXT 					    = CreateElement "ceStringPoly"
-MENU_CHK_TEXT.name 				    = "menu"
-MENU_CHK_TEXT.material 			    = UFD_FONT
-MENU_CHK_TEXT.value 				= "MENU"
-MENU_CHK_TEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
-MENU_CHK_TEXT.alignment 			= "CenterCenter"
-MENU_CHK_TEXT.formats 			    = {"%s"}
-MENU_CHK_TEXT.h_clip_relation       = h_clip_relations.COMPARE
-MENU_CHK_TEXT.level 				= 11
-MENU_CHK_TEXT.init_pos 			    = {-0.565, 0.92, 0}
-MENU_CHK_TEXT.init_rot 			    = {0, 0, 0}
-MENU_CHK_TEXT.element_params 	    = {"MFD_OPACITY",page_parameter}
-MENU_CHK_TEXT.controllers		    =   {
-                                        {"opacity_using_parameter",0},
-                                        {"parameter_in_range",1,0.9,1.1},--ENGINE PAGE = 0
-                                    }
-Add(MENU_CHK_TEXT)
+
 -----------------------------------
 --MENU TEXT
-HSI_TEXT 					    = CreateElement "ceStringPoly"
-HSI_TEXT.name 				    = "menu"
-HSI_TEXT.material 			    = UFD_FONT
-HSI_TEXT.value 					= "HSI"
-HSI_TEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
-HSI_TEXT.alignment 				= "CenterCenter"
-HSI_TEXT.formats 			    = {"%s"}
-HSI_TEXT.h_clip_relation        = h_clip_relations.COMPARE
-HSI_TEXT.level 					= 11
-HSI_TEXT.init_pos 			    = {0.565, 0.92, 0}
-HSI_TEXT.init_rot 			    = {0, 0, 0}
-HSI_TEXT.element_params 	    = {"MFD_OPACITY",page_parameter}
-HSI_TEXT.controllers		    =   {
-                                        {"opacity_using_parameter",0},
-                                        {"parameter_in_range",1,0.9,1.1},--ENGINE PAGE = 0
-                                    }
-Add(HSI_TEXT)
+
 end

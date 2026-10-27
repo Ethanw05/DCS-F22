@@ -67,7 +67,7 @@ local GreenColor 		    = {0, 255, 0, 255}--RGBA
 local YellowColor 			= {255, 255, 0, 255}--RGBA
 local OrangeColor           = {255, 102, 0, 255}--RGBA
 local RedColor 				= {255, 0, 0, 255}--RGBA
-local ScreenColor			= {3, 3, 12, 255}--RGBA DO NOT TOUCH 3-3-12-255 is good for on screen
+local ScreenColor			= {3,3,3,255}--RGBA DO NOT TOUCH 3-3-12-255 is good for on screen
 --------------------------------------------------------------------------------------------------------------------------------------------
 local COLD_PAGE      = MakeMaterial(LockOn_Options.script_path.."../Scripts/IndicationTextures/check_cold.dds", GreenColor)--SYSTEM TEST
 local MASK_BOX	    = MakeMaterial(LockOn_Options.script_path.."../Scripts/IndicationTextures/mask_box.dds", ScreenColor)--SYSTEM TEST
@@ -146,89 +146,21 @@ vertices(COLD,2)
 Add(COLD)
 ----------------------------------------------------------------------------
 --MENU TEXT
-MENU_CHK_TEXT 					    = CreateElement "ceStringPoly"
-MENU_CHK_TEXT.name 				    = "menu"
-MENU_CHK_TEXT.material 			    = UFD_FONT
-MENU_CHK_TEXT.value 				= "MENU"
-MENU_CHK_TEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
-MENU_CHK_TEXT.alignment 			= "CenterCenter"
-MENU_CHK_TEXT.formats 			    = {"%s"}
-MENU_CHK_TEXT.h_clip_relation       = h_clip_relations.COMPARE
-MENU_CHK_TEXT.level 				= 2
-MENU_CHK_TEXT.init_pos 			    = {-0.565,0.92, 0}
-MENU_CHK_TEXT.init_rot 			    = {0, 0, 0}
-MENU_CHK_TEXT.element_params 	    = {"MFD_OPACITY",page_parameter}
-MENU_CHK_TEXT.controllers		    =   {
-                                        {"opacity_using_parameter",0},
-                                        {"parameter_in_range",1,0.9,1.1},--ENGINE PAGE = 0
-                                    }
-Add(MENU_CHK_TEXT)
+
 --------------------------------------------------------------------------------------------------- NAV
-MENU_TEXT1 					        = CreateElement "ceStringPoly"
-MENU_TEXT1.name 				    = "menu"
-MENU_TEXT1.material 			    = UFD_GRN
-MENU_TEXT1.value 				    = "ENG"
-MENU_TEXT1.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
-MENU_TEXT1.alignment 			    = "CenterCenter"
-MENU_TEXT1.formats 			        = {"%s"}
-MENU_TEXT1.h_clip_relation          = h_clip_relations.COMPARE
-MENU_TEXT1.level 				    = 2
-MENU_TEXT1.init_pos 			        = {-0.265, 0.92, 0}
-MENU_TEXT1.init_rot 			        = {0, 0, 0}
-MENU_TEXT1.element_params 	        = {"MFD_OPACITY",page_parameter}
-MENU_TEXT1.controllers		        =   {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},}
-Add(MENU_TEXT1)
+
 --------------------------------------------------------------------------------------------------- NAV
-MENU_TEXT2 					        = CreateElement "ceStringPoly"
-MENU_TEXT2.name 				    = "menu"
-MENU_TEXT2.material 			    = UFD_GRN
-MENU_TEXT2.value 				    = "FCS"
-MENU_TEXT2.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
-MENU_TEXT2.alignment 			    = "CenterCenter"
-MENU_TEXT2.formats 			        = {"%s"}
-MENU_TEXT2.h_clip_relation          = h_clip_relations.COMPARE
-MENU_TEXT2.level 				    = 2
-MENU_TEXT2.init_pos 			        = {0.265, 0.92, 0}
-MENU_TEXT2.init_rot 			        = {0, 0, 0}
-MENU_TEXT2.element_params 	        = {"MFD_OPACITY",page_parameter}
-MENU_TEXT2.controllers		        =   {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},}
-Add(MENU_TEXT2)
+
 --------------------------------------------------------------------------------------------------- NAV
-MENU_TEXT3 					        = CreateElement "ceStringPoly"
-MENU_TEXT3.name 				    = "menu"
-MENU_TEXT3.material 			    = UFD_GRN
-MENU_TEXT3.value 				    = "BAY"
-MENU_TEXT3.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
-MENU_TEXT3.alignment 			    = "CenterCenter"
-MENU_TEXT3.formats 			        = {"%s"}
-MENU_TEXT3.h_clip_relation          = h_clip_relations.COMPARE
-MENU_TEXT3.level 				    = 2
-MENU_TEXT3.init_pos 			    = {0, 0.92, 0}
-MENU_TEXT3.init_rot 			    = {0, 0, 0}
-MENU_TEXT3.element_params 	        = {"MFD_OPACITY",page_parameter}
-MENU_TEXT3.controllers		        =   {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},}
-Add(MENU_TEXT3)
+
 --------------------------------------------------------------------------------------------------- NAV
-MENU_TEXT3 					        = CreateElement "ceStringPoly"
-MENU_TEXT3.name 				    = "menu"
-MENU_TEXT3.material 			    = UFD_GRN
-MENU_TEXT3.value 				    = "FUEL"
-MENU_TEXT3.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
-MENU_TEXT3.alignment 			    = "CenterCenter"
-MENU_TEXT3.formats 			        = {"%s"}
-MENU_TEXT3.h_clip_relation          = h_clip_relations.COMPARE
-MENU_TEXT3.level 				    = 2
-MENU_TEXT3.init_pos 			        = {0.565, 0.92, 0}
-MENU_TEXT3.init_rot 			        = {0, 0, 0}
-MENU_TEXT3.element_params 	        = {"MFD_OPACITY",page_parameter}
-MENU_TEXT3.controllers		        =   {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},}
-Add(MENU_TEXT3)
+
 -- --CHECKLIST PLACEHOLDER
--- CHECKLISTPLACEHOLD 					        = CreateElement "ceStringPoly"
+-- CHECKLISTPLACEHOLD 					        = CreateElement "ceStringSLine"
 -- CHECKLISTPLACEHOLD.name 				    = "menu"
--- CHECKLISTPLACEHOLD.material 			    = UFD_GRN
+-- CHECKLISTPLACEHOLD.material 			    = "F22_LCD_FONT_GREEN"
 -- CHECKLISTPLACEHOLD.value 			        = "CHECKLIST PLACEHOLDER"
--- CHECKLISTPLACEHOLD.stringdefs 		        = {0.0090, 0.0090, 0.0004, 0.001}
+-- CHECKLISTPLACEHOLD.stringdefs 		        = {0.0090, (0.0090) * 0.60, 0.0004, 0.001}
 -- CHECKLISTPLACEHOLD.alignment 			    = "CenterCenter"
 -- CHECKLISTPLACEHOLD.formats 			        = {"%s"}
 -- CHECKLISTPLACEHOLD.h_clip_relation          = h_clip_relations.COMPARE

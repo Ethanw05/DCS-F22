@@ -1,0 +1,62 @@
+[
+  {
+    "test": "test_display_startup.py",
+    "exit_code": 0,
+    "output": "DCS-style element construction: HUD/page.lua OK\nDCS-style element construction: PMFD_CENTER/radar_page.lua OK\nOwn HUD registration, no inherited cockpit and no dimming workaround OK\nElectrical startup and reentrant click/axis handling OK\nNative power initialization: GROUND_HOT OK\nNative power initialization: AIR_HOT OK\nNative power initialization: GROUND_COLD OK\nReal electrical startup / display chain: GROUND_HOT callbacks= True OK\nReal electrical startup / display chain: GROUND_HOT callbacks= False OK\nReal electrical startup / display chain: AIR_HOT callbacks= True OK\nReal electrical startup / display chain: AIR_HOT callbacks= False OK\nReal electrical startup / display chain: GROUND_COLD callbacks= True OK\nReal electrical startup / display chain: GROUND_COLD callbacks= False OK\nIndicator connector names exist in shipped EDM; HUD uses explicit geometry OK\n"
+  },
+  {
+    "test": "test_radar_weapon_state.py",
+    "exit_code": 0,
+    "output": "Radar weapon state: flight sequence, separate ACM memory, search settings, repeated selection and emission inhibit PASS\nRadar weapon state: actual mode owner, direct selection, A/A toggle, dogfight restore and weapon cycle PASS\nRadar weapon state: unfinished acquisition cleared, confirmed STT retained and post-loss search restored PASS\n"
+  },
+  {
+    "test": "test_radar_acm_hud_focus.py",
+    "exit_code": 0,
+    "output": "HUD-focus ACM: encoded physical inputs, actual owners, native scan volumes, persistence and weapon-state restore PASS\nHUD-focus ACM: native STT retained, correct post-loss return and in-progress acquisition switched PASS\nHUD-focus ACM: unrelated focus/BVR guards and A/G HUD designation unchanged PASS\nHUD-focus ACM: logs distinguish received input, dispatched request and applied radar pattern PASS\n"
+  },
+  {
+    "test": "test_ground_map_undesignate.py",
+    "exit_code": 0,
+    "output": "MAP reject: five live designate/reject cycles, stabilized target, sweep/frame continuity and range controls PASS\nMAP reject: live GMT handoff and independent explicit FRZ/resume PASS\n"
+  },
+  {
+    "test": "test_overhaul_vehicle_indications.py",
+    "exit_code": 0,
+    "output": "Overhaul vehicle indications: physical pressure/oil/nozzle/temperature ownership, independent failure readback and guarded fallback PASS\nOverhaul engine formats: all 12 oil needles use their corresponding physical PSI channel PASS\n"
+  },
+  {
+    "test": "test_vehicle_electrical.py",
+    "exit_code": 0,
+    "output": "DCS-style element construction: HUD/page.lua OK\nDCS-style element construction: PMFD_CENTER/radar_page.lua OK\nOwn HUD registration, no inherited cockpit and no dimming workaround OK\nElectrical startup and reentrant click/axis handling OK\nNative power initialization: GROUND_HOT OK\nNative power initialization: AIR_HOT OK\nNative power initialization: GROUND_COLD OK\nReal electrical startup / display chain: GROUND_HOT callbacks= True OK\nReal electrical startup / display chain: GROUND_HOT callbacks= False OK\nReal electrical startup / display chain: AIR_HOT callbacks= True OK\nReal electrical startup / display chain: AIR_HOT callbacks= False OK\nReal electrical startup / display chain: GROUND_COLD callbacks= True OK\nReal electrical startup / display chain: GROUND_COLD callbacks= False OK\nIndicator connector names exist in shipped EDM; HUD uses explicit geometry OK\nVehicle electrical: finite reserve, recharge, generator/battery failure and restoration; proportional brake transport PASS\n"
+  },
+  {
+    "test": "test_nav_designation.py",
+    "exit_code": 0,
+    "output": "DCS-style element construction: HUD/page.lua OK\nDCS-style element construction: PMFD_CENTER/radar_page.lua OK\nOwn HUD registration, no inherited cockpit and no dimming workaround OK\nElectrical startup and reentrant click/axis handling OK\nNative power initialization: GROUND_HOT OK\nNative power initialization: AIR_HOT OK\nNative power initialization: GROUND_COLD OK\nReal electrical startup / display chain: GROUND_HOT callbacks= True OK\nReal electrical startup / display chain: GROUND_HOT callbacks= False OK\nReal electrical startup / display chain: AIR_HOT callbacks= True OK\nReal electrical startup / display chain: AIR_HOT callbacks= False OK\nReal electrical startup / display chain: GROUND_COLD callbacks= True OK\nReal electrical startup / display chain: GROUND_COLD callbacks= False OK\nIndicator connector names exist in shipped EDM; HUD uses explicit geometry OK\nOrdinary NAV has no target diamond; WPDSG/UNDES share ground designation; CNI keypad tuning PASS\nAsynchronous NAV selection/designation: exact snapshot, fresh acknowledgement, SAFE planning, A/G persistence, terrain/timeout/cancel/power failures PASS\n"
+  },
+  {
+    "test": "test_overhaul_release_contract.py",
+    "exit_code": 0,
+    "output": "Overhaul release contract: native/count evidence, identity, time boundaries, duplicate prevention and edit cancellation PASS\n"
+  },
+  {
+    "test": "test_overhaul_stores_actuators.py",
+    "exit_code": 0,
+    "output": "Stores actuators: no-pressure freeze, partial-pressure rate, achieved bay/gun clearance, restored supply, GPU guard and explicit legacy fallback PASS\n"
+  },
+  {
+    "test": "test_ag_delivery.py",
+    "exit_code": 0,
+    "output": "A/G: terrain stream intersection, AUTO timing/cross-track, immutable radar/HUD/nav designation, selected native stores, consent/lockouts and ground gun PASS\n"
+  },
+  {
+    "test": "test_common_mfd_workflow.py",
+    "exit_code": 0,
+    "output": "Common MFD routing: 4 x 9 formats, local views, release ownership, range placement and sensor focus PASS\nCommon native element graphs: identical libraries, valid parents, physical bezels and neutral gray PASS\n"
+  },
+  {
+    "test": "test_common_ufc_workflow.py",
+    "exit_code": 0,
+    "output": "Universal UFC: real Stores, same-option commit, CLR/UNDO, NAV/ILS, ALT isolation, AP capture and scratchpad binding PASS\n"
+  }
+]

@@ -81,21 +81,26 @@ function M.new()
 	-- Enclose every designation and missile-support obligation in one achievable
 	-- native scan. This does not invent interleaved AESA beams or observations.
 	function r:scan_plan(required)
-		if not self.power or self.mode ~= "TWS" or self.acquire or self.native_mode == 3 then
+		if not self.power or (self.mode ~= "TWS" and self.mode ~= "RWS") or self.acquire or self.native_mode == 3 then
 			self.scan = nil
 			return
 		end
 		local obligations, seen = {}, {}
-		local function add(t, key)
-			if not key or seen[key] then
+		local function add(t, key, support)
+			if seen[key] then
+				seen[key].support = seen[key].support or support
 				return
 			end
-			seen[key] = true
-			obligations[#obligations + 1] = { track = t }
+			if not key then
+				return
+			end
+			local obligation = { track = t, support = support }
+			seen[key] = obligation
+			obligations[#obligations + 1] = obligation
 		end
 		for _, id in ipairs(required or {}) do
 			if finite(id) and id > 0 then
-				add(self:source(id), "s" .. id)
+				add(self:source(id), "s" .. id, true)
 			end
 		end
 		for _, id in pairs({ self.selected, self.secondary }) do
@@ -109,6 +114,9 @@ function M.new()
 				add(t, t.native_id and "s" .. t.native_id or "f" .. id)
 			end
 		end
+		-- RWS retains the pilot's ordinary search until a selected/designated
+		-- file or launched-missile obligation actually needs servicing.
+		if self.mode=="RWS" and #obligations==0 then self.scan=nil;return end
 		local limit = rad(60)
 		local minaz, maxaz, minel, maxel, range
 		range = self:range()
@@ -183,14 +191,44 @@ function M.new()
 			changed = changed and self.clock or previous.changed,
 			obligations = #obligations,
 			uncovered = 0,
+			support_overdue = 0,
+			support_count = 0,
+			revisit_remaining = M.support_seconds,
 		}
 		for _, o in ipairs(obligations) do
+			if o.support then
+				plan.support_count = plan.support_count + 1
+				local remaining = math.max(0, M.support_seconds - self:age(o.track))
+				plan.revisit_remaining = math.min(plan.revisit_remaining, remaining)
+				if not self:supportable(o.track) then plan.support_overdue = plan.support_overdue + 1 end
+			end
 			if not o.az or math.abs(o.az - a) > az + 1e-6 or math.abs(o.el - e) > el + 1e-6 or o.range > range then
 				plan.uncovered = plan.uncovered + 1
 			end
 		end
 		self.scan = plan
 		return plan
+	end
+	function r:set_effective_scan(plan,now)
+		self.rf_scan_windows=self.rf_scan_windows or{}
+		local old=self.effective_scan
+		if old and old.rf_cued then
+			local last=self.rf_scan_windows[#self.rf_scan_windows]
+			if last then last.last=now end
+		end
+		if plan and plan.rf_cued then
+			local last=self.rf_scan_windows[#self.rf_scan_windows]
+			if not old or not old.rf_cued or not last then
+				last={first=now,last=now,range=plan.range}
+				self.rf_scan_windows[#self.rf_scan_windows+1]=last
+			end
+			last.range=math.max(last.range,plan.range)
+		end
+		while #self.rf_scan_windows>0 and now-self.rf_scan_windows[1].last>6 do
+			table.remove(self.rf_scan_windows,1)
+		end
+		self.effective_scan=plan
+		if self.mode~="RWS"and self.mode~="TWS"then self.rf_scan_windows={}end
 	end
 	function r:geometry(display, pose)
 		for _, t in pairs(self.tracks) do
@@ -241,6 +279,8 @@ function M.new()
 		self.locked = false
 		self.cursor_follow = false
 		self.scan = nil
+		self.effective_scan = nil
+		self.rf_scan_windows = {}
 		self.acquire_id = nil
 	end
 	function r:command(c)
@@ -400,7 +440,19 @@ function M.new()
 		if self.native_mode == 3 then
 			return math.abs(o.az) <= rad(60) and math.abs(o.el) <= rad(60)
 		end
-		if o.range > (self.scan and self.scan.range or self:range()) then
+		local applied=self.effective_scan or self.scan
+		-- A native observation can arrive after a discovery dwell ended.
+		-- Accept only actual time-stamped world observations from an issued
+		-- RF dwell, not a passive cue promoted to detection.
+		local stamp=o.observed or self.clock-(o.age or 0)
+		if (self.mode=="RWS"or self.mode=="TWS")and o.native_id and finite(o.north)
+			and finite(o.east)and finite(o.altitude)and finite(stamp)
+			and self.clock-stamp>=-.01 and self.clock-stamp<=6 then
+			for _,window in ipairs(self.rf_scan_windows or{})do
+				if stamp>=window.first and stamp<=window.last and o.range<=window.range then return true end
+			end
+		end
+		if o.range > (applied and applied.range or self:range()) then
 			return false
 		end
 		-- During native acquisition the candidate may move outside the
@@ -413,9 +465,11 @@ function M.new()
 		if p then
 			return math.abs(o.az) <= rad(p.az) and o.el >= rad(p.lo) and o.el <= rad(p.hi)
 		end
-		if self.scan and self.mode == "TWS" then
-			return math.abs(angular(o.az, self.scan.az)) <= self.scan.half_az
-				and math.abs(o.el - self.scan.el) <= self.scan.half_el
+		-- Accept actual detections from the volume commanded on the prior
+		-- native scan, including RF-cued search outside the pilot's old slice.
+		if applied and (self.mode == "TWS" or self.mode == "RWS") then
+			return math.abs(angular(o.az, applied.az)) <= applied.half_az
+				and math.abs(o.el - applied.el) <= applied.half_el
 		end
 		return math.abs(o.az) <= rad(self.azimuth) and math.abs(o.el - self.elevation) <= rad(self.vertical_span / 2)
 	end
@@ -544,8 +598,11 @@ function M.new()
 				end
 				if o.iff == 1 then
 					t.friend_until = math.max(t.friend_until or 0, self.clock - o.age + 30)
+					t.hostile_until = nil
+				elseif o.iff == 0 then
+					t.hostile_until = math.max(t.hostile_until or 0, self.clock - o.age + 30)
 				end
-				if o.iff == 0 or o.iff == 1 or o.iff == 2 then
+				if o.iff == 1 or o.iff == 0 then
 					t.ident_class = o.iff
 					t.ident_time = math.max(t.ident_time or -1, self.clock - o.age)
 				end
@@ -568,6 +625,7 @@ function M.new()
 					observed = o.observed or self.clock - o.age,
 					hits = 1,
 					friend_until = o.iff == 1 and self.clock - o.age + 30 or nil,
+					hostile_until = o.iff == 0 and self.clock - o.age + 30 or nil,
 					native_id = o.native_id,
 					north = o.north,
 					east = o.east,
@@ -577,14 +635,15 @@ function M.new()
 					vu = o.vu,
 					velocity_valid = o.velocity_valid,
 				}
-				if o.iff == 0 or o.iff == 1 or o.iff == 2 then
+				if o.iff == 1 or o.iff == 0 then
 					self.tracks[id].ident_class = o.iff
 					self.tracks[id].ident_time = self.clock - o.age
 				end
 			end
 		end
 		for id, t in pairs(self.tracks) do
-			t.iff = (t.friend_until and self.clock < t.friend_until) and 1 or -1
+			t.iff = (t.friend_until and self.clock < t.friend_until) and 1
+				or (t.hostile_until and self.clock < t.hostile_until) and 0 or -1
 			if self.clock - t.observed > self:memory_time() then
 				self.tracks[id] = nil
 				if self.secondary == id then

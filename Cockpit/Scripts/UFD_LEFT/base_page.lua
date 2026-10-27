@@ -26,16 +26,6 @@ dofile(LockOn_Options.script_path.."UFD_LEFT/definitions.lua")
 dofile(LockOn_Options.script_path.."fonts.lua")
 dofile(LockOn_Options.script_path.."materials.lua")
 
-local original_add=Add
-local status_root=CreateElement 'ceSimple'
-status_root.name='F22_UFD_STATUS_ROOT'
-status_root.element_params={'F22_UFD_STATUS_PAGE'}
-status_root.controllers={{'parameter_in_range',0,.9,1.1}}
-original_add(status_root)
-local function Add(e)
-    e.parent_element='F22_UFD_STATUS_ROOT'
-    original_add(e)
-end
 local function vertices(object, height, half_or_double)
     local width = height
     
@@ -193,7 +183,7 @@ Add(ADFUEL)
 BARO 					= CreateElement "ceStringPoly"
 BARO.name 				= "apu spool"
 BARO.material 			= UFD_GRN
-BARO.value 				= "BARO 29.92  J:3.5  B:2.5"
+BARO.value 				= ""
 BARO.stringdefs 		= {0.0050, 0.0050, 0.0004, 0.001}
 BARO.alignment 			= "LeftCenter"
 BARO.formats 			= {"%s"}
@@ -201,9 +191,9 @@ BARO.h_clip_relation    = h_clip_relations.COMPARE
 BARO.level 				= 2
 BARO.init_pos 			= {-60, -43.5, 0} --= {-40, -43, 0}
 BARO.init_rot 			= {0, 0, 0}
-BARO.element_params 	= {"L_ADI_OPACITY","UFD_OPACITY",} --HOPE THIS WORKS G_OP_BACK
+BARO.element_params 	= {"L_ADI_OPACITY","UFD_OPACITY","F22_ALT_DISPLAY_TEXT",} --HOPE THIS WORKS G_OP_BACK
 BARO.controllers		= {{"parameter_in_range",0,0.9,1.1},
-								{"opacity_using_parameter",1},
+								{"opacity_using_parameter",1},{"text_using_parameter",2,0},
 								}
 Add(BARO)
 ----------------------------------------------------------------------------------------
@@ -1031,9 +1021,9 @@ BARO.isdraw				= true
 BARO.use_mipfilter		= true
 BARO.h_clip_relation	= h_clip_relations.COMPARE
 BARO.level				= 6
-BARO.element_params		= {"UFD_OPACITY","BAROALT","L_ADI_OPACITY"}
+BARO.element_params		= {"UFD_OPACITY","BAROALT","L_ADI_OPACITY","F22_ALT_BARO_VALID"}
 BARO.formats			= {"%05.0f"}
-BARO.controllers		= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
+BARO.controllers		= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,.9,1.1}}
 Add(BARO)
 -----------------------------------------------------
 BGROUND5                    = CreateElement "ceTexPoly" -- alt box right lower

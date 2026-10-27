@@ -1,0 +1,1 @@
+-- Retired summary format. Stores is MFD_COMMON/stores_page.lua; tactical data is on TSD.

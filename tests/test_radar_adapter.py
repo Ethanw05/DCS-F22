@@ -7,8 +7,9 @@ lua.execute('''
 native={power=false,set_power=function(self,p) assert(type(p)=='boolean');self.power=p end}
 function GetDevice(id) assert(id==13);return native end
 dofile(SCRIPT_ROOT..'Systems/Radar_System.lua');dofile(SCRIPT_ROOT..'../../tests/radar_body_fixture.lua')
-post_initialize();get_param_handle('MAIN_POWER'):set(1)
-SetCommand(10600,1);get_param_handle('F22N_RADAR_MODE'):set(1);update()
+post_initialize();update();assert(not native.power,'default request emitted without electrical power')
+get_param_handle('MAIN_POWER'):set(1)
+get_param_handle('F22N_RADAR_MODE'):set(1);update()
 assert(native.power and get_param_handle('RADAR_PWR'):get()==1)
 assert(get_param_handle('F22_RADAR_MODE_TEXT'):get()=='RWS')
 for _,name in ipairs({'PITCH_BANK','PITCH','BANK'}) do
@@ -57,7 +58,8 @@ get_param_handle('F22N_RADAR_MODE'):set(1);update()
 assert(get_param_handle('F22_RADAR_MODE_TEXT'):get()=='ACQ','vertical loss failed to re-acquire')
 assert(actions[#actions][1]==509,'vertical re-acquisition did not reach native radar')
 SetCommand(10600,1);update();assert(get_param_handle('RADAR_PWR'):get()==0)
-SetCommand(Keys.PlaneModeVS,1);update();assert(get_param_handle('RADAR_PWR'):get()==1,'legacy acquisition left radar off')
+SetCommand(Keys.PlaneModeVS,1);update();assert(get_param_handle('RADAR_PWR'):get()==0,'legacy mode overrode deliberate radar-off')
+SetCommand(10600,1);update();assert(get_param_handle('RADAR_PWR'):get()==1)
 -- Native widths are full angles. Test coverage at the actual advertised edges.
 SetCommand(10605,1);get_param_handle('F22N_RADAR_MODE'):set(1);update()
 -- Clear old returns so this checks search volume rather than acquisition volume.
@@ -90,5 +92,10 @@ assert(v('F22_RADAR_MODE_TEXT')=='SENSOR N/A' and v('F22_RADAR_STT_VALID')==0)
 for i=previous+1,#actions do assert(actions[i][1]~=509,'unavailable coordinate adapter allowed acquisition') end
 get_param_handle('F22_RADAR_ACQ_COORDINATES_READY'):set(1);update()
 assert(native.power and v('F22_RADAR_BACKEND_READY')==1,'checked adapter did not recover sensor operation')
+-- Deliberate OFF survives loss/restore of electrical supply and mode selection.
+SetCommand(10600,1);update();assert(not native.power)
+get_param_handle('MAIN_POWER'):set(0);update()
+get_param_handle('MAIN_POWER'):set(1);SetCommand(Keys.PlaneModeBVR,1);update()
+assert(not native.power and v('RADAR_PWR')==0,'bus restoration overrode pilot OFF')
 ''')
 print('Radar adapter: actual power, legacy mode IDs, native STT gate, power loss and no fire side effects OK')

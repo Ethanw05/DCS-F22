@@ -17,10 +17,14 @@ radar_command=SetCommand;radar_update=update
 local function put(n,v) get_param_handle(n):set(v) end
 local function val(n) return get_param_handle(n):get() end
 put('MAIN_POWER',1);put('F22N_RADAR_MODE',1)
-radar_command(10600,1);radar_command(10601,1);radar_update()
+radar_command(10601,1);radar_update()
 dofile(SCRIPT_ROOT..'Systems/PMFD_System.lua');post_initialize()
 local routed={}
 function dispatch_action(device,command,value)
+ if command==10742 then
+  assert(device==devices.COMBAT_SYSTEM and value==2,'primary bezel notified wrong focus')
+  return
+ end
  routed[#routed+1]={device,command,value}
  if device==devices.RADAR_COMPUTER then radar_command(command,value) end
 end

@@ -169,8 +169,8 @@ local LIGHT_LANDING_T = 10154
 
 join(res.keyCommands,{    
 
-		{down = iCommandPlaneTrimUp, name = "F-22: Trim Up", category = "Flight Control"},
-        {down = iCommandPlaneTrimDown, name = "F-22: Trim Down", category = "Flight Control"},
+		{down = iCommandPlaneTrimUp, up = iCommandPlaneTrimStop, name = "F-22: Trim Up", category = "Flight Control"},
+        {down = iCommandPlaneTrimDown, up = iCommandPlaneTrimStop, name = "F-22: Trim Down", category = "Flight Control"},
         {down = iCommandPlaneTrimCancel, name = "F-22: Reset Trim", category = "Flight Control"},
   --      {down = 10500, value_down = 1.0, name = _('F-22: Altitude Hold Toggle'), category = _('F-22 EFM Commands')},
     --    {down = 10501, value_down = 1.0, name = _('F-22: Attitude Hold Toggle'), category = _('F-22 EFM Commands')},
@@ -186,7 +186,7 @@ join(res.keyCommands,{
 		{ down = 10512, name = _("Master External Lights Toggle"), category = _("External Lights") },
 
 --SMFD Both    
-    {down = SMFD_Swap,                  name = _('SMFD Page Swap'),                       category = _('F-22A Systems')},    
+    {down=SMFD_Swap,up=SMFD_Swap,value_up=0,                  name = _('SMFD Page Swap'),                       category = _('F-22A Systems')},
 --MFD LEFT    
     {down = LMFD_OSB_01,                name = _('MFD Left OSB 1'),                       category = _('F-22A MFD Left')},
     {down = LMFD_OSB_02,                name = _('MFD Left OSB 2'),                       category = _('F-22A MFD Left')},
@@ -275,6 +275,8 @@ join(res.keyCommands,{
     {down = CLIPBOARD_L,                name = _('Clipboard Left Show/Hide'),            category = _('F-22A Systems')},
     {down = CLIPBOARD_R,                name = _('Clipboard Right Show/Hide'),           category = _('F-22A Systems')},
 --ICP BINDS
+    {down=11401,up=11401,value_down=1,value_up=0,cockpit_device_id=7,name=_('ICP IFF'),category=_('F-22A ICP')},
+    {down=11402,up=11402,value_down=1,value_up=0,cockpit_device_id=7,name=_('ICP DVR'),category=_('F-22A ICP')},
     {down = ICP_COM1,                   name = _('ICP COMM 1'),                          category = _('F-22A ICP')},
     {down = ICP_COM2,                   name = _('ICP COMM 2'),                          category = _('F-22A ICP')},
     {down = ICP_NAV,                    name = _('ICP NAV'),                             category = _('F-22A ICP')},
@@ -333,8 +335,8 @@ join(res.keyCommands,{
     {down = iCommandPlaneJettisonFuelTanks,                                                                         name = _('Jettison Fuel Tanks'), category = _('Systems')},
     {down = iCommandPlane_HOTAS_NoseWheelSteeringButton, up = iCommandPlane_HOTAS_NoseWheelSteeringButton,          name = _('Nose Gear Maneuvering Range'), category = _('Systems')},
     {down = iCommandPlane_HOTAS_NoseWheelSteeringButtonOff, up = iCommandPlane_HOTAS_NoseWheelSteeringButtonOff,    name = _('Nose Wheel Steering'), category = _('Systems')},
-    {down = iCommandPlaneWheelBrakeLeftOn, up = iCommandPlaneWheelBrakeLeftOff,                                     name = _('Wheel Brake Left On/Off'), category = _('Systems')},
-    {down = iCommandPlaneWheelBrakeRightOn, up = iCommandPlaneWheelBrakeRightOff,                                   name = _('Wheel Brake Right On/Off'), category = _('Systems')},  
+    {down = L_BRAKE, up = L_BRAKE, value_down = 1, value_up = -1,                                     name = _('Wheel Brake Left On/Off'), category = _('Systems')},
+    {down = R_BRAKE, up = R_BRAKE, value_down = 1, value_up = -1,                                   name = _('Wheel Brake Right On/Off'), category = _('Systems')},
 -- Modes
     {down = iCommandPlaneModeBVR,   name = _('(2) Beyond Visual Range Mode'),                       category = _('Modes')},
     {down = iCommandPlaneModeVS,    name = _('(3) Close Air Combat Vertical Scan Mode'),            category = _('Modes')},
@@ -413,6 +415,7 @@ join(res.keyCommands,{
     {down=10617,value_down=1,cockpit_device_id=14,name=_('Search Volume and Cursor - Recenter'),category=_('F-22 Radar')},
     {down=10618,value_down=1,cockpit_device_id=14,name=_('Target Designation - Next Track'),category=_('F-22 Radar')},
     {down=10619,value_down=1,cockpit_device_id=14,name=_('Identification - IFF Interrogate'),category=_('F-22 Radar')},
+    {down=10631,value_down=1,cockpit_device_id=14,name=_('Identification - Automatic IFF On/Off'),category=_('F-22 Radar')},
 })
 join(res.axisCommands,{
  {action=10620,cockpit_device_id=14,name=_('Radar Cursor - Horizontal Axis'),category=_('F-22 HOTAS - Throttle')},
@@ -434,15 +437,15 @@ join(res.keyCommands,{
  {down=10709,up=10709,value_down=1,value_up=0,cockpit_device_id=16,name=_('Countermeasures Right - Consent Off (Reserved)'),category=_('F-22 HOTAS - Stick')},
  {down=10729,up=10729,value_down=1,value_up=0,cockpit_device_id=16,name=_('Weapon Select - AIM-9 Sidewinder'),category=_('F-22 HOTAS - Throttle')},
  {down=10717,up=10717,value_down=1,value_up=0,cockpit_device_id=16,name=_('Trigger - Second Stage / Fire Gun'),category=_('F-22 HOTAS - Stick')},
- {down=10706,up=10706,value_down=1,value_up=0,cockpit_device_id=16,name=_('Display Management Down - Select Radar / Cycle Sensor Focus'),category=_('F-22 HOTAS - Stick')},
- {down=10704,up=10704,value_down=1,value_up=0,cockpit_device_id=16,name=_('Display Management Up - Select HUD'),category=_('F-22 HOTAS - Stick')},
+ {down=10706,up=10706,value_down=1,value_up=0,cockpit_device_id=16,name=_('Sensor Control Switch Down - Focus Primary / Acquire Ground Target'),category=_('F-22 HOTAS - Stick')},
+ {down=10704,up=10704,value_down=1,value_up=0,cockpit_device_id=16,name=_('Sensor Control Switch Up - Select HUD'),category=_('F-22 HOTAS - Stick')},
  {down=10722,up=10722,value_down=1,value_up=0,cockpit_device_id=16,name=_('Radar Coverage - Press: Scan Width; Hold: Scan Height'),category=_('F-22 HOTAS - Throttle')},
- {down=10705,up=10705,value_down=1,value_up=0,cockpit_device_id=16,name=_('Display Management Right - Select Right MFD'),category=_('F-22 HOTAS - Stick')},
+ {down=10705,up=10705,value_down=1,value_up=0,cockpit_device_id=16,name=_('Sensor Control Switch Right - Select Right MFD'),category=_('F-22 HOTAS - Stick')},
  {down=10728,up=10728,value_down=1,value_up=0,cockpit_device_id=16,name=_('Weapon Select - Gun'),category=_('F-22 HOTAS - Throttle')},
  {down=10726,up=10726,value_down=1,value_up=0,cockpit_device_id=16,name=_('Radar Range - Increase'),category=_('F-22 HOTAS - Throttle')},
  {down=10724,up=10724,value_down=1,value_up=0,cockpit_device_id=16,name=_('Master Arm - Safe / Armed'),category=_('F-22 HOTAS - Throttle')},
  {down=10719,up=10719,value_down=1,value_up=0,cockpit_device_id=16,name=_('Dogfight Override - Toggle (Optional)'),category=_('F-22 HOTAS - Throttle')},
- {down=10707,up=10707,value_down=1,value_up=0,cockpit_device_id=16,name=_('Display Management Left - Select Left MFD'),category=_('F-22 HOTAS - Stick')},
+ {down=10707,up=10707,value_down=1,value_up=0,cockpit_device_id=16,name=_('Sensor Control Switch Left - Select Left MFD'),category=_('F-22 HOTAS - Stick')},
  {down=10711,up=10711,value_down=1,value_up=0,cockpit_device_id=16,name=_('Countermeasures Left - Flare Program'),category=_('F-22 HOTAS - Stick')},
  {down=10712,up=10712,value_down=1,value_up=0,cockpit_device_id=16,name=_('Countermeasures Press - Chaff and Flare Burst'),category=_('F-22 HOTAS - Stick')},
  {down=10708,up=10708,value_down=1,value_up=0,cockpit_device_id=16,name=_('Countermeasures Up - Chaff and Flare Program'),category=_('F-22 HOTAS - Stick')},
@@ -470,7 +473,7 @@ join(res.keyCommands,{
 })
 join(res.keyCommands,{
  {down=10903,value_down=1,cockpit_device_id=18,name=_('F-22 HUD EW repeater'),category=_('F-22 Sensors')},
- {down=10910,value_down=1,cockpit_device_id=1,name=_('F-22 upper-left EW / status page'),category=_('F-22 Sensors')},
+ {down=10910,up=10910,value_down=1,value_up=0,cockpit_device_id=1,name=_('F-22 UFD ADI / cautions swap'),category=_('F-22 Sensors')},
 })
 join(res.keyCommands,{
  {down=10904,value_down=1,cockpit_device_id=18,name=_('F-22 RWR volume up'),category=_('F-22 Sensors')},
@@ -537,4 +540,98 @@ for _, binding in ipairs(res.axisCommands or {}) do
   end
  end
 end
+join(res.keyCommands,{
+ {down=10734,up=10734,value_down=1,value_up=0,cockpit_device_id=16,name=_('Air-to-Ground - Select Gun'),category=_('F-22 HOTAS - Throttle')},
+ {down=10735,up=10735,value_down=1,value_up=0,cockpit_device_id=16,name=_('Air-to-Ground - Select CCIP Bomb Delivery'),category=_('F-22 HOTAS - Throttle')},
+ {down=10736,up=10736,value_down=1,value_up=0,cockpit_device_id=16,name=_('Air-to-Ground - Select AUTO Bomb Delivery'),category=_('F-22 HOTAS - Throttle')},
+ {down=10737,up=10737,value_down=1,value_up=0,cockpit_device_id=16,name=_('Air-to-Ground - Cycle Gun / CCIP / AUTO'),category=_('F-22 HOTAS - Throttle')},
+ {down=10738,up=10738,value_down=1,value_up=0,cockpit_device_id=16,name=_('Air-to-Ground - Designate Selected Steerpoint'),category=_('F-22 HOTAS - Stick')},
+ {down=10739,up=10739,value_down=1,value_up=0,cockpit_device_id=16,name=_('Air-to-Ground - Designate HUD Line of Sight'),category=_('F-22 HOTAS - Stick')},
+ {down=10740,up=10740,value_down=1,value_up=0,cockpit_device_id=16,name=_('Air-to-Ground - Clear Ground Designation'),category=_('F-22 HOTAS - Stick')},
+ {down=10741,up=10741,value_down=1,value_up=0,cockpit_device_id=16,name=_('Sensor Control Switch Depress - Execute Focused Screen Function'),category=_('F-22 HOTAS - Stick')},
+})
+
+-- Independent navigation and EFM flight guidance.
+join(res.keyCommands,{
+ {down=10930,up=10930,value_down=1,value_up=0,cockpit_device_id=25,name=_('Navigation Source - Cycle WPT / TACAN / ILS'),category=_('F-22 Navigation')},
+ {down=10931,up=10931,value_down=1,value_up=0,cockpit_device_id=25,name=_('Navigation Course - Increase'),category=_('F-22 Navigation')},
+ {down=10932,up=10932,value_down=1,value_up=0,cockpit_device_id=25,name=_('Navigation Course - Decrease'),category=_('F-22 Navigation')},
+ {down=10933,up=10933,value_down=1,value_up=0,cockpit_device_id=25,name=_('TACAN Channel - Increase'),category=_('F-22 Navigation')},
+ {down=10934,up=10934,value_down=1,value_up=0,cockpit_device_id=25,name=_('TACAN Channel - Decrease'),category=_('F-22 Navigation')},
+ {down=10935,up=10935,value_down=1,value_up=0,cockpit_device_id=25,name=_('TACAN Band - X / Y'),category=_('F-22 Navigation')},
+ {down=10936,up=10936,value_down=1,value_up=0,cockpit_device_id=25,name=_('TACAN Mode - OFF / REC / T-R / A-A REC / A-A T-R'),category=_('F-22 Navigation')},
+ {down=10937,up=10937,value_down=1,value_up=0,cockpit_device_id=25,name=_('ILS Frequency - Next Channel'),category=_('F-22 Navigation')},
+ {down=10938,up=10938,value_down=1,value_up=0,cockpit_device_id=25,name=_('ILS Frequency - Previous Channel'),category=_('F-22 Navigation')},
+ {down=10939,up=10939,value_down=1,value_up=0,cockpit_device_id=25,name=_('Navigation Reference - True / Magnetic'),category=_('F-22 Navigation')},
+ {down=10940,up=10940,value_down=1,value_up=0,cockpit_device_id=25,name=_('Navigation GPS Aiding - Toggle Simulator Model'),category=_('F-22 Navigation')},
+ {down=10941,up=10941,value_down=1,value_up=0,cockpit_device_id=25,name=_('Navigation Course - Resume Route Leg'),category=_('F-22 Navigation')},
+ {down=10942,up=10942,value_down=1,value_up=0,cockpit_device_id=25,name=_('INS - Restart Ground Alignment'),category=_('F-22 Navigation')},
+ {down=10950,up=10950,value_down=1,value_up=0,cockpit_device_id=25,name=_('Autopilot - Barometric Altitude Hold'),category=_('F-22 Autopilot')},
+ {down=10951,up=10951,value_down=1,value_up=0,cockpit_device_id=25,name=_('Autopilot - Attitude Hold Toggle'),category=_('F-22 Autopilot')},
+ {down=10952,up=10952,value_down=1,value_up=0,cockpit_device_id=25,name=_('Autothrottle - Calibrated Airspeed Hold'),category=_('F-22 Autopilot')},
+ {down=10953,up=10953,value_down=1,value_up=0,cockpit_device_id=25,name=_('Autopilot and Autothrottle - Disengage'),category=_('F-22 Autopilot')},
+ {down=10954,up=10954,value_down=1,value_up=0,cockpit_device_id=25,name=_('Autopilot - Heading Select'),category=_('F-22 Autopilot')},
+ {down=10955,up=10955,value_down=1,value_up=0,cockpit_device_id=25,name=_('Autopilot - Navigation Coupled'),category=_('F-22 Autopilot')},
+ {down=10956,up=10956,value_down=1,value_up=0,cockpit_device_id=25,name=_('Autopilot Selected Heading - Decrease 1 Degree'),category=_('F-22 Autopilot')},
+ {down=10957,up=10957,value_down=1,value_up=0,cockpit_device_id=25,name=_('Autopilot Selected Heading - Increase 1 Degree'),category=_('F-22 Autopilot')},
+ {down=10958,up=10958,value_down=1,value_up=0,cockpit_device_id=25,name=_('Autopilot Selected Altitude - Decrease 100 Feet'),category=_('F-22 Autopilot')},
+ {down=10959,up=10959,value_down=1,value_up=0,cockpit_device_id=25,name=_('Autopilot Selected Altitude - Increase 100 Feet'),category=_('F-22 Autopilot')},
+ {down=10960,up=10960,value_down=1,value_up=0,cockpit_device_id=25,name=_('Autopilot - Radar Altitude Hold'),category=_('F-22 Autopilot')},
+ {down=10963,up=10963,value_down=1,value_up=0,cockpit_device_id=25,name=_('Autopilot Vertical Speed - Decrease 100 FPM'),category=_('F-22 Autopilot')},
+ {down=10964,up=10964,value_down=1,value_up=0,cockpit_device_id=25,name=_('Autopilot Vertical Speed - Increase 100 FPM'),category=_('F-22 Autopilot')},
+ {down=10965,up=10965,value_down=1,value_up=0,cockpit_device_id=25,name=_('Autothrottle Selected Speed - Decrease 5 Knots or 0.01 Mach'),category=_('F-22 Autopilot')},
+ {down=10966,up=10966,value_down=1,value_up=0,cockpit_device_id=25,name=_('Autothrottle Selected Speed - Increase 5 Knots or 0.01 Mach'),category=_('F-22 Autopilot')},
+ {down=10967,up=10967,value_down=1,value_up=0,cockpit_device_id=25,name=_('Autopilot Selected Heading - Sync Current Heading'),category=_('F-22 Autopilot')},
+ {down=10968,up=10968,value_down=1,value_up=0,cockpit_device_id=25,name=_('Autothrottle - Mach Hold'),category=_('F-22 Autopilot')},
+ {down=10969,up=10969,value_down=1,value_up=0,cockpit_device_id=25,name=_('Autopilot - Vertical Speed Hold'),category=_('F-22 Autopilot')},
+ {down=10961,up=10962,value_down=1,value_up=1,cockpit_device_id=25,name=_('Autopilot Override Paddle - Hold / Release'),category=_('F-22 Autopilot')},
+})
+join(res.keyCommands,{
+ {down=10838,up=10838,value_down=1,value_up=0,cockpit_device_id=8,name=_('Navigation - Store Own Position Markpoint'),category=_('F-22 Navigation')},
+ {down=10840,up=10840,value_down=1,value_up=0,cockpit_device_id=8,name=_('Navigation - Undo Last Coordinate Edit or Markpoint'),category=_('F-22 Navigation')},
+})
+join(res.keyCommands,{
+ {down=10841,up=10841,value_down=1,value_up=0,cockpit_device_id=8,name=_('Navigation - WPDSG Designate Selected Waypoint as Target'),category=_('F-22 Navigation')},
+ {down=10842,up=10842,value_down=1,value_up=0,cockpit_device_id=8,name=_('Navigation - Undesignate Target / Return to Waypoint'),category=_('F-22 Navigation')},
+ {down=10943,up=10943,value_down=1,value_up=0,cockpit_device_id=25,name=_('Navigation Source - Waypoint'),category=_('F-22 Navigation')},
+ {down=10944,up=10944,value_down=1,value_up=0,cockpit_device_id=25,name=_('Navigation Source - TACAN'),category=_('F-22 Navigation')},
+ {down=10945,up=10945,value_down=1,value_up=0,cockpit_device_id=25,name=_('Navigation Source - ILS'),category=_('F-22 Navigation')},
+})
+
+-- Altimetry and pilot warnings; physical assignments remain pilot-selected.
+join(res.keyCommands,{
+ {down=11020,up=11020,value_down=1,value_up=0,cockpit_device_id=27,name=_('Altimeter - Standard Pressure / Restore QNH'),category=_('F-22 Altimetry')},
+ {down=11021,up=11021,value_down=1,value_up=0,cockpit_device_id=27,name=_('Altimeter Pressure - Increase'),category=_('F-22 Altimetry')},
+ {down=11022,up=11022,value_down=1,value_up=0,cockpit_device_id=27,name=_('Altimeter Pressure - Decrease'),category=_('F-22 Altimetry')},
+ {down=11023,up=11023,value_down=1,value_up=0,cockpit_device_id=27,name=_('Altimeter Pressure Units - INHG / HPA'),category=_('F-22 Altimetry')},
+ {down=11000,up=11000,value_down=1,value_up=0,cockpit_device_id=28,name=_('Pilot Caution - Acknowledge'),category=_('F-22 HOTAS - Stick')},
+ {down=11001,up=11001,value_down=1,value_up=0,cockpit_device_id=28,name=_('Pilot Warning Voice - Test / Cancel'),category=_('F-22 Warnings')},
+ {down=11002,up=11002,value_down=1,value_up=0,cockpit_device_id=28,name=_('Pilot Warning Voice - Volume Increase'),category=_('F-22 Warnings')},
+ {down=11003,up=11003,value_down=1,value_up=0,cockpit_device_id=28,name=_('Pilot Warning Voice - Volume Decrease'),category=_('F-22 Warnings')},
+ {down=11004,up=11004,value_down=1,value_up=0,cockpit_device_id=28,name=_('Pilot Warning Voice - Mute / Unmute'),category=_('F-22 Warnings')},
+})
+
+-- Independent native datalink terminal; bind to controls as desired.
+join(res.keyCommands,{
+ {down=10917,up=10917,value_down=1,value_up=0,cockpit_device_id=18,name=_('Datalink - Receive On / Off'),category=_('F-22 Datalink')},
+ {down=10918,up=10918,value_down=1,value_up=0,cockpit_device_id=18,name=_('IFDL - Transmit / Receive On / Off'),category=_('F-22 Datalink')},
+})
+
+join(res.keyCommands,{
+ {down=10638,up=10638,value_down=1,value_up=0,cockpit_device_id=14,name=_('A/G Radar - SIL Toggle'),category=_('F-22 Ground Radar')},
+ {down=10639,up=10639,value_down=1,value_up=0,cockpit_device_id=14,name=_('A/G Radar - ACTIVE One Scan'),category=_('F-22 Ground Radar')},
+ {down=10640,up=10640,value_down=1,value_up=0,cockpit_device_id=14,name=_('A/G Radar - DATA Toggle'),category=_('F-22 Ground Radar')},
+ {down=10641,up=10641,value_down=1,value_up=0,cockpit_device_id=14,name=_('A/G Radar - Gain Increase'),category=_('F-22 Ground Radar')},
+ {down=10642,up=10642,value_down=1,value_up=0,cockpit_device_id=14,name=_('A/G Radar - Gain Decrease'),category=_('F-22 Ground Radar')},
+ {down=10643,up=10643,value_down=1,value_up=0,cockpit_device_id=14,name=_('A/G Radar - FAST Toggle'),category=_('F-22 Ground Radar')},
+ {down=10644,up=10644,value_down=1,value_up=0,cockpit_device_id=14,name=_('A/G Radar - PEN / FAN'),category=_('F-22 Ground Radar')},
+ {down=10645,up=10645,value_down=1,value_up=0,cockpit_device_id=14,name=_('A/G Radar - Reset'),category=_('F-22 Ground Radar')},
+ {down=10646,up=10646,value_down=1,value_up=0,cockpit_device_id=14,name=_('A/G Radar - Select EXP1 Corral'),category=_('F-22 Ground Radar')},
+ {down=10647,up=10647,value_down=1,value_up=0,cockpit_device_id=14,name=_('A/G Radar - Select EXP2 Corral'),category=_('F-22 Ground Radar')},
+ {down=10648,up=10648,value_down=1,value_up=0,cockpit_device_id=14,name=_('A/G Radar - Select EXP3 Corral'),category=_('F-22 Ground Radar')},
+ {down=10649,up=10649,value_down=1,value_up=0,cockpit_device_id=14,name=_('A/G Radar - SEA Mode'),category=_('F-22 Ground Radar')},
+ {down=10650,up=10650,value_down=1,value_up=0,cockpit_device_id=14,name=_('A/G Radar - TA Mode'),category=_('F-22 Ground Radar')},
+ {down=10651,up=10651,value_down=1,value_up=0,cockpit_device_id=14,name=_('A/G Radar - AGR Mode'),category=_('F-22 Ground Radar')},
+})
+
 return res

@@ -20,7 +20,7 @@
 dofile(LockOn_Options.script_path.."fonts.lua")
 -- Native cockpit context loads SVG storage before constructing this font,
 -- as in the AVQ-32 materials setup. Indicator init.lua does not register fonts.
-symbologyPaths = {LockOn_Options.script_path.."HUD"}
+symbologyPaths = {LockOn_Options.script_path.."HUD",LockOn_Options.script_path.."MFD_COMMON"}
 local hud_style=dofile(LockOn_Options.script_path.."HUD/style.lua")
 materials = {F22_HUD_GREEN = hud_style.color}
 fonts = {F22_HUD_OWN_STROKE = {
@@ -35,4 +35,19 @@ for name,color in pairs(radar_colors) do
     -- The smaller LCD needs a stronger stroke than the collimated HUD.
     descriptor.thickness=1.4;descriptor.fuzziness=.35
     fonts['F22_RDR_FONT_'..name]={descriptor,10,color}
+end
+
+-- Native LCD/UFC typography; independent of the HUD and original UFD bitmap font.
+local lcd_colors={WHITE={240,247,246,255},BLUE={113,188,240,255},GREEN={0,255,0,255},
+ YELLOW={255,220,40,255},RED={255,78,78,255},MAGENTA={235,80,211,255},TEAL={0,255,255,255},ORANGE={255,102,0,255}}
+for name,color in pairs(lcd_colors)do
+ fonts['F22_LCD_FONT_'..name]={dofile(LockOn_Options.script_path..'MFD_COMMON/font.lua'),10,color}
+end
+
+-- A/A geometry and labels share the same linear color resources. Other
+-- indicators retain their existing palettes and the common neutral background.
+local aa_palette=dofile(LockOn_Options.script_path..'MFD_COMMON/radar_palette.lua')
+for name,color in pairs(aa_palette.linear)do
+ materials[aa_palette.line(name)]=color
+ fonts[aa_palette.font(name)]={dofile(LockOn_Options.script_path..'MFD_COMMON/font.lua'),10,color}
 end

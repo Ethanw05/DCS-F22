@@ -2,6 +2,7 @@
 // ABI reference: Standalone-F22-IDA-Research.md, typed Sidewinder investigation.
 // Runtime validation is still required. Reject a different CockpitBase ABI.
 #include "NativeSidewinder.h"
+#include "NativeGroundSensor.h"
 #include "NativeSTTMotion.h"
 #include <Cockpit/CockpitAPI_Declare.h>
 #include <Windows.h>
@@ -119,6 +120,11 @@ struct Api {
     const void* homing_vtable{};
     using DLZ=void (__fastcall*)(const void*,float,float,float,float,const float*,const float*,const float*,float*,float*,float*);
     DLZ dlz{};
+    // Generic selected-descriptor estimator, independent of the stock AAM enum.
+    // Weapons 0x180121dc0: altitude, slant range, target aspect cosine, target
+    // speed; outputs average flyout velocity and flight time in SI units.
+    using DescriptorFlight=float (__fastcall*)(const void*,float,float,float,float,float*,double*);
+    DescriptorFlight descriptor_flight{};
     // Shared WeaponsBase export; nine SI/radian inputs, auxiliary ACT output,
     // TOFE::AAM enum, Sparrow high-power flag. This is not a Hornet import.
     using AAMTOF=double (__fastcall*)(void*,double,double,double,double,double,double,double,double,double,double*,int,bool);
@@ -179,6 +185,7 @@ struct Api {
                 homing_vtable=GetProcAddress(weapons_module,"??_7wAmmunitionSelfHoming@@6BviObject@@@");
                 guided_vtable=GetProcAddress(weapons_module,"??_7wAmmunitionGuided@@6BviObject@@@");
                 dlz=reinterpret_cast<DLZ>(GetProcAddress(weapons_module,"?DLZ@@YAXPEAURocket_Const@@MMMMAEBVVec3f@osg@@11AEAM22@Z"));
+                descriptor_flight=reinterpret_cast<DescriptorFlight>(GetProcAddress(weapons_module,"?getDFlight@Rocket_Const@@QEBAMMMMMAEAMAEAN@Z"));
                 missile_vtable=GetProcAddress(weapons_module,"??_7woMissile@@6BviObject@@@");
                 active_distance=reinterpret_cast<ActiveDistance>(GetProcAddress(weapons_module,"?getActiveLockDist@woMissile@@QEAAMXZ"));
             }
@@ -345,6 +352,7 @@ struct TimeEstimate {
     unsigned target=0,type=0;
     double stamp=0,tof=0,act=0;
     bool valid=false,act_valid=false;
+    unsigned source=0,mode=0;double life=1000;
 };
 SRWLOCK time_estimate_lock=SRWLOCK_INIT;
 TimeEstimate time_estimate{};
@@ -352,7 +360,7 @@ double last_tof_attempt=-1e9;
 unsigned last_tof_target=0,last_tof_type=0;
 TimeEstimate launch_time_estimate(unsigned target,unsigned type,unsigned mode,double now) {
     AcquireSRWLockShared(&time_estimate_lock);auto value=time_estimate;ReleaseSRWLockShared(&time_estimate_lock);
-    if (mode!=2 || value.target!=target || value.type!=type || now<value.stamp || now-value.stamp>.35) return {};
+    if ((mode!=2 && mode!=3) || value.mode!=mode || value.target!=target || value.type!=type || now<value.stamp || now-value.stamp>.35) return {};
     // Sampling age gates the geometry's freshness. The weapon has not flown
     // during that sampling delay; its countdown starts at successful release.
     value.stamp=now;
@@ -367,12 +375,79 @@ std::array<void*,193> payload_table{};
 void** payload_slot=nullptr;
 void** payload_original=nullptr;
 using PayloadLaunch=unsigned (__fastcall*)(void*,unsigned,unsigned,unsigned,const float*,bool);
+constexpr std::array<const char*,24> ground_live_names={
+    "F22_AG_RELEASE_CONSENT","MAIN_POWER","MASTER_ARM","WoW","HUD_MODE","HUD_AG_SUBMODE","F22_WEAPON_STATION",
+    "F22_AG_SOLUTION_VALID","F22_AG_SOLUTION_STATION","F22_AG_SOLUTION_SEQUENCE","F22_AG_SOLUTION_TIME",
+    "F22_AG_DELIVERY_TARGET_VALID","F22_AG_SOLUTION_TARGET_VALID","F22_AG_DELIVERY_TARGET_SOURCE","F22_AG_SOLUTION_TARGET_SOURCE",
+    "F22_AG_DELIVERY_TARGET_SEQUENCE","F22_AG_SOLUTION_TARGET_SEQUENCE","F22_AG_DELIVERY_TARGET_N","F22_AG_SOLUTION_TARGET_N",
+    "F22_AG_DELIVERY_TARGET_U","F22_AG_SOLUTION_TARGET_U","F22_AG_DELIVERY_TARGET_E","F22_AG_SOLUTION_TARGET_E","F22_AG_SOLUTION_SCHEMA"};
+struct GroundRelease {
+    bool valid=false;unsigned station=0;double stamp=-100,solution_time=0,solution_sequence=0,target_source=0,target_sequence=0;
+    std::array<float,3> point{};std::array<double,3> identity_point{};EDPARAM* parameters=nullptr;
+    std::array<void*,ground_live_names.size()> live_handles{};
+};
+bool ground_identity_current(const GroundRelease& g) {
+    if(!g.parameters)return false;
+    // This payload callback must not traverse/insert into the update thread's
+    // mutable handle map. Bind handles during preparation and copy with cache.
+    std::array<double,ground_live_names.size()> live{};
+    for(unsigned i=0;i<live.size();++i){
+        if(!g.live_handles[i])return false;
+        live[i]=g.parameters->getParamNumber(g.live_handles[i]);if(!std::isfinite(live[i]))return false;
+    }
+    const auto value=[&live](unsigned i){return live[i];};
+    if(value(0)<.5 || value(1)<.5 || value(2)<.5 || value(3)>.5 || value(4)!=7 || value(5)!=3 ||
+       value(6)!=g.station || value(7)<.5 || value(8)!=g.station || value(9)!=g.solution_sequence ||
+       value(10)!=g.solution_time || value(11)<.5 || value(12)<.5 || value(23)!=2)return false;
+    if(value(13)!=g.target_source || value(14)!=g.target_source || value(15)!=g.target_sequence || value(16)!=g.target_sequence)return false;
+    for(unsigned i=0;i<3;++i)if(value(17+i*2)!=g.identity_point[i] || value(18+i*2)!=g.identity_point[i])return false;
+    return true;
+}
+SRWLOCK ground_release_lock=SRWLOCK_INIT;
+GroundRelease ground_release{};
+void update_ground_release(EDPARAM& p) {
+    GroundRelease next;
+    const double now=api.clock?api.clock():-100;
+    const double stamp=read(p,"F22_AG_SOLUTION_TIME"),station=read(p,"F22_WEAPON_STATION");
+    // Weapon_System resolves live designation versus an explicit station target.
+    const double n=read(p,"F22_AG_DELIVERY_TARGET_N"),u=read(p,"F22_AG_DELIVERY_TARGET_U"),e=read(p,"F22_AG_DELIVERY_TARGET_E");
+    next.valid=read(p,"F22_IR_MODE")==7 && read(p,"HUD_AG_SUBMODE")==3 && read(p,"F22_AG_DELIVERY_TARGET_VALID")>.5 &&
+        read(p,"F22_AG_GUIDED_SELECTED")>.5 && read(p,"MASTER_ARM")>.5 && read(p,"MAIN_POWER")>.5 && read(p,"WoW")<.5 &&
+        read(p,"F22_AG_SOLUTION_VALID")>.5 && read(p,"F22_AG_SOLUTION_STATION")==station && std::isfinite(stamp) && now>=stamp && now-stamp<=.2 &&
+        std::isfinite(station) && station>=0 && station<=10 && station==std::floor(station) &&
+        std::isfinite(n) && std::isfinite(u) && std::isfinite(e) && std::abs(n)<1e7 && std::abs(e)<1e7 && u>=-1000 && u<20000;
+    next.station=next.valid?static_cast<unsigned>(station):0;next.stamp=now;
+    next.solution_time=stamp;next.solution_sequence=read(p,"F22_AG_SOLUTION_SEQUENCE");
+    next.target_source=read(p,"F22_AG_DELIVERY_TARGET_SOURCE");next.target_sequence=read(p,"F22_AG_DELIVERY_TARGET_SEQUENCE");
+    next.identity_point={n,u,e};next.parameters=&p;
+    for(unsigned i=0;i<ground_live_names.size();++i)next.live_handles[i]=p.getParamHandle(ground_live_names[i]);
+    next.valid=next.valid && std::isfinite(next.solution_sequence) && next.solution_sequence>0 && next.solution_sequence==std::floor(next.solution_sequence) &&
+        std::isfinite(next.target_sequence) && next.target_sequence>=0 && next.target_sequence==std::floor(next.target_sequence) &&
+        (next.target_source==1 || next.target_source==2) && ground_identity_current(next);
+    next.point={static_cast<float>(n),static_cast<float>(u),static_cast<float>(e)};
+    write(p,"F22_AG_GUIDANCE_CACHE_VALID",next.valid?1:0);write(p,"F22_AG_GUIDANCE_CACHE_TIME",now);
+    write(p,"F22_AG_GUIDANCE_CACHE_STATION",next.station);write(p,"F22_AG_GUIDANCE_CACHE_SOLUTION_SEQUENCE",next.solution_sequence);
+    write(p,"F22_AG_GUIDANCE_CACHE_TARGET_SOURCE",next.target_source);write(p,"F22_AG_GUIDANCE_CACHE_TARGET_SEQUENCE",next.target_sequence);
+    write(p,"F22_AG_GUIDANCE_CACHE_TARGET_N",n);write(p,"F22_AG_GUIDANCE_CACHE_TARGET_U",u);write(p,"F22_AG_GUIDANCE_CACHE_TARGET_E",e);
+    AcquireSRWLockExclusive(&ground_release_lock);ground_release=next;ReleaseSRWLockExclusive(&ground_release_lock);
+    write(p,"F22_AG_GUIDANCE_BACKEND_READY",api.profile_valid && payload_original?1:0);
+}
 unsigned __fastcall record_payload_launch(void* self,unsigned station,unsigned sub,unsigned target,const float* point,bool armed) {
     using StoreType=const WeaponType* (__fastcall*)(void*,unsigned);
     unsigned type=0;
     const auto wt=reinterpret_cast<StoreType>(payload_original[20])(self,station);
     if (readable(reinterpret_cast<std::uintptr_t>(wt),sizeof(WeaponType))) type=wt->level4;
     const unsigned mode=launch_master_mode.load();
+    AcquireSRWLockShared(&ground_release_lock);const auto ground=ground_release;ReleaseSRWLockShared(&ground_release_lock);
+    // The stock guided bomb consumes a real world coordinate at release.
+    // Never redirect an AA missile or substitute a fabricated ground point.
+    if(mode==7 && readable(reinterpret_cast<std::uintptr_t>(wt),sizeof(WeaponType)) && wt->level1==4 && wt->level2==5 && wt->level3==36) {
+        const double now=api.clock?api.clock():-100;
+        if(!armed || !ground.valid || ground.station!=station || !std::isfinite(now) || now<ground.stamp || now-ground.stamp>.2 ||
+           now<ground.solution_time || now-ground.solution_time>.2 ||
+           !ground_identity_current(ground))return 0;
+        point=ground.point.data();target=0;
+    }
     auto estimate=launch_time_estimate(target,type,mode,api.clock ? api.clock() : 0);
     auto id=reinterpret_cast<PayloadLaunch>(payload_original[50])(self,station,sub,target,point,armed);
     if (id) {
@@ -398,6 +473,14 @@ constexpr unsigned radar_primary_methods=31;
 std::array<void*,radar_primary_methods+1> radar_coordinate_table{};
 void** radar_coordinate_slot=nullptr;
 void** radar_coordinate_original=nullptr;
+void __fastcall ground_sensor_phase(void *self) {
+    // Slot15 is update_radar, not avLuaDevice::update (slot6). IDA confirms
+    // that native spatial detection runs in this callback. Preserve A/A.
+    using Update=void(__fastcall*)(void*);
+    if(radar_coordinate_original)
+        reinterpret_cast<Update>(radar_coordinate_original[15])(self);
+    NativeGroundSensor::sample(self);
+}
 std::atomic<const void*> radar_coordinate_owner{nullptr};
 void* radar_coordinate_ready_handle=nullptr;
 PFN_ED_COCKPIT_UPDATE_PARAMETER_WITH_NUMBER radar_coordinate_write=nullptr;
@@ -485,6 +568,7 @@ bool install_radar_coordinates(std::uintptr_t radar) {
     for (unsigned i=0;i<radar_primary_methods;++i) radar_coordinate_table[i+1]=original[i];
     radar_coordinate_table[28]=reinterpret_cast<void*>(&coordinate_scan_pattern);
     radar_coordinate_table[24]=reinterpret_cast<void*>(&coordinate_acquisition_update);
+    radar_coordinate_table[16]=reinterpret_cast<void*>(&ground_sensor_phase);
     radar_coordinate_slot=slot;radar_coordinate_original=original;
     radar_coordinate_owner.store(reinterpret_cast<void*>(radar),std::memory_order_release);
     InterlockedExchangePointer(reinterpret_cast<PVOID volatile*>(slot),radar_coordinate_table.data()+1);
@@ -562,14 +646,14 @@ void publish_launch_events(EDPARAM& p) {
         const char* fields[]={"SEQUENCE","ID","TARGET","STATION","TIME","TYPE","MODE"};
         double values[]={static_cast<double>(e.sequence),static_cast<double>(e.id),static_cast<double>(e.target),static_cast<double>(e.station),e.time,static_cast<double>(e.type),static_cast<double>(e.mode)};
         for (unsigned j=0;j<7;++j) {std::snprintf(key,sizeof(key),"F22_SHOT_%02u_%s",i+1,fields[j]);write(p,key,values[j]);}
-        const char* predicted[]={"TOF_VALID","TOF","ACT_VALID","ACT","ESTIMATE_TIME"};
-        const double prediction[]={e.estimate.valid?1.0:0.0,e.estimate.tof,e.estimate.valid && e.estimate.act_valid?1.0:0.0,e.estimate.act,e.estimate.stamp};
-        for (unsigned j=0;j<5;++j) {std::snprintf(key,sizeof(key),"F22_SHOT_%02u_%s",i+1,predicted[j]);write(p,key,prediction[j]);}
+        const char* predicted[]={"TOF_VALID","TOF","ACT_VALID","ACT","ESTIMATE_TIME","TOF_SOURCE","LIFETIME"};
+        const double prediction[]={e.estimate.valid?1.0:0.0,e.estimate.tof,e.estimate.valid && e.estimate.act_valid?1.0:0.0,e.estimate.act,e.estimate.stamp,static_cast<double>(e.estimate.source),e.estimate.life};
+        for (unsigned j=0;j<7;++j) {std::snprintf(key,sizeof(key),"F22_SHOT_%02u_%s",i+1,predicted[j]);write(p,key,prediction[j]);}
         // Only missiles returned by our payload launch call are eligible. Never
         // enumerate other weapons or query the target's hidden world state.
         bool valid=false;Direction point{};const float* velocity=nullptr;
         float active_range=0;bool active=false;bool active_valid=false;bool seeker_track=false;bool seeker_valid=false;unsigned model=0;
-        if (e.id && api.find_object && api.missile_vtable && api.active_distance && api.clock && api.clock()-e.time<300) {
+        if (e.id && api.find_object && api.missile_vtable && api.active_distance && api.clock && api.clock()-e.time<e.estimate.life+5) {
             auto object=reinterpret_cast<std::uintptr_t>(api.find_object(e.id));
             const bool legacy=readable(object,0x910) && *reinterpret_cast<const void**>(object)==api.missile_vtable;
             const bool guided=readable(object,1440) && api.guided_vtable && *reinterpret_cast<const void**>(object)==api.guided_vtable;
@@ -609,7 +693,9 @@ void publish_launch_events(EDPARAM& p) {
     write(p,"F22_LAUNCH_SEQUENCE",sequence);
     write(p,"F22_LAUNCH_EVENTS_READY",1);
 }
+std::uintptr_t selected_missile_descriptor=0;
 void publish_missile_data(EDPARAM& p) {
+    selected_missile_descriptor=0;
     write(p,"F22_MISSILE_DATA_VALID",0);write(p,"F22_DLZ_NATIVE_VALID",0);
     if (!api.ready || !api.weapon_vtable) return;
     auto context=api.binding_context();if (!context) return;
@@ -629,6 +715,7 @@ void publish_missile_data(EDPARAM& p) {
     write(p,"F22_MISSILE_NATIVE_MIN",minimum);write(p,"F22_MISSILE_NATIVE_MAX",maximum);
     write(p,"F22_MISSILE_AVERAGE_SPEED",speed);write(p,"F22_MISSILE_LIFETIME",life);
     write(p,"F22_MISSILE_DATA_VALID",1);
+    selected_missile_descriptor=descriptor;
     // Same exported DLZ used by the Hornet (FA18C 0x180426a5d): own altitude,
     // two unused scalars, target height minus own height, own/target velocity,
     // relative target position; returns RMAX, turn-away range, aerodynamic max.
@@ -662,20 +749,25 @@ Direction tof_body(const Direction& v,double pitch,double roll,double heading) {
     return {f*std::cos(pitch)+v.y*std::sin(pitch),right*std::sin(roll)+up*std::cos(roll),right*std::cos(roll)-up*std::sin(roll)};
 }
 void publish_time_estimate(EDPARAM& p) {
-    write(p,"F22_TOF_NATIVE_VALID",0);write(p,"F22_TOF_ACT_VALID",0);
-    api.resolve_tof();write(p,"F22_TOF_BACKEND_READY",api.aam_tof?1:0);
+    write(p,"F22_TOF_NATIVE_VALID",0);write(p,"F22_TOF_ACT_VALID",0);write(p,"F22_TOF_SOURCE",0);
+    api.resolve_tof();write(p,"F22_TOF_BACKEND_READY",api.aam_tof || api.descriptor_flight?1:0);
     const auto type=static_cast<unsigned>(read(p,"F22_WEAPON_TYPE4"));
     const auto target_id=static_cast<unsigned>(read(p,"F22_FC_TARGET_INPUT_ID"));
     const double now=api.clock ? api.clock() : 0;
-    const bool eligible=api.aam_tof && api.clock && read(p,"HUD_MODE")==2 && read(p,"MAIN_POWER")>.5 &&
+    const auto mode=read(p,"HUD_MODE");const bool stock=mode==2 && (type==24 || type==106);
+    const bool generic=api.descriptor_flight && selected_missile_descriptor &&
+        readable(selected_missile_descriptor,324) && *reinterpret_cast<const unsigned*>(selected_missile_descriptor+168)==type;
+    const bool eligible=(stock && api.aam_tof || generic) && api.clock && (mode==2 || mode==3) && read(p,"MAIN_POWER")>.5 &&
         read(p,"F22_MISSILE_DATA_VALID")>.5 && read(p,"F22_FC_TARGET_INPUT_VALID")>.5 && target_id &&
-        read(p,"F22_RADAR_WEAPON_TARGET_ID")==target_id && (type==24 || type==106);
+        read(p,"F22_RADAR_WEAPON_TARGET_ID")==target_id;
     TimeEstimate value{};
     if (eligible) {
         AcquireSRWLockShared(&time_estimate_lock);value=time_estimate;ReleaseSRWLockShared(&time_estimate_lock);
-        if (target_id!=last_tof_target || type!=last_tof_type || now<last_tof_attempt || now-last_tof_attempt>=.2) {
+        if (target_id!=last_tof_target || type!=last_tof_type || value.mode!=mode || now<last_tof_attempt || now-last_tof_attempt>=.2) {
             last_tof_attempt=now;last_tof_target=target_id;last_tof_type=type;
-            value={};value.target=target_id;value.type=type;value.stamp=now;
+            value={};value.target=target_id;value.type=type;value.mode=static_cast<unsigned>(mode);value.stamp=now;
+            const double life=read(p,"F22_MISSILE_LIFETIME");
+            if(std::isfinite(life)&&life>=1&&life<=1000)value.life=life;
             Direction relative{read(p,"F22_FC_TARGET_DN"),read(p,"F22_FC_TARGET_DU"),read(p,"F22_FC_TARGET_DE")};
             Direction velocity{read(p,"F22_FC_TARGET_VN"),read(p,"F22_FC_TARGET_VU"),read(p,"F22_FC_TARGET_VE")};
             const double altitude=read(p,"F22_FC_OWN_ALTITUDE"),speed=read(p,"EFM_HUD_TAS");
@@ -686,15 +778,28 @@ void publish_time_estimate(EDPARAM& p) {
                 range>=1 && range<300000 && altitude+relative.y>=-500 && altitude+relative.y<=30000 &&
                 std::abs(pitch)<=3.15 && std::abs(roll)<=3.15 && std::abs(heading)<=6.29) {
                 const auto body_relative=tof_body(relative,pitch,roll,heading),body_velocity=tof_body(velocity,pitch,roll,heading);
-                if (!api.tof_constructed) {api.tof_construct(&api.tof_object);api.tof_constructed=true;}
                 double act=std::numeric_limits<double>::quiet_NaN();
                 // FA18C 0x1804233d2 uses enum1 for AMRAAM-C and a 16000m
                 // predicted activation crossing. This is a cockpit estimate,
                 // never proof of the C5 simulation scheme's seeker state.
-                const double tof=api.aam_tof(&api.tof_object,altitude,speed,pitch,target_speed,
-                    std::atan2(body_velocity.z,body_velocity.x),std::atan2(body_relative.z,body_relative.x),
-                    range,altitude+relative.y,16000,&act,type==106?1:0,false);
-                value.valid=std::isfinite(tof) && tof>0 && tof<=300;
+                double tof=0;
+                if(stock && api.aam_tof){
+                    if (!api.tof_constructed) {api.tof_construct(&api.tof_object);api.tof_constructed=true;}
+                    tof=api.aam_tof(&api.tof_object,altitude,speed,pitch,target_speed,
+                        std::atan2(body_velocity.z,body_velocity.x),std::atan2(body_relative.z,body_relative.x),
+                        range,altitude+relative.y,16000,&act,type==106?1:0,false);
+                    value.source=1;
+                }else if(generic){
+                    float average=0;double predicted=0;
+                    const double cosine=target_speed>1e-6 ? std::clamp((relative.x*velocity.x+relative.y*velocity.y+relative.z*velocity.z)/(range*target_speed),-1.,1.) : 0;
+                    const float distance=api.descriptor_flight(reinterpret_cast<const void*>(selected_missile_descriptor),
+                        static_cast<float>(altitude),static_cast<float>(range),static_cast<float>(cosine),static_cast<float>(target_speed),&average,&predicted);
+                    if(std::isfinite(distance)&&distance>0&&std::isfinite(average)&&average>=100&&average<=5000)tof=predicted;
+                    value.source=2;
+                    // Sensitivity range is not activation-command range. The
+                    // real scheme telemetry, not this estimate, decides ACTIVE.
+                }
+                value.valid=std::isfinite(tof) && tof>0 && tof<=value.life;
                 value.tof=value.valid ? tof : 0;
                 value.act_valid=value.valid && std::isfinite(act) && act>=0 && act<=tof;
                 value.act=value.act_valid ? act : 0;
@@ -705,6 +810,7 @@ void publish_time_estimate(EDPARAM& p) {
     if (!value.valid) return;
     write(p,"F22_TOF_NATIVE_VALID",1);write(p,"F22_TOF_TARGET_ID",value.target);write(p,"F22_TOF_TYPE",value.type);
     write(p,"F22_TOF_TIME",value.stamp);write(p,"F22_TOF_SECONDS",value.tof);
+    write(p,"F22_TOF_SOURCE",value.source);
     write(p,"F22_TOF_ACT_VALID",value.act_valid?1:0);write(p,"F22_TOF_ACT_SECONDS",value.act);
 }
 void reset_support() {
@@ -859,6 +965,7 @@ void configure_radar(EDPARAM& p) {
 }
 
 void reset() {
+    AcquireSRWLockExclusive(&ground_release_lock);ground_release={};ReleaseSRWLockExclusive(&ground_release_lock);
     reset_support();
     dispose();handles.clear();launch_sequence=0;launch_id=0;tick_sequence=0;
 }
@@ -869,6 +976,7 @@ void update(EDPARAM& p,double dt) {
     launch_master_mode=static_cast<unsigned>(std::clamp(read(p,"F22_IR_MODE"),0.0,10.0));
     configure_radar(p);
     publish_launch_events(p);
+    update_ground_release(p);
     publish_missile_data(p);
     publish_time_estimate(p);
     publish_gun_ammunition(p);

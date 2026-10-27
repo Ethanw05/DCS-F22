@@ -44,7 +44,9 @@ for name, native_class in [('RADAR_NATIVE','avSimpleRadar'),
 
 # The common simulator libraries are expected; aircraft-specific avionics must
 # never be introduced as a hidden adapter prerequisite.
-allowed = {'CockpitBase.dll', 'Weapons.dll', 'WeaponsBase.dll', 'World.dll'}
+allowed = {'CockpitBase.dll', 'Weapons.dll', 'WeaponsBase.dll', 'World.dll', 'WorldGeneral.dll',
+           'GraphicsVista.dll', 'Visualizer.dll', 'SceneRenderer.dll', 'enlight.dll',
+           'edObjects.dll', 'wRadio.dll', 'edCore.dll'}  # Shared DCS core libraries, not aircraft-specific avionics.
 for source in (ROOT / 'EFM/source').glob('Native*.cpp'):
     modules = re.findall(r'(?:GetModuleHandle|LoadLibrary)(?:W|A)?\(L?"([^"]+)"', source.read_text())
     assert set(modules) <= allowed, (source.name, modules)

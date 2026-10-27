@@ -136,7 +136,10 @@ end
 -- not moving vertical tapes.
 group("HUD_AIRDATA",0,0,{"HUD_AIRDATA_VALID"},{{"parameter_in_range",0,0.9,1.1}})
 group("HUD_NO_AIRDATA",0,0,{"HUD_AIRDATA_VALID"},{{"parameter_in_range",0,-0.1,0.1}})
-local function dial(cx,cy,r,n,param)
+group('HUD_ALT_DATA',0,0,{'HUD_ALT_VALID'},{{'parameter_in_range',0,.9,1.1}})
+group('HUD_NO_ALT_DATA',0,0,{'HUD_ALT_VALID'},{{'parameter_in_range',0,-.1,.1}})
+local function dial(cx,cy,r,n,param,available,missing)
+    available=available or 'HUD_AIRDATA';missing=missing or 'HUD_NO_AIRDATA'
     for i=0,9 do
         local a = (i/10)*2*pi
         local e=CreateElement "ceMeshPoly"
@@ -155,18 +158,18 @@ local function dial(cx,cy,r,n,param)
         e.vertices=vertices;e.indices=indices
         add_base(e,id("HUD_DIAL_DOT"))
     end
-    label(cx,cy,n,n=="BAROALT" and "%.0f" or "%03.0f",0.045,"HUD_AIRDATA")
-    static(cx,cy,"---",0.045,"HUD_NO_AIRDATA")
+    label(cx,cy,n,n=="BAROALT" and "%.0f" or "%03.0f",0.045,available)
+    static(cx,cy,"---",0.045,missing)
     local name=id("HUD_POINTER_ROOT")
     group(name,cx,cy,{param,"HUD_POWER"},
-        {{"rotate_using_parameter",0,1},{"opacity_using_parameter",1}},"HUD_AIRDATA")
+        {{"rotate_using_parameter",0,1},{"opacity_using_parameter",1}},available)
     -- Keep the pointer outside the counter/dots; five-digit altitudes must
     -- never be crossed by a needle passing through the numerical field.
     line(0,r*1.05,0,r*1.28,0.007,name)
 end
 local counter_x=0.62
 dial(-counter_x,0.02,0.085,"HUD_CAS","HUD_IAS_POINTER")
-dial(counter_x,0.02,0.115,"BAROALT","HUD_ALT_POINTER")
+dial(counter_x,0.02,0.115,"BAROALT","HUD_ALT_POINTER","HUD_ALT_DATA","HUD_NO_ALT_DATA")
 
 -- Geometric attitude reference: moves in pitch, rotates as aircraft rolls.
 -- Every conformal cue shares the fixed nose-reference origin.
@@ -212,7 +215,7 @@ line(0,boresight_y+0.010,0.0275,boresight_y-0.015,0.004)
 line(0.0275,boresight_y-0.015,0.055,boresight_y+0.015,0.004)
 -- No second dash-and-stem boresight symbol under the flight-path marker.
 -- World velocity projected into the same boresight frame as the fixed W.
-group("HUD_FPM",0,boresight_y,{"HUD_FPM_Y_RAD","HUD_FPM_X_RAD","HUD_POWER","HUD_FPM_VALID"},
+group("HUD_FPM",0,boresight_y,{"HUD_FPM_Y_SLOPE","HUD_FPM_X_SLOPE","HUD_POWER","HUD_FPM_VALID"},
   {{"move_up_down_using_parameter",0,1/layout_scale},{"move_left_right_using_parameter",1,1/layout_scale},
    {"opacity_using_parameter",2},{"parameter_in_range",3,0.9,1.1}})
 for i=0,15 do
@@ -222,13 +225,6 @@ for i=0,15 do
 end
 line(-0.065,0,-0.022,0,0.004,"HUD_FPM")
 line(0.022,0,0.065,0,0.004,"HUD_FPM")
--- Gear-dependent approach indication, using the reference model's 12-deg target.
-group("HUD_APPROACH_LOW",0,0,{"HUD_APPROACH_LOW"},
-    {{"parameter_in_range",0,0.9,1.1}},"HUD_FPM")
-group("HUD_APPROACH_HIGH",0,0,{"HUD_APPROACH_HIGH"},
-    {{"parameter_in_range",0,0.9,1.1}},"HUD_FPM")
-line(-0.035,0.035,-0.035,0.10,0.004,"HUD_APPROACH_LOW")
-line(-0.035,-0.035,-0.035,-0.10,0.004,"HUD_APPROACH_HIGH")
 
 -- Compact heading presentation measured from the supplied F-22 reference.
 -- Current heading is a separate box above the scale. Moving degree labels
@@ -267,6 +263,36 @@ for _,tick in ipairs(positions) do
     label(x,0.64,tick[2],"%03.0f",0.024,root)
 end
 
+-- Navigation bearing caret follows the compass scale, including 359/000 wrap.
+group('HUD_NAV_STEERING_BUG',0,0,{'HUD_NAV_BUG_DEG','HUD_NAV_BUG_VALID','HUD_MODE'},
+    {{'move_left_right_using_parameter',0,heading_step},{'parameter_in_range',1,.9,1.1},
+     {'parameter_in_range',2,.9,1.1}},'HUD_HEADING')
+group('HUD_NAV_COMMAND_MARK',0,0,{'F22_NAV_DESIGNATED'},{{'parameter_in_range',0,-.1,.1}},'HUD_NAV_STEERING_BUG')
+line(0,.590,0,.555,.0035,'HUD_NAV_COMMAND_MARK')
+line(-.004,.590,-.004,.555,.002,'HUD_NAV_COMMAND_MARK')
+line(.004,.590,.004,.555,.002,'HUD_NAV_COMMAND_MARK')
+group('HUD_TARGET_COMMAND_MARK',0,0,{'F22_NAV_DESIGNATED'},{{'parameter_in_range',0,.9,1.1}},'HUD_NAV_STEERING_BUG')
+line(0,.595,.020,.575,.003,'HUD_TARGET_COMMAND_MARK')
+line(.020,.575,0,.555,.003,'HUD_TARGET_COMMAND_MARK')
+line(0,.555,-.020,.575,.003,'HUD_TARGET_COMMAND_MARK')
+line(-.020,.575,0,.595,.003,'HUD_TARGET_COMMAND_MARK')
+for _,edge in ipairs({-1,1})do
+ local name='HUD_NAV_BUG_EDGE_'..edge
+ group(name,0,0,{'HUD_NAV_BUG_EDGE'},{{'parameter_in_range',0,edge-.1,edge+.1}},'HUD_NAV_STEERING_BUG')
+ line(0,.61,edge*.030,.625,.0035,name);line(edge*.030,.625,0,.64,.0035,name)
+end
+group('HUD_SELECTED_HEADING_BUG',0,0,{'HUD_HDG_BUG_DEG','HUD_HDG_BUG_VALID'},
+    {{'move_left_right_using_parameter',0,heading_step},{'parameter_in_range',1,.9,1.1}},'HUD_HEADING')
+line(-.025,.665,-.025,.683,.003,'HUD_SELECTED_HEADING_BUG')
+line(-.025,.683,.025,.683,.003,'HUD_SELECTED_HEADING_BUG')
+line(.025,.683,.025,.665,.003,'HUD_SELECTED_HEADING_BUG')
+label(.105,.74,'HUD_HEADING_REFERENCE','%s',.016,'HUD_HEADING')
+label(-.72,-.45,'F22_AP_STATUS_TEXT','%s',.018,nil,'LeftCenter')
+
+dofile(LockOn_Options.script_path..'HUD/navigation.lua')({group=group,line=line,layout_scale=layout_scale})
+
+dofile(LockOn_Options.script_path..'HUD/landing.lua')({group=group,line=line,layout_scale=layout_scale})
+
 -- Historical flight data blocks. Weapon/tactical cues intentionally excluded.
 group("HUD_GROUND_DATA",0,0,{"HUD_GS_VALID"},{{"parameter_in_range",0,0.9,1.1}})
 local left_edge,right_edge=-0.72,0.72
@@ -302,19 +328,21 @@ line(0,-0.04,0,0.04,0.004,"HUD_WIND_ARROW")
 line(0,0.04,-0.018,0.015,0.004,"HUD_WIND_ARROW")
 line(0,0.04,0.018,0.015,0.004,"HUD_WIND_ARROW")
 
--- Lower roll arc, retained as a visual reference only until mode semantics verified.
+-- The legacy lower arc sits directly over the approach FPM at this aircraft's
+-- 12-degree AOA. Clear that area for the E-bracket and received ILS guidance.
+group('HUD_BANK_SCALE',0,0,{'HUD_LANDING_CONFIG'},{{'parameter_in_range',0,-.1,.1}})
 for i=-4,4 do
     local a=i*pi/12 -- calibrated 15-degree marks through +/-60 degrees
     -- Radial marks share the pointer's centre; they are not screen-vertical.
     local x,y=0.328*math.sin(a),-0.45-0.328*math.cos(a)
     local ox,oy=0.352*math.sin(a),-0.45-0.352*math.cos(a)
-    line(x,y,ox,oy,0.004)
+    line(x,y,ox,oy,0.004,'HUD_BANK_SCALE')
 end
-group("HUD_BANK_POINTER",0,-0.45,{"HUD_BANK_RAD"},{{"rotate_using_parameter",0,1}})
+group("HUD_BANK_POINTER",0,-0.45,{"HUD_BANK_RAD"},{{"rotate_using_parameter",0,1}},'HUD_BANK_SCALE')
 line(-0.018,-0.405,0,-0.37,0.004,"HUD_BANK_POINTER")
 line(0,-0.37,0.018,-0.405,0.004,"HUD_BANK_POINTER")
 line(-0.018,-0.405,0.018,-0.405,0.004,"HUD_BANK_POINTER")
-group("HUD_SLIP_POINTER",0,-0.45,{"HUD_BANK_RAD"},{{"rotate_using_parameter",0,1}})
+group("HUD_SLIP_POINTER",0,-0.45,{"HUD_BANK_RAD"},{{"rotate_using_parameter",0,1}},'HUD_BANK_SCALE')
 group("HUD_SLIP_BAR",0,-0.43,{"HUD_BANK_SLIP"},
     {{"move_left_right_using_parameter",0,1}},"HUD_SLIP_POINTER")
 line(-0.018,0,0.018,0,0.005,"HUD_SLIP_BAR")

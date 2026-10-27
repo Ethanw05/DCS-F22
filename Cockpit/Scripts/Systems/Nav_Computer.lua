@@ -24,7 +24,7 @@ local function point(p,id,height)
     return {x=p.x,y=p.y,alt=alt,msl=msl,reference=reference,id=id,name=name:sub(1,16)}
 end
 function M.new(raw,height)
-    local self={route={},selected=1,range_index=4,automatic=false,direct_origin=nil,arrived=false}
+    local self={route={},selected=1,range_index=4,automatic=false,direct_origin=nil,arrived=false,sequence_count=0}
     if type(raw)=='table' then
         raw=raw.points or raw.route or raw
         if type(raw)=='table' then
@@ -38,12 +38,35 @@ function M.new(raw,height)
     end
     function self:step(n)
         self.selected=math.max(1,math.min(#self.route,self.selected+n))
-        self.direct_origin=nil;self.arrived=false;self.automatic=false
+        self.direct_origin=nil;self.arrived=false;self.designation=nil
     end
     function self:direct(own)
         if own and M.finite(own.x) and M.finite(own.y) then
             self.direct_origin={x=own.x,y=own.y};self.arrived=false
         end
+    end
+    function self:select_id(id)
+        for i,w in ipairs(self.route)do if w.id==id then self.selected=i;self.direct_origin=nil;self.arrived=false;self.designation=nil;return true end end
+        return false
+    end
+    function self:edit(id,n,e,alt)
+        if not M.finite(id)or id%1~=0 or not M.finite(n)or not M.finite(e)or not M.finite(alt)or alt< -500 or alt>20000 then return false end
+        local index
+        for i,w in ipairs(self.route)do if w.id==id then index=i;break end end
+        local next_id=(self.route[#self.route]or self.origin or {id=1}).id+1
+        if not index and(id~=next_id or #self.route>=255)then return false end
+        index=index or #self.route+1
+        self.undo={index=index,waypoint=self.route[index],selected=self.selected}
+        self.route[index]={id=id,x=n,y=e,alt=alt,msl=alt,reference='MSL',name='USER '..string.format('%02d',id)}
+        self.selected=index;self.direct_origin=nil;self.arrived=false;self.designation=nil
+        return true
+    end
+    function self:undo_edit()
+        if not self.undo then return false end
+        local u=self.undo
+        if u.waypoint then self.route[u.index]=u.waypoint else table.remove(self.route,u.index)end
+        self.selected=math.min(u.selected,math.max(1,#self.route));self.direct_origin=nil;self.arrived=false;self.undo=nil
+        return true
     end
     function self:scale(n) self.range_index=math.max(1,math.min(#M.ranges,self.range_index+n)) end
     return self
@@ -75,11 +98,13 @@ function M.solution(self,own)
         end
     end
     local captured=distance<=.3*1852 or (s.along and s.along>=s.length and math.abs(s.cross)<=.75*1852 and distance<=1.5*1852)
-    if self.automatic and M.finite(own.gs) and own.gs>15 and captured then
+    if self.automatic and not self.designation and M.finite(own.gs) and own.gs>15 and captured then
         if self.selected<#self.route then
-            self.selected=self.selected+1;self.direct_origin=nil;self.arrived=false
+            local previous=w.id
+            self.selected=self.selected+1;self.direct_origin=nil;self.arrived=false;self.sequence_count=self.sequence_count+1
             -- At most one sequence per device tick, including co-located fixes.
             self.automatic=false;local next_solution=M.solution(self,own);self.automatic=true
+            if next_solution then next_solution.sequence_from=previous;next_solution.sequence_reason=distance<=.3*1852 and 'CAPTURE' or 'PASSED' end
             return next_solution
         end
         self.arrived=true

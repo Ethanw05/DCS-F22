@@ -4,6 +4,10 @@ dofile(LockOn_Options.script_path .. "devices.lua")
 local library = dofile(LockOn_Options.script_path .. "Systems/MWS_Computer.lua")
 local decode = dofile(LockOn_Options.script_path .. "Systems/Input_Value.lua")
 local receiver = library.new()
+local audio_gate = dofile(LockOn_Options.script_path .. 'Systems/Warning_Audio_Gate.lua')
+local bearing_library = dofile(LockOn_Options.script_path .. "Systems/RWR_Bearings.lua")
+local bearings = bearing_library.new()
+local base = get_base_data()
 local handles = {}
 local function h(n)
 	if not handles[n] then
@@ -46,7 +50,7 @@ for _, name in ipairs({
 end
 for i = 1, 16 do
 	local p = string.format("F22_MWS_NATIVE_%02d_", i)
-	for _, suffix in ipairs({ "VALID", "SOURCE", "TIME", "AZ", "EL" }) do
+	for _, suffix in ipairs({ "VALID", "SOURCE", "TIME", "AZ", "EL", "THREAT" }) do
 		h(p .. suffix)
 	end
 	p = string.format("F22_MWS_%02d_", i)
@@ -59,6 +63,7 @@ local held = {}
 local host, sound = nil, nil
 local signature = nil
 local next_sample = 0
+local publish_sequence = 0
 for _, c in ipairs({ 10920, 10921 }) do
 	dev:listen_command(c)
 end
@@ -77,6 +82,7 @@ function SetCommand(c, v)
 end
 function post_initialize()
 	receiver = library.new()
+	bearings:reset()
 	enabled = true
 	muted = false
 	held = {}
@@ -99,12 +105,25 @@ function update()
 			local p = string.format("F22_MWS_NATIVE_%02d_", i)
 			if get(p .. "VALID") > 0.5 then
 				observations[#observations + 1] =
-					{ source = get(p .. "SOURCE"), time = get(p .. "TIME"), az = get(p .. "AZ"), el = get(p .. "EL") }
+					{ source = get(p .. "SOURCE"), time = get(p .. "TIME"), az = get(p .. "AZ"), el = get(p .. "EL"), threat = get(p .. "THREAT") > .5 }
 			end
 		end
 	end
 	receiver:update(now, observations, powered and ready)
-	local contacts = receiver.contacts
+	local contacts = {}
+	for _,raw in ipairs(receiver.contacts)do
+		local c={};for key,value in pairs(raw)do c[key]=value end
+		contacts[#contacts+1]=c
+	end
+	local directions = {}
+	for _,c in ipairs(contacts)do
+		directions[#directions+1]={source=c.source,age=c.age,az=-c.az,el=c.el}
+	end
+	bearings:update(now,bearing_library.frame(base),directions,powered and ready)
+	for i,c in ipairs(contacts)do
+		local d=directions[i]
+		c.az=((-d.az+math.pi)%(2*math.pi))-math.pi;c.el=d.el
+	end
 	local first = contacts[1]
 	local alert = powered and ready and first ~= nil
 	put("F22_MWS_POWER", powered and 1 or 0)
@@ -128,19 +147,24 @@ function update()
 		put(p .. "X", c and math.sin(c.az) * 0.9 or 0)
 		put(p .. "Y", c and math.cos(c.az) * 0.9 or 0)
 	end
+	publish_sequence = publish_sequence + 1
+	put("F22_MWS_PUBLISH_TIME", now)
+	put("F22_MWS_PUBLISH_SEQUENCE", publish_sequence)
 	local playing = false
 	local ok, err = pcall(function()
 		if not host and create_sound_host then
 			host = create_sound_host("F22_MWS_WARNING", "HEADPHONES", 0, 0, 0)
+		end
+		if host and not sound then
 			sound = host:create_sound("Aircrafts/F-22A/MWS/approach")
 		end
 		if sound then
 			sound:update(1, 1)
-			if alert and not muted then
-				if not sound:is_playing() then
+			if alert and not muted and audio_gate.priority(get, now) < 3 then
+				if not audio_gate.playing(sound) then
 					sound:play_continue()
 				end
-				playing = sound:is_playing()
+				playing = audio_gate.playing(sound)
 			else
 				sound:stop()
 			end
@@ -149,7 +173,7 @@ function update()
 	put("F22_MWS_AUDIO_READY", ok and sound and 1 or 0)
 	put("F22_MWS_AUDIO_PRIORITY", ok and playing and 1 or 0)
 	local state = string.format(
-		"power=%d ready=%d count=%d audio=%d first=%d clock=%d coast=%d reason=%.0f",
+		"power=%d ready=%d count=%d audio=%d first=%d clock=%d coast=%d reason=%.0f voice=%d voice_until=%.3f",
 		powered and 1 or 0,
 		ready and 1 or 0,
 		#contacts,
@@ -157,7 +181,7 @@ function update()
 		first and first.source or 0,
 		first and library.sector(first.az) or 0,
 		first and first.coast and 1 or 0,
-		get("F22_MWS_NATIVE_REASON")
+		get("F22_MWS_NATIVE_REASON"), audio_gate.priority(get, now), get('F22_PILOT_AUDIO_UNTIL')
 	)
 	if log and log.write then
 		if state ~= signature then

@@ -11,7 +11,7 @@ dofile(SCRIPT_ROOT..'Systems/Radar_System.lua');dofile(SCRIPT_ROOT..'../../tests
 local function put(n,v) get_param_handle(n):set(v) end
 local function val(n) return get_param_handle(n):get() end
 local p='F22N_RADAR_CONTACT_01_'
-put('MAIN_POWER',1);put('F22N_RADAR_MODE',1)
+put('MAIN_POWER',1);put('F22N_RADAR_MODE',1);
 -- Native reports positive contact age, -1 when a slot is absent. No world
 -- objects or fabricated STT are supplied to the controller in these trials.
 for _,command in ipairs({10622,10604,10605,10622,10605,10604}) do

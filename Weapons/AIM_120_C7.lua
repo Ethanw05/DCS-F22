@@ -307,6 +307,9 @@ declare_loadout({
 	wsTypeOfWeapon	= AIM_120_C7.wsTypeOfWeapon,
 	attribute		= {4,4,32,WSTYPE_PLACEHOLDER},	
     Count           = 2,
+    -- Stock DCS LAU-115 + 2 LAU-127/AMRAAM payload drag policy.
+    -- This launcher coefficient is separate from the missile legacy Cx_pil field.
+    Cx_pil          = 0.000739765625 + 2 * 0.00061,
     Picture         = "AIM-120C7.png",
     displayName     = _("2x AIM-120C7 - Active Radar AAM"),
     Weight          = 161.48 * 2 + 50,

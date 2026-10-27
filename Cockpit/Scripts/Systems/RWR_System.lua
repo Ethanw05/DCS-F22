@@ -2,8 +2,15 @@
 dofile(LockOn_Options.script_path .. "devices.lua")
 local library = dofile(LockOn_Options.script_path .. "Systems/RWR_Computer.lua")
 local receiver = library.new()
+local proximity = dofile(LockOn_Options.script_path .. 'Systems/RWR_Proximity.lua')
+local bearing_library = dofile(LockOn_Options.script_path .. "Systems/RWR_Bearings.lua")
+local bearings = bearing_library.new()
+local geolocation_library = dofile(LockOn_Options.script_path .. "Systems/EW_Geolocation.lua")
+local geolocation = geolocation_library.new()
+local sensors = get_base_data()
 local audio_library = dofile(LockOn_Options.script_path .. "Systems/RWR_Audio.lua")
 local audio = audio_library.new()
+local audio_gate = dofile(LockOn_Options.script_path .. 'Systems/Warning_Audio_Gate.lua')
 local dev = GetSelf()
 make_default_activity(0.05)
 local input_value = dofile(LockOn_Options.script_path .. "Systems/Input_Value.lua")
@@ -20,6 +27,10 @@ end
 local function put(n, v)
 	h(n):set(v)
 end
+local tactical = dofile(LockOn_Options.script_path .. "Systems/Tactical_Picture.lua").new(get, put, sensors)
+local defensive_library = dofile(LockOn_Options.script_path .. "Systems/EW_Defensive.lua")
+local defensive = defensive_library.new(put, library.label_code, sensors)
+local overview=dofile(LockOn_Options.script_path..'Systems/Defensive_Overview.lua').new(get,put,sensors)
 local enabled, muted, critical = true, false, false
 local hud_enabled = true
 local volume = 0.8
@@ -27,15 +38,25 @@ local clock = 0
 local identity_memory = {}
 local identity_sequence = nil
 local native_power = nil
-for _, id in ipairs({ 10900, 10901, 10902, 10903, 10904, 10905 }) do
+local inspection_held = {}
+for _, id in ipairs({ 10900, 10901, 10902, 10903, 10904, 10905, 10906, 10907, 10908, 10915, 10916, 10917, 10918 }) do
 	dev:listen_command(id)
 end
 function SetCommand(c, v)
-	if c >= 10900 and c <= 10905 then
+	if (c >= 10900 and c <= 10908)or (c>=10915 and c<=10918) then
 		v = input_value(v, devices.RWR_SYSTEM)
 	end
 	if v <= 0 then
+		inspection_held[c] = nil
 		return
+	end
+	if c >= 10906 and c <= 10908 then
+		if not inspection_held[c] and get("MAIN_POWER") > 0.5 then defensive:command(c) end
+		inspection_held[c] = true;return
+	end
+	if c>=10915 and c<=10918 then
+		if not inspection_held[c] and get("MAIN_POWER")>.5 then tactical:command(c) end
+		inspection_held[c]=true;return
 	end
 	if c == 10900 then
 		enabled = not enabled
@@ -56,6 +77,11 @@ local host, sounds = nil, {}
 local last_diagnostic = nil
 function post_initialize()
 	receiver = library.new()
+	bearings:reset()
+	geolocation:reset()
+	tactical:reset()
+	defensive = defensive_library.new(put, library.label_code, sensors)
+	inspection_held = {}
 	audio = audio_library.new()
 	identity_memory = {}
 	identity_sequence = nil
@@ -65,7 +91,7 @@ function post_initialize()
 	put("F22_RWR_SUPPLY", 0)
 	put("F22_RWR_READY", 0)
 	if create_sound_host then
-		host = create_sound_host("COCKPIT_ARMS", "HEADPHONES", 0, 0, 0)
+		host = create_sound_host("F22_RWR_AUDIO", "HEADPHONES", 0, 0, 0)
 		for _, n in ipairs(audio_library.names) do
 			sounds[n] = host:create_sound("Aircrafts/F-22A/RWR/" .. n)
 		end
@@ -127,12 +153,14 @@ function update()
 				el = get(p .. "ELEVATION"),
 				signal = get(p .. "SIGNAL"),
 				priority = get(p .. "PRIORITY"),
+				power = get(p .. "POWER"),
 				general = get(p .. "GENERAL_TYPE"),
 				label = get(p .. "UNIT_TYPE"),
 			}
 		end
 	end
 	receiver:update(observations, ready and powered)
+	bearings:update(clock, bearing_library.frame(sensors), receiver.contacts, ready and powered)
 	-- Radar publishes this sequence last. Consume each complete identity
 	-- snapshot once; frozen producer parameters cannot renew a 30-second ID.
 	local sequence = get("F22_TWS_PUBLISH_SEQUENCE")
@@ -143,7 +171,9 @@ function update()
 		for i = 1, 64 do
 			local p = string.format("F22_IDENT_%02d_", i)
 			local source, age, class = get(p .. "SOURCE"), get(p .. "AGE"), get(p .. "CLASS")
-			if get(p .. "VALID") > 0.5 and source > 0 and age >= 0 and age <= 30 and (class == 0 or class == 1) then
+			-- This is the radar's qualified classification snapshot, not a raw
+			-- missing-IFF reply. Preserve both known friend and known hostile.
+			if get(p .. "VALID") > 0.5 and source > 0 and age >= 0 and age <= 30 and (class == 1 or class == 0) then
 				identity_memory[source] = { class = class, expires = clock + 30 - age }
 			end
 		end
@@ -156,8 +186,24 @@ function update()
 	end
 	for _, c in ipairs(receiver.contacts) do
 		local id = identity_memory[c.source]
+		if c.signal == 3 and not library.coasting(c) and not(id and id.class == 1) then
+			-- A fresh launch/illumination warning is itself hostile-act evidence.
+			-- Subtract observation age so cached emissions cannot renew the ID.
+			id = {class = 0, expires = clock + 30 - c.age}
+			identity_memory[c.source] = id
+		end
 		c.affiliation = id and id.class or -1
 	end
+	-- Export only an attitude-qualified measured RF direction, never source position.
+	for _,c in ipairs(receiver.contacts)do
+		local measured=bearings.tracks[c.source]
+		c.bearing_world=c.bearing_compensated and measured and measured.world or nil
+	end
+	geolocation:update(clock, geolocation_library.position(sensors), receiver.contacts, bearings.tracks, ready and powered)
+	tactical:update(clock, receiver.contacts, get("MAIN_POWER") > 0.5)
+	defensive.now = clock
+	defensive:update(tactical.store.contacts, critical)
+    overview:update(clock,tactical.store.contacts,get("MAIN_POWER")>.5,critical,defensive.source)
 	put("F22_RWR_READY", ready and 1 or 0)
 	put("F22_RWR_POWER", powered and 1 or 0)
 	put("F22_RWR_MUTE", (muted or volume < 0.01) and 1 or 0)
@@ -201,8 +247,11 @@ function update()
 		put(p .. "LABEL_CODE", library.label_code(c and c.label or "U"))
 		put(p .. "AZ", c and c.az or 0)
 		put(p .. "GENERAL", c and c.general or 0)
-		-- Threat rings encode warning level. Neither radius nor POWER is range.
-		local radius = c and ({ [1] = 0.78, [2] = 0.53, [3] = 0.28 })[c.signal] or 0
+		-- Native POWER supplies relative proximity; warnings retain their own
+		-- signal/color/launch markings instead of replacing proximity with severity.
+		local radius = c and (proximity.radius(c.power,.84) or ({ [1] = 0.78, [2] = 0.53, [3] = 0.28 })[c.signal]) or 0
+		put(p .. 'PROXIMITY_VALID',c and proximity.valid(c.power) and 1 or 0)
+		put(p .. 'POWER',c and c.power or 0)
 		put(p .. "X", c and -math.sin(c.az) * radius or 0)
 		put(p .. "Y", c and math.cos(c.az) * radius or 0)
 	end
@@ -226,14 +275,14 @@ function update()
 		step,
 		receiver.contacts,
 		powered and ready,
-		muted or volume < 0.01 or get("F22_MWS_AUDIO_PRIORITY") > 0.5,
+		muted or volume < 0.01 or get("F22_MWS_AUDIO_PRIORITY") > 0.5 or audio_gate.priority(get, clock) > 0.5,
 		receiver.alert
 	)
 	for n, s in pairs(sounds) do
 		s:update(1, volume)
 		if n == "lock" or n == "launch" then
 			if cue.loop == n then
-				if not s:is_playing() then
+				if not audio_gate.playing(s) then
 					s:play_continue()
 				end
 			else

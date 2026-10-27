@@ -1,0 +1,31 @@
+2026-10-27 08:49:42.858 INFO    EDCORE (17708): try to write dump information
+2026-10-27 08:49:42.861 INFO    EDCORE (17708): # -------------- 20261027-084943 --------------
+2026-10-27 08:49:42.862 INFO    EDCORE (17708): DCS/2.9.30.28738 (x86_64; MT; Windows NT 10.0.26200)
+2026-10-27 08:49:42.862 INFO    EDCORE (17708): C:\WINDOWS\System32\ucrtbase.dll
+2026-10-27 08:49:42.863 INFO    EDCORE (17708): # C0000005 ACCESS_VIOLATION at 00007ffe1bc5571d 00:00000000
+2026-10-27 08:49:42.864 INFO    EDCORE (17708): SymInit: Symbol-SearchPath: 'D:\DCS\bin-mt;', symOptions: 532, UserName: 'Ethans Desktop 2.0'
+2026-10-27 08:49:42.865 INFO    EDCORE (17708): OS-Version: 10.0.26200 () 0x300-0x1
+2026-10-27 08:49:42.867 INFO    EDCORE (17708): 0x000000000006571d (ucrtbase): _itoa + 0x28D
+2026-10-27 08:49:42.868 INFO    EDCORE (17708): 0x000000000000e9ab (ucrtbase): ___lc_locale_name_func + 0xACB
+2026-10-27 08:49:42.869 INFO    EDCORE (17708): 0x00000000000131c1 (ucrtbase): _free_base + 0x461
+2026-10-27 08:49:42.870 INFO    EDCORE (17708): 0x000000000000d528 (ucrtbase): __stdio_common_vsprintf + 0x128
+2026-10-27 08:49:42.870 INFO    EDCORE (17708): 0x00000000003b2905 (CockpitBase): cockpit::ceStringPoly::set_strcat_by_predefined_format + 0xA5
+2026-10-27 08:49:42.870 INFO    EDCORE (17708): 0x0000000000391086 (CockpitBase): cockpit::ccIndicator::text_using_parameter + 0x146
+2026-10-27 08:49:42.871 INFO    EDCORE (17708): 0x00000000003ac084 (CockpitBase): cockpit::ceSimple::update + 0x254
+2026-10-27 08:49:42.871 INFO    EDCORE (17708): 0x00000000003ac179 (CockpitBase): cockpit::ceSimple::update + 0x349
+2026-10-27 08:49:42.871 INFO    EDCORE (17708): 0x000000000039698a (CockpitBase): cockpit::ccIndicatorPage::update + 0x3A
+2026-10-27 08:49:42.871 INFO    EDCORE (17708): 0x0000000000391abd (CockpitBase): cockpit::ccIndicator::update + 0x3D
+2026-10-27 08:49:42.871 INFO    EDCORE (17708): 0x0000000000391b3f (CockpitBase): cockpit::ccIndicator::update + 0x5F
+2026-10-27 08:49:42.871 INFO    EDCORE (17708): 0x00000000001f65ee (CockpitBase): cockpit::ccCockpitContext::draw_update + 0xAE
+2026-10-27 08:49:42.871 INFO    EDCORE (17708): 0x00000000004241a2 (CockpitBase): cockpit::c_draw_debug_cockpit_tripod + 0x1D62
+2026-10-27 08:49:42.871 INFO    EDCORE (17708): 0x00000000003c49d3 (CockpitBase): cockpit::MultiThreading::hint_for_render + 0x203
+2026-10-27 08:49:42.871 INFO    EDCORE (17708): 0x000000000015a6e4 (Visualizer): smCamera_Implement::getClipRegion + 0x1E9A4
+2026-10-27 08:49:42.871 INFO    EDCORE (17708): 0x0000000000038139 (edCore): ed::SyncTaskQueue::push_task + 0x489
+2026-10-27 08:49:42.871 INFO    EDCORE (17708): 0x000000000004cb96 (edCore): ed::SyncTaskQueue::push_task + 0x14EE6
+2026-10-27 08:49:42.872 INFO    EDCORE (17708): 0x00000000000369c1 (edCore): ed::thread::_get_current_thread_id + 0x71
+2026-10-27 08:49:42.872 INFO    EDCORE (17708): 0x000000000002cd30 (ucrtbase): wcsrchr + 0x150
+2026-10-27 08:49:42.872 INFO    EDCORE (17708): 0x000000000002dda7 (KERNEL32): BaseThreadInitThunk + 0x17
+2026-10-27 08:49:43.177 INFO    EDCORE (17708): Minidump created.
+2026-10-27 08:49:43.177 INFO    Lua::Config (17708): stack traceback:
+2026-10-27 08:49:43.526 WARNING LOG (41376): 3 duplicate message(s) skipped.
+2026-10-27 08:49:43.526 INFO    APP (17708): enumerating loaded modules

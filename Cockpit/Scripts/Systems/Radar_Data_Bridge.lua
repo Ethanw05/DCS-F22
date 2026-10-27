@@ -1,154 +1,68 @@
--- GPL-3.0-or-later. Read-only bridge for documented DCS avSimpleRadar
--- STT parameters, *if* a compatible host publishes them. No invented contacts.
--- Only our prefixed native sensor in confirmed STT may supply a targeting cue.
-local dt=0.05
+-- GPL-3.0-or-later. HUD consumer of the radar owner's timestamped snapshots.
+-- Search designations remain display cues; only fresh confirmed STT supplies
+-- weapon/gun target validity. Native polar caches are never a fallback.
+local dt=.05
 make_default_activity(dt)
 local project=dofile(LockOn_Options.script_path..'Systems/HUD_TargetMath.lua').new(
     dofile(LockOn_Options.script_path..'HUD/glass.lua'))
-local input={
-    distance=get_param_handle("F22N_RADAR_STT_RANGE"), -- meters
-    az=get_param_handle("F22N_RADAR_STT_AZIMUTH"), -- radians
-    el=get_param_handle("F22N_RADAR_STT_ELEVATION"), -- radians
-    iff=get_param_handle("F22N_RADAR_STT_FRIENDLY"),
-    power=get_param_handle("RADAR_PWR"),
-    bus=get_param_handle("MAIN_POWER"),
-    mode=get_param_handle("HUD_MODE"),
-    nativeMode=get_param_handle("F22N_RADAR_MODE"),
-    backend=get_param_handle("F22_RADAR_BACKEND_READY"),
-}
-local output={
-    source=get_param_handle("HUD_RADAR_TRACK_SOURCE"),
-    valid=get_param_handle("HUD_AA_TARGET_VALID"),
-    cue=get_param_handle("HUD_AA_CUE_VALID"),
-    gun=get_param_handle("HUD_GUN_TARGET_VALID"),
-    az=get_param_handle("HUD_AA_TGT_AZ_RAD"),
-    el=get_param_handle("HUD_AA_TGT_EL_RAD"),
-    range=get_param_handle("HUD_AA_TGT_RANGE_NM"),
-    iff=get_param_handle("HUD_AA_TGT_IFF"),
-    closureValid=get_param_handle("HUD_AA_CLOSURE_VALID"),
-    closure=get_param_handle("HUD_AA_TGT_CLOSURE_KTS"),
-}
-local previousSampleDistance,previousSampleAz,previousSampleEl=nil,nil,nil
-local previousSampleTime=nil
-local measuredClosure=0
-local canMeasureClosure=false
+local stt=dofile(LockOn_Options.script_path..'Systems/Radar_STT.lua')
+local handles={}
+local function h(n)if not handles[n]then handles[n]=get_param_handle(n)end;return handles[n]end
+local function get(n)return h(n):get()end
+local function put(n,v)h(n):set(v)end
 local clock=0
-local function finite(x)
-    return type(x)=="number" and x==x and math.abs(x)<1e9
-end
+local function finite(v)return type(v)=='number' and v==v and math.abs(v)<1e9 end
 local function clear()
-    output.valid:set(0)
-    output.cue:set(0)
-    output.gun:set(0)
-    output.source:set(0)
-    output.range:set(0)
-    output.iff:set(-1)
-    output.closureValid:set(0)
+    for _,name in ipairs({'HUD_AA_TARGET_VALID','HUD_AA_CUE_VALID','HUD_GUN_TARGET_VALID',
+        'HUD_RADAR_TRACK_SOURCE','HUD_AA_TGT_RANGE_NM','HUD_AA_CLOSURE_VALID','HUD_AA_TGT_CLOSURE_KTS',
+        'HUD_TD_VALID','HUD_TD_BOX_VALID','HUD_TD_ARROW_VALID','HUD_TD_LOCKED','HUD_TD_COAST',
+        'HUD_TD_FRIENDLY','HUD_DT2_VALID'})do put(name,0)end
+    put('HUD_AA_TGT_IFF',-1)
 end
-local td_names={'HUD_TD_VALID','HUD_TD_BOX_VALID','HUD_TD_ARROW_VALID','HUD_TD_LOCKED','HUD_TD_COAST','HUD_TD_FRIENDLY'}
-local function clear_td()
-    for _,name in ipairs(td_names) do get_param_handle(name):set(0) end
-end
-local function present_target()
-    clear_td()
-    local mode=input.mode:get()
-    if input.power:get()<.5 or input.bus:get()<.5 or input.backend:get()<.5 or mode<1 or mode>6 then return end
-    local locked=input.nativeMode:get()==3
-    local r,a,e=input.distance:get(),input.az:get(),input.el:get()
-    local age=0
-    if not locked then
-        if get_param_handle('F22_RADAR_DESIGNATION_VALID'):get()<.5 then return end
-        r=get_param_handle('F22_RADAR_DESIGNATION_RANGE'):get()
-        a=get_param_handle('F22_RADAR_DESIGNATION_AZ'):get()
-        e=get_param_handle('F22_RADAR_DESIGNATION_EL'):get()
-        age=get_param_handle('F22_RADAR_DESIGNATION_AGE'):get()
+function post_initialize()clear()end
+function update()
+    clock=type(get_model_time)=='function' and get_model_time() or clock+dt
+    clear()
+    local mode=get('HUD_MODE')
+    if not finite(clock) or get('RADAR_PWR')<.5 or get('MAIN_POWER')<.5 or
+        get('F22_RADAR_BACKEND_READY')<.5 or mode<1 or mode>6 then return end
+    local locked=get('F22N_RADAR_MODE')==3
+    local track=stt.read(get,clock)
+    local r,a,e,age
+    if locked then
+        if not track then return end
+        r,a,e,age=track.range,track.az,track.el,track.age
+    else
+        if get('F22_RADAR_DESIGNATION_VALID')<.5 then return end
+        r,a,e,age=get('F22_RADAR_DESIGNATION_RANGE'),get('F22_RADAR_DESIGNATION_AZ'),
+            get('F22_RADAR_DESIGNATION_EL'),get('F22_RADAR_DESIGNATION_AGE')
     end
     if not finite(r) or r<40 or r>300000 or not finite(a) or not finite(e) or
         math.abs(a)>math.pi or math.abs(e)>math.pi/2 or not finite(age) or age<0 or age>10 then return end
     local p=project(a,e)
-    local friendly=get_param_handle('F22_RADAR_SELECTED_FRIENDLY'):get()>.5 or locked and input.iff:get()==1
+    local friendly=locked and track.iff==1 or not locked and get('F22_RADAR_SELECTED_FRIENDLY')>.5
     for name,value in pairs({HUD_TD_VALID=1,HUD_TD_FRIENDLY=friendly and 1 or 0,HUD_TD_LOCKED=locked and 1 or 0,
         HUD_TD_COAST=age>1 and 1 or 0,HUD_TD_BOX_VALID=p.visible and 1 or 0,
         HUD_TD_ARROW_VALID=p.visible and 0 or 1,HUD_TD_X=p.x,HUD_TD_Y=p.y,
-        HUD_TD_ARROW_X=p.arrow_x,HUD_TD_ARROW_Y=p.arrow_y,
-        HUD_TD_ARROW_ROT=p.rotation,HUD_TD_ANGLE_DEG=p.angle,HUD_TD_RANGE_NM=r/1852}) do get_param_handle(name):set(value) end
-end
-function post_initialize()
-    clear()
-    clear_td()
-end
-function update()
-    clock=clock+dt
-    present_target()
-    get_param_handle('HUD_DT2_VALID'):set(0)
-    local mode=input.mode:get()
-    if input.power:get()>.5 and input.bus:get()>.5 and input.backend:get()>.5 and mode>=1 and mode<=6 and
-        get_param_handle('F22_RADAR_SECONDARY_VALID'):get()>.5 then
-        local a=get_param_handle('F22_RADAR_SECONDARY_AZ'):get()
-        local e=get_param_handle('F22_RADAR_SECONDARY_EL'):get()
-        if finite(a) and finite(e) then
-            local p=project(a,e)
-            get_param_handle('HUD_DT2_VALID'):set((p.visible or clock%1<.5) and 1 or 0)
-            get_param_handle('HUD_DT2_OFFSCREEN'):set(p.visible and 0 or 1)
-            get_param_handle('HUD_DT2_X'):set(p.visible and p.x or p.arrow_x)
-            get_param_handle('HUD_DT2_Y'):set(p.visible and p.y or p.arrow_y)
+        HUD_TD_ARROW_X=p.arrow_x,HUD_TD_ARROW_Y=p.arrow_y,HUD_TD_ARROW_ROT=p.rotation,
+        HUD_TD_ANGLE_DEG=p.angle,HUD_TD_RANGE_NM=r/1852})do put(name,value)end
+    if get('F22_RADAR_SECONDARY_VALID')>.5 then
+        local sa,se=get('F22_RADAR_SECONDARY_AZ'),get('F22_RADAR_SECONDARY_EL')
+        if finite(sa)and finite(se)then
+            local q=project(sa,se)
+            put('HUD_DT2_VALID',(q.visible or clock%1<.5)and 1 or 0)
+            put('HUD_DT2_OFFSCREEN',q.visible and 0 or 1)
+            put('HUD_DT2_X',q.visible and q.x or q.arrow_x);put('HUD_DT2_Y',q.visible and q.y or q.arrow_y)
         end
     end
-    if input.power:get()<0.5 or input.bus:get()<0.5 or input.backend:get()<.5 or input.nativeMode:get()~=3 then
-        previousSampleDistance=nil
-        canMeasureClosure=false
-        clear()
-        return
+    if not track or mode<2 then return end
+    put('HUD_RADAR_TRACK_SOURCE',1);put('HUD_AA_TARGET_VALID',1);put('HUD_GUN_TARGET_VALID',1)
+    put('HUD_AA_TGT_AZ_RAD',track.az)
+    put('HUD_AA_TGT_EL_RAD',math.atan2(math.sin(track.el),math.cos(track.el)*math.cos(track.az)))
+    put('HUD_AA_TGT_RANGE_NM',track.range/1852);put('HUD_AA_TGT_IFF',track.iff)
+    put('HUD_AA_CUE_VALID',p.visible and 1 or 0)
+    if track.closure_valid and finite(track.closure)then
+        put('HUD_AA_CLOSURE_VALID',1);put('HUD_AA_TGT_CLOSURE_KTS',track.closure)
     end
-    local mode=input.mode:get()
-    if mode<2 or mode>6 then
-        clear()
-        return
-    end
-    local distance,az,el=input.distance:get(),input.az:get(),input.el:get()
-    -- avSimpleRadar reports STT only; native FC3 may leave these handles zero.
-    -- Do not silently treat nonzero mode selection as target acquisition.
-    if not finite(distance) or distance<40 or distance>300000 or
-       not finite(az) or not finite(el) or math.abs(az)>math.pi/2 or
-       math.abs(el)>math.pi/2 then
-        previousSampleDistance=nil
-        canMeasureClosure=false
-        clear()
-        return
-    end
-    do
-        if previousSampleDistance and previousSampleTime then
-            local interval=clock-previousSampleTime
-            if interval>=dt and interval<4 then
-                local relativeRangeRate=(previousSampleDistance-distance)/interval
-                local angularAz=(az-previousSampleAz)/interval
-                local angularEl=(el-previousSampleEl)/interval
-                if math.abs(relativeRangeRate)<1500 and math.abs(angularAz)<1.5 and
-                    math.abs(angularEl)<1.5 then
-                    measuredClosure=relativeRangeRate*1.943844492
-                    canMeasureClosure=true
-                else
-                    canMeasureClosure=false
-                end
-            end
-        end
-        previousSampleDistance=distance
-        previousSampleAz=az
-        previousSampleEl=el
-        previousSampleTime=clock
-    end
-    -- Confirmed native STT remains valid for an unchanging stationary LOS.
-    output.source:set(1)
-    output.valid:set(1)
-    output.gun:set(1)
-    output.az:set(az)
-    -- Native elevation is atan2(up,horizontal); HUD uses atan2(up,forward).
-    output.el:set(math.atan2(math.sin(el),math.cos(el)*math.cos(az)))
-    output.range:set(distance/1852.0)
-    output.closureValid:set(canMeasureClosure and 1 or 0)
-    output.closure:set(measuredClosure)
-    local iff=input.iff:get()
-    output.iff:set((finite(iff) and (iff==1 or iff==0 or iff==2 or iff==-1)) and iff or -1)
-    output.cue:set(project(az,el).visible and 1 or 0)
 end
 need_to_be_closed=false

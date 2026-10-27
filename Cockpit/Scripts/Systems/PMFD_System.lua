@@ -20,6 +20,9 @@
 dofile(LockOn_Options.script_path.."devices.lua")
 dofile(LockOn_Options.script_path.."command_defs.lua")
 local dev = GetSelf()
+local scs_input=dofile(LockOn_Options.script_path..'Systems/Input_Value.lua')
+local routing=dofile(LockOn_Options.script_path..'Systems/Display_Routing.lua')
+local pages=routing.pages
 local sensor_data		= get_base_data()
 local update_time_step = 0.006 --0.006
 make_default_activity(update_time_step)
@@ -94,6 +97,15 @@ local radar_state           = 0 -- 0-Off 1-On
 local garfield              = 0
 local tint                  = 0 -- 0 gold 0.5 black 1 clear
 local pmfd_current_page     = 0   -- 0 = menu 1 = radar 2 = map 3 = sys 4 = config 5 = sfm
+local pmfd_return_page=1
+local function select_page(page)
+    local previous=pmfd_current_page
+    if page==pages.menu and previous~=pages.menu then pmfd_return_page=previous end
+    pmfd_current_page=page
+    if page==pages.stores and previous~=pages.stores then
+        dispatch_action(devices.MFD_SYSTEM,routing.primary_stores_activate,1)
+    end
+end
 local flood_sel             = 0
 local family                = 0
 local board_L               = 0
@@ -103,9 +115,12 @@ local visor_color           = 0
 dev:listen_command(PlaneRadarOnOff)
 dev:listen_command(Radar_Power)
 dev:listen_command(Radar_Mode)
+dev:listen_command(10825)
+dev:listen_command(routing.primary_menu)
 dev:listen_command(10005)
 dev:listen_command(10054)
 dev:listen_command(10055)
+for c=11301,11305 do dev:listen_command(c)end
 
 dev:listen_command(10131)--PMFD_OSB_01
 dev:listen_command(10132)--PMFD_OSB_02
@@ -141,12 +156,29 @@ function post_initialize()
 end
 ------------------------------------------------------------------FUNCTION-SETCOMMAND---------------------------------------------------------------------------------------------------
 function SetCommand(command,value)
-------------------------------------------PRIMARY MFD PAGE LOGIC---------------------------------------------------------------------------------------------------
-    -- 0 = menu 1 = radar 2 = map 3 = sys 4 = config 5 = sfm
-    --Dogfight ORIDE
-        if command == 10005 and parameters.MAIN_POWER:get() == 1 then
-            pmfd_current_page = 1
-        end
+ if command>=11301 and command<=11305 then
+  if scs_input(value,devices.PMFD_SYSTEM)>0 and parameters.MAIN_POWER:get()>.5 and parameters.WoW:get()>.5 then
+   if command==11301 then tint=(tint+.5)%1.5;set_aircraft_draw_argument_value(619,tint)
+   elseif command==11302 then flood_sel=(flood_sel+.2)%1
+   elseif command==11303 then visor_color=(visor_color+.1)%.5;set_aircraft_draw_argument_value(621,visor_color)
+   elseif command==11304 then family=1-family
+   else garfield=1-garfield;set_aircraft_draw_argument_value(620,garfield)end
+  end
+  return
+ end
+ for button=1,20 do
+  if command==clickable['P_OSB_'..button]or command==10130+button then
+   local down=scs_input(value,devices.PMFD_SYSTEM)>0
+   dispatch_action(devices.MFD_SYSTEM,11200+button,down and 1 or 0)
+   if command==10130+button and value==1 then dispatch_action(devices.MFD_SYSTEM,11200+button,0)end
+   return
+  end
+ end
+ if command==10825 or command==routing.primary_menu then
+  dispatch_action(devices.MFD_SYSTEM,command,value);return
+ end
+ if command==10005 then return end
+ if scs_input(value,devices.PMFD_SYSTEM)<=0 then return end
     --Clipboards
     if command == 10054 and board_L == 0 then
         board_L = 1
@@ -219,62 +251,6 @@ function SetCommand(command,value)
         set_aircraft_draw_argument_value(621, visor_color)
         --print_message_to_user("VISOR MIRROR")      
     end
-    -------------------------------------------PAGE-LOGIC--------------------------------------------------------------------------------------------------
-    if (command == clickable.P_OSB_13 or command == 10143) and pmfd_current_page == 0 and parameters.MAIN_POWER:get() == 1 then     --MENU PAGE go RADAR
-        pmfd_current_page = 1
-    elseif (command == clickable.P_OSB_14 or command == 10144) and pmfd_current_page == 0 and parameters.MAIN_POWER:get() == 1 then --MENU PAGE go to MAP
-        pmfd_current_page = 2
-    elseif (command == clickable.P_OSB_12 or command == 10142) and pmfd_current_page == 0 and parameters.MAIN_POWER:get() == 1 then --MENU PAGE go to SYS
-        pmfd_current_page = 3
-    elseif (command == clickable.P_OSB_16 or command == 10146) and pmfd_current_page == 0 and parameters.MAIN_POWER:get() == 1 then --MENU PAGE go to CONFIG
-        pmfd_current_page = 4
-    elseif (command == clickable.P_OSB_11 or command == 10141) and pmfd_current_page == 0 and parameters.MAIN_POWER:get() == 1 then --MENU PAGE go to SFM
-        pmfd_current_page = 5
-    elseif (command == clickable.P_OSB_13 or command == 10143) and pmfd_current_page == 1 and parameters.MAIN_POWER:get() == 1 then --RADAR PAGE go to MENU
-        pmfd_current_page = 0
-    elseif (command == clickable.P_OSB_15 or command == 10145) and pmfd_current_page == 2 and parameters.MAIN_POWER:get() == 1 then --MAP PAGE go to MENU
-        pmfd_current_page = 0
-    elseif (command == clickable.P_OSB_15 or command == 10145) and pmfd_current_page == 3 and parameters.MAIN_POWER:get() == 1 then --SYS PAGE go to MENU
-        pmfd_current_page = 0
-    elseif (command == clickable.P_OSB_15 or command == 10145) and pmfd_current_page == 4 and parameters.MAIN_POWER:get() == 1 then --CONFIG PAGE go to MENU
-        pmfd_current_page = 0
-    elseif (command == clickable.P_OSB_15 or command == 10145) and pmfd_current_page == 5 and parameters.MAIN_POWER:get() == 1 then --SFM PAGE go to MENU
-        pmfd_current_page = 0
-    end
-    ------------------------------------------RADAR-PAGE-LOGIC---------------------------------------------------------------------------------------------------
-    if pmfd_current_page == 1 and parameters.MAIN_POWER:get() == 1 and value > 0 then
-        -- Bottom row is numbered right-to-left: 15,14,13,12,11.
-        -- Labels left-to-right: RNG IN, RNG OUT, MENU, EMIT, RWS/TWS.
-        if command == clickable.P_OSB_15 or command == 10145 then dispatch_action(nil,10608,1) end
-        if command == clickable.P_OSB_14 or command == 10144 then dispatch_action(nil,10607,1) end
-        if command == clickable.P_OSB_12 or command == 10142 then dispatch_action(nil,10600,1) end
-        if command == clickable.P_OSB_11 or command == 10141 then dispatch_action(nil,10603,1) end
-        if command == clickable.P_OSB_1 or command == 10131 then dispatch_action(nil,10606,1) end
-        if command == clickable.P_OSB_2 or command == 10132 then dispatch_action(nil,10628,1) end
-        if command == clickable.P_OSB_3 or command == 10133 then dispatch_action(nil,10629,1) end
-        if command == clickable.P_OSB_4 or command == 10134 then dispatch_action(nil,10630,1) end
-        if command == clickable.P_OSB_5 or command == 10135 then dispatch_action(nil,10619,1) end
-        if command == clickable.P_OSB_6 or command == 10136 then dispatch_action(nil,10607,1) end
-        if command == clickable.P_OSB_7 or command == 10137 then dispatch_action(nil,10608,1) end
-        -- Left bezel, top to bottom: width, height, elevation up/down, recenter.
-        -- Use the same radar owner as HOTAS; scan edits never reject a lock.
-        if command == clickable.P_OSB_20 or command == 10150 then dispatch_action(devices.RADAR_COMPUTER,10616,1) end
-        if command == clickable.P_OSB_19 or command == 10149 then dispatch_action(devices.RADAR_COMPUTER,10623,1) end
-        if command == clickable.P_OSB_18 or command == 10148 then dispatch_action(devices.RADAR_COMPUTER,10614,1) end
-        if command == clickable.P_OSB_17 or command == 10147 then dispatch_action(devices.RADAR_COMPUTER,10615,1) end
-        if command == clickable.P_OSB_16 or command == 10146 then dispatch_action(devices.RADAR_COMPUTER,10617,1) end
-    end
---END Radar Page
-
-    -- if command == 10149 and p_19 == 0 then
-    --     p_19 = 1
-    -- elseif command == 10149 and p_19 == 1 then
-    --     p_19 = 0
-    -- elseif command == 10150 and p_20 == 0 then
-    --     p_20 = 1
-    -- elseif command == 10150 and p_20 == 1 then
-    --     p_20 = 0
-    -- end
 
 end
 ------------------------------------------------------------------FUNCTION-UPDATE---------------------------------------------------------------------------------------------------
@@ -322,17 +298,7 @@ function update()
         weight_on_wheels = 1
     end
 --END WoW
---Radar Scan Zone Logic    
-    local osb_19 = get_cockpit_draw_argument_value(839)
-    local osb_20 = get_cockpit_draw_argument_value(840)
-    if (osb_20 == 1 or SelectorUP == 1) and pmfd_current_page == 1 and parameters.WoW:get() == 0 and parameters.MAIN_POWER:get() == 1 then
-        dispatch_action(nil,SelecterUp)
-    elseif osb_19 == 1 and pmfd_current_page == 1 and parameters.WoW:get() == 0 and parameters.MAIN_POWER:get() == 1 then
-        dispatch_action(nil,SelecterDown)
-    else
-        dispatch_action(nil,SelecterStop)
-    end
---END Scan Logic
+
 --PMFD PAGE UPDATE 0 = menu 1 = radar 2 = map 3 = sys 4 = config 5 = sfm
     -- if pmfd_current_page >= 0 and parameters.MAIN_POWER:get() == 1 and parameters.DOGFIGHT:get() == 1 then --DOGFIGHT MODE
     --     pmfd_current_page = 1
@@ -359,71 +325,12 @@ function update()
 		parameters.PMFD_BLANK_PAGE:set(0)
 	end
 
-    if pmfd_current_page == 0 and parameters.MAIN_POWER:get() == 1 then --MENU --FIX THIS FUCKING SHIT
-        parameters.PMFD_MENU_PAGE:set(1)
-        parameters.PMFD_RDR_PAGE:set(0)
-        parameters.PMFD_MASK:set(0)
-        parameters.PMFD_MAP_PAGE:set(0)
-        parameters.PMFD_SFM_PAGE:set(0)
-        parameters.PMFD_SYS_PAGE:set(0)
-        parameters.PMFD_CONFIG_PAGE:set(0)
-    elseif pmfd_current_page == 1 and parameters.MAIN_POWER:get() == 1 then --RADAR
-        parameters.PMFD_RDR_PAGE:set(1)
-        parameters.PMFD_MASK:set(1)
-        parameters.PMFD_MENU_PAGE:set(0)
-        parameters.PMFD_MAP_PAGE:set(0)
-        parameters.PMFD_SFM_PAGE:set(0)
-        parameters.PMFD_SYS_PAGE:set(0)
-        parameters.PMFD_CONFIG_PAGE:set(0)
-    elseif pmfd_current_page == 2 and parameters.MAIN_POWER:get() == 1 then --MAP
-        parameters.PMFD_MENU_PAGE:set(0)
-        parameters.PMFD_RDR_PAGE:set(0)
-        parameters.PMFD_MASK:set(0)
-        parameters.PMFD_MAP_PAGE:set(1)
-        parameters.PMFD_SFM_PAGE:set(0)
-        parameters.PMFD_SYS_PAGE:set(0)
-        parameters.PMFD_CONFIG_PAGE:set(0)
-    elseif pmfd_current_page == 3 and parameters.MAIN_POWER:get() == 1 then --SYS
-        parameters.PMFD_MENU_PAGE:set(0)
-        parameters.PMFD_RDR_PAGE:set(0)
-        parameters.PMFD_MASK:set(0)
-        parameters.PMFD_MAP_PAGE:set(0)
-        parameters.PMFD_SFM_PAGE:set(0)
-        parameters.PMFD_SYS_PAGE:set(1)
-        parameters.PMFD_CONFIG_PAGE:set(0)
-    elseif pmfd_current_page == 4 and parameters.MAIN_POWER:get() == 1 then --CONFIG
-        parameters.PMFD_MENU_PAGE:set(0)
-        parameters.PMFD_RDR_PAGE:set(0)
-        parameters.PMFD_MASK:set(0)
-        parameters.PMFD_MAP_PAGE:set(0)
-        parameters.PMFD_SFM_PAGE:set(0)
-        parameters.PMFD_SYS_PAGE:set(0)
-        parameters.PMFD_CONFIG_PAGE:set(1)
-    elseif pmfd_current_page == 5 and parameters.MAIN_POWER:get() == 1 then --SFM
-        parameters.PMFD_MENU_PAGE:set(0)
-        parameters.PMFD_RDR_PAGE:set(0)
-        parameters.PMFD_MASK:set(0)
-        parameters.PMFD_MAP_PAGE:set(0)
-        parameters.PMFD_SFM_PAGE:set(1)
-        parameters.PMFD_SYS_PAGE:set(0)
-        parameters.PMFD_CONFIG_PAGE:set(0)
-    elseif pmfd_current_page >= 0 and parameters.APU_RPM_STATE:get() >= 2 and parameters.MAIN_POWER:get() == 0 then -- and parameters.DAY_NIGHT:get() == 1    
-        parameters.PMFD_MENU_PAGE:set(0)
-        parameters.PMFD_RDR_PAGE:set(0)
-        parameters.PMFD_MASK:set(1)
-        parameters.PMFD_MAP_PAGE:set(0)
-        parameters.PMFD_SFM_PAGE:set(0)
-        parameters.PMFD_SYS_PAGE:set(0)
-        parameters.PMFD_CONFIG_PAGE:set(0)
-    elseif parameters.MAIN_POWER:get() == 0 then
-        parameters.PMFD_MASK:set(0)
-    end
 --END PMFD UPDATE
 
     parameters.WoW:set(weight_on_wheels)
 
 
-    --parameters.PMFD_PAGE:set(pmfd_current_page)
+
 
 end
 

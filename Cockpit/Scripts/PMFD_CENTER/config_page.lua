@@ -150,26 +150,26 @@ BLOG.h_clip_relation     = h_clip_relations.COMPARE
 vertices(BLOG,2.2)
 Add(BLOG)
 ----------------------------------------------------------------------------------------------------------------
-MENUTEXT 					    = CreateElement "ceStringPoly"
+MENUTEXT 					    = CreateElement "ceStringSLine"
 MENUTEXT.name 				    = "menu"
-MENUTEXT.material 			    = UFD_FONT
+MENUTEXT.material 			    = "F22_LCD_FONT_WHITE"
 MENUTEXT.value 				    = "MENU"
-MENUTEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
+MENUTEXT.stringdefs 		    = {0.0050, (0.0050) * 0.60, 0.0004, 0.001}
 MENUTEXT.alignment 			    = "CenterCenter"
 MENUTEXT.formats 			    = {"%s"}
 MENUTEXT.h_clip_relation        = h_clip_relations.COMPARE
 MENUTEXT.level 				    = 2
-MENUTEXT.init_pos 			    = {-0.61,-0.975, 0}
+MENUTEXT.init_pos 			    = {0, -0.975, 0}
 MENUTEXT.init_rot 			    = {0, 0, 0}
 MENUTEXT.element_params 	    = {"MFD_OPACITY","PMFD_CONFIG_PAGE"}
 MENUTEXT.controllers		    =   {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1}}
 Add(MENUTEXT)
 ----------------------------------------------------------------------------------------------------------------
-PH_TEXT 					    = CreateElement "ceStringPoly"
+PH_TEXT 					    = CreateElement "ceStringSLine"
 PH_TEXT.name 				    = "menu"
-PH_TEXT.material 			    = UFD_GRN
+PH_TEXT.material 			    = "F22_LCD_FONT_GREEN"
 PH_TEXT.value 				    = "CONFIG MENU"
-PH_TEXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
+PH_TEXT.stringdefs 		        = {0.0050, (0.0050) * 0.60, 0.0004, 0.001}
 PH_TEXT.alignment 			    = "CenterCenter"
 PH_TEXT.formats 			    = {"%s"}
 PH_TEXT.h_clip_relation         = h_clip_relations.COMPARE
@@ -180,11 +180,11 @@ PH_TEXT.element_params 	        = {"MFD_OPACITY","PMFD_CONFIG_PAGE","WoW"}
 PH_TEXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"parameter_in_range",2,0.9,1.1}}
 Add(PH_TEXT)
 ----------------------------------------------------------------------------------------------------------------
-PH1_TEXT 					    = CreateElement "ceStringPoly"
+PH1_TEXT 					    = CreateElement "ceStringSLine"
 PH1_TEXT.name 				    = "menu"
-PH1_TEXT.material 			    = UFD_RED
+PH1_TEXT.material 			    = "F22_LCD_FONT_RED"
 PH1_TEXT.value 				    = "WEIGHT ON WHEELS REQUIRED TO USE CONFIG MENU"
-PH1_TEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
+PH1_TEXT.stringdefs 		    = {0.0050, (0.0050) * 0.60, 0.0004, 0.001}
 PH1_TEXT.alignment 			    = "CenterCenter"
 PH1_TEXT.formats 			    = {"%s"}
 PH1_TEXT.h_clip_relation        = h_clip_relations.COMPARE
@@ -195,13 +195,13 @@ PH1_TEXT.element_params 	    = {"MFD_OPACITY","PMFD_CONFIG_PAGE","WoW"}
 PH1_TEXT.controllers		    = {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"parameter_in_range",2,-0.1,0.1}}
 Add(PH1_TEXT)
 ----------------------------------------------------------------------------------------------------------------
-C1_TXT 					        = CreateElement "ceStringPoly"
+C1_TXT 					        = CreateElement "ceStringSLine"
 C1_TXT.name 				    = "menu"
-C1_TXT.material 			    = UFD_GRN
+C1_TXT.material 			    = "F22_LCD_FONT_GREEN"
 C1_TXT.value 				    = "CANOPY GOLD TINT "
 --C1_TXT.value 				    = "CANOPY NO TINT   "
 --C1_TXT.value 				    = "CANOPY BLACK TINT"
-C1_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
+C1_TXT.stringdefs 		        = {0.0050, (0.0050) * 0.60, 0.0004, 0.001}
 C1_TXT.alignment 			    = "CenterCenter"
 C1_TXT.formats 			        = {"%s"}
 C1_TXT.h_clip_relation          = h_clip_relations.COMPARE
@@ -212,11 +212,11 @@ C1_TXT.element_params 	        = {"MFD_OPACITY","PMFD_CONFIG_PAGE","WoW","TINT"}
 C1_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,-0.1,0.1}}
 Add(C1_TXT)
 ----------------------------------------------------------------------------------------------------------------
-C5_TXT 					        = CreateElement "ceStringPoly"
+C5_TXT 					        = CreateElement "ceStringSLine"
 C5_TXT.name 				    = "menu"
-C5_TXT.material 			    = UFD_GRN
+C5_TXT.material 			    = "F22_LCD_FONT_GREEN"
 C5_TXT.value 				    = "CANOPY BLACK TINT"
-C5_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
+C5_TXT.stringdefs 		        = {0.0050, (0.0050) * 0.60, 0.0004, 0.001}
 C5_TXT.alignment 			    = "CenterCenter"
 C5_TXT.formats 			        = {"%s"}
 C5_TXT.h_clip_relation          = h_clip_relations.COMPARE
@@ -227,12 +227,12 @@ C5_TXT.element_params 	        = {"MFD_OPACITY","PMFD_CONFIG_PAGE","WoW","TINT"}
 C5_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,0.4,0.6}}
 Add(C5_TXT)
 ----------------------------------------------------------------------------------------------------------------
-C6_TXT 					        = CreateElement "ceStringPoly"
+C6_TXT 					        = CreateElement "ceStringSLine"
 C6_TXT.name 				    = "menu"
-C6_TXT.material 			    = UFD_GRN
+C6_TXT.material 			    = "F22_LCD_FONT_GREEN"
 --C6_TXT.value 				    = "CANOPY BLACK TINT"
 C6_TXT.value 				    = "CANOPY NO TINT   "
-C6_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
+C6_TXT.stringdefs 		        = {0.0050, (0.0050) * 0.60, 0.0004, 0.001}
 C6_TXT.alignment 			    = "CenterCenter"
 C6_TXT.formats 			        = {"%s"}
 C6_TXT.h_clip_relation          = h_clip_relations.COMPARE
@@ -243,11 +243,11 @@ C6_TXT.element_params 	        = {"MFD_OPACITY","PMFD_CONFIG_PAGE","WoW","TINT"}
 C6_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,0.9,1.1}}
 Add(C6_TXT)
 ----------------------------------------------------------------------------------------------------------------
-V1_TXT 					        = CreateElement "ceStringPoly"
+V1_TXT 					        = CreateElement "ceStringSLine"
 V1_TXT.name 				    = "menu"
-V1_TXT.material 			    = UFD_GRN
+V1_TXT.material 			    = "F22_LCD_FONT_GREEN"
 V1_TXT.value 				    = "VISOR MIRROR TINT" --= "FLOOD COLOR GREEN"
-V1_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
+V1_TXT.stringdefs 		        = {0.0050, (0.0050) * 0.60, 0.0004, 0.001}
 V1_TXT.alignment 			    = "CenterCenter"
 V1_TXT.formats 			        = {"%s"}
 V1_TXT.h_clip_relation          = h_clip_relations.COMPARE
@@ -258,11 +258,11 @@ V1_TXT.element_params 	        = {"MFD_OPACITY","PMFD_CONFIG_PAGE","WoW","VISOR"
 V1_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,-0.1,0.05}}
 Add(V1_TXT)
 ----------------------------------------------------------------------------------------------------------------
-V2_TXT 					        = CreateElement "ceStringPoly"
+V2_TXT 					        = CreateElement "ceStringSLine"
 V2_TXT.name 				    = "menu"
-V2_TXT.material 			    = UFD_GRN
+V2_TXT.material 			    = "F22_LCD_FONT_GREEN"
 V2_TXT.value 				    = "VISOR GOLD TINT  " --= "FLOOD COLOR GREEN"
-V2_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
+V2_TXT.stringdefs 		        = {0.0050, (0.0050) * 0.60, 0.0004, 0.001}
 V2_TXT.alignment 			    = "CenterCenter"
 V2_TXT.formats 			        = {"%s"}
 V2_TXT.h_clip_relation          = h_clip_relations.COMPARE
@@ -273,11 +273,11 @@ V2_TXT.element_params 	        = {"MFD_OPACITY","PMFD_CONFIG_PAGE","WoW","VISOR"
 V2_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,0.05,0.15}}
 Add(V2_TXT)
 ----------------------------------------------------------------------------------------------------------------
-V3_TXT 					        = CreateElement "ceStringPoly"
+V3_TXT 					        = CreateElement "ceStringSLine"
 V3_TXT.name 				    = "menu"
-V3_TXT.material 			    = UFD_GRN
+V3_TXT.material 			    = "F22_LCD_FONT_GREEN"
 V3_TXT.value 				    = "VISOR BLACK TINT " --= "FLOOD COLOR GREEN"
-V3_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
+V3_TXT.stringdefs 		        = {0.0050, (0.0050) * 0.60, 0.0004, 0.001}
 V3_TXT.alignment 			    = "CenterCenter"
 V3_TXT.formats 			        = {"%s"}
 V3_TXT.h_clip_relation          = h_clip_relations.COMPARE
@@ -288,11 +288,11 @@ V3_TXT.element_params 	        = {"MFD_OPACITY","PMFD_CONFIG_PAGE","WoW","VISOR"
 V3_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,0.15,0.25}}
 Add(V3_TXT)
 ----------------------------------------------------------------------------------------------------------------
-V4_TXT 					        = CreateElement "ceStringPoly"
+V4_TXT 					        = CreateElement "ceStringSLine"
 V4_TXT.name 				    = "menu"
-V4_TXT.material 			    = UFD_GRN
+V4_TXT.material 			    = "F22_LCD_FONT_GREEN"
 V4_TXT.value 				    = "VISOR CLEAR GLASS" --= "FLOOD COLOR GREEN"
-V4_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
+V4_TXT.stringdefs 		        = {0.0050, (0.0050) * 0.60, 0.0004, 0.001}
 V4_TXT.alignment 			    = "CenterCenter"
 V4_TXT.formats 			        = {"%s"}
 V4_TXT.h_clip_relation          = h_clip_relations.COMPARE
@@ -303,11 +303,11 @@ V4_TXT.element_params 	        = {"MFD_OPACITY","PMFD_CONFIG_PAGE","WoW","VISOR"
 V4_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,0.25,0.35}}
 Add(V4_TXT)
 ----------------------------------------------------------------------------------------------------------------
-V5_TXT 					        = CreateElement "ceStringPoly"
+V5_TXT 					        = CreateElement "ceStringSLine"
 V5_TXT.name 				    = "menu"
-V5_TXT.material 			    = UFD_GRN
+V5_TXT.material 			    = "F22_LCD_FONT_GREEN"
 V5_TXT.value 				    = "AVIATOR GLASSES  " --= "FLOOD COLOR GREEN"  VISOR CLEAR GLASS AVIATOR GLASSES
-V5_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
+V5_TXT.stringdefs 		        = {0.0050, (0.0050) * 0.60, 0.0004, 0.001}
 V5_TXT.alignment 			    = "CenterCenter"
 V5_TXT.formats 			        = {"%s"}
 V5_TXT.h_clip_relation          = h_clip_relations.COMPARE
@@ -318,11 +318,11 @@ V5_TXT.element_params 	        = {"MFD_OPACITY","PMFD_CONFIG_PAGE","WoW","VISOR"
 V5_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,0.35,0.45}}
 Add(V5_TXT)
 ----------------------------------------------------------------------------------------------------------------
-F1_TXT 					        = CreateElement "ceStringPoly"
+F1_TXT 					        = CreateElement "ceStringSLine"
 F1_TXT.name 				    = "menu"
-F1_TXT.material 			    = UFD_GRN
+F1_TXT.material 			    = "F22_LCD_FONT_GREEN"
 F1_TXT.value 				    = "FLOOD COLOR GREEN"
-F1_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
+F1_TXT.stringdefs 		        = {0.0050, (0.0050) * 0.60, 0.0004, 0.001}
 F1_TXT.alignment 			    = "CenterCenter"
 F1_TXT.formats 			        = {"%s"}
 F1_TXT.h_clip_relation          = h_clip_relations.COMPARE
@@ -333,11 +333,11 @@ F1_TXT.element_params 	        = {"MFD_OPACITY","PMFD_CONFIG_PAGE","WoW","FLOOD_
 F1_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,-0.1,0.1}}
 Add(F1_TXT)
 ----------------------------------------------------------------------------------------------------------------
-F2_TXT 					        = CreateElement "ceStringPoly"
+F2_TXT 					        = CreateElement "ceStringSLine"
 F2_TXT.name 				    = "menu"
-F2_TXT.material 			    = UFD_BLUE
+F2_TXT.material 			    = "F22_LCD_FONT_BLUE"
 F2_TXT.value 				    = "FLOOD COLOR BLUE "
-F2_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
+F2_TXT.stringdefs 		        = {0.0050, (0.0050) * 0.60, 0.0004, 0.001}
 F2_TXT.alignment 			    = "CenterCenter"
 F2_TXT.formats 			        = {"%s"}
 F2_TXT.h_clip_relation          = h_clip_relations.COMPARE
@@ -348,11 +348,11 @@ F2_TXT.element_params 	        = {"MFD_OPACITY","PMFD_CONFIG_PAGE","WoW","FLOOD_
 F2_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,0.1,0.3}}
 Add(F2_TXT)
 ----------------------------------------------------------------------------------------------------------------
-F3_TXT 					        = CreateElement "ceStringPoly"
+F3_TXT 					        = CreateElement "ceStringSLine"
 F3_TXT.name 				    = "menu"
-F3_TXT.material 			    = UFD_RED
+F3_TXT.material 			    = "F22_LCD_FONT_RED"
 F3_TXT.value 				    = "FLOOD COLOR RED  "
-F3_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
+F3_TXT.stringdefs 		        = {0.0050, (0.0050) * 0.60, 0.0004, 0.001}
 F3_TXT.alignment 			    = "CenterCenter"
 F3_TXT.formats 			        = {"%s"}
 F3_TXT.h_clip_relation          = h_clip_relations.COMPARE
@@ -363,11 +363,11 @@ F3_TXT.element_params 	        = {"MFD_OPACITY","PMFD_CONFIG_PAGE","WoW","FLOOD_
 F3_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,0.3,0.5}}
 Add(F3_TXT)
 ----------------------------------------------------------------------------------------------------------------
-F4_TXT 					        = CreateElement "ceStringPoly"
+F4_TXT 					        = CreateElement "ceStringSLine"
 F4_TXT.name 				    = "menu"
-F4_TXT.material 			    = UFD_FONT
+F4_TXT.material 			    = "F22_LCD_FONT_WHITE"
 F4_TXT.value 				    = "FLOOD COLOR WHITE"
-F4_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
+F4_TXT.stringdefs 		        = {0.0050, (0.0050) * 0.60, 0.0004, 0.001}
 F4_TXT.alignment 			    = "CenterCenter"
 F4_TXT.formats 			        = {"%s"}
 F4_TXT.h_clip_relation          = h_clip_relations.COMPARE
@@ -379,11 +379,11 @@ F4_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_rang
 Add(F4_TXT)
 
 ----------------------------------------------------------------------------------------------------------------
-P1_TXT 					        = CreateElement "ceStringPoly"
+P1_TXT 					        = CreateElement "ceStringSLine"
 P1_TXT.name 				    = "menu"
-P1_TXT.material 			    = UFD_YEL
+P1_TXT.material 			    = "F22_LCD_FONT_YELLOW"
 P1_TXT.value 				    = "FAMILY PHOTO OFF"
-P1_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
+P1_TXT.stringdefs 		        = {0.0050, (0.0050) * 0.60, 0.0004, 0.001}
 P1_TXT.alignment 			    = "CenterCenter"
 P1_TXT.formats 			        = {"%s"}
 P1_TXT.h_clip_relation          = h_clip_relations.COMPARE
@@ -394,11 +394,11 @@ P1_TXT.element_params 	        = {"MFD_OPACITY","PMFD_CONFIG_PAGE","WoW","PHOTO"
 P1_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,-0.1,0.1}}
 Add(P1_TXT)
 ----------------------------------------------------------------------------------------------------------------
-P2_TXT 					        = CreateElement "ceStringPoly"
+P2_TXT 					        = CreateElement "ceStringSLine"
 P2_TXT.name 				    = "menu"
-P2_TXT.material 			    = UFD_GRN
+P2_TXT.material 			    = "F22_LCD_FONT_GREEN"
 P2_TXT.value 				    = "FAMILY PHOTO ON "
-P2_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
+P2_TXT.stringdefs 		        = {0.0050, (0.0050) * 0.60, 0.0004, 0.001}
 P2_TXT.alignment 			    = "CenterCenter"
 P2_TXT.formats 			        = {"%s"}
 P2_TXT.h_clip_relation          = h_clip_relations.COMPARE
@@ -409,11 +409,11 @@ P2_TXT.element_params 	        = {"MFD_OPACITY","PMFD_CONFIG_PAGE","WoW","PHOTO"
 P2_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,0.9,1.1}}
 Add(P2_TXT)
 ----------------------------------------------------------------------------------------------------------------
-C2_TXT 					        = CreateElement "ceStringPoly"
+C2_TXT 					        = CreateElement "ceStringSLine"
 C2_TXT.name 				    = "menu"
-C2_TXT.material 			    = UFD_YEL
+C2_TXT.material 			    = "F22_LCD_FONT_YELLOW"
 C2_TXT.value 				    = "WINDOW CLING OFF"
-C2_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
+C2_TXT.stringdefs 		        = {0.0050, (0.0050) * 0.60, 0.0004, 0.001}
 C2_TXT.alignment 			    = "CenterCenter"
 C2_TXT.formats 			        = {"%s"}
 C2_TXT.h_clip_relation          = h_clip_relations.COMPARE
@@ -424,11 +424,11 @@ C2_TXT.element_params 	        = {"MFD_OPACITY","PMFD_CONFIG_PAGE","WoW","GARFIE
 C2_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,-0.1,0.1}}
 Add(C2_TXT)
 ----------------------------------------------------------------------------------------------------------------
-C3_TXT 					        = CreateElement "ceStringPoly"
+C3_TXT 					        = CreateElement "ceStringSLine"
 C3_TXT.name 				    = "menu"
-C3_TXT.material 			    = UFD_GRN
+C3_TXT.material 			    = "F22_LCD_FONT_GREEN"
 C3_TXT.value 				    = "WINDOW CLING ON "
-C3_TXT.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
+C3_TXT.stringdefs 		        = {0.0050, (0.0050) * 0.60, 0.0004, 0.001}
 C3_TXT.alignment 			    = "CenterCenter"
 C3_TXT.formats 			        = {"%s"}
 C3_TXT.h_clip_relation          = h_clip_relations.COMPARE

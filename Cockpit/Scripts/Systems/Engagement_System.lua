@@ -3,10 +3,14 @@
 -- to actual IDs returned by this aircraft's native payload launch interface.
 local mathlib=dofile(LockOn_Options.script_path..'Systems/Weapon_Engagement.lua')
 local display=dofile(LockOn_Options.script_path..'Systems/Radar_Display.lua')
+local launch_zone=dofile(LockOn_Options.script_path..'Systems/Radar_Launch_Zone.lua')
 local sensors=get_base_data();local dt=.05;make_default_activity(dt)
 local handles={};local function h(n) if not handles[n] then handles[n]=get_param_handle(n) end;return handles[n] end
 local function get(n)return h(n):get()end
 local function put(n,v)h(n):set(v)end
+for _,name in ipairs(launch_zone.segments)do
+    for _,field in ipairs({'X1','Y1','X2','Y2','VALID'})do h('F22_RDR_LAR_'..name..'_'..field)end
+end
 local clock=0;local next_log=0;local last_sequence=0;local missiles={};local files={}
 local function vector(p,a,b,c)return {get(p..a),get(p..b),get(p..c)}end
 local function target(id,now)
@@ -32,6 +36,8 @@ local function observe(now)
     for id,t in pairs(files) do if now-t.time>30 then files[id]=nil end end
 end
 function post_initialize()
+	put('F22_RDR_LAR_VISIBLE',0)
+    for _,name in ipairs(launch_zone.segments)do put('F22_RDR_LAR_'..name..'_VALID',0)end
     for i=1,8 do local p=string.format('F22_MSL_%02d_',i)
         for _,field in ipairs({'VALID','PLOT_VALID','SUPPORT_REQUIRED','SUPPORT_STATE','SUPPORT_COAST','SUPPORT_LOST','TRACK_LOST'})do put(p..field,0)end
     end
@@ -71,9 +77,27 @@ function update()
     put('F22_FC_DLZ_SCALE_NM',scale/1852)
     put('F22_FC_DLZ_MIN_Y',minimum/scale*.46);put('F22_FC_DLZ_MAX_Y',maximum/scale*.46)
     put('F22_FC_DLZ_TURN_Y',(turn or 0)/scale*.46);put('F22_FC_DLZ_RANGE_Y',range/scale*.46)
+    local radar_mode=get('F22_RADAR_MODE_CODE')
+    local lar_kind=get('F22N_RADAR_MODE')==3 and 'STT'
+        or (radar_mode==2 or radar_mode==3) and get('F22_SOI')==2 and 'TWS' or nil
+    -- The radar's LAR uses a real target-specific solution, rather than the
+    -- HUD's nominal weapon-range fallback. TWS/LTWS is TDC-assigned only.
+    local lar=native_dlz and valid and lar_kind and launch_zone.project(mathlib.sub(t.position,own),pose.heading,
+        minimum,maximum,turn,get('F22_RADAR_RANGE_NM')*1852,display,lar_kind)
+    put('F22_RDR_LAR_VISIBLE',lar and 1 or 0)
+    for _,name in ipairs(launch_zone.segments)do
+        local p='F22_RDR_LAR_'..name..'_';local line=lar and lar[name]
+        put(p..'VALID',line and 1 or 0)
+        if line then
+            put(p..'X1',line[1]);put(p..'Y1',line[2]);put(p..'X2',line[3]);put(p..'Y2',line[4])
+        end
+    end
     local friendly=get('F22_RADAR_SELECTED_FRIENDLY')>.5
     local ready=valid and get('MASTER_ARM')>.5 and get('F22_WEAPON_COUNT')>0 and not friendly
-    local shoot=ready and zone and zone.inside and math.abs(az)<math.rad(30) and math.abs(el)<math.rad(30)
+    -- A real uncaged IR lock supplies its own per-seeker gimbal eligibility;
+    -- the radar missile steering gate must not truncate AIM-9X to 30 degrees.
+    local alignment=mode==3 or math.abs(az)<math.rad(30) and math.abs(el)<math.rad(30)
+    local shoot=ready and zone and zone.inside and alignment
     if mode==3 then shoot=shoot and get('F22_IR_LOCK')>.5 and get('F22_IR_CAGED')<.5 end
     put('F22_FC_SHOOT',missile_mode and shoot and 1 or 0);put('F22_FC_TURN_WINDOW',shoot and zone.turn and 1 or 0)
     put('F22_FC_TOO_CLOSE',zone and zone.too_close and 1 or 0)
@@ -90,10 +114,12 @@ function update()
     table.sort(events,function(a,b)return a.seq<b.seq end)
     for _,event in ipairs(events) do
         local p=event.p
-        if get(p..'MODE')==2 and get(p..'ID')>0 then
+        if (get(p..'MODE')==2 or get(p..'MODE')==3) and get(p..'ID')>0 then
             local slot=(event.seq-1)%8+1
-            missiles[slot]={id=get(p..'ID'),target=get(p..'TARGET'),sequence=event.seq,p=p,born=get(p..'TIME'),life=300,seen=false,
+            local life=get(p..'LIFETIME');if life<1 or life>1000 then life=1000 end
+            missiles[slot]={id=get(p..'ID'),target=get(p..'TARGET'),mode=get(p..'MODE'),sequence=event.seq,p=p,born=get(p..'TIME'),life=life,seen=false,
                 estimate_time=get(p..'ESTIMATE_TIME'),launch_tof=get(p..'TOF_VALID')>.5 and get(p..'TOF') or nil,
+                estimate_source=get(p..'TOF_SOURCE')==2 and 3 or 1,
                 launch_act=get(p..'ACT_VALID')>.5 and get(p..'ACT') or nil}
         end
         last_sequence=math.max(last_sequence,event.seq)
@@ -106,15 +132,16 @@ function update()
             local tm=target(m.target,now)
             if real then m.seen=true end
             alive=real or not m.seen and now-m.born<3
-            -- Registry disappearance ends the real missile. The 300-second
+            -- Registry disappearance ends the real missile. The frozen
             -- adapter watchdog never inherits a newly selected IR store's life.
             if now-m.born>m.life then alive=false end
             m.active=real and get(m.p..'ACTIVE_VALID')>.5 and get(m.p..'ACTIVE')>.5 or m.active
             -- Emitting alone does not prove the seeker acquired a target.
             m.guiding=real and m.active and get(m.p..'SEEKER_VALID')>.5 and get(m.p..'SEEKER_TRACK')>.5 or m.guiding
+            if m.mode==3 then m.guiding=real or m.guiding end
             m.tta=not m.active and mathlib.countdown(m.launch_act,m.estimate_time,now) or nil
             m.ttg=mathlib.countdown(m.launch_tof,m.estimate_time,now)
-            m.tta_source=m.tta and 1 or 0;m.ttg_source=m.ttg and 1 or 0
+            m.tta_source=m.tta and 1 or 0;m.ttg_source=m.ttg and m.estimate_source or 0
             if real and tm then
                 local pos=vector(m.p,'N','U','E');local vel=vector(m.p,'VN','VU','VE')
                 local relative=mathlib.sub(tm.position,pos);local rv=mathlib.sub(tm.velocity,vel)
@@ -129,7 +156,7 @@ function update()
                 local x,y=display.point(rr,aa,get('F22_RADAR_RANGE_NM')*1852)
                 put(p..'X',x);put(p..'Y',y);put(p..'PLOT_VALID',alive and math.abs(x)<.95 and y>-.93 and y<.90 and 1 or 0)
             else put(p..'PLOT_VALID',0) end
-            supported=alive and not m.guiding
+            supported=alive and m.mode==2 and not m.guiding
             if alive then count=count+1;if not timer or m.target==id and timer.target~=id or m.sequence>timer.sequence and (m.target==id)==(timer.target==id) then timer=m end end
         else put(p..'PLOT_VALID',0) end
         local support_state=0
@@ -160,12 +187,14 @@ function update()
     put('F22_FC_TIMER_ACTIVE',timer and timer.guiding and 1 or 0)
     put('F22_FC_TIMER_EMITTING',timer and timer.active and 1 or 0)
     put('F22_FC_TIMER_SEQUENCE',timer and timer.sequence or 0)
+    put('F22_FC_TIMER_MODE',timer and timer.mode or 0)
     put('F22_FC_TIMER_TARGETMATCH',timer and timer.target==id and 1 or 0)
     put('F22_FC_TTA_VALID',timer and timer.tta and 1 or 0);put('F22_FC_TTA',timer and timer.tta or 0)
     put('F22_FC_TTG_VALID',timer and timer.ttg and 1 or 0);put('F22_FC_TTG',timer and timer.ttg or 0)
     if now>=next_log and log and log.write then next_log=now+1
-        log.write('F22_ENGAGEMENT',log.INFO,string.format('target=%d valid=%s range=%.1f closure=%.1f dynamic=%s min=%.0f max=%.0f turn=%.0f shoot=%s missiles=%d active=%s tta=%s ttg=%s support_coast=%d support_lost=%d',
-            id,tostring(valid),range,closure,tostring(native_dlz),minimum,maximum,turn or 0,tostring(shoot),count,tostring(timer and timer.active),tostring(timer and timer.tta),tostring(timer and timer.ttg),degraded_count,lost_count))
+        log.write('F22_ENGAGEMENT',log.INFO,string.format('target=%d valid=%s range=%.1f closure=%.1f dynamic=%s min=%.0f max=%.0f turn=%.0f shoot=%s missiles=%d active=%s tta=%s ttg=%s support_coast=%d support_lost=%d weapon=%q type=%.0f station=%.0f count=%.0f tof_valid=%.0f tof_source=%.0f tof=%.2f az=%.4f el=%.4f',
+            id,tostring(valid),range,closure,tostring(native_dlz),minimum,maximum,turn or 0,tostring(shoot),count,tostring(timer and timer.active),tostring(timer and timer.tta),tostring(timer and timer.ttg),degraded_count,lost_count,
+            tostring(get('F22_WEAPON_NAME')),get('F22_WEAPON_TYPE4'),get('F22_WEAPON_STATION'),get('F22_WEAPON_COUNT'),get('F22_TOF_NATIVE_VALID'),get('F22_TOF_SOURCE'),get('F22_TOF_SECONDS'),az,el))
     end
 end
 need_to_be_closed=false

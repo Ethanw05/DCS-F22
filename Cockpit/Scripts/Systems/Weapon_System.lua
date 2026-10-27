@@ -24,6 +24,7 @@ local update_time_step = 0.02
 make_default_activity(update_time_step)
 
 local sensor_data		= get_base_data()
+local hud_projection=dofile(LockOn_Options.script_path.."Systems/HUD_Projection.lua")
 local gun_director=dofile(LockOn_Options.script_path..'Systems/Gun_Director.lua').new(
     sensor_data,function(n)return get_param_handle(n):get()end,
     function(n,v)get_param_handle(n):set(v)end,dispatch_action,
@@ -152,7 +153,10 @@ local air_oride				= 0
 local detent_pos			= 0
 local pickle_pos			= 0
 local hud_radar_request = 1 -- 1 RWS, 2 TWS request, 3 VS, 4 ACM, 5 FLOOD
-local ag_submode = 1 -- 1 MAN, 2 CCIP request, 3 CCRP request
+local ag_submode = 2 -- 1 ground gun, 2 CCIP, 3 AUTO
+local ag_first_selection=true
+local ag_release_sequence=0
+local ag_consent_target=nil
 local gun_command_active = false
 local native_pickle_active = false
 local release_baseline=0;local pickle_consumed=false
@@ -164,46 +168,184 @@ local previous_mode=1;local pointer_logged=false
 local ir_audio=dofile(LockOn_Options.script_path..'Systems/IR_Audio.lua').new()
 local ir_seeker_module=dofile(LockOn_Options.script_path..'Systems/IR_Seeker.lua')
 local ir_seeker=ir_seeker_module.new(sensor_data,function(n)return get_param_handle(n):get()end)
+local ag_stores=dofile(LockOn_Options.script_path..'Systems/AG_Stores.lua').new()
 local selected_station=-1
+local ag_program_station=-1
 local station_refresh=0
 local last_native_diagnostic=nil
 local diagnostic_clock=0;local next_diagnostic=0;local next_telemetry=0;local next_missile_diag=0
 local function native_command(c) dispatch_action(devices.WEAPON_NATIVE,c,1) end
+local function publish_control_state()
+    parameters.MASTER_ARM:set(master_arm_state)
+    get_param_handle('F22_AG_RELEASE_CONSENT'):set(mode_state==7 and master_arm_state==1
+        and parameters.MAIN_POWER:get()>.5 and parameters.WoW:get()<.5
+        and weapon_release_state==1 and ag_stores.program~=nil and not pickle_consumed and 1 or 0)
+end
+publish_control_state()
 for _,c in ipairs({10800,10801,10802,10803,10804,10805,10806}) do dev:listen_command(c) end
-local ir_clsids={['{5CE2FF2A-645A-4197-B48D-8720AC69394F}']=true,
- ['{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}']=true,['{AIM9X-BLKII}']=true}
-local function store_kind(info)
-    if not info or (info.count or 0)<=0 then return nil end
-    local id=info.CLSID or info.clsid or ''
-    if ir_clsids[id] or string.find(id,'AIM9',1,true) then return 3 end
-    if id=='{40EF17B7-F508-45de-8566-6FFECC0C1AB8}' or
-       id=='{C8E06185-7CD6-4C90-959F-044679E90751}' or string.find(id,'AIM-120',1,true) then return 2 end
+for _,c in ipairs({10807,10808,10809,10813})do dev:listen_command(c)end
+local store_caps=dofile(LockOn_Options.script_path..'Systems/Store_Capabilities.lua')
+local station_infos={}
+for _,n in ipairs({'F22_WEAPON_NAME','F22_WEAPON_EMPTY_TEXT'})do get_param_handle(n):set('')end
+for _,n in ipairs({'F22_WEAPON_COUNT','F22_WEAPON_CATEGORY_COUNT','F22_WEAPON_SELECTED_VALID','F22_WEAPON_KIND','F22_WEAPON_SUPPORTED'})do get_param_handle(n):set(0)end
+local function store_kind(info)local cap=store_caps.describe(info);return cap and cap.kind end
+for c=10970,10988 do dev:listen_command(c) end
+dev:listen_command(10990) -- Front keypad MULT field.
+for _,n in ipairs({"F22_SMS_ENTRY_FIELD","F22_SMS_ENTRY_VALUE","F22_SMS_ENTRY_LENGTH","F22_SMS_ENTRY_ERROR"})do get_param_handle(n)end
+get_param_handle('F22_SMS_ENTRY_ERROR_TEXT'):set('')
+-- String handles must exist before native indicator states bind.
+for _,n in ipairs({'F22_SMS_WEAPON_TEXT','F22_SMS_MODE_TEXT','F22_SMS_FUZE_TEXT','F22_SMS_STATUS_TEXT',
+ 'F22_SMS_AVAILABLE','F22_SMS_QUANTITY','F22_SMS_INTERVAL_MS','F22_SMS_REMAINING'})do get_param_handle(n)end
+for i=1,5 do for _,suffix in ipairs({'LABEL','COUNT','SELECTED'})do get_param_handle('F22_SMS_STORE_'..i..'_'..suffix)end end
+for _,n in ipairs({'F22_SMS_LABEL','F22_SMS_TYPE4','F22_SMS_STATUS'})do get_param_handle(n)end
+-- Native gun telemetry is read-only; declare its display bindings without resetting the producer.
+get_param_handle('F22_GUN_AMMO_COUNT');get_param_handle('F22_GUN_AMMO_VALID')
+get_param_handle('F22_AG_GUIDED_SELECTED')
+local function target_station()
+ local g=ag_stores:group()
+ if mode_state==7 and selected_station>=0 then return selected_station end
+ for _,station in ipairs(g and g.stations or {})do if station==ag_program_station then return station end end
+ return g and g.stations[1]or -1
+end
+local function publish_delivery_target()
+ local station=target_station();local p=ag_stores.program
+ local stored=p and p.targets[station]or ag_stores:target(station)
+ local assigned=stored~=nil;local target=stored or p and p.live_target
+ local valid=assigned or get_param_handle('HUD_AG_TARGET_VALID'):get()>.5 and (not p or p.live_target~=nil)
+ local function put(n,v)get_param_handle('F22_AG_DELIVERY_TARGET_'..n):set(v)end
+ put('VALID',valid and 1 or 0);put('SOURCE',assigned and 2 or valid and 1 or 0)
+ put('N',target and target.n or get_param_handle('HUD_AG_MARK_NORTH'):get())
+ put('U',target and target.u or get_param_handle('HUD_AG_MARK_ALT'):get())
+ put('E',target and target.e or get_param_handle('HUD_AG_MARK_EAST'):get())
+ put('SEQUENCE',target and target.sequence or get_param_handle('F22_AG_TARGET_SEQUENCE'):get())
+ get_param_handle('F22_SMS_TARGET_STATION'):set(station)
+ get_param_handle('F22_SMS_TARGET_STATION_DISPLAY'):set(station>=0 and station+1 or 0)
+ get_param_handle('F22_SMS_TARGET_VALID'):set(valid and 1 or 0)
+ get_param_handle('F22_SMS_TARGET_SOURCE'):set(assigned and 2 or valid and 1 or 0)
+ get_param_handle('F22_SMS_TARGET_SEQUENCE'):set(target and target.sequence or get_param_handle('F22_AG_TARGET_SEQUENCE'):get())
+ for _,axis in ipairs({'N','U','E'})do get_param_handle('F22_SMS_TARGET_'..axis):set(get_param_handle('F22_AG_DELIVERY_TARGET_'..axis):get())end
+end
+local function publish_stores()
+ publish_delivery_target()
+ local g,p=ag_stores:group(),ag_stores:profile()
+ local entry=ag_stores.entry
+ local function put(n,v)get_param_handle('F22_SMS_'..n):set(v)end
+ put('ENTRY_FIELD',entry and entry.field or 0);put('ENTRY_VALUE',entry and tonumber(entry.buffer)or 0)
+ put('ENTRY_LENGTH',entry and #entry.buffer or 0);put('ENTRY_ERROR',entry and entry.error or 0)
+ put('ENTRY_ERROR_TEXT',ag_stores:entry_error_text())
+ put('WEAPON_TEXT',g and string.sub(g.name,1,25)or 'NO A/G STORES')
+ put('MODE_TEXT',ag_submode==1 and 'GUN' or p.mode==3 and 'AUTO' or 'CCIP')
+ put('FUZE_TEXT','STORE DEFAULT')
+ local status=(ag_stores.failed or ag_stores:unconfirmed())and 7 or ag_stores.pending and 6 or ag_stores.program and 1 or not g and 2
+  or not g.supported and 8 or p.quantity>g.count and 3 or p.quantity%p.pair~=0 and 9
+  or not store_caps.mode_available(g,p.mode)and 4 or 5
+ local text={[1]='RELEASING',[2]='NO STORE',[3]='QTY EXCEEDS LOAD',[4]='MODE UNAVAILABLE',[5]='PROGRAM SET',[6]='RELEASE PENDING',[7]='RELEASE UNCONFIRMED',[8]='WPN UNAVAIL',[9]='CHECK PAIR QTY'}
+ put('STATUS',status);put('STATUS_TEXT',text[status]);put('AVAILABLE',g and g.count or 0)
+ put('READY_COUNT',ag_stores:ready_count());put('FUZE_PROGRAMMABLE',0);put('SELECTED_INDEX',g and g.index or 0);put('QUANTITY',p.quantity)
+ put('INTERVAL_MS',p.interval*1000);put('INTERVAL_MODE',p.interval_mode);put('SPACING_FT',p.spacing_ft)
+ put('PROFILE',ag_stores:profile_index());put('PULSES',p.quantity/p.pair);put('PAIR',p.pair)
+ put('RELEASE_PENDING',ag_stores.pending and 1 or 0);put('RELEASE_FAILED',(ag_stores.failed or ag_stores:unconfirmed())and 1 or 0)
+ put('REMAINING',ag_stores.program and ag_stores.program.remaining or 0)
+ put('LABEL',g and g.label or 0);put('TYPE4',g and g.type4 or 0)
+ for i=1,3 do put('MODE_AVAILABLE_'..i,store_caps.mode_available(g,i)and 1 or 0)end
+ local first=math.max(1,math.min(#ag_stores.groups-4,(g and g.index or 1)-2))
+ for i=1,5 do
+  local row=ag_stores.groups[first+i-1];local prefix='STORE_'..i..'_'
+  put(prefix..'LABEL',row and row.label or 0);put(prefix..'COUNT',row and row.count or 0)
+  put(prefix..'INDEX',row and row.index or 0);put(prefix..'SELECTED',row and row.key==ag_stores.selected and 1 or 0)
+ end
+ for i=0,10 do
+  local cap=store_caps.describe(station_infos[i]);local prefix=string.format('STATION_%02d_',i)
+  put(prefix..'LABEL',cap and cap.label or 0);put(prefix..'COUNT',cap and cap.count or 0)
+  put(prefix..'ACTIVE',i==target_station()and 1 or 0);put(prefix..'TARGET_VALID',ag_stores:target(i)and 1 or 0)
+  put(prefix..'PRESENT',cap and 1 or 0);put(prefix..'SELECTED',cap and cap.key==ag_stores.selected and 1 or 0)
+ end
+end
+local function newest_ground_shot(pending)
+ if not pending then return nil end
+ local best
+ for i=1,16 do
+  local prefix=string.format('F22_SHOT_%02d_',i)
+  local function r(n)return get_param_handle(prefix..n):get()end
+  local sequence=r('SEQUENCE')
+  if sequence>pending.sequence and r('STATION')==pending.station and r('MODE')==7 and r('TYPE')==pending.type4 and (not best or sequence>best.sequence)then
+   best={sequence=sequence,id=r('ID'),station=r('STATION'),mode=r('MODE'),type4=r('TYPE'),time=r('TIME')}
+  end
+ end
+ return best
+end
+local function acknowledge_release(now)
+ local accepted,complete,q=ag_stores:acknowledge(station_infos,now,newest_ground_shot(ag_stores.pending))
+ if accepted==nil then return end
+ if accepted then
+  ag_release_sequence=ag_release_sequence+1;get_param_handle('F22_AG_RELEASE_SEQUENCE'):set(ag_release_sequence)
+ end
+ if not accepted or complete then pickle_consumed=true;weapon_release_state=0;pickle_pos=0 end
+ if log and log.write then log.write('F22_AG_RELEASE_ACK',log.INFO,string.format('t=%.3f accepted=%s station=%d requested=%.3f sequence=%d evidence=%d native_id=%d native_sequence=%d native_time=%.3f complete=%s',now,tostring(accepted),q.station,q.time,ag_release_sequence,q.evidence or 0,q.native_id or 0,q.native_sequence or 0,q.native_time or 0,tostring(complete)))end
 end
 local function choose_station(native,step)
     local eligible={};local total=0;local infos={}
     for i=0,10 do
         local ok,info=pcall(function() return native:get_station_info(i) end)
-        if ok and store_kind(info)==mode_state then
-            eligible[#eligible+1]=i;infos[i]=info;total=total+(info.count or 0)
-        end
+        if ok then infos[i]=info end
     end
-    get_param_handle('F22_WEAPON_COUNT'):set(total)
-    local next_station=eligible[1] or -1
+    station_infos=infos
+    ag_stores:refresh(infos)
+    acknowledge_release(type(get_model_time)=='function'and get_model_time()or diagnostic_clock)
+    local group=ag_stores:group()
+    for i=0,10 do local info=infos[i]
+        local kind=store_kind(info)
+        local matches=kind==mode_state
+        if mode_state==7 then
+            matches=false
+            for _,station in ipairs(group and group.supported and group.stations or {})do if station==i and ag_stores:station_ready(i)then matches=true end end
+        end
+        if matches then eligible[#eligible+1]=i;total=total+(info.count or 0) end
+    end
+    get_param_handle('F22_WEAPON_CATEGORY_COUNT'):set(total)
+    local next_station=eligible[1]or -1
+    if mode_state==7 and selected_station<0 then for _,station in ipairs(eligible)do if station==ag_program_station then next_station=station end end end
     for j,id in ipairs(eligible) do if id==selected_station then
         next_station=step and eligible[j%#eligible+1] or id;break
     end end
-    if mode_state==5 or mode_state==1 then next_station=-1 end
+    if mode_state==5 or mode_state==1 or (mode_state==7 and ag_submode==1)then next_station=-1 end
     if selected_station~=next_station then
+        if mode_state==7 then get_param_handle('F22_AG_SOLUTION_VALID'):set(0) end
         native:select_station(next_station);selected_station=next_station
     end
+    if mode_state==7 and selected_station>=0 then ag_program_station=selected_station end
     get_param_handle('F22_WEAPON_STATION'):set(selected_station)
     local info=infos[selected_station];local w=info and info.weapon or {}
+    local selected=store_caps.selected(infos,selected_station,mode_state,ag_submode==1)
+    if mode_state==7 and ag_submode~=1 and not info and group then
+        selected.name=group.hud or group.identity or group.name
+    end
+    get_param_handle('F22_WEAPON_NAME'):set(selected.hud~='' and selected.hud or selected.name)
+    get_param_handle('F22_WEAPON_EMPTY_TEXT'):set(mode_state==3 and 'NO SRM' or 'NO MRM')
+    get_param_handle('F22_WEAPON_COUNT'):set(selected.count)
+    get_param_handle('F22_WEAPON_SELECTED_VALID'):set(selected_station>=0 and 1 or 0)
+    get_param_handle('F22_WEAPON_KIND'):set(selected.kind or 0)
+    get_param_handle('F22_WEAPON_SUPPORTED'):set(selected.supported and 1 or 0)
     get_param_handle('F22_WEAPON_TYPE4'):set(w.level4 or 0)
+    local bomb=mode_state==7 and selected_station>=0 and w.level2==5
+    get_param_handle('F22_AG_BOMB_SELECTED'):set(bomb and 1 or 0)
+    get_param_handle('F22_AG_GUIDED_SELECTED'):set(bomb and w.level3==36 and 1 or 0)
+    get_param_handle('F22_AG_WEAPON_TYPE3'):set(bomb and w.level3 or 0)
+    get_param_handle('F22_AG_WEAPON_TYPE4'):set(bomb and w.level4 or 0)
+    if bomb and ag_first_selection then ag_submode=ag_stores:profile().mode;ag_first_selection=false end
+    publish_stores()
     get_param_handle('F22_IR_STATION'):set(mode_state==3 and selected_station or -1)
     for level=1,4 do get_param_handle('F22_IR_TYPE'..level):set(w['level'..level] or 0) end
     get_param_handle('F22_IR_AIM9X_PROFILE'):set(mode_state==3 and ir_seeker_module.profile(info) or 0)
     -- Side bays are stations 0 and 10; other internal missiles use main bay.
     if selected_station>=0 then parameters.BAY_STATION:set(selected_station==0 and 1 or selected_station==10 and 3 or 2) end
+end
+-- Declare a complete invalid/empty display snapshot before indicators bind.
+publish_stores()
+for _,name in ipairs({'HUD_IR_SEEKER_X_SLOPE','HUD_IR_SEEKER_Y_SLOPE',
+    'HUD_IR_SEEKER_AVAILABLE','HUD_IR_SEEKER_VALID','HUD_GUN_NATIVE_X_SLOPE',
+    'HUD_GUN_NATIVE_Y_SLOPE','HUD_GUN_NATIVE_VALID','F22_GUN_USING_DIRECTOR'}) do
+    get_param_handle(name):set(0)
 end
 ------------------------------------------------------------------FUNCTION-POSTINIT---------------------------------------------------------------------------------------------------
 
@@ -231,11 +373,58 @@ function post_initialize()
 	end
 end
 ------------------------------------------------------------------FUNCTION-SETCOMMAND---------------------------------------------------------------------------------------------------
-function SetCommand(command,value)
+local function handle_command(command,value)
+    if command>=10975 and command<=10980 or command==10985 or command==10986 or command==10990 then
+        local context=(mode_state==7 or mode_state==1) and parameters.MAIN_POWER:get()>.5 and get_param_handle('F22_SMS_PROGRAM_PAGE'):get()>.5
+        if command==10980 or not context then ag_stores.entry=nil;publish_stores();return end
+        if command==10975 or command==10976 or command==10985 or command==10986 or command==10990 then
+            if dofile(LockOn_Options.script_path..'Systems/Input_Value.lua')(value,devices.WEAPON_SYSTEM)<=0 then return end
+            local was_held=weapon_release_state==1
+            weapon_release_state=0;pickle_pos=0;pickle_consumed=was_held or pickle_consumed
+            native_command(351);native_pickle_active=false
+            ag_stores:begin_entry(command==10975 and 1 or command==10976 and 2 or command==10985 and 3 or command==10990 and 5 or 4)
+        elseif command==10977 then ag_stores:digit(value)
+        elseif command==10978 then ag_stores:backspace()
+        elseif command==10979 then ag_stores:commit() end
+        publish_stores();return
+    end
+    if command==10987 or command==10988 then
+        local down=dofile(LockOn_Options.script_path..'Systems/Input_Value.lua')(value,devices.WEAPON_SYSTEM)>.5
+        if down and parameters.MAIN_POWER:get()>.5 and (mode_state==7 or mode_state==1)then
+            local station=target_station()
+            local held=weapon_release_state==1;weapon_release_state=0;pickle_pos=0;pickle_consumed=held or pickle_consumed
+            native_command(351);native_pickle_active=false
+            if command==10988 then ag_stores:clear_target(station)
+            elseif get_param_handle('HUD_AG_TARGET_VALID'):get()>.5 then
+                ag_stores:capture_target(station,{n=get_param_handle('HUD_AG_MARK_NORTH'):get(),u=get_param_handle('HUD_AG_MARK_ALT'):get(),e=get_param_handle('HUD_AG_MARK_EAST'):get()})
+            end
+            get_param_handle('F22_AG_SOLUTION_VALID'):set(0);publish_stores()
+        end
+        return
+    end
+    -- Store edits cancel a pending release before changing its immutable program.
+    if command>=10970 and command<=10974 or command>=10981 and command<=10984 then
+        local down=dofile(LockOn_Options.script_path..'Systems/Input_Value.lua')(value,devices.WEAPON_SYSTEM)>.5
+        if down and (mode_state==7 or mode_state==1)then
+            local was_held=weapon_release_state==1
+            ag_stores:cancel();weapon_release_state=0;pickle_pos=0;pickle_consumed=was_held or pickle_consumed
+            native_command(351);native_pickle_active=false
+            if command==10970 or command==10971 or command==10981 then
+                if command==10981 then ag_stores:select(math.floor(value+.5))else ag_stores:step(command==10970 and -1 or 1)end
+                ag_submode=ag_stores:profile().mode;selected_station=-2;station_refresh=0
+            else
+                ag_stores:edit(command==10972 and 'less' or command==10973 and 'more' or command==10974 and 'interval' or command==10982 and 'profile' or command==10983 and 'unit' or 'pair')
+                ag_submode=ag_stores:profile().mode
+            end
+            publish_stores()
+        end
+        return
+    end
     -- Absolute private controls prevent repeated/late releases from toggling fire ON.
     if command==10800 then
         if value==1 or value==2 or value==3 or value==5 or value==7 then
-            mode_state=value;fire_z_weapons=0;first_state=0;weapon_release_state=0
+            ag_stores:cancel();mode_state=value;fire_z_weapons=0;first_state=0;weapon_release_state=0
+            if value==7 then ag_first_selection=true end
             parameters.HUD_MODE:set(value)
             native_command(85);native_command(351);gun_command_active=false;native_pickle_active=false
             selected_station=-2;station_refresh=0
@@ -247,17 +436,52 @@ function SetCommand(command,value)
         if fire_z_weapons==0 then native_command(85);gun_command_active=false end
         return
     elseif command==10803 then
-        if value<=0 then pickle_consumed=false
-        elseif weapon_release_state==0 and not pickle_consumed then release_baseline=get_param_handle('F22_WEAPON_COUNT'):get() end
+        if value>0 and mode_state==7 and ag_submode==1 then weapon_release_state=0;pickle_pos=0;return end
+        if value<=0 then ag_stores:cancel(true);pickle_consumed=false;ag_consent_target=nil
+        elseif weapon_release_state==0 and not pickle_consumed then
+            release_baseline=get_param_handle('F22_WEAPON_CATEGORY_COUNT'):get()
+            ag_consent_target=mode_state==7 and ag_submode==3 and get_param_handle('F22_AG_TARGET_SEQUENCE'):get()or nil
+            if mode_state==7 then
+                local now=type(get_model_time)=='function' and get_model_time()or diagnostic_clock
+                local point
+                if get_param_handle('HUD_AG_TARGET_VALID'):get()>.5 then point={n=get_param_handle('HUD_AG_MARK_NORTH'):get(),u=get_param_handle('HUD_AG_MARK_ALT'):get(),e=get_param_handle('HUD_AG_MARK_EAST'):get(),sequence=get_param_handle('F22_AG_TARGET_SEQUENCE'):get()}end
+                if not ag_stores:start(now,ag_consent_target,point)then pickle_consumed=true end
+            end
+        end
         weapon_release_state=value>0 and not pickle_consumed and 1 or 0;pickle_pos=weapon_release_state
         if weapon_release_state==0 then native_command(351);native_pickle_active=false end
         return
     elseif command==10804 then
-        local ok,native=pcall(GetDevice,devices.WEAPON_NATIVE)
-        if ok and native and native_ready then choose_station(native,true) end
+        if mode_state==1 then
+            local g=ag_stores:group();local current=target_station()
+            for i,station in ipairs(g and g.stations or {})do if station==current then ag_program_station=g.stations[i%#g.stations+1];break end end
+            ag_stores.entry=nil;publish_stores()
+        else
+            if mode_state==7 then
+                local held=weapon_release_state==1;ag_stores:cancel();weapon_release_state=0;pickle_pos=0;pickle_consumed=held or pickle_consumed
+                native_command(351);native_pickle_active=false
+            end
+            local ok,native=pcall(GetDevice,devices.WEAPON_NATIVE)
+            if ok and native and native_ready then choose_station(native,true)end
+        end
         return
     elseif command==10805 then caged=not caged;return
-    elseif command==10806 then master_arm_state=value>0 and 1 or 0;return end
+    elseif command==10806 then master_arm_state=value>0 and 1 or 0;return
+    elseif command==10807 or command==10808 or command==10809 or command==10813 then
+        local down=dofile(LockOn_Options.script_path..'Systems/Input_Value.lua')(value,devices.WEAPON_SYSTEM)>.5
+        if down and (mode_state==7 or mode_state==1)then
+            local requested=command==10813 and ag_submode%3+1 or command-10806
+            if command==10813 then for _=1,3 do if store_caps.mode_available(ag_stores:group(),requested)then break end;requested=requested%3+1 end end
+            if not store_caps.mode_available(ag_stores:group(),requested)then return end
+            ag_submode=requested
+            ag_stores:cancel();ag_first_selection=false;station_refresh=0;selected_station=-2
+            get_param_handle('F22_AG_SOLUTION_VALID'):set(0)
+            if ag_submode~=1 then ag_stores:profile().mode=ag_submode end
+            weapon_release_state=0;pickle_pos=0;pickle_consumed=false;fire_z_weapons=0
+            native_command(85);native_command(351);gun_command_active=false;native_pickle_active=false
+        end
+        return
+    end
 --WEP JET
 	if command == emer_jet then
 		dispatch_action(nil,178)
@@ -287,6 +511,12 @@ elseif command == 10022 and fire_z_weapons == 1 and parameters.MAIN_POWER:get() 
 	--first_state    = 0
 	dispatch_action(nil,PlaneFireOff)
 end	
+-- Legacy master-mode keys obey the same captured-consent boundary.
+if command==PlaneModeNAV or command==PlaneModeBVR or command==PlaneModeVS or command==PlaneModeBore or command==PlaneModeFI0 or command==PlaneModeCannon or command==PlaneModeGround then
+ local held=weapon_release_state==1
+ ag_stores:cancel(true);weapon_release_state=0;pickle_pos=0;pickle_consumed=held or pickle_consumed
+ native_command(351);native_pickle_active=false
+end
 --Mode States
 	if command == PlaneModeNAV then
 		mode_state = 1
@@ -308,12 +538,13 @@ end
         hud_radar_request = 4
     elseif command == PlaneModeGround then
         mode_state = 7
+        ag_first_selection=true
         hud_radar_request = 0
     elseif command == PlaneRadarChangeMode and mode_state == 2 then
         -- Tracks requested radar presentation; no APG-77 feedback is available.
         hud_radar_request = hud_radar_request == 2 and 1 or 2
     elseif command == ChangeReleaseMode and mode_state == 7 then
-        ag_submode = ag_submode % 3 + 1
+        handle_command(10813,1);return
     end					
 --Master Arm JOYSTICK/KEYBOARD BINDS
 	if (command == 10007 or command == 10008 or command == master_arm_switch) and master_arm_state == 0 then
@@ -337,6 +568,18 @@ end
 
 
 end
+function SetCommand(command,value)
+    handle_command(command,value)
+    -- Cancellation and SAFE must reach the native callback guard within this
+    -- input call, rather than leaving old consent/arm visible for 20 ms.
+    if master_arm_state==0 and (weapon_release_state==1 or ag_stores.program or ag_stores.pending)then
+        local held=weapon_release_state==1;local entry=ag_stores.entry
+        ag_stores:cancel(true);ag_stores.entry=entry
+        weapon_release_state=0;pickle_pos=0;pickle_consumed=held or pickle_consumed
+        native_command(351);native_pickle_active=false
+    end
+    publish_control_state()
+end
 ------------------------------------------------------------------FUNCTION-UPDATE---------------------------------------------------------------------------------------------------
 function update()
     if diagnostic_clock>=next_missile_diag then
@@ -357,7 +600,7 @@ function update()
     station_refresh=station_refresh-update_time_step
     if native_ready and station_refresh<=0 then
         choose_station(native,false);station_refresh=.25
-        if weapon_release_state==1 and get_param_handle('F22_WEAPON_COUNT'):get()<release_baseline then
+        if mode_state~=7 and weapon_release_state==1 and get_param_handle('F22_WEAPON_CATEGORY_COUNT'):get()<release_baseline then
             pickle_consumed=true;weapon_release_state=0;pickle_pos=0
         end
 
@@ -389,14 +632,17 @@ function update()
     local audio_ok,audio_error=pcall(ir_audio.update,ir_audio,mode_state==3 and ir_available and parameters.MAIN_POWER:get()>.5,
         get_param_handle('F22_IR_TYPE4'):get(),get_param_handle('F22_IR_STRENGTH'):get(),
         ir_az or 0,ir_el or 0,get_param_handle('F22_IR_AIM9X_PROFILE'):get()>.5,
-        get_param_handle('F22_MWS_AUDIO_PRIORITY'):get()>.5)
+        get_param_handle('F22_MWS_AUDIO_PRIORITY'):get()>.5 or get_param_handle('F22_PILOT_AUDIO_PRIORITY'):get()>.5)
     get_param_handle('F22_IR_AUDIO_READY'):set(audio_ok and 1 or 0)
     -- An unavailable sound resource must not stop stores, sensors, or displays.
     if not audio_ok and not ir_audio.reported then
         ir_audio.reported=true
         if log and log.write then log.write('F22_IR_AUDIO',log.ERROR,tostring(audio_error)) end
     end
-    get_param_handle('HUD_IR_SEEKER_AVAILABLE'):set(ir_available and ir_az and 1 or 0)
+    local ir_x,ir_y=hud_projection.polar(ir_az,ir_el)
+    get_param_handle('HUD_IR_SEEKER_AVAILABLE'):set(ir_available and ir_x and 1 or 0)
+    get_param_handle('HUD_IR_SEEKER_X_SLOPE'):set(ir_x or 0)
+    get_param_handle('HUD_IR_SEEKER_Y_SLOPE'):set(ir_y or 0)
     get_param_handle('HUD_IR_SEEKER_VALID'):set(mode_state==3 and ir_locked and 1 or 0)
     get_param_handle('HUD_IR_SEEKER_AZ'):set(ir_az or 0)
     get_param_handle('HUD_IR_SEEKER_EL'):set(ir_el and math.atan2(math.sin(ir_el),math.cos(ir_el)*math.cos(ir_az)) or 0)
@@ -407,6 +653,9 @@ function update()
     get_param_handle('HUD_GUN_NATIVE_VALID'):set(valid and 1 or 0)
     get_param_handle('HUD_GUN_NATIVE_AZ'):set(valid and az or 0)
     get_param_handle('HUD_GUN_NATIVE_EL'):set(valid and el or 0)
+    local gun_x,gun_y=hud_projection.planar(az,el)
+    get_param_handle('HUD_GUN_NATIVE_X_SLOPE'):set(gun_x or 0)
+    get_param_handle('HUD_GUN_NATIVE_Y_SLOPE'):set(gun_y or 0)
     gun_funnel:update(native_ready and mode_state==5 and parameters.MAIN_POWER:get()>.5)
     -- Interlock all locally dispatched weapon requests on ground, power loss,
     -- and master-arm loss. Do not confuse gear-down with weight-on-wheels.
@@ -414,6 +663,9 @@ function update()
         and parameters.MAIN_POWER:get() == 1
         and parameters.WoW:get() < 0.5
     if not ready_to_release then
+        local entry=ag_stores.entry
+        ag_stores:cancel(true)
+        if parameters.MAIN_POWER:get()>=.5 then ag_stores.entry=entry end
         if weapon_release_state == 1 then
             weapon_release_state = 0
             pickle_pos = 0
@@ -422,11 +674,21 @@ function update()
         first_state = 0
         detent_pos = 0
     end
+    local ground_gun=mode_state==7 and ag_submode==1
 
     -- Single owner for all bay positions. Independent main/left/right bay
     -- requests, ramped with physical time, no repeated writes/overshoots.
     -- Rate approximations reproduce the earlier intended 0.02s Lua cadence.
     local mainPower = parameters.MAIN_POWER:get() >= 0.5
+    -- The EFM owns hydraulic authority. A GPU supplies electricity, not
+    -- pressure; ground-crew requests therefore obey the same physical supply.
+    local actuatorAuthority=1
+    if get_param_handle('EFM_VEHICLE_VALID'):get()>.5 then
+        local supply=get_param_handle('EFM_ACTUATOR_AVAILABLE'):get()
+        actuatorAuthority=type(supply)=='number'and supply==supply and math.max(0,math.min(1,supply))or 0
+    end
+    get_param_handle('F22_BAY_ACTUATOR_AUTHORITY'):set(actuatorAuthority)
+    get_param_handle('F22_BAY_ACTUATOR_VALID'):set(get_param_handle('EFM_VEHICLE_VALID'):get()>.5 and 1 or 0)
     local groundContact = parameters.WoW:get() >= 0.5
     local selected = math.floor(parameters.BAY_STATION:get() + 0.5)
     if selected < 1 or selected > 4 then
@@ -451,7 +713,7 @@ function update()
         current = math.max(0, math.min(1, current))
         if not powered then return current end
         local target = open and 1 or 0
-        local maximum = rate * update_time_step
+        local maximum = rate * update_time_step * actuatorAuthority
         return math.max(0, math.min(1,
             current + math.max(-maximum, math.min(maximum, target-current))))
     end
@@ -492,13 +754,61 @@ function update()
         get_param_handle('F22_TWS_GUIDANCE_BACKEND_READY'):get()>.5
     get_param_handle('F22_MRM_RELEASE_INHIBIT'):set(mode_state==2 and not mrm_supported and 1 or 0)
     canCommandNativePickle=canCommandNativePickle and mode_state~=3 and (mode_state~=2 or mrm_supported)
+    if mode_state==7 then
+        if ag_consent_target and ag_consent_target~=get_param_handle('F22_AG_TARGET_SEQUENCE'):get()then
+            ag_stores:cancel();weapon_release_state=0;pickle_pos=0;pickle_consumed=true
+        end
+        local now=type(get_model_time)=='function'and get_model_time()or diagnostic_clock
+        if ag_stores.pending then choose_station(native,false)end
+        local solution_age=now-get_param_handle('F22_AG_SOLUTION_TIME'):get()
+        local solution=get_param_handle('F22_AG_SOLUTION_VALID'):get()>.5
+            and get_param_handle('F22_AG_SOLUTION_SCHEMA'):get()==2
+            and solution_age>=0 and solution_age<=.2
+            and get_param_handle('F22_AG_SOLUTION_STATION'):get()==selected_station
+        local guided=get_param_handle('F22_AG_GUIDED_SELECTED'):get()>.5
+        local auto_ready=ag_submode==3 and get_param_handle('F22_AG_AUTO_RELEASE'):get()>.5
+        local permitted=solution and (ag_submode==2 and not guided or auto_ready)
+        if guided then
+            local function r(n)return get_param_handle(n):get()end
+            local cache_age=now-r('F22_AG_GUIDANCE_CACHE_TIME')
+            local cached=r('F22_AG_GUIDANCE_CACHE_VALID')>.5 and cache_age>=-.01 and cache_age<=.2
+                and r('F22_AG_GUIDANCE_CACHE_STATION')==selected_station
+                and r('F22_AG_SOLUTION_SEQUENCE')>0
+                and r('F22_AG_GUIDANCE_CACHE_SOLUTION_SEQUENCE')==r('F22_AG_SOLUTION_SEQUENCE')
+            for _,key in ipairs({'SOURCE','SEQUENCE','N','U','E'})do
+                if r('F22_AG_GUIDANCE_CACHE_TARGET_'..key)~=r('F22_AG_DELIVERY_TARGET_'..key)then cached=false end
+            end
+            permitted=permitted and cached and r('F22_AG_DELIVERY_TARGET_VALID')>.5 and r('F22_AG_GUIDANCE_BACKEND_READY')>.5
+        end
+        local impact={n=get_param_handle('F22_AG_SOLUTION_IMPACT_N'):get(),e=get_param_handle('F22_AG_SOLUTION_IMPACT_E'):get(),vn=get_param_handle('EFM_HUD_VN'):get(),ve=get_param_handle('EFM_HUD_VE'):get()}
+        publish_control_state()
+        if canCommandNativePickle and permitted and not pickle_consumed and ag_stores:due(now,impact)and type(native.launch_station)=='function'then
+            if ag_stores:request(selected_station,station_infos[selected_station],now,impact,get_param_handle('F22_LAUNCH_SEQUENCE'):get())then
+                if log and log.write then
+                    local function r(n)return get_param_handle(n):get()end
+                    local actual_n,actual_u,actual_e=sensor_data.getSelfCoordinates()
+                    log.write('F22_AG_RELEASE',log.INFO,string.format('t=%.3f station=%d mode=%d predicted=(%.3f,%.3f,%.3f) origin=(%.3f,%.3f,%.3f) actual=(%.3f,%.3f,%.3f) velocity=(%.3f,%.3f,%.3f) wind=(%.3f,%.3f,%.3f) pitch=%.4f bank=%.4f delay=%.3f solution_age=%.3f remaining=%d target=(%.3f,%.3f,%.3f) target_source=%.0f target_sequence=%.0f request_time=%.6f native_time=%.6f published_time=%.6f solver_sequence=%.0f prediction_sec=%.6f',now,selected_station,ag_submode,impact.n,r('F22_AG_SOLUTION_IMPACT_U'),impact.e,r('F22_AG_OWN_N'),r('F22_AG_OWN_U'),r('F22_AG_OWN_E'),actual_n,actual_u,actual_e,r('EFM_HUD_VN'),r('EFM_HUD_VU'),r('EFM_HUD_VE'),r('EFM_HUD_WN'),r('EFM_HUD_WU'),r('EFM_HUD_WE'),sensor_data.getPitch(),sensor_data.getRoll(),r('F22_AG_BOMB_RELEASE_DELAY'),solution_age,ag_stores.program.remaining,r('F22_AG_DELIVERY_TARGET_N'),r('F22_AG_DELIVERY_TARGET_U'),r('F22_AG_DELIVERY_TARGET_E'),r('F22_AG_DELIVERY_TARGET_SOURCE'),r('F22_AG_DELIVERY_TARGET_SEQUENCE'),r('F22_AG_SOLUTION_REQUEST_TIME'),r('F22_AG_SOLUTION_NATIVE_TIME'),r('F22_AG_SOLUTION_PUBLICATION_TIME'),r('F22_AG_SOLUTION_SEQUENCE'),r('F22_AG_SOLUTION_PREDICTION_SEC')))
+                end
+                -- A successful call is only a request. Inventory or the native shot
+                -- observer must acknowledge it before another store can be requested.
+                -- Guided permission above requires an actual native cache
+                -- acknowledgement. dispatch_action is queued, so an immediate
+                -- refresh call cannot establish readiness before launch_station.
+                local accepted=pcall(native.launch_station,native,selected_station)
+                if not accepted then ag_stores:fail_request();pickle_consumed=true;weapon_release_state=0;pickle_pos=0 end
+                station_refresh=0;choose_station(native,false)
+            end
+        end
+        publish_stores()
+        canCommandNativePickle=false
+    else get_param_handle('F22_AG_RELEASE_CONSENT'):set(0)end
     if canCommandNativePickle ~= native_pickle_active then
             native_command(canCommandNativePickle and PickleON or PickleOFF)
         native_pickle_active = canCommandNativePickle
     end
 
     -- Gun door has its own hydraulic actuation path, documented by USAF.
-    local cannon_request = mode_state == 5 and mainPower
+    local cannon_request = (mode_state == 5 or ground_gun) and mainPower
         and not groundContact and master_arm_state == 1
         and (first_state == 1 or fire_z_weapons == 1)
     local canon_door_pos = stepDoor(get_aircraft_draw_argument_value(614),
@@ -506,7 +816,7 @@ function update()
     set_aircraft_draw_argument_value(614, canon_door_pos)
     local canon_rotate = get_aircraft_draw_argument_value(615)
     if cannon_request then
-        canon_rotate = (canon_rotate + update_time_step * 2) % 1
+        canon_rotate = (canon_rotate + update_time_step * 2 * (actuatorAuthority>0 and 1 or 0)) % 1
     else
         canon_rotate = 0
     end
@@ -515,9 +825,9 @@ function update()
 		--CANON FIRE
         -- Emit a trigger command only on an actual state transition.
         -- This also guarantees a release when power/ground/arm interlocks change.
-        local can_fire_gun = (native_ready and mode_state == 5 and master_arm_state == 1
+        local can_fire_gun = (native_ready and (mode_state == 5 or ground_gun) and master_arm_state == 1
             and parameters.MAIN_POWER:get() == 1 and parameters.WoW:get() < 0.5
-            and canon_door_pos >= 0.8)
+            and canon_door_pos >= 0.8 and actuatorAuthority>0)
         local gun_requested = (fire_z_weapons == 1 and can_fire_gun)
         if gun_requested ~= gun_command_active then
             native_command(gun_requested and PlaneFire or PlaneFireOff)
@@ -529,7 +839,7 @@ function update()
 	parameters.BAY_C_ARG:set(bay_door_pos)
 	parameters.BAY_L_ARG:set(left_door_pos)
 	parameters.BAY_R_ARG:set(right_door_pos)
-	parameters.MASTER_ARM:set(master_arm_state)
+	publish_control_state()
 	parameters.DOGFIGHT:set(dogfight_mode)
 	parameters.AIR_ORIDE:set(air_oride)
 	parameters.HUD_MODE:set(mode_state)

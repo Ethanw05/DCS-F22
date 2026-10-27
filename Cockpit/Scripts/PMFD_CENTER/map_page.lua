@@ -130,11 +130,11 @@ BGROUND.h_clip_relation     = h_clip_relations.COMPARE
 vertices(BGROUND,3)
 Add(BGROUND)
 ----------------------------------------------------------------------------------------------------------------
-PH_TEXT 					        = CreateElement "ceStringPoly"
+PH_TEXT 					        = CreateElement "ceStringSLine"
 PH_TEXT.name 				        = "menu"
-PH_TEXT.material 			        = UFD_RED
+PH_TEXT.material 			        = "F22_LCD_FONT_RED"
 PH_TEXT.value 				    = "CLASSIFIED"
-PH_TEXT.stringdefs 		        = {0.0099, 0.0099, 0.0004, 0.001}
+PH_TEXT.stringdefs 		        = {0.0099, (0.0099) * 0.60, 0.0004, 0.001}
 PH_TEXT.alignment 			    = "CenterCenter"
 PH_TEXT.formats 			        = {"%s"}
 PH_TEXT.h_clip_relation           = h_clip_relations.COMPARE
@@ -146,16 +146,16 @@ PH_TEXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_ran
 Add(PH_TEXT)
 ----------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------
-MENUTEXT 					    = CreateElement "ceStringPoly"
+MENUTEXT 					    = CreateElement "ceStringSLine"
 MENUTEXT.name 				    = "menu"
-MENUTEXT.material 			    = UFD_FONT
+MENUTEXT.material 			    = "F22_LCD_FONT_WHITE"
 MENUTEXT.value 				    = "MENU"
-MENUTEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
+MENUTEXT.stringdefs 		    = {0.0050, (0.0050) * 0.60, 0.0004, 0.001}
 MENUTEXT.alignment 			    = "CenterCenter"
 MENUTEXT.formats 			    = {"%s"}
 MENUTEXT.h_clip_relation        = h_clip_relations.COMPARE
 MENUTEXT.level 				    = 2
-MENUTEXT.init_pos 			    = {-0.61,-0.975, 0}
+MENUTEXT.init_pos 			    = {0, -0.975, 0}
 MENUTEXT.init_rot 			    = {0, 0, 0}
 MENUTEXT.element_params 	    = {"MFD_OPACITY","PMFD_MAP_PAGE"}
 MENUTEXT.controllers		    =   {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1}}

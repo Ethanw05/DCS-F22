@@ -2,6 +2,7 @@
 local data=get_base_data()
 local mathhud=dofile(LockOn_Options.script_path.."Systems/HUD_FlightMath.lua")
 local layout=dofile(LockOn_Options.script_path.."HUD/layout.lua")
+local projection=dofile(LockOn_Options.script_path.."Systems/HUD_Projection.lua")
 local dt=0.02
 make_default_activity(dt)
 local handles={}
@@ -11,16 +12,24 @@ local function h(name)
 end
 local function put(n,v) h(n):set(v) end
 local function read(n) return h(n):get() end
+-- Native indicators bind during construction, before post_initialize/update.
+-- Publish only render-plane defaults and invalid gates; angular data retain
+-- their existing owner/update contract.
+for _,name in ipairs({"HUD_FPM_X_SLOPE","HUD_FPM_Y_SLOPE","HUD_FPM_VALID",
+    "HUD_AIRDATA_VALID","HUD_WIND_VALID","HUD_GS_VALID","HUD_ALT_VALID","HUD_LANDING_CONFIG",
+    "HUD_EBRACKET_OFFSET","HUD_EBRACKET_VALID"}) do put(name,0) end
 local peak_g=1
 local previous_cas=nil
 local acceleration=0
 local diagnostic_frames=0
+local next_landing_log=0
 function post_initialize()
     peak_g=1; previous_cas=nil; acceleration=0
     put("HUD_FPM_VALID",0); put("HUD_AIRDATA_VALID",0)
-    put("HUD_WIND_VALID",0); put("HUD_GS_VALID",0)
+    put("HUD_WIND_VALID",0); put("HUD_GS_VALID",0);put("HUD_ALT_VALID",0)
 end
 function update()
+    put("HUD_ALT_VALID",0)
     local pitch,roll=data.getPitch(),data.getRoll()
     local heading=(2*math.pi-data.getHeading())%(2*math.pi)
     -- The existing UFD/MFD ADIs use raw getRoll() with rotation gain +1.
@@ -46,10 +55,24 @@ function update()
     put("HUD_G_MAX",peak_g)
     local aoa=data.getAngleOfAttack()*180/math.pi
     put("HUD_AOA_DEG",aoa)
-    local gear=data.getWOW_NoseLandingGear()
+    local base_wow=data.getWOW_NoseLandingGear()
+    local own_contact=read('EFM_GROUND_VALID')>.5
+    local gear=own_contact and read('EFM_WEIGHT_ON_WHEELS') or base_wow
     local gear_down=get_aircraft_draw_argument_value(0)>0.95
+    put("HUD_LANDING_CONFIG",gear_down and 1 or 0)
+    -- Hornet presentation, this aircraft's existing 12-degree approach target.
+    -- AOA error moves the complete bracket relative to the velocity vector.
+    local bracket_valid=gear_down and gear<.5 and mathhud.finite(aoa)
+    put('HUD_EBRACKET_VALID',bracket_valid and 1 or 0)
+    put('HUD_EBRACKET_OFFSET',bracket_valid and math.tan(math.rad(mathhud.clamp(aoa-12,-10,10))) or 0)
     put("HUD_APPROACH_LOW",(gear_down and gear<0.5 and aoa<11.5) and 1 or 0)
     put("HUD_APPROACH_HIGH",(gear_down and gear<0.5 and aoa>12.5) and 1 or 0)
+    local now=type(get_model_time)=='function'and get_model_time()or diagnostic_frames*dt
+    if gear_down and now>=next_landing_log and log and log.write then
+        next_landing_log=now+1
+        log.write('F22_LANDING',log.INFO,string.format('t=%.3f gear_down=1 wow_base=%.0f contact=%.0f contact_native=%s aoa=%.3f bracket=%s offset=%.5f fpm=%.0f loc=%.0f gs=%.0f',
+            now,base_wow,gear,tostring(own_contact),aoa,tostring(bracket_valid),read('HUD_EBRACKET_OFFSET'),read('HUD_FPM_VALID'),read('HUD_ILS_LOC_VALID'),read('HUD_ILS_GS_VALID')))
+    end
     local vs=data.getVerticalVelocity()*196.850394
     put("HUD_VS_ARC_COUNT",math.floor(mathhud.clamp(math.abs(vs)/38000,0,1)*32+0.5))
     put("HUD_VS_SIGN",vs>=0 and 1 or -1)
@@ -70,7 +93,9 @@ function update()
             pitch*180/math.pi,roll*180/math.pi,heading*180/math.pi,aoa,n,e,u,az or 0,el or 0))
     end
     if az and math.abs(az)<0.20 and el> -0.25 and el<0.11 then
-        put("HUD_FPM_X_RAD",az);put("HUD_FPM_Y_RAD",el);put("HUD_FPM_VALID",1)
+        put("HUD_FPM_X_RAD",az);put("HUD_FPM_Y_RAD",el)
+        local x,y=projection.planar(az,el)
+        put("HUD_FPM_X_SLOPE",x);put("HUD_FPM_Y_SLOPE",y);put("HUD_FPM_VALID",1)
     end
     local tas=read("EFM_HUD_TAS")
     local cas=mathhud.cas(tas,read("EFM_HUD_SOUND"),read("EFM_HUD_PRESSURE"))
@@ -79,8 +104,12 @@ function update()
         put("HUD_CAS",cas);put("HUD_TAS",tas*1.943844492)
         -- Negative mathematical rotation gives a clockwise dial needle.
         put("HUD_IAS_POINTER",-(cas%100)*2*math.pi/100)
-        local altitude=data.getBarometricAltitude()*3.280839895
-        put("HUD_ALT_POINTER",-(altitude%1000)*2*math.pi/1000)
+        if read('F22_ALT_BARO_VALID')>.5 then
+            local altitude=read('F22_ALT_BARO_FT')
+            if mathhud.finite(altitude)then
+                put('HUD_ALT_POINTER',-(altitude%1000)*2*math.pi/1000);put('HUD_ALT_VALID',1)
+            end
+        end
         put("HUD_AIRDATA_VALID",1)
         if previous_cas then
             local raw=(cas-previous_cas)/dt

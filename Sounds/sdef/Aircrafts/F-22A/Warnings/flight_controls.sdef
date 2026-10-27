@@ -1,0 +1,4 @@
+wave = "Effects/Aircrafts/F-22A/Warnings/flight_controls"
+inner_radius = 1
+outer_radius = 10
+gain = 1.0

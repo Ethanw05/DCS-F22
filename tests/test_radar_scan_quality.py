@@ -150,8 +150,9 @@ SetCommand(10609,1);pose.heading=0;tick()
 obs={};put('F22N_RADAR_MODE',3);put('F22N_RADAR_STT_RANGE',8000)
 put('F22N_RADAR_STT_AZIMUTH',0);put('F22N_RADAR_STT_ELEVATION',0)
 put('F22N_RADAR_STT_FRIENDLY',0);put('F22_STT_MOTION_VALID',0);tick()
-assert(val('F22_RADAR_SELECTED_QUALITY')==0 and val('F22_SCOPE_01_SOURCE')==0,
- 'unknown STT inherited prior TWS source/quality: '..val('F22_RADAR_SELECTED_QUALITY')..' / '..val('F22_SCOPE_01_SOURCE'))
+assert(val('F22_RADAR_SELECTED_QUALITY')==0 and val('F22_RADAR_STT_VALID')==0,
+ 'untimestamped polar cache became valid STT')
+-- Genuine retained search files may still coast; they cannot become a new lock.
 assert(val('F22_RADAR_SELECTED_FRIENDLY')==0,'new lock inherited previous friendly designation')
 put('F22_STT_MOTION_VALID',1);put('F22_STT_ID',909);put('F22_STT_TIME',now)
 put('F22_STT_PN',0);put('F22_STT_PU',800);put('F22_STT_PE',10000)

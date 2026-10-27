@@ -74,6 +74,8 @@ enum InputCommands
 	gearDown = 431,
 	WheelBrakeOn = 74,
 	WheelBrakeOff = 75,
+	LeftBrakeDemand = 10540, // cockpit-normalized 0..1, distinct main wheels
+	RightBrakeDemand = 10541,
 
 	// Air brake commands
 	AirBrakes = 73,
@@ -87,6 +89,7 @@ enum InputCommands
 
 	// Misc controls
 	resetTrim = 97,
+	trimStop = 215,
 
 	//Autopilot
 	AltitudeHoldOn = 10500, //62,

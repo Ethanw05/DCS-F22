@@ -1,0 +1,428 @@
+{
+  "installed_utc": "2026-10-27T08:59:45.123950+00:00",
+  "destination": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A",
+  "files": [
+    {
+      "path": "Cockpit/Scripts/clickabledata.lua",
+      "before": "f037e3fb2456301d58001a0b8e1ef8ecac7ecc8e95b0b010f159cf7d3d6caf4c",
+      "source": "f037e3fb2456301d58001a0b8e1ef8ecac7ecc8e95b0b010f159cf7d3d6caf4c",
+      "after": "f037e3fb2456301d58001a0b8e1ef8ecac7ecc8e95b0b010f159cf7d3d6caf4c"
+    },
+    {
+      "path": "Cockpit/Scripts/ICP/page_1.lua",
+      "before": "e6c7523511bbb535083753ea52f29e933d432feccaadecd618390396ddf00989",
+      "source": "e6c7523511bbb535083753ea52f29e933d432feccaadecd618390396ddf00989",
+      "after": "e6c7523511bbb535083753ea52f29e933d432feccaadecd618390396ddf00989"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_CENTER/adi_page.lua",
+      "before": "2b54a218eb50cb6978dab7413e8bbb73b1ecc3a345b355ee20de46c200d5a073",
+      "source": "2b54a218eb50cb6978dab7413e8bbb73b1ecc3a345b355ee20de46c200d5a073",
+      "after": "2b54a218eb50cb6978dab7413e8bbb73b1ecc3a345b355ee20de46c200d5a073"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_CENTER/checklist_page.lua",
+      "before": "6c04bd6163337e47d4f32f0df2bc9d3334f86a7005307082887c894eaaa7ff59",
+      "source": "6c04bd6163337e47d4f32f0df2bc9d3334f86a7005307082887c894eaaa7ff59",
+      "after": "6c04bd6163337e47d4f32f0df2bc9d3334f86a7005307082887c894eaaa7ff59"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_CENTER/eng_page.lua",
+      "before": "55613a3dbba2995429f425b99a6d474d4dfef953724d8610284165df6835b5f9",
+      "source": "55613a3dbba2995429f425b99a6d474d4dfef953724d8610284165df6835b5f9",
+      "after": "55613a3dbba2995429f425b99a6d474d4dfef953724d8610284165df6835b5f9"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_CENTER/fcs_page.lua",
+      "before": "bbd362630ab1d3f1305060358289e6f3562527aa3da6002f12325ef560653185",
+      "source": "bbd362630ab1d3f1305060358289e6f3562527aa3da6002f12325ef560653185",
+      "after": "bbd362630ab1d3f1305060358289e6f3562527aa3da6002f12325ef560653185"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_CENTER/fuel_page.lua",
+      "before": "891a182ed5470d8f8bbd320a8bd517f18df70ddcc4aac60c67ee09ab2bf768ad",
+      "source": "891a182ed5470d8f8bbd320a8bd517f18df70ddcc4aac60c67ee09ab2bf768ad",
+      "after": "891a182ed5470d8f8bbd320a8bd517f18df70ddcc4aac60c67ee09ab2bf768ad"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_CENTER/hsi_page.lua",
+      "before": "733618f91ecbefcacaefebee547c352bffd03654e8258f9b5318ffe347149cea",
+      "source": "733618f91ecbefcacaefebee547c352bffd03654e8258f9b5318ffe347149cea",
+      "after": "733618f91ecbefcacaefebee547c352bffd03654e8258f9b5318ffe347149cea"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_CENTER/init.lua",
+      "before": "59fe6492c6ac4a0f09a064da97fb63a3b5a637d79d15c5bace9018a34f15ccb6",
+      "source": "59fe6492c6ac4a0f09a064da97fb63a3b5a637d79d15c5bace9018a34f15ccb6",
+      "after": "59fe6492c6ac4a0f09a064da97fb63a3b5a637d79d15c5bace9018a34f15ccb6"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_CENTER/page.lua",
+      "before": "408b5b3b34a2e6b60b85a461026f28dc6187375ff9316880210964d0be195767",
+      "source": "408b5b3b34a2e6b60b85a461026f28dc6187375ff9316880210964d0be195767",
+      "after": "408b5b3b34a2e6b60b85a461026f28dc6187375ff9316880210964d0be195767"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/adi_page.lua",
+      "before": "4c17c0958de82ab84f56e4c2d5d604cf6d08cee09876ae38c5684d30fa973bdd",
+      "source": "4c17c0958de82ab84f56e4c2d5d604cf6d08cee09876ae38c5684d30fa973bdd",
+      "after": "4c17c0958de82ab84f56e4c2d5d604cf6d08cee09876ae38c5684d30fa973bdd"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/bezel.lua",
+      "before": "01f680ad283ca5c9e422e77e6400e53019b6a48cb38f69f5e535d74a1b2c561c",
+      "source": "01f680ad283ca5c9e422e77e6400e53019b6a48cb38f69f5e535d74a1b2c561c",
+      "after": "01f680ad283ca5c9e422e77e6400e53019b6a48cb38f69f5e535d74a1b2c561c"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/checklist_page.lua",
+      "before": "00e5ad0d2fc9143183c50f4fe61312fcbcf8661be34903b89d01c4d1b6e68b3f",
+      "source": "00e5ad0d2fc9143183c50f4fe61312fcbcf8661be34903b89d01c4d1b6e68b3f",
+      "after": "00e5ad0d2fc9143183c50f4fe61312fcbcf8661be34903b89d01c4d1b6e68b3f"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/eng_page.lua",
+      "before": "c9caa80d9dbf174ce08d458582be68f97d8d32c021bfe8e7e332577a7a610fde",
+      "source": "c9caa80d9dbf174ce08d458582be68f97d8d32c021bfe8e7e332577a7a610fde",
+      "after": "c9caa80d9dbf174ce08d458582be68f97d8d32c021bfe8e7e332577a7a610fde"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/fcs_page.lua",
+      "before": "60f00a4bda61075c87fe2fcdd7399f060341f8f2c02c70358c133a2cc6431e25",
+      "source": "60f00a4bda61075c87fe2fcdd7399f060341f8f2c02c70358c133a2cc6431e25",
+      "after": "60f00a4bda61075c87fe2fcdd7399f060341f8f2c02c70358c133a2cc6431e25"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/formats.lua",
+      "before": "91a6595a22323a7886e3148df6272c4698c85838fbb14b35a9919d71530171fa",
+      "source": "91a6595a22323a7886e3148df6272c4698c85838fbb14b35a9919d71530171fa",
+      "after": "91a6595a22323a7886e3148df6272c4698c85838fbb14b35a9919d71530171fa"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/fuel_page.lua",
+      "before": "7abc1fd411c1b04ffdbd4c69a9e9d91b6902d1e54e3c87cbb8cc8a3ec88b6056",
+      "source": "7abc1fd411c1b04ffdbd4c69a9e9d91b6902d1e54e3c87cbb8cc8a3ec88b6056",
+      "after": "7abc1fd411c1b04ffdbd4c69a9e9d91b6902d1e54e3c87cbb8cc8a3ec88b6056"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/init.lua",
+      "before": "dba34d473fa4f38104f719abea18e7198dd2ba66e7bdcb13f7a58b59fbf16b4f",
+      "source": "dba34d473fa4f38104f719abea18e7198dd2ba66e7bdcb13f7a58b59fbf16b4f",
+      "after": "dba34d473fa4f38104f719abea18e7198dd2ba66e7bdcb13f7a58b59fbf16b4f"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/lcd.lua",
+      "before": "5eaec008700a2258311f16a21606ed4f90f7ed99ecce17fdb077efb83f6ee9c9",
+      "source": "5eaec008700a2258311f16a21606ed4f90f7ed99ecce17fdb077efb83f6ee9c9",
+      "after": "5eaec008700a2258311f16a21606ed4f90f7ed99ecce17fdb077efb83f6ee9c9"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/nav_page.lua",
+      "before": "047aaf5dbad3596cc9dcef4a20159e8bb08e6a333390b54f6b0e059b58b3603c",
+      "source": "047aaf5dbad3596cc9dcef4a20159e8bb08e6a333390b54f6b0e059b58b3603c",
+      "after": "047aaf5dbad3596cc9dcef4a20159e8bb08e6a333390b54f6b0e059b58b3603c"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/stores_page.lua",
+      "before": "b4bfb7e9842d95b7c4129889ff4fda73282889c7f1d08561806197a6acd44d8d",
+      "source": "b4bfb7e9842d95b7c4129889ff4fda73282889c7f1d08561806197a6acd44d8d",
+      "after": "b4bfb7e9842d95b7c4129889ff4fda73282889c7f1d08561806197a6acd44d8d"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_LEFT/adi_page.lua",
+      "before": "cf35e83fa5acb0a2a868243a9685b293cafe5f610db073d4b12db65b670afc13",
+      "source": "cf35e83fa5acb0a2a868243a9685b293cafe5f610db073d4b12db65b670afc13",
+      "after": "cf35e83fa5acb0a2a868243a9685b293cafe5f610db073d4b12db65b670afc13"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_LEFT/checklist_page.lua",
+      "before": "a03c555b7090334e18c0065f1d782f56a25746188fb267d4589c28061913c608",
+      "source": "a03c555b7090334e18c0065f1d782f56a25746188fb267d4589c28061913c608",
+      "after": "a03c555b7090334e18c0065f1d782f56a25746188fb267d4589c28061913c608"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_LEFT/eng_page.lua",
+      "before": "e2402eb1becd8bfd1588161fb610d2af6ad0f8e3f3295566bd63c10a341a106c",
+      "source": "e2402eb1becd8bfd1588161fb610d2af6ad0f8e3f3295566bd63c10a341a106c",
+      "after": "e2402eb1becd8bfd1588161fb610d2af6ad0f8e3f3295566bd63c10a341a106c"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_LEFT/fcs_page.lua",
+      "before": "b66de37f036d5672895f9666403cd3d79116d7de248ef27831dc9f6d134976a2",
+      "source": "b66de37f036d5672895f9666403cd3d79116d7de248ef27831dc9f6d134976a2",
+      "after": "b66de37f036d5672895f9666403cd3d79116d7de248ef27831dc9f6d134976a2"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_LEFT/fuel_page.lua",
+      "before": "4dd165db188c110651e507e41d140bcfb05d3b86b046d6ac7c3902ca90780ce7",
+      "source": "4dd165db188c110651e507e41d140bcfb05d3b86b046d6ac7c3902ca90780ce7",
+      "after": "4dd165db188c110651e507e41d140bcfb05d3b86b046d6ac7c3902ca90780ce7"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_LEFT/hsi_page.lua",
+      "before": "50cfd7dfceb07867f69a842a2981fe4d06e795eab915494771da3f00b61c8e60",
+      "source": "50cfd7dfceb07867f69a842a2981fe4d06e795eab915494771da3f00b61c8e60",
+      "after": "50cfd7dfceb07867f69a842a2981fe4d06e795eab915494771da3f00b61c8e60"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_LEFT/init.lua",
+      "before": "6d45c4c3af5d891077f1ca4a7f2c276ad57a23480efb95a520b3584173c565ba",
+      "source": "6d45c4c3af5d891077f1ca4a7f2c276ad57a23480efb95a520b3584173c565ba",
+      "after": "6d45c4c3af5d891077f1ca4a7f2c276ad57a23480efb95a520b3584173c565ba"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_LEFT/page.lua",
+      "before": "ce6e19e5364840afc08d627fa6116c58747001f72b38a4dae0e616400e5bd89e",
+      "source": "ce6e19e5364840afc08d627fa6116c58747001f72b38a4dae0e616400e5bd89e",
+      "after": "ce6e19e5364840afc08d627fa6116c58747001f72b38a4dae0e616400e5bd89e"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_RIGHT/adi_page.lua",
+      "before": "a46165c614240a3501f301eb5296cd7ebf528fdd6c9611a218f888d97d340719",
+      "source": "a46165c614240a3501f301eb5296cd7ebf528fdd6c9611a218f888d97d340719",
+      "after": "a46165c614240a3501f301eb5296cd7ebf528fdd6c9611a218f888d97d340719"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_RIGHT/checklist_page.lua",
+      "before": "3098298711be6e03cf51827f3d39b6e2aae7e02e21e6944bf811636581ac6ea0",
+      "source": "3098298711be6e03cf51827f3d39b6e2aae7e02e21e6944bf811636581ac6ea0",
+      "after": "3098298711be6e03cf51827f3d39b6e2aae7e02e21e6944bf811636581ac6ea0"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_RIGHT/defensive_detail.lua",
+      "before": "6d8d895cfa7863a82ee5d896d668056da6e213114f2399c4dde8f1772ae79720",
+      "source": "6d8d895cfa7863a82ee5d896d668056da6e213114f2399c4dde8f1772ae79720",
+      "after": "6d8d895cfa7863a82ee5d896d668056da6e213114f2399c4dde8f1772ae79720"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_RIGHT/defensive_overview.lua",
+      "before": "bed0c1a8a21ffdf7f0a3e4fb4f42da00990ac9fb885485f79de5693ba143f6e6",
+      "source": "bed0c1a8a21ffdf7f0a3e4fb4f42da00990ac9fb885485f79de5693ba143f6e6",
+      "after": "bed0c1a8a21ffdf7f0a3e4fb4f42da00990ac9fb885485f79de5693ba143f6e6"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_RIGHT/eng_page.lua",
+      "before": "43e5a518d5597420db4030266f95abd3d23b3db8edf908c71f7c151e6bca71ef",
+      "source": "43e5a518d5597420db4030266f95abd3d23b3db8edf908c71f7c151e6bca71ef",
+      "after": "43e5a518d5597420db4030266f95abd3d23b3db8edf908c71f7c151e6bca71ef"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_RIGHT/fcs_page.lua",
+      "before": "fb2d1c88600d73c2b2d33f637b04fee57fde29c09eca3ff2365ea41044757716",
+      "source": "fb2d1c88600d73c2b2d33f637b04fee57fde29c09eca3ff2365ea41044757716",
+      "after": "fb2d1c88600d73c2b2d33f637b04fee57fde29c09eca3ff2365ea41044757716"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_RIGHT/fuel_page.lua",
+      "before": "0b35069032e2773c076e53b9d45d7aeedda1b96fc9e70241f739ef92afbd98f8",
+      "source": "0b35069032e2773c076e53b9d45d7aeedda1b96fc9e70241f739ef92afbd98f8",
+      "after": "0b35069032e2773c076e53b9d45d7aeedda1b96fc9e70241f739ef92afbd98f8"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_RIGHT/hsi_page.lua",
+      "before": "de9205893a6e9f94ec7331b3a46005bbee2fd6afa93f01df47f8d80612afa1e2",
+      "source": "de9205893a6e9f94ec7331b3a46005bbee2fd6afa93f01df47f8d80612afa1e2",
+      "after": "de9205893a6e9f94ec7331b3a46005bbee2fd6afa93f01df47f8d80612afa1e2"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_RIGHT/init.lua",
+      "before": "9d55e8a33a25250447f278e462e255899eb3afad3f1661e5055e345e803aeff6",
+      "source": "9d55e8a33a25250447f278e462e255899eb3afad3f1661e5055e345e803aeff6",
+      "after": "9d55e8a33a25250447f278e462e255899eb3afad3f1661e5055e345e803aeff6"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_RIGHT/page.lua",
+      "before": "295ebd20e60b48c8d7d0589b806cc7b5abc81712dcac1f97db5cebffe57db95c",
+      "source": "295ebd20e60b48c8d7d0589b806cc7b5abc81712dcac1f97db5cebffe57db95c",
+      "after": "295ebd20e60b48c8d7d0589b806cc7b5abc81712dcac1f97db5cebffe57db95c"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_RIGHT/rwr_page.lua",
+      "before": "4e9a9d80584220c3eb989628aec3408a5fc9515717ed6e9e93e6b3c708f5f7ce",
+      "source": "4e9a9d80584220c3eb989628aec3408a5fc9515717ed6e9e93e6b3c708f5f7ce",
+      "after": "4e9a9d80584220c3eb989628aec3408a5fc9515717ed6e9e93e6b3c708f5f7ce"
+    },
+    {
+      "path": "Cockpit/Scripts/PMFD_CENTER/adi_page.lua",
+      "before": "67584d89284a1e83ff4b69e6fc14d6ea34606810cb2fd3f1a617307543b8d43c",
+      "source": "67584d89284a1e83ff4b69e6fc14d6ea34606810cb2fd3f1a617307543b8d43c",
+      "after": "67584d89284a1e83ff4b69e6fc14d6ea34606810cb2fd3f1a617307543b8d43c"
+    },
+    {
+      "path": "Cockpit/Scripts/PMFD_CENTER/ag_radar_format.lua",
+      "before": "7eb38d70f9658bb194f0e3757f6d41df08ee539a3343e8197b9e486492ca748c",
+      "source": "7eb38d70f9658bb194f0e3757f6d41df08ee539a3343e8197b9e486492ca748c",
+      "after": "7eb38d70f9658bb194f0e3757f6d41df08ee539a3343e8197b9e486492ca748c"
+    },
+    {
+      "path": "Cockpit/Scripts/PMFD_CENTER/checklist_page.lua",
+      "before": "70ce8c7e4461a559cd90a9b0d27923384319073f46f1fed74c22d142d16b49e1",
+      "source": "70ce8c7e4461a559cd90a9b0d27923384319073f46f1fed74c22d142d16b49e1",
+      "after": "70ce8c7e4461a559cd90a9b0d27923384319073f46f1fed74c22d142d16b49e1"
+    },
+    {
+      "path": "Cockpit/Scripts/PMFD_CENTER/eng_page.lua",
+      "before": "a672feca0a41ae75b889fa2c8af3409466008df30f886bb8a1016caae6727734",
+      "source": "a672feca0a41ae75b889fa2c8af3409466008df30f886bb8a1016caae6727734",
+      "after": "a672feca0a41ae75b889fa2c8af3409466008df30f886bb8a1016caae6727734"
+    },
+    {
+      "path": "Cockpit/Scripts/PMFD_CENTER/fcs_page.lua",
+      "before": "f9eec075aee0cfee76292662c9d701ee0459b585d1fbcf50f085ef6f910ac8ed",
+      "source": "f9eec075aee0cfee76292662c9d701ee0459b585d1fbcf50f085ef6f910ac8ed",
+      "after": "f9eec075aee0cfee76292662c9d701ee0459b585d1fbcf50f085ef6f910ac8ed"
+    },
+    {
+      "path": "Cockpit/Scripts/PMFD_CENTER/fuel_page.lua",
+      "before": "a22b2f6eaa1ce70c75065054e911254f4a4a327d805efefb52443f1b946600ae",
+      "source": "a22b2f6eaa1ce70c75065054e911254f4a4a327d805efefb52443f1b946600ae",
+      "after": "a22b2f6eaa1ce70c75065054e911254f4a4a327d805efefb52443f1b946600ae"
+    },
+    {
+      "path": "Cockpit/Scripts/PMFD_CENTER/init.lua",
+      "before": "be8305492ba681145973172df7c6f7663d2ae452556fa030441b7f4f92f93a49",
+      "source": "be8305492ba681145973172df7c6f7663d2ae452556fa030441b7f4f92f93a49",
+      "after": "be8305492ba681145973172df7c6f7663d2ae452556fa030441b7f4f92f93a49"
+    },
+    {
+      "path": "Cockpit/Scripts/PMFD_CENTER/page.lua",
+      "before": "cd0fdfb9a0105028836457c38373e6641444b348f5aa947b9d50bfe9ca4dafac",
+      "source": "cd0fdfb9a0105028836457c38373e6641444b348f5aa947b9d50bfe9ca4dafac",
+      "after": "cd0fdfb9a0105028836457c38373e6641444b348f5aa947b9d50bfe9ca4dafac"
+    },
+    {
+      "path": "Cockpit/Scripts/PMFD_CENTER/radar_format.lua",
+      "before": "a719095efa822e072e2d74b78c34b3672e3347889288fb413a2889b8fa619f02",
+      "source": "a719095efa822e072e2d74b78c34b3672e3347889288fb413a2889b8fa619f02",
+      "after": "a719095efa822e072e2d74b78c34b3672e3347889288fb413a2889b8fa619f02"
+    },
+    {
+      "path": "Cockpit/Scripts/PMFD_CENTER/radar_page.lua",
+      "before": "8b353b0beb5eab242730d4801f75a45394686f957e37ae8ee3059fe5d2288bf8",
+      "source": "8b353b0beb5eab242730d4801f75a45394686f957e37ae8ee3059fe5d2288bf8",
+      "after": "8b353b0beb5eab242730d4801f75a45394686f957e37ae8ee3059fe5d2288bf8"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Combat_Logic.lua",
+      "before": "0ded19aa39ae58343e4be71203dade0ca897410d52e3c2179234faadf8f99786",
+      "source": "0ded19aa39ae58343e4be71203dade0ca897410d52e3c2179234faadf8f99786",
+      "after": "0ded19aa39ae58343e4be71203dade0ca897410d52e3c2179234faadf8f99786"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Combat_System.lua",
+      "before": "ca65999a015c1b80790f33e140f00df22c1fee5e9964cf728bffd504813f7227",
+      "source": "ca65999a015c1b80790f33e140f00df22c1fee5e9964cf728bffd504813f7227",
+      "after": "ca65999a015c1b80790f33e140f00df22c1fee5e9964cf728bffd504813f7227"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Defensive_Overview.lua",
+      "before": "35ba4f5209166192ec030ba27eae17459dfd5a704dca63c7d8d1efe35391de8c",
+      "source": "35ba4f5209166192ec030ba27eae17459dfd5a704dca63c7d8d1efe35391de8c",
+      "after": "35ba4f5209166192ec030ba27eae17459dfd5a704dca63c7d8d1efe35391de8c"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Display_Routing.lua",
+      "before": "1648706631684cee65c79d5c32de19bfb5b4f8cda2fb35a13ae2fd5c9a409ecd",
+      "source": "1648706631684cee65c79d5c32de19bfb5b4f8cda2fb35a13ae2fd5c9a409ecd",
+      "after": "1648706631684cee65c79d5c32de19bfb5b4f8cda2fb35a13ae2fd5c9a409ecd"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Flight_Guidance.lua",
+      "before": "501a1347c71d9d08e3e3dc79c7fb6407aa4e2d965d2f3c667f73e6b7ffc219f1",
+      "source": "501a1347c71d9d08e3e3dc79c7fb6407aa4e2d965d2f3c667f73e6b7ffc219f1",
+      "after": "501a1347c71d9d08e3e3dc79c7fb6407aa4e2d965d2f3c667f73e6b7ffc219f1"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/ICP_System.lua",
+      "before": "cc222a976f892c05687d207288a9ebd1f1ae0444ffad36c596182ec19b0b3519",
+      "source": "3b2a6af06c46a2aa8504df988b844ce73ab071fc8cf6a478bb061d30bb474168",
+      "after": "3b2a6af06c46a2aa8504df988b844ce73ab071fc8cf6a478bb061d30bb474168"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/MFD_Controller.lua",
+      "before": "655dae4b0b3bddec9d0d5ea7927b3bfebff5f52334e5bf90efaa6519fad20f70",
+      "source": "9ae48e1d99c3196bbc804d048b39c085a4a2b7d690114e35879429711b6704d3",
+      "after": "9ae48e1d99c3196bbc804d048b39c085a4a2b7d690114e35879429711b6704d3"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/MFD_Controls.lua",
+      "before": "b0d421d7e0780c69075789bc9a42ddcb289a384007026ad7ba3d1214a712295e",
+      "source": "b0d421d7e0780c69075789bc9a42ddcb289a384007026ad7ba3d1214a712295e",
+      "after": "b0d421d7e0780c69075789bc9a42ddcb289a384007026ad7ba3d1214a712295e"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/MFD_System.lua",
+      "before": "6bec18b1ece3be5bdeeca08dc7e8a14dd66b7d65390cd83cc4c87eecdf2a2c2b",
+      "source": "fce983011bd3e1ddba7a5fd1ab58eb89c667db492d4242194c02cb033bce5af9",
+      "after": "fce983011bd3e1ddba7a5fd1ab58eb89c667db492d4242194c02cb033bce5af9"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Nav_Display_Controls.lua",
+      "before": "bfb999bb25169c621497e6c235f2f4e2ea7355a3db9a2915b062bccec1d1963c",
+      "source": "bfb999bb25169c621497e6c235f2f4e2ea7355a3db9a2915b062bccec1d1963c",
+      "after": "bfb999bb25169c621497e6c235f2f4e2ea7355a3db9a2915b062bccec1d1963c"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Pilot_Warning_System.lua",
+      "before": "e0eaca32c3707b7f49f3d5eea115f32b8e2cb1a50cbd372ee64b7586c3c1af3d",
+      "source": "e0eaca32c3707b7f49f3d5eea115f32b8e2cb1a50cbd372ee64b7586c3c1af3d",
+      "after": "e0eaca32c3707b7f49f3d5eea115f32b8e2cb1a50cbd372ee64b7586c3c1af3d"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/PMFD_System.lua",
+      "before": "b5feb0dab6b3993db07f9b5931c031df921f3e25db604da7940b647e1b80e761",
+      "source": "598f5432e7e37ac2117f8719b09a38acba0af57095b95fc6ecab74ef41fa70ca",
+      "after": "598f5432e7e37ac2117f8719b09a38acba0af57095b95fc6ecab74ef41fa70ca"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Sensor_Control.lua",
+      "before": "ee50352df3b552dd14502ba52e5c5e04a04aef6a1e17467882e1ecbe489bb419",
+      "source": "ee50352df3b552dd14502ba52e5c5e04a04aef6a1e17467882e1ecbe489bb419",
+      "after": "ee50352df3b552dd14502ba52e5c5e04a04aef6a1e17467882e1ecbe489bb419"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/UFC_Controller.lua",
+      "before": "5e470aa8b0d28e25ce6717127f47eb52c88e327f3d6966b169e50ef566051e54",
+      "source": "5e470aa8b0d28e25ce6717127f47eb52c88e327f3d6966b169e50ef566051e54",
+      "after": "5e470aa8b0d28e25ce6717127f47eb52c88e327f3d6966b169e50ef566051e54"
+    },
+    {
+      "path": "Input/F-22A/keyboard/default.lua",
+      "before": "06a46309a93c211613158764cb6f0f26265f6d24800bafa28551dc8b4f448a65",
+      "source": "2b7175c71a2272b3c4531c5718c526b5a630c85f35caf4a744fda69b9bb5947c",
+      "after": "06a46309a93c211613158764cb6f0f26265f6d24800bafa28551dc8b4f448a65"
+    },
+    {
+      "path": "Input/F-22A/joystick/default.lua",
+      "before": "c56b982db13f0d2a9fe70ce3379103298aae5e05f22b8adb5b790f76e64c0d30",
+      "source": "45e6081062a1531664e30ece226ce192def216fc7711d8dffc732ccaa39efd52",
+      "after": "c56b982db13f0d2a9fe70ce3379103298aae5e05f22b8adb5b790f76e64c0d30"
+    }
+  ],
+  "protected_unchanged": {
+    "Cockpit/Scripts/HUD/ag.lua": "1d3b9bace2e609c21f0eca43fc3c1d67896e24b82608d42e7dc8a2e2e146d14d",
+    "Cockpit/Scripts/HUD/engagement.lua": "e55a679201412a098fa5343de16943a7ca393665810e6bc6cedc4edb99507b7d",
+    "Cockpit/Scripts/HUD/font.lua": "20106f48a9878ec53f32596e1aec5936cca55d3d1394845077c4a6a54b5eebb6",
+    "Cockpit/Scripts/HUD/glass.lua": "3e84100c6d45bc6ddee883cc897e6e63c56870254f76fc0055dd28b41162101d",
+    "Cockpit/Scripts/HUD/gun_funnel.lua": "2dab105de98cf0f13092f0a938350067a4a26fc192f13ac3f9d8645ec6679b4b",
+    "Cockpit/Scripts/HUD/gun_maneuver.lua": "f1bfe3348454a50bbf9fb95479369839914bc7eedfed864d5925334a4ca7f359",
+    "Cockpit/Scripts/HUD/gun_reticle.lua": "0d05f07b6c73191128570676864434dec2cd15663c2da53b9ce2b32cb0fb47d8",
+    "Cockpit/Scripts/HUD/init.lua": "ca74e34884fb7a2a50dad52aa060f0b643e4fa1f06f6d408d0187fc5fc7f78fa",
+    "Cockpit/Scripts/HUD/landing.lua": "5b6c68ff6169be7737892018ada8f67061b9112fa2ba79a4d134c0c4fac4e42a",
+    "Cockpit/Scripts/HUD/layout.lua": "173b492dcfcc32ae62ed2c6da3407b74fbb9582c7c5d619d5e8821d2d40ce570",
+    "Cockpit/Scripts/HUD/navigation.lua": "ef986e05410e4d46a6622897d33a5826e973b44be3cb35052829223a53dda9fb",
+    "Cockpit/Scripts/HUD/optics.lua": "6a859ced93bcc37e6f04e961a0c516b0daa7d89d5196203058766eb7c5cae388",
+    "Cockpit/Scripts/HUD/page.lua": "2422373f07a0222152f85ffcb1fc2493d784161299256f009de7ebdc792fe1b4",
+    "Cockpit/Scripts/HUD/pilot_warnings.lua": "e5073b27dfd6c1c9ae5d235a9e1a196d72505396b45569d2f94893c744a6dcf2",
+    "Cockpit/Scripts/HUD/style.lua": "ffefe87b0f2a5ec3573a7b9e8ad5ae24043bb7ca6a19b6a2eaf4832c412ef3e6",
+    "Cockpit/Scripts/HUD/tactical_page.lua": "ce4dca116f1e4e77ade1a41b6cbf536de3560c532de8d9517a158ea4f6582f19",
+    "Cockpit/Scripts/UFD_LEFT/base_page.lua": "9f6fcbd4bba26dd27bc78bd620b1118f0026116a3f436ed09f02d6dd715a620c",
+    "Cockpit/Scripts/UFD_LEFT/definitions.lua": "8627aecf2e5c357fd776626c799bd95b03a34eba7b87cd5f618245baa33615d6",
+    "Cockpit/Scripts/UFD_LEFT/ew_page.lua": "2c988c71a3d16e31672f668cd5ffc9c88d6c3fb2aea825cc66f1facf1bac839e",
+    "Cockpit/Scripts/UFD_LEFT/init.lua": "51bc2f9325b0710443ccc3dd82404ec28a2e3f345c43cd88e48e79d484720be1",
+    "Cockpit/Scripts/UFD_RIGHT/base_page.lua": "804b3ab7c7404fa8d8e62e7ba6c96c2aa75bd9eec4aaed9eaa6972e38672ddc1",
+    "Cockpit/Scripts/UFD_RIGHT/definitions.lua": "b9fc1af86af2ccd82a405d2fb8c29be857d17f99b8ab497b448185b39fbb9cd1",
+    "Cockpit/Scripts/UFD_RIGHT/init.lua": "74e9df97021c3e29ce5ca40cd2b30c68843e1855bcb2e586fb1c4d1465d41cf7",
+    "bin/f22.dll": "1bb7001769c7da38a03fa7e2822576833f45e83d851613ca0ff511f459231393"
+  }
+}

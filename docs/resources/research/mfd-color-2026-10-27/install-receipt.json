@@ -1,0 +1,50 @@
+{
+  "installed_utc": "2026-10-27T10:05:08.612480+00:00",
+  "destination": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A",
+  "files": [
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/radar_palette.lua",
+      "before": null,
+      "source": "6ac7dc4f2d38f4e5c47406da68f6f00fd852ac71aaaafeb69f6963623b74e7be",
+      "after": "6ac7dc4f2d38f4e5c47406da68f6f00fd852ac71aaaafeb69f6963623b74e7be"
+    },
+    {
+      "path": "Cockpit/Scripts/materials.lua",
+      "before": "42cf36426c3b3a54ebdf5c7855c16a1c17bd0a92ee965b0d21784ec1f0bc7d5d",
+      "source": "21ce9d9295588b6f6c71df5c289cf1d7c25b2a27dcbb8dc5a6963277c90d00c8",
+      "after": "21ce9d9295588b6f6c71df5c289cf1d7c25b2a27dcbb8dc5a6963277c90d00c8"
+    },
+    {
+      "path": "Cockpit/Scripts/PMFD_CENTER/radar_format.lua",
+      "before": "a719095efa822e072e2d74b78c34b3672e3347889288fb413a2889b8fa619f02",
+      "source": "7572275d2b10493b90b9bb2142ab4180ee1ae8c2ea23edf5bc377d24acbfba18",
+      "after": "7572275d2b10493b90b9bb2142ab4180ee1ae8c2ea23edf5bc377d24acbfba18"
+    }
+  ],
+  "protected_unchanged": {
+    "Cockpit/Scripts/HUD/ag.lua": "1d3b9bace2e609c21f0eca43fc3c1d67896e24b82608d42e7dc8a2e2e146d14d",
+    "Cockpit/Scripts/HUD/engagement.lua": "e55a679201412a098fa5343de16943a7ca393665810e6bc6cedc4edb99507b7d",
+    "Cockpit/Scripts/HUD/font.lua": "20106f48a9878ec53f32596e1aec5936cca55d3d1394845077c4a6a54b5eebb6",
+    "Cockpit/Scripts/HUD/glass.lua": "3e84100c6d45bc6ddee883cc897e6e63c56870254f76fc0055dd28b41162101d",
+    "Cockpit/Scripts/HUD/gun_funnel.lua": "2dab105de98cf0f13092f0a938350067a4a26fc192f13ac3f9d8645ec6679b4b",
+    "Cockpit/Scripts/HUD/gun_maneuver.lua": "f1bfe3348454a50bbf9fb95479369839914bc7eedfed864d5925334a4ca7f359",
+    "Cockpit/Scripts/HUD/gun_reticle.lua": "0d05f07b6c73191128570676864434dec2cd15663c2da53b9ce2b32cb0fb47d8",
+    "Cockpit/Scripts/HUD/init.lua": "ca74e34884fb7a2a50dad52aa060f0b643e4fa1f06f6d408d0187fc5fc7f78fa",
+    "Cockpit/Scripts/HUD/landing.lua": "5b6c68ff6169be7737892018ada8f67061b9112fa2ba79a4d134c0c4fac4e42a",
+    "Cockpit/Scripts/HUD/layout.lua": "173b492dcfcc32ae62ed2c6da3407b74fbb9582c7c5d619d5e8821d2d40ce570",
+    "Cockpit/Scripts/HUD/navigation.lua": "ef986e05410e4d46a6622897d33a5826e973b44be3cb35052829223a53dda9fb",
+    "Cockpit/Scripts/HUD/optics.lua": "6a859ced93bcc37e6f04e961a0c516b0daa7d89d5196203058766eb7c5cae388",
+    "Cockpit/Scripts/HUD/page.lua": "2422373f07a0222152f85ffcb1fc2493d784161299256f009de7ebdc792fe1b4",
+    "Cockpit/Scripts/HUD/pilot_warnings.lua": "e5073b27dfd6c1c9ae5d235a9e1a196d72505396b45569d2f94893c744a6dcf2",
+    "Cockpit/Scripts/HUD/style.lua": "ffefe87b0f2a5ec3573a7b9e8ad5ae24043bb7ca6a19b6a2eaf4832c412ef3e6",
+    "Cockpit/Scripts/HUD/tactical_page.lua": "ce4dca116f1e4e77ade1a41b6cbf536de3560c532de8d9517a158ea4f6582f19",
+    "Cockpit/Scripts/UFD_LEFT/base_page.lua": "9f6fcbd4bba26dd27bc78bd620b1118f0026116a3f436ed09f02d6dd715a620c",
+    "Cockpit/Scripts/UFD_LEFT/definitions.lua": "8627aecf2e5c357fd776626c799bd95b03a34eba7b87cd5f618245baa33615d6",
+    "Cockpit/Scripts/UFD_LEFT/ew_page.lua": "2c988c71a3d16e31672f668cd5ffc9c88d6c3fb2aea825cc66f1facf1bac839e",
+    "Cockpit/Scripts/UFD_LEFT/init.lua": "51bc2f9325b0710443ccc3dd82404ec28a2e3f345c43cd88e48e79d484720be1",
+    "Cockpit/Scripts/UFD_RIGHT/base_page.lua": "804b3ab7c7404fa8d8e62e7ba6c96c2aa75bd9eec4aaed9eaa6972e38672ddc1",
+    "Cockpit/Scripts/UFD_RIGHT/definitions.lua": "b9fc1af86af2ccd82a405d2fb8c29be857d17f99b8ab497b448185b39fbb9cd1",
+    "Cockpit/Scripts/UFD_RIGHT/init.lua": "74e9df97021c3e29ce5ca40cd2b30c68843e1855bcb2e586fb1c4d1465d41cf7",
+    "bin/f22.dll": "1bb7001769c7da38a03fa7e2822576833f45e83d851613ca0ff511f459231393"
+  }
+}

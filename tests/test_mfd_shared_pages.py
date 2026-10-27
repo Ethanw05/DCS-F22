@@ -1,7 +1,7 @@
 """Snapshot guards for the original shared pages and intentional native NAV format."""
 from pathlib import Path
 import hashlib,json,sys
-from lupa import lua_type
+from lupa.lua51 import lua_type
 from test_display_startup import runtime
 ROOT=Path(__file__).resolve().parents[1]
 FIXTURE=ROOT/'tests/fixtures/mfd_page_elements.json'

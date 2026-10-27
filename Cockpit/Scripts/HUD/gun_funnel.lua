@@ -6,8 +6,8 @@ return function(api,parent,reference_y)
     for i=1,6 do for _,side in ipairs({'L','R'}) do
         local a=string.format('HUD_FUNNEL_%02d_',i)
         local b=string.format('HUD_FUNNEL_%02d_',i+1)
-        api.dynamic_line(root..'_'..side..'_'..i,a..side..'_X',a..side..'_Y',
-            b..side..'_X',b..side..'_Y',a..'VALID',b..'VALID',root)
+        api.dynamic_line(root..'_'..side..'_'..i,a..side..'_X_SLOPE',a..side..'_Y_SLOPE',
+            b..side..'_X_SLOPE',b..side..'_Y_SLOPE',a..'VALID',b..'VALID',root)
     end end
     api.label(-.40,-.74,'F22_GUN_WINGSPAN_M','SPAN %.0f M',.019,parent)
 end

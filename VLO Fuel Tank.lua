@@ -26,7 +26,7 @@ declare_loadout({
     Weight_Empty	= 180,
 	Weight			= 180 + 605 * GALLON_TO_KG,
 	Cx_pil			= 0,
-	displayName		= _("LDTP Fuel tank 600 gal"),
+	displayName		= _("LDTP Fuel tank 605 gal"),
 	
 
 		shape_table_data = 

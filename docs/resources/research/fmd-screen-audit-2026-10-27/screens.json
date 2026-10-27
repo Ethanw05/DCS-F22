@@ -1,0 +1,5734 @@
+[
+  {
+    "id": "lmfd-menu",
+    "title": "LMFD menu",
+    "page": "MFD_LEFT/menu_page.lua",
+    "param": "LMFD_MENU_PAGE",
+    "group": "menus",
+    "params": {},
+    "element_count": 12,
+    "visible_text": [
+      {
+        "text": "FUEL",
+        "x": 0.8265,
+        "y": 0.399,
+        "name": "F22_MENU_LMFD_3"
+      },
+      {
+        "text": "NAV",
+        "x": -0.2684,
+        "y": 0.874,
+        "name": "F22_MENU_LMFD_4"
+      },
+      {
+        "text": "CHECKS",
+        "x": 0.8265,
+        "y": -0.133,
+        "name": "F22_MENU_LMFD_5"
+      },
+      {
+        "text": "STORES",
+        "x": 0.0,
+        "y": 0.874,
+        "name": "F22_MENU_LMFD_6"
+      },
+      {
+        "text": "ENG",
+        "x": 0.2684,
+        "y": 0.874,
+        "name": "F22_MENU_LMFD_7"
+      },
+      {
+        "text": "FCS",
+        "x": 0.5367,
+        "y": 0.874,
+        "name": "F22_MENU_LMFD_8"
+      },
+      {
+        "text": "ADI",
+        "x": 0.8265,
+        "y": 0.133,
+        "name": "F22_MENU_LMFD_9"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.874,
+        "name": "F22_MENU_LMFD_10"
+      }
+    ]
+  },
+  {
+    "id": "rmfd-menu",
+    "title": "RMFD menu",
+    "page": "MFD_RIGHT/menu_page.lua",
+    "param": "RMFD_MENU_PAGE",
+    "group": "menus",
+    "params": {},
+    "element_count": 13,
+    "visible_text": [
+      {
+        "text": "FUEL",
+        "x": 0.8265,
+        "y": 0.399,
+        "name": "F22_MENU_RMFD_3"
+      },
+      {
+        "text": "NAV",
+        "x": -0.2684,
+        "y": 0.874,
+        "name": "F22_MENU_RMFD_4"
+      },
+      {
+        "text": "CHECKS",
+        "x": 0.8265,
+        "y": -0.133,
+        "name": "F22_MENU_RMFD_5"
+      },
+      {
+        "text": "STORES",
+        "x": 0.0,
+        "y": 0.874,
+        "name": "F22_MENU_RMFD_6"
+      },
+      {
+        "text": "DEF",
+        "x": -0.5367,
+        "y": 0.874,
+        "name": "F22_MENU_RMFD_7"
+      },
+      {
+        "text": "ENG",
+        "x": 0.2684,
+        "y": 0.874,
+        "name": "F22_MENU_RMFD_8"
+      },
+      {
+        "text": "FCS",
+        "x": 0.5367,
+        "y": 0.874,
+        "name": "F22_MENU_RMFD_9"
+      },
+      {
+        "text": "ADI",
+        "x": 0.8265,
+        "y": 0.133,
+        "name": "F22_MENU_RMFD_10"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.874,
+        "name": "F22_MENU_RMFD_11"
+      }
+    ]
+  },
+  {
+    "id": "cmfd-menu",
+    "title": "CMFD menu",
+    "page": "MFD_CENTER/menu_page.lua",
+    "param": "CMFD_MENU_PAGE",
+    "group": "menus",
+    "params": {},
+    "element_count": 13,
+    "visible_text": [
+      {
+        "text": "FUEL",
+        "x": 0.8265,
+        "y": 0.399,
+        "name": "F22_MENU_CMFD_3"
+      },
+      {
+        "text": "NAV",
+        "x": -0.2684,
+        "y": 0.874,
+        "name": "F22_MENU_CMFD_4"
+      },
+      {
+        "text": "CHECKS",
+        "x": 0.8265,
+        "y": -0.133,
+        "name": "F22_MENU_CMFD_5"
+      },
+      {
+        "text": "STORES",
+        "x": 0.0,
+        "y": 0.874,
+        "name": "F22_MENU_CMFD_6"
+      },
+      {
+        "text": "TSD",
+        "x": -0.5367,
+        "y": 0.874,
+        "name": "F22_MENU_CMFD_7"
+      },
+      {
+        "text": "ENG",
+        "x": 0.2684,
+        "y": 0.874,
+        "name": "F22_MENU_CMFD_8"
+      },
+      {
+        "text": "FCS",
+        "x": 0.5367,
+        "y": 0.874,
+        "name": "F22_MENU_CMFD_9"
+      },
+      {
+        "text": "ADI",
+        "x": 0.8265,
+        "y": 0.133,
+        "name": "F22_MENU_CMFD_10"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.874,
+        "name": "F22_MENU_CMFD_11"
+      }
+    ]
+  },
+  {
+    "id": "pmfd-menu",
+    "title": "PMFD menu",
+    "page": "PMFD_CENTER/menu_page.lua",
+    "param": "PMFD_MENU_PAGE",
+    "group": "menus",
+    "params": {},
+    "element_count": 9,
+    "visible_text": [
+      {
+        "text": "TSD",
+        "x": -0.5367,
+        "y": 0.874,
+        "name": "F22_PMFD_MENU_3"
+      },
+      {
+        "text": "NAV",
+        "x": -0.2684,
+        "y": 0.874,
+        "name": "F22_PMFD_MENU_4"
+      },
+      {
+        "text": "STORES",
+        "x": 0.0,
+        "y": 0.874,
+        "name": "F22_PMFD_MENU_5"
+      },
+      {
+        "text": "SYSTEMS",
+        "x": 0.2684,
+        "y": 0.874,
+        "name": "F22_PMFD_MENU_6"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.874,
+        "name": "F22_PMFD_MENU_7"
+      }
+    ]
+  },
+  {
+    "id": "systems",
+    "title": "PMFD systems selector",
+    "page": "PMFD_CENTER/sys_page.lua",
+    "param": "PMFD_SYS_PAGE",
+    "group": "menus",
+    "params": {},
+    "element_count": 10,
+    "visible_text": [
+      {
+        "text": "ENG",
+        "x": -0.5367,
+        "y": 0.874,
+        "name": "F22_PMFD_SYSTEMS_3"
+      },
+      {
+        "text": "FCS",
+        "x": -0.2684,
+        "y": 0.874,
+        "name": "F22_PMFD_SYSTEMS_4"
+      },
+      {
+        "text": "FUEL",
+        "x": 0.0,
+        "y": 0.874,
+        "name": "F22_PMFD_SYSTEMS_5"
+      },
+      {
+        "text": "ADI",
+        "x": 0.2684,
+        "y": 0.874,
+        "name": "F22_PMFD_SYSTEMS_6"
+      },
+      {
+        "text": "CHECKS",
+        "x": 0.5367,
+        "y": 0.874,
+        "name": "F22_PMFD_SYSTEMS_7"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.874,
+        "name": "F22_PMFD_SYSTEMS_8"
+      }
+    ]
+  },
+  {
+    "id": "radar-rws",
+    "title": "TSD / RWS",
+    "page": "PMFD_CENTER/radar_page.lua",
+    "param": "PMFD_RDR_PAGE",
+    "group": "sensors",
+    "params": {
+      "F22_RADAR_MODE_CODE": 2,
+      "HUD_MODE": 2
+    },
+    "element_count": 7870,
+    "visible_text": [
+      {
+        "text": "000",
+        "x": 0.0,
+        "y": 0.8873,
+        "name": "F22_RDR_TEXT_418"
+      },
+      {
+        "text": "LDR",
+        "x": -0.992,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_425"
+      },
+      {
+        "text": "30 S",
+        "x": -0.992,
+        "y": 0.8312,
+        "name": "F22_RDR_TEXT_426"
+      },
+      {
+        "text": "RWS",
+        "x": 0.7505,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_429"
+      },
+      {
+        "text": "40",
+        "x": 0.684,
+        "y": 0.5605,
+        "name": "F22_RDR_TEXT_438"
+      },
+      {
+        "text": "20",
+        "x": 0.3895,
+        "y": -0.0617,
+        "name": "F22_RDR_TEXT_439"
+      },
+      {
+        "text": "RNG IN",
+        "x": -0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3876"
+      },
+      {
+        "text": "RNG OUT",
+        "x": -0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3877"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3878"
+      },
+      {
+        "text": "EMIT",
+        "x": 0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3879"
+      },
+      {
+        "text": "RWS/TWS",
+        "x": 0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3880"
+      },
+      {
+        "text": "PRI",
+        "x": -0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3930"
+      },
+      {
+        "text": "SEC",
+        "x": -0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3931"
+      },
+      {
+        "text": "SWAP",
+        "x": 0.0,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3933"
+      },
+      {
+        "text": "CLR2",
+        "x": 0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3934"
+      },
+      {
+        "text": "IFF",
+        "x": 0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3935"
+      },
+      {
+        "text": "AZ 0",
+        "x": -0.992,
+        "y": 0.57,
+        "name": "F22_RDR_TEXT_3991"
+      },
+      {
+        "text": "HT 0",
+        "x": -0.992,
+        "y": 0.228,
+        "name": "F22_RDR_TEXT_3993"
+      },
+      {
+        "text": "EL UP",
+        "x": -0.992,
+        "y": -0.114,
+        "name": "F22_RDR_TEXT_3995"
+      },
+      {
+        "text": "EL DN",
+        "x": -0.992,
+        "y": -0.456,
+        "name": "F22_RDR_TEXT_3997"
+      },
+      {
+        "text": "CNTR",
+        "x": -0.992,
+        "y": -0.798,
+        "name": "F22_RDR_TEXT_3999"
+      },
+      {
+        "text": "EL +0",
+        "x": -0.992,
+        "y": -0.1995,
+        "name": "F22_RDR_TEXT_4000"
+      },
+      {
+        "text": "SCAN MAN",
+        "x": 0.0,
+        "y": -0.722,
+        "name": "F22_RDR_TEXT_4001"
+      },
+      {
+        "text": "AZ 60",
+        "x": -0.133,
+        "y": -0.7742,
+        "name": "F22_RDR_TEXT_4003"
+      },
+      {
+        "text": "HT 12",
+        "x": 0.1425,
+        "y": -0.7742,
+        "name": "F22_RDR_TEXT_4004"
+      },
+      {
+        "text": "EL +0",
+        "x": 0.0,
+        "y": -0.8217,
+        "name": "F22_RDR_TEXT_4005"
+      }
+    ]
+  },
+  {
+    "id": "radar-tws",
+    "title": "TSD / TWS",
+    "page": "PMFD_CENTER/radar_page.lua",
+    "param": "PMFD_RDR_PAGE",
+    "group": "sensors",
+    "params": {
+      "F22_RADAR_MODE_CODE": 3,
+      "HUD_MODE": 2
+    },
+    "element_count": 7870,
+    "visible_text": [
+      {
+        "text": "000",
+        "x": 0.0,
+        "y": 0.8873,
+        "name": "F22_RDR_TEXT_418"
+      },
+      {
+        "text": "LDR",
+        "x": -0.992,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_425"
+      },
+      {
+        "text": "30 S",
+        "x": -0.992,
+        "y": 0.8312,
+        "name": "F22_RDR_TEXT_426"
+      },
+      {
+        "text": "TWS",
+        "x": 0.7505,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_430"
+      },
+      {
+        "text": "40",
+        "x": 0.684,
+        "y": 0.5605,
+        "name": "F22_RDR_TEXT_438"
+      },
+      {
+        "text": "20",
+        "x": 0.3895,
+        "y": -0.0617,
+        "name": "F22_RDR_TEXT_439"
+      },
+      {
+        "text": "RNG IN",
+        "x": -0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3876"
+      },
+      {
+        "text": "RNG OUT",
+        "x": -0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3877"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3878"
+      },
+      {
+        "text": "EMIT",
+        "x": 0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3879"
+      },
+      {
+        "text": "RWS/TWS",
+        "x": 0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3880"
+      },
+      {
+        "text": "PRI",
+        "x": -0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3930"
+      },
+      {
+        "text": "SEC",
+        "x": -0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3931"
+      },
+      {
+        "text": "SWAP",
+        "x": 0.0,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3933"
+      },
+      {
+        "text": "CLR2",
+        "x": 0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3934"
+      },
+      {
+        "text": "IFF",
+        "x": 0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3935"
+      },
+      {
+        "text": "AZ 0",
+        "x": -0.992,
+        "y": 0.57,
+        "name": "F22_RDR_TEXT_3991"
+      },
+      {
+        "text": "HT 0",
+        "x": -0.992,
+        "y": 0.228,
+        "name": "F22_RDR_TEXT_3993"
+      },
+      {
+        "text": "EL UP",
+        "x": -0.992,
+        "y": -0.114,
+        "name": "F22_RDR_TEXT_3995"
+      },
+      {
+        "text": "EL DN",
+        "x": -0.992,
+        "y": -0.456,
+        "name": "F22_RDR_TEXT_3997"
+      },
+      {
+        "text": "CNTR",
+        "x": -0.992,
+        "y": -0.798,
+        "name": "F22_RDR_TEXT_3999"
+      },
+      {
+        "text": "EL +0",
+        "x": -0.992,
+        "y": -0.1995,
+        "name": "F22_RDR_TEXT_4000"
+      },
+      {
+        "text": "SCAN MAN",
+        "x": 0.0,
+        "y": -0.722,
+        "name": "F22_RDR_TEXT_4001"
+      },
+      {
+        "text": "AZ 60",
+        "x": -0.133,
+        "y": -0.7742,
+        "name": "F22_RDR_TEXT_4003"
+      },
+      {
+        "text": "HT 12",
+        "x": 0.1425,
+        "y": -0.7742,
+        "name": "F22_RDR_TEXT_4004"
+      },
+      {
+        "text": "EL +0",
+        "x": 0.0,
+        "y": -0.8217,
+        "name": "F22_RDR_TEXT_4005"
+      }
+    ]
+  },
+  {
+    "id": "radar-acq",
+    "title": "TSD / ACQ",
+    "page": "PMFD_CENTER/radar_page.lua",
+    "param": "PMFD_RDR_PAGE",
+    "group": "sensors",
+    "params": {
+      "F22_RADAR_MODE_CODE": 4,
+      "HUD_MODE": 2
+    },
+    "element_count": 7870,
+    "visible_text": [
+      {
+        "text": "000",
+        "x": 0.0,
+        "y": 0.8873,
+        "name": "F22_RDR_TEXT_418"
+      },
+      {
+        "text": "LDR",
+        "x": -0.992,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_425"
+      },
+      {
+        "text": "30 S",
+        "x": -0.992,
+        "y": 0.8312,
+        "name": "F22_RDR_TEXT_426"
+      },
+      {
+        "text": "ACQ",
+        "x": 0.7505,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_431"
+      },
+      {
+        "text": "40",
+        "x": 0.684,
+        "y": 0.5605,
+        "name": "F22_RDR_TEXT_438"
+      },
+      {
+        "text": "20",
+        "x": 0.3895,
+        "y": -0.0617,
+        "name": "F22_RDR_TEXT_439"
+      },
+      {
+        "text": "RNG IN",
+        "x": -0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3876"
+      },
+      {
+        "text": "RNG OUT",
+        "x": -0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3877"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3878"
+      },
+      {
+        "text": "EMIT",
+        "x": 0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3879"
+      },
+      {
+        "text": "RWS/TWS",
+        "x": 0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3880"
+      },
+      {
+        "text": "PRI",
+        "x": -0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3930"
+      },
+      {
+        "text": "SEC",
+        "x": -0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3931"
+      },
+      {
+        "text": "SWAP",
+        "x": 0.0,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3933"
+      },
+      {
+        "text": "CLR2",
+        "x": 0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3934"
+      },
+      {
+        "text": "IFF",
+        "x": 0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3935"
+      },
+      {
+        "text": "AZ 0",
+        "x": -0.992,
+        "y": 0.57,
+        "name": "F22_RDR_TEXT_3991"
+      },
+      {
+        "text": "HT 0",
+        "x": -0.992,
+        "y": 0.228,
+        "name": "F22_RDR_TEXT_3993"
+      },
+      {
+        "text": "EL UP",
+        "x": -0.992,
+        "y": -0.114,
+        "name": "F22_RDR_TEXT_3995"
+      },
+      {
+        "text": "EL DN",
+        "x": -0.992,
+        "y": -0.456,
+        "name": "F22_RDR_TEXT_3997"
+      },
+      {
+        "text": "CNTR",
+        "x": -0.992,
+        "y": -0.798,
+        "name": "F22_RDR_TEXT_3999"
+      },
+      {
+        "text": "EL +0",
+        "x": -0.992,
+        "y": -0.1995,
+        "name": "F22_RDR_TEXT_4000"
+      }
+    ]
+  },
+  {
+    "id": "radar-stt",
+    "title": "TSD / STT",
+    "page": "PMFD_CENTER/radar_page.lua",
+    "param": "PMFD_RDR_PAGE",
+    "group": "sensors",
+    "params": {
+      "F22_RADAR_MODE_CODE": 5,
+      "HUD_MODE": 2
+    },
+    "element_count": 7870,
+    "visible_text": [
+      {
+        "text": "000",
+        "x": 0.0,
+        "y": 0.8873,
+        "name": "F22_RDR_TEXT_418"
+      },
+      {
+        "text": "LDR",
+        "x": -0.992,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_425"
+      },
+      {
+        "text": "30 S",
+        "x": -0.992,
+        "y": 0.8312,
+        "name": "F22_RDR_TEXT_426"
+      },
+      {
+        "text": "STT",
+        "x": 0.7505,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_432"
+      },
+      {
+        "text": "40",
+        "x": 0.684,
+        "y": 0.5605,
+        "name": "F22_RDR_TEXT_438"
+      },
+      {
+        "text": "20",
+        "x": 0.3895,
+        "y": -0.0617,
+        "name": "F22_RDR_TEXT_439"
+      },
+      {
+        "text": "RNG IN",
+        "x": -0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3876"
+      },
+      {
+        "text": "RNG OUT",
+        "x": -0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3877"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3878"
+      },
+      {
+        "text": "EMIT",
+        "x": 0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3879"
+      },
+      {
+        "text": "RWS/TWS",
+        "x": 0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3880"
+      },
+      {
+        "text": "PRI",
+        "x": -0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3930"
+      },
+      {
+        "text": "SEC",
+        "x": -0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3931"
+      },
+      {
+        "text": "SWAP",
+        "x": 0.0,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3933"
+      },
+      {
+        "text": "CLR2",
+        "x": 0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3934"
+      },
+      {
+        "text": "IFF",
+        "x": 0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3935"
+      },
+      {
+        "text": "AZ 0",
+        "x": -0.992,
+        "y": 0.57,
+        "name": "F22_RDR_TEXT_3991"
+      },
+      {
+        "text": "HT 0",
+        "x": -0.992,
+        "y": 0.228,
+        "name": "F22_RDR_TEXT_3993"
+      },
+      {
+        "text": "EL UP",
+        "x": -0.992,
+        "y": -0.114,
+        "name": "F22_RDR_TEXT_3995"
+      },
+      {
+        "text": "EL DN",
+        "x": -0.992,
+        "y": -0.456,
+        "name": "F22_RDR_TEXT_3997"
+      },
+      {
+        "text": "CNTR",
+        "x": -0.992,
+        "y": -0.798,
+        "name": "F22_RDR_TEXT_3999"
+      },
+      {
+        "text": "EL +0",
+        "x": -0.992,
+        "y": -0.1995,
+        "name": "F22_RDR_TEXT_4000"
+      }
+    ]
+  },
+  {
+    "id": "radar-bore",
+    "title": "TSD / BORE",
+    "page": "PMFD_CENTER/radar_page.lua",
+    "param": "PMFD_RDR_PAGE",
+    "group": "sensors",
+    "params": {
+      "F22_RADAR_MODE_CODE": 6,
+      "HUD_MODE": 2
+    },
+    "element_count": 7870,
+    "visible_text": [
+      {
+        "text": "000",
+        "x": 0.0,
+        "y": 0.8873,
+        "name": "F22_RDR_TEXT_418"
+      },
+      {
+        "text": "LDR",
+        "x": -0.992,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_425"
+      },
+      {
+        "text": "30 S",
+        "x": -0.992,
+        "y": 0.8312,
+        "name": "F22_RDR_TEXT_426"
+      },
+      {
+        "text": "BORE",
+        "x": 0.7505,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_433"
+      },
+      {
+        "text": "40",
+        "x": 0.684,
+        "y": 0.5605,
+        "name": "F22_RDR_TEXT_438"
+      },
+      {
+        "text": "20",
+        "x": 0.3895,
+        "y": -0.0617,
+        "name": "F22_RDR_TEXT_439"
+      },
+      {
+        "text": "RNG IN",
+        "x": -0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3876"
+      },
+      {
+        "text": "RNG OUT",
+        "x": -0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3877"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3878"
+      },
+      {
+        "text": "EMIT",
+        "x": 0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3879"
+      },
+      {
+        "text": "RWS/TWS",
+        "x": 0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3880"
+      },
+      {
+        "text": "PRI",
+        "x": -0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3930"
+      },
+      {
+        "text": "SEC",
+        "x": -0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3931"
+      },
+      {
+        "text": "SWAP",
+        "x": 0.0,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3933"
+      },
+      {
+        "text": "CLR2",
+        "x": 0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3934"
+      },
+      {
+        "text": "IFF",
+        "x": 0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3935"
+      },
+      {
+        "text": "AZ 0",
+        "x": -0.992,
+        "y": 0.57,
+        "name": "F22_RDR_TEXT_3991"
+      },
+      {
+        "text": "HT 0",
+        "x": -0.992,
+        "y": 0.228,
+        "name": "F22_RDR_TEXT_3993"
+      },
+      {
+        "text": "EL UP",
+        "x": -0.992,
+        "y": -0.114,
+        "name": "F22_RDR_TEXT_3995"
+      },
+      {
+        "text": "EL DN",
+        "x": -0.992,
+        "y": -0.456,
+        "name": "F22_RDR_TEXT_3997"
+      },
+      {
+        "text": "CNTR",
+        "x": -0.992,
+        "y": -0.798,
+        "name": "F22_RDR_TEXT_3999"
+      },
+      {
+        "text": "EL +0",
+        "x": -0.992,
+        "y": -0.1995,
+        "name": "F22_RDR_TEXT_4000"
+      }
+    ]
+  },
+  {
+    "id": "radar-vacq",
+    "title": "TSD / VACQ",
+    "page": "PMFD_CENTER/radar_page.lua",
+    "param": "PMFD_RDR_PAGE",
+    "group": "sensors",
+    "params": {
+      "F22_RADAR_MODE_CODE": 7,
+      "HUD_MODE": 2
+    },
+    "element_count": 7870,
+    "visible_text": [
+      {
+        "text": "000",
+        "x": 0.0,
+        "y": 0.8873,
+        "name": "F22_RDR_TEXT_418"
+      },
+      {
+        "text": "LDR",
+        "x": -0.992,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_425"
+      },
+      {
+        "text": "30 S",
+        "x": -0.992,
+        "y": 0.8312,
+        "name": "F22_RDR_TEXT_426"
+      },
+      {
+        "text": "VACQ",
+        "x": 0.7505,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_434"
+      },
+      {
+        "text": "40",
+        "x": 0.684,
+        "y": 0.5605,
+        "name": "F22_RDR_TEXT_438"
+      },
+      {
+        "text": "20",
+        "x": 0.3895,
+        "y": -0.0617,
+        "name": "F22_RDR_TEXT_439"
+      },
+      {
+        "text": "RNG IN",
+        "x": -0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3876"
+      },
+      {
+        "text": "RNG OUT",
+        "x": -0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3877"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3878"
+      },
+      {
+        "text": "EMIT",
+        "x": 0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3879"
+      },
+      {
+        "text": "RWS/TWS",
+        "x": 0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3880"
+      },
+      {
+        "text": "PRI",
+        "x": -0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3930"
+      },
+      {
+        "text": "SEC",
+        "x": -0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3931"
+      },
+      {
+        "text": "SWAP",
+        "x": 0.0,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3933"
+      },
+      {
+        "text": "CLR2",
+        "x": 0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3934"
+      },
+      {
+        "text": "IFF",
+        "x": 0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3935"
+      },
+      {
+        "text": "AZ 0",
+        "x": -0.992,
+        "y": 0.57,
+        "name": "F22_RDR_TEXT_3991"
+      },
+      {
+        "text": "HT 0",
+        "x": -0.992,
+        "y": 0.228,
+        "name": "F22_RDR_TEXT_3993"
+      },
+      {
+        "text": "EL UP",
+        "x": -0.992,
+        "y": -0.114,
+        "name": "F22_RDR_TEXT_3995"
+      },
+      {
+        "text": "EL DN",
+        "x": -0.992,
+        "y": -0.456,
+        "name": "F22_RDR_TEXT_3997"
+      },
+      {
+        "text": "CNTR",
+        "x": -0.992,
+        "y": -0.798,
+        "name": "F22_RDR_TEXT_3999"
+      },
+      {
+        "text": "EL +0",
+        "x": -0.992,
+        "y": -0.1995,
+        "name": "F22_RDR_TEXT_4000"
+      }
+    ]
+  },
+  {
+    "id": "radar-wide",
+    "title": "TSD / WIDE",
+    "page": "PMFD_CENTER/radar_page.lua",
+    "param": "PMFD_RDR_PAGE",
+    "group": "sensors",
+    "params": {
+      "F22_RADAR_MODE_CODE": 8,
+      "HUD_MODE": 2
+    },
+    "element_count": 7870,
+    "visible_text": [
+      {
+        "text": "000",
+        "x": 0.0,
+        "y": 0.8873,
+        "name": "F22_RDR_TEXT_418"
+      },
+      {
+        "text": "LDR",
+        "x": -0.992,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_425"
+      },
+      {
+        "text": "30 S",
+        "x": -0.992,
+        "y": 0.8312,
+        "name": "F22_RDR_TEXT_426"
+      },
+      {
+        "text": "WIDE",
+        "x": 0.7505,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_435"
+      },
+      {
+        "text": "40",
+        "x": 0.684,
+        "y": 0.5605,
+        "name": "F22_RDR_TEXT_438"
+      },
+      {
+        "text": "20",
+        "x": 0.3895,
+        "y": -0.0617,
+        "name": "F22_RDR_TEXT_439"
+      },
+      {
+        "text": "RNG IN",
+        "x": -0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3876"
+      },
+      {
+        "text": "RNG OUT",
+        "x": -0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3877"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3878"
+      },
+      {
+        "text": "EMIT",
+        "x": 0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3879"
+      },
+      {
+        "text": "RWS/TWS",
+        "x": 0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3880"
+      },
+      {
+        "text": "PRI",
+        "x": -0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3930"
+      },
+      {
+        "text": "SEC",
+        "x": -0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3931"
+      },
+      {
+        "text": "SWAP",
+        "x": 0.0,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3933"
+      },
+      {
+        "text": "CLR2",
+        "x": 0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3934"
+      },
+      {
+        "text": "IFF",
+        "x": 0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3935"
+      },
+      {
+        "text": "AZ 0",
+        "x": -0.992,
+        "y": 0.57,
+        "name": "F22_RDR_TEXT_3991"
+      },
+      {
+        "text": "HT 0",
+        "x": -0.992,
+        "y": 0.228,
+        "name": "F22_RDR_TEXT_3993"
+      },
+      {
+        "text": "EL UP",
+        "x": -0.992,
+        "y": -0.114,
+        "name": "F22_RDR_TEXT_3995"
+      },
+      {
+        "text": "EL DN",
+        "x": -0.992,
+        "y": -0.456,
+        "name": "F22_RDR_TEXT_3997"
+      },
+      {
+        "text": "CNTR",
+        "x": -0.992,
+        "y": -0.798,
+        "name": "F22_RDR_TEXT_3999"
+      },
+      {
+        "text": "EL +0",
+        "x": -0.992,
+        "y": -0.1995,
+        "name": "F22_RDR_TEXT_4000"
+      }
+    ]
+  },
+  {
+    "id": "ground-map",
+    "title": "A/G radar / MAP",
+    "page": "PMFD_CENTER/radar_page.lua",
+    "param": "PMFD_RDR_PAGE",
+    "group": "sensors",
+    "params": {
+      "HUD_MODE": 7,
+      "F22_AG_MODE": 1,
+      "F22_AG_MAP_VIDEO_SHOW": 1,
+      "F22_AG_TRACK_VALID": 0
+    },
+    "element_count": 7870,
+    "visible_text": [
+      {
+        "text": "000",
+        "x": 0.0,
+        "y": 0.8873,
+        "name": "F22_RDR_TEXT_418"
+      },
+      {
+        "text": "LDR",
+        "x": -0.992,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_425"
+      },
+      {
+        "text": "30 S",
+        "x": -0.992,
+        "y": 0.8312,
+        "name": "F22_RDR_TEXT_426"
+      },
+      {
+        "text": "RWS",
+        "x": 0.7505,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_429"
+      },
+      {
+        "text": "40",
+        "x": 0.684,
+        "y": 0.5605,
+        "name": "F22_RDR_TEXT_438"
+      },
+      {
+        "text": "20",
+        "x": 0.3895,
+        "y": -0.0617,
+        "name": "F22_RDR_TEXT_439"
+      },
+      {
+        "text": "RNG IN",
+        "x": -0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3876"
+      },
+      {
+        "text": "RNG OUT",
+        "x": -0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3877"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3878"
+      },
+      {
+        "text": "EMIT",
+        "x": 0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3879"
+      },
+      {
+        "text": "RWS/TWS",
+        "x": 0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3880"
+      },
+      {
+        "text": "PRI",
+        "x": -0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3930"
+      },
+      {
+        "text": "SEC",
+        "x": -0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3931"
+      },
+      {
+        "text": "SWAP",
+        "x": 0.0,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3933"
+      },
+      {
+        "text": "CLR2",
+        "x": 0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3934"
+      },
+      {
+        "text": "IFF",
+        "x": 0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3935"
+      },
+      {
+        "text": "AZ 0",
+        "x": -0.992,
+        "y": 0.57,
+        "name": "F22_RDR_TEXT_3991"
+      },
+      {
+        "text": "HT 0",
+        "x": -0.992,
+        "y": 0.228,
+        "name": "F22_RDR_TEXT_3993"
+      },
+      {
+        "text": "EL UP",
+        "x": -0.992,
+        "y": -0.114,
+        "name": "F22_RDR_TEXT_3995"
+      },
+      {
+        "text": "EL DN",
+        "x": -0.992,
+        "y": -0.456,
+        "name": "F22_RDR_TEXT_3997"
+      },
+      {
+        "text": "CNTR",
+        "x": -0.992,
+        "y": -0.798,
+        "name": "F22_RDR_TEXT_3999"
+      },
+      {
+        "text": "EL +0",
+        "x": -0.992,
+        "y": -0.1995,
+        "name": "F22_RDR_TEXT_4000"
+      },
+      {
+        "text": "SCAN MAN",
+        "x": 0.0,
+        "y": -0.722,
+        "name": "F22_RDR_TEXT_4001"
+      },
+      {
+        "text": "AZ 60",
+        "x": -0.133,
+        "y": -0.7742,
+        "name": "F22_RDR_TEXT_4003"
+      },
+      {
+        "text": "HT 12",
+        "x": 0.1425,
+        "y": -0.7742,
+        "name": "F22_RDR_TEXT_4004"
+      },
+      {
+        "text": "EL +0",
+        "x": 0.0,
+        "y": -0.8217,
+        "name": "F22_RDR_TEXT_4005"
+      },
+      {
+        "text": "MAP",
+        "x": 0.0,
+        "y": 0.874,
+        "name": "F22_AG_RDR_ELEMENT_210"
+      },
+      {
+        "text": "20 NM",
+        "x": 0.5985,
+        "y": 0.798,
+        "name": "F22_AG_RDR_ELEMENT_217"
+      },
+      {
+        "text": "AZ 120",
+        "x": -0.992,
+        "y": 0.5415,
+        "name": "F22_AG_RDR_ELEMENT_218"
+      },
+      {
+        "text": "CTR +0",
+        "x": -0.992,
+        "y": 0.475,
+        "name": "F22_AG_RDR_ELEMENT_219"
+      },
+      {
+        "text": "CNTR",
+        "x": -0.992,
+        "y": -0.779,
+        "name": "F22_AG_RDR_ELEMENT_220"
+      },
+      {
+        "text": "MAP",
+        "x": -0.684,
+        "y": 0.9737,
+        "name": "F22_AG_RDR_ELEMENT_221"
+      },
+      {
+        "text": "GMT",
+        "x": -0.342,
+        "y": 0.9737,
+        "name": "F22_AG_RDR_ELEMENT_222"
+      },
+      {
+        "text": "DESIG",
+        "x": 0.0,
+        "y": 0.9737,
+        "name": "F22_AG_RDR_ELEMENT_223"
+      },
+      {
+        "text": "CLEAR",
+        "x": 0.342,
+        "y": 0.9737,
+        "name": "F22_AG_RDR_ELEMENT_224"
+      },
+      {
+        "text": "INTL",
+        "x": 0.684,
+        "y": 0.9737,
+        "name": "F22_AG_RDR_ELEMENT_225"
+      },
+      {
+        "text": "RNG IN",
+        "x": -0.7315,
+        "y": -0.9205,
+        "name": "F22_AG_RDR_ELEMENT_228"
+      },
+      {
+        "text": "RNG OUT",
+        "x": -0.361,
+        "y": -0.9205,
+        "name": "F22_AG_RDR_ELEMENT_229"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.9205,
+        "name": "F22_AG_RDR_ELEMENT_230"
+      },
+      {
+        "text": "EMIT",
+        "x": 0.361,
+        "y": -0.9205,
+        "name": "F22_AG_RDR_ELEMENT_231"
+      },
+      {
+        "text": "MODE",
+        "x": 0.7315,
+        "y": -0.9205,
+        "name": "F22_AG_RDR_ELEMENT_232"
+      },
+      {
+        "text": "GAIN 50",
+        "x": -0.5605,
+        "y": 0.798,
+        "name": "F22_AG_RDR_ELEMENT_233"
+      },
+      {
+        "text": "GAIN+",
+        "x": -0.992,
+        "y": 0.1615,
+        "name": "F22_AG_RDR_ELEMENT_235"
+      },
+      {
+        "text": "GAIN-",
+        "x": -0.992,
+        "y": -0.2185,
+        "name": "F22_AG_RDR_ELEMENT_236"
+      },
+      {
+        "text": "FRZ",
+        "x": -0.992,
+        "y": 0.3515,
+        "name": "F22_AG_RDR_ELEMENT_237"
+      }
+    ]
+  },
+  {
+    "id": "ground-gmt",
+    "title": "A/G radar / GMT",
+    "page": "PMFD_CENTER/radar_page.lua",
+    "param": "PMFD_RDR_PAGE",
+    "group": "sensors",
+    "params": {
+      "HUD_MODE": 7,
+      "F22_AG_MODE": 2,
+      "F22_AG_MAP_VIDEO_SHOW": 0,
+      "F22_AG_TRACK_VALID": 0
+    },
+    "element_count": 7870,
+    "visible_text": [
+      {
+        "text": "000",
+        "x": 0.0,
+        "y": 0.8873,
+        "name": "F22_RDR_TEXT_418"
+      },
+      {
+        "text": "LDR",
+        "x": -0.992,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_425"
+      },
+      {
+        "text": "30 S",
+        "x": -0.992,
+        "y": 0.8312,
+        "name": "F22_RDR_TEXT_426"
+      },
+      {
+        "text": "RWS",
+        "x": 0.7505,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_429"
+      },
+      {
+        "text": "40",
+        "x": 0.684,
+        "y": 0.5605,
+        "name": "F22_RDR_TEXT_438"
+      },
+      {
+        "text": "20",
+        "x": 0.3895,
+        "y": -0.0617,
+        "name": "F22_RDR_TEXT_439"
+      },
+      {
+        "text": "RNG IN",
+        "x": -0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3876"
+      },
+      {
+        "text": "RNG OUT",
+        "x": -0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3877"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3878"
+      },
+      {
+        "text": "EMIT",
+        "x": 0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3879"
+      },
+      {
+        "text": "RWS/TWS",
+        "x": 0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3880"
+      },
+      {
+        "text": "PRI",
+        "x": -0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3930"
+      },
+      {
+        "text": "SEC",
+        "x": -0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3931"
+      },
+      {
+        "text": "SWAP",
+        "x": 0.0,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3933"
+      },
+      {
+        "text": "CLR2",
+        "x": 0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3934"
+      },
+      {
+        "text": "IFF",
+        "x": 0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3935"
+      },
+      {
+        "text": "AZ 0",
+        "x": -0.992,
+        "y": 0.57,
+        "name": "F22_RDR_TEXT_3991"
+      },
+      {
+        "text": "HT 0",
+        "x": -0.992,
+        "y": 0.228,
+        "name": "F22_RDR_TEXT_3993"
+      },
+      {
+        "text": "EL UP",
+        "x": -0.992,
+        "y": -0.114,
+        "name": "F22_RDR_TEXT_3995"
+      },
+      {
+        "text": "EL DN",
+        "x": -0.992,
+        "y": -0.456,
+        "name": "F22_RDR_TEXT_3997"
+      },
+      {
+        "text": "CNTR",
+        "x": -0.992,
+        "y": -0.798,
+        "name": "F22_RDR_TEXT_3999"
+      },
+      {
+        "text": "EL +0",
+        "x": -0.992,
+        "y": -0.1995,
+        "name": "F22_RDR_TEXT_4000"
+      },
+      {
+        "text": "SCAN MAN",
+        "x": 0.0,
+        "y": -0.722,
+        "name": "F22_RDR_TEXT_4001"
+      },
+      {
+        "text": "AZ 60",
+        "x": -0.133,
+        "y": -0.7742,
+        "name": "F22_RDR_TEXT_4003"
+      },
+      {
+        "text": "HT 12",
+        "x": 0.1425,
+        "y": -0.7742,
+        "name": "F22_RDR_TEXT_4004"
+      },
+      {
+        "text": "EL +0",
+        "x": 0.0,
+        "y": -0.8217,
+        "name": "F22_RDR_TEXT_4005"
+      },
+      {
+        "text": "GMT",
+        "x": 0.0,
+        "y": 0.874,
+        "name": "F22_AG_RDR_ELEMENT_212"
+      },
+      {
+        "text": "20 NM",
+        "x": 0.5985,
+        "y": 0.798,
+        "name": "F22_AG_RDR_ELEMENT_217"
+      },
+      {
+        "text": "AZ 120",
+        "x": -0.992,
+        "y": 0.5415,
+        "name": "F22_AG_RDR_ELEMENT_218"
+      },
+      {
+        "text": "CTR +0",
+        "x": -0.992,
+        "y": 0.475,
+        "name": "F22_AG_RDR_ELEMENT_219"
+      },
+      {
+        "text": "CNTR",
+        "x": -0.992,
+        "y": -0.779,
+        "name": "F22_AG_RDR_ELEMENT_220"
+      },
+      {
+        "text": "MAP",
+        "x": -0.684,
+        "y": 0.9737,
+        "name": "F22_AG_RDR_ELEMENT_221"
+      },
+      {
+        "text": "GMT",
+        "x": -0.342,
+        "y": 0.9737,
+        "name": "F22_AG_RDR_ELEMENT_222"
+      },
+      {
+        "text": "DESIG",
+        "x": 0.0,
+        "y": 0.9737,
+        "name": "F22_AG_RDR_ELEMENT_223"
+      },
+      {
+        "text": "CLEAR",
+        "x": 0.342,
+        "y": 0.9737,
+        "name": "F22_AG_RDR_ELEMENT_224"
+      },
+      {
+        "text": "INTL",
+        "x": 0.684,
+        "y": 0.9737,
+        "name": "F22_AG_RDR_ELEMENT_225"
+      },
+      {
+        "text": "RNG IN",
+        "x": -0.7315,
+        "y": -0.9205,
+        "name": "F22_AG_RDR_ELEMENT_228"
+      },
+      {
+        "text": "RNG OUT",
+        "x": -0.361,
+        "y": -0.9205,
+        "name": "F22_AG_RDR_ELEMENT_229"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.9205,
+        "name": "F22_AG_RDR_ELEMENT_230"
+      },
+      {
+        "text": "EMIT",
+        "x": 0.361,
+        "y": -0.9205,
+        "name": "F22_AG_RDR_ELEMENT_231"
+      },
+      {
+        "text": "MODE",
+        "x": 0.7315,
+        "y": -0.9205,
+        "name": "F22_AG_RDR_ELEMENT_232"
+      },
+      {
+        "text": "GAIN 50",
+        "x": -0.5605,
+        "y": 0.798,
+        "name": "F22_AG_RDR_ELEMENT_233"
+      },
+      {
+        "text": "GAIN+",
+        "x": -0.992,
+        "y": 0.1615,
+        "name": "F22_AG_RDR_ELEMENT_235"
+      },
+      {
+        "text": "GAIN-",
+        "x": -0.992,
+        "y": -0.2185,
+        "name": "F22_AG_RDR_ELEMENT_236"
+      },
+      {
+        "text": "FRZ",
+        "x": -0.992,
+        "y": 0.3515,
+        "name": "F22_AG_RDR_ELEMENT_237"
+      },
+      {
+        "text": "TRKS 0",
+        "x": 0.5605,
+        "y": 0.722,
+        "name": "F22_AG_RDR_ELEMENT_314"
+      }
+    ]
+  },
+  {
+    "id": "ground-gmtt",
+    "title": "A/G radar / GMTT",
+    "page": "PMFD_CENTER/radar_page.lua",
+    "param": "PMFD_RDR_PAGE",
+    "group": "sensors",
+    "params": {
+      "HUD_MODE": 7,
+      "F22_AG_MODE": 3,
+      "F22_AG_MAP_VIDEO_SHOW": 0,
+      "F22_AG_TRACK_VALID": 1
+    },
+    "element_count": 7870,
+    "visible_text": [
+      {
+        "text": "000",
+        "x": 0.0,
+        "y": 0.8873,
+        "name": "F22_RDR_TEXT_418"
+      },
+      {
+        "text": "LDR",
+        "x": -0.992,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_425"
+      },
+      {
+        "text": "30 S",
+        "x": -0.992,
+        "y": 0.8312,
+        "name": "F22_RDR_TEXT_426"
+      },
+      {
+        "text": "RWS",
+        "x": 0.7505,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_429"
+      },
+      {
+        "text": "40",
+        "x": 0.684,
+        "y": 0.5605,
+        "name": "F22_RDR_TEXT_438"
+      },
+      {
+        "text": "20",
+        "x": 0.3895,
+        "y": -0.0617,
+        "name": "F22_RDR_TEXT_439"
+      },
+      {
+        "text": "RNG IN",
+        "x": -0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3876"
+      },
+      {
+        "text": "RNG OUT",
+        "x": -0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3877"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3878"
+      },
+      {
+        "text": "EMIT",
+        "x": 0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3879"
+      },
+      {
+        "text": "RWS/TWS",
+        "x": 0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3880"
+      },
+      {
+        "text": "PRI",
+        "x": -0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3930"
+      },
+      {
+        "text": "SEC",
+        "x": -0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3931"
+      },
+      {
+        "text": "SWAP",
+        "x": 0.0,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3933"
+      },
+      {
+        "text": "CLR2",
+        "x": 0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3934"
+      },
+      {
+        "text": "IFF",
+        "x": 0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3935"
+      },
+      {
+        "text": "AZ 0",
+        "x": -0.992,
+        "y": 0.57,
+        "name": "F22_RDR_TEXT_3991"
+      },
+      {
+        "text": "HT 0",
+        "x": -0.992,
+        "y": 0.228,
+        "name": "F22_RDR_TEXT_3993"
+      },
+      {
+        "text": "EL UP",
+        "x": -0.992,
+        "y": -0.114,
+        "name": "F22_RDR_TEXT_3995"
+      },
+      {
+        "text": "EL DN",
+        "x": -0.992,
+        "y": -0.456,
+        "name": "F22_RDR_TEXT_3997"
+      },
+      {
+        "text": "CNTR",
+        "x": -0.992,
+        "y": -0.798,
+        "name": "F22_RDR_TEXT_3999"
+      },
+      {
+        "text": "EL +0",
+        "x": -0.992,
+        "y": -0.1995,
+        "name": "F22_RDR_TEXT_4000"
+      },
+      {
+        "text": "SCAN MAN",
+        "x": 0.0,
+        "y": -0.722,
+        "name": "F22_RDR_TEXT_4001"
+      },
+      {
+        "text": "AZ 60",
+        "x": -0.133,
+        "y": -0.7742,
+        "name": "F22_RDR_TEXT_4003"
+      },
+      {
+        "text": "HT 12",
+        "x": 0.1425,
+        "y": -0.7742,
+        "name": "F22_RDR_TEXT_4004"
+      },
+      {
+        "text": "EL +0",
+        "x": 0.0,
+        "y": -0.8217,
+        "name": "F22_RDR_TEXT_4005"
+      },
+      {
+        "text": "GMTT",
+        "x": 0.0,
+        "y": 0.874,
+        "name": "F22_AG_RDR_ELEMENT_214"
+      },
+      {
+        "text": "20 NM",
+        "x": 0.5985,
+        "y": 0.798,
+        "name": "F22_AG_RDR_ELEMENT_217"
+      },
+      {
+        "text": "AZ 120",
+        "x": -0.992,
+        "y": 0.5415,
+        "name": "F22_AG_RDR_ELEMENT_218"
+      },
+      {
+        "text": "CTR +0",
+        "x": -0.992,
+        "y": 0.475,
+        "name": "F22_AG_RDR_ELEMENT_219"
+      },
+      {
+        "text": "CNTR",
+        "x": -0.992,
+        "y": -0.779,
+        "name": "F22_AG_RDR_ELEMENT_220"
+      },
+      {
+        "text": "MAP",
+        "x": -0.684,
+        "y": 0.9737,
+        "name": "F22_AG_RDR_ELEMENT_221"
+      },
+      {
+        "text": "GMT",
+        "x": -0.342,
+        "y": 0.9737,
+        "name": "F22_AG_RDR_ELEMENT_222"
+      },
+      {
+        "text": "DESIG",
+        "x": 0.0,
+        "y": 0.9737,
+        "name": "F22_AG_RDR_ELEMENT_223"
+      },
+      {
+        "text": "CLEAR",
+        "x": 0.342,
+        "y": 0.9737,
+        "name": "F22_AG_RDR_ELEMENT_224"
+      },
+      {
+        "text": "INTL",
+        "x": 0.684,
+        "y": 0.9737,
+        "name": "F22_AG_RDR_ELEMENT_225"
+      },
+      {
+        "text": "RNG IN",
+        "x": -0.7315,
+        "y": -0.9205,
+        "name": "F22_AG_RDR_ELEMENT_228"
+      },
+      {
+        "text": "RNG OUT",
+        "x": -0.361,
+        "y": -0.9205,
+        "name": "F22_AG_RDR_ELEMENT_229"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.9205,
+        "name": "F22_AG_RDR_ELEMENT_230"
+      },
+      {
+        "text": "EMIT",
+        "x": 0.361,
+        "y": -0.9205,
+        "name": "F22_AG_RDR_ELEMENT_231"
+      },
+      {
+        "text": "MODE",
+        "x": 0.7315,
+        "y": -0.9205,
+        "name": "F22_AG_RDR_ELEMENT_232"
+      },
+      {
+        "text": "GAIN 50",
+        "x": -0.5605,
+        "y": 0.798,
+        "name": "F22_AG_RDR_ELEMENT_233"
+      },
+      {
+        "text": "GAIN+",
+        "x": -0.992,
+        "y": 0.1615,
+        "name": "F22_AG_RDR_ELEMENT_235"
+      },
+      {
+        "text": "GAIN-",
+        "x": -0.992,
+        "y": -0.2185,
+        "name": "F22_AG_RDR_ELEMENT_236"
+      },
+      {
+        "text": "FRZ",
+        "x": -0.992,
+        "y": 0.3515,
+        "name": "F22_AG_RDR_ELEMENT_237"
+      },
+      {
+        "text": "TRKS 0",
+        "x": 0.5605,
+        "y": 0.722,
+        "name": "F22_AG_RDR_ELEMENT_314"
+      },
+      {
+        "text": "0",
+        "x": -0.0475,
+        "y": 0.0,
+        "name": "F22_AG_RDR_ELEMENT_455"
+      },
+      {
+        "text": "000\u00b0",
+        "x": 0.0475,
+        "y": 0.0,
+        "name": "F22_AG_RDR_ELEMENT_456"
+      },
+      {
+        "text": "TRACK",
+        "x": 0.0,
+        "y": -0.8075,
+        "name": "F22_AG_RDR_ELEMENT_460"
+      }
+    ]
+  },
+  {
+    "id": "ground-ftt",
+    "title": "A/G radar / FTT indication",
+    "page": "PMFD_CENTER/radar_page.lua",
+    "param": "PMFD_RDR_PAGE",
+    "group": "sensors",
+    "params": {
+      "HUD_MODE": 7,
+      "F22_AG_MODE": 1,
+      "F22_AG_FIXED_TRACK": 1,
+      "F22_AG_TRACK_VALID": 1
+    },
+    "element_count": 7870,
+    "visible_text": [
+      {
+        "text": "000",
+        "x": 0.0,
+        "y": 0.8873,
+        "name": "F22_RDR_TEXT_418"
+      },
+      {
+        "text": "LDR",
+        "x": -0.992,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_425"
+      },
+      {
+        "text": "30 S",
+        "x": -0.992,
+        "y": 0.8312,
+        "name": "F22_RDR_TEXT_426"
+      },
+      {
+        "text": "RWS",
+        "x": 0.7505,
+        "y": 0.8892,
+        "name": "F22_RDR_TEXT_429"
+      },
+      {
+        "text": "40",
+        "x": 0.684,
+        "y": 0.5605,
+        "name": "F22_RDR_TEXT_438"
+      },
+      {
+        "text": "20",
+        "x": 0.3895,
+        "y": -0.0617,
+        "name": "F22_RDR_TEXT_439"
+      },
+      {
+        "text": "RNG IN",
+        "x": -0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3876"
+      },
+      {
+        "text": "RNG OUT",
+        "x": -0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3877"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3878"
+      },
+      {
+        "text": "EMIT",
+        "x": 0.361,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3879"
+      },
+      {
+        "text": "RWS/TWS",
+        "x": 0.7315,
+        "y": -0.9205,
+        "name": "F22_RDR_TEXT_3880"
+      },
+      {
+        "text": "PRI",
+        "x": -0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3930"
+      },
+      {
+        "text": "SEC",
+        "x": -0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3931"
+      },
+      {
+        "text": "SWAP",
+        "x": 0.0,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3933"
+      },
+      {
+        "text": "CLR2",
+        "x": 0.361,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3934"
+      },
+      {
+        "text": "IFF",
+        "x": 0.7315,
+        "y": 0.9737,
+        "name": "F22_RDR_TEXT_3935"
+      },
+      {
+        "text": "AZ 0",
+        "x": -0.992,
+        "y": 0.57,
+        "name": "F22_RDR_TEXT_3991"
+      },
+      {
+        "text": "HT 0",
+        "x": -0.992,
+        "y": 0.228,
+        "name": "F22_RDR_TEXT_3993"
+      },
+      {
+        "text": "EL UP",
+        "x": -0.992,
+        "y": -0.114,
+        "name": "F22_RDR_TEXT_3995"
+      },
+      {
+        "text": "EL DN",
+        "x": -0.992,
+        "y": -0.456,
+        "name": "F22_RDR_TEXT_3997"
+      },
+      {
+        "text": "CNTR",
+        "x": -0.992,
+        "y": -0.798,
+        "name": "F22_RDR_TEXT_3999"
+      },
+      {
+        "text": "EL +0",
+        "x": -0.992,
+        "y": -0.1995,
+        "name": "F22_RDR_TEXT_4000"
+      },
+      {
+        "text": "SCAN MAN",
+        "x": 0.0,
+        "y": -0.722,
+        "name": "F22_RDR_TEXT_4001"
+      },
+      {
+        "text": "AZ 60",
+        "x": -0.133,
+        "y": -0.7742,
+        "name": "F22_RDR_TEXT_4003"
+      },
+      {
+        "text": "HT 12",
+        "x": 0.1425,
+        "y": -0.7742,
+        "name": "F22_RDR_TEXT_4004"
+      },
+      {
+        "text": "EL +0",
+        "x": 0.0,
+        "y": -0.8217,
+        "name": "F22_RDR_TEXT_4005"
+      },
+      {
+        "text": "FTT",
+        "x": 0.0,
+        "y": 0.874,
+        "name": "F22_AG_RDR_ELEMENT_216"
+      },
+      {
+        "text": "20 NM",
+        "x": 0.5985,
+        "y": 0.798,
+        "name": "F22_AG_RDR_ELEMENT_217"
+      },
+      {
+        "text": "AZ 120",
+        "x": -0.992,
+        "y": 0.5415,
+        "name": "F22_AG_RDR_ELEMENT_218"
+      },
+      {
+        "text": "CTR +0",
+        "x": -0.992,
+        "y": 0.475,
+        "name": "F22_AG_RDR_ELEMENT_219"
+      },
+      {
+        "text": "CNTR",
+        "x": -0.992,
+        "y": -0.779,
+        "name": "F22_AG_RDR_ELEMENT_220"
+      },
+      {
+        "text": "MAP",
+        "x": -0.684,
+        "y": 0.9737,
+        "name": "F22_AG_RDR_ELEMENT_221"
+      },
+      {
+        "text": "GMT",
+        "x": -0.342,
+        "y": 0.9737,
+        "name": "F22_AG_RDR_ELEMENT_222"
+      },
+      {
+        "text": "DESIG",
+        "x": 0.0,
+        "y": 0.9737,
+        "name": "F22_AG_RDR_ELEMENT_223"
+      },
+      {
+        "text": "CLEAR",
+        "x": 0.342,
+        "y": 0.9737,
+        "name": "F22_AG_RDR_ELEMENT_224"
+      },
+      {
+        "text": "INTL",
+        "x": 0.684,
+        "y": 0.9737,
+        "name": "F22_AG_RDR_ELEMENT_225"
+      },
+      {
+        "text": "RNG IN",
+        "x": -0.7315,
+        "y": -0.9205,
+        "name": "F22_AG_RDR_ELEMENT_228"
+      },
+      {
+        "text": "RNG OUT",
+        "x": -0.361,
+        "y": -0.9205,
+        "name": "F22_AG_RDR_ELEMENT_229"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.9205,
+        "name": "F22_AG_RDR_ELEMENT_230"
+      },
+      {
+        "text": "EMIT",
+        "x": 0.361,
+        "y": -0.9205,
+        "name": "F22_AG_RDR_ELEMENT_231"
+      },
+      {
+        "text": "MODE",
+        "x": 0.7315,
+        "y": -0.9205,
+        "name": "F22_AG_RDR_ELEMENT_232"
+      },
+      {
+        "text": "GAIN 50",
+        "x": -0.5605,
+        "y": 0.798,
+        "name": "F22_AG_RDR_ELEMENT_233"
+      },
+      {
+        "text": "GAIN+",
+        "x": -0.992,
+        "y": 0.1615,
+        "name": "F22_AG_RDR_ELEMENT_235"
+      },
+      {
+        "text": "GAIN-",
+        "x": -0.992,
+        "y": -0.2185,
+        "name": "F22_AG_RDR_ELEMENT_236"
+      },
+      {
+        "text": "FRZ",
+        "x": -0.992,
+        "y": 0.3515,
+        "name": "F22_AG_RDR_ELEMENT_237"
+      },
+      {
+        "text": "0",
+        "x": -0.0475,
+        "y": 0.0,
+        "name": "F22_AG_RDR_ELEMENT_455"
+      },
+      {
+        "text": "000\u00b0",
+        "x": 0.0475,
+        "y": 0.0,
+        "name": "F22_AG_RDR_ELEMENT_456"
+      },
+      {
+        "text": "TRACK",
+        "x": 0.0,
+        "y": -0.8075,
+        "name": "F22_AG_RDR_ELEMENT_460"
+      }
+    ]
+  },
+  {
+    "id": "def-overview",
+    "title": "DEF overview",
+    "page": "MFD_RIGHT/rwr_page.lua",
+    "param": "RMFD_RWR_PAGE",
+    "group": "sensors",
+    "params": {
+      "F22_DEFENSIVE_DETAIL": 0
+    },
+    "element_count": 7383,
+    "visible_text": [
+      {
+        "text": "PRI",
+        "x": 0.399,
+        "y": 0.836,
+        "name": "F22_DEF_OV_PAGE_25"
+      },
+      {
+        "text": "CHAFF 60",
+        "x": 0.5985,
+        "y": -0.5795,
+        "name": "F22_DEF_OV_PAGE_1761"
+      },
+      {
+        "text": "FLARE 30",
+        "x": 0.5985,
+        "y": -0.6555,
+        "name": "F22_DEF_OV_PAGE_1762"
+      },
+      {
+        "text": "PROG 1",
+        "x": 0.5985,
+        "y": -0.7315,
+        "name": "F22_DEF_OV_PAGE_1767"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.874,
+        "name": "F22_DEF_OV_PAGE_1768"
+      },
+      {
+        "text": "DETAIL",
+        "x": 0.8265,
+        "y": -0.133,
+        "name": "F22_DEF_OV_PAGE_1769"
+      },
+      {
+        "text": "ALL/THRT",
+        "x": -0.5367,
+        "y": -0.874,
+        "name": "F22_DEF_OV_PAGE_1770"
+      }
+    ]
+  },
+  {
+    "id": "def-detail",
+    "title": "DEF detail / CM program",
+    "page": "MFD_RIGHT/rwr_page.lua",
+    "param": "RMFD_RWR_PAGE",
+    "group": "sensors",
+    "params": {
+      "F22_DEFENSIVE_DETAIL": 1
+    },
+    "element_count": 7383,
+    "visible_text": [
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.912,
+        "name": "F22_RDR_TEXT_1"
+      },
+      {
+        "text": "DEFENSIVE",
+        "x": 0.0,
+        "y": 0.817,
+        "name": "F22_RDR_TEXT_2"
+      },
+      {
+        "text": "THREAT DETAIL",
+        "x": 0.0,
+        "y": -0.7885,
+        "name": "F22_RDR_TEXT_3"
+      },
+      {
+        "text": "ALL/THRT",
+        "x": -0.5367,
+        "y": -0.912,
+        "name": "F22_RDR_TEXT_5"
+      },
+      {
+        "text": "OPR",
+        "x": 0.0,
+        "y": 0.722,
+        "name": "F22_RDR_TEXT_6"
+      },
+      {
+        "text": "PWR",
+        "x": -0.5367,
+        "y": 0.912,
+        "name": "F22_RDR_TEXT_3009"
+      },
+      {
+        "text": "MUTE",
+        "x": 0.5367,
+        "y": -0.912,
+        "name": "F22_RDR_TEXT_3010"
+      },
+      {
+        "text": "PROG",
+        "x": -0.992,
+        "y": 0.57,
+        "name": "F22_RDR_TEXT_3011"
+      },
+      {
+        "text": "CHAFF",
+        "x": -0.992,
+        "y": 0.285,
+        "name": "F22_RDR_TEXT_3012"
+      },
+      {
+        "text": "FLARE",
+        "x": -0.992,
+        "y": 0.0,
+        "name": "F22_RDR_TEXT_3013"
+      },
+      {
+        "text": "INTVL",
+        "x": -0.992,
+        "y": -0.285,
+        "name": "F22_RDR_TEXT_3014"
+      },
+      {
+        "text": "REPS",
+        "x": -0.992,
+        "y": -0.57,
+        "name": "F22_RDR_TEXT_3015"
+      },
+      {
+        "text": "NEXT",
+        "x": 0.992,
+        "y": 0.57,
+        "name": "F22_RDR_TEXT_3016"
+      },
+      {
+        "text": "PREV",
+        "x": 0.992,
+        "y": 0.285,
+        "name": "F22_RDR_TEXT_3017"
+      },
+      {
+        "text": "DETAIL",
+        "x": 0.992,
+        "y": 0.0,
+        "name": "F22_RDR_TEXT_3018"
+      },
+      {
+        "text": "P 1",
+        "x": -0.722,
+        "y": -0.684,
+        "name": "F22_RDR_TEXT_3019"
+      },
+      {
+        "text": "C 0",
+        "x": -0.361,
+        "y": -0.684,
+        "name": "F22_RDR_TEXT_3020"
+      },
+      {
+        "text": "F 0",
+        "x": 0.0,
+        "y": -0.684,
+        "name": "F22_RDR_TEXT_3021"
+      },
+      {
+        "text": "0.00S",
+        "x": 0.361,
+        "y": -0.684,
+        "name": "F22_RDR_TEXT_3022"
+      },
+      {
+        "text": "X0",
+        "x": 0.722,
+        "y": -0.684,
+        "name": "F22_RDR_TEXT_3023"
+      }
+    ]
+  },
+  {
+    "id": "nav-0",
+    "title": "NAV / steering",
+    "page": "MFD_CENTER/hsi_page.lua",
+    "param": "CMFD_HSI_PAGE",
+    "group": "nav",
+    "params": {
+      "CMFD_HSI_PAGE_DATA": 0
+    },
+    "element_count": 739,
+    "visible_text": [
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.874,
+        "name": "F22_NAV_CMFD_HSI_PAGE_4"
+      },
+      {
+        "text": "TCN",
+        "x": 0.817,
+        "y": 0.133,
+        "name": "F22_NAV_CMFD_HSI_PAGE_5"
+      },
+      {
+        "text": "D-TO",
+        "x": -0.2684,
+        "y": -0.874,
+        "name": "F22_NAV_CMFD_HSI_PAGE_6"
+      },
+      {
+        "text": "ILS",
+        "x": 0.817,
+        "y": -0.133,
+        "name": "F22_NAV_CMFD_HSI_PAGE_7"
+      },
+      {
+        "text": "AUTO",
+        "x": -0.836,
+        "y": -0.665,
+        "name": "F22_NAV_CMFD_HSI_PAGE_8"
+      },
+      {
+        "text": "WPDSG",
+        "x": 0.817,
+        "y": -0.399,
+        "name": "F22_NAV_CMFD_HSI_PAGE_9"
+      },
+      {
+        "text": "DATA",
+        "x": 0.5367,
+        "y": 0.874,
+        "name": "F22_NAV_CMFD_HSI_PAGE_10"
+      },
+      {
+        "text": "NEXT",
+        "x": -0.836,
+        "y": 0.399,
+        "name": "F22_NAV_CMFD_HSI_PAGE_13"
+      },
+      {
+        "text": "RNG-",
+        "x": -0.836,
+        "y": -0.399,
+        "name": "F22_NAV_CMFD_HSI_PAGE_14"
+      },
+      {
+        "text": "WYPT",
+        "x": 0.817,
+        "y": 0.399,
+        "name": "F22_NAV_CMFD_HSI_PAGE_15"
+      },
+      {
+        "text": "RNG+",
+        "x": -0.836,
+        "y": -0.133,
+        "name": "F22_NAV_CMFD_HSI_PAGE_16"
+      },
+      {
+        "text": "PREV",
+        "x": -0.836,
+        "y": 0.133,
+        "name": "F22_NAV_CMFD_HSI_PAGE_17"
+      },
+      {
+        "text": "RNG 40",
+        "x": 0.5795,
+        "y": -0.874,
+        "name": "F22_NAV_CMFD_HSI_PAGE_46"
+      },
+      {
+        "text": "NAV 270",
+        "x": 0.0,
+        "y": 0.8075,
+        "name": "F22_NAV_CMFD_HSI_PAGE_62"
+      },
+      {
+        "text": "N",
+        "x": 0.0,
+        "y": 0.7268,
+        "name": "F22_NAV_CMFD_HSI_PAGE_139"
+      },
+      {
+        "text": "03",
+        "x": 0.3159,
+        "y": 0.6421,
+        "name": "F22_NAV_CMFD_HSI_PAGE_142"
+      },
+      {
+        "text": "06",
+        "x": 0.5471,
+        "y": 0.4109,
+        "name": "F22_NAV_CMFD_HSI_PAGE_145"
+      },
+      {
+        "text": "E",
+        "x": 0.6318,
+        "y": 0.095,
+        "name": "F22_NAV_CMFD_HSI_PAGE_148"
+      },
+      {
+        "text": "12",
+        "x": 0.5471,
+        "y": -0.2209,
+        "name": "F22_NAV_CMFD_HSI_PAGE_151"
+      },
+      {
+        "text": "15",
+        "x": 0.3159,
+        "y": -0.4521,
+        "name": "F22_NAV_CMFD_HSI_PAGE_154"
+      },
+      {
+        "text": "S",
+        "x": 0.0,
+        "y": -0.5368,
+        "name": "F22_NAV_CMFD_HSI_PAGE_157"
+      },
+      {
+        "text": "21",
+        "x": -0.3159,
+        "y": -0.4521,
+        "name": "F22_NAV_CMFD_HSI_PAGE_160"
+      },
+      {
+        "text": "24",
+        "x": -0.5471,
+        "y": -0.2209,
+        "name": "F22_NAV_CMFD_HSI_PAGE_163"
+      },
+      {
+        "text": "W",
+        "x": -0.6318,
+        "y": 0.095,
+        "name": "F22_NAV_CMFD_HSI_PAGE_166"
+      },
+      {
+        "text": "30",
+        "x": -0.5471,
+        "y": 0.4109,
+        "name": "F22_NAV_CMFD_HSI_PAGE_169"
+      },
+      {
+        "text": "33",
+        "x": -0.3159,
+        "y": 0.6421,
+        "name": "F22_NAV_CMFD_HSI_PAGE_172"
+      },
+      {
+        "text": "0",
+        "x": 0.6175,
+        "y": 0.779,
+        "name": "F22_NAV_CMFD_HSI_PAGE_682"
+      },
+      {
+        "text": "0",
+        "x": 0.6175,
+        "y": 0.7125,
+        "name": "F22_NAV_CMFD_HSI_PAGE_683"
+      },
+      {
+        "text": "0",
+        "x": 0.0,
+        "y": -0.6555,
+        "name": "F22_NAV_CMFD_HSI_PAGE_694"
+      },
+      {
+        "text": "276",
+        "x": -0.285,
+        "y": -0.7125,
+        "name": "F22_NAV_CMFD_HSI_PAGE_695"
+      },
+      {
+        "text": "0",
+        "x": 0.285,
+        "y": -0.7125,
+        "name": "F22_NAV_CMFD_HSI_PAGE_696"
+      },
+      {
+        "text": "0",
+        "x": -0.285,
+        "y": -0.7695,
+        "name": "F22_NAV_CMFD_HSI_PAGE_697"
+      },
+      {
+        "text": "0",
+        "x": 0.285,
+        "y": -0.7695,
+        "name": "F22_NAV_CMFD_HSI_PAGE_698"
+      },
+      {
+        "text": "0",
+        "x": -0.285,
+        "y": -0.8217,
+        "name": "F22_NAV_CMFD_HSI_PAGE_699"
+      },
+      {
+        "text": "0",
+        "x": 0.285,
+        "y": -0.8217,
+        "name": "F22_NAV_CMFD_HSI_PAGE_700"
+      }
+    ]
+  },
+  {
+    "id": "nav-1",
+    "title": "NAV / waypoint data",
+    "page": "MFD_CENTER/hsi_page.lua",
+    "param": "CMFD_HSI_PAGE",
+    "group": "nav",
+    "params": {
+      "CMFD_HSI_PAGE_DATA": 1
+    },
+    "element_count": 739,
+    "visible_text": [
+      {
+        "text": "UFC",
+        "x": 0.817,
+        "y": 0.399,
+        "name": "F22_NAV_CMFD_HSI_PAGE_19"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.874,
+        "name": "F22_NAV_CMFD_HSI_PAGE_20"
+      },
+      {
+        "text": "NEXT",
+        "x": -0.836,
+        "y": 0.399,
+        "name": "F22_NAV_CMFD_HSI_PAGE_21"
+      },
+      {
+        "text": "TCN",
+        "x": 0.0,
+        "y": 0.874,
+        "name": "F22_NAV_CMFD_HSI_PAGE_22"
+      },
+      {
+        "text": "PREV",
+        "x": -0.836,
+        "y": 0.133,
+        "name": "F22_NAV_CMFD_HSI_PAGE_23"
+      },
+      {
+        "text": "ILS",
+        "x": 0.2684,
+        "y": 0.874,
+        "name": "F22_NAV_CMFD_HSI_PAGE_24"
+      },
+      {
+        "text": "NAV",
+        "x": 0.5367,
+        "y": 0.874,
+        "name": "F22_NAV_CMFD_HSI_PAGE_25"
+      },
+      {
+        "text": "WYPT",
+        "x": -0.2684,
+        "y": 0.874,
+        "name": "F22_NAV_CMFD_HSI_PAGE_26"
+      },
+      {
+        "text": "WAYPOINT",
+        "x": 0.0,
+        "y": 0.684,
+        "name": "F22_NAV_CMFD_HSI_PAGE_702"
+      },
+      {
+        "text": "WYPT 0",
+        "x": 0.0,
+        "y": 0.494,
+        "name": "F22_NAV_CMFD_HSI_PAGE_703"
+      },
+      {
+        "text": "LAT",
+        "x": -0.4655,
+        "y": 0.247,
+        "name": "F22_NAV_CMFD_HSI_PAGE_704"
+      },
+      {
+        "text": "0",
+        "x": 0.133,
+        "y": 0.247,
+        "name": "F22_NAV_CMFD_HSI_PAGE_705"
+      },
+      {
+        "text": "LON",
+        "x": -0.4655,
+        "y": 0.095,
+        "name": "F22_NAV_CMFD_HSI_PAGE_706"
+      },
+      {
+        "text": "0",
+        "x": 0.133,
+        "y": 0.095,
+        "name": "F22_NAV_CMFD_HSI_PAGE_707"
+      },
+      {
+        "text": "ELEV",
+        "x": -0.4655,
+        "y": -0.057,
+        "name": "F22_NAV_CMFD_HSI_PAGE_708"
+      },
+      {
+        "text": "0",
+        "x": 0.133,
+        "y": -0.057,
+        "name": "F22_NAV_CMFD_HSI_PAGE_709"
+      },
+      {
+        "text": "0",
+        "x": 0.0,
+        "y": -0.361,
+        "name": "F22_NAV_CMFD_HSI_PAGE_710"
+      }
+    ]
+  },
+  {
+    "id": "nav-2",
+    "title": "NAV / TACAN data",
+    "page": "MFD_CENTER/hsi_page.lua",
+    "param": "CMFD_HSI_PAGE",
+    "group": "nav",
+    "params": {
+      "CMFD_HSI_PAGE_DATA": 2
+    },
+    "element_count": 739,
+    "visible_text": [
+      {
+        "text": "UFC",
+        "x": 0.817,
+        "y": 0.399,
+        "name": "F22_NAV_CMFD_HSI_PAGE_29"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.874,
+        "name": "F22_NAV_CMFD_HSI_PAGE_30"
+      },
+      {
+        "text": "TCN",
+        "x": 0.0,
+        "y": 0.874,
+        "name": "F22_NAV_CMFD_HSI_PAGE_31"
+      },
+      {
+        "text": "MODE",
+        "x": 0.817,
+        "y": 0.133,
+        "name": "F22_NAV_CMFD_HSI_PAGE_33"
+      },
+      {
+        "text": "ILS",
+        "x": 0.2684,
+        "y": 0.874,
+        "name": "F22_NAV_CMFD_HSI_PAGE_34"
+      },
+      {
+        "text": "NAV",
+        "x": 0.5367,
+        "y": 0.874,
+        "name": "F22_NAV_CMFD_HSI_PAGE_35"
+      },
+      {
+        "text": "WYPT",
+        "x": -0.2684,
+        "y": 0.874,
+        "name": "F22_NAV_CMFD_HSI_PAGE_36"
+      },
+      {
+        "text": "TACAN",
+        "x": 0.0,
+        "y": 0.684,
+        "name": "F22_NAV_CMFD_HSI_PAGE_712"
+      },
+      {
+        "text": "0",
+        "x": 0.0,
+        "y": 0.4085,
+        "name": "F22_NAV_CMFD_HSI_PAGE_713"
+      },
+      {
+        "text": "0",
+        "x": 0.0,
+        "y": 0.152,
+        "name": "F22_NAV_CMFD_HSI_PAGE_714"
+      },
+      {
+        "text": "BRG ---",
+        "x": -0.2375,
+        "y": -0.095,
+        "name": "F22_NAV_CMFD_HSI_PAGE_724"
+      },
+      {
+        "text": "DME ---",
+        "x": 0.2375,
+        "y": -0.095,
+        "name": "F22_NAV_CMFD_HSI_PAGE_725"
+      }
+    ]
+  },
+  {
+    "id": "nav-3",
+    "title": "NAV / ILS data",
+    "page": "MFD_CENTER/hsi_page.lua",
+    "param": "CMFD_HSI_PAGE",
+    "group": "nav",
+    "params": {
+      "CMFD_HSI_PAGE_DATA": 3
+    },
+    "element_count": 739,
+    "visible_text": [
+      {
+        "text": "UFC",
+        "x": 0.817,
+        "y": 0.399,
+        "name": "F22_NAV_CMFD_HSI_PAGE_38"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.874,
+        "name": "F22_NAV_CMFD_HSI_PAGE_39"
+      },
+      {
+        "text": "TCN",
+        "x": 0.0,
+        "y": 0.874,
+        "name": "F22_NAV_CMFD_HSI_PAGE_40"
+      },
+      {
+        "text": "ILS",
+        "x": 0.2684,
+        "y": 0.874,
+        "name": "F22_NAV_CMFD_HSI_PAGE_41"
+      },
+      {
+        "text": "NAV",
+        "x": 0.5367,
+        "y": 0.874,
+        "name": "F22_NAV_CMFD_HSI_PAGE_43"
+      },
+      {
+        "text": "WYPT",
+        "x": -0.2684,
+        "y": 0.874,
+        "name": "F22_NAV_CMFD_HSI_PAGE_44"
+      },
+      {
+        "text": "ILS",
+        "x": 0.0,
+        "y": 0.684,
+        "name": "F22_NAV_CMFD_HSI_PAGE_727"
+      },
+      {
+        "text": "0",
+        "x": 0.0,
+        "y": 0.4085,
+        "name": "F22_NAV_CMFD_HSI_PAGE_728"
+      },
+      {
+        "text": "0",
+        "x": 0.0,
+        "y": 0.152,
+        "name": "F22_NAV_CMFD_HSI_PAGE_729"
+      },
+      {
+        "text": "LOC INVALID",
+        "x": -0.171,
+        "y": -0.095,
+        "name": "F22_NAV_CMFD_HSI_PAGE_733"
+      },
+      {
+        "text": "GS INVALID",
+        "x": 0.171,
+        "y": -0.095,
+        "name": "F22_NAV_CMFD_HSI_PAGE_737"
+      }
+    ]
+  },
+  {
+    "id": "stores-0",
+    "title": "STORES / A/G main",
+    "page": "MFD_CENTER/bay_page.lua",
+    "param": "CMFD_BAY_PAGE",
+    "group": "stores",
+    "params": {
+      "F22_SMS_UI_PAGE": 0,
+      "HUD_MODE": 7
+    },
+    "element_count": 866,
+    "visible_text": [
+      {
+        "text": "STORES",
+        "x": 0.0,
+        "y": 0.7695,
+        "name": "F22_STORES_27"
+      },
+      {
+        "text": "A/G",
+        "x": 0.304,
+        "y": 0.7695,
+        "name": "F22_STORES_29"
+      },
+      {
+        "text": "MASTER SAFE",
+        "x": 0.0,
+        "y": 0.665,
+        "name": "F22_STORES_34"
+      },
+      {
+        "text": "RPM",
+        "x": 0.0,
+        "y": 0.589,
+        "name": "F22_STORES_39"
+      },
+      {
+        "text": "85",
+        "x": -0.437,
+        "y": 0.608,
+        "name": "F22_STORES_40"
+      },
+      {
+        "text": "85",
+        "x": 0.437,
+        "y": 0.608,
+        "name": "F22_STORES_41"
+      },
+      {
+        "text": "GBU-32 LEGACY",
+        "x": 0.0,
+        "y": 0.4845,
+        "name": "F22_STORES_47"
+      },
+      {
+        "text": "AUTO",
+        "x": 0.0,
+        "y": 0.3325,
+        "name": "F22_STORES_86"
+      },
+      {
+        "text": "1",
+        "x": -0.2489,
+        "y": -0.1472,
+        "name": "F22_STORES_187"
+      },
+      {
+        "text": "GB32",
+        "x": -0.2489,
+        "y": -0.2327,
+        "name": "F22_STORES_193"
+      },
+      {
+        "text": "1",
+        "x": -0.1577,
+        "y": -0.1472,
+        "name": "F22_STORES_233"
+      },
+      {
+        "text": "GB32",
+        "x": -0.1577,
+        "y": -0.304,
+        "name": "F22_STORES_239"
+      },
+      {
+        "text": "1",
+        "x": 0.0665,
+        "y": -0.1472,
+        "name": "F22_STORES_325"
+      },
+      {
+        "text": "BOMB",
+        "x": 0.0665,
+        "y": -0.304,
+        "name": "F22_STORES_333"
+      },
+      {
+        "text": "1",
+        "x": 0.1577,
+        "y": -0.1472,
+        "name": "F22_STORES_371"
+      },
+      {
+        "text": "BOMB",
+        "x": 0.1577,
+        "y": -0.2327,
+        "name": "F22_STORES_379"
+      },
+      {
+        "text": "GB32",
+        "x": -0.5367,
+        "y": 0.874,
+        "name": "F22_STORES_610"
+      },
+      {
+        "text": "BOMB",
+        "x": -0.2684,
+        "y": 0.874,
+        "name": "F22_STORES_647"
+      },
+      {
+        "text": "MODE",
+        "x": 0.8265,
+        "y": 0.399,
+        "name": "F22_STORES_775"
+      },
+      {
+        "text": "PROG",
+        "x": 0.8265,
+        "y": 0.133,
+        "name": "F22_STORES_776"
+      },
+      {
+        "text": "UFC",
+        "x": 0.8265,
+        "y": -0.133,
+        "name": "F22_STORES_786"
+      },
+      {
+        "text": "DOORS",
+        "x": 0.5367,
+        "y": -0.874,
+        "name": "F22_STORES_787"
+      },
+      {
+        "text": "DATA",
+        "x": 0.2684,
+        "y": -0.874,
+        "name": "F22_STORES_788"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.874,
+        "name": "F22_STORES_789"
+      },
+      {
+        "text": "PROG 1",
+        "x": -0.456,
+        "y": -0.361,
+        "name": "F22_STORES_797"
+      },
+      {
+        "text": "QTY 2",
+        "x": 0.4275,
+        "y": -0.361,
+        "name": "F22_STORES_798"
+      },
+      {
+        "text": "MULT 1",
+        "x": -0.456,
+        "y": -0.456,
+        "name": "F22_STORES_799"
+      },
+      {
+        "text": "INT 200 MS",
+        "x": 0.3135,
+        "y": -0.456,
+        "name": "F22_STORES_803"
+      }
+    ]
+  },
+  {
+    "id": "stores-1",
+    "title": "STORES / A/G data",
+    "page": "MFD_CENTER/bay_page.lua",
+    "param": "CMFD_BAY_PAGE",
+    "group": "stores",
+    "params": {
+      "F22_SMS_UI_PAGE": 1,
+      "HUD_MODE": 7
+    },
+    "element_count": 866,
+    "visible_text": [
+      {
+        "text": "STORES",
+        "x": 0.0,
+        "y": 0.7695,
+        "name": "F22_STORES_27"
+      },
+      {
+        "text": "A/G",
+        "x": 0.304,
+        "y": 0.7695,
+        "name": "F22_STORES_29"
+      },
+      {
+        "text": "MASTER SAFE",
+        "x": 0.0,
+        "y": 0.665,
+        "name": "F22_STORES_34"
+      },
+      {
+        "text": "RPM",
+        "x": 0.0,
+        "y": 0.589,
+        "name": "F22_STORES_39"
+      },
+      {
+        "text": "85",
+        "x": -0.437,
+        "y": 0.608,
+        "name": "F22_STORES_40"
+      },
+      {
+        "text": "85",
+        "x": 0.437,
+        "y": 0.608,
+        "name": "F22_STORES_41"
+      },
+      {
+        "text": "GBU-32 LEGACY",
+        "x": 0.0,
+        "y": 0.4845,
+        "name": "F22_STORES_47"
+      },
+      {
+        "text": "AUTO",
+        "x": 0.0,
+        "y": 0.3325,
+        "name": "F22_STORES_86"
+      },
+      {
+        "text": "1",
+        "x": -0.2489,
+        "y": -0.1472,
+        "name": "F22_STORES_187"
+      },
+      {
+        "text": "GB32",
+        "x": -0.2489,
+        "y": -0.2327,
+        "name": "F22_STORES_193"
+      },
+      {
+        "text": "1",
+        "x": -0.1577,
+        "y": -0.1472,
+        "name": "F22_STORES_233"
+      },
+      {
+        "text": "GB32",
+        "x": -0.1577,
+        "y": -0.304,
+        "name": "F22_STORES_239"
+      },
+      {
+        "text": "1",
+        "x": 0.0665,
+        "y": -0.1472,
+        "name": "F22_STORES_325"
+      },
+      {
+        "text": "BOMB",
+        "x": 0.0665,
+        "y": -0.304,
+        "name": "F22_STORES_333"
+      },
+      {
+        "text": "1",
+        "x": 0.1577,
+        "y": -0.1472,
+        "name": "F22_STORES_371"
+      },
+      {
+        "text": "BOMB",
+        "x": 0.1577,
+        "y": -0.2327,
+        "name": "F22_STORES_379"
+      },
+      {
+        "text": "GB32",
+        "x": -0.5367,
+        "y": 0.874,
+        "name": "F22_STORES_610"
+      },
+      {
+        "text": "BOMB",
+        "x": -0.2684,
+        "y": 0.874,
+        "name": "F22_STORES_647"
+      },
+      {
+        "text": "MODE",
+        "x": 0.8265,
+        "y": 0.399,
+        "name": "F22_STORES_775"
+      },
+      {
+        "text": "PROG",
+        "x": 0.8265,
+        "y": 0.133,
+        "name": "F22_STORES_776"
+      },
+      {
+        "text": "UFC",
+        "x": 0.8265,
+        "y": -0.133,
+        "name": "F22_STORES_786"
+      },
+      {
+        "text": "DOORS",
+        "x": 0.5367,
+        "y": -0.874,
+        "name": "F22_STORES_787"
+      },
+      {
+        "text": "RTN",
+        "x": 0.0,
+        "y": -0.874,
+        "name": "F22_STORES_790"
+      },
+      {
+        "text": "STN STEP",
+        "x": -0.8265,
+        "y": -0.133,
+        "name": "F22_STORES_794"
+      },
+      {
+        "text": "TGT SET",
+        "x": -0.8265,
+        "y": -0.665,
+        "name": "F22_STORES_795"
+      },
+      {
+        "text": "TGT CLR",
+        "x": -0.8265,
+        "y": -0.399,
+        "name": "F22_STORES_796"
+      },
+      {
+        "text": "PROG 1",
+        "x": -0.456,
+        "y": -0.361,
+        "name": "F22_STORES_797"
+      },
+      {
+        "text": "QTY 2",
+        "x": 0.4275,
+        "y": -0.361,
+        "name": "F22_STORES_798"
+      },
+      {
+        "text": "MULT 1",
+        "x": -0.456,
+        "y": -0.456,
+        "name": "F22_STORES_799"
+      },
+      {
+        "text": "INT 200 MS",
+        "x": 0.3135,
+        "y": -0.456,
+        "name": "F22_STORES_803"
+      },
+      {
+        "text": "STN 3",
+        "x": 0.0,
+        "y": -0.5605,
+        "name": "F22_STORES_806"
+      },
+      {
+        "text": "NO TARGET",
+        "x": 0.0,
+        "y": -0.646,
+        "name": "F22_STORES_809"
+      }
+    ]
+  },
+  {
+    "id": "stores-2",
+    "title": "STORES / bay doors",
+    "page": "MFD_CENTER/bay_page.lua",
+    "param": "CMFD_BAY_PAGE",
+    "group": "stores",
+    "params": {
+      "F22_SMS_UI_PAGE": 2,
+      "HUD_MODE": 7
+    },
+    "element_count": 866,
+    "visible_text": [
+      {
+        "text": "STORES",
+        "x": 0.0,
+        "y": 0.7695,
+        "name": "F22_STORES_27"
+      },
+      {
+        "text": "A/G",
+        "x": 0.304,
+        "y": 0.7695,
+        "name": "F22_STORES_29"
+      },
+      {
+        "text": "MASTER SAFE",
+        "x": 0.0,
+        "y": 0.665,
+        "name": "F22_STORES_34"
+      },
+      {
+        "text": "RPM",
+        "x": 0.0,
+        "y": 0.589,
+        "name": "F22_STORES_39"
+      },
+      {
+        "text": "85",
+        "x": -0.437,
+        "y": 0.608,
+        "name": "F22_STORES_40"
+      },
+      {
+        "text": "85",
+        "x": 0.437,
+        "y": 0.608,
+        "name": "F22_STORES_41"
+      },
+      {
+        "text": "GBU-32 LEGACY",
+        "x": 0.0,
+        "y": 0.4845,
+        "name": "F22_STORES_47"
+      },
+      {
+        "text": "AUTO",
+        "x": 0.0,
+        "y": 0.3325,
+        "name": "F22_STORES_86"
+      },
+      {
+        "text": "1",
+        "x": -0.2489,
+        "y": -0.1472,
+        "name": "F22_STORES_187"
+      },
+      {
+        "text": "GB32",
+        "x": -0.2489,
+        "y": -0.2327,
+        "name": "F22_STORES_193"
+      },
+      {
+        "text": "1",
+        "x": -0.1577,
+        "y": -0.1472,
+        "name": "F22_STORES_233"
+      },
+      {
+        "text": "GB32",
+        "x": -0.1577,
+        "y": -0.304,
+        "name": "F22_STORES_239"
+      },
+      {
+        "text": "1",
+        "x": 0.0665,
+        "y": -0.1472,
+        "name": "F22_STORES_325"
+      },
+      {
+        "text": "BOMB",
+        "x": 0.0665,
+        "y": -0.304,
+        "name": "F22_STORES_333"
+      },
+      {
+        "text": "1",
+        "x": 0.1577,
+        "y": -0.1472,
+        "name": "F22_STORES_371"
+      },
+      {
+        "text": "BOMB",
+        "x": 0.1577,
+        "y": -0.2327,
+        "name": "F22_STORES_379"
+      },
+      {
+        "text": "BAY DOORS",
+        "x": 0.0,
+        "y": -0.4085,
+        "name": "F22_STORES_838"
+      },
+      {
+        "text": "LEFT",
+        "x": -0.399,
+        "y": -0.5225,
+        "name": "F22_STORES_839"
+      },
+      {
+        "text": "CLOSED",
+        "x": -0.399,
+        "y": -0.608,
+        "name": "F22_STORES_841"
+      },
+      {
+        "text": "MAIN",
+        "x": 0.0,
+        "y": -0.5225,
+        "name": "F22_STORES_846"
+      },
+      {
+        "text": "CLOSED",
+        "x": 0.0,
+        "y": -0.608,
+        "name": "F22_STORES_848"
+      },
+      {
+        "text": "RIGHT",
+        "x": 0.399,
+        "y": -0.5225,
+        "name": "F22_STORES_853"
+      },
+      {
+        "text": "CLOSED",
+        "x": 0.399,
+        "y": -0.608,
+        "name": "F22_STORES_855"
+      },
+      {
+        "text": "RTN",
+        "x": 0.0,
+        "y": -0.874,
+        "name": "F22_STORES_862"
+      }
+    ]
+  },
+  {
+    "id": "stores-4",
+    "title": "STORES / delivery mode",
+    "page": "MFD_CENTER/bay_page.lua",
+    "param": "CMFD_BAY_PAGE",
+    "group": "stores",
+    "params": {
+      "F22_SMS_UI_PAGE": 4,
+      "HUD_MODE": 7
+    },
+    "element_count": 866,
+    "visible_text": [
+      {
+        "text": "STORES",
+        "x": 0.0,
+        "y": 0.7695,
+        "name": "F22_STORES_27"
+      },
+      {
+        "text": "A/G",
+        "x": 0.304,
+        "y": 0.7695,
+        "name": "F22_STORES_29"
+      },
+      {
+        "text": "MASTER SAFE",
+        "x": 0.0,
+        "y": 0.665,
+        "name": "F22_STORES_34"
+      },
+      {
+        "text": "RPM",
+        "x": 0.0,
+        "y": 0.589,
+        "name": "F22_STORES_39"
+      },
+      {
+        "text": "85",
+        "x": -0.437,
+        "y": 0.608,
+        "name": "F22_STORES_40"
+      },
+      {
+        "text": "85",
+        "x": 0.437,
+        "y": 0.608,
+        "name": "F22_STORES_41"
+      },
+      {
+        "text": "GBU-32 LEGACY",
+        "x": 0.0,
+        "y": 0.4845,
+        "name": "F22_STORES_47"
+      },
+      {
+        "text": "AUTO",
+        "x": 0.0,
+        "y": 0.3325,
+        "name": "F22_STORES_86"
+      },
+      {
+        "text": "1",
+        "x": -0.2489,
+        "y": -0.1472,
+        "name": "F22_STORES_187"
+      },
+      {
+        "text": "GB32",
+        "x": -0.2489,
+        "y": -0.2327,
+        "name": "F22_STORES_193"
+      },
+      {
+        "text": "1",
+        "x": -0.1577,
+        "y": -0.1472,
+        "name": "F22_STORES_233"
+      },
+      {
+        "text": "GB32",
+        "x": -0.1577,
+        "y": -0.304,
+        "name": "F22_STORES_239"
+      },
+      {
+        "text": "1",
+        "x": 0.0665,
+        "y": -0.1472,
+        "name": "F22_STORES_325"
+      },
+      {
+        "text": "BOMB",
+        "x": 0.0665,
+        "y": -0.304,
+        "name": "F22_STORES_333"
+      },
+      {
+        "text": "1",
+        "x": 0.1577,
+        "y": -0.1472,
+        "name": "F22_STORES_371"
+      },
+      {
+        "text": "BOMB",
+        "x": 0.1577,
+        "y": -0.2327,
+        "name": "F22_STORES_379"
+      },
+      {
+        "text": "DELIVERY MODE",
+        "x": 0.0,
+        "y": -0.4085,
+        "name": "F22_STORES_830"
+      },
+      {
+        "text": "GUN",
+        "x": -0.5367,
+        "y": 0.874,
+        "name": "F22_STORES_832"
+      },
+      {
+        "text": "CCIP",
+        "x": -0.2684,
+        "y": 0.874,
+        "name": "F22_STORES_834"
+      },
+      {
+        "text": "AUTO",
+        "x": 0.0,
+        "y": 0.874,
+        "name": "F22_STORES_836"
+      },
+      {
+        "text": "RTN",
+        "x": 0.0,
+        "y": -0.874,
+        "name": "F22_STORES_837"
+      }
+    ]
+  },
+  {
+    "id": "stores-aa",
+    "title": "STORES / A/A",
+    "page": "MFD_CENTER/bay_page.lua",
+    "param": "CMFD_BAY_PAGE",
+    "group": "stores",
+    "params": {
+      "F22_SMS_AA_CONTEXT": 1,
+      "HUD_MODE": 2
+    },
+    "element_count": 866,
+    "visible_text": [
+      {
+        "text": "STORES",
+        "x": 0.0,
+        "y": 0.7695,
+        "name": "F22_STORES_27"
+      },
+      {
+        "text": "A/A",
+        "x": 0.304,
+        "y": 0.7695,
+        "name": "F22_STORES_32"
+      },
+      {
+        "text": "MASTER SAFE",
+        "x": 0.0,
+        "y": 0.665,
+        "name": "F22_STORES_34"
+      },
+      {
+        "text": "RPM",
+        "x": 0.0,
+        "y": 0.589,
+        "name": "F22_STORES_39"
+      },
+      {
+        "text": "85",
+        "x": -0.437,
+        "y": 0.608,
+        "name": "F22_STORES_40"
+      },
+      {
+        "text": "85",
+        "x": 0.437,
+        "y": 0.608,
+        "name": "F22_STORES_41"
+      },
+      {
+        "text": "AIM-120C",
+        "x": 0.0,
+        "y": 0.4845,
+        "name": "F22_STORES_76"
+      },
+      {
+        "text": "QTY 6",
+        "x": 0.0,
+        "y": 0.3325,
+        "name": "F22_STORES_88"
+      },
+      {
+        "text": "1",
+        "x": -0.2489,
+        "y": -0.1472,
+        "name": "F22_STORES_187"
+      },
+      {
+        "text": "GB32",
+        "x": -0.2489,
+        "y": -0.2327,
+        "name": "F22_STORES_193"
+      },
+      {
+        "text": "1",
+        "x": -0.1577,
+        "y": -0.1472,
+        "name": "F22_STORES_233"
+      },
+      {
+        "text": "GB32",
+        "x": -0.1577,
+        "y": -0.304,
+        "name": "F22_STORES_239"
+      },
+      {
+        "text": "1",
+        "x": 0.0665,
+        "y": -0.1472,
+        "name": "F22_STORES_325"
+      },
+      {
+        "text": "BOMB",
+        "x": 0.0665,
+        "y": -0.304,
+        "name": "F22_STORES_333"
+      },
+      {
+        "text": "1",
+        "x": 0.1577,
+        "y": -0.1472,
+        "name": "F22_STORES_371"
+      },
+      {
+        "text": "BOMB",
+        "x": 0.1577,
+        "y": -0.2327,
+        "name": "F22_STORES_379"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.874,
+        "name": "F22_STORES_791"
+      },
+      {
+        "text": "DOORS",
+        "x": 0.5367,
+        "y": -0.874,
+        "name": "F22_STORES_792"
+      },
+      {
+        "text": "STEP",
+        "x": -0.8265,
+        "y": -0.133,
+        "name": "F22_STORES_793"
+      }
+    ]
+  },
+  {
+    "id": "stores-gun",
+    "title": "STORES / A/G gun",
+    "page": "MFD_CENTER/bay_page.lua",
+    "param": "CMFD_BAY_PAGE",
+    "group": "stores",
+    "params": {
+      "HUD_AG_SUBMODE": 1,
+      "HUD_MODE": 7
+    },
+    "element_count": 866,
+    "visible_text": [
+      {
+        "text": "STORES",
+        "x": 0.0,
+        "y": 0.7695,
+        "name": "F22_STORES_27"
+      },
+      {
+        "text": "A/G",
+        "x": 0.304,
+        "y": 0.7695,
+        "name": "F22_STORES_29"
+      },
+      {
+        "text": "MASTER SAFE",
+        "x": 0.0,
+        "y": 0.665,
+        "name": "F22_STORES_34"
+      },
+      {
+        "text": "RPM",
+        "x": 0.0,
+        "y": 0.589,
+        "name": "F22_STORES_39"
+      },
+      {
+        "text": "85",
+        "x": -0.437,
+        "y": 0.608,
+        "name": "F22_STORES_40"
+      },
+      {
+        "text": "85",
+        "x": 0.437,
+        "y": 0.608,
+        "name": "F22_STORES_41"
+      },
+      {
+        "text": "CANNON 20 MM",
+        "x": 0.0,
+        "y": 0.4845,
+        "name": "F22_STORES_75"
+      },
+      {
+        "text": "GUN",
+        "x": 0.0,
+        "y": 0.3325,
+        "name": "F22_STORES_82"
+      },
+      {
+        "text": "1",
+        "x": -0.2489,
+        "y": -0.1472,
+        "name": "F22_STORES_187"
+      },
+      {
+        "text": "GB32",
+        "x": -0.2489,
+        "y": -0.2327,
+        "name": "F22_STORES_193"
+      },
+      {
+        "text": "1",
+        "x": -0.1577,
+        "y": -0.1472,
+        "name": "F22_STORES_233"
+      },
+      {
+        "text": "GB32",
+        "x": -0.1577,
+        "y": -0.304,
+        "name": "F22_STORES_239"
+      },
+      {
+        "text": "1",
+        "x": 0.0665,
+        "y": -0.1472,
+        "name": "F22_STORES_325"
+      },
+      {
+        "text": "BOMB",
+        "x": 0.0665,
+        "y": -0.304,
+        "name": "F22_STORES_333"
+      },
+      {
+        "text": "1",
+        "x": 0.1577,
+        "y": -0.1472,
+        "name": "F22_STORES_371"
+      },
+      {
+        "text": "BOMB",
+        "x": 0.1577,
+        "y": -0.2327,
+        "name": "F22_STORES_379"
+      },
+      {
+        "text": "GB32",
+        "x": -0.5367,
+        "y": 0.874,
+        "name": "F22_STORES_610"
+      },
+      {
+        "text": "BOMB",
+        "x": -0.2684,
+        "y": 0.874,
+        "name": "F22_STORES_647"
+      },
+      {
+        "text": "MODE",
+        "x": 0.8265,
+        "y": 0.399,
+        "name": "F22_STORES_777"
+      },
+      {
+        "text": "DOORS",
+        "x": 0.5367,
+        "y": -0.874,
+        "name": "F22_STORES_778"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.874,
+        "name": "F22_STORES_779"
+      },
+      {
+        "text": "ROUNDS 480",
+        "x": 0.0,
+        "y": -0.4085,
+        "name": "F22_STORES_781"
+      },
+      {
+        "text": "M61A2",
+        "x": 0.0,
+        "y": -0.532,
+        "name": "F22_STORES_784"
+      }
+    ]
+  },
+  {
+    "id": "stores-ccip",
+    "title": "STORES / CCIP selected",
+    "page": "MFD_CENTER/bay_page.lua",
+    "param": "CMFD_BAY_PAGE",
+    "group": "stores",
+    "params": {
+      "HUD_AG_SUBMODE": 2,
+      "HUD_MODE": 7
+    },
+    "element_count": 866,
+    "visible_text": [
+      {
+        "text": "STORES",
+        "x": 0.0,
+        "y": 0.7695,
+        "name": "F22_STORES_27"
+      },
+      {
+        "text": "A/G",
+        "x": 0.304,
+        "y": 0.7695,
+        "name": "F22_STORES_29"
+      },
+      {
+        "text": "MASTER SAFE",
+        "x": 0.0,
+        "y": 0.665,
+        "name": "F22_STORES_34"
+      },
+      {
+        "text": "RPM",
+        "x": 0.0,
+        "y": 0.589,
+        "name": "F22_STORES_39"
+      },
+      {
+        "text": "85",
+        "x": -0.437,
+        "y": 0.608,
+        "name": "F22_STORES_40"
+      },
+      {
+        "text": "85",
+        "x": 0.437,
+        "y": 0.608,
+        "name": "F22_STORES_41"
+      },
+      {
+        "text": "GBU-32 LEGACY",
+        "x": 0.0,
+        "y": 0.4845,
+        "name": "F22_STORES_47"
+      },
+      {
+        "text": "CCIP",
+        "x": 0.0,
+        "y": 0.3325,
+        "name": "F22_STORES_84"
+      },
+      {
+        "text": "1",
+        "x": -0.2489,
+        "y": -0.1472,
+        "name": "F22_STORES_187"
+      },
+      {
+        "text": "GB32",
+        "x": -0.2489,
+        "y": -0.2327,
+        "name": "F22_STORES_193"
+      },
+      {
+        "text": "1",
+        "x": -0.1577,
+        "y": -0.1472,
+        "name": "F22_STORES_233"
+      },
+      {
+        "text": "GB32",
+        "x": -0.1577,
+        "y": -0.304,
+        "name": "F22_STORES_239"
+      },
+      {
+        "text": "1",
+        "x": 0.0665,
+        "y": -0.1472,
+        "name": "F22_STORES_325"
+      },
+      {
+        "text": "BOMB",
+        "x": 0.0665,
+        "y": -0.304,
+        "name": "F22_STORES_333"
+      },
+      {
+        "text": "1",
+        "x": 0.1577,
+        "y": -0.1472,
+        "name": "F22_STORES_371"
+      },
+      {
+        "text": "BOMB",
+        "x": 0.1577,
+        "y": -0.2327,
+        "name": "F22_STORES_379"
+      },
+      {
+        "text": "GB32",
+        "x": -0.5367,
+        "y": 0.874,
+        "name": "F22_STORES_610"
+      },
+      {
+        "text": "BOMB",
+        "x": -0.2684,
+        "y": 0.874,
+        "name": "F22_STORES_647"
+      },
+      {
+        "text": "MODE",
+        "x": 0.8265,
+        "y": 0.399,
+        "name": "F22_STORES_775"
+      },
+      {
+        "text": "PROG",
+        "x": 0.8265,
+        "y": 0.133,
+        "name": "F22_STORES_776"
+      },
+      {
+        "text": "UFC",
+        "x": 0.8265,
+        "y": -0.133,
+        "name": "F22_STORES_786"
+      },
+      {
+        "text": "DOORS",
+        "x": 0.5367,
+        "y": -0.874,
+        "name": "F22_STORES_787"
+      },
+      {
+        "text": "DATA",
+        "x": 0.2684,
+        "y": -0.874,
+        "name": "F22_STORES_788"
+      },
+      {
+        "text": "MENU",
+        "x": 0.0,
+        "y": -0.874,
+        "name": "F22_STORES_789"
+      },
+      {
+        "text": "PROG 1",
+        "x": -0.456,
+        "y": -0.361,
+        "name": "F22_STORES_797"
+      },
+      {
+        "text": "QTY 2",
+        "x": 0.4275,
+        "y": -0.361,
+        "name": "F22_STORES_798"
+      },
+      {
+        "text": "MULT 1",
+        "x": -0.456,
+        "y": -0.456,
+        "name": "F22_STORES_799"
+      },
+      {
+        "text": "INT 200 MS",
+        "x": 0.3135,
+        "y": -0.456,
+        "name": "F22_STORES_803"
+      }
+    ]
+  },
+  {
+    "id": "lmfd-eng",
+    "title": "LMFD / engines",
+    "page": "MFD_LEFT/eng_page.lua",
+    "param": "LMFD_ENG_PAGE",
+    "group": "systems",
+    "params": {},
+    "element_count": 79,
+    "visible_text": [
+      {
+        "text": "00",
+        "x": 0.4,
+        "y": -0.29,
+        "name": "rad Alt"
+      },
+      {
+        "text": "00",
+        "x": -0.28,
+        "y": -0.29,
+        "name": "rad Alt"
+      },
+      {
+        "text": "1800",
+        "x": 0.34,
+        "y": -0.43,
+        "name": "rad Alt"
+      },
+      {
+        "text": "1800",
+        "x": -0.34,
+        "y": -0.43,
+        "name": "rad Alt"
+      },
+      {
+        "text": "RPM",
+        "x": 0,
+        "y": 0.6,
+        "name": "menu"
+      },
+      {
+        "text": "EGT",
+        "x": 0,
+        "y": 0.3,
+        "name": "menu"
+      },
+      {
+        "text": "OIL",
+        "x": 0,
+        "y": 0.03,
+        "name": "menu"
+      },
+      {
+        "text": "NOZ",
+        "x": 0,
+        "y": -0.26,
+        "name": "menu"
+      },
+      {
+        "text": "FF",
+        "x": 0,
+        "y": -0.43,
+        "name": "menu"
+      },
+      {
+        "text": "CABIN PRESS",
+        "x": 0.45,
+        "y": -0.63,
+        "name": "menu"
+      },
+      {
+        "text": "HYD",
+        "x": -0.43,
+        "y": -0.68,
+        "name": "menu"
+      },
+      {
+        "text": "MENU",
+        "x": 0,
+        "y": -0.92,
+        "name": "menu"
+      },
+      {
+        "text": "ATTACK",
+        "x": -0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "FCS",
+        "x": 0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "STORES",
+        "x": 0,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "FUEL",
+        "x": 0.565,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "85",
+        "x": 0.28,
+        "y": 0.69,
+        "name": "rad Alt"
+      },
+      {
+        "text": "85",
+        "x": -0.41,
+        "y": 0.69,
+        "name": "rad Alt"
+      },
+      {
+        "text": "550",
+        "x": 0.28,
+        "y": 0.39,
+        "name": "rad Alt"
+      },
+      {
+        "text": "550",
+        "x": -0.41,
+        "y": 0.39,
+        "name": "rad Alt"
+      }
+    ]
+  },
+  {
+    "id": "lmfd-fcs",
+    "title": "LMFD / flight controls",
+    "page": "MFD_LEFT/fcs_page.lua",
+    "param": "LMFD_FCS_PAGE",
+    "group": "systems",
+    "params": {},
+    "element_count": 23,
+    "visible_text": [
+      {
+        "text": "MENU",
+        "x": 0,
+        "y": -0.92,
+        "name": "menu"
+      },
+      {
+        "text": "ATTACK",
+        "x": -0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "ENG",
+        "x": 0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "FUEL",
+        "x": 0.565,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "3.00",
+        "x": -0.42,
+        "y": 0.1,
+        "name": "AOA_NUM"
+      },
+      {
+        "text": "AOA:",
+        "x": -0.7,
+        "y": 0.1,
+        "name": "pitch"
+      },
+      {
+        "text": "1.00",
+        "x": -0.42,
+        "y": 0.2,
+        "name": "G_NUM"
+      },
+      {
+        "text": "G:",
+        "x": -0.652,
+        "y": 0.2,
+        "name": "G_TXT"
+      }
+    ]
+  },
+  {
+    "id": "lmfd-fuel",
+    "title": "LMFD / fuel",
+    "page": "MFD_LEFT/fuel_page.lua",
+    "param": "LMFD_FUEL_PAGE",
+    "group": "systems",
+    "params": {},
+    "element_count": 29,
+    "visible_text": [
+      {
+        "text": "TOTAL:",
+        "x": 0.4,
+        "y": 0.65,
+        "name": "menu"
+      },
+      {
+        "text": "12000",
+        "x": 0.8,
+        "y": 0.65,
+        "name": "INT NUM"
+      },
+      {
+        "text": "TANKS:",
+        "x": 0.4,
+        "y": 0.58,
+        "name": "menu"
+      },
+      {
+        "text": "0",
+        "x": 0.8,
+        "y": 0.58,
+        "name": "INT NUM"
+      },
+      {
+        "text": "L EFF:",
+        "x": -0.85,
+        "y": -0.75,
+        "name": "menu"
+      },
+      {
+        "text": "L EGT:",
+        "x": -0.85,
+        "y": -0.82,
+        "name": "menu"
+      },
+      {
+        "text": "1800",
+        "x": -0.45,
+        "y": -0.75,
+        "name": "INT NUM"
+      },
+      {
+        "text": "550",
+        "x": -0.45,
+        "y": -0.82,
+        "name": "INT NUM"
+      },
+      {
+        "text": ":R EFF",
+        "x": 0.85,
+        "y": -0.75,
+        "name": "menu"
+      },
+      {
+        "text": ":R EGT",
+        "x": 0.85,
+        "y": -0.82,
+        "name": "menu"
+      },
+      {
+        "text": "1800",
+        "x": 0.45,
+        "y": -0.75,
+        "name": "INT NUM"
+      },
+      {
+        "text": "550",
+        "x": 0.45,
+        "y": -0.82,
+        "name": "INT NUM"
+      },
+      {
+        "text": "MENU",
+        "x": 0,
+        "y": -0.92,
+        "name": "menu"
+      },
+      {
+        "text": "RWR",
+        "x": -0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "BAY",
+        "x": 0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "ENG",
+        "x": 0,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "FCS",
+        "x": 0.565,
+        "y": 0.92,
+        "name": "menu"
+      }
+    ]
+  },
+  {
+    "id": "rmfd-eng",
+    "title": "RMFD / engines",
+    "page": "MFD_RIGHT/eng_page.lua",
+    "param": "RMFD_ENG_PAGE",
+    "group": "systems",
+    "params": {},
+    "element_count": 79,
+    "visible_text": [
+      {
+        "text": "00",
+        "x": 0.4,
+        "y": -0.29,
+        "name": "rad Alt"
+      },
+      {
+        "text": "00",
+        "x": -0.28,
+        "y": -0.29,
+        "name": "rad Alt"
+      },
+      {
+        "text": "1800",
+        "x": 0.34,
+        "y": -0.43,
+        "name": "rad Alt"
+      },
+      {
+        "text": "1800",
+        "x": -0.34,
+        "y": -0.43,
+        "name": "rad Alt"
+      },
+      {
+        "text": "RPM",
+        "x": 0,
+        "y": 0.6,
+        "name": "menu"
+      },
+      {
+        "text": "EGT",
+        "x": 0,
+        "y": 0.3,
+        "name": "menu"
+      },
+      {
+        "text": "OIL",
+        "x": 0,
+        "y": 0.03,
+        "name": "menu"
+      },
+      {
+        "text": "NOZ",
+        "x": 0,
+        "y": -0.26,
+        "name": "menu"
+      },
+      {
+        "text": "FF",
+        "x": 0,
+        "y": -0.43,
+        "name": "menu"
+      },
+      {
+        "text": "CABIN PRESS",
+        "x": 0.45,
+        "y": -0.63,
+        "name": "menu"
+      },
+      {
+        "text": "HYD",
+        "x": -0.43,
+        "y": -0.68,
+        "name": "menu"
+      },
+      {
+        "text": "MENU",
+        "x": 0,
+        "y": -0.92,
+        "name": "menu"
+      },
+      {
+        "text": "RWR",
+        "x": -0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "FCS",
+        "x": 0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "STORES",
+        "x": 0,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "FUEL",
+        "x": 0.565,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "85",
+        "x": 0.28,
+        "y": 0.69,
+        "name": "rad Alt"
+      },
+      {
+        "text": "85",
+        "x": -0.41,
+        "y": 0.69,
+        "name": "rad Alt"
+      },
+      {
+        "text": "550",
+        "x": 0.28,
+        "y": 0.39,
+        "name": "rad Alt"
+      },
+      {
+        "text": "550",
+        "x": -0.41,
+        "y": 0.39,
+        "name": "rad Alt"
+      }
+    ]
+  },
+  {
+    "id": "rmfd-fcs",
+    "title": "RMFD / flight controls",
+    "page": "MFD_RIGHT/fcs_page.lua",
+    "param": "RMFD_FCS_PAGE",
+    "group": "systems",
+    "params": {},
+    "element_count": 23,
+    "visible_text": [
+      {
+        "text": "MENU",
+        "x": 0,
+        "y": -0.92,
+        "name": "menu"
+      },
+      {
+        "text": "RWR",
+        "x": -0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "ENG",
+        "x": 0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "FUEL",
+        "x": 0.565,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "3.00",
+        "x": -0.42,
+        "y": 0.1,
+        "name": "AOA_NUM"
+      },
+      {
+        "text": "AOA:",
+        "x": -0.7,
+        "y": 0.1,
+        "name": "pitch"
+      },
+      {
+        "text": "1.00",
+        "x": -0.42,
+        "y": 0.2,
+        "name": "G_NUM"
+      },
+      {
+        "text": "G:",
+        "x": -0.652,
+        "y": 0.2,
+        "name": "G_TXT"
+      }
+    ]
+  },
+  {
+    "id": "rmfd-fuel",
+    "title": "RMFD / fuel",
+    "page": "MFD_RIGHT/fuel_page.lua",
+    "param": "RMFD_FUEL_PAGE",
+    "group": "systems",
+    "params": {},
+    "element_count": 29,
+    "visible_text": [
+      {
+        "text": "TOTAL:",
+        "x": 0.4,
+        "y": 0.65,
+        "name": "menu"
+      },
+      {
+        "text": "12000",
+        "x": 0.8,
+        "y": 0.65,
+        "name": "INT NUM"
+      },
+      {
+        "text": "TANKS:",
+        "x": 0.4,
+        "y": 0.58,
+        "name": "menu"
+      },
+      {
+        "text": "0",
+        "x": 0.8,
+        "y": 0.58,
+        "name": "INT NUM"
+      },
+      {
+        "text": "L EFF:",
+        "x": -0.85,
+        "y": -0.75,
+        "name": "menu"
+      },
+      {
+        "text": "L EGT:",
+        "x": -0.85,
+        "y": -0.82,
+        "name": "menu"
+      },
+      {
+        "text": "1800",
+        "x": -0.45,
+        "y": -0.75,
+        "name": "INT NUM"
+      },
+      {
+        "text": "550",
+        "x": -0.45,
+        "y": -0.82,
+        "name": "INT NUM"
+      },
+      {
+        "text": ":R EFF",
+        "x": 0.85,
+        "y": -0.75,
+        "name": "menu"
+      },
+      {
+        "text": ":R EGT",
+        "x": 0.85,
+        "y": -0.82,
+        "name": "menu"
+      },
+      {
+        "text": "1800",
+        "x": 0.45,
+        "y": -0.75,
+        "name": "INT NUM"
+      },
+      {
+        "text": "550",
+        "x": 0.45,
+        "y": -0.82,
+        "name": "INT NUM"
+      },
+      {
+        "text": "MENU",
+        "x": 0,
+        "y": -0.92,
+        "name": "menu"
+      },
+      {
+        "text": "RWR",
+        "x": -0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "BAY",
+        "x": 0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "ENG",
+        "x": 0,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "FCS",
+        "x": 0.565,
+        "y": 0.92,
+        "name": "menu"
+      }
+    ]
+  },
+  {
+    "id": "cmfd-eng",
+    "title": "CMFD / engines",
+    "page": "MFD_CENTER/eng_page.lua",
+    "param": "CMFD_ENG_PAGE",
+    "group": "systems",
+    "params": {},
+    "element_count": 79,
+    "visible_text": [
+      {
+        "text": "00",
+        "x": 0.4,
+        "y": -0.29,
+        "name": "rad Alt"
+      },
+      {
+        "text": "00",
+        "x": -0.28,
+        "y": -0.29,
+        "name": "rad Alt"
+      },
+      {
+        "text": "1800",
+        "x": 0.34,
+        "y": -0.43,
+        "name": "rad Alt"
+      },
+      {
+        "text": "1800",
+        "x": -0.34,
+        "y": -0.43,
+        "name": "rad Alt"
+      },
+      {
+        "text": "RPM",
+        "x": 0,
+        "y": 0.6,
+        "name": "menu"
+      },
+      {
+        "text": "EGT",
+        "x": 0,
+        "y": 0.3,
+        "name": "menu"
+      },
+      {
+        "text": "OIL",
+        "x": 0,
+        "y": 0.03,
+        "name": "menu"
+      },
+      {
+        "text": "NOZ",
+        "x": 0,
+        "y": -0.26,
+        "name": "menu"
+      },
+      {
+        "text": "FF",
+        "x": 0,
+        "y": -0.43,
+        "name": "menu"
+      },
+      {
+        "text": "CABIN PRESS",
+        "x": 0.45,
+        "y": -0.63,
+        "name": "menu"
+      },
+      {
+        "text": "HYD",
+        "x": -0.43,
+        "y": -0.68,
+        "name": "menu"
+      },
+      {
+        "text": "MENU",
+        "x": 0,
+        "y": -0.92,
+        "name": "menu"
+      },
+      {
+        "text": "ADI",
+        "x": 0.565,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "FCS",
+        "x": 0,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "STORES",
+        "x": -0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "FUEL",
+        "x": 0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "85",
+        "x": 0.28,
+        "y": 0.69,
+        "name": "rad Alt"
+      },
+      {
+        "text": "85",
+        "x": -0.41,
+        "y": 0.69,
+        "name": "rad Alt"
+      },
+      {
+        "text": "550",
+        "x": 0.28,
+        "y": 0.39,
+        "name": "rad Alt"
+      },
+      {
+        "text": "550",
+        "x": -0.41,
+        "y": 0.39,
+        "name": "rad Alt"
+      }
+    ]
+  },
+  {
+    "id": "cmfd-fcs",
+    "title": "CMFD / flight controls",
+    "page": "MFD_CENTER/fcs_page.lua",
+    "param": "CMFD_FCS_PAGE",
+    "group": "systems",
+    "params": {},
+    "element_count": 23,
+    "visible_text": [
+      {
+        "text": "MENU",
+        "x": 0,
+        "y": -0.92,
+        "name": "menu"
+      },
+      {
+        "text": "STORES",
+        "x": -0.26,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "ENG",
+        "x": 0.26,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "FUEL",
+        "x": 0.55,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "3.00",
+        "x": -0.42,
+        "y": 0.1,
+        "name": "AOA_NUM"
+      },
+      {
+        "text": "AOA:",
+        "x": -0.7,
+        "y": 0.1,
+        "name": "pitch"
+      },
+      {
+        "text": "1.00",
+        "x": -0.42,
+        "y": 0.2,
+        "name": "G_NUM"
+      },
+      {
+        "text": "G:",
+        "x": -0.652,
+        "y": 0.2,
+        "name": "G_TXT"
+      }
+    ]
+  },
+  {
+    "id": "cmfd-fuel",
+    "title": "CMFD / fuel",
+    "page": "MFD_CENTER/fuel_page.lua",
+    "param": "CMFD_FUEL_PAGE",
+    "group": "systems",
+    "params": {},
+    "element_count": 29,
+    "visible_text": [
+      {
+        "text": "TOTAL:",
+        "x": 0.4,
+        "y": 0.65,
+        "name": "menu"
+      },
+      {
+        "text": "12000",
+        "x": 0.8,
+        "y": 0.65,
+        "name": "INT NUM"
+      },
+      {
+        "text": "TANKS:",
+        "x": 0.4,
+        "y": 0.58,
+        "name": "menu"
+      },
+      {
+        "text": "0",
+        "x": 0.8,
+        "y": 0.58,
+        "name": "INT NUM"
+      },
+      {
+        "text": "L EFF:",
+        "x": -0.85,
+        "y": -0.75,
+        "name": "menu"
+      },
+      {
+        "text": "L EGT:",
+        "x": -0.85,
+        "y": -0.82,
+        "name": "menu"
+      },
+      {
+        "text": "1800",
+        "x": -0.45,
+        "y": -0.75,
+        "name": "INT NUM"
+      },
+      {
+        "text": "550",
+        "x": -0.45,
+        "y": -0.82,
+        "name": "INT NUM"
+      },
+      {
+        "text": ":R EFF",
+        "x": 0.85,
+        "y": -0.75,
+        "name": "menu"
+      },
+      {
+        "text": ":R EGT",
+        "x": 0.85,
+        "y": -0.82,
+        "name": "menu"
+      },
+      {
+        "text": "1800",
+        "x": 0.45,
+        "y": -0.75,
+        "name": "INT NUM"
+      },
+      {
+        "text": "550",
+        "x": 0.45,
+        "y": -0.82,
+        "name": "INT NUM"
+      },
+      {
+        "text": "MENU",
+        "x": 0,
+        "y": -0.92,
+        "name": "menu"
+      },
+      {
+        "text": "RWR",
+        "x": -0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "BAY",
+        "x": 0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "ENG",
+        "x": 0,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "FCS",
+        "x": 0.565,
+        "y": 0.92,
+        "name": "menu"
+      }
+    ]
+  },
+  {
+    "id": "pmfd-eng",
+    "title": "PMFD / engines",
+    "page": "PMFD_CENTER/eng_page.lua",
+    "param": "PMFD_ENG_PAGE",
+    "group": "systems",
+    "params": {},
+    "element_count": 79,
+    "visible_text": [
+      {
+        "text": "00",
+        "x": 0.4,
+        "y": -0.29,
+        "name": "rad Alt"
+      },
+      {
+        "text": "00",
+        "x": -0.28,
+        "y": -0.29,
+        "name": "rad Alt"
+      },
+      {
+        "text": "1800",
+        "x": 0.34,
+        "y": -0.43,
+        "name": "rad Alt"
+      },
+      {
+        "text": "1800",
+        "x": -0.34,
+        "y": -0.43,
+        "name": "rad Alt"
+      },
+      {
+        "text": "RPM",
+        "x": 0,
+        "y": 0.6,
+        "name": "menu"
+      },
+      {
+        "text": "EGT",
+        "x": 0,
+        "y": 0.3,
+        "name": "menu"
+      },
+      {
+        "text": "OIL",
+        "x": 0,
+        "y": 0.03,
+        "name": "menu"
+      },
+      {
+        "text": "NOZ",
+        "x": 0,
+        "y": -0.26,
+        "name": "menu"
+      },
+      {
+        "text": "FF",
+        "x": 0,
+        "y": -0.43,
+        "name": "menu"
+      },
+      {
+        "text": "CABIN PRESS",
+        "x": 0.45,
+        "y": -0.63,
+        "name": "menu"
+      },
+      {
+        "text": "HYD",
+        "x": -0.43,
+        "y": -0.68,
+        "name": "menu"
+      },
+      {
+        "text": "MENU",
+        "x": 0,
+        "y": -0.92,
+        "name": "menu"
+      },
+      {
+        "text": "ADI",
+        "x": 0.565,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "FCS",
+        "x": 0,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "STORES",
+        "x": -0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "FUEL",
+        "x": 0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "85",
+        "x": 0.28,
+        "y": 0.69,
+        "name": "rad Alt"
+      },
+      {
+        "text": "85",
+        "x": -0.41,
+        "y": 0.69,
+        "name": "rad Alt"
+      },
+      {
+        "text": "550",
+        "x": 0.28,
+        "y": 0.39,
+        "name": "rad Alt"
+      },
+      {
+        "text": "550",
+        "x": -0.41,
+        "y": 0.39,
+        "name": "rad Alt"
+      }
+    ]
+  },
+  {
+    "id": "pmfd-fcs",
+    "title": "PMFD / flight controls",
+    "page": "PMFD_CENTER/fcs_page.lua",
+    "param": "PMFD_FCS_PAGE",
+    "group": "systems",
+    "params": {},
+    "element_count": 23,
+    "visible_text": [
+      {
+        "text": "MENU",
+        "x": 0,
+        "y": -0.92,
+        "name": "menu"
+      },
+      {
+        "text": "STORES",
+        "x": -0.26,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "ENG",
+        "x": 0.26,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "FUEL",
+        "x": 0.55,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "3.00",
+        "x": -0.42,
+        "y": 0.1,
+        "name": "AOA_NUM"
+      },
+      {
+        "text": "AOA:",
+        "x": -0.7,
+        "y": 0.1,
+        "name": "pitch"
+      },
+      {
+        "text": "1.00",
+        "x": -0.42,
+        "y": 0.2,
+        "name": "G_NUM"
+      },
+      {
+        "text": "G:",
+        "x": -0.652,
+        "y": 0.2,
+        "name": "G_TXT"
+      }
+    ]
+  },
+  {
+    "id": "pmfd-fuel",
+    "title": "PMFD / fuel",
+    "page": "PMFD_CENTER/fuel_page.lua",
+    "param": "PMFD_FUEL_PAGE",
+    "group": "systems",
+    "params": {},
+    "element_count": 29,
+    "visible_text": [
+      {
+        "text": "TOTAL:",
+        "x": 0.4,
+        "y": 0.65,
+        "name": "menu"
+      },
+      {
+        "text": "12000",
+        "x": 0.8,
+        "y": 0.65,
+        "name": "INT NUM"
+      },
+      {
+        "text": "TANKS:",
+        "x": 0.4,
+        "y": 0.58,
+        "name": "menu"
+      },
+      {
+        "text": "0",
+        "x": 0.8,
+        "y": 0.58,
+        "name": "INT NUM"
+      },
+      {
+        "text": "L EFF:",
+        "x": -0.85,
+        "y": -0.75,
+        "name": "menu"
+      },
+      {
+        "text": "L EGT:",
+        "x": -0.85,
+        "y": -0.82,
+        "name": "menu"
+      },
+      {
+        "text": "1800",
+        "x": -0.45,
+        "y": -0.75,
+        "name": "INT NUM"
+      },
+      {
+        "text": "550",
+        "x": -0.45,
+        "y": -0.82,
+        "name": "INT NUM"
+      },
+      {
+        "text": ":R EFF",
+        "x": 0.85,
+        "y": -0.75,
+        "name": "menu"
+      },
+      {
+        "text": ":R EGT",
+        "x": 0.85,
+        "y": -0.82,
+        "name": "menu"
+      },
+      {
+        "text": "1800",
+        "x": 0.45,
+        "y": -0.75,
+        "name": "INT NUM"
+      },
+      {
+        "text": "550",
+        "x": 0.45,
+        "y": -0.82,
+        "name": "INT NUM"
+      },
+      {
+        "text": "MENU",
+        "x": 0,
+        "y": -0.92,
+        "name": "menu"
+      },
+      {
+        "text": "RWR",
+        "x": -0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "BAY",
+        "x": 0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "ENG",
+        "x": 0,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "FCS",
+        "x": 0.565,
+        "y": 0.92,
+        "name": "menu"
+      }
+    ]
+  },
+  {
+    "id": "adi",
+    "title": "ADI",
+    "page": "MFD_CENTER/adi_page.lua",
+    "param": "CMFD_ADI_PAGE",
+    "group": "systems",
+    "params": {},
+    "element_count": 26,
+    "visible_text": [
+      {
+        "text": "300",
+        "x": -0.54,
+        "y": 0.65,
+        "name": "Indicated Airspeed"
+      },
+      {
+        "text": "12000",
+        "x": 0.85,
+        "y": 0.65,
+        "name": "Indicated Airspeed"
+      },
+      {
+        "text": "0",
+        "x": 0.85,
+        "y": 0.75,
+        "name": "Indicated Airspeed"
+      },
+      {
+        "text": "270",
+        "x": 0,
+        "y": 0.85,
+        "name": "heading numb"
+      },
+      {
+        "text": "MENU",
+        "x": 0,
+        "y": -0.92,
+        "name": "menu"
+      },
+      {
+        "text": "HSI",
+        "x": 0.565,
+        "y": 0.92,
+        "name": "menu"
+      }
+    ]
+  },
+  {
+    "id": "checklist",
+    "title": "CHECKS",
+    "page": "MFD_CENTER/checklist_page.lua",
+    "param": "CMFD_CHECKLIST_PAGE",
+    "group": "systems",
+    "params": {},
+    "element_count": 9,
+    "visible_text": [
+      {
+        "text": "MENU",
+        "x": 0,
+        "y": -0.92,
+        "name": "menu"
+      },
+      {
+        "text": "ENG",
+        "x": -0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "FCS",
+        "x": 0.265,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "BAY",
+        "x": 0,
+        "y": 0.92,
+        "name": "menu"
+      },
+      {
+        "text": "FUEL",
+        "x": 0.565,
+        "y": 0.92,
+        "name": "menu"
+      }
+    ]
+  },
+  {
+    "id": "ufc-stores",
+    "title": "Keypad / stores programming",
+    "page": "ICP/stores_page.lua",
+    "param": "ICP_STORES_MENU",
+    "group": "stores",
+    "params": {
+      "ICP_OPACITY": 1,
+      "ICP_STORES_TITLE": "AUTO P1",
+      "ICP_STORES_ROW_1": " QTY 2",
+      "ICP_STORES_ROW_2": " MULT 1",
+      "ICP_STORES_ROW_3": " INT 200 MS",
+      "ICP_STORES_ROW_4": " UNIT MS",
+      "ICP_STORES_ROW_5": " ENTR"
+    },
+    "element_count": 6,
+    "visible_text": [
+      {
+        "text": "AUTO P1",
+        "x": -0.95,
+        "y": 1.31,
+        "name": "F22_STORES_ICP_TITLE"
+      },
+      {
+        "text": " QTY 2",
+        "x": -0.95,
+        "y": 1.15,
+        "name": "F22_STORES_ICP_ROW_1"
+      },
+      {
+        "text": " MULT 1",
+        "x": -0.95,
+        "y": 0.6,
+        "name": "F22_STORES_ICP_ROW_2"
+      },
+      {
+        "text": " INT 200 MS",
+        "x": -0.95,
+        "y": 0.0,
+        "name": "F22_STORES_ICP_ROW_3"
+      },
+      {
+        "text": " UNIT MS",
+        "x": -0.95,
+        "y": -0.6,
+        "name": "F22_STORES_ICP_ROW_4"
+      },
+      {
+        "text": " ENTR",
+        "x": -0.95,
+        "y": -1.14,
+        "name": "F22_STORES_ICP_ROW_5"
+      }
+    ]
+  }
+]

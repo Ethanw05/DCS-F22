@@ -68,7 +68,7 @@ local YellowColor 			= {255, 255, 0, 255}--RGBA
 local OrangeColor           = {255, 102, 0, 255}--RGBA
 local RedColor 				= {255, 0, 0, 255}--RGBA
 local TealColor 			= {0, 255, 255, 255}--RGBA
-local ScreenColor			= {3, 3, 12, 255}--RGBA DO NOT TOUCH 3-3-12-255 is good for on screen
+local ScreenColor			= {3,3,3,255}--RGBA DO NOT TOUCH 3-3-12-255 is good for on screen
 --------------------------------------------------------------------------------------------------------------------------------------------
 local FUEL_MASK     = MakeMaterial(LockOn_Options.script_path.."../Scripts/IndicationTextures/fuel_mask.dds", BlackColor)--SYSTEM TEST
 local FUEL_BOX      = MakeMaterial(LockOn_Options.script_path.."../Scripts/IndicationTextures/fuel_box.dds", BlackColor)--SYSTEM TEST
@@ -293,11 +293,11 @@ vertices(TINYSHIT,2)
 Add(TINYSHIT)
 --------------------------------------------------------------------------------------------------------------------INTERNAL TEXT
 --INT TEXT
-INTERNAL_TEXT 					    = CreateElement "ceStringPoly"
+INTERNAL_TEXT 					    = CreateElement "ceStringSLine"
 INTERNAL_TEXT.name 				    = "menu"
-INTERNAL_TEXT.material 			    = UFD_GRN
+INTERNAL_TEXT.material 			    = "F22_LCD_FONT_GREEN"
 INTERNAL_TEXT.value 				= "TOTAL:"
-INTERNAL_TEXT.stringdefs 		    = {0.004, 0.004, 0.0004, 0.001}
+INTERNAL_TEXT.stringdefs 		    = {0.004, (0.004) * 0.60, 0.0004, 0.001}
 INTERNAL_TEXT.alignment 			= "LeftCenter"
 INTERNAL_TEXT.formats 			    = {"%s"}
 INTERNAL_TEXT.h_clip_relation       = h_clip_relations.COMPARE
@@ -311,12 +311,12 @@ INTERNAL_TEXT.controllers		    =   {
                                         }
 Add(INTERNAL_TEXT)
 --------------------------------------------------------------------------------------------------------------------INTERNAL NUMBER
-INTERNAL_NUMBER				        = CreateElement "ceStringPoly"
+INTERNAL_NUMBER				        = CreateElement "ceStringSLine"
 INTERNAL_NUMBER.name				= "INT NUM"
-INTERNAL_NUMBER.material			= UFD_GRN
+INTERNAL_NUMBER.material			= "F22_LCD_FONT_GREEN"
 INTERNAL_NUMBER.init_pos			= {0.80, 0.65, 0} --L-R,U-D,F-B
 INTERNAL_NUMBER.alignment			= "RightCenter"
-INTERNAL_NUMBER.stringdefs			= {0.004, 0.004, 0, 0.0} --either 004 or 005
+INTERNAL_NUMBER.stringdefs			= {0.004, (0.004) * 0.60, 0, 0.0} --either 004 or 005
 INTERNAL_NUMBER.additive_alpha		= true
 INTERNAL_NUMBER.collimated			= false
 INTERNAL_NUMBER.isdraw				= true
@@ -329,11 +329,11 @@ INTERNAL_NUMBER.controllers			= {{"opacity_using_parameter",0},{"text_using_para
 Add(INTERNAL_NUMBER)
 --------------------------------------------------------------------------------------------------------------------TANK TEXT
 --TANK TEXT
-TANK_TEXT 					        = CreateElement "ceStringPoly"
+TANK_TEXT 					        = CreateElement "ceStringSLine"
 TANK_TEXT.name 				        = "menu"
-TANK_TEXT.material 			        = UFD_FONT
+TANK_TEXT.material 			        = "F22_LCD_FONT_WHITE"
 TANK_TEXT.value 				    = "TANKS:"
-TANK_TEXT.stringdefs 		        = {0.004, 0.004, 0.0004, 0.001}
+TANK_TEXT.stringdefs 		        = {0.004, (0.004) * 0.60, 0.0004, 0.001}
 TANK_TEXT.alignment 			    = "LeftCenter"
 TANK_TEXT.formats 			        = {"%s"}
 TANK_TEXT.h_clip_relation           = h_clip_relations.COMPARE
@@ -347,12 +347,12 @@ TANK_TEXT.controllers		        =   {
                                         }
 Add(TANK_TEXT)
 --------------------------------------------------------------------------------------------------------------------TANK NUMBER
-TANK_NUMBER				        = CreateElement "ceStringPoly"
+TANK_NUMBER				        = CreateElement "ceStringSLine"
 TANK_NUMBER.name				= "INT NUM"
-TANK_NUMBER.material			= UFD_FONT
+TANK_NUMBER.material			= "F22_LCD_FONT_WHITE"
 TANK_NUMBER.init_pos			= {0.80, 0.58, 0} --L-R,U-D,F-B
 TANK_NUMBER.alignment			= "RightCenter"
-TANK_NUMBER.stringdefs			= {0.004, 0.004, 0, 0.0} --either 004 or 005
+TANK_NUMBER.stringdefs			= {0.004, (0.004) * 0.60, 0, 0.0} --either 004 or 005
 TANK_NUMBER.additive_alpha		= true
 TANK_NUMBER.collimated			= false
 TANK_NUMBER.isdraw				= true
@@ -364,11 +364,11 @@ TANK_NUMBER.formats				= {"%.0f"}--= {"%02.0f"}
 TANK_NUMBER.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
 Add(TANK_NUMBER)
 --------------------------------------------------------------------------------------------------------------------LEFT FF TEXT
-L_EFF_TEXT 					        = CreateElement "ceStringPoly"
+L_EFF_TEXT 					        = CreateElement "ceStringSLine"
 L_EFF_TEXT.name 				        = "menu"
-L_EFF_TEXT.material 			        = UFD_GRN
+L_EFF_TEXT.material 			        = "F22_LCD_FONT_GREEN"
 L_EFF_TEXT.value 				    = "L EFF:"
-L_EFF_TEXT.stringdefs 		        = {0.004, 0.004, 0.0004, 0.001}
+L_EFF_TEXT.stringdefs 		        = {0.004, (0.004) * 0.60, 0.0004, 0.001}
 L_EFF_TEXT.alignment 			    = "LeftCenter"
 L_EFF_TEXT.formats 			        = {"%s"}
 L_EFF_TEXT.h_clip_relation           = h_clip_relations.COMPARE
@@ -382,11 +382,11 @@ L_EFF_TEXT.controllers		        =   {
                                         }
 Add(L_EFF_TEXT)
 --------------------------------------------------------------------------------------------------------------------LEFT EGT TEXT
-L_EGT_TEXT 					            = CreateElement "ceStringPoly"
+L_EGT_TEXT 					            = CreateElement "ceStringSLine"
 L_EGT_TEXT.name 				        = "menu"
-L_EGT_TEXT.material 			        = UFD_GRN
+L_EGT_TEXT.material 			        = "F22_LCD_FONT_GREEN"
 L_EGT_TEXT.value 				        = "L EGT:"
-L_EGT_TEXT.stringdefs 		            = {0.004, 0.004, 0.0004, 0.001}
+L_EGT_TEXT.stringdefs 		            = {0.004, (0.004) * 0.60, 0.0004, 0.001}
 L_EGT_TEXT.alignment 			        = "LeftCenter"
 L_EGT_TEXT.formats 			            = {"%s"}
 L_EGT_TEXT.h_clip_relation              = h_clip_relations.COMPARE
@@ -400,12 +400,12 @@ L_EGT_TEXT.controllers		            =   {
                                             }
 Add(L_EGT_TEXT)
 --------------------------------------------------------------------------------------------------------------------LEFT FF NUMBER
-L_EFF_NUMBER				        = CreateElement "ceStringPoly"
+L_EFF_NUMBER				        = CreateElement "ceStringSLine"
 L_EFF_NUMBER.name				= "INT NUM"
-L_EFF_NUMBER.material			= UFD_GRN
+L_EFF_NUMBER.material			= "F22_LCD_FONT_GREEN"
 L_EFF_NUMBER.init_pos			= {-0.45, -0.75, 0} --L-R,U-D,F-B
 L_EFF_NUMBER.alignment			= "RightCenter"
-L_EFF_NUMBER.stringdefs			= {0.004, 0.004, 0, 0.0} --either 004 or 005
+L_EFF_NUMBER.stringdefs			= {0.004, (0.004) * 0.60, 0, 0.0} --either 004 or 005
 L_EFF_NUMBER.additive_alpha		= true
 L_EFF_NUMBER.collimated			= false
 L_EFF_NUMBER.isdraw				= true
@@ -417,12 +417,12 @@ L_EFF_NUMBER.formats				= {"%.0f"}--= {"%02.0f"}
 L_EFF_NUMBER.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
 Add(L_EFF_NUMBER)
 --------------------------------------------------------------------------------------------------------------------LEFT FF NUMBER
-L_EGT_NUMBER				        = CreateElement "ceStringPoly"
+L_EGT_NUMBER				        = CreateElement "ceStringSLine"
 L_EGT_NUMBER.name				    = "INT NUM"
-L_EGT_NUMBER.material			    = UFD_GRN
+L_EGT_NUMBER.material			    = "F22_LCD_FONT_GREEN"
 L_EGT_NUMBER.init_pos			    = {-0.45, -0.82, 0} --L-R,U-D,F-B
 L_EGT_NUMBER.alignment			    = "RightCenter"
-L_EGT_NUMBER.stringdefs			    = {0.004, 0.004, 0, 0.0} --either 004 or 005
+L_EGT_NUMBER.stringdefs			    = {0.004, (0.004) * 0.60, 0, 0.0} --either 004 or 005
 L_EGT_NUMBER.additive_alpha		    = true
 L_EGT_NUMBER.collimated			    = false
 L_EGT_NUMBER.isdraw				    = true
@@ -434,11 +434,11 @@ L_EGT_NUMBER.formats				= {"%.0f"}--= {"%02.0f"}
 L_EGT_NUMBER.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
 Add(L_EGT_NUMBER)
 --------------------------------------------------------------------------------------------------------------------LEFT FF TEXT
-R_EFF_TEXT 					        = CreateElement "ceStringPoly"
+R_EFF_TEXT 					        = CreateElement "ceStringSLine"
 R_EFF_TEXT.name 				        = "menu"
-R_EFF_TEXT.material 			        = UFD_GRN
+R_EFF_TEXT.material 			        = "F22_LCD_FONT_GREEN"
 R_EFF_TEXT.value 				    = ":R EFF"
-R_EFF_TEXT.stringdefs 		        = {0.004, 0.004, 0.0004, 0.001}
+R_EFF_TEXT.stringdefs 		        = {0.004, (0.004) * 0.60, 0.0004, 0.001}
 R_EFF_TEXT.alignment 			    = "RightCenter"
 R_EFF_TEXT.formats 			        = {"%s"}
 R_EFF_TEXT.h_clip_relation           = h_clip_relations.COMPARE
@@ -452,11 +452,11 @@ R_EFF_TEXT.controllers		        =   {
                                         }
 Add(R_EFF_TEXT)
 --------------------------------------------------------------------------------------------------------------------LEFT EGT TEXT
-R_EGT_TEXT 					            = CreateElement "ceStringPoly"
+R_EGT_TEXT 					            = CreateElement "ceStringSLine"
 R_EGT_TEXT.name 				        = "menu"
-R_EGT_TEXT.material 			        = UFD_GRN
+R_EGT_TEXT.material 			        = "F22_LCD_FONT_GREEN"
 R_EGT_TEXT.value 				        = ":R EGT"
-R_EGT_TEXT.stringdefs 		            = {0.004, 0.004, 0.0004, 0.001}
+R_EGT_TEXT.stringdefs 		            = {0.004, (0.004) * 0.60, 0.0004, 0.001}
 R_EGT_TEXT.alignment 			        = "RightCenter"
 R_EGT_TEXT.formats 			            = {"%s"}
 R_EGT_TEXT.h_clip_relation              = h_clip_relations.COMPARE
@@ -470,12 +470,12 @@ R_EGT_TEXT.controllers		            =   {
                                             }
 Add(R_EGT_TEXT)
 --------------------------------------------------------------------------------------------------------------------LEFT FF NUMBER
-R_EFF_NUMBER				        = CreateElement "ceStringPoly"
+R_EFF_NUMBER				        = CreateElement "ceStringSLine"
 R_EFF_NUMBER.name				= "INT NUM"
-R_EFF_NUMBER.material			= UFD_GRN
+R_EFF_NUMBER.material			= "F22_LCD_FONT_GREEN"
 R_EFF_NUMBER.init_pos			= {0.45, -0.75, 0} --L-R,U-D,F-B
 R_EFF_NUMBER.alignment			= "LeftCenter"
-R_EFF_NUMBER.stringdefs			= {0.004, 0.004, 0, 0.0} --either 004 or 005
+R_EFF_NUMBER.stringdefs			= {0.004, (0.004) * 0.60, 0, 0.0} --either 004 or 005
 R_EFF_NUMBER.additive_alpha		= true
 R_EFF_NUMBER.collimated			= false
 R_EFF_NUMBER.isdraw				= true
@@ -487,12 +487,12 @@ R_EFF_NUMBER.formats				= {"%.0f"}--= {"%02.0f"}
 R_EFF_NUMBER.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
 Add(R_EFF_NUMBER)
 --------------------------------------------------------------------------------------------------------------------LEFT FF NUMBER
-R_EGT_NUMBER				        = CreateElement "ceStringPoly"
+R_EGT_NUMBER				        = CreateElement "ceStringSLine"
 R_EGT_NUMBER.name				    = "INT NUM"
-R_EGT_NUMBER.material			    = UFD_GRN
+R_EGT_NUMBER.material			    = "F22_LCD_FONT_GREEN"
 R_EGT_NUMBER.init_pos			    = {0.45, -0.82, 0} --L-R,U-D,F-B
 R_EGT_NUMBER.alignment			    = "LeftCenter"
-R_EGT_NUMBER.stringdefs			    = {0.004, 0.004, 0, 0.0} --either 004 or 005
+R_EGT_NUMBER.stringdefs			    = {0.004, (0.004) * 0.60, 0, 0.0} --either 004 or 005
 R_EGT_NUMBER.additive_alpha		    = true
 R_EGT_NUMBER.collimated			    = false
 R_EGT_NUMBER.isdraw				    = true
@@ -505,82 +505,14 @@ R_EGT_NUMBER.controllers			= {{"opacity_using_parameter",0},{"text_using_paramet
 Add(R_EGT_NUMBER)
 --------------------------------------------------------------------------------------------------------------------MENU-BUTTON
 --MENU TEXT
-MENU_CHK_TEXT 					    = CreateElement "ceStringPoly"
-MENU_CHK_TEXT.name 				    = "menu"
-MENU_CHK_TEXT.material 			    = UFD_FONT
-MENU_CHK_TEXT.value 				= "MENU"
-MENU_CHK_TEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
-MENU_CHK_TEXT.alignment 			= "CenterCenter"
-MENU_CHK_TEXT.formats 			    = {"%s"}
-MENU_CHK_TEXT.h_clip_relation       = h_clip_relations.COMPARE
-MENU_CHK_TEXT.level 				= 2
-MENU_CHK_TEXT.init_pos 			    = {-0.565,0.92, 0}
-MENU_CHK_TEXT.init_rot 			    = {0, 0, 0}
-MENU_CHK_TEXT.element_params 	    = {"MFD_OPACITY",page_parameter}
-MENU_CHK_TEXT.controllers		    =   {
-                                        {"opacity_using_parameter",0},
-                                        {"parameter_in_range",1,0.9,1.1},--ENGINE PAGE = 0
-                                    }
-Add(MENU_CHK_TEXT)
+
 --------------------------------------------------------------------------------------------------- NAV
-MENU_TEXT1 					        = CreateElement "ceStringPoly"
-MENU_TEXT1.name 				    = "menu"
-MENU_TEXT1.material 			    = UFD_GRN
-MENU_TEXT1.value 				    = "RWR"
-MENU_TEXT1.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
-MENU_TEXT1.alignment 			    = "CenterCenter"
-MENU_TEXT1.formats 			        = {"%s"}
-MENU_TEXT1.h_clip_relation          = h_clip_relations.COMPARE
-MENU_TEXT1.level 				    = 2
-MENU_TEXT1.init_pos 			        = {-0.265, 0.92, 0}
-MENU_TEXT1.init_rot 			        = {0, 0, 0}
-MENU_TEXT1.element_params 	        = {"MFD_OPACITY",page_parameter}
-MENU_TEXT1.controllers		        =   {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},}
-Add(MENU_TEXT1)
+
 --------------------------------------------------------------------------------------------------- NAV
-MENU_TEXT2 					        = CreateElement "ceStringPoly"
-MENU_TEXT2.name 				    = "menu"
-MENU_TEXT2.material 			    = UFD_GRN
-MENU_TEXT2.value 				    = "BAY"
-MENU_TEXT2.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
-MENU_TEXT2.alignment 			    = "CenterCenter"
-MENU_TEXT2.formats 			        = {"%s"}
-MENU_TEXT2.h_clip_relation          = h_clip_relations.COMPARE
-MENU_TEXT2.level 				    = 2
-MENU_TEXT2.init_pos 			        = {0.265, 0.92, 0}
-MENU_TEXT2.init_rot 			        = {0, 0, 0}
-MENU_TEXT2.element_params 	        = {"MFD_OPACITY",page_parameter}
-MENU_TEXT2.controllers		        =   {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},}
-Add(MENU_TEXT2)
+
 --------------------------------------------------------------------------------------------------- NAV
-MENU_TEXT3 					        = CreateElement "ceStringPoly"
-MENU_TEXT3.name 				    = "menu"
-MENU_TEXT3.material 			    = UFD_GRN
-MENU_TEXT3.value 				    = "ENG"
-MENU_TEXT3.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
-MENU_TEXT3.alignment 			    = "CenterCenter"
-MENU_TEXT3.formats 			        = {"%s"}
-MENU_TEXT3.h_clip_relation          = h_clip_relations.COMPARE
-MENU_TEXT3.level 				    = 2
-MENU_TEXT3.init_pos 			        = {0, 0.92, 0}
-MENU_TEXT3.init_rot 			        = {0, 0, 0}
-MENU_TEXT3.element_params 	        = {"MFD_OPACITY",page_parameter}
-MENU_TEXT3.controllers		        =   {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},}
-Add(MENU_TEXT3)
+
 --------------------------------------------------------------------------------------------------- NAV
-MENU_TEXT3 					        = CreateElement "ceStringPoly"
-MENU_TEXT3.name 				    = "menu"
-MENU_TEXT3.material 			    = UFD_GRN
-MENU_TEXT3.value 				    = "FCS"
-MENU_TEXT3.stringdefs 		        = {0.0050, 0.0050, 0.0004, 0.001}
-MENU_TEXT3.alignment 			    = "CenterCenter"
-MENU_TEXT3.formats 			        = {"%s"}
-MENU_TEXT3.h_clip_relation          = h_clip_relations.COMPARE
-MENU_TEXT3.level 				    = 2
-MENU_TEXT3.init_pos 			        = {0.565, 0.92, 0}
-MENU_TEXT3.init_rot 			        = {0, 0, 0}
-MENU_TEXT3.element_params 	        = {"MFD_OPACITY",page_parameter}
-MENU_TEXT3.controllers		        =   {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},}
-Add(MENU_TEXT3)
+
 -----------------------------------------------------------------------------------------------------------------------
 end

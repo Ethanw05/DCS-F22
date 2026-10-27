@@ -52,6 +52,9 @@ return function(api)
 		label(0.72, -0.242, "F22_FC_RANGE_NM", "RNG %.1f", 0.021, target, "RightCenter")
 		label(0.72, -0.280, "F22_FC_CLOSURE_KTS", "VC %+.0f", 0.021, target, "RightCenter")
 		if mode ~= 5 then
+			local prediction=gate(root..'_PREDICTION','F22_TOF_NATIVE_VALID',1,root)
+            prediction=gate(root..'_PREDICTION_IDLE','F22_FC_TIMER_VALID',0,prediction)
+            label(.72,-.462,'F22_TOF_SECONDS','TOF E%.0f',.021,prediction,'RightCenter')
 			local dlz = gate(root .. "_DLZ", "F22_FC_DLZ_VALID", 1, root)
 			local x, y = 0.40, -0.58
 			line(x, y, x, y + 0.46, 0.003, dlz)
@@ -90,8 +93,14 @@ return function(api)
 			local close = gate(root .. "_CLOSE", "F22_FC_TOO_CLOSE", 1, dlz)
 			static(0.61, -0.326, "MIN RNG", 0.021, close)
 		end
-		if mode == 2 then
+		if mode == 3 then
+            local timer=gate(root..'_TIMER','F22_FC_TIMER_VALID',1,root)
+            timer=gate(root..'_IR_TIMER','F22_FC_TIMER_MODE',3,timer)
+            local ttg=gate(root..'_TTG','F22_FC_TTG_VALID',1,timer)
+            label(.72,-.424,'F22_FC_TTG','TTG E%.0f',.021,ttg,'RightCenter')
+        elseif mode == 2 then
 			local timer = gate(root .. "_TIMER", "F22_FC_TIMER_VALID", 1, root)
+            timer=gate(root..'_RADAR_TIMER','F22_FC_TIMER_MODE',2,timer)
 			local pre = gate(root .. "_PREACTIVE", "F22_FC_TIMER_ACTIVE", 0, timer)
 			local act = gate(root .. "_ACT", "F22_FC_TTA_VALID", 1, pre)
 			label(0.72, -0.424, "F22_FC_TTA", "ACT E%.0f", 0.021, act, "RightCenter")

@@ -39,6 +39,9 @@ creators[devices.WEAPON_SYSTEM]			 = {"avLuaDevice"		    ,LockOn_Options.script_
 creators[devices.MFD_SYSTEM]			 = {"avLuaDevice"		    ,LockOn_Options.script_path.."Systems/MFD_System.lua"}
 creators[devices.PMFD_SYSTEM]			 = {"avLuaDevice"		    ,LockOn_Options.script_path.."Systems/PMFD_System.lua"}
 creators[devices.ICP_SYSTEM]			 = {"avLuaDevice"		    ,LockOn_Options.script_path.."Systems/ICP_System.lua"}
+creators[devices.ILS_NATIVE] = {"avILS", LockOn_Options.script_path.."Systems/ILS_Native.lua"}
+creators[devices.NAV_POWER_NATIVE] = {"avSimpleElectricSystem", LockOn_Options.script_path.."Systems/Navigation_Power.lua"}
+creators[devices.FLIGHT_GUIDANCE] = {"avLuaDevice", LockOn_Options.script_path.."Systems/Flight_Guidance.lua"}
 creators[devices.NAV_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/Navigation_System.lua"}
 creators[devices.AG_MARK_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/AG_Mark_System.lua"}
 creators[devices.RADAR_DATA_BRIDGE] = {"avLuaDevice", LockOn_Options.script_path.."Systems/Radar_Data_Bridge.lua"}
@@ -57,6 +60,8 @@ creators[devices.ENGAGEMENT_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path
 creators[devices.EW_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/EW_System.lua"}
 creators[devices.MWS_NATIVE] = {"avMLWS", LockOn_Options.script_path.."Systems/MWS_Native.lua"}
 creators[devices.MWS_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/MWS_System.lua"}
+creators[devices.ALTITUDE_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/Altitude_System.lua"}
+creators[devices.PILOT_WARNING_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/Pilot_Warning_System.lua"}
 
 --creators[devices.KNEEBOARD] = {"avKneeboard",LockOn_Options.common_script_path.."KNEEBOARD/device/init.lua"}
 
@@ -114,6 +119,9 @@ indicators[#indicators + 1] = {"ccIndicator", LockOn_Options.script_path.."MFD_L
 		{"LEFT-MFD-CENTER", "LEFT-MFD-DOWN", "LEFT-MFD-RIGHT"}
 	}
 }
+-- Create the native render_target_9 material (target8 is zero-based) before the display consumers.
+indicators[#indicators + 1] = {"ccIndicator", LockOn_Options.script_path.."Systems/AG_Radar_Video/init.lua", devices.RADAR_COMPUTER}
+
 --PMFD CENTER
 indicators[#indicators + 1] = {"ccIndicator", LockOn_Options.script_path.."PMFD_CENTER/init.lua",
 	nil,
@@ -124,3 +132,5 @@ indicators[#indicators + 1] = {"ccIndicator", LockOn_Options.script_path.."PMFD_
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 dofile(LockOn_Options.common_script_path.."KNEEBOARD/declare_kneeboard_device.lua")
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+

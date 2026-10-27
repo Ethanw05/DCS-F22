@@ -1,0 +1,17 @@
+--- a/EFM/source/NativeSidewinder.cpp
++++ b/EFM/source/NativeSidewinder.cpp
+@@ -374,10 +374,11 @@
+     GroundRelease next;
+     const double now=api.clock?api.clock():-100;
+     const double stamp=read(p,"F22_AG_SOLUTION_TIME"),station=read(p,"F22_WEAPON_STATION");
+-    const double n=read(p,"HUD_AG_MARK_NORTH"),u=read(p,"HUD_AG_MARK_ALT"),e=read(p,"HUD_AG_MARK_EAST");
+-    next.valid=read(p,"F22_IR_MODE")==7 && read(p,"HUD_AG_SUBMODE")==3 && read(p,"HUD_AG_TARGET_VALID")>.5 &&
++    // Weapon_System resolves live designation versus an explicit station target.
++    const double n=read(p,"F22_AG_DELIVERY_TARGET_N"),u=read(p,"F22_AG_DELIVERY_TARGET_U"),e=read(p,"F22_AG_DELIVERY_TARGET_E");
++    next.valid=read(p,"F22_IR_MODE")==7 && read(p,"HUD_AG_SUBMODE")==3 && read(p,"F22_AG_DELIVERY_TARGET_VALID")>.5 &&
+         read(p,"F22_AG_GUIDED_SELECTED")>.5 && read(p,"MASTER_ARM")>.5 && read(p,"MAIN_POWER")>.5 && read(p,"WoW")<.5 &&
+-        read(p,"F22_AG_SOLUTION_VALID")>.5 && std::isfinite(stamp) && now>=stamp && now-stamp<=.2 &&
++        read(p,"F22_AG_SOLUTION_VALID")>.5 && read(p,"F22_AG_SOLUTION_STATION")==station && std::isfinite(stamp) && now>=stamp && now-stamp<=.2 &&
+         std::isfinite(station) && station>=0 && station<=10 && station==std::floor(station) &&
+         std::isfinite(n) && std::isfinite(u) && std::isfinite(e) && std::abs(n)<1e7 && std::abs(e)<1e7 && u>=-1000 && u<20000;
+     next.station=next.valid?static_cast<unsigned>(station):0;next.stamp=now;

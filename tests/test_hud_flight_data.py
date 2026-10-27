@@ -43,7 +43,7 @@ lua.execute('''
     function get_aircraft_draw_argument_value(_) return gear end
     local values={EFM_HUD_VALID=1,EFM_HUD_VN=100,EFM_HUD_VE=0,EFM_HUD_VU=0,
         EFM_HUD_WN=0,EFM_HUD_WE=10,EFM_HUD_TAS=100.5,
-        EFM_HUD_SOUND=340.293988,EFM_HUD_PRESSURE=101325}
+        EFM_HUD_SOUND=340.293988,EFM_HUD_PRESSURE=101325,F22_ALT_BARO_VALID=1,F22_ALT_BARO_FT=3280.839895}
     for k,v in pairs(values) do get_param_handle(k):set(v) end
     dofile(SCRIPT_ROOT..'Systems/HUD_Flight_Data.lua')
     post_initialize();update()
@@ -57,7 +57,10 @@ lua.execute('''
     post_initialize();update();assert(handles.HUD_G_MAX:get()==1)
     roll=0.4;update();assert(handles.HUD_BANK_RAD:get()==0.4)
     assert(math.abs(handles.HUD_WIND_DEG:get()-270)<1e-9)
-    assert(handles.HUD_IAS_POINTER:get()<=0 and handles.HUD_ALT_POINTER:get()<=0)
+    assert(handles.HUD_IAS_POINTER:get()<=0 and handles.HUD_ALT_POINTER:get()<=0 and handles.HUD_ALT_VALID:get()==1)
+    get_param_handle('F22_ALT_BARO_VALID'):set(0);update()
+    assert(handles.HUD_ALT_VALID:get()==0 and handles.HUD_AIRDATA_VALID:get()==1,'invalid pressure hides altitude only; CAS is independent')
+    get_param_handle('F22_ALT_BARO_VALID'):set(1);update()
     pitch=math.rad(8);roll=math.rad(25);update()
     assert(handles.HUD_LADDER_2:get()==1, '10-degree rung was hidden above the old narrow band')
     assert(handles.HUD_LADDER_1:get()==1)

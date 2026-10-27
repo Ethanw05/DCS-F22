@@ -27,7 +27,7 @@ end
 -- A launch prediction can expire without the real seeker having switched on.
 -- Never turn a timer crossing into an ACTIVE/acquisition state transition.
 function M.countdown(total,stamp,now)
-    if not (M.finite(total) and M.finite(stamp) and M.finite(now)) or total<0 or total>300 or now<stamp-.1 then return nil end
+    if not (M.finite(total) and M.finite(stamp) and M.finite(now)) or total<0 or total>1000 or now<stamp-.1 then return nil end
     local remaining=total-math.max(0,now-stamp)
     return remaining>=-1 and math.max(0,remaining) or nil
 end

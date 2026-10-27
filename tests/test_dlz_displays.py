@@ -1,4 +1,4 @@
-"""Missile limits must span the actual rail, at HUD and LCD physical scales."""
+"""Missile limits must span the actual HUD rail; radar LAR has a separate test."""
 from pathlib import Path
 import contextlib
 import io
@@ -36,14 +36,12 @@ for distance in (500, 10000, 60000):
         # The labelled scale and every marker describe the same real distance.
         assert abs(value(f'F22_FC_DLZ_{kind}_Y') / .46 - meters / top) < 1e-10
 
-    for page, scale in (('HUD/page.lua', .00055), ('PMFD_CENTER/radar_page.lua', .07),
-                        ('PMFD_CENTER/radar_page.lua', .18)):
+    for page, scale in (('HUD/page.lua', .00055),):
         ui = runtime()
         ui.globals().native_scale = scale
         ui.execute('function GetScale()return native_scale end; dofile(SCRIPT_ROOT..' + repr(page) + ')')
         elements = {e['name']: e for _, e in ui.globals().elements.items()}
-        hud = page.startswith('HUD/')
-        root = 'HUD_ENGAGEMENT_2_DLZ' if hud else 'F22_RDR_DLZ'
+        root = 'HUD_ENGAGEMENT_2_DLZ'
         # Measure emitted static geometry, rather than assuming a scale constant.
         rails = []
         for element in elements.values():
@@ -57,13 +55,12 @@ for distance in (500, 10000, 60000):
         assert len(rails) == 1
         rail = rails[0] * scale
         for kind in ('MIN', 'MAX', 'TURN', 'RANGE'):
-            name = ('HUD_ENGAGEMENT_2_' + ('RANGE' if kind == 'RANGE' else 'TICK_' + kind)
-                    if hud else 'F22_RDR_DLZ_' + kind)
+            name = 'HUD_ENGAGEMENT_2_' + ('RANGE' if kind == 'RANGE' else 'TICK_' + kind)
             gain = elements[name]['controllers'][1][3]
             movement = value(f'F22_FC_DLZ_{kind}_Y') * gain
             assert abs(movement / rail - value(f'F22_FC_DLZ_{kind}_Y') / .46) < 1e-9, (page, kind)
         if distance <= 20000:
-            max_name = 'HUD_ENGAGEMENT_2_TICK_MAX' if hud else 'F22_RDR_DLZ_MAX'
+            max_name = 'HUD_ENGAGEMENT_2_TICK_MAX'
             fraction = value('F22_FC_DLZ_MAX_Y') * elements[max_name]['controllers'][1][3] / rail
             assert .8 < fraction < .9, 'maximum collapsed into bottom of rail'
 
@@ -71,4 +68,4 @@ sim.globals().get_param_handle('F22_RADAR_WEAPON_TARGET_ID').set(
     sim.globals().get_param_handle('F22_RADAR_WEAPON_TARGET_ID'), 202)
 sim.globals().update()
 assert value('F22_FC_DLZ_VALID') == 0, 'old target limits remained visible'
-print('DLZ: native limits and current range agree with labelled HUD/radar rails at near/in/out ranges and three physical display scales')
+print('HUD DLZ: native limits and current range agree with labelled rail at near/in/out ranges; radar LAR is checked separately')

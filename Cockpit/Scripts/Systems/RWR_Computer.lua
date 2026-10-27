@@ -94,6 +94,7 @@ function M.new()
 					el = o.el or 0,
 					signal = o.signal,
 					priority = finite(o.priority) and o.priority or 0,
+					power = finite(o.power) and o.power>=0 and o.power<=1 and o.power or nil,
 					general = o.general or 0,
 					label = M.label(o.label, o.general),
 				}

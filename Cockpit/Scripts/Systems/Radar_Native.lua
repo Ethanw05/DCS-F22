@@ -10,5 +10,9 @@ perfomance = {
     pitch_compensation_limits={math.rad(-8),math.rad(25)},
     scan_volume_azimuth=math.rad(60),scan_volume_elevation=math.rad(20),
     scan_beam=math.rad(3),max_available_distance=160*1852,
+    -- Native terrain scatter coefficients are mod presentation settings.
+    -- The checked bridge enables max_distance only while A/G owns the radar.
+    ground_clutter={sea={.02,.01,.01},land={3,3,4},artificial={8,4,8},
+        max_distance=0,rays_density=.5},
 }
 need_to_be_closed=true

@@ -26,7 +26,7 @@ local m=dofile(SCRIPT_ROOT..'Systems/Radar_Computer.lua')
 local r=m.new();r:command('power');r:command('tws')
 local function o(id,az,iff) return {native_id=id,age=0,range=5000,az=az,el=0,iff=iff} end
 r:update(.05,{o(12,-.1,1),o(13,.1,0)},1)
-assert(r.tracks[1].iff==1 and r.tracks[2].iff==-1,'coalition leaked into hostile ID')
+assert(r.tracks[1].iff==1 and r.tracks[2].iff==0,'qualified simulator hostile classification was discarded')
 r.cursor_range=5000;r.cursor_az=-.1;r:command('designate')
 r.cursor_az=.1;r:command('secondary')
 assert(r.selected==1 and r.secondary==2 and not r.acquire)
@@ -39,7 +39,7 @@ r:update(.1,{o(13,.1,-1)},1)
 assert(not r.locked and r.selected==2 and r.secondary==1,'STT loss erased retained files')
 for i=1,410 do r:update(.05,{o(13,.1,-1)},1) end
 assert(r.secondary==nil and r.selected==2,'secondary did not expire independently')
-for i=1,610 do r:update(.05,{o(13,.1,0)},1) end
+for i=1,610 do r:update(.05,{o(13,.1,-1)},1) end
 assert(r.tracks[2].iff==-1,'nonreply became hostile')
 r:command('boresight');r:update(.1,{o(99,0,1)},1)
 assert(not r.acquire,'ACM automatically acquired confirmed friendly')
@@ -92,20 +92,27 @@ update();update()
 assert(get_param_handle('F22_SCOPE_01_AFFILIATION'):get()==1)
 assert(get_param_handle('F22_SCOPE_01_EW_SIGNAL'):get()==2)
 assert(get_param_handle('F22_SCOPE_02_EW_SIGNAL'):get()==0,'same-bearing target incorrectly fused')
-assert(get_param_handle('F22_SCOPE_02_AFFILIATION'):get()==-1)
+assert(get_param_handle('F22_SCOPE_02_AFFILIATION'):get()==0)
 """)
 print('Radar/EW producer integration: exact-source match; same bearing different ID stays separate; no false hostile IFF OK')
 lua=runtime()
 lua.execute("""
 dofile(SCRIPT_ROOT..'Systems/Avionics.lua');post_initialize()
 get_param_handle('BATTERY_POWER'):set(1);get_param_handle('MAIN_POWER'):set(1)
-update();assert(get_param_handle('F22_UFD_EW_PAGE'):get()==1)
+update();assert(get_param_handle('F22_UFD_EW_PAGE'):get()==0 and get_param_handle('F22_UFD_STATUS_PAGE'):get()==1)
+local old=get_param_handle('L_ADI_OPACITY'):get()
 SetCommand(device_commands.Button_10,1);update()
-assert(get_param_handle('F22_UFD_STATUS_PAGE'):get()==1 and get_param_handle('F22_UFD_EW_PAGE'):get()==0)
+assert(get_param_handle('L_ADI_OPACITY'):get()~=old)
 SetCommand(device_commands.Button_10,1);update()
-assert(get_param_handle('F22_UFD_EW_PAGE'):get()==1 and get_param_handle('F22_UFD_STATUS_PAGE'):get()==0)
+assert(get_param_handle('L_ADI_OPACITY'):get()~=old,'held swap toggled twice')
+SetCommand(device_commands.Button_10,0);SetCommand(device_commands.Button_10,1);update()
+assert(get_param_handle('L_ADI_OPACITY'):get()==old)
+assert(get_param_handle('F22_UFD_EW_PAGE'):get()==0 and get_param_handle('F22_UFD_STATUS_PAGE'):get()==1)
+SetCommand(device_commands.Button_8,1);update()
+assert(get_param_handle('UFD_OPACITY'):get()>0 and get_param_handle('UFD_OPACITY'):get()<1)
+assert(get_param_handle('L_WAR_OPACITY'):get()==1,'night dimming hid the original caution page')
 """)
-print('Upper-left EW/status selection: exclusive pages, original status retained, independent right ADI OK')
+print('Original upper-left status/ADI layout: exclusive original swap, press/release latch and no EW scope PASS')
 
 # Native text formatter contract: new emitter labels must use numeric handles
 # and static glyphs, including empty slots before the device's first update.
@@ -132,13 +139,14 @@ for i,code in ipairs({1,0}) do
  for k,v in pairs({SOURCE=100+i,TIME=0,AZIMUTH=i*.1,SIGNAL=1,UNIT_TYPE=i==1 and 'FA-18C_hornet' or 'MiG-29S'}) do put(q..k,v) end
 end
 dofile(SCRIPT_ROOT..'Systems/RWR_System.lua');post_initialize();update()
-assert(get('F22_EW_01_AFFILIATION')==1 and get('F22_EW_02_AFFILIATION')==0,'EW failed to inherit matching native ID')
+assert(get('F22_EW_01_AFFILIATION')==1 and get('F22_EW_02_AFFILIATION')==0,'EW discarded qualified simulator hostile ID')
 put('F22_IDENT_01_VALID',0);put('F22_IDENT_02_VALID',0);update()
 assert(get('F22_EW_01_AFFILIATION')==1,'turning radar off erased recent friendly identity')
 dofile(SCRIPT_ROOT..'Systems/Radar_Data_Bridge.lua');post_initialize()
 for k,v in pairs({MAIN_POWER=1,RADAR_PWR=1,F22_RADAR_BACKEND_READY=1,HUD_MODE=2,F22N_RADAR_MODE=3,
 F22N_RADAR_STT_RANGE=5000,F22N_RADAR_STT_AZIMUTH=0,F22N_RADAR_STT_ELEVATION=0,F22N_RADAR_STT_FRIENDLY=1}) do put(k,v) end
+dofile(SCRIPT_ROOT..'../../tests/stt_snapshot_fixture.lua');publish_test_stt(5000,0,0,1)
 update();assert(get('HUD_TD_FRIENDLY')==1 and get('HUD_TD_BOX_VALID')==1)
 put('MAIN_POWER',0);update();assert(get('HUD_TD_FRIENDLY')==0)
 """)
-print('Correlated friendly/hostile EW colors, identity memory and friendly HUD track gate OK')
+print('Correlated friendly/unknown EW colors, identity memory and timestamped friendly HUD track gate OK')

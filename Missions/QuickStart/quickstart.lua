@@ -31,6 +31,10 @@ planes = {
     file = 'F-22A_1v2_Ace.miz',
     },
 	{
+    name = _('1v3 Dogfight Merge (Ace)'),
+    file = 'F-22A_1v3_Ace.miz',
+    },
+	{
     name = _('1v4 Dogfight Merge (Ace)'),
     file = 'F-22A_1v4_Ace.miz',
     },

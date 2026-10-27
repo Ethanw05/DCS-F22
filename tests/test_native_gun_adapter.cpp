@@ -100,5 +100,10 @@ int main(){
  fake_now+=2;values["F22_FUNNEL_REQUEST_TIME"]=fake_now;update(p);
  CHECK(values["F22_FUNNEL_NATIVE_VALID"]==0 && funnel_history.size()==1);
  values["F22_FUNNEL_REQUEST_VALID"]=0;update(p);CHECK(funnel_history.empty());
- std::cout<<"Gun adapter: shell input, world muzzle/bore, wind callback, intercept, response token and invalidation OK\n";
+ values["F22_AG_OWN_N"]=muzzle_n;values["F22_AG_OWN_U"]=5000;values["F22_AG_OWN_E"]=muzzle_e;
+ values["F22_AG_GUN_REQUEST_VALID"]=1;values["F22_AG_GUN_REQUEST_TIME"]=fake_now;
+ update(p);CHECK(values["F22_AG_GUN_NATIVE_VALID"]==1&&values["F22_AG_GUN_POINT_COUNT"]==81);
+ CHECK(std::abs(values["F22_AG_GUN_00_U"]-5000.5)<.01&&values["F22_AG_GUN_80_U"]<4990);
+ values["F22_AG_GUN_REQUEST_TIME"]=fake_now-1;update(p);CHECK(values["F22_AG_GUN_NATIVE_VALID"]==0);
+ std::cout<<"Gun adapter: shell input, world muzzle/bore, wind callback, intercept, ground trajectory, response token and invalidation OK\n";
 }

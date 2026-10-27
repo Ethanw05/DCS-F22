@@ -148,27 +148,27 @@ BLOG.h_clip_relation     = h_clip_relations.COMPARE
 vertices(BLOG,2.2)
 Add(BLOG)
 ----------------------------------------------------------------------------------------------------------------
-MENUTEXT 					    = CreateElement "ceStringPoly"
+MENUTEXT 					    = CreateElement "ceStringSLine"
 MENUTEXT.name 				    = "menu"
-MENUTEXT.material 			    = UFD_FONT
+MENUTEXT.material 			    = "F22_LCD_FONT_WHITE"
 MENUTEXT.value 				    = "MENU"
-MENUTEXT.stringdefs 		    = {0.0050, 0.0050, 0.0004, 0.001}
+MENUTEXT.stringdefs 		    = {0.0050, (0.0050) * 0.60, 0.0004, 0.001}
 MENUTEXT.alignment 			    = "CenterCenter"
 MENUTEXT.formats 			    = {"%s"}
 MENUTEXT.h_clip_relation        = h_clip_relations.COMPARE
 MENUTEXT.level 				    = 2
-MENUTEXT.init_pos 			    = {-0.61,-0.975, 0}
+MENUTEXT.init_pos 			    = {0, -0.975, 0}
 MENUTEXT.init_rot 			    = {0, 0, 0}
 MENUTEXT.element_params 	        = {"MFD_OPACITY","PMFD_SFM_PAGE"}
 MENUTEXT.controllers		        =   {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1}}
 Add(MENUTEXT)
 ----------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------
-TITLE 					    = CreateElement "ceStringPoly"
+TITLE 					    = CreateElement "ceStringSLine"
 TITLE.name 				    = "menu"
-TITLE.material 			    = UFD_FONT
+TITLE.material 			    = "F22_LCD_FONT_WHITE"
 TITLE.value 				    = "F-22A SFM DATA LOG"
-TITLE.stringdefs 		        = {0.0090, 0.0090, 0.0004, 0.001}
+TITLE.stringdefs 		        = {0.0090, (0.0090) * 0.60, 0.0004, 0.001}
 TITLE.alignment 			    = "CenterCenter"
 TITLE.formats 			    = {"%s"}
 TITLE.h_clip_relation         = h_clip_relations.COMPARE
@@ -179,11 +179,11 @@ TITLE.element_params 	        = {"MFD_OPACITY","PMFD_SFM_PAGE"}
 TITLE.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1}}
 Add(TITLE)
 ------------------CENTER ROW
-ROLL_TXT 					    = CreateElement "ceStringPoly"
+ROLL_TXT 					    = CreateElement "ceStringSLine"
 ROLL_TXT.name 				    = "ROLL_TXT"
-ROLL_TXT.material 			    = UFD_GRN
+ROLL_TXT.material 			    = "F22_LCD_FONT_GREEN"
 ROLL_TXT.value 				    = "ROLL"
-ROLL_TXT.stringdefs 		        = {0.0070, 0.0070, 0.0004, 0.001}
+ROLL_TXT.stringdefs 		        = {0.0070, (0.0070) * 0.60, 0.0004, 0.001}
 ROLL_TXT.alignment 			    = "CenterCenter"
 ROLL_TXT.formats 			    = {"%s"}
 ROLL_TXT.h_clip_relation         = h_clip_relations.COMPARE
@@ -194,12 +194,12 @@ ROLL_TXT.element_params 	        = {"MFD_OPACITY","PMFD_SFM_PAGE"}
 ROLL_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1}}
 Add(ROLL_TXT)
 ----------------------------------
-ROLL_NUM				        = CreateElement "ceStringPoly"
+ROLL_NUM				        = CreateElement "ceStringSLine"
 ROLL_NUM.name				    = "ROLL_NUM"
-ROLL_NUM.material			    = UFD_FONT
+ROLL_NUM.material			    = "F22_LCD_FONT_WHITE"
 ROLL_NUM.init_pos			    = {0, -0.7, 0} --L-R,U-D,F-B
 ROLL_NUM.alignment			    = "CenterCenter"
-ROLL_NUM.stringdefs			= {0.009, 0.009, 0, 0.0} --either 004 or 005
+ROLL_NUM.stringdefs			= {0.009, (0.009) * 0.60, 0, 0.0} --either 004 or 005
 ROLL_NUM.additive_alpha		= true
 ROLL_NUM.collimated			= false
 ROLL_NUM.isdraw				= true	
@@ -217,11 +217,11 @@ ROLL_NUM.controllers		    =   {
                                 
 Add(ROLL_NUM)
 --------------
-PITCH_TXT 					    = CreateElement "ceStringPoly"
+PITCH_TXT 					    = CreateElement "ceStringSLine"
 PITCH_TXT.name 				    = "pitch"
-PITCH_TXT.material 			    = UFD_GRN
+PITCH_TXT.material 			    = "F22_LCD_FONT_GREEN"
 PITCH_TXT.value 				    = "PITCH"
-PITCH_TXT.stringdefs 		        = {0.0070, 0.0070, 0.0004, 0.001}
+PITCH_TXT.stringdefs 		        = {0.0070, (0.0070) * 0.60, 0.0004, 0.001}
 PITCH_TXT.alignment 			    = "CenterCenter"
 PITCH_TXT.formats 			    = {"%s"}
 PITCH_TXT.h_clip_relation         = h_clip_relations.COMPARE
@@ -233,12 +233,12 @@ PITCH_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_r
 PITCH_TXT.parent_element            = ROLL_TXT.name
 Add(PITCH_TXT)
 --------------
-PI_NUM				        = CreateElement "ceStringPoly"
+PI_NUM				        = CreateElement "ceStringSLine"
 PI_NUM.name				    = "PI_NUM"
-PI_NUM.material			    = UFD_FONT
+PI_NUM.material			    = "F22_LCD_FONT_WHITE"
 PI_NUM.init_pos			    = {-0.5, 0, 0} --L-R,U-D,F-B
 PI_NUM.alignment			= "CenterCenter"
-PI_NUM.stringdefs			= {0.009, 0.009, 0, 0.0} --either 004 or 005
+PI_NUM.stringdefs			= {0.009, (0.009) * 0.60, 0, 0.0} --either 004 or 005
 PI_NUM.additive_alpha		= true
 PI_NUM.collimated			= false
 PI_NUM.isdraw				= true	
@@ -256,11 +256,11 @@ PI_NUM.controllers		    =   {
                                 
 Add(PI_NUM)
 -------------------------------------------------
-YAW_TXT 					    = CreateElement "ceStringPoly"
+YAW_TXT 					    = CreateElement "ceStringSLine"
 YAW_TXT.name 				    = "yaw"
-YAW_TXT.material 			    = UFD_GRN
+YAW_TXT.material 			    = "F22_LCD_FONT_GREEN"
 YAW_TXT.value 				    = "YAW"
-YAW_TXT.stringdefs 		        = {0.0070, 0.0070, 0.0004, 0.001}
+YAW_TXT.stringdefs 		        = {0.0070, (0.0070) * 0.60, 0.0004, 0.001}
 YAW_TXT.alignment 			    = "CenterCenter"
 YAW_TXT.formats 			    = {"%s"}
 YAW_TXT.h_clip_relation         = h_clip_relations.COMPARE
@@ -272,12 +272,12 @@ YAW_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_ran
 YAW_TXT.parent_element            = ROLL_TXT.name
 Add(YAW_TXT)
 -----------------------------
-Y_NUM				        = CreateElement "ceStringPoly"
+Y_NUM				        = CreateElement "ceStringSLine"
 Y_NUM.name				    = "Y_NUM"
-Y_NUM.material			    = UFD_FONT
+Y_NUM.material			    = "F22_LCD_FONT_WHITE"
 Y_NUM.init_pos			    = {0.5, 0, 0} --L-R,U-D,F-B
 Y_NUM.alignment			    = "CenterCenter"
-Y_NUM.stringdefs			= {0.009, 0.009, 0, 0.0} --either 004 or 005
+Y_NUM.stringdefs			= {0.009, (0.009) * 0.60, 0, 0.0} --either 004 or 005
 Y_NUM.additive_alpha		= true
 Y_NUM.collimated			= false
 Y_NUM.isdraw				= true	
@@ -295,11 +295,11 @@ Y_NUM.controllers		    =   {
                                 
 Add(Y_NUM)
 ------------------CENTER ROW
-MACH_TXT 					    = CreateElement "ceStringPoly"
+MACH_TXT 					    = CreateElement "ceStringSLine"
 MACH_TXT.name 				    = "MACH_TXT"
-MACH_TXT.material 			    = UFD_GRN
+MACH_TXT.material 			    = "F22_LCD_FONT_GREEN"
 MACH_TXT.value 				    = "MACH"
-MACH_TXT.stringdefs 		        = {0.0070, 0.0070, 0.0004, 0.001}
+MACH_TXT.stringdefs 		        = {0.0070, (0.0070) * 0.60, 0.0004, 0.001}
 MACH_TXT.alignment 			    = "CenterCenter"
 MACH_TXT.formats 			    = {"%s"}
 MACH_TXT.h_clip_relation         = h_clip_relations.COMPARE
@@ -310,12 +310,12 @@ MACH_TXT.element_params 	        = {"MFD_OPACITY","PMFD_SFM_PAGE"}
 MACH_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1}}
 Add(MACH_TXT)
 ----------------------------------
-M_NUM				        = CreateElement "ceStringPoly"
+M_NUM				        = CreateElement "ceStringSLine"
 M_NUM.name				    = "M_NUM"
-M_NUM.material			    = UFD_FONT
+M_NUM.material			    = "F22_LCD_FONT_WHITE"
 M_NUM.init_pos			    = {0, -0.2, 0} --L-R,U-D,F-B
 M_NUM.alignment			    = "CenterCenter"
-M_NUM.stringdefs			= {0.009, 0.009, 0, 0.0} --either 004 or 005
+M_NUM.stringdefs			= {0.009, (0.009) * 0.60, 0, 0.0} --either 004 or 005
 M_NUM.additive_alpha		= true
 M_NUM.collimated			= false
 M_NUM.isdraw				= true	
@@ -333,11 +333,11 @@ M_NUM.controllers		    =   {
                                 
 Add(M_NUM)
 --------------
-IAS_TXT 					    = CreateElement "ceStringPoly"
+IAS_TXT 					    = CreateElement "ceStringSLine"
 IAS_TXT.name 				    = "pitch"
-IAS_TXT.material 			    = UFD_GRN
+IAS_TXT.material 			    = "F22_LCD_FONT_GREEN"
 IAS_TXT.value 				    = "IAS"
-IAS_TXT.stringdefs 		        = {0.0070, 0.0070, 0.0004, 0.001}
+IAS_TXT.stringdefs 		        = {0.0070, (0.0070) * 0.60, 0.0004, 0.001}
 IAS_TXT.alignment 			    = "CenterCenter"
 IAS_TXT.formats 			    = {"%s"}
 IAS_TXT.h_clip_relation         = h_clip_relations.COMPARE
@@ -349,12 +349,12 @@ IAS_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_ran
 IAS_TXT.parent_element            = MACH_TXT.name
 Add(IAS_TXT)
 ----------------------------------
-I_NUM				        = CreateElement "ceStringPoly"
+I_NUM				        = CreateElement "ceStringSLine"
 I_NUM.name				    = "I_NUM"
-I_NUM.material			    = UFD_FONT
+I_NUM.material			    = "F22_LCD_FONT_WHITE"
 I_NUM.init_pos			    = {-0.5, 0, 0} --L-R,U-D,F-B
 I_NUM.alignment			    = "CenterCenter"
-I_NUM.stringdefs			= {0.009, 0.009, 0, 0.0} --either 004 or 005
+I_NUM.stringdefs			= {0.009, (0.009) * 0.60, 0, 0.0} --either 004 or 005
 I_NUM.additive_alpha		= true
 I_NUM.collimated			= false
 I_NUM.isdraw				= true	
@@ -373,11 +373,11 @@ I_NUM.controllers		    =   {
 Add(I_NUM)
 --------------
 --------------
-TAS_TXT 					    = CreateElement "ceStringPoly"
+TAS_TXT 					    = CreateElement "ceStringSLine"
 TAS_TXT.name 				    = "yaw"
-TAS_TXT.material 			    = UFD_GRN
+TAS_TXT.material 			    = "F22_LCD_FONT_GREEN"
 TAS_TXT.value 				    = "TAS"
-TAS_TXT.stringdefs 		        = {0.0070, 0.0070, 0.0004, 0.001}
+TAS_TXT.stringdefs 		        = {0.0070, (0.0070) * 0.60, 0.0004, 0.001}
 TAS_TXT.alignment 			    = "CenterCenter"
 TAS_TXT.formats 			    = {"%s"}
 TAS_TXT.h_clip_relation         = h_clip_relations.COMPARE
@@ -389,12 +389,12 @@ TAS_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_ran
 TAS_TXT.parent_element          = MACH_TXT.name
 Add(TAS_TXT)
 -------------------
-T_NUM				        = CreateElement "ceStringPoly"
+T_NUM				        = CreateElement "ceStringSLine"
 T_NUM.name				    = "I_NUM"
-T_NUM.material			    = UFD_FONT
+T_NUM.material			    = "F22_LCD_FONT_WHITE"
 T_NUM.init_pos			    = {0.5, 0, 0} --L-R,U-D,F-B
 T_NUM.alignment			    = "CenterCenter"
-T_NUM.stringdefs			= {0.009, 0.009, 0, 0.0} --either 004 or 005
+T_NUM.stringdefs			= {0.009, (0.009) * 0.60, 0, 0.0} --either 004 or 005
 T_NUM.additive_alpha		= true
 T_NUM.collimated			= false
 T_NUM.isdraw				= true	
@@ -412,11 +412,11 @@ T_NUM.controllers		    =   {
                                 
 Add(T_NUM)
 ------------------CENTER ROW
-G_TXT 					    = CreateElement "ceStringPoly"
+G_TXT 					    = CreateElement "ceStringSLine"
 G_TXT.name 				    = "G_TXT"
-G_TXT.material 			    = UFD_GRN
+G_TXT.material 			    = "F22_LCD_FONT_GREEN"
 G_TXT.value 				    = "G FORCE"
-G_TXT.stringdefs 		        = {0.0070, 0.0070, 0.0004, 0.001}
+G_TXT.stringdefs 		        = {0.0070, (0.0070) * 0.60, 0.0004, 0.001}
 G_TXT.alignment 			    = "CenterCenter"
 G_TXT.formats 			    = {"%s"}
 G_TXT.h_clip_relation         = h_clip_relations.COMPARE
@@ -427,12 +427,12 @@ G_TXT.element_params 	        = {"MFD_OPACITY","PMFD_SFM_PAGE"}
 G_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1}}
 Add(G_TXT)
 --------------
-G_NUM				    = CreateElement "ceStringPoly"
+G_NUM				    = CreateElement "ceStringSLine"
 G_NUM.name				= "G_NUM"
-G_NUM.material			= UFD_FONT
+G_NUM.material			= "F22_LCD_FONT_WHITE"
 G_NUM.init_pos			= {0, 0.3, 0} --L-R,U-D,F-B
 G_NUM.alignment			= "CenterCenter"
-G_NUM.stringdefs			= {0.009, 0.009, 0, 0.0} --either 004 or 005
+G_NUM.stringdefs			= {0.009, (0.009) * 0.60, 0, 0.0} --either 004 or 005
 G_NUM.additive_alpha		= true
 G_NUM.collimated			= false
 G_NUM.isdraw				= true	
@@ -449,11 +449,11 @@ G_NUM.controllers		=   {
                                 
 Add(G_NUM)
 ----------------------------------
-AOA_TXT 					    = CreateElement "ceStringPoly"
+AOA_TXT 					    = CreateElement "ceStringSLine"
 AOA_TXT.name 				    = "pitch"
-AOA_TXT.material 			    = UFD_GRN
+AOA_TXT.material 			    = "F22_LCD_FONT_GREEN"
 AOA_TXT.value 				    = "AOA"
-AOA_TXT.stringdefs 		        = {0.0070, 0.0070, 0.0004, 0.001}
+AOA_TXT.stringdefs 		        = {0.0070, (0.0070) * 0.60, 0.0004, 0.001}
 AOA_TXT.alignment 			    = "CenterCenter"
 AOA_TXT.formats 			    = {"%s"}
 AOA_TXT.h_clip_relation         = h_clip_relations.COMPARE
@@ -465,12 +465,12 @@ AOA_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_ran
 AOA_TXT.parent_element            = G_TXT.name
 Add(AOA_TXT)
 ----------------------------------
-AOA_NUM				    = CreateElement "ceStringPoly"
+AOA_NUM				    = CreateElement "ceStringSLine"
 AOA_NUM.name				= "AOA_NUM"
-AOA_NUM.material			= UFD_FONT
+AOA_NUM.material			= "F22_LCD_FONT_WHITE"
 AOA_NUM.init_pos			= {-0.5, 0, 0} --L-R,U-D,F-B
 AOA_NUM.alignment			= "CenterCenter"
-AOA_NUM.stringdefs			= {0.009, 0.009, 0, 0.0} --either 004 or 005
+AOA_NUM.stringdefs			= {0.009, (0.009) * 0.60, 0, 0.0} --either 004 or 005
 AOA_NUM.additive_alpha		= true
 AOA_NUM.collimated			= false
 AOA_NUM.isdraw				= true	
@@ -488,11 +488,11 @@ AOA_NUM.controllers		    =   {
                                 
 Add(AOA_NUM)
 --------------
-VV_TXT 					    = CreateElement "ceStringPoly"
+VV_TXT 					    = CreateElement "ceStringSLine"
 VV_TXT.name 				    = "yaw"
-VV_TXT.material 			    = UFD_GRN
+VV_TXT.material 			    = "F22_LCD_FONT_GREEN"
 VV_TXT.value 				    = "VERT VEL"
-VV_TXT.stringdefs 		        = {0.0070, 0.0070, 0.0004, 0.001}
+VV_TXT.stringdefs 		        = {0.0070, (0.0070) * 0.60, 0.0004, 0.001}
 VV_TXT.alignment 			    = "CenterCenter"
 VV_TXT.formats 			        = {"%s"}
 VV_TXT.h_clip_relation         = h_clip_relations.COMPARE
@@ -504,12 +504,12 @@ VV_TXT.controllers		        = {{"opacity_using_parameter",0},{"parameter_in_rang
 VV_TXT.parent_element          = G_TXT.name
 Add(VV_TXT)
 ----------------------------------
-VV_NUM				        = CreateElement "ceStringPoly"
+VV_NUM				        = CreateElement "ceStringSLine"
 VV_NUM.name				    = "VV_NUM"
-VV_NUM.material			    = UFD_FONT
+VV_NUM.material			    = "F22_LCD_FONT_WHITE"
 VV_NUM.init_pos			    = {0.5, 0, 0} --L-R,U-D,F-B
 VV_NUM.alignment			= "CenterCenter"
-VV_NUM.stringdefs			= {0.009, 0.009, 0, 0.0} --either 004 or 005
+VV_NUM.stringdefs			= {0.009, (0.009) * 0.60, 0, 0.0} --either 004 or 005
 VV_NUM.additive_alpha		= true
 VV_NUM.collimated			= false
 VV_NUM.isdraw				= true	

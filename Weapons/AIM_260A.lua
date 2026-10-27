@@ -307,6 +307,9 @@ declare_loadout({
 	wsTypeOfWeapon	= AIM_260A.wsTypeOfWeapon,
 	attribute		= {4,4,32,WSTYPE_PLACEHOLDER},	
     Count           = 2,
+    -- Stock DCS LAU-115 + 2 LAU-127/AMRAAM payload drag policy.
+    -- AMRAAM-body proxy for this estimated store; AIM-260 rack drag is unqualified.
+    Cx_pil          = 0.000739765625 + 2 * 0.00061,
     Picture         = "AIM-260A.png",
     displayName     = _("2x AIM-260A - Active Radar AAM"),
     Weight          = 160.0 * 2 + 50,

@@ -1,5 +1,6 @@
 // Offline adapter tests. Fake sensor decisions do not validate native acquisition.
 #include "../EFM/source/NativeSidewinder.cpp"
+namespace NativeGroundSensor { void sample(void*) {} }
 #include <iostream>
 #include <stdexcept>
 #define CHECK(x) do { if (!(x)) throw std::runtime_error(#x); } while (0)
@@ -94,8 +95,10 @@ double aam_tof(void* p,double h,double v,double pitch,double tv,double course,do
 }
 NativeSidewinder::WeaponType launched_type{4,4,7,0,106};
 bool payload_launch_allowed=true;
+unsigned payload_target=0;std::array<float,3> payload_point{};
 const NativeSidewinder::WeaponType* store_type(void*,unsigned) {return &launched_type;}
-unsigned launch_payload(void*,unsigned,unsigned,unsigned,const float*,bool) {
+unsigned launch_payload(void*,unsigned,unsigned,unsigned target,const float* point,bool) {
+    payload_target=target;if(point)for(unsigned i=0;i<3;++i)payload_point[i]=point[i];
     // A native release callback may be followed immediately by a mode change.
     NativeSidewinder::launch_master_mode=3;return payload_launch_allowed ? 9876 : 0;
 }
@@ -200,7 +203,8 @@ int main() {
     CHECK(radar_coordinate_table[0]==radar_locator.data() && canonical[27]==reinterpret_cast<void*>(&native_pattern));
     for (unsigned i=0;i<radar_primary_methods;++i)
         CHECK(radar_coordinate_table[i+1]==(i==27 ? reinterpret_cast<void*>(&coordinate_scan_pattern) :
-            i==23 ? reinterpret_cast<void*>(&coordinate_acquisition_update) : canonical[i]));
+            i==23 ? reinterpret_cast<void*>(&coordinate_acquisition_update) :
+            i==15 ? reinterpret_cast<void*>(&ground_sensor_phase) : canonical[i]));
     CHECK(values["F22_RADAR_NATIVE_MIN_METRES"]==40 && values["F22_RADAR_NATIVE_EL_LIMIT"]>1);
     auto normal=reinterpret_cast<ScanPattern*>(base+1952),acquisition=reinterpret_cast<ScanPattern*>(base+1984);
     *normal={.3,1.2,.1,.04};*acquisition={.2,.14,.2,.05};
@@ -404,6 +408,26 @@ int main() {
     fake_tof=25;fake_act=std::numeric_limits<double>::quiet_NaN();now_model=102;publish_time_estimate(p);
     CHECK(values["F22_TOF_NATIVE_VALID"]==1 && values["F22_TOF_ACT_VALID"]==0);
     values["F22_WEAPON_TYPE4"]=999;publish_time_estimate(p);CHECK(values["F22_TOF_NATIVE_VALID"]==0);
+    // Every custom type uses its own checked Rocket_Const, never enum1/C data.
+    alignas(8) std::array<std::byte,324> descriptor{};
+    *reinterpret_cast<unsigned*>(descriptor.data()+168)=999;
+    selected_missile_descriptor=reinterpret_cast<std::uintptr_t>(descriptor.data());
+    api.descriptor_flight=[](const void* rocket,float altitude,float range,float cosine,float speed,float* average,double* time)->float{
+        CHECK(*reinterpret_cast<const unsigned*>(static_cast<const std::byte*>(rocket)+168)==999);
+        CHECK(altitude==5000 && range==10000 && cosine==-1 && speed==200);
+        *average=900;*time=20;return 18000;
+    };
+    values["F22_MISSILE_LIFETIME"]=170;now_model=103;publish_time_estimate(p);
+    CHECK(values["F22_TOF_NATIVE_VALID"]==1 && values["F22_TOF_SOURCE"]==2 && values["F22_TOF_SECONDS"]==20);
+    CHECK(values["F22_TOF_ACT_VALID"]==0 && tof_calls==3);
+    predicted=launch_time_estimate(202,999,2,now_model);CHECK(predicted.source==2 && predicted.life==170 && !predicted.act_valid);
+    values["HUD_MODE"]=3;now_model=103.3;publish_time_estimate(p);
+    CHECK(values["F22_TOF_NATIVE_VALID"]==1 && values["F22_TOF_SOURCE"]==2);
+    values["F22_MISSILE_LIFETIME"]=5;now_model=103.6;publish_time_estimate(p);
+    CHECK(values["F22_TOF_NATIVE_VALID"]==0);
+    *reinterpret_cast<unsigned*>(descriptor.data()+168)=777;now_model=104;publish_time_estimate(p);
+    CHECK(values["F22_TOF_NATIVE_VALID"]==0);
+    selected_missile_descriptor=0;api.descriptor_flight=nullptr;values["HUD_MODE"]=2;
     values["F22_WEAPON_TYPE4"]=106;values["F22_FC_TARGET_DU"]=std::numeric_limits<double>::quiet_NaN();publish_time_estimate(p);
     CHECK(values["F22_TOF_NATIVE_VALID"]==0 && tof_calls==3);
     const auto east=tof_body({0,0,10},0,0,3.141592653589793/2);
@@ -416,6 +440,40 @@ int main() {
         const auto body=tof_body({1234,-564,324},pitch,roll,heading);
         CHECK(std::abs(std::hypot(body.x,body.y,body.z)-std::hypot(1234.,-564.,324.))<1e-8);
     }
+    payload_launch_allowed=true;launched_type={4,5,36,0,85};launch_master_mode=7;
+    values["F22_IR_MODE"]=7;values["HUD_AG_SUBMODE"]=3;values["F22_AG_DELIVERY_TARGET_VALID"]=1;
+    values["F22_AG_GUIDED_SELECTED"]=1;values["MASTER_ARM"]=1;values["MAIN_POWER"]=1;values["WoW"]=0;
+    values["F22_AG_SOLUTION_VALID"]=1;values["F22_AG_SOLUTION_TIME"]=now_model;values["F22_WEAPON_STATION"]=4;values["F22_AG_SOLUTION_STATION"]=4;
+    values["F22_AG_DELIVERY_TARGET_N"]=10000;values["F22_AG_DELIVERY_TARGET_U"]=300;values["F22_AG_DELIVERY_TARGET_E"]=-2000;
+    values["HUD_MODE"]=7;values["F22_AG_RELEASE_CONSENT"]=1;values["F22_AG_SOLUTION_SEQUENCE"]=501;values["F22_AG_SOLUTION_SCHEMA"]=2;
+    values["F22_AG_DELIVERY_TARGET_SOURCE"]=2;values["F22_AG_DELIVERY_TARGET_SEQUENCE"]=10;
+    values["F22_AG_SOLUTION_TARGET_VALID"]=1;values["F22_AG_SOLUTION_TARGET_SOURCE"]=2;values["F22_AG_SOLUTION_TARGET_SEQUENCE"]=10;
+    values["F22_AG_SOLUTION_TARGET_N"]=10000;values["F22_AG_SOLUTION_TARGET_U"]=300;values["F22_AG_SOLUTION_TARGET_E"]=-2000;
+    update_ground_release(p);float original_point[]={1,2,3};
+    CHECK(values["F22_AG_GUIDANCE_CACHE_VALID"]==1&&values["F22_AG_GUIDANCE_CACHE_STATION"]==4&&values["F22_AG_GUIDANCE_CACHE_SOLUTION_SEQUENCE"]==501);
+    CHECK(record_payload_launch(nullptr,4,0,987,original_point,true)==9876);
+    CHECK(payload_target==0&&payload_point[0]==10000&&payload_point[1]==300&&payload_point[2]==-2000);
+    launch_master_mode=7;CHECK(record_payload_launch(nullptr,3,0,0,original_point,true)==0);
+    // Same-station edits cannot use a prepared coordinate before the next
+    // native update, nor may old ballistic identity certify a new target.
+    values["F22_AG_DELIVERY_TARGET_N"]=11000;values["F22_AG_DELIVERY_TARGET_SEQUENCE"]=11;
+    launch_master_mode=7;CHECK(record_payload_launch(nullptr,4,0,0,original_point,true)==0);
+    update_ground_release(p);CHECK(values["F22_AG_GUIDANCE_CACHE_VALID"]==0);
+    values["F22_AG_SOLUTION_TARGET_N"]=11000;values["F22_AG_SOLUTION_TARGET_SEQUENCE"]=11;values["F22_AG_SOLUTION_SEQUENCE"]=502;
+    update_ground_release(p);CHECK(values["F22_AG_GUIDANCE_CACHE_VALID"]==1);
+    values["F22_AG_RELEASE_CONSENT"]=0;launch_master_mode=7;CHECK(record_payload_launch(nullptr,4,0,0,original_point,true)==0);
+    values["F22_AG_RELEASE_CONSENT"]=1;values["F22_AG_SOLUTION_SEQUENCE"]=503;
+    launch_master_mode=7;CHECK(record_payload_launch(nullptr,4,0,0,original_point,true)==0);
+    update_ground_release(p);launch_master_mode=7;CHECK(record_payload_launch(nullptr,4,0,0,original_point,true)==9876);
+    CHECK(payload_point[0]==11000);
+    values["MASTER_ARM"]=0;launch_master_mode=7;CHECK(record_payload_launch(nullptr,4,0,0,original_point,true)==0);values["MASTER_ARM"]=1;
+    values["F22_AG_SOLUTION_TIME"]=now_model-.19;update_ground_release(p);CHECK(values["F22_AG_GUIDANCE_CACHE_VALID"]==1);
+    now_model+=.02;launch_master_mode=7;CHECK(record_payload_launch(nullptr,4,0,0,original_point,true)==0);
+    values["F22_AG_SOLUTION_TIME"]=now_model;update_ground_release(p);
+    launch_master_mode=7;now_model+=1;CHECK(record_payload_launch(nullptr,4,0,0,original_point,true)==0);
+    launched_type={4,4,7,0,106};launch_master_mode=2;
+    CHECK(record_payload_launch(nullptr,4,0,987,original_point,true)==9876);
+    CHECK(payload_target==987&&payload_point[0]==1&&payload_point[1]==2&&payload_point[2]==3);
     reset();
     CHECK(tof_destructions==1 && !api.tof_constructed);
     std::cout<<"Typed seeker control: descriptor, search/track, autonomous track, launch edge, SAFE/WOW, store change, power loss; radar range/elevation configuration OK\n";

@@ -7,7 +7,7 @@ with contextlib.redirect_stdout(io.StringIO()):
 lua=runtime()
 lua.execute('''
 local d=dofile(SCRIPT_ROOT..'Systems/Radar_Display.lua')
-assert(d.affiliation(1)==1 and d.affiliation(-1)==-1 and d.affiliation(0)==-1 and d.affiliation(2)==-1)
+assert(d.affiliation(1)==1 and d.affiliation(-1)==-1 and d.affiliation(0)==0 and d.affiliation(2)==-1)
 assert(d.affiliation(nil)==-1 and d.affiliation(99)==-1 and d.affiliation(0/0)==-1)
 local x,y=d.point(20000,0,40000)
 assert(math.abs(x)<1e-9 and math.abs(y-(d.origin_y+d.half_radius))<1e-9)
@@ -45,7 +45,7 @@ dofile(SCRIPT_ROOT..'Systems/Radar_System.lua');dofile(SCRIPT_ROOT..'../../tests
 local function put(n,v) get_param_handle(n):set(v) end
 local function val(n) return get_param_handle(n):get() end
 put('MAIN_POWER',1);put('F22N_RADAR_MODE',1)
-SetCommand(10600,1);SetCommand(10602,1)
+SetCommand(10602,1)
 local p='F22N_RADAR_CONTACT_01_'
 put(p..'RANGE',18520);put(p..'AZIMUTH',.2);put(p..'ELEVATION',0)
 put(p..'TIME',0);put(p..'FRIENDLY',1);put(p..'VX',0);put(p..'VY',0);put(p..'VZ',-170)
@@ -82,7 +82,7 @@ lua.execute('''
 function MakeMaterial(_,color) return string.format('rgb-%d-%d-%d',color[1],color[2],color[3]) end
 dofile(SCRIPT_ROOT..'PMFD_CENTER/radar_page.lua')
 local lookup={};for _,e in ipairs(elements) do lookup[e.name]=e end
-local expected={['1']='rgb-0-255-0',['-1']='rgb-255-220-0',['0']='rgb-255-35-20',['2']='rgb-240-247-246'}
+local expected={['1']='rgb-0-255-0',['-1']='rgb-255-220-0',['0']='rgb-255-35-20',['3']='rgb-0-255-255'}
 for code,color in pairs(expected) do
     local parent='F22_RDR_TRACK_1_IFF_'..code
     local root=lookup[parent];assert(root,'missing identity-specific symbol')
@@ -97,10 +97,10 @@ for code,color in pairs(expected) do
 end
 for _,e in ipairs(elements) do
     assert(e.level==20 or (e.level==19 and e.isvisible==false),'radar left its owned LCD stencil')
-    if e.kind=='ceStringPoly' then assert(e.material,'missing original F-22 LCD bitmap font') end
-    assert(e.kind~='ceStringSLine','LCD page regressed to thin HUD stroke lettering')
+    if e.kind=='ceStringSLine'then assert(e.material:find('F22_LCD_FONT_',1,true)==1,'LCD text lost its own stroke resource')end
+    assert(e.kind~='ceStringPoly','LCD page retained the bitmap lettering')
 end
 local config=dofile(SCRIPT_ROOT..'Systems/Radar_Config.lua')
 assert(config.native_backend_enabled==true,'native radar disabled for the installed dogfight build')
 ''')
-print('Actual Lua format: identity geometry, original F-22 bitmap fonts and LCD clipping level OK')
+print('Actual Lua format: identity geometry, dedicated native LCD stroke fonts and LCD clipping level OK')

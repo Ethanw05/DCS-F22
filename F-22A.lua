@@ -52,7 +52,8 @@ F_22A =
 	Countries = {"USA","USAF Aggressors"},
 	
 	mapclasskey 		= "P0091000024",
-	attribute  			= {wsType_Air, wsType_Airplane, wsType_Fighter, F_22A, "Fighters", "Refuelable",},--AG WSTYPE_PLACEHOLDER
+	-- Native network participation is separate from the legacy EPLRS flag.
+	attribute  			= {wsType_Air, wsType_Airplane, wsType_Fighter, F_22A, "Fighters", "Refuelable", "Datalink", "Link16"},--AG WSTYPE_PLACEHOLDER
 	Categories= {"{78EFB7A2-FD52-4b57-A6A6-3BF0E1D6555F}", "Interceptor",},
 	
 		M_empty						=	19700,--19700	-- kg Updated to reflect real F-22 values
@@ -101,7 +102,7 @@ F_22A =
 		tand_gear_max				=	3.73,	--XX  FA18 3.73, 
 		V_max_sea_level				=	403,	-- Max speed at sea level in m/s (for AI)
 		V_max_h						=	736.11,	-- Max speed at max altitude in m/s (for AI)
-		wing_area					=	56.5,	-- wing area in m2
+		wing_area					=	78.06,	-- m2; same reference area as EFM/source/RAPTOR.h
 		thrust_sum_max 				= 	56800, 	-- ~312 kN in kgf
 		thrust_sum_ab 				= 	70000,  	-- ~444 kN in kgf
 		Vy_max						=	275,	-- Max climb speed in m/s (for AI)
@@ -313,7 +314,7 @@ F_22A =
 		        { CLSID = "{AIM-120C-7}",attach_point_position = {0.1, -0.14, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},	
 				{ CLSID = "{AIM-120C-8}",attach_point_position = {0.1, -0.14, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},
 				{ CLSID = "{AIM-120D-3}",attach_point_position = {0.1, -0.14, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},			
-				{ CLSID = "{LAU_115_2xAIM9X-II}}"  ,attach_point_position = {-0.3, -0.16, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},
+				{ CLSID = "{LAU_115_2xAIM9X-II}"  ,attach_point_position = {-0.3, -0.16, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},
 		        { CLSID = "{LAU_115_2xAIM-120C-7}" ,attach_point_position = {-0.7, -0.16, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},
 				{ CLSID = "{LAU_115_2xAIM-120C-8}" ,attach_point_position = {-0.7, -0.16, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},
 				{ CLSID = "{LAU_115_2xAIM-120D-3}" ,attach_point_position = {-0.7, -0.16, 0.0}, arg_increment = 0.7, Cx_gain_empty = 0.0, Cx_gain_item = 2.5},
@@ -391,6 +392,7 @@ F_22A =
  				{ CLSID = "{MAKO_A2G_C}", attach_point_position = {0.03, -0.08, -0.05}, Type = 1, Cx_gain_empty = 0.0, Cx_gain_item = 0},	
                 -- Experimental host-native DCS guided-bomb option, NOT verified
                 -- with inherited F-15C stores avionics. See JDAM compatibility study.
+                { CLSID = "{F22-MK83-TRAINING}", Type = 1, Cx_gain_empty = 0.0, Cx_gain_item = 0 },
                 { CLSID = "{GBU_32_V_2B}", attach_point_position = {0.12, -0.10, -0.13},
                   Type = 1, Cx_gain_empty = 0.0, Cx_gain_item = 0,
                   forbidden = {
@@ -459,6 +461,7 @@ F_22A =
                 { CLSID = "{MAKO_A2G_C}", attach_point_position = {0.03, -0.08, 0.05}, Type = 1, Cx_gain_empty = 0.0, Cx_gain_item = 0},					
                 -- Experimental host-native DCS guided-bomb option, NOT verified
                 -- with inherited F-15C stores avionics. See JDAM compatibility study.
+                { CLSID = "{F22-MK83-TRAINING}", Type = 1, Cx_gain_empty = 0.0, Cx_gain_item = 0 },
                 { CLSID = "{GBU_32_V_2B}", attach_point_position = {0.12, -0.10, 0.13},
                   Type = 1, Cx_gain_empty = 0.0, Cx_gain_item = 0,
                   forbidden = {

@@ -8,12 +8,11 @@ end
 function M.wrap(a)
 	return (a + pi) % (2 * pi) - pi
 end
-function M.affiliation(native_iff)
-	if native_iff == 1 then
-		return 1
+function M.affiliation(identification)
+	if identification == 1 or identification == 0 then
+		return identification
 	end -- friendly
-	-- No positive reply is not evidence of hostility or neutrality.
-	-- Retain simulator coalition values in the sensor layer, not as pilot ID.
+	-- Input is the qualified track classification, not a raw IFF boolean.
 	return -1 -- disabled interrogation, missing or unknown
 end
 function M.point(distance, bearing, range)

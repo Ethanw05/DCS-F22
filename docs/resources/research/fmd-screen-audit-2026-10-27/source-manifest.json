@@ -1,0 +1,613 @@
+{
+  "files": [
+    {
+      "path": "HUD/font.lua",
+      "sha256": "20106f48a9878ec53f32596e1aec5936cca55d3d1394845077c4a6a54b5eebb6",
+      "installed_sha256": "20106f48a9878ec53f32596e1aec5936cca55d3d1394845077c4a6a54b5eebb6",
+      "match": true
+    },
+    {
+      "path": "HUD/style.lua",
+      "sha256": "ffefe87b0f2a5ec3573a7b9e8ad5ae24043bb7ca6a19b6a2eaf4832c412ef3e6",
+      "installed_sha256": "ffefe87b0f2a5ec3573a7b9e8ad5ae24043bb7ca6a19b6a2eaf4832c412ef3e6",
+      "match": true
+    },
+    {
+      "path": "ICP/stores_page.lua",
+      "sha256": "8859cca8f13abfb9a24e3cb9fa604b9e1b5026b36586ad344e2c549121d9b8b8",
+      "installed_sha256": "8859cca8f13abfb9a24e3cb9fa604b9e1b5026b36586ad344e2c549121d9b8b8",
+      "match": true
+    },
+    {
+      "path": "MFD_CENTER/adi_page.lua",
+      "sha256": "dcdc6543a881807d29c630917b071761236eed6bbc9d597616e8dff145556d35",
+      "installed_sha256": "dcdc6543a881807d29c630917b071761236eed6bbc9d597616e8dff145556d35",
+      "match": true
+    },
+    {
+      "path": "MFD_CENTER/bay_page.lua",
+      "sha256": "331105293494a81de9b3da25d1abc165b76160ee5dd0fcf4fc42e777bbc015f6",
+      "installed_sha256": "331105293494a81de9b3da25d1abc165b76160ee5dd0fcf4fc42e777bbc015f6",
+      "match": true
+    },
+    {
+      "path": "MFD_CENTER/checklist_page.lua",
+      "sha256": "4fa8e27c584a3c9759e132288748c81aaf95bb2a1b2f3ab178e5969922d08c75",
+      "installed_sha256": "4fa8e27c584a3c9759e132288748c81aaf95bb2a1b2f3ab178e5969922d08c75",
+      "match": true
+    },
+    {
+      "path": "MFD_CENTER/eng_page.lua",
+      "sha256": "c6b6408c6d380221086c76c0f3f5b45bddf86dac9190676aadd7747e027e8dcb",
+      "installed_sha256": "c6b6408c6d380221086c76c0f3f5b45bddf86dac9190676aadd7747e027e8dcb",
+      "match": true
+    },
+    {
+      "path": "MFD_CENTER/fcs_page.lua",
+      "sha256": "aab6895928d7870e36fb00647a99f1d7c51ff073de363a45d5d2b87becf05e8c",
+      "installed_sha256": "aab6895928d7870e36fb00647a99f1d7c51ff073de363a45d5d2b87becf05e8c",
+      "match": true
+    },
+    {
+      "path": "MFD_CENTER/fuel_page.lua",
+      "sha256": "24a6ba5119f806d5c5ea2ccae6b9c8f6461bc5f27a3079950b116fb7ebc5179a",
+      "installed_sha256": "24a6ba5119f806d5c5ea2ccae6b9c8f6461bc5f27a3079950b116fb7ebc5179a",
+      "match": true
+    },
+    {
+      "path": "MFD_CENTER/hsi_page.lua",
+      "sha256": "2731224d279d1dc8b29647a5fe61a8d659ada62be09944af078c7c26de465ff2",
+      "installed_sha256": "2731224d279d1dc8b29647a5fe61a8d659ada62be09944af078c7c26de465ff2",
+      "match": true
+    },
+    {
+      "path": "MFD_CENTER/menu_page.lua",
+      "sha256": "12d3aca9f9cd751d0d29bf3224bc781d02d2b61ca3fb3f36bceed2ee109ee587",
+      "installed_sha256": "12d3aca9f9cd751d0d29bf3224bc781d02d2b61ca3fb3f36bceed2ee109ee587",
+      "match": true
+    },
+    {
+      "path": "MFD_CENTER/stores_program.lua",
+      "sha256": "3a5da781d8fb1543aef929c446ea014accfc40a33a47d42645b7ee39ae2b44d1",
+      "installed_sha256": "3a5da781d8fb1543aef929c446ea014accfc40a33a47d42645b7ee39ae2b44d1",
+      "match": true
+    },
+    {
+      "path": "MFD_COMMON/adi_page.lua",
+      "sha256": "c116c6939d8fd1ae1e7ab898d2f7292a27320eb04758eaa50c2f8a1f8a9a6cfc",
+      "installed_sha256": "c116c6939d8fd1ae1e7ab898d2f7292a27320eb04758eaa50c2f8a1f8a9a6cfc",
+      "match": true
+    },
+    {
+      "path": "MFD_COMMON/checklist_page.lua",
+      "sha256": "ffe475b10fcf6057b52d8250e50af4a8d1d994a858fae0def14b946626b17792",
+      "installed_sha256": "ffe475b10fcf6057b52d8250e50af4a8d1d994a858fae0def14b946626b17792",
+      "match": true
+    },
+    {
+      "path": "MFD_COMMON/definitions.lua",
+      "sha256": "d2884ef9ac2a5e871b4bb25b67f916474d81492701d11cac850a5f442eeebed7",
+      "installed_sha256": "d2884ef9ac2a5e871b4bb25b67f916474d81492701d11cac850a5f442eeebed7",
+      "match": true
+    },
+    {
+      "path": "MFD_COMMON/eng_page.lua",
+      "sha256": "f0541b036fd7fb12b96dae2e7f01f9b17d7b4ef91f6dba1a28b155b7b4f9c863",
+      "installed_sha256": "f0541b036fd7fb12b96dae2e7f01f9b17d7b4ef91f6dba1a28b155b7b4f9c863",
+      "match": true
+    },
+    {
+      "path": "MFD_COMMON/f22_outline.lua",
+      "sha256": "6c5a9a9db55988e57f2c3be9966e519d02392c48b1ba1130a6b176a4d2fd70fc",
+      "installed_sha256": "6c5a9a9db55988e57f2c3be9966e519d02392c48b1ba1130a6b176a4d2fd70fc",
+      "match": true
+    },
+    {
+      "path": "MFD_COMMON/fcs_page.lua",
+      "sha256": "79d95befe67a1b0bd35e58553f39d16a233e066c5897cd16ed4c2e181a25a8ef",
+      "installed_sha256": "79d95befe67a1b0bd35e58553f39d16a233e066c5897cd16ed4c2e181a25a8ef",
+      "match": true
+    },
+    {
+      "path": "MFD_COMMON/font.lua",
+      "sha256": "37731c629380eb66770f94edaad982d61adb1a384adb6aef775f442f46cdd251",
+      "installed_sha256": "37731c629380eb66770f94edaad982d61adb1a384adb6aef775f442f46cdd251",
+      "match": true
+    },
+    {
+      "path": "MFD_COMMON/fuel_page.lua",
+      "sha256": "f6ce5649c85cb47db56a4ee21ae17b9c0c63025d57d7f783e7ad2fd508d409a8",
+      "installed_sha256": "f6ce5649c85cb47db56a4ee21ae17b9c0c63025d57d7f783e7ad2fd508d409a8",
+      "match": true
+    },
+    {
+      "path": "MFD_COMMON/lcd.lua",
+      "sha256": "79360166184ed9e4dfaf0eb4c901e1618ee33aa2b55aa7d90202dd34efaad91e",
+      "installed_sha256": "79360166184ed9e4dfaf0eb4c901e1618ee33aa2b55aa7d90202dd34efaad91e",
+      "match": true
+    },
+    {
+      "path": "MFD_COMMON/menu_page.lua",
+      "sha256": "680dbec0e949610846bb876e5e4cbff31f0dd637100bdfbf8bd4f1eed81c1999",
+      "installed_sha256": "680dbec0e949610846bb876e5e4cbff31f0dd637100bdfbf8bd4f1eed81c1999",
+      "match": true
+    },
+    {
+      "path": "MFD_COMMON/nav_page.lua",
+      "sha256": "be3d39f45035972598194788cb54e7739fef6de9545dfbabd2e1eaec34f92655",
+      "installed_sha256": "be3d39f45035972598194788cb54e7739fef6de9545dfbabd2e1eaec34f92655",
+      "match": true
+    },
+    {
+      "path": "MFD_COMMON/stores_page.lua",
+      "sha256": "8676107dbdd225852be5cfdb6fc518e5860b3fca817f48c221673ac05ec92a73",
+      "installed_sha256": "8676107dbdd225852be5cfdb6fc518e5860b3fca817f48c221673ac05ec92a73",
+      "match": true
+    },
+    {
+      "path": "MFD_LEFT/definitions.lua",
+      "sha256": "6384ed3d341e9975d8cdd8c94a4c93c22b4706d4d5b554f8f99c14dcd129dd21",
+      "installed_sha256": "6384ed3d341e9975d8cdd8c94a4c93c22b4706d4d5b554f8f99c14dcd129dd21",
+      "match": true
+    },
+    {
+      "path": "MFD_LEFT/eng_page.lua",
+      "sha256": "81468f89da43ce0ff8f2900665560460a261e07df5a4ac5842936369043d7bea",
+      "installed_sha256": "81468f89da43ce0ff8f2900665560460a261e07df5a4ac5842936369043d7bea",
+      "match": true
+    },
+    {
+      "path": "MFD_LEFT/fcs_page.lua",
+      "sha256": "a97511e5d77a92146997971251ebdb6b5d03c1d743f78e1ff6117d4558c08b20",
+      "installed_sha256": "a97511e5d77a92146997971251ebdb6b5d03c1d743f78e1ff6117d4558c08b20",
+      "match": true
+    },
+    {
+      "path": "MFD_LEFT/fuel_page.lua",
+      "sha256": "19d0866503fae0aa1bbb3e1352a4ae3c83f3a44c08aa886e8df8c2503ed85527",
+      "installed_sha256": "19d0866503fae0aa1bbb3e1352a4ae3c83f3a44c08aa886e8df8c2503ed85527",
+      "match": true
+    },
+    {
+      "path": "MFD_LEFT/menu_page.lua",
+      "sha256": "b37d29707dc5ab40f9fed229701f556385b4c331ec9fe4e7165ee96021a2190a",
+      "installed_sha256": "b37d29707dc5ab40f9fed229701f556385b4c331ec9fe4e7165ee96021a2190a",
+      "match": true
+    },
+    {
+      "path": "MFD_RIGHT/defensive_detail.lua",
+      "sha256": "dbe05b212eb78c3bd1be4d2d62b036cc8a84ea9bf24db8a8182f0187e0f06b52",
+      "installed_sha256": "dbe05b212eb78c3bd1be4d2d62b036cc8a84ea9bf24db8a8182f0187e0f06b52",
+      "match": true
+    },
+    {
+      "path": "MFD_RIGHT/defensive_overview.lua",
+      "sha256": "e4f37f5cc6daf708a5b2f866c3a196bb3ebed516bd72b86251fb3e102043e0a9",
+      "installed_sha256": "e4f37f5cc6daf708a5b2f866c3a196bb3ebed516bd72b86251fb3e102043e0a9",
+      "match": true
+    },
+    {
+      "path": "MFD_RIGHT/definitions.lua",
+      "sha256": "6384ed3d341e9975d8cdd8c94a4c93c22b4706d4d5b554f8f99c14dcd129dd21",
+      "installed_sha256": "6384ed3d341e9975d8cdd8c94a4c93c22b4706d4d5b554f8f99c14dcd129dd21",
+      "match": true
+    },
+    {
+      "path": "MFD_RIGHT/eng_page.lua",
+      "sha256": "630b3dedb2f21cad8c4ab0736e9941fd6973e37f74513804d3a38946fa5a5e76",
+      "installed_sha256": "630b3dedb2f21cad8c4ab0736e9941fd6973e37f74513804d3a38946fa5a5e76",
+      "match": true
+    },
+    {
+      "path": "MFD_RIGHT/fcs_page.lua",
+      "sha256": "172628ec0e466b95781019c92974dd0ff5986e925dfba7d2e80ef0fbbb53964d",
+      "installed_sha256": "172628ec0e466b95781019c92974dd0ff5986e925dfba7d2e80ef0fbbb53964d",
+      "match": true
+    },
+    {
+      "path": "MFD_RIGHT/fuel_page.lua",
+      "sha256": "a2a17c2ec2d08fee832573912305f867a31db6c1d506745f47c8a6c77d6f71de",
+      "installed_sha256": "a2a17c2ec2d08fee832573912305f867a31db6c1d506745f47c8a6c77d6f71de",
+      "match": true
+    },
+    {
+      "path": "MFD_RIGHT/menu_page.lua",
+      "sha256": "416ca9409546a092df22b20873640eb99ff54d33627866ff97448e9e505fdc97",
+      "installed_sha256": "416ca9409546a092df22b20873640eb99ff54d33627866ff97448e9e505fdc97",
+      "match": true
+    },
+    {
+      "path": "MFD_RIGHT/rwr_page.lua",
+      "sha256": "5aebe2cce5156d9d0659d5438fa2298c4701cb237d411c27b7b13d3c6cf44b09",
+      "installed_sha256": "5aebe2cce5156d9d0659d5438fa2298c4701cb237d411c27b7b13d3c6cf44b09",
+      "match": true
+    },
+    {
+      "path": "PMFD_CENTER/ag_radar_format.lua",
+      "sha256": "79213d83d1a4ba0db205075bd39ab027cf60815ca8aa527e7de3dac58644d391",
+      "installed_sha256": "79213d83d1a4ba0db205075bd39ab027cf60815ca8aa527e7de3dac58644d391",
+      "match": true
+    },
+    {
+      "path": "PMFD_CENTER/definitions.lua",
+      "sha256": "8627aecf2e5c357fd776626c799bd95b03a34eba7b87cd5f618245baa33615d6",
+      "installed_sha256": "8627aecf2e5c357fd776626c799bd95b03a34eba7b87cd5f618245baa33615d6",
+      "match": true
+    },
+    {
+      "path": "PMFD_CENTER/eng_page.lua",
+      "sha256": "037325a9f39ffd2a16048c96e127a9a7ccf95f823aeb50a036601977c52b8f4f",
+      "installed_sha256": "037325a9f39ffd2a16048c96e127a9a7ccf95f823aeb50a036601977c52b8f4f",
+      "match": true
+    },
+    {
+      "path": "PMFD_CENTER/fcs_page.lua",
+      "sha256": "6fca5583d587a043007c7d64f66b660cb0582beb316c2d7bd8b8de60d5a308b1",
+      "installed_sha256": "6fca5583d587a043007c7d64f66b660cb0582beb316c2d7bd8b8de60d5a308b1",
+      "match": true
+    },
+    {
+      "path": "PMFD_CENTER/fuel_page.lua",
+      "sha256": "ad2359b8aacf5f2e7633050fb8b0efbcfcca52ed363e9e8833db1cbcfb7817f8",
+      "installed_sha256": "ad2359b8aacf5f2e7633050fb8b0efbcfcca52ed363e9e8833db1cbcfb7817f8",
+      "match": true
+    },
+    {
+      "path": "PMFD_CENTER/menu_page.lua",
+      "sha256": "4bdbbc97db004e79986c08dab0bd68987e7a1d49530471d6db163d38cd4be94b",
+      "installed_sha256": "4bdbbc97db004e79986c08dab0bd68987e7a1d49530471d6db163d38cd4be94b",
+      "match": true
+    },
+    {
+      "path": "PMFD_CENTER/radar_format.lua",
+      "sha256": "52b8ef3019763de48975fdaa01725990e527761ae2ed0f98a345f237c2992747",
+      "installed_sha256": "52b8ef3019763de48975fdaa01725990e527761ae2ed0f98a345f237c2992747",
+      "match": true
+    },
+    {
+      "path": "PMFD_CENTER/radar_page.lua",
+      "sha256": "3ec17330108d067403e92e00f9ae9db0aec5da3021da4202fae7fd639f6d7812",
+      "installed_sha256": "3ec17330108d067403e92e00f9ae9db0aec5da3021da4202fae7fd639f6d7812",
+      "match": true
+    },
+    {
+      "path": "PMFD_CENTER/sys_page.lua",
+      "sha256": "e15f8efa22f1def05ea367d749774d9a9f8f83abc43a4a917063361bb54c226e",
+      "installed_sha256": "e15f8efa22f1def05ea367d749774d9a9f8f83abc43a4a917063361bb54c226e",
+      "match": true
+    },
+    {
+      "path": "PMFD_CENTER/tactical_overlay.lua",
+      "sha256": "7a70a6079c97919c6b1b91b2c76fa7dd11307f79ee599e6ed28738295edc9172",
+      "installed_sha256": "7a70a6079c97919c6b1b91b2c76fa7dd11307f79ee599e6ed28738295edc9172",
+      "match": true
+    },
+    {
+      "path": "Systems/AG_Radar_Computer.lua",
+      "sha256": "5289682019f6bd789e69a1d49ae3745cb65b4382ad199d1458df02dd60e8a71f",
+      "installed_sha256": "c9121ea7de8f9e8951aa59c9b878171a15f40393a7d878d53b39c32cda4aee78",
+      "match": false
+    },
+    {
+      "path": "Systems/AG_Radar_Modes.lua",
+      "sha256": "fd87bc4862d7830a38dcdc934eb03b8eb8d5654b63b33a877f75a67d6b0806bc",
+      "installed_sha256": null,
+      "match": false
+    },
+    {
+      "path": "Systems/EW_Indicator.lua",
+      "sha256": "b55f6e74d67f0be1e293b2340fe19958e13cfb15eee87e2935d4913429da6757",
+      "installed_sha256": "b55f6e74d67f0be1e293b2340fe19958e13cfb15eee87e2935d4913429da6757",
+      "match": true
+    },
+    {
+      "path": "Systems/MWS_Indicator.lua",
+      "sha256": "93cd9a3caca7ed6a090cc5b1f677729ca83c7810adeb4492a7f328f31fb611c1",
+      "installed_sha256": "93cd9a3caca7ed6a090cc5b1f677729ca83c7810adeb4492a7f328f31fb611c1",
+      "match": true
+    },
+    {
+      "path": "Systems/Nav_Commands.lua",
+      "sha256": "985d3432879388ad3c1df5d10dd4c7028ad34a21c86045f14ad7d32efb2db5f1",
+      "installed_sha256": "985d3432879388ad3c1df5d10dd4c7028ad34a21c86045f14ad7d32efb2db5f1",
+      "match": true
+    },
+    {
+      "path": "Systems/Nav_Display_Controls.lua",
+      "sha256": "991522badc4cc2d9a75b79e6087debc0608f43a0276b29b98999c4c7e72f59d8",
+      "installed_sha256": "991522badc4cc2d9a75b79e6087debc0608f43a0276b29b98999c4c7e72f59d8",
+      "match": true
+    },
+    {
+      "path": "Systems/RWR_Computer.lua",
+      "sha256": "be750093eebaa8a82fd8f71c9e929fc84625b00166476fdbfafa0c1d7ccb063a",
+      "installed_sha256": "be750093eebaa8a82fd8f71c9e929fc84625b00166476fdbfafa0c1d7ccb063a",
+      "match": true
+    },
+    {
+      "path": "Systems/Radar_Display.lua",
+      "sha256": "f0e169f75b281bfc56133f6c8e802fe23b54978167d61437c0123815f816058b",
+      "installed_sha256": "f0e169f75b281bfc56133f6c8e802fe23b54978167d61437c0123815f816058b",
+      "match": true
+    },
+    {
+      "path": "Systems/Store_Capabilities.lua",
+      "sha256": "3be5ee72e59c03db8d5d41b18cc55e84ee3e280ebb4b28e3b450c395a122e60d",
+      "installed_sha256": "3be5ee72e59c03db8d5d41b18cc55e84ee3e280ebb4b28e3b450c395a122e60d",
+      "match": true
+    },
+    {
+      "path": "Systems/Tactical_Identity.lua",
+      "sha256": "96ac6621f3be588bff81e0ad11351a5bb3a1dd51fa7b29075fa93810aa3edb54",
+      "installed_sha256": "96ac6621f3be588bff81e0ad11351a5bb3a1dd51fa7b29075fa93810aa3edb54",
+      "match": true
+    },
+    {
+      "path": "fonts.lua",
+      "sha256": "89dfa83aee0deed257770a86f2867640e29bdbb45ab7261a1b5c5d7d6e02bd67",
+      "installed_sha256": "89dfa83aee0deed257770a86f2867640e29bdbb45ab7261a1b5c5d7d6e02bd67",
+      "match": true
+    },
+    {
+      "path": "materials.lua",
+      "sha256": "42cf36426c3b3a54ebdf5c7855c16a1c17bd0a92ee965b0d21784ec1f0bc7d5d",
+      "installed_sha256": "42cf36426c3b3a54ebdf5c7855c16a1c17bd0a92ee965b0d21784ec1f0bc7d5d",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/adi_half.dds",
+      "sha256": "f787a1a1e6217b2f03b306fc93bc3c16e9255013de3d9cde7789c566afaf5cca",
+      "installed_sha256": "f787a1a1e6217b2f03b306fc93bc3c16e9255013de3d9cde7789c566afaf5cca",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/check_cold.dds",
+      "sha256": "ed7bb212aa052ca37beb8905a3f3206bf5197dfca54ef532c4d9962b74961925",
+      "installed_sha256": "ed7bb212aa052ca37beb8905a3f3206bf5197dfca54ef532c4d9962b74961925",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/fcs_ind.dds",
+      "sha256": "96c0a7b1fa1f814a695f263965306a84f11ab9d63fe7c72df4d9742cf3c97ab6",
+      "installed_sha256": "96c0a7b1fa1f814a695f263965306a84f11ab9d63fe7c72df4d9742cf3c97ab6",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/fcs_page.dds",
+      "sha256": "322228dc859494089f0de142fb7e0be92d951861cefb048f8f0eaa67000b1706",
+      "installed_sha256": "322228dc859494089f0de142fb7e0be92d951861cefb048f8f0eaa67000b1706",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/fuel_box.dds",
+      "sha256": "e541c9eeca4e98f506860ee74f0d147b40cb393f0ad5b4d9e2b6c56fbcd7eb90",
+      "installed_sha256": "e541c9eeca4e98f506860ee74f0d147b40cb393f0ad5b4d9e2b6c56fbcd7eb90",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/fuel_frame.dds",
+      "sha256": "9f650bf092bd707b28f21cfc763a397415ecc2bc49d5d648e188c28f2967dcce",
+      "installed_sha256": "9f650bf092bd707b28f21cfc763a397415ecc2bc49d5d648e188c28f2967dcce",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/fuel_ind.dds",
+      "sha256": "90593870996f988946c6fe878ee5e779ae6e4fd4cd15bdfd492da0c2cf1cfbac",
+      "installed_sha256": "90593870996f988946c6fe878ee5e779ae6e4fd4cd15bdfd492da0c2cf1cfbac",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/fuel_iqt.dds",
+      "sha256": "59020454802b8b05cff5b3abba68b3badfad67a1cbc688a1971cbd981d791633",
+      "installed_sha256": "59020454802b8b05cff5b3abba68b3badfad67a1cbc688a1971cbd981d791633",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/fuel_mask.dds",
+      "sha256": "8aa2cf695e46aa6537ce238fbc45598ebcdb637d8287e9a930ae3442502caae7",
+      "installed_sha256": "8aa2cf695e46aa6537ce238fbc45598ebcdb637d8287e9a930ae3442502caae7",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/fuel_tqt.dds",
+      "sha256": "e1502c71760e4afcab3380b60401b0407d555cbe41a0877e6ead518045fc3b44",
+      "installed_sha256": "e1502c71760e4afcab3380b60401b0407d555cbe41a0877e6ead518045fc3b44",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/mask_box.dds",
+      "sha256": "f6e4cde115d6fbb088a90112cec74ede902477144959cd78942e48d9ca9d5683",
+      "installed_sha256": "f6e4cde115d6fbb088a90112cec74ede902477144959cd78942e48d9ca9d5683",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/mfd_adi.dds",
+      "sha256": "7506384ac97ede3e1cee8db98fb25a5718f491df88b3f5c378a0e16c81ea0e5d",
+      "installed_sha256": "7506384ac97ede3e1cee8db98fb25a5718f491df88b3f5c378a0e16c81ea0e5d",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/mfd_boxes.dds",
+      "sha256": "4180d88af67abed00feeed5dd75f3677af52414f79926cb7af1490cc7cba0634",
+      "installed_sha256": "4180d88af67abed00feeed5dd75f3677af52414f79926cb7af1490cc7cba0634",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/mfd_lad_bot.dds",
+      "sha256": "399d5f975bc5dde3471dce01faf3c3677af947eb4d3dbc26f8c9c5954a236729",
+      "installed_sha256": "399d5f975bc5dde3471dce01faf3c3677af947eb4d3dbc26f8c9c5954a236729",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/mfd_lad_top.dds",
+      "sha256": "e39e51b363e556fc5d556a8f123cbb29d71c73835c06d1cbde44a12fdc026aec",
+      "installed_sha256": "e39e51b363e556fc5d556a8f123cbb29d71c73835c06d1cbde44a12fdc026aec",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/mfd_line.dds",
+      "sha256": "7bdfc5feebcad66f3040d48b1de18ef823e89ee73f293f77767c3f3452094fd6",
+      "installed_sha256": "7bdfc5feebcad66f3040d48b1de18ef823e89ee73f293f77767c3f3452094fd6",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/mfd_ring.dds",
+      "sha256": "3f7b5151f4d43dd86e80b19394dd2fd5534604e31c2bec7dd9ab363c1eebf24f",
+      "installed_sha256": "3f7b5151f4d43dd86e80b19394dd2fd5534604e31c2bec7dd9ab363c1eebf24f",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/mfd_trim_mask.dds",
+      "sha256": "0e41823f8754ccd5d77b1d5a3342db68f14b96478800c577489255ecb4eea8c6",
+      "installed_sha256": "0e41823f8754ccd5d77b1d5a3342db68f14b96478800c577489255ecb4eea8c6",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/mfd_vv.dds",
+      "sha256": "68f3563ea0cf92068a8b95c10bdc0236e2c14ad49fef6fd9adfdc602030a7cd8",
+      "installed_sha256": "68f3563ea0cf92068a8b95c10bdc0236e2c14ad49fef6fd9adfdc602030a7cd8",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/ring_box.dds",
+      "sha256": "4233996847e851dd9e7fc506f455bdbc9bbd91ba3c847117315b955190428b92",
+      "installed_sha256": "4233996847e851dd9e7fc506f455bdbc9bbd91ba3c847117315b955190428b92",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/ring_cabin.dds",
+      "sha256": "35edadfcc648ef00eed6390c485fd707a08331dfdac13f4bd1612b34e8311f0c",
+      "installed_sha256": "35edadfcc648ef00eed6390c485fd707a08331dfdac13f4bd1612b34e8311f0c",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/ring_egt.dds",
+      "sha256": "1cae484d73cc13e823e205b475d21ba537b938a04cf35bea12cbe6ea388cce25",
+      "installed_sha256": "1cae484d73cc13e823e205b475d21ba537b938a04cf35bea12cbe6ea388cce25",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/ring_line.dds",
+      "sha256": "4942c713a47e8f53c56bfc59b3f95934bdf48e88efe1a816119bbd3d02de828a",
+      "installed_sha256": "4942c713a47e8f53c56bfc59b3f95934bdf48e88efe1a816119bbd3d02de828a",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/ring_needle.dds",
+      "sha256": "496feb062ff7244759010c9b11fac2cec0c1ddafb77c1e65b23807224c0480b6",
+      "installed_sha256": "496feb062ff7244759010c9b11fac2cec0c1ddafb77c1e65b23807224c0480b6",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/ring_rpm.dds",
+      "sha256": "e4454e2bc4493ca0529fbeb4d0e2b5948117d12cae0e32fd19a1f683bc406046",
+      "installed_sha256": "e4454e2bc4493ca0529fbeb4d0e2b5948117d12cae0e32fd19a1f683bc406046",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/bay_C.dds",
+      "sha256": "07a9c5af57618be1d2ad1fc049475c0c1914909ce8a8ebd8234844fd2e032463",
+      "installed_sha256": "07a9c5af57618be1d2ad1fc049475c0c1914909ce8a8ebd8234844fd2e032463",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/bay_L.dds",
+      "sha256": "b4f3dff1d236b85bb7e9d520925911b6526d1aa12b8da44f4735b8a6b2f2b219",
+      "installed_sha256": "b4f3dff1d236b85bb7e9d520925911b6526d1aa12b8da44f4735b8a6b2f2b219",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/bay_R.dds",
+      "sha256": "8ba9a6486211e25b03f25c25a68aeaf5f86513be6edfcba69d2a9e0e8ba0a265",
+      "installed_sha256": "8ba9a6486211e25b03f25c25a68aeaf5f86513be6edfcba69d2a9e0e8ba0a265",
+      "match": true
+    },
+    {
+      "path": "IndicationTextures/bay_frame.dds",
+      "sha256": "f1b702825d8e87c2ceaa40c272b659cf429ebd0e8abca56206c06c1c61832369",
+      "installed_sha256": "f1b702825d8e87c2ceaa40c272b659cf429ebd0e8abca56206c06c1c61832369",
+      "match": true
+    },
+    {
+      "path": "Systems/AG_Radar_Modes.lua",
+      "sha256": "fd87bc4862d7830a38dcdc934eb03b8eb8d5654b63b33a877f75a67d6b0806bc",
+      "installed_sha256": null,
+      "match": false
+    },
+    {
+      "path": "Systems/AG_Radar_System.lua",
+      "sha256": "3b4eee1c260c0b2d50141fcb5d610454ad0f9083a3e9ff3b51a7b0eead7ed486",
+      "installed_sha256": "5d4483a7fb7da9f75505336bfcaaed586216fa1fed0fa3087b4c1e4ef15d2237",
+      "match": false
+    },
+    {
+      "path": "Systems/Display_Routing.lua",
+      "sha256": "7b09b63df26ad91c7c804d59765ff6abe03a616ecc40d8d0d29e0d6d7563e1e6",
+      "installed_sha256": "7b09b63df26ad91c7c804d59765ff6abe03a616ecc40d8d0d29e0d6d7563e1e6",
+      "match": true
+    },
+    {
+      "path": "Systems/ICP_Stores_Page.lua",
+      "sha256": "d81f98d573ca24f3f1c48bdba95cf84f380ff58ddf3c89795cdb5118d937adc2",
+      "installed_sha256": "d81f98d573ca24f3f1c48bdba95cf84f380ff58ddf3c89795cdb5118d937adc2",
+      "match": true
+    },
+    {
+      "path": "Systems/ICP_System.lua",
+      "sha256": "ab171ec3ab8c2eb05e053aa06902f8db88a1e3fd009da777783c8a3f25c953a6",
+      "installed_sha256": "ab171ec3ab8c2eb05e053aa06902f8db88a1e3fd009da777783c8a3f25c953a6",
+      "match": true
+    },
+    {
+      "path": "Systems/MFD_System.lua",
+      "sha256": "61e39e4bebc62ebc7e4013cefbbc437cd08b20cab918859f1a1a122c8bfa666f",
+      "installed_sha256": "61e39e4bebc62ebc7e4013cefbbc437cd08b20cab918859f1a1a122c8bfa666f",
+      "match": true
+    },
+    {
+      "path": "Systems/Nav_Display.lua",
+      "sha256": "b20157ad5b374092d73a2dd4a29cc5135970df7148d17be6ac20e54063104f71",
+      "installed_sha256": "b20157ad5b374092d73a2dd4a29cc5135970df7148d17be6ac20e54063104f71",
+      "match": true
+    },
+    {
+      "path": "Systems/Nav_Display_Controls.lua",
+      "sha256": "991522badc4cc2d9a75b79e6087debc0608f43a0276b29b98999c4c7e72f59d8",
+      "installed_sha256": "991522badc4cc2d9a75b79e6087debc0608f43a0276b29b98999c4c7e72f59d8",
+      "match": true
+    },
+    {
+      "path": "Systems/PMFD_System.lua",
+      "sha256": "edc87898c67925f7626f3140e71835dfbf86606bf42c246f2cea7a73b7805d09",
+      "installed_sha256": "edc87898c67925f7626f3140e71835dfbf86606bf42c246f2cea7a73b7805d09",
+      "match": true
+    },
+    {
+      "path": "Systems/Radar_Commands.lua",
+      "sha256": "debcd0c815e1caa04d9be30f6b695a491e7c5821020a064d4db9ea8a3a3fc1df",
+      "installed_sha256": "daffc48d1c9e39c7d3c24e6d965d82896e3b36156eb744734698dc190ea60fc5",
+      "match": false
+    },
+    {
+      "path": "Systems/Radar_System.lua",
+      "sha256": "e497d9f0a3b6f2a2ccef5e54992db75d9efb556c169694a034211cd6ed8c9358",
+      "installed_sha256": "dc2fd674459c33be16fc03ccc79a85193c5626d9f987caabdac415470b0646ba",
+      "match": false
+    },
+    {
+      "path": "Systems/Stores_Display.lua",
+      "sha256": "1e4d412d0ca556df584f95fb3656fda41e4c241249d8f6698f51cd4d9d3636c2",
+      "installed_sha256": "1e4d412d0ca556df584f95fb3656fda41e4c241249d8f6698f51cd4d9d3636c2",
+      "match": true
+    },
+    {
+      "path": "device_init.lua",
+      "sha256": "bb53273d37908f672d7dc704598b1988a0a18f207b6f862ff8f6fc68a5f13b5c",
+      "installed_sha256": "bb53273d37908f672d7dc704598b1988a0a18f207b6f862ff8f6fc68a5f13b5c",
+      "match": true
+    }
+  ],
+  "render_limitations": [
+    "change_color_when_parameter_equal_to_number"
+  ]
+}

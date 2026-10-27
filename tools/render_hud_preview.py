@@ -15,6 +15,7 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser()
 parser.add_argument('--output', type=Path, default=ROOT.parent/'HUD-Previews')
+parser.add_argument('--navigation', action='store_true',help='Render navigation steering bug fixtures from the real Lua guidance')
 parser.add_argument('--radar', action='store_true',help='Add explicitly synthetic radar/weapon sensor fixtures')
 args = parser.parse_args()
 args.output.mkdir(parents=True, exist_ok=True)
@@ -223,6 +224,20 @@ def flight_outputs(params):
                 function(n)return get_param_handle(n):get()end,p,function()end,15)
             f:update(true)
         ''')
+    if params.get('NAV_FIXTURE'):
+        sim.globals().nav_bearing=math.radians(params['NAV_FIXTURE'])
+        sim.globals().nav_heading=math.radians(params['NAV'])
+        sim.globals().nav_selected=params.get('SELECTED_HEADING',0)
+        sim.execute('''
+            local function get(k)return get_param_handle(k):get()end
+            local function put(k,v)get_param_handle(k):set(v)end
+            put('MAIN_POWER',1);put('F22_AP_HEADING',nav_selected)
+            local N=dofile(SCRIPT_ROOT..'Systems/Nav_Computer.lua')
+            local guidance=dofile(SCRIPT_ROOT..'Systems/Nav_Guidance.lua')
+            local own={x=0,y=0,alt=SAMPLE.altitude,heading=nav_heading,gs=200}
+            local route=N.new({{x=0,y=0,alt=SAMPLE.altitude},{x=20000*math.cos(nav_bearing),y=20000*math.sin(nav_bearing),alt=SAMPLE.altitude}})
+            guidance(get,put,own,N.solution(route,own))
+        ''')
     derived={k:v['value'] for k,v in sim.globals().handles.items() if k.startswith(('HUD_','F22_FC_','F22_MSL_','F22_GUN_WINGSPAN'))}
     result=dict(params);result.update(derived)
     # Background attitude is independent of the HUD sign convention. These
@@ -232,6 +247,11 @@ def flight_outputs(params):
     functions=sim.execute('return dofile(SCRIPT_ROOT.."Systems/HUD_FlightMath.lua")')
     result['HUD_WP_TTG_TEXT']=(functions.ttg(params.get('HUD_WP_RANGE_NM',0)*1852,speed)
         if params.get('HUD_WP_VALID') else None) or '--:--:--'
+    if params.get('NAV_FIXTURE'):
+        result['HUD_WP_INFO']='02 %03d/10.8'%params['NAV_FIXTURE']
+        result['HUD_WP_TTG_TEXT']='00:01:40'
+    result['F22_AP_STATUS_TEXT']='AP NAV ALT' if params.get('NAV_FIXTURE') else 'AP OFF'
+    result.setdefault('HUD_HEADING_REFERENCE','T')
     return result
 
 states['01-runway'].update(GEAR=1,WOW=1)
@@ -289,6 +309,12 @@ if args.radar:
     for index,label,rate in [(35,'level',99),(36,'pulling',.12)]:
         states[f'{index}-GUN-unlocked-funnel-{label}-synthetic']=dict(states['02-flight'],
             NAV=0,HUD_MODE=5,HUD_ARMED=1,FUNNEL_FIXTURE=rate,F22_GUN_AMMO_VALID=1,F22_GUN_AMMO_COUNT=480)
+if args.navigation:
+    for label,heading,bearing,selected in [('north-wrap',359,1,5),('steer-left',90,83,95),('off-scale-right',90,140,100)]:
+        base=math.floor(heading/10)*10
+        states['NAV-'+label]=dict(states['02-flight'],NAV=heading,NAV_FIXTURE=bearing,SELECTED_HEADING=selected,
+            HUD_HEADING_OFFSET=heading-base,HUD_TICK_M20=(base-20)%360,HUD_TICK_M10=(base-10)%360,
+            HUD_TICK_C00=base,HUD_TICK_P10=(base+10)%360,HUD_TICK_P20=(base+20)%360)
 states={name:flight_outputs(params) for name,params in states.items()}
 
 def controller_state(e, params):
@@ -439,6 +465,16 @@ def draw_state(name, params):
     image.convert('RGB').save(args.output/(name+'.png'))
     return image
 
+for mode,label_name in ((1,'GUN'),(2,'CCIP'),(3,'AUTO')):
+    states['AG-'+label_name+'-native-contract-fixture']=dict(states['02-flight'],HUD_MODE=7,HUD_ARMED=1,
+        HUD_AG_SUBMODE=mode,F22_AG_SOLUTION_VALID=1,HUD_AG_CCIP_EST_VALID=1,HUD_AG_CCIP_CUE_VALID=1,
+        HUD_AG_CCIP_AZ_RAD=.012,HUD_AG_CCIP_EL_RAD=-.075,HUD_AG_CCIP_TOF_SEC=1.7 if mode==1 else 18.4,
+        HUD_AG_CCIP_RANGE_NM=1.2 if mode==1 else 2.8,F22_WEAPON_COUNT=2,F22_GUN_AMMO_COUNT=480,
+        HUD_AG_TARGET_VALID=1,HUD_AG_CUE_VALID=1,HUD_AG_TGT_AZ_RAD=.01,HUD_AG_TGT_EL_RAD=-.05,
+        HUD_AG_CCRP_EST_VALID=1,HUD_AG_CCRP_TIME_SEC=2.4,F22_AG_RELEASE_CONSENT=1,F22_AG_STEERING_X=.03,
+        F22_AG_RELEASE_CUE_Y=.15,HUD_AG_DIL_X0=0,HUD_AG_DIL_Y0=.04,HUD_AG_DIL_X1=.012,
+        HUD_AG_DIL_Y1=-.035,F22_AG_BOMB_SELECTED=mode!=1)
+if args.navigation: states={k:v for k,v in states.items() if k.startswith('NAV-')}
 images=[draw_state(name,params) for name,params in states.items()]
 iw,ih=images[0].size
 sheet=Image.new('RGB',(iw*3,ih*math.ceil(len(images)/3)))

@@ -1,117 +1,228 @@
--- GPL-3.0-or-later; game-world A/G markpoint backed by DCS terrain.
--- Markpoint is a terrain LOS coordinate, NOT a JDAM designation, weapon
--- employment calculation, laser spot or F-22 operational avionics feature.
-local dev=GetSelf()
-local base=get_base_data()
-local geom=dofile(LockOn_Options.script_path.."Systems/NavGeometry.lua")
-local markSequence=get_param_handle("HUD_AG_MARK_SEQUENCE")
-local previousMarkSequence=0
-local dt=0.05
-make_default_activity(dt)
-local power=get_param_handle("MAIN_POWER")
-local mode=get_param_handle("HUD_MODE")
-local valid=get_param_handle("HUD_AG_TARGET_VALID")
-local cue=get_param_handle("HUD_AG_CUE_VALID")
-local azparam=get_param_handle("HUD_AG_TGT_AZ_RAD")
-local elparam=get_param_handle("HUD_AG_TGT_EL_RAD")
-local rangeparam=get_param_handle("HUD_AG_TGT_RANGE_NM")
-local markNorth=get_param_handle("HUD_AG_MARK_NORTH")
-local markEast=get_param_handle("HUD_AG_MARK_EAST")
-local markAlt=get_param_handle("HUD_AG_MARK_ALT")
-local target=nil
-local terrain=nil
-local function publishInvalid()
-    valid:set(0)
-    cue:set(0)
-    rangeparam:set(0)
+-- GPL-3.0-or-later. Sole ground-designation owner: radar, HUD LOS or steerpoint.
+dofile(LockOn_Options.script_path .. "devices.lua")
+local decode = dofile(LockOn_Options.script_path .. "Systems/Input_Value.lua")
+local geom = dofile(LockOn_Options.script_path .. "Systems/NavGeometry.lua")
+local projection = dofile(LockOn_Options.script_path .. "Systems/HUD_Projection.lua")
+local base = get_base_data()
+local dev = GetSelf()
+make_default_activity(0.05)
+local handles = {}
+local function h(n)
+	if not handles[n] then
+		handles[n] = get_param_handle(n)
+	end
+	return handles[n]
 end
-local function pos()
-    if type(base.getSelfCoordinates)~="function" then return nil end
-    local ok,x,alt,y=pcall(base.getSelfCoordinates)
-    if not ok or type(x)~="number" or type(y)~="number" or
-        type(alt)~="number" then return nil end
-    return x,alt,y
+local function get(n)
+	return h(n):get()
 end
-local function intersection(x,alt,y,heading,pitch)
-    if not terrain or type(terrain.GetHeight)~="function" then return nil end
-    -- DCS terrain axes x=north, z=east, y=altitude.
-    local cosPitch=math.cos(pitch)
-    local dn=math.cos(heading)*cosPitch
-    local de=math.sin(heading)*cosPitch
-    local du=math.sin(pitch)
-    -- Trace boresight against actual terrain in 250m increments then bisect.
-    -- 40km max is a local-mark feature range limit, not a weapon range.
-    local previous=0
-    for distance=250,40000,250 do
-        local north=x+dn*distance
-        local east=y+de*distance
-        local rayAlt=alt+du*distance
-        local ok,height=pcall(terrain.GetHeight,north,east)
-        if not ok or type(height)~="number" then return nil end
-        if rayAlt <= height then
-            local low,high=previous,distance
-            local hitHeight=height
-            for i=1,12 do
-                local mid=(low+high)/2
-                local mx,my=x+dn*mid,y+de*mid
-                local validSample,sampled=pcall(terrain.GetHeight,mx,my)
-                if not validSample or type(sampled)~="number" then return nil end
-                if alt+du*mid>sampled then low=mid else high=mid;hitHeight=sampled end
-            end
-            local hit=(low+high)/2
-            return {x=x+dn*hit,y=y+de*hit,alt=hitHeight}
-        end
-        previous=distance
-    end
-    return nil
+local function put(n, v)
+	h(n):set(v)
+end
+-- Complete invalid ground-marker render snapshot before the HUD binds.
+for _,name in ipairs({"HUD_AG_TGT_X_SLOPE","HUD_AG_TGT_Y_SLOPE",
+    "HUD_AG_TARGET_VALID","HUD_AG_CUE_VALID"}) do put(name,0) end
+local function finite(v)
+	return type(v) == "number" and v == v and math.abs(v) < 1e7
+end
+local terrain, target, mark_sequence, radar_sequence, request, sequence = nil, nil, 0, 0, nil, 0
+local waypoint_request
+-- A NAV designation captures the selected coordinates on the command edge.
+-- Display publications can still describe the previous waypoint for one tick.
+for _, name in ipairs({"F22_NAV_TARGET_REQUEST_SEQUENCE", "F22_NAV_TARGET_REQUEST_VALID",
+    "F22_NAV_TARGET_REQUEST_N", "F22_NAV_TARGET_REQUEST_E", "F22_NAV_TARGET_ACK_SEQUENCE",
+    "F22_NAV_TARGET_RESULT", "F22_NAV_TARGET_ACK_TARGET_SEQUENCE"}) do h(name) end
+local function acknowledge_waypoint(r, result)
+	if not r or not r.sequence then return end
+	put("F22_NAV_TARGET_RESULT", result)
+	put("F22_NAV_TARGET_ACK_TARGET_SEQUENCE", result == 1 and sequence or 0)
+	put("F22_NAV_TARGET_ACK_SEQUENCE", r.sequence)
+end
+local held = {}
+for _, c in ipairs({ 10810, 10811, 10812, 10843 }) do
+	dev:listen_command(c)
+end
+local function height(n, e)
+	if not terrain then
+		return
+	end
+	local ok, v = pcall(terrain.GetHeight, n, e)
+	if ok and finite(v) then
+		return v
+	end
+end
+local function clear()
+	target = nil
+	sequence = sequence + 1
+	put("F22_AG_TARGET_SEQUENCE", sequence)
+	put("HUD_AG_TARGET_VALID", 0)
+	put("HUD_AG_CUE_VALID", 0)
+	put("HUD_AG_TGT_RANGE_NM", 0)
+end
+local function assign(n, u, e, source)
+	if not finite(n) or not finite(u) or not finite(e) then
+		return
+	end
+	target = { n = n, u = u, e = e, source = source }
+	sequence = sequence + 1
+	put("F22_AG_TARGET_SOURCE", source)
+	put("F22_AG_TARGET_SEQUENCE", sequence)
+end
+local function designate_los()
+	local n, u, e = base.getSelfCoordinates()
+	local heading = -base.getHeading()
+	local pitch = base.getPitch()
+	if not finite(n) or not finite(u) or not finite(e) then
+		return
+	end
+	local dn, de, du = math.cos(heading) * math.cos(pitch), math.sin(heading) * math.cos(pitch), math.sin(pitch)
+	local previous = 0
+	for r = 100, 80000, 100 do
+		local floor = height(n + dn * r, e + de * r)
+		if not floor then
+			return
+		end
+		if u + du * r <= floor then
+			local lo, hi = previous, r
+			for _ = 1, 14 do
+				local m = (lo + hi) / 2
+				local z = height(n + dn * m, e + de * m)
+				if not z then
+					return
+				end
+				if u + du * m > z then
+					lo = m
+				else
+					hi = m
+				end
+			end
+			local d = (lo + hi) / 2
+			assign(n + dn * d, height(n + dn * d, e + de * d), e + de * d, 1)
+			return
+		end
+		previous = r
+	end
 end
 function post_initialize()
-    publishInvalid()
-    previousMarkSequence=markSequence:get()
-    local ok,t=pcall(require,"terrain")
-    if ok and type(t)=="table" then terrain=t end
+	local ok, t = pcall(require, "terrain")
+	if ok and type(t) == "table" and type(t.GetHeight) == "function" then
+		terrain = t
+	end
+	held = {}
+	request = nil
+	waypoint_request = nil
+	put("F22_NAV_TARGET_ACK_SEQUENCE", 0)
+	put("F22_NAV_TARGET_RESULT", 0)
+	put("F22_NAV_TARGET_ACK_TARGET_SEQUENCE", 0)
+	clear()
+	mark_sequence = get("HUD_AG_MARK_SEQUENCE")
+	radar_sequence = get("F22_AG_DESIGNATION_SEQUENCE")
 end
--- Shared parameter sequence is consumed exactly once by this device.
--- Command dispatch is reserved for DCS native actions, not our internal IPC.
-local function handleMark()
-    if power:get()<0.5 or mode:get()~=7 then return end
-    if target then
-        target=nil
-        publishInvalid()
-        return
-    end
-    local x,alt,y=pos()
-    if not x then publishInvalid();return end
-    local heading=(2*math.pi-base.getHeading())%(2*math.pi)
-    target=intersection(x,alt,y,heading,base.getPitch())
-    if not target then publishInvalid() end
+function SetCommand(c, v)
+	if c ~= 10843 and (c < 10810 or c > 10812) then
+		return
+	end
+	local down = decode(v, devices.AG_MARK_SYSTEM) > 0.5
+	local old = held[c]
+	held[c] = down
+	if down and not old and c == 10843 then
+		local id = get("F22_NAV_TARGET_REQUEST_SEQUENCE")
+		waypoint_request = id > 0 and {sequence=id,
+			n=get("F22_NAV_TARGET_REQUEST_N"), e=get("F22_NAV_TARGET_REQUEST_E")} or nil
+		if get("MAIN_POWER") <= .5 then acknowledge_waypoint(waypoint_request, 4) end
+	end
+	if down and not old and get("MAIN_POWER") > 0.5
+        and (get("HUD_MODE") == 7 or c == 10812 or c == 10843 or (c == 10811 and target and target.source == 3)) then
+		request = c
+	end
 end
 function update()
-    local sequence=markSequence:get()
-    if sequence~=previousMarkSequence then
-        previousMarkSequence=sequence
-        handleMark()
-    end
-    if power:get()<0.5 or mode:get()~=7 or not target then
-        publishInvalid()
-        return
-    end
-    local x,alt,y=pos()
-    if not x then publishInvalid();return end
-    local az,el,range=geom.project(target.x-x,target.y-y,target.alt-alt,
-        (2*math.pi-base.getHeading())%(2*math.pi),base.getPitch(),base.getRoll())
-    if not range or range<1 then publishInvalid();return end
-    valid:set(1)
-    markNorth:set(target.x)
-    markEast:set(target.y)
-    markAlt:set(target.alt)
-    rangeparam:set(range/1852.0)
-    if az and el and math.abs(az)<math.rad(15) and math.abs(el)<math.rad(12.5) then
-        azparam:set(az)
-        elparam:set(el)
-        cue:set(1)
-    else
-        cue:set(0)
-    end
+	local marks = get("HUD_AG_MARK_SEQUENCE")
+	local radar = get("F22_AG_DESIGNATION_SEQUENCE")
+	if get("MAIN_POWER") < 0.5 then
+		clear()
+		acknowledge_waypoint(waypoint_request, 4)
+		waypoint_request = nil
+		request = nil
+		mark_sequence = marks
+		radar_sequence = radar
+		return
+	end
+	if get("HUD_MODE") ~= 7 and request ~= 10812 and request ~= 10843 and request ~= 10811
+        and not (target and target.source == 3) then
+		put("HUD_AG_TARGET_VALID", 0)
+		put("HUD_AG_CUE_VALID", 0)
+		return
+	end
+	if get("HUD_MODE") == 7 and radar ~= radar_sequence then
+		radar_sequence = radar
+		if get("F22_AG_DESIGNATION_VALID") > 0.5 then
+			assign(
+				get("F22_AG_DESIGNATION_NORTH"),
+				get("F22_AG_DESIGNATION_ALTITUDE"),
+				get("F22_AG_DESIGNATION_EAST"),
+				2
+			)
+		else
+			clear()
+		end
+	end
+	if get("HUD_MODE") == 7 and marks ~= mark_sequence then
+		mark_sequence = marks
+		request = target and 10811 or 10810
+	end
+	if request == 10810 then
+		designate_los()
+	elseif request == 10811 then
+		clear()
+	elseif request == 10843 then
+		local r = waypoint_request
+		if r then
+			if get("F22_NAV_TARGET_REQUEST_VALID") <= .5 or
+				get("F22_NAV_TARGET_REQUEST_SEQUENCE") ~= r.sequence then
+				acknowledge_waypoint(r, 5) -- superseded/cancelled request
+			elseif not finite(r.n) or not finite(r.e) then
+				acknowledge_waypoint(r, 2)
+			else
+				local u = height(r.n, r.e)
+				if u then assign(r.n, u, r.e, 3);acknowledge_waypoint(r, 1)
+				else acknowledge_waypoint(r, 3) end
+			end
+		end
+	elseif request == 10812 and get("F22_NAV_VALID") > .5 then
+		-- Direct legacy waypoint-mark commands retain their original channel.
+		local n, e = get("F22_NAV_TARGET_N"), get("F22_NAV_TARGET_E")
+		local u = finite(n) and finite(e) and height(n, e)
+		if u then assign(n, u, e, 3) end
+	end
+	request = nil
+	waypoint_request = nil
+	if not target then
+		put("HUD_AG_TARGET_VALID", 0)
+		put("HUD_AG_CUE_VALID", 0)
+		return
+	end
+	local n, u, e = base.getSelfCoordinates()
+	if not finite(n) or not finite(u) or not finite(e) then
+		clear()
+		return
+	end
+	local az, el, r =
+		geom.project(target.n - n, target.e - e, target.u - u, -base.getHeading(), base.getPitch(), base.getRoll())
+	if not r or r < 1 then
+		put("HUD_AG_TARGET_VALID", 0)
+		put("HUD_AG_CUE_VALID", 0)
+		return
+	end
+	put("HUD_AG_MARK_NORTH", target.n)
+	put("HUD_AG_MARK_ALT", target.u)
+	put("HUD_AG_MARK_EAST", target.e)
+	put("HUD_AG_TGT_RANGE_NM", r / 1852)
+	put("HUD_AG_TGT_AZ_RAD", az or 0)
+	put("HUD_AG_TGT_EL_RAD", el or 0)
+    local x,y=projection.planar(az,el)
+    put("HUD_AG_TGT_X_SLOPE",x or 0);put("HUD_AG_TGT_Y_SLOPE",y or 0)
+	put("HUD_AG_TARGET_VALID", 1)
+	put("HUD_AG_CUE_VALID", az and el and math.abs(az) < math.rad(13) and math.abs(el) < math.rad(13) and 1 or 0)
 end
-need_to_be_closed=false
+need_to_be_closed = false

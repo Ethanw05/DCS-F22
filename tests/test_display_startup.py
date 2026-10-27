@@ -29,7 +29,7 @@ def runtime():
             elseif string.find(path,'common/',1,true)==1 then
                 return
             elseif path == SCRIPT_ROOT..'fonts.lua' then
-                UFD_GRN='test-font'
+                UFD_GRN='test-font';UFD_TEAL='test-cyan-font'
                 UFD_YEL='test-yellow-font';UFD_RED='test-red-font';UFD_FONT='test-white-font';UFD_RADAR_BLUE='test-blue-font'
                 UFD_RADAR_GREEN='test-green-font';UFD_RADAR_MAGENTA='test-magenta-font'
                 UFD_RADAR_YELLOW='test-yellow-font';UFD_RADAR_RED='test-red-font'

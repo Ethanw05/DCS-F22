@@ -171,7 +171,8 @@ function post_initialize()
 		--print_message_to_user("HOT START")
 	end
 end
-local left_ew_page=true
+local swap_held={}
+local decode_swap=dofile(LockOn_Options.script_path.."Systems/Input_Value.lua")
 local R_UFD_ADI = 1 
 local R_UFD_WAR = 0
 function SetCommand(command,value)
@@ -193,22 +194,14 @@ function SetCommand(command,value)
 		day_night = 0
 		--print_message_to_user("DAY MODE")
 	end
-    if command==left_UFD_swap or command==10910 then
-        left_ew_page=not left_ew_page
-        if left_ew_page then R_UFD_ADI=1;R_UFD_WAR=0 end
+    if command==left_UFD_swap or command==right_UFD_swap or command==10027 or command==10910 then
+        local down=decode_swap(value,devices.AVIONICS)>.5
+        local old=swap_held[command];swap_held[command]=down
+        if down and not old then
+            R_UFD_ADI=1-R_UFD_ADI;R_UFD_WAR=1-R_UFD_ADI
+        end
         return
     end
-	--RIGHT UFD SWAP
-	if (command  == right_UFD_swap or command == 10027) and R_UFD_ADI == 1 then
-		R_UFD_ADI = 0
-		R_UFD_WAR = 1
-        left_ew_page=false
-		--print_message_to_user("UFD SCREEN SWAP - RIGHT")
-	elseif (command  == right_UFD_swap or command == 10027) and R_UFD_ADI == 0 then
-		R_UFD_ADI = 1
-		R_UFD_WAR = 0
-		--print_message_to_user("UFD SWAP")
-	end
 end
 
 function update()
@@ -266,8 +259,11 @@ function update()
     local pitch = sensor_data.getPitch()
     local roll = sensor_data.getRoll()
     local heading = (360 - sensor_data.getHeading() * 180 / math.pi) % 360
+    if get_param_handle('F22_NAV_REFERENCE'):get()>.5 and get_param_handle('F22_MAG_VALID'):get()>.5 then
+        heading=(heading-math.deg(get_param_handle('F22_MAG_DECL'):get()))%360
+    end
     local ias = math.max(0, sensor_data.getIndicatedAirSpeed() * 1.943844492)
-    local alt_ft = math.max(0, sensor_data.getBarometricAltitude() * 3.280839895)
+    local alt_ft = math.max(0, get_param_handle('F22_ALT_BARO_VALID'):get()>.5 and get_param_handle('F22_ALT_BARO_FT'):get() or sensor_data.getBarometricAltitude()*3.280839895)
     local tas = math.max(1.0, sensor_data.getTrueAirSpeed())
     local climb = sensor_data.getVerticalVelocity()
     local flight_path = math.atan(climb / tas)
@@ -285,14 +281,14 @@ function update()
 
 	parameters.MACH			:set(sensor_data.getMachNumber())
 	--parameters.NAV          :set(360 - sensor_data.getHeading()/math.pi*180) -- Working, don't change
-	hdg_int = math.floor(360 - sensor_data.getHeading()/math.pi*180)
+	hdg_int = math.floor(heading)
 	if (hdg_int > 359) then
    		hdg_int = 0
 	end
 	parameters.NAV:set(hdg_int)
 	--parameters.NAV			:set((359 - sensor_data.getHeading() * 180/math.pi))
 	parameters.RADALT       :set(sensor_data.getRadarAltitude() * 3.280839895 ) -- Working, don't change
-	parameters.BARO         :set(sensor_data.getBarometricAltitude() * 3.28084 ) -- Working, don't change	
+	if get_param_handle('F22_ALT_BARO_VALID'):get()>.5 then parameters.BARO:set(get_param_handle('F22_ALT_BARO_FT'):get())end	
 	parameters.RPM_L        :set(sensor_data.getEngineLeftRPM())-- Needs to be tested (might not need to multiply by 2750 cause that was from fixed prop? maybe)
 	parameters.RPM_R        :set(sensor_data.getEngineRightRPM())
 	parameters.FUELL        :set(sensor_data.getTotalFuelWeight() * 0.01 ) -- Working, don't change: 0.36622 
@@ -340,11 +336,13 @@ function update()
     local ufd_brightness = electrical_available and clamp01(UFD_KNOB) * night_factor or 0
     local mfd_brightness = electrical_available and clamp01(MFD_KNOB) * night_factor or 0
     parameters.UFD_OPACITY:set(ufd_brightness)
-    get_param_handle('F22_UFD_EW_PAGE'):set(left_ew_page and 1 or 0)
-    get_param_handle('F22_UFD_STATUS_PAGE'):set(left_ew_page and 0 or 1)
+    get_param_handle('F22_UFD_EW_PAGE'):set(0)
+    get_param_handle('F22_UFD_STATUS_PAGE'):set(1)
     parameters.MFD_OPACITY:set(mfd_brightness)
-    parameters.L_WAR_OPACITY:set(ufd_brightness * (R_UFD_ADI == 1 and 1 or 0))
-    parameters.R_WAR_OPACITY:set(ufd_brightness * (R_UFD_ADI == 0 and 1 or 0))
+    -- The original UFD pages test these as binary format selectors. Brightness
+    -- is applied separately by UFD_OPACITY; dimming the selectors hides alerts.
+    parameters.L_WAR_OPACITY:set(electrical_available and R_UFD_ADI == 1 and 1 or 0)
+    parameters.R_WAR_OPACITY:set(electrical_available and R_UFD_ADI == 0 and 1 or 0)
     parameters.FLOOD_LIGHT:set(electrical_available and clamp01(FLOOD_KNOB) or 0)
     parameters.PANEL_LIGHT:set(electrical_available and clamp01(CONSOLE_KNOB) or 0)
 
@@ -421,6 +419,9 @@ function update()
 	if parameters.CANOPY_LIGHT:get() == 1 then
 		parameters.CAUTION_LIGHT:set(1)
 	end
+    if get_param_handle('F22_PILOT_WARNING_VALID'):get()>.5 then
+        parameters.CAUTION_LIGHT:set(1)
+    end
     -- Turning the UFD brightness to zero must never erase fault/alert state.
     -- The display and annunciator surfaces observe the state through opacity.
     if ufd_brightness <= 0 then

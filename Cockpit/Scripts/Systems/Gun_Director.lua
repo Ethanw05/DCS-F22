@@ -61,6 +61,13 @@ function M.new(sensors, get, put, dispatch, display, device_id)
     local axes = { "N", "U", "E" }
     local self =
         { stable = 0, acc = { 0, 0, 0 }, motion = Motion.new(), history = {}, sequence = 0 }
+    -- Complete render-plane schema before native HUD elements bind. Keep
+    -- existing angular telemetry and native solver buffers unchanged.
+    for _,name in ipairs({"LOW","HIGH","LEFT","RIGHT"}) do
+        local prefix="F22_GUN_MNV_"..name
+        for _,suffix in ipairs({"_X_SLOPE","_Y_SLOPE","_PLANE_LEN","_PLANE_ROT"}) do put(prefix..suffix,0) end
+    end
+    for _,name in ipairs({"F22_GUN_MNV_PLANE_AXIS_ROT","F22_GUN_MNV_SHOW","F22_GUN_DIRECTOR_VALID"}) do put(name,0) end
     local function vector(prefix)
         return { get(prefix .. "N"), get(prefix .. "U"), get(prefix .. "E") }
     end
@@ -321,14 +328,19 @@ function M.new(sensors, get, put, dispatch, display, device_id)
             if points then
                 for name,point in pairs(points) do
                     put("F22_GUN_MNV_"..name.."_AZ",point[1]);put("F22_GUN_MNV_"..name.."_EL",point[2])
+                    put("F22_GUN_MNV_"..name.."_X_SLOPE",math.tan(point[1]));put("F22_GUN_MNV_"..name.."_Y_SLOPE",math.tan(point[2]))
                 end
                 local low,high=points.LOW,points.HIGH
                 local dx,dy=high[1]-low[1],high[2]-low[2]
                 put("F22_GUN_MNV_AXIS_ROT",math.atan2(dy,dx)+math.pi/2)
+                put("F22_GUN_MNV_PLANE_AXIS_ROT",math.atan2(math.tan(high[2])-math.tan(low[2]),math.tan(high[1])-math.tan(low[1]))+math.pi/2)
                 for _,name in ipairs({"LEFT","RIGHT"}) do
                     dx,dy=points[name][1]-low[1],points[name][2]-low[2]
                     put("F22_GUN_MNV_"..name.."_LEN",math.sqrt(dx*dx+dy*dy))
                     put("F22_GUN_MNV_"..name.."_ROT",math.atan2(dy,dx))
+                    local px,py=math.tan(points[name][1])-math.tan(low[1]),math.tan(points[name][2])-math.tan(low[2])
+                    put("F22_GUN_MNV_"..name.."_PLANE_LEN",math.sqrt(px*px+py*py))
+                    put("F22_GUN_MNV_"..name.."_PLANE_ROT",math.atan2(py,px))
                 end
                 for _,name in ipairs({"LOW","HIGH"}) do
                     dx,dy=points[name][1]-pa,points[name][2]-projected

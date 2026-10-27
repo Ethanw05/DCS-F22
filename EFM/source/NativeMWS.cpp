@@ -10,6 +10,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <algorithm>
 namespace NativeMWS {
 namespace {
 bool readable(std::uintptr_t address, std::size_t size) {
@@ -32,7 +33,35 @@ struct Polar {
 struct Contact {
     unsigned id{};
     double time{}, az{}, el{};
+    Polar world{};
+    bool threat{};
 };
+// A low bearing rate alone also accepts a friendly missile flying away.
+// Classify only native optical observations, using measured relative motion.
+// These are mod warning-policy limits, not claimed aircraft specifications.
+struct ApproachFilter {
+    struct Track {double time{},n{},u{},e{};bool threat{};};
+    std::map<unsigned,Track> tracks;
+    bool observe(unsigned id,double time,const Polar &p) {
+        if(!std::isfinite(time)||!std::isfinite(p.az)||!std::isfinite(p.el)||
+           !std::isfinite(p.range)||p.range<1||p.range>150000)return false;
+        const double ce=std::cos(p.el),n=p.range*ce*std::cos(p.az),u=p.range*std::sin(p.el),e=p.range*ce*std::sin(p.az);
+        auto it=tracks.find(id);
+        if(it==tracks.end()||time<it->second.time||time-it->second.time>1.) {
+            tracks[id]={time,n,u,e,false};return false;
+        }
+        auto &old=it->second;const double dt=time-old.time;
+        if(dt<.1)return old.threat;
+        const double vn=(n-old.n)/dt,vu=(u-old.u)/dt,ve=(e-old.e)/dt;
+        const double dot=n*vn+u*vu+e*ve,speed2=vn*vn+vu*vu+ve*ve;
+        const double closing=-dot/p.range,tca=speed2>1?-dot/speed2:-1;
+        const double miss=std::hypot(n+vn*tca,u+vu*tca,e+ve*tca);
+        const bool threat=closing>25&&tca>0&&tca<=60&&miss<=std::max(300.,p.range*.03);
+        old={time,n,u,e,threat};return threat;
+    }
+    void expire(double now) {for(auto i=tracks.begin();i!=tracks.end();)if(now<i->second.time||now-i->second.time>1.)i=tracks.erase(i);else ++i;}
+};
+ApproachFilter approach;
 struct Api {
     using Context = void *(__cdecl *)();
     using Device = void *(__fastcall *)(void *, unsigned);
@@ -48,7 +77,7 @@ struct Api {
     Allocate allocate{};
     Free free{};
     Contacts contacts{};
-    Spike spike{};
+    Spike spike{},world_spike{};
     Clock clock{};
     const void *device_table{};
     const void *contact_table{};
@@ -85,6 +114,8 @@ struct Api {
                               "std@@V?$allocator@U?$pair@$$CBIVMLWS_contact@cockpit@@@std@@@ed@@@std@@XZ"));
         spike = reinterpret_cast<Spike>(
             GetProcAddress(m, "?get_spike@avMLWS@cockpit@@IEAA?AVPolar@Math@@AEAVMLWS_contact@2@@Z"));
+        world_spike = reinterpret_cast<Spike>(
+            GetProcAddress(m, "?get_spike_world@avMLWS@cockpit@@IEAA?AVPolar@Math@@AEAVMLWS_contact@2@@Z"));
         device_table = GetProcAddress(m, "??_7avMLWS@cockpit@@6BccContextRelatedObject@1@@");
         // This local vtable is not exported. IDA verifies its first destructor
         // and RVA in the exact timestamp/image profile checked above.
@@ -96,7 +127,7 @@ struct Api {
             return;
         }
         clock = reinterpret_cast<Clock>(GetProcAddress(w, "?GetModelTime@wTime@@SANXZ"));
-        ready = context && device && scan && clear && contacts && spike && clock && device_table &&
+        ready = context && device && scan && clear && contacts && spike && world_spike && clock && device_table &&
                 contact_table && threat_construct && threat_destroy && allocate && free;
         reason = ready ? 0 : 3;
     }
@@ -177,7 +208,7 @@ bool collect(const Api &a, std::uintptr_t object, double now, std::vector<Contac
     result.clear();
     if (max_hits)
         *max_hits = 0;
-    if (!owned(a, object) || !a.contacts || !a.spike || !std::isfinite(now))
+    if (!owned(a, object) || !a.contacts || !a.spike || !a.world_spike || !std::isfinite(now))
         return false;
     auto map = reinterpret_cast<std::uintptr_t>(a.contacts(reinterpret_cast<void *>(object)));
     if (map != object + 208)
@@ -222,7 +253,10 @@ bool collect(const Api &a, std::uintptr_t object, double now, std::vector<Contac
         if (!std::isfinite(direction.az) || !std::isfinite(direction.el) || std::abs(direction.az) > 3.142 ||
             std::abs(direction.el) > 1.572)
             return false;
-        result.push_back({id, time, direction.az, direction.el});
+        Polar world{};
+        a.world_spike(reinterpret_cast<void *>(object), &world, reinterpret_cast<void *>(node + 40));
+        if(!std::isfinite(world.az)||!std::isfinite(world.el)||!std::isfinite(world.range)||world.range<1)return false;
+        result.push_back({id, time, direction.az, direction.el, world});
     }
     return seen.size() == count;
 }
@@ -232,6 +266,7 @@ void reset() {
     api = {};
     last = -100;
     was_powered = false;
+    approach.tracks.clear();
 }
 void update(EDPARAM &p) {
     api.initialize();
@@ -246,6 +281,7 @@ void update(EDPARAM &p) {
     if (now < last) {
         last = -100;
         was_powered = false;
+        approach.tracks.clear();
     }
     if (now - last < .05)
         return;
@@ -293,8 +329,12 @@ void update(EDPARAM &p) {
             put(p, "F22_MWS_NATIVE_REASON", 5);
             return;
         }
-    } else if (was_powered)
-        api.clear(reinterpret_cast<void *>(object));
+    } else if (was_powered) {
+        api.clear(reinterpret_cast<void *>(object));approach.tracks.clear();
+    }
+    approach.expire(now);unsigned threat_count{};
+    for(auto &c:found) {c.threat=approach.observe(c.id,c.time,c.world);if(c.threat)++threat_count;}
+    std::stable_sort(found.begin(),found.end(),[](const Contact&a,const Contact&b){return a.threat!=b.threat?a.threat>b.threat:a.id<b.id;});
     was_powered = powered;
     put(p, "F22_MWS_NATIVE_READY", 1);
     put(p, "F22_MWS_NATIVE_REASON", 0);
@@ -302,6 +342,7 @@ void update(EDPARAM &p) {
     put(p, "F22_MWS_NATIVE_COUNT", found.size());
     put(p, "F22_MWS_NATIVE_RAW_COUNT", raw_count);
     put(p, "F22_MWS_NATIVE_MAX_HITS", max_hits);
+    put(p, "F22_MWS_NATIVE_THREAT_COUNT", threat_count);
     for (std::size_t i = 0; i < 16; ++i) {
         auto prefix = std::string("F22_MWS_NATIVE_") + (i < 9 ? "0" : "") + std::to_string(i + 1) + "_";
         const auto *c = i < found.size() ? &found[i] : nullptr;
@@ -310,6 +351,7 @@ void update(EDPARAM &p) {
         put(p, prefix + "TIME", c ? c->time : 0);
         put(p, prefix + "AZ", c ? c->az : 0);
         put(p, prefix + "EL", c ? c->el : 0);
+        put(p, prefix + "THREAT", c && c->threat ? 1 : 0);
     }
 }
 } // namespace NativeMWS

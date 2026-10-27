@@ -1,0 +1,27 @@
+[
+  {
+    "test": "test_radar_display_palette.py",
+    "code": 0,
+    "output": "DCS-style element construction: HUD/page.lua OK\nDCS-style element construction: PMFD_CENTER/radar_page.lua OK\nOwn HUD registration, no inherited cockpit and no dimming workaround OK\nElectrical startup and reentrant click/axis handling OK\nNative power initialization: GROUND_HOT OK\nNative power initialization: AIR_HOT OK\nNative power initialization: GROUND_COLD OK\nReal electrical startup / display chain: GROUND_HOT callbacks= True OK\nReal electrical startup / display chain: GROUND_HOT callbacks= False OK\nReal electrical startup / display chain: AIR_HOT callbacks= True OK\nReal electrical startup / display chain: AIR_HOT callbacks= False OK\nReal electrical startup / display chain: GROUND_COLD callbacks= True OK\nReal electrical startup / display chain: GROUND_COLD callbacks= False OK\nIndicator connector names exist in shipped EDM; HUD uses explicit geometry OK\nA/A palette: real native line/font resources, sRGB round trip, neutral background separation and all radar bindings PASS\n"
+  },
+  {
+    "test": "test_display_startup.py",
+    "code": 0,
+    "output": "DCS-style element construction: HUD/page.lua OK\nDCS-style element construction: PMFD_CENTER/radar_page.lua OK\nOwn HUD registration, no inherited cockpit and no dimming workaround OK\nElectrical startup and reentrant click/axis handling OK\nNative power initialization: GROUND_HOT OK\nNative power initialization: AIR_HOT OK\nNative power initialization: GROUND_COLD OK\nReal electrical startup / display chain: GROUND_HOT callbacks= True OK\nReal electrical startup / display chain: GROUND_HOT callbacks= False OK\nReal electrical startup / display chain: AIR_HOT callbacks= True OK\nReal electrical startup / display chain: AIR_HOT callbacks= False OK\nReal electrical startup / display chain: GROUND_COLD callbacks= True OK\nReal electrical startup / display chain: GROUND_COLD callbacks= False OK\nIndicator connector names exist in shipped EDM; HUD uses explicit geometry OK\n"
+  },
+  {
+    "test": "test_lcd_typography.py",
+    "code": 0,
+    "output": "DCS-style element construction: HUD/page.lua OK\nDCS-style element construction: PMFD_CENTER/radar_page.lua OK\nOwn HUD registration, no inherited cockpit and no dimming workaround OK\nElectrical startup and reentrant click/axis handling OK\nNative power initialization: GROUND_HOT OK\nNative power initialization: AIR_HOT OK\nNative power initialization: GROUND_COLD OK\nReal electrical startup / display chain: GROUND_HOT callbacks= True OK\nReal electrical startup / display chain: GROUND_HOT callbacks= False OK\nReal electrical startup / display chain: AIR_HOT callbacks= True OK\nReal electrical startup / display chain: AIR_HOT callbacks= False OK\nReal electrical startup / display chain: GROUND_COLD callbacks= True OK\nReal electrical startup / display chain: GROUND_COLD callbacks= False OK\nIndicator connector names exist in shipped EDM; HUD uses explicit geometry OK\nNative LCD typography: distinct stronger font, complete SVG/codepoint storage, MFD/UFC stroke elements and 0.60 aspect PASS\n"
+  },
+  {
+    "test": "test_common_mfd_workflow.py",
+    "code": 0,
+    "output": "Common MFD routing: 4 x 9 formats, local views, release ownership, range placement and sensor focus PASS\nCommon native element graphs: identical libraries, valid parents, physical bezels and neutral gray PASS\n"
+  },
+  {
+    "test": "test_tactical_identity_palette.py",
+    "code": 0,
+    "output": "DCS-style element construction: HUD/page.lua OK\nDCS-style element construction: PMFD_CENTER/radar_page.lua OK\nOwn HUD registration, no inherited cockpit and no dimming workaround OK\nElectrical startup and reentrant click/axis handling OK\nNative power initialization: GROUND_HOT OK\nNative power initialization: AIR_HOT OK\nNative power initialization: GROUND_COLD OK\nReal electrical startup / display chain: GROUND_HOT callbacks= True OK\nReal electrical startup / display chain: GROUND_HOT callbacks= False OK\nReal electrical startup / display chain: AIR_HOT callbacks= True OK\nReal electrical startup / display chain: AIR_HOT callbacks= False OK\nReal electrical startup / display chain: GROUND_COLD callbacks= True OK\nReal electrical startup / display chain: GROUND_COLD callbacks= False OK\nIndicator connector names exist in shipped EDM; HUD uses explicit geometry OK\nTactical identity: red hostile, green friend, yellow unknown, reserved cyan flight; real font atlas construction and IFF boundary PASS\n"
+  }
+]
