@@ -1,0 +1,290 @@
+// GPL-3.0-or-later. Finite electronic beam service and measured radar reports.
+#include "AesaRadar.h"
+#include <algorithm>
+#include <cmath>
+
+namespace AesaRadar {
+Vector operator+(Vector a, Vector b) noexcept { return {a.n + b.n, a.u + b.u, a.e + b.e}; }
+Vector operator-(Vector a, Vector b) noexcept { return {a.n - b.n, a.u - b.u, a.e - b.e}; }
+Vector operator*(Vector a, double s) noexcept { return {a.n * s, a.u * s, a.e * s}; }
+double dot(Vector a, Vector b) noexcept { return a.n * b.n + a.u * b.u + a.e * b.e; }
+double length(Vector a) noexcept { return std::sqrt(dot(a, a)); }
+bool finite(Vector a) noexcept { return std::isfinite(a.n) && std::isfinite(a.u) && std::isfinite(a.e); }
+namespace {
+bool valid_pose(const Pose& p) noexcept {
+    return finite(p.position) && finite(p.velocity) && finite(p.forward) && finite(p.up) && finite(p.right)
+        && std::abs(length(p.forward) - 1) < .002 && std::abs(length(p.up) - 1) < .002
+        && std::abs(length(p.right) - 1) < .002 && std::abs(dot(p.forward, p.up)) < .002
+        && std::abs(dot(p.forward, p.right)) < .002 && std::abs(dot(p.up, p.right)) < .002;
+}
+bool valid_controls(const Controls& c) noexcept {
+    const std::array ranges{
+        std::array{c.resource, .1, 1.0}, std::array{c.range_m, 40.0, 160 * 1852.0},
+        std::array{c.azimuth, -60 * degree, 60 * degree},
+        std::array{c.elevation, -60 * degree, 60 * degree},
+        std::array{c.half_azimuth, .001 * degree, 60 * degree},
+        std::array{c.half_elevation, .001 * degree, 60 * degree}};
+    for (const auto& r : ranges)
+        if (!std::isfinite(r[0]) || r[0] < r[1] || r[0] > r[2]) return false;
+    return true;
+}
+double bounded(double value, double low, double high, double fallback) noexcept {
+    return std::isfinite(value) && value >= low && value <= high ? value : fallback;
+}
+Policy checked(Policy p) noexcept {
+    const Policy defaults{};
+    p.dwell_s = bounded(p.dwell_s, .005, 1, defaults.dwell_s);
+    p.processing_s = bounded(p.processing_s, .001, 2, defaults.processing_s);
+    p.beam_half_angle = bounded(p.beam_half_angle, degree, 10 * degree, defaults.beam_half_angle);
+    p.reference_range_m = bounded(p.reference_range_m, 1000, 300000, defaults.reference_range_m);
+    p.track_revisit_s = bounded(p.track_revisit_s, .02, 6, defaults.track_revisit_s);
+    p.track_memory_s = bounded(p.track_memory_s, 1, 30, defaults.track_memory_s);
+    p.range_error_m = bounded(p.range_error_m, 1, 1000, defaults.range_error_m);
+    p.angular_error_rad = bounded(p.angular_error_rad, .001 * degree, degree, defaults.angular_error_rad);
+    return p;
+}
+Vector direction(const Pose& p, double azimuth, double elevation) noexcept {
+    const double horizontal = std::cos(elevation);
+    return p.forward * (horizontal * std::cos(azimuth)) + p.right * (horizontal * std::sin(azimuth))
+        + p.up * std::sin(elevation);
+}
+void body_angles(Vector delta, const Pose& pose, double& azimuth, double& elevation) noexcept {
+    const double forward = dot(delta, pose.forward), right = dot(delta, pose.right);
+    azimuth = std::atan2(right, forward);
+    elevation = std::atan2(dot(delta, pose.up), std::hypot(forward, right));
+}
+}
+Model::Model(Policy policy) noexcept : policy_(checked(policy)) { reset(); }
+void Model::reset(std::uint64_t generation) noexcept {
+    for(auto& track:tracks_) track={};
+    for(auto& pending:pending_) pending={};
+    for(auto& filter:filters_) filter.reset();
+    last_priority_look_.fill(-100);
+    status_ = {}; previous_ = {};
+    clock_ = -1; next_start_ = 0; cell_ = 0; turn_ = 0; surface_cell_ = 0; array_turn_ = 0; candidate_cursor_ = 0; generation_ = generation;
+    random_ = 0x1a2b3c4d ^ static_cast<std::uint32_t>(generation);
+    if (!random_) random_ = 1;
+}
+double Model::uniform() noexcept {
+    random_ ^= random_ << 13; random_ ^= random_ >> 17; random_ ^= random_ << 5;
+    return (static_cast<double>(random_) + .5) / 4294967296.0;
+}
+double Model::error(double sigma) noexcept { return (uniform() + uniform() + uniform() - 1.5) * 2 * sigma; }
+bool Model::configuration_changed(const Controls& c) const noexcept {
+    return c.azimuth != previous_.azimuth || c.elevation != previous_.elevation
+        || c.half_azimuth != previous_.half_azimuth || c.half_elevation != previous_.half_elevation
+        || c.range_m != previous_.range_m || c.surface != previous_.surface;
+}
+Measurement* Model::find(std::uint32_t id) noexcept {
+    for (auto& t : tracks_) if (t.valid && t.id == id) return &t;
+    return nullptr;
+}
+void Model::age(double now) noexcept {
+    status_.tracks = 0;
+    for (auto& t : tracks_) {
+        if (t.valid && now - t.time > policy_.track_memory_s) t = {};
+        if (t.valid) ++status_.tracks;
+    }
+}
+bool Model::assimilate(Pending& pending, Measurement& target) noexcept {
+    auto& filter = filters_[static_cast<std::size_t>(&target - tracks_.data())];
+    if (!target.valid) {
+        filter.reset();
+        last_priority_look_[static_cast<std::size_t>(&target-tracks_.data())]=-100;
+    }
+    if (!filter.observe(pending.sample)) return false;
+    auto& value = pending.value;
+    const auto& state = filter.state();
+    value.raw_position = value.position;
+    value.position = {state.position[0],state.position[1],state.position[2]};
+    value.velocity = {state.velocity[0],state.velocity[1],state.velocity[2]};
+    value.hits = state.hits; value.velocity_valid = state.velocity_valid;
+    double pos=0,vel=0;
+    for(std::size_t i=0;i<3;++i){pos=std::max(pos,state.covariance[i][i]);vel=std::max(vel,state.covariance[i+3][i+3]);}
+    value.position_sigma_m=std::sqrt(pos);value.velocity_sigma_mps=std::sqrt(vel);
+    value.filter_valid=state.valid;
+    std::size_t index=0;
+    for(std::size_t i=0;i<6;++i)for(std::size_t j=i;j<6;++j)value.covariance[index++]=state.covariance[i][j];
+    target = value;
+    return true;
+}
+void Model::release(double now) noexcept {
+    status_.pending = 0;
+    for (auto& p : pending_) {
+        if (!p.occupied) continue;
+        if (p.release > now) { ++status_.pending; continue; }
+        auto* target = find(p.value.id);
+        if (!target) for (auto& t : tracks_) if (!t.valid) { target = &t; break; }
+        if (target && p.value.time > target->time) (void)assimilate(p, *target);
+        else if (!target) ++status_.queue_drops;
+        p.occupied = false;
+    }
+}
+void Model::start_surface(double now, const Controls& c, const Pose& pose) noexcept {
+    const double half = std::isfinite(c.surface_half_azimuth)
+        ? std::clamp(c.surface_half_azimuth, degree, 60 * degree) : 45 * degree;
+    const auto count = static_cast<std::uint32_t>(std::ceil(half / (policy_.beam_half_angle * .7)));
+    const auto index = surface_cell_ % count;
+    const auto tile = index % 2 == 0 ? index / 2 : count - 1 - index / 2;
+    const double azimuth = -half + (tile + .5) * 2 * half / count;
+    surface_cell_ = (surface_cell_ + 1) % count;
+    status_.beam = {direction(pose, azimuth, -10 * degree), policy_.beam_half_angle, c.range_m,
+        now, now + policy_.dwell_s / c.resource, azimuth, -10 * degree, 0, false, true};
+    status_.dwelling = true;
+}
+void Model::start(double now, const Controls& c, const Pose& pose) noexcept {
+    const bool surface_job = c.surface && array_turn_ % 3 != 0;
+    array_turn_ = (array_turn_ + 1) % 3;
+    if (surface_job) { start_surface(now, c, pose); return; }
+    Measurement* priority = nullptr;
+    if (turn_ % 4 != 3) {
+        for (const auto id : c.priority_ids) {
+            auto* t = id ? find(id) : nullptr;
+            if (!t) continue;
+            const auto index=static_cast<std::size_t>(t-tracks_.data());
+            // Sensing and processing have separate clocks. An already completed
+            // look must not be repeated while its measurement is still queued.
+            const double last=std::max(t->time,last_priority_look_[index]);
+            if (now-last>=policy_.track_revisit_s && (!priority || t->time<priority->time)) priority=t;
+        }
+    }
+    double azimuth = 0, elevation = 0;
+    if (priority) {
+        const auto predicted = priority->position + priority->velocity * (priority->velocity_valid ? now - priority->time : 0);
+        body_angles(predicted - pose.position, pose, azimuth, elevation);
+        if (std::abs(azimuth) > 60 * degree || std::abs(elevation) > 60 * degree) priority = nullptr;
+    }
+    if (!priority) {
+        const auto columns = static_cast<std::uint32_t>(std::ceil(c.half_azimuth / (policy_.beam_half_angle * .7)));
+        const auto rows = static_cast<std::uint32_t>(std::ceil(c.half_elevation / (policy_.beam_half_angle * .7)));
+        const auto count = std::clamp(columns * rows, 1u, 8192u);
+        const auto index = cell_ % count;
+        const auto tile = index % 2 == 0 ? index / 2 : count - 1 - index / 2;
+        azimuth = c.azimuth - c.half_azimuth + (tile % columns + .5) * 2 * c.half_azimuth / columns;
+        elevation = c.elevation - c.half_elevation + (tile / columns + .5) * 2 * c.half_elevation / rows;
+        cell_ = (cell_ + 1) % count;
+    }
+    if (!priority && c.cue_valid && turn_ % 4 == 1 && std::isfinite(c.cue_azimuth)
+        && std::isfinite(c.cue_elevation)) { azimuth = c.cue_azimuth; elevation = c.cue_elevation; }
+    azimuth = std::clamp(azimuth, -60 * degree, 60 * degree);
+    elevation = std::clamp(elevation, -60 * degree, 60 * degree);
+    auto& b = status_.beam;
+    b = {direction(pose, azimuth, elevation), policy_.beam_half_angle, priority ? std::min(160 * 1852.0,
+        std::max(c.range_m, length(priority->position - pose.position) * 1.15)) : c.range_m, now,
+        now + policy_.dwell_s / c.resource, azimuth, elevation, priority ? priority->id : 0, priority != nullptr};
+    status_.dwelling = true;
+    turn_ = (turn_ + 1) % 4;
+}
+void Model::queue(double now, const Pose& pose, const Truth& truth, double signal) noexcept {
+    Pending* slot = nullptr;
+    for (auto& p : pending_) if (!p.occupied) { slot = &p; break; }
+    if (!slot) { ++status_.queue_drops; return; }
+    const auto delta = truth.position - pose.position;
+    const double range = length(delta), quality = std::sqrt(std::clamp(signal, .25, 16.0));
+    double azimuth = 0, elevation = 0;
+    body_angles(delta, pose, azimuth, elevation);
+    const double sigma_r = (policy_.range_error_m + range * .0002) / quality;
+    const double sigma_a = policy_.angular_error_rad / quality;
+    const double measured_az=azimuth+error(sigma_a), measured_el=elevation+error(sigma_a);
+    const double measured_range=std::max(40.0,range+error(sigma_r));
+    const auto measured=pose.position+direction(pose,measured_az,measured_el)*measured_range;
+    // Doppler is a scalar LOS observation. Cartesian target velocity remains
+    // private environmental truth and never enters a weapon/track report.
+    const double sigma_rate=std::max(.25,1.0/quality);
+    const double range_rate=dot(truth.velocity-pose.velocity,delta)/range+error(sigma_rate);
+    slot->value={truth.id,1,measured,{},now,sigma_r,sigma_a,true,false};
+    slot->value.measured_range=measured_range;slot->value.measured_azimuth=measured_az;
+    slot->value.measured_elevation=measured_el;slot->value.measured_range_rate=range_rate;
+    slot->value.rate_sigma_mps=sigma_rate;
+    slot->value.sensor_origin=pose.position;slot->value.sensor_velocity=pose.velocity;
+    slot->value.sensor_forward=pose.forward;slot->value.sensor_up=pose.up;slot->value.sensor_right=pose.right;
+    slot->sample={{pose.position.n,pose.position.u,pose.position.e},{pose.velocity.n,pose.velocity.u,pose.velocity.e},
+        {pose.forward.n,pose.forward.u,pose.forward.e},{pose.up.n,pose.up.u,pose.up.e},
+        {pose.right.n,pose.right.u,pose.right.e},now,measured_range,measured_az,measured_el,
+        range_rate,sigma_r,sigma_a,sigma_rate,true};
+    slot->release = now + policy_.processing_s / status_.resource;
+    slot->occupied = true;
+    ++status_.detections;
+    ++status_.pending;
+}
+void Model::detect(double now, const Controls& c, const Pose& pose, const Truth& truth,
+                  QueryStats& stats, Environment& environment) noexcept {
+    const auto delta = truth.position - pose.position;
+    const double range = length(delta);
+    if (!truth.id || !finite(truth.position) || !finite(truth.velocity)
+        || !std::isfinite(truth.cross_section_m2) || truth.cross_section_m2 <= 0) { ++status_.invalid; return; }
+    if (range < 40 || range > status_.beam.range_m || dot(delta, status_.beam.direction) < range * std::cos(status_.beam.half_angle)) return;
+    double azimuth = 0, elevation = 0;
+    body_angles(delta, pose, azimuth, elevation);
+    if (std::abs(azimuth) > 60 * degree || std::abs(elevation) > 60 * degree) return;
+    const double gain = std::max(.1, std::cos(azimuth) * std::cos(elevation));
+    const double ratio = policy_.reference_range_m / range;
+    double signal = ratio * ratio * ratio * ratio * std::clamp(truth.cross_section_m2, .01, 100.0)
+        * gain * gain * c.resource;
+    // A simple, declared game look-down slow-target penalty, not recovered RF processing.
+    const double radial = dot(truth.velocity - pose.velocity, delta) / range;
+    if (delta.u < 0 && std::abs(radial) < 35) signal *= .15;
+    if (signal < .2) { ++status_.misses; return; }
+    if (stats.visibility_queries >= maximum_visibility_queries) { stats.truncated = true; return; }
+    ++stats.visibility_queries;
+    if (!environment.visible(pose, truth, stats)) { ++status_.misses; return; }
+    const double probability = std::min(.99, signal / (1 + signal));
+    if (uniform() > probability) { ++status_.misses; return; }
+    queue(now, pose, truth, signal);
+}
+void Model::observe(double now, const Controls& c, const Pose& pose, Environment& environment) noexcept {
+    if (status_.beam.surface) {
+        status_.surface_service = true; status_.surface_azimuth = status_.beam.azimuth;
+        ++status_.surface_sequence; ++status_.dwells; status_.dwelling = false;
+        return;
+    }
+    std::size_t count = 0;
+    QueryStats stats{};
+    if (!environment.query(pose, status_.beam, candidates_, count, stats) || count > candidates_.size()) {
+        status_.ready = false; status_.dwelling = false; return;
+    }
+    const auto before = status_.detections;
+    if(status_.beam.priority) {
+        if(const auto* t=find(status_.beam.task_source))
+            last_priority_look_[static_cast<std::size_t>(t-tracks_.data())]=now;
+    }
+    for (std::size_t i = 0; i < count; ++i) {
+        if (status_.detections - before >= maximum_returns_per_dwell) { stats.truncated = true; break; }
+        const auto index = (candidate_cursor_ + i) % count;
+        detect(now, c, pose, candidates_[index], stats, environment);
+    }
+    if (count) candidate_cursor_ = (candidate_cursor_ + maximum_returns_per_dwell) % static_cast<std::uint32_t>(count);
+    status_.truncated = stats.truncated;
+    status_.terrain_blocked += stats.terrain_blocked;
+    status_.object_blocked += stats.object_blocked;
+    ++status_.dwells;
+    if (status_.beam.priority) ++status_.track_dwells; else ++status_.search_dwells;
+    status_.dwelling = false;
+    next_start_ = now;
+}
+bool Model::update(double now, const Controls& c, const Pose& pose, Environment& environment) noexcept {
+    if (!std::isfinite(now) || !c.enabled || !c.emit || !valid_controls(c) || !valid_pose(pose)) {
+        reset(c.generation); return false;
+    }
+    if (generation_ != c.generation || (clock_ >= 0 && (now < clock_ || now - clock_ > .5))) reset(c.generation);
+    if (clock_ == now) return status_.ready;
+    const bool changed = configuration_changed(c);
+    if (changed) { status_.dwelling = false; cell_ = 0; next_start_ = now; }
+    if (status_.dwelling && c.resource < previous_.resource && clock_ >= 0) {
+        status_.beam.completes = now + std::max(0.0, status_.beam.completes - now) * previous_.resource / c.resource;
+    }
+    if (c.resource < previous_.resource && clock_ >= 0) {
+        for (auto& p : pending_) if (p.occupied && p.release > now)
+            p.release = now + (p.release - now) * previous_.resource / c.resource;
+    }
+    clock_ = now; previous_ = c;
+    status_.ready = true; status_.emitting = true; status_.time = now; status_.resource = c.resource;
+    status_.processing_s = policy_.processing_s / c.resource;
+    status_.surface_service = false;
+    age(now); release(now);
+    if (status_.dwelling && now >= status_.beam.completes) observe(now, c, pose, environment);
+    if (!status_.ready) return false;
+    if (!status_.dwelling && now >= next_start_) start(now, c, pose);
+    return true;
+}
+}
