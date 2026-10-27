@@ -315,6 +315,11 @@ local function publish_extras(own)
  set('F22_NAV_MARK_SLOT',extras.selected);set('F22_NAV_MARK_COUNT',math.min(extras.sequence,Marks.slots))
  set('F22_NAV_MARK_SEQUENCE',extras.sequence);set('F22_NAV_MARK_ACTIVE',mark_active and 1 or 0)
  set('F22_NAV_ROUTE_SELECTED',mark_active and 0 or 1)
+ if mark_active then
+  local active=mark_navigation.route[1]
+  local current=extras.marks[-active.id]
+  active.name='MARK '..(-active.id)..(current.sequence~=active.sequence and' HOLD'or'')
+ end
  set('F22_NAV_MARK_TEXT',string.format('MARK %d %s',extras.selected,mark.valid and mark.source or'EMPTY'))
  set('F22_NAV_MARK_LAT_TEXT','LAT --');set('F22_NAV_MARK_LON_TEXT','LON --');set('F22_NAV_MARK_ALT_TEXT','ELEV --')
  if mark.valid then
