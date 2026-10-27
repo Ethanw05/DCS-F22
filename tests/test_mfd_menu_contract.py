@@ -29,18 +29,18 @@ local function key(base,b)mc(base+b,devices.MFD_SYSTEM+.375);mc(base+b,devices.M
 p('MAIN_POWER',1);tick()
 for _,panel in ipairs({{10060,'LMFD_PAGE'},{10090,'RMFD_PAGE'},{10110,'CMFD_PAGE'}})do
  local base,param=panel[1],panel[2]
- for _,selection in ipairs({{4,1},{5,2},{6,3},{7,4},{8,6},{2,8},{3,5}})do
+ for _,selection in ipairs({{1,9},{2,8},{3,5},{4,7},{5,4},{6,1},{7,2},{8,3},{9,6}})do
   key(base,13);assert(g(param)==0,'bottom-center MENU failed to open selector')
   key(base,selection[1]);assert(g(param)==selection[2],'selector did not open the selected page')
   key(base,13);assert(g(param)==0)
-  key(base,13);assert(g(param)==selection[2],'MENU did not restore the previous page')
+  key(base,12);assert(g(param)==selection[2],'RTN did not restore the previous page')
  end
- key(base,13);key(base,4);key(base,1);assert(g(param)==1,'blank former MENU key still acts')
+ key(base,13);key(base,6);key(base,1);assert(g(param)==1,'blank ENG key changed the format')
 end
 mc(10823,1);tick();local before=g('F22_NAV_SCALE_NM')
-key(10110,17);assert(g('F22_NAV_SCALE_NM')<before,'RNG- increased numerical range')
-key(10110,18);assert(g('F22_NAV_SCALE_NM')==before,'RNG+ failed to increase numerical range')
-key(10110,5);key(10110,3);sent={};key(10110,7)
+key(10110,15);assert(g('F22_NAV_SCALE_NM')<before,'RNG- increased numerical range')
+key(10110,14);assert(g('F22_NAV_SCALE_NM')==before,'RNG+ failed to increase numerical range')
+key(10110,11);key(10110,3);sent={};key(10110,7)
 assert(sent[#sent][1]==devices.FLIGHT_GUIDANCE and sent[#sent][2]==10936,'TCN DATA MODE lost its separate control')
 ''')
 print('Actual MFD/NAV owners: bottom-center MENU/return, blank old MENU, range signs and separate TCN MODE PASS')

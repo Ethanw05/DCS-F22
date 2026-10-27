@@ -125,12 +125,14 @@ for _,panel in ipairs({{10060,13},{10090,13},{10110,13}})do
  SetCommand(b+2,1);SetCommand(b+2,0) -- root MENU PB2 opens NAV
  local before=#sends
  SetCommand(b+20,5.375);SetCommand(b+20,5.25)
- assert(#sends==before+1 and sends[#sends][1]==8 and sends[#sends][2]==10830)
+ assert(#sends==before+2 and sends[#sends][1]==8 and sends[#sends][2]==10830
+  and sends[#sends-1][3]==1 and sends[#sends][3]==0)
  SetCommand(b+19,1);assert(sends[#sends][2]==10831)
- SetCommand(b+16,1);assert(sends[#sends][2]==10832)
- SetCommand(b+18,1);assert(sends[#sends][2]==10834)
- SetCommand(b+17,1);assert(sends[#sends][2]==10833)
- SetCommand(b+14,1);assert(sends[#sends][2]==10835)
+ SetCommand(b+17,1);assert(sends[#sends][2]==10835)
+ get_param_handle('F22_NAV_ROUTE_SELECTED'):set(1)
+ SetCommand(b+18,1);assert(sends[#sends][2]==10832)
+ SetCommand(b+15,1);assert(sends[#sends][2]==10833)
+ SetCommand(b+14,1);assert(sends[#sends][2]==10834)
 end
 ''')
 print('All three MFD NAV softkey routes and decoded release suppression PASS')

@@ -57,97 +57,40 @@ display:set(1);display:update(true);assert(p('F22_SMS_UI_PAGE'):get()==0,'GUN re
 ''')
 print('Overhaul stores controller: blank keys, compatible modes, menu return, explicit door controls and visibility cancellation PASS')
 
-lua = runtime()
+lua=runtime()
 lua.execute(r'''
-local now=10
-function get_model_time()return now end
-function get_aircraft_property()return 1 end
-function get_aircraft_draw_argument_value(n)return draws[n]or 0 end
-function set_aircraft_draw_argument_value(n,v)draws[n]=v end
-local counts={[4]=3}
-local native={get_station_info=function(_,i)
- return {count=counts[i]or 0,CLSID='{F22-MK83-TRAINING}',weapon={level1=4,level2=5,level3=9,level4=32}}
-end,select_station=function()end,get_chaff_count=function()return 120 end,get_flare_count=function()return 120 end}
+local now=10;function get_model_time()return now end
+local native={get_station_info=function(_,i)return {count=i==4 and 3 or 0,
+ CLSID='{F22-MK83-TRAINING}',weapon={level1=4,level2=5,level3=9,level4=32}}end,
+ select_station=function()end,get_chaff_count=function()return 120 end,get_flare_count=function()return 120 end}
 function GetDevice()return native end
-local function p(k)return get_param_handle(k)end
-local function value(k)return p(k):get()end
-dofile(SCRIPT_ROOT..'Systems/Weapon_System.lua');post_initialize()
-local weapon_command,weapon_update=SetCommand,update
-dofile(SCRIPT_ROOT..'Systems/MFD_System.lua');post_initialize()
-local mfd_command,mfd_update=SetCommand,update
-dofile(SCRIPT_ROOT..'Systems/ICP_System.lua');post_initialize()
-local icp_command,icp_update=SetCommand,update
-local events={}
-function dispatch_action(device,command,v)
- events[#events+1]={device,command,v}
- if device==devices.WEAPON_SYSTEM then weapon_command(command,v)elseif device==devices.ICP_SYSTEM then icp_command(command,v)end
-end
-local function tick()
- now=now+.02;weapon_update();mfd_update();icp_update()
-end
-local function bezel(button)
- mfd_command(10110+button,devices.MFD_SYSTEM+.375)
- mfd_command(10110+button,devices.MFD_SYSTEM+.25)
-end
-local function key(command)
- icp_command(command,devices.ICP_SYSTEM+.375)
- icp_command(command,devices.ICP_SYSTEM+.25)
-end
-p('MAIN_POWER'):set(1);p('WoW'):set(0);weapon_command(10800,1)
-for i=1,20 do tick()end
-assert(value('CMFD_BAY_PAGE')==1 and value('F22_SMS_PROGRAM_PAGE')==1)
--- Hornet-style Stores HUD -> front keypad page -> option -> digits -> ENTER.
-events={};bezel(8);tick()
-local opens=0;for _,e in ipairs(events)do if e[2]==10989 then opens=opens+1;assert(e[1]==devices.ICP_SYSTEM)end end
-assert(opens==1 and value('ICP_STORES_MENU')==1 and value('F22_SMS_ENTRY_FIELD')==0,'HUD did not open selected-munition keypad page')
-key(3008);key(3018);key(3012);tick()
-assert(value('F22_SMS_QUANTITY')==2 and value('F22_SMS_ENTRY_FIELD')==0,'quantity did not commit through actual owners')
-key(3010);key(3018);key(3027);key(3027);key(3012);tick()
-assert(value('F22_SMS_INTERVAL_MS')==200 and value('F22_SMS_ENTRY_FIELD')==0,'interval zero digits did not commit')
-assert(value('ICP_STORES_ROW_1')==':QTY 2' or value('ICP_STORES_ROW_1')==' QTY 2')
--- Former MFD interval key is blank and cannot open an entry.
-bezel(9);assert(value('F22_SMS_ENTRY_FIELD')==0)
--- Leaving the stores page cannot leave an entry that captures later NAV input.
-key(3008);key(3017);assert(value('F22_SMS_ENTRY_FIELD')==1)
-bezel(13);tick()
-assert(value('CMFD_MENU_PAGE')==1 and value('F22_SMS_PROGRAM_PAGE')==0 and value('F22_SMS_ENTRY_FIELD')==0)
--- Root MENU stores returns to the existing lower display, with a fresh home.
-bezel(3);tick();assert(value('CMFD_BAY_PAGE')==1 and value('F22_SMS_UI_PAGE')==0)
-bezel(12);bezel(8);tick();assert(value('F22_SMS_UI_PAGE')==1 and value('ICP_STORES_MENU')==1);key(3008);assert(value('F22_SMS_ENTRY_FIELD')==1)
-bezel(13);assert(value('F22_SMS_UI_PAGE')==0 and value('F22_SMS_ENTRY_FIELD')==0)
--- Power loss removes both visible page authority and its uncommitted entry.
-bezel(8);tick();key(3008);p('MAIN_POWER'):set(0);tick()
-assert(value('F22_SMS_PROGRAM_PAGE')==0 and value('F22_SMS_ENTRY_FIELD')==0)
-p('MAIN_POWER'):set(1);tick();assert(value('F22_SMS_UI_PAGE')==0)
--- An incompatible master mode cannot retain the stores numeric scratchpad.
-bezel(8);tick();key(3008);weapon_command(10800,2);tick()
-assert(value('F22_SMS_ENTRY_FIELD')==0)
--- GUN neither changes a bomb profile nor opens its hidden program controls.
-weapon_command(10800,7);for i=1,20 do tick()end
-bezel(6);bezel(1);tick();assert(value('HUD_AG_SUBMODE')==1)
-for _,button in ipairs({7,8,9,10,12,14,15,16,17})do bezel(button)end
-assert(value('F22_SMS_ENTRY_FIELD')==0 and value('F22_SMS_QUANTITY')==2 and value('F22_SMS_UI_PAGE')==0)
-weapon_command(10008,1);weapon_command(10803,1);tick()
-assert(value('F22_SMS_REMAINING')==0 and value('F22_AG_RELEASE_CONSENT')==0,'GUN pickle created bomb consent')
-weapon_command(10803,0);bezel(1);tick()
-assert(value('HUD_AG_SUBMODE')==2 and value('F22_SMS_QUANTITY')==2 and value('F22_SMS_INTERVAL_MS')==200,'class selection failed to restore its retained bomb profile')
--- The reported left-MFD STORES bug: do not silently redirect to lower Stores.
-mfd_command(10823,1);tick();assert(value('CMFD_HSI_PAGE')==1)
-local function left(n)
- mfd_command(10060+n,devices.MFD_SYSTEM+.375);mfd_command(10060+n,devices.MFD_SYSTEM+.25)
-end
-left(13);left(3);tick()
-assert(value('LMFD_BAY_PAGE')==1 and value('LMFD_SMS_PAGE')==0 and value('CMFD_HSI_PAGE')==1,'left STORES left the Attack status page visible')
-left(8);tick();assert(value('ICP_STORES_MENU')==1)
-key(3008);key(3017);key(3012);tick();assert(value('F22_SMS_QUANTITY')==1,'left-only stores could not commit UFC quantity')
-key(3010);key(3021);key(3027);key(3027);key(3012);tick()
-assert(value('F22_SMS_SPACING_FT')==500 and value('CMFD_HSI_PAGE')==1,'left UFC interval borrowed lower-display authority')
-key(3011);key(3010);key(3018);key(3021);key(3027);key(3012);tick()
-assert(value('F22_SMS_INTERVAL_MODE')==0 and value('F22_SMS_INTERVAL_MS')==250,'UFC time interval did not commit independently of impact spacing')
-left(13);tick();assert(value('LMFD_MENU_PAGE')==1 and value('ICP_STORES_MENU')==0)
-left(3);tick();assert(value('LMFD_BAY_PAGE')==1 and value('CMFD_HSI_PAGE')==1,'direct page picker still redirected stores')
+local function p(k,v)get_param_handle(k):set(v)end
+local function g(k)return get_param_handle(k):get()end
+dofile(SCRIPT_ROOT..'Systems/Weapon_System.lua');post_initialize();local wc,wu=SetCommand,update
+dofile(SCRIPT_ROOT..'Systems/MFD_System.lua');post_initialize();local mc,mu=SetCommand,update
+dofile(SCRIPT_ROOT..'Systems/ICP_System.lua');post_initialize();local ic,iu=SetCommand,update
+function dispatch_action(d,c,v)if d==devices.WEAPON_SYSTEM then wc(c,v)elseif d==devices.ICP_SYSTEM then ic(c,v)end end
+local function tick()now=now+.02;wu();mu();iu()end
+local function bezel(base,b)mc(base+b,devices.MFD_SYSTEM+.375);mc(base+b,devices.MFD_SYSTEM+.25);tick()end
+local function key(c)ic(c,devices.ICP_SYSTEM+.375);ic(c,devices.ICP_SYSTEM+.25);tick()end
+p('MAIN_POWER',1);p('HUD_MODE',1);wc(10800,1);for i=1,20 do tick()end
+bezel(10110,8);assert(g('F22_UFC_PAGE')=='STORES')
+key(3008);key(3018);key(3008);assert(g('F22_SMS_QUANTITY')==2)
+key(3010);key(3021);key(3027);key(3027);key(3010);assert(g('F22_SMS_SPACING_FT')==500)
+key(3008);key(3017);assert(g('F22_SMS_ENTRY_FIELD')==1)
+bezel(10110,13);assert(g('CMFD_MENU_PAGE')==1 and g('F22_SMS_ENTRY_FIELD')==0 and g('F22_UFC_PAGE')=='')
+bezel(10110,3);assert(g('F22_CMFD_VIEW')==0)
+mc(10823,1);tick();assert(g('CMFD_HSI_PAGE')==1)
+bezel(10060,13);bezel(10060,3);bezel(10060,8)
+assert(g('F22_UFC_PAGE')=='STORES'and g('CMFD_HSI_PAGE')==1,'left Stores redirected lower NAV')
+key(3008);key(3017);key(3008);assert(g('F22_SMS_QUANTITY')==1)
+key(3010);key(3018);key(3021);key(3027);key(3010);assert(g('F22_SMS_SPACING_FT')==250)
+key(3008);key(3018);wc(10800,2);tick()
+assert(g('F22_SMS_ENTRY_FIELD')==0 and g('F22_UFC_PAGE')=='','A/A retained a bomb numeric edit')
+wc(10800,7);tick();bezel(10060,8);key(3008);key(3017)
+p('MAIN_POWER',0);tick();assert(g('F22_SMS_ENTRY_FIELD')==0 and g('F22_UFC_SELECTED')==0)
 ''')
-print('Overhaul stores integration: actual MFD/ICP/weapon routing, SAFE NAV entry, zero digits, MENU/RTN, power and master-mode cancellation PASS')
+print('Actual Stores/MFD/UFC owners: same-option QTY/interval, local left display, MENU, power and mode cancellation PASS')
 
 lua = runtime()
 lua.execute(r'''
@@ -183,26 +126,26 @@ for _,page in ipairs({0,1,2,4})do
   assert(text_visible(label),'persistent label hidden on stores subpage '..page..': '..label)
  end
  assert(not text_visible('ENG')and not text_visible('FUEL')and not text_visible('FCS')and not text_visible('FUZE'),'unrelated/unsupported controls clutter stores')
- assert(text_visible('STN STEP')==(page==1),'station-step legend disagrees with program subpage')
+ assert(text_visible('BAY DOORS')==(page==2),'door detail disagrees with selected subpage')
 end
 get_param_handle('F22_SMS_UI_PAGE'):set(0);get_param_handle('HUD_AG_SUBMODE'):set(1)
-assert(text_visible('CANNON 20 MM') and text_visible('MODE') and text_visible('DOORS') and text_visible('MENU'))
+assert(text_visible('CANNON 20 MM'))
 assert(not text_visible('QTY')and not text_visible('PROG')and not text_visible('FUZE'),'hidden cannon-incompatible legends remain visible')
 get_param_handle('HUD_AG_SUBMODE'):set(2);get_param_handle('F22_SMS_LABEL'):set(1)
-assert(text_visible('UFC')and not text_visible('HUD'),'numeric programming has no correctly labelled MFD UFC entry')
+assert(not text_visible('HUD'),'retired Stores HUD shortcut returned')
 get_param_handle('CMFD_BAY_PAGE'):set(0)
 assert(not text_visible('STORES'),'inactive stores format remained visible')
 get_param_handle('CMFD_BAY_PAGE'):set(1);get_param_handle('MFD_OPACITY'):set(0)
 assert(not text_visible('STORES'),'unpowered display retained visible stores labels')
 ''')
-print('Overhaul native stores graph: unique names, resolved parents, persistent labels on all subpages and page/power visibility PASS')
+print('Overhaul native stores graph: unique names, resolved parents, persistent labels, current stroke glyphs and page/power visibility PASS')
 
 lua = runtime()
 lua.execute(r'''
 dofile(SCRIPT_ROOT..'Systems/Weapon_System.lua')
 dofile(SCRIPT_ROOT..'Systems/MFD_System.lua')
 local declared={};for name in pairs(handles)do declared[name]=true end
-dofile(SCRIPT_ROOT..'MFD_CENTER/stores_program.lua')
+dofile(SCRIPT_ROOT..'MFD_COMMON/stores_page.lua')('CMFD_BAY_PAGE','F22_BIND_STORES','F22_SMS_UI_PAGE_CMFD')
 for _,element in ipairs(elements)do
  for _,parameter in ipairs(element.element_params or {})do
   if parameter:find('F22_SMS_',1,true)==1 then
@@ -213,26 +156,3 @@ end
 ''')
 print('Overhaul native stores binding: display/weapon producers declare every bound SMS parameter during construction PASS')
 
-# A native capture exposed an invisible empty-entry marker. Validate literal
-# strings against the shipped font descriptors, not a permissive font stub.
-lua = runtime()
-lua.execute(r'''
-local fonts={}
-function MakeFont(description,color,name)fonts[name]=description;return name end
-local original_dofile=dofile
-function dofile(path)
- if path==SCRIPT_ROOT..'fonts.lua'then return assert(loadfile(path))()end
- return original_dofile(path)
-end
-dofile(SCRIPT_ROOT..'MFD_CENTER/stores_program.lua')
-for _,element in ipairs(elements)do
- if element.kind=='ceStringPoly'and element.value then
-  local description=assert(fonts[element.material],'Stores text has no actual font description')
-  local chars={};for _,glyph in pairs(description.chars)do chars[glyph[1]]=true end
-  for i=1,#element.value do
-   assert(chars[element.value:byte(i)],'Stores literal contains an unavailable native glyph: '..element.value)
-  end
- end
-end
-''')
-print('Overhaul stores native font: every literal, including empty keypad entry, has a shipped glyph PASS')

@@ -23,23 +23,21 @@ assert(not c:undo_edit())
 assert(c:select_id(2) and not c:select_id(3))
 """)
 sim=runtime()
-sim.execute("""
-function get_base_data()return {}end
-function send(d,c,v)actions[#actions+1]={d,c,v}end
-function dispatch_action(d,c,v)send(d,c,v)end
+sim.execute(r'''
 dofile(SCRIPT_ROOT..'Systems/ICP_System.lua');post_initialize()
-get_param_handle('MAIN_POWER'):set(1)
-SetCommand(3014,7.125);assert(actions[#actions][2]==10831,'negative rocker press selects previous')
-SetCommand(3015,7.375);SetCommand(3015,7.25)
-SetCommand(3011,7.375);assert(actions[#actions][1]==25 and actions[#actions][2]==10954,'OP4 heading select')
-SetCommand(3012,7.375);assert(actions[#actions][2]==10955,'OP5 nav coupling')
-get_param_handle('HUD_WP_INDEX'):set(2);get_param_handle('F22_NAV_FIX_LAT'):set(41.5)
-get_param_handle('F22_NAV_FIX_LON'):set(42.5);get_param_handle('F22_NAV_FIX_ALT_FT'):set(10000)
-get_param_handle('F22_NAV_FIX_GEO_VALID'):set(1)
-SetCommand(3004,7.375);update();assert(get_param_handle('ICP_NAV_MENU'):get()==1)
-local before=#actions;SetCommand(3028,7.375);update();assert(#actions==before and get_param_handle('ICP_NAV_MENU'):get()==0,'UNDO cancels transaction')
-SetCommand(3004,7.375);SetCommand(3012,7.375)
-assert(actions[#actions][1]==8 and actions[#actions][2]==10839)
-assert(get_param_handle('F22_NAV_EDIT_LAT'):get()==41.5)
-""")
-print('Coordinate entry validation, route commit/undo, ICP option routing and negative rocker press PASS')
+local function p(k,v)get_param_handle(k):set(v)end
+local function g(k)return get_param_handle(k):get()end
+local function key(c)SetCommand(c,devices.ICP_SYSTEM+.375);SetCommand(c,devices.ICP_SYSTEM+.25)end
+p('MAIN_POWER',1);p('HUD_WP_INDEX',2);p('F22_NAV_FIX_LAT',41.5);p('F22_NAV_FIX_LON',42.5)
+p('F22_NAV_FIX_ALT_FT',10000);p('F22_NAV_FIX_GEO_VALID',1)
+key(3004);key(3009)
+for d in ('4130123'):gmatch('.')do key(d=='0'and 3027 or 3016+tonumber(d))end
+assert(g('F22_UFC_SCRATCH')=='4130123_'and g('F22_NAV_EDIT_LAT')==0)
+key(3012);assert(g('F22_UFC_ROW_5')=='HEMI S','explicit hemisphere modifier lost')
+key(3009)
+assert(g('F22_ENTRY_NAV_ACTIVE')==1 and g('F22_ENTRY_NAV_COMMAND')==10839)
+assert(math.abs(g('F22_NAV_EDIT_LAT')+41.50205)<1e-8)
+assert(g('F22_UFC_SELECTED')==2,'absent owner falsely acknowledged commit')
+key(3003);assert(g('F22_UFC_PAGE')=='NAV'and g('F22_ENTRY_NAV_ACTIVE')==0)
+''')
+print('Coordinate validation, route commit/undo and UFC hemisphere/cancel transport PASS')

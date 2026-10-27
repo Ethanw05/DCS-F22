@@ -76,28 +76,21 @@ print('Real release owner: selected type, two-store interval program, single hol
 # The old inline-dispatch fixture contradicted measured DCS scheduling.
 
 lua=runtime()
-lua.execute("""
-function get_aircraft_property()return 1 end
-function set_aircraft_draw_argument_value(n,v)draws[n]=v end
-dofile(SCRIPT_ROOT..'Systems/MFD_System.lua');post_initialize();get_param_handle('MAIN_POWER'):set(1)
-update()
--- MODE reveals compatible choices; mode alternatives are not permanent tabs.
-actions={};SetCommand(10116,1);SetCommand(10116,0)
-assert(get_param_handle('F22_SMS_UI_PAGE'):get()==4 and #actions==2 and actions[2][1]==10980)
-get_param_handle('F22_SMS_MODE_AVAILABLE_2'):set(1)
-actions={};SetCommand(10112,1);SetCommand(10112,0)
-assert(#actions==3 and actions[1][1]==10742 and actions[1][2]==5 and actions[3][1]==10808)
-assert(get_param_handle('F22_SMS_UI_PAGE'):get()==0)
-get_param_handle('F22_SMS_LABEL'):set(1)
-actions={};SetCommand(10118,1);SetCommand(10118,0)
-assert(#actions==2 and actions[2][1]==10989,'Stores HUD must open the front keypad')
-actions={};SetCommand(10119,1);SetCommand(10119,0)
-assert(#actions==1 and actions[1][1]==10742,'blank former interval key must not edit a weapon')
-SetCommand(10122,1);assert(get_param_handle('F22_SMS_UI_PAGE'):get()==1)
-SetCommand(10123,1);assert(get_param_handle('F22_SMS_UI_PAGE'):get()==0)
-SetCommand(10123,0);SetCommand(10123,1);update()
-assert(get_param_handle('CMFD_MENU_PAGE'):get()==1 and get_param_handle('F22_SMS_PROGRAM_PAGE'):get()==0,'RTN/MENU hierarchy failed')
-""")
+lua.execute(r'''
+dofile(SCRIPT_ROOT..'Systems/MFD_System.lua');post_initialize()
+local function p(k,v)get_param_handle(k):set(v)end
+local function g(k)return get_param_handle(k):get()end
+local function key(b)SetCommand(10110+b,devices.MFD_SYSTEM+.375);SetCommand(10110+b,devices.MFD_SYSTEM+.25)end
+p('MAIN_POWER',1);p('HUD_MODE',7);update()
+key(6);assert(g('F22_CMFD_VIEW')==4 and g('F22_MFD_CMFD_KEY_2')=='')
+p('F22_SMS_MODE_AVAILABLE_2',1);actions={};key(2)
+assert(g('F22_CMFD_VIEW')==0 and actions[2][1]==10808 and actions[2][2]==1 and actions[3][2]==0)
+p('F22_SMS_LABEL',1);actions={};key(8)
+assert(actions[2][1]==10989 and actions[2][2]==1 and actions[3][2]==0)
+actions={};key(9);assert(#actions==1 and actions[1][1]==10742,'blank key edited a weapon')
+key(11);assert(g('F22_CMFD_VIEW')==1);key(12);assert(g('F22_CMFD_VIEW')==0)
+key(13);assert(g('CMFD_MENU_PAGE')==1 and g('F22_SMS_PROGRAM_PAGE')==0)
+''')
 for page in ['MFD_CENTER/stores_program.lua','MFD_CENTER/bay_page.lua','PMFD_CENTER/ag_radar_format.lua']:
     lua=runtime();lua.execute(f"dofile(SCRIPT_ROOT..'{page}')")
     names={e['name'] for _,e in lua.globals().elements.items()}
@@ -108,18 +101,3 @@ for page in ['MFD_CENTER/stores_program.lua','MFD_CENTER/bay_page.lua','PMFD_CEN
             if e['controllers'] and any(c[1]=='text_using_parameter' for _,c in e['controllers'].items()):
                 assert '%s' not in fmt or e['element_params'][1]=='F22_WEAPON_NAME',(page,'numeric handle used as native string')
 print('Actual formats and stores bezel: contextual MODE, selected-store HUD/keypad routing, RTN/MENU hierarchy and suppressed release edges PASS')
-
-
-lua=runtime()
-lua.execute("""
-dofile(SCRIPT_ROOT..'Systems/ICP_System.lua');post_initialize()
-local function put(n,v)get_param_handle(n):set(v)end
-put('MAIN_POWER',1);put('HUD_MODE',7);put('CMFD_BAY_PAGE',1);put('F22_SMS_PROGRAM_PAGE',1);put('F22_SMS_ENTRY_FIELD',1)
-for _,r in ipairs({{3027,10977,0},{3019,10977,3},{3026,10978,1},{3012,10979,1},{3028,10980,1}})do
- actions={};SetCommand(r[1],7.375);SetCommand(r[1],7.25)
- assert(#actions==1 and actions[1][1]==r[2] and actions[1][2]==r[3],'ICP stores routing or decoded release failed')
-end
--- Choosing navigation cancels a stores edit and uses the original NAV transaction.
-actions={};SetCommand(3004,7.375);assert(actions[1][1]==10980)
-""")
-print('ICP: zero/digits, CLR, OP5 store and UNDO scoped to bottom stores; navigation handoff cancels the edit PASS')

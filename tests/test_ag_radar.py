@@ -62,14 +62,21 @@ assert(math.abs(x)<=.80001 and y<=.76,'cursor escaped visible surface map')
 ''')
 ui = runtime()
 ui.execute('''
+dofile(SCRIPT_ROOT..'Systems/MFD_System.lua');post_initialize();local mfd_command=SetCommand
 dofile(SCRIPT_ROOT..'Systems/PMFD_System.lua');post_initialize()
+function dispatch_action(d,c,v)
+ if d==devices.MFD_SYSTEM then mfd_command(c,v)else actions[#actions+1]={c,v,d}end
+end
 get_param_handle('MAIN_POWER'):set(1);get_param_handle('HUD_MODE'):set(7)
-SetCommand(10005,1)
+get_param_handle('F22_AG_GAIN_INDEX'):set(1);get_param_handle('F22_AG_RANGE_AVAILABLE'):set(1)
 get_param_handle('F22_AG_OPTIONS_AVAILABLE'):set(1);get_param_handle('F22_AG_EXP1_AVAILABLE'):set(1)
-for _,row in ipairs({{10131},{10132},{10133},{device_commands.Button_1},{device_commands.Button_2},{device_commands.Button_3}})do
+for _,row in ipairs({{10131,10601},{10132,10646},{10133,10647},
+ {device_commands.Button_1,10601},{device_commands.Button_2,10646},{device_commands.Button_3,10647}})do
+ if row[2]==10601 then SetCommand(row[1],1);SetCommand(row[1],0)end -- open mode choices
  actions={};SetCommand(row[1],1);SetCommand(row[1],0)
  assert(actions[1][1]==10742 and actions[1][2]==2,'A/G bezel did not select primary focus')
- assert(#actions==2 and (actions[2][1]==10603 or actions[2][1]==10646 or actions[2][1]==10647),'A/G bezel omitted mode/EXP command')
+ assert(#actions==3 and actions[2][1]==row[2] and actions[2][2]==1 and actions[3][1]==row[2]
+  and actions[3][2]==0,'A/G bezel must deliver one mode/EXP press and matching release')
  -- Radar has no weapon programming actions.
 end
 ''')
