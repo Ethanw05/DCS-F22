@@ -3,6 +3,7 @@ local dev,base=GetSelf(),get_base_data()
 dofile(LockOn_Options.script_path..'devices.lua')
 dofile(LockOn_Options.script_path..'command_defs.lua')
 local guidance=dofile(LockOn_Options.script_path..'Systems/Nav_Guidance.lua')
+local radio=dofile(LockOn_Options.script_path..'Systems/Radio_Navigation.lua')
 local nav=dofile(LockOn_Options.script_path..'Systems/Nav_Computer.lua')
 local commands=dofile(LockOn_Options.script_path..'Systems/Nav_Commands.lua')
 local decode=dofile(LockOn_Options.script_path..'Systems/Input_Value.lua')
@@ -37,6 +38,7 @@ for _,key in ipairs({'MAIN_POWER','HUD_GS_VALID','HUD_GS_MPS','HUD_WP_VALID','HU
     'HUD_NAV_TARGET_LABEL','F22_NAV_DESIGNATED','F22_NAV_WPT_OPTION','F22_NAV_LEG_COURSE_DEG','F22_NAV_LEG_COURSE_VALID',
     'HUD_NAV_STEER_VALID','HUD_NAV_STEER_ERROR','HUD_NAV_BUG_LABEL','HUD_NAV_BUG_VALID','HUD_NAV_BUG_DEG','HUD_NAV_BUG_EDGE','HUD_HDG_BUG_VALID','HUD_HDG_BUG_DEG','HUD_HEADING_REFERENCE',
     'F22_NAV_HDG_BUG_ROT','F22_NAV_CDI_VALID','F22_NAV_CDI','F22_NAV_COURSE_ROT','F22_NAV_TO_FROM',
+    'F22_NAV_TCN_BRG_AVAILABLE','F22_NAV_TCN_RANGE_AVAILABLE','F22_TCN_MODE',
     'F22_TCN_BRG_VALID','F22_TCN_RANGE_VALID','F22_TCN_BRG_MAG','F22_TCN_RANGE_M','F22_ILS_LOC_VALID','F22_ILS_GS_VALID',
     'F22_ILS_LOC','F22_ILS_GS','F22_MAG_VALID','F22_MAG_DECL','F22_RADIONAV_AVAILABLE','F22_RADIONAV_REASON'}) do handles[key]=get_param_handle(key) end
 -- Native text controllers bind parameter type during concurrent indicator startup.
@@ -45,7 +47,7 @@ for _,key in ipairs({'HUD_WP_INFO','HUD_WP_TTG_TEXT','F22_NAV_AUTO_TEXT','F22_NA
  'F22_NAV_TTG_TEXT','F22_NAV_COURSE_TEXT','F22_NAV_XTK_TEXT','F22_NAV_TO_FROM','HUD_NAV_BUG_LABEL',
  'HUD_HEADING_REFERENCE','F22_NAV_SOURCE_TEXT','F22_INS_STATUS_TEXT','F22_AP_STATUS_TEXT',
  'HUD_NAV_TARGET_LABEL','F22_NAV_WPT_OPTION','F22_TCN_TUNE_TEXT','F22_ILS_TUNE_TEXT','F22_NAV_CRS_TEXT','F22_NAV_EDIT_STATUS',
- 'F22_NAV_DESIGNATE_STATUS_TEXT'})do set(key,'')end
+ 'F22_NAV_DESIGNATE_STATUS_TEXT','F22_NAV_CDI_SCALE_TEXT'})do set(key,'')end
 for _,key in ipairs({'F22_NAV_FIX_LAT_TEXT','F22_NAV_FIX_LON_TEXT','F22_NAV_FIX_ELEV_TEXT','F22_NAV_POINT_NAME_TEXT',
  'F22_NAV_TCN_BRG_TEXT','F22_NAV_TCN_DIST_TEXT'})do set(key,'--')end
 for i=1,nav.slots do
@@ -481,12 +483,7 @@ local function time_text(t)
 end
 function update()
     local owned_references=nav_reference:update().present
-    local mag=get('F22_NAV_REFERENCE')>.5
-    local bearing=get('F22_TCN_BRG_MAG')+(mag and 0 or get('F22_MAG_DECL'))
-    set('F22_NAV_TCN_BRG_TEXT',get('F22_TCN_BRG_VALID')>.5 and get('F22_MAG_VALID')>.5 and
-        nav.finite(bearing)and string.format('BRG %03d%s',math.floor(math.deg(bearing)+.5)%360,mag and'M'or'T')or'BRG --')
-    local range=get('F22_TCN_RANGE_M')
-    set('F22_NAV_TCN_DIST_TEXT',get('F22_TCN_RANGE_VALID')>.5 and nav.finite(range)and range>=0 and string.format('DME %.1fNM',range/1852)or'DME --')
+    radio.publish_data(get,set)
     set('F22_NAV_AUTO',computer.automatic and 1 or 0)
     set('F22_NAV_AUTO_TEXT',mark_active and'MARK'or computer.automatic and'AUTO'or'MAN')
     set('F22_NAV_SCALE_NM',nav.ranges[active_computer().range_index]);set('F22_NAV_ROUTE_COUNT',#computer.route)

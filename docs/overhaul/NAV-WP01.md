@@ -18,10 +18,11 @@ The pose/estimate input buffers are reused at the owner rate.
 
 Brower (2001), §§32.3.3/32.3.6/32.4 establishes the historical GPS/TACAN/ILS,
 ring-laser IRS and recovery families. The installed ED Hornet guide supplies
-display/entry analogues. Existing 180-second stationary alignment and 30-second
-GPS-aided recovery remain explicitly simplified legacy estimates in this slice;
-normal/retained-heading alignment depth, alternate physical reference selection,
-station-specific course datum/ident audio and angular TACAN CDI remain open.
+display/entry analogues. Independent normal/retained/training GINS behavior is
+recorded in [NAV-WP02](NAV-WP02.md); the former automatic 30-second airborne
+convenience is removed. Angular TACAN CDI and received-component admission are
+recorded in [NAV-WP05](NAV-WP05.md). Station-specific course datum/ident audio
+remain open.
 No missing native field is treated as proof that host receiver audio is absent.
 
 Actual Lua tests cover GINS position loss with retained TACAN/ILS, GPS observation

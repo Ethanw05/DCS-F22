@@ -18,7 +18,7 @@ local function put(k,v)get_param_handle(k):set(v)end
 local function get(k)return get_param_handle(k):get()end
 dofile(SCRIPT_ROOT..'Systems/Navigation_System.lua');post_initialize()
 put('MAIN_POWER',1);put('F22_INS_MODEL_ENABLED',1);put('F22_INS_READY',0)
-put('F22_NAV_SOURCE',1);put('F22_TCN_BRG_VALID',1);put('F22_TCN_BRG_MAG',.1);put('F22_MAG_VALID',1)
+put('F22_NAV_SOURCE',1);put('F22_TCN_MODE',2);put('F22_TCN_BRG_VALID',1);put('F22_TCN_BRG_MAG',.1);put('F22_MAG_VALID',1)
 put('F22_TCN_RANGE_VALID',1);put('F22_TCN_RANGE_M',18520)
 put('HUD_LANDING_CONFIG',1);put('F22_ILS_LOC_VALID',1);put('F22_ILS_GS_VALID',1)
 update()

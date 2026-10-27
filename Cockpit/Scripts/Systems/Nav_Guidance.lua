@@ -1,5 +1,6 @@
 -- GPL-3.0-or-later. Navigation references and fly-over course guidance.
 local N=dofile(LockOn_Options.script_path..'Systems/Nav_Computer.lua')
+local Radio=dofile(LockOn_Options.script_path..'Systems/Radio_Navigation.lua')
 local function clamp(v,a,b)return math.max(a,math.min(b,v))end
 return function(get,set,own,s)
  local ready=get('F22_INS_MODEL_ENABLED')<.5 or get('F22_INS_READY')>.5
@@ -8,6 +9,7 @@ return function(get,set,own,s)
  local reference=mag and variation or 0;local suffix=mag and 'M' or 'T'
  set('HUD_HEADING_REFERENCE',suffix)
  set('F22_NAV_GUIDANCE_VALID',0);set('F22_NAV_STEER_VALID',0);set('HUD_NAV_BUG_VALID',0);set('F22_NAV_CDI_VALID',0)
+ set('F22_NAV_CDI_SCALE_TEXT','')
  set('HUD_NAV_STEER_VALID',0)
  set('F22_NAV_DISPLAY_VALID',0);set('HUD_ILS_LOC_VALID',0);set('HUD_ILS_GS_VALID',0)
  -- ILS reception is independent of TACAN/waypoint steering and IRS position.
@@ -48,15 +50,18 @@ return function(get,set,own,s)
   if s.along and s.along>s.length and get('F22_NAV_OBS')<.5 then steer=bearing end
  elseif source==1 then
   -- Common receiver reports magnetic bearing. Never silently mix it with true.
-  if get('F22_TCN_BRG_VALID')>.5 and get('F22_MAG_VALID')>.5 then
-   bearing=(get('F22_TCN_BRG_MAG')+variation)%(2*math.pi);steer=bearing
-   if get('F22_TCN_RANGE_VALID')>.5 then distance=get('F22_TCN_RANGE_M') end
-   if get('F22_NAV_OBS')>.5 and distance then
-    course=c;cross=-math.sin(N.wrap(bearing-course))*distance
-    steer=course-clamp(math.atan(cross/lookahead),-math.pi/4,math.pi/4)
+  distance=Radio.range(get)
+  bearing=Radio.true_bearing(get)
+  if bearing then
+   steer=bearing
+   if get('F22_NAV_OBS')>.5 then
+    course=c;cross=distance and -math.sin(N.wrap(bearing-course))*distance
+    steer=cross and course-clamp(math.atan(cross/lookahead),-math.pi/4,math.pi/4) or nil
    end
   end
-  set('F22_NAV_FIX_TEXT',get('F22_TCN_TUNE_TEXT'));set('F22_NAV_STATUS_TEXT',bearing and 'TACAN' or 'TCN NO SIGNAL / REFERENCE')
+  set('F22_NAV_FIX_TEXT',get('F22_TCN_TUNE_TEXT'))
+  set('F22_NAV_STATUS_TEXT',bearing and (steer and 'TACAN' or 'TCN COURSE / NO RANGE')
+   or distance and 'TCN DME ONLY' or 'TCN NO SIGNAL / REFERENCE')
   set('F22_NAV_DIST_TEXT',distance and string.format('DME %.1fNM',distance/1852) or 'DME --')
   set('F22_NAV_ALT_TEXT','');set('F22_NAV_TTG_TEXT','');set('F22_NAV_XTK_TEXT','')
  elseif source==2 then
@@ -77,15 +82,16 @@ return function(get,set,own,s)
   local vn,ve=get('EFM_HUD_VN'),get('EFM_HUD_VE')
   local track=get('EFM_HUD_VALID')>.5 and N.atan2(ve,vn) or own.heading
   local hud_steer=get('F22_NAV_OBS')>.5 and steer or bearing
-  local hud_error=N.wrap(hud_steer-track)
-  set('HUD_NAV_STEER_VALID',get('HUD_FPM_VALID')>.5 and 1 or 0)
+  -- Lua's and/or idiom would turn a missing OBS solution into direct-to here.
+  if get('F22_NAV_OBS')>.5 and not steer then hud_steer=nil end
+  local hud_error=hud_steer and N.wrap(hud_steer-track) or 0
+  set('HUD_NAV_STEER_VALID',hud_steer and get('HUD_FPM_VALID')>.5 and 1 or 0)
   set('HUD_NAV_STEER_ERROR',clamp(hud_error,-math.rad(8),math.rad(8)))
   set('HUD_NAV_STEER_MAG_DEG',math.abs(math.deg(hud_error)))
-  set('F22_NAV_STEER_TRACK',steer%(2*math.pi));set('F22_NAV_STEER_STAMP',get('F22_AP_CLOCK'))
-  set('F22_NAV_STEER_VALID',ready and 1 or 0)
+  set('F22_NAV_STEER_TRACK',steer and steer%(2*math.pi) or 0);set('F22_NAV_STEER_STAMP',get('F22_AP_CLOCK'))
+  set('F22_NAV_STEER_VALID',ready and steer and 1 or 0)
  end
- if course and cross then
-  set('F22_NAV_CDI_VALID',1);set('F22_NAV_CDI',clamp(-cross/(2*1852),-1,1))
+ if Radio.publish_cdi(set,source,bearing,course,cross) then
   set('F22_NAV_COURSE_ROT',N.wrap(own.heading-course))
   set('F22_NAV_COURSE_TEXT',string.format('CRS %03d%s',math.floor(math.deg(course-reference)+.5)%360,suffix))
   set('F22_NAV_TO_FROM',bearing and math.abs(N.wrap(bearing-course))<math.pi/2 and 'TO' or 'FROM')
