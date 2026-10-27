@@ -20,6 +20,10 @@ bool vehicle_feed(bool left) {
     return vehicle.fuel.feed_available(left, vehicle_fault(fault));
 }
 
+bool vehicle_force_valid() {
+    return vehicle.air_truth.valid && vehicle.mass_valid;
+}
+
 RaptorVehicle::EngineInputs vehicle_engine_inputs(bool left) {
     RaptorVehicle::EngineInputs input;
     input.throttle = ap_output.throttle_active ? ap_output.throttle :
@@ -92,7 +96,6 @@ void vehicle_sample_power(double dt) {
         requests.left_generator = vehicle_on(VehicleSignal::LeftGeneratorRequest);
         requests.right_generator = vehicle_on(VehicleSignal::RightGeneratorRequest);
         requests.apu = vehicle_on(VehicleSignal::ApuRequest);
-        requests.ground_power = vehicle_on(VehicleSignal::GroundPower);
         if (std::isfinite(sequence) && sequence >= 1.0 &&
             sequence == std::floor(sequence) && vehicle_on(VehicleSignal::RequestValid) &&
             vehicle_bus.read(VehicleSignal::PowerRequestSequence) == sequence) {
@@ -100,6 +103,9 @@ void vehicle_sample_power(double dt) {
             vehicle.power_requests_seen = true;
         }
     }
+    // GPU connection is a live external source, not a retained pilot request.
+    // An incomplete switch transaction must never hold a removed GPU online.
+    vehicle.power.requests.ground_power = vehicle_on(VehicleSignal::GroundPower);
     RaptorVehicle::PowerFaults faults;
     faults.battery = vehicle_fault(VehicleSignal::BatteryFault);
     faults.left_generator = vehicle_fault(VehicleSignal::LeftGeneratorFault) || vehicle.left_fire_isolated;
@@ -481,7 +487,7 @@ void vehicle_publish() {
     const std::pair<VehicleSignal, double> values[] = {
         {VehicleSignal::Generation, static_cast<double>(vehicle.generation)},
         {VehicleSignal::ClockKind, 1.0}, // spawn-relative RAPTOR clock, not World model time
-        {VehicleSignal::ForceValid, vehicle_status(vehicle.air_truth.valid)},
+        {VehicleSignal::ForceValid, vehicle_status(vehicle_force_valid())},
         {VehicleSignal::Stamp, vehicle.time_s},
         {VehicleSignal::DroppedTime, vehicle.discarded_time_s}};
     for (const auto& value : values) vehicle_bus.write(value.first, value.second);
