@@ -43,7 +43,25 @@ for i,id in ipairs({101,202})do
  local k=string.format('F22O_%02d_',i)
  p(k..'ID',id);p(k..'NORTH',10000);p(k..'ALTITUDE',5000);p(k..'EAST',(i-1)*1000);p(k..'VN',-200)
 end
-dofile(SCRIPT_ROOT..'Systems/Engagement_System.lua');post_initialize();update()
+local original=dofile
+function dofile(path)
+ if path==SCRIPT_ROOT..'Systems/Equipment_Profile.lua'then
+  return {supports=function(name)return name=='diagnostic_weapon_truth'end}
+ end
+ return original(path)
+end
+dofile(SCRIPT_ROOT..'Systems/Engagement_System.lua');post_initialize()
+local engagement_update=update
+function update()
+ p('F22_RADAR_TACTICAL_TIME',now)
+ p('F22_TWS_GUIDANCE_BACKEND_READY',1)
+ p('F22_RADAR_SUPPORT_ENABLED',v('HUD_MODE')~=7 and 1 or 0)
+ p('F22_SUPPORT_01_ID',101);p('F22_SUPPORT_02_ID',202)
+ -- Native STT on another target cannot custom-support the first one.
+ if v('F22N_RADAR_MODE')==3 then p('F22_RADAR_SUPPORT_ENABLED',0)end
+ engagement_update()
+end
+update()
 assert(v('F22_FC_SHOOT')==1 and v('F22_FC_DLZ_DYNAMIC')==1)
 assert(math.abs(v('F22_FC_CLOSURE_KTS')-420*1.943844492)<1e-6)
 assert(v('F22_FC_MISSILES')==0,'no launch event created a flyout')
@@ -52,7 +70,7 @@ p('F22_RADAR_SELECTED_FRIENDLY',0);p('MASTER_ARM',0);update();assert(v('F22_FC_S
 p('MASTER_ARM',1)
 local function shot(slot,seq,id,target)
  local k=string.format('F22_SHOT_%02d_',slot)
- for name,x in pairs({SEQUENCE=seq,ID=id,TARGET=target,MODE=2,TIME=now,ALIVE=1,N=100,U=5000,E=0,VN=800,ACTIVE_RANGE=5000,ACTIVE=0,ACTIVE_VALID=1,SEEKER_VALID=1,SEEKER_TRACK=0})do p(k..name,x)end
+ for name,x in pairs({SEQUENCE=seq,ID=id,TARGET=target,MODE=2,TIME=now,ALIVE=1,N=100,U=5000,E=0,VN=800,ACTIVE_RANGE=5000,ACTIVE=0,ACTIVE_VALID=1,SEEKER_VALID=1,SEEKER_TRACK=0,CURRENT_LOCK_VALID=1})do p(k..name,x)end
  p('F22_LAUNCH_SEQUENCE',seq)
 end
 shot(1,1,1001,101);update()
@@ -67,9 +85,18 @@ p('RADAR_PWR',1);p('F22N_RADAR_MODE',1);update();assert(v('F22_MSL_01_SUPPORT_ST
 p('F22_RADAR_WEAPON_TARGET_ID',202);p('F22_DLZ_TARGET_ID',202);shot(2,2,1002,202);update()
 assert(v('F22_FC_MISSILES')==2 and v('F22_MSL_01_TARGET')==101 and v('F22_MSL_02_TARGET')==202)
 assert(v('F22_MSL_01_SUPPORT_REQUIRED')==1 and v('F22_MSL_02_SUPPORT_REQUIRED')==1)
+p('HUD_MODE',7);update()
+assert(v('F22_MSL_01_SUPPORT_STATE')==2,'A/G suppressed custom support but cockpit still claimed supported')
+p('F22N_RADAR_MODE',3);p('F22_STT_ID',101);p('F22_STT_MOTION_VALID',1);p('F22_STT_TIME',now);update()
+assert(v('F22_MSL_01_SUPPORT_STATE')==1 and v('F22_MSL_01_SUPPORT_SOURCE')==1,'qualified native STT fallback was hidden')
+p('F22N_RADAR_MODE',1);p('F22_STT_MOTION_VALID',0)
 p('HUD_MODE',5);update();assert(v('F22_MSL_01_TARGET')==101 and v('F22_FC_SHOOT')==0)
 p('F22_SHOT_01_ACTIVE',1);update();assert(v('F22_MSL_01_SUPPORT_REQUIRED')==1,'emitting without acquisition dropped support')
-p('F22_SHOT_01_SEEKER_TRACK',1);update();assert(v('F22_MSL_01_SUPPORT_REQUIRED')==0)
+p('F22_SHOT_01_SEEKER_ACQUIRED_EVER',1);p('F22_SHOT_01_CURRENT_LOCK_VALID',0);update()
+assert(v('F22_MSL_01_SUPPORT_REQUIRED')==1 and v('F22_MSL_01_SELF_GUIDING')==0,'acquired-ever became continuous lock')
+p('F22_SHOT_01_CURRENT_LOCK_VALID',1);p('F22_SHOT_01_SEEKER_TRACK',1);update();assert(v('F22_MSL_01_SUPPORT_REQUIRED')==0)
+p('F22_SHOT_01_SEEKER_TRACK',0);update();assert(v('F22_MSL_01_SELF_GUIDING')==0,'lost current lock remained latched')
+p('F22_SHOT_01_SEEKER_TRACK',1);update()
 assert(v('F22_MSL_01_TTG_VALID')==1 and v('F22_MSL_01_ACTIVE')==1)
 p('F22_SHOT_02_ACTIVE_RANGE',0);update();assert(v('F22_MSL_02_TTA_VALID')==0,'unknown activation distance invented a timer')
 now=108;p('F22O_01_AGE',8);p('F22O_02_AGE',8);update()
@@ -121,3 +148,28 @@ assert(v('F22_MSL_05_TTG')==15 and v('F22_MSL_05_TTG_SOURCE')==3,'weapon switch 
 p('F22_SHOT_05_ALIVE',0);update()
 ''')
 print('Engagement: kinematic limits, native DLZ identity, signed closure, consent, real launches, immutable targets/ACT prediction, actual seeker transition and stale/lost support PASS')
+
+# Default profile must not promote diagnostic world state into cockpit telemetry.
+other=runtime()
+other.execute('''
+function get_model_time()return 100 end
+local function p(n,v)get_param_handle(n):set(v)end
+local function g(n)return get_param_handle(n):get()end
+for name,value in pairs({MAIN_POWER=1,RADAR_PWR=1,HUD_MODE=2,F22_RADAR_BACKEND_READY=1,
+ F22_RADAR_OBSERVATIONS_READY=1,F22_RADAR_OBSERVATION_COUNT=1,F22_RADAR_WEAPON_TARGET_ID=101,
+ F22_LAUNCH_SEQUENCE=1})do p(name,value)end
+for name,value in pairs({ID=101,AGE=0,NORTH=10000,ALTITUDE=1000,EAST=0,VN=0,VU=0,VE=0})do
+ p('F22O_01_'..name,value)
+end
+for name,value in pairs({SEQUENCE=1,ID=500,TARGET=101,MODE=2,TIME=100,ALIVE=1,
+ N=1000,U=1000,E=0,VN=800,VU=0,VE=0,ACTIVE_RANGE=5000,ACTIVE=1,ACTIVE_VALID=1,
+ SEEKER_VALID=1,SEEKER_TRACK=1,SEEKER_ACQUIRED_EVER=1,CURRENT_LOCK_VALID=0,STATE_SOURCE=2})do
+ p('F22_SHOT_01_'..name,value)
+end
+dofile(SCRIPT_ROOT..'Systems/Engagement_System.lua');post_initialize();update()
+assert(g('F22_FC_DIAGNOSTIC_TRUTH')==0)
+assert(g('F22_MSL_01_TTG_VALID')==0 and g('F22_MSL_01_TTA_VALID')==0 and g('F22_MSL_01_PLOT_VALID')==0)
+assert(g('F22_MSL_01_ACTIVE')==0 and g('F22_MSL_01_SELF_GUIDING')==0)
+assert(g('F22_MSL_01_SEEKER_ACQUIRED_EVER')==1,'diagnostic evidence was erased instead of qualified')
+''')
+print('Engagement baseline: diagnostic world truth stays outside cockpit timers, positions and current-lock authority PASS')

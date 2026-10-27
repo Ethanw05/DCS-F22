@@ -4277,7 +4277,8 @@
         "AS12",
         "ST01"
       ],
-      "status": "planned; implementation and runtime qualification remain separate"
+      "status": "partial; conflict evidence and simulated responder implemented offline; host responder/CNI resources unqualified",
+      "implementation_notes": "SEN-05-07.md"
     },
     {
       "id": "VEH-02",
@@ -4807,7 +4808,8 @@
         "AE14",
         "SG06"
       ],
-      "status": "planned; implementation and runtime qualification remain separate"
+      "status": "partial; source ages and donor awareness implemented offline; local donor handoff consumer unavailable",
+      "implementation_notes": "SEN-05-07.md"
     },
     {
       "id": "VEH-03",
@@ -5259,7 +5261,8 @@
         "AS24",
         "AE11"
       ],
-      "status": "planned; implementation and runtime qualification remain separate"
+      "status": "core state corrections implemented offline; passive coverage and actual EW effects remain unqualified",
+      "implementation_notes": "SEN-05-07.md"
     },
     {
       "id": "VEH-04",
@@ -6364,7 +6367,8 @@
         "SEN-07"
       ],
       "comparison_ids": [],
-      "status": "planned; implementation and runtime qualification remain separate"
+      "status": "not selected in shared release profile; legacy missile warning remains distinct from aircraft IRDS tracks",
+      "implementation_notes": "SEN-10-15.md"
     },
     {
       "id": "VEH-05",
@@ -10799,7 +10803,8 @@
         "SG02",
         "SG12"
       ],
-      "status": "planned; implementation and runtime qualification remain separate"
+      "status": "exposure and generation gates implemented offline; launcher approximation disclosed; optional LOAL unavailable",
+      "implementation_notes": "SEN-10-15.md"
     },
     {
       "id": "SEN-12",
@@ -11061,7 +11066,8 @@
         "UI-03"
       ],
       "comparison_ids": [],
-      "status": "planned; implementation and runtime qualification remain separate"
+      "status": "not selected in shared release profile; complete host image/LOS/laser backend unqualified",
+      "implementation_notes": "SEN-10-15.md"
     },
     {
       "id": "SEN-11",
@@ -11247,7 +11253,8 @@
         "SG11",
         "SG07"
       ],
-      "status": "planned; implementation and runtime qualification remain separate"
+      "status": "core support/truth/reference corrections implemented offline; continuous seeker telemetry and runtime unqualified",
+      "implementation_notes": "SEN-10-15.md"
     },
     {
       "id": "SEN-14",
@@ -11407,7 +11414,8 @@
         "UI-03"
       ],
       "comparison_ids": [],
-      "status": "planned; implementation and runtime qualification remain separate"
+      "status": "not selected in shared release profile; calibrated head-pose/display/handoff backend unqualified",
+      "implementation_notes": "SEN-10-15.md"
     },
     {
       "id": "SEN-15",
@@ -11553,7 +11561,8 @@
         "SEN-12"
       ],
       "comparison_ids": [],
-      "status": "planned; implementation and runtime qualification remain separate"
+      "status": "baseline equipment decision applied; experimental registration retained with release inhibition; video/control additions unavailable",
+      "implementation_notes": "SEN-10-15.md"
     },
     {
       "id": "REL-01",

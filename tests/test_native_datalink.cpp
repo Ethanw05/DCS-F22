@@ -47,6 +47,7 @@ int main(){
   owner=self_object.data();own_id=100;constructed=true;
   deliver("F22IFDL1;500,20,10000,3000,2000,100,0,20,-1,0;");
   assert(reports.size()==1&&reports.at(500).link==1&&reports.at(500).reporter==200);
+  assert(reports.at(500).observation_known&&reports.at(500).received==20);
   assert(native_parse_calls==0&&world_position_reads==0);
   deliver("F22IFDL1;200,20,10000,3000,2000,100,0,20,1,1;");
   assert(reports.at(200).flight&&reports.at(200).affiliation==1);
@@ -58,6 +59,7 @@ int main(){
   peer_type[3]=5;deliver("F22IFDL1;600,20,10000,3000,2000,0,0,0,-1,0;");assert(!reports.contains(600));peer_type[3]=77;
   test_time=21;peer_type[3]=5;deliver("native TADIL-J air track");
   auto &r=reports.at(500);assert(r.link==2&&r.position.n==1000&&r.position.u==3048&&r.position.e==2000);
+  assert(!r.observation_known&&r.received==21);
   assert(std::abs(r.velocity.e-154.3333333333)<.00001&&r.affiliation==-1);
   assert(world_position_reads==0&&native_parse_calls==1);
   message_kind=16;deliver("native TADIL-J air PPLI");assert(reports.at(200).ppli&&reports.at(200).affiliation==1);

@@ -43,6 +43,7 @@ for _, name in ipairs({
 	"F22_MWS_ELEVATION",
 	"F22_MWS_COAST",
 	"F22_MWS_AUDIO_PRIORITY",
+	"F22_MWS_AUDIO_UNTIL",
 	"F22_MWS_AUDIO_READY",
 	"F22_MWS_MUTED",
 }) do
@@ -92,6 +93,7 @@ function post_initialize()
 	put("F22_MWS_SUPPLY", 0)
 	put("F22_MWS_ALERT", 0)
 	put("F22_MWS_AUDIO_PRIORITY", 0)
+	put("F22_MWS_AUDIO_UNTIL", 0)
 end
 function update()
 	local now = get_model_time()
@@ -172,6 +174,7 @@ function update()
 	end)
 	put("F22_MWS_AUDIO_READY", ok and sound and 1 or 0)
 	put("F22_MWS_AUDIO_PRIORITY", ok and playing and 1 or 0)
+	put("F22_MWS_AUDIO_UNTIL", ok and playing and now + 0.15 or 0)
 	local state = string.format(
 		"power=%d ready=%d count=%d audio=%d first=%d clock=%d coast=%d reason=%.0f voice=%d voice_until=%.3f",
 		powered and 1 or 0,

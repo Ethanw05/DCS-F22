@@ -3,23 +3,32 @@ local Tracks = dofile(LockOn_Options.script_path .. "Systems/Tactical_Tracks.lua
 local Situation = dofile(LockOn_Options.script_path .. "Systems/Tactical_Situation.lua")
 local Geolocation = dofile(LockOn_Options.script_path .. "Systems/EW_Geolocation.lua")
 local Datalink = dofile(LockOn_Options.script_path .. "Systems/Datalink_Tracks.lua")
+local Identification = dofile(LockOn_Options.script_path .. 'Systems/Identification_State.lua')
+local Donor = dofile(LockOn_Options.script_path .. 'Systems/Donor_Selection.lua')
 local M = {}
 function M.new(get, put, sensors)
 	put('F22_DATALINK_ENABLE',1)
 	put('F22_IFDL_ENABLE',1)
-	local s = { store = Tracks.new(), sequence = 0, situation = Situation.new(get, put, sensors), datalink = Datalink.new(get, sensors) }
+	local s = { store = Tracks.new(), sequence = 0, situation = Situation.new(get, put, sensors),
+        datalink = Datalink.new(get, sensors), responder = Identification.responder(get, put),
+        donor = Donor.new(get, put) }
 	function s:reset()
 		self.store:reset()
 		self.datalink:reset()
 		self.situation:reset()
+        self.responder = Identification.responder(get, put)
+        self.donor = Donor.new(get, put)
 		self:update(0, {}, false)
 	end
 	function s:command(c)
+        if c>=11130 and c<=11132 then self.responder:command(c);return end
+        if c>=11140 and c<=11144 then self.donor:command(c);return end
 		if c==10917 then put('F22_DATALINK_ENABLE',get('F22_DATALINK_ENABLE')>.5 and 0 or 1)
 		elseif c==10918 then put('F22_IFDL_ENABLE',get('F22_IFDL_ENABLE')>.5 and 0 or 1) end
 		self.situation:command(c)
 	end
 	function s:update(now, rf, power)
+        self.responder:update(now)
 		self.sequence = self.sequence + 1
 		local batches = {
 			datalink = self.datalink:update(now, power),
@@ -49,7 +58,9 @@ function M.new(get, put, sensors)
 				geolocation = c.geolocation,
 				geolocation_status = c.geolocation_status,
 				friendly = c.affiliation == 1,
-				hostile = c.affiliation == 0,
+				hostile = c.affiliation == 0 or c.hostile_act,
+                identity_time = c.identity_time,
+                hostile_time = c.hostile_time,
 			}
 		end
 		for i = 1, 64 do
@@ -63,6 +74,7 @@ function M.new(get, put, sensors)
 					range = get(p .. "RANGE"),
 					measured_range = get(p .. "MEASURED_RANGE"),
 					quality = get(p .. "QUALITY"),
+                    measurement_source = get(p .. 'MEASUREMENT_SOURCE'),
 					selected = get(p .. "SELECTED") > 0.5,
 					friendly = get(p .. "FRIENDLY") > 0.5,
 					hostile = get(p .. "HOSTILE") > 0.5,
@@ -81,6 +93,7 @@ function M.new(get, put, sensors)
 			end
 		end
 		self.store:update(now, batches, power)
+        self.donor:update(now, self.store.contacts, power)
 		self.situation:update(now, self.store.contacts, power)
 		for i = 1, 64 do
 			local p = string.format("F22_TACTICAL_%02d_", i)
@@ -91,6 +104,8 @@ function M.new(get, put, sensors)
 			put(p .. "AZ", t and t.az or 0)
 			put(p .. "EL", t and t.el or 0)
 			put(p .. "AFFILIATION", t and t.affiliation or -1)
+            put(p .. 'IDENTITY_CONFLICT', t and t.identity_conflict and 1 or 0)
+            put(p .. 'FRIENDLY_PROTECTED', t and t.friendly_protected and 1 or 0)
 			put(p .. "RANGE_VALID", t and t.range and 1 or 0)
 			put(p .. "RANGE_M", t and t.range or 0)
 			put(p .. "RANGE_ESTIMATED", t and t.range_estimated and 1 or 0)
@@ -100,11 +115,16 @@ function M.new(get, put, sensors)
 			put(p .. "UNCERTAINTY_VALID", t and t.uncertainty and 1 or 0)
 			put(p .. "UNCERTAINTY_RAD", t and t.uncertainty or 0)
 			put(p .. "SELECTED", t and t.selected and 1 or 0)
+            local radar=t and t.observations.radar
+            put(p .. 'RADAR_MEASUREMENT_SOURCE',radar and radar.measurement_source or 0)
+            put(p .. 'WEAPON_AUTHORITY',0) -- This picture is never the release provider.
 			local dl = t and t.datalink
 			put(p .. "DATALINK", dl and dl.link or 0)
 			put(p .. "DATALINK_AGE", t and t.datalink_age or 999)
 			put(p .. "DATALINK_REPORTER", dl and dl.reporter or 0)
 			put(p .. "DATALINK_COAST", dl and t.datalink_age > Datalink.coast and 1 or 0)
+            put(p .. 'DATALINK_OBSERVATION_KNOWN', dl and dl.observation_known and 1 or 0)
+            put(p .. 'DATALINK_RECEIVE_AGE', dl and dl.received and math.max(0,now-dl.received)or 999)
 			put(p .. "RF_SIGNAL", t and t.signal or 0)
 			local rf=t and t.observations.rf
 			put(p .. "RF_GENERAL",rf and rf.general or 0)

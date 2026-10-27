@@ -25,6 +25,12 @@ return function(api, layout, gain, root)
 		end
 		group(name..'_COAST',{p..'COAST'},{{'parameter_in_range',0,.9,1.1}},name)
 		text('C',.03,-.027,nil,'yellow',name..'_COAST',.0028)
+        group(name..'_SA',{p..'SA_SELECTED'},{{'parameter_in_range',0,.9,1.1}},name)
+        for _,side in ipairs({-1,1})do
+            line(side*.04,-.04,side*.04,.04,'white',name..'_SA')
+            line(side*.04,.04,side*.02,.04,'white',name..'_SA')
+            line(side*.04,-.04,side*.02,-.04,'white',name..'_SA')
+        end
 		group(name..'_OFFSCALE',{p..'OFFSCALE',p..'ROT'},{{'parameter_in_range',0,.9,1.1},{'rotate_using_parameter',1,1}},name)
 		line(-.025,.035,0,.07,'white',name..'_OFFSCALE');line(0,.07,.025,.035,'white',name..'_OFFSCALE')
 	end
@@ -51,6 +57,15 @@ return function(api, layout, gain, root)
 		end
 	end
 	text("TSD", -0.72, 0.78, nil, "blue", parent, 0.0042)
+    group('F22_DONOR_DETAIL',{'F22_DONOR_VALID'},{{'parameter_in_range',0,.9,1.1}},parent)
+    text('SA %.0f',-.70,.70,'F22_DONOR_SOURCE','white','F22_DONOR_DETAIL',.0028)
+    text('RX %.1fS',-.70,.64,'F22_DONOR_RECEIVE_AGE','white','F22_DONOR_DETAIL',.0028)
+    group('F22_DONOR_UNKNOWN_AGE',{'F22_DONOR_OBSERVATION_KNOWN'},
+        {{'parameter_in_range',0,-.1,.1}},'F22_DONOR_DETAIL')
+    text('OBS AGE ?',-.70,.58,nil,'yellow','F22_DONOR_UNKNOWN_AGE',.0028)
+    group('F22_DONOR_KNOWN_AGE',{'F22_DONOR_OBSERVATION_KNOWN'},
+        {{'parameter_in_range',0,.9,1.1}},'F22_DONOR_DETAIL')
+    text('OBS %.1fS',-.70,.58,'F22_DONOR_OBSERVATION_AGE','white','F22_DONOR_KNOWN_AGE',.0028)
 	-- Navigation remains its own producer; these are reprojected real route
 	-- segments, never a second route computer or a mission-object sensor.
 	for i = 1, 32 do

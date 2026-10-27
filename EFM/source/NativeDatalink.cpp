@@ -48,6 +48,7 @@ bool valid(const Vec &v) {return finite(v.n)&&finite(v.u)&&finite(v.e);}
 struct Report {
   unsigned source{},reporter{};int link{2};double time{};Vec position{},velocity{};
   int affiliation{-1};bool flight{},ppli{};
+  double received{};bool observation_known{};
 };
 // The common AI terminal can space surveillance reports about a minute apart.
 // Retain bounded SA memory; the original observation time is never renewed.
@@ -164,7 +165,10 @@ void accept(Report q,double now) {
   auto i=reports.find(q.source);
   if(i!=reports.end()&&(i->second.time>q.time||(i->second.time==q.time&&i->second.link<q.link)))return;
   if(i==reports.end()&&reports.size()>=64)return;
-  if(q.ppli)participants[q.source]=q;
+  q.received=now;
+  if(q.ppli) {
+    if(participants.contains(q.source)||participants.size()<64)participants[q.source]=q;
+  }
   else if(auto p=participants.find(q.source);p!=participants.end()&&now-p->second.time<=26)q.affiliation=1;
   reports[q.source]=q;
 }
@@ -208,7 +212,7 @@ void receive(void*,const void *message) {
     std::string row;unsigned count=0;
     while(std::getline(input,row,';')&&count++<33) {
       std::replace(row.begin(),row.end(),',',' ');std::istringstream fields(row);
-      Report q;q.reporter=sender;q.link=1;int ppli{},affiliation{};
+      Report q;q.reporter=sender;q.link=1;q.observation_known=true;int ppli{},affiliation{};
       if(!(fields>>q.source>>q.time>>q.position.n>>q.position.u>>q.position.e>>q.velocity.n>>q.velocity.u>>q.velocity.e>>affiliation>>ppli))continue;
       fields>>std::ws;if(!fields.eof()||(ppli!=0&&ppli!=1)||(affiliation!=-1&&affiliation!=0&&affiliation!=1))continue;
       q.ppli=ppli==1;q.affiliation=affiliation;
@@ -361,9 +365,12 @@ void update(EDPARAM &p) {
     const std::pair<const char*,double> fields[]={{"SOURCE",double(q.source)},{"REPORTER",double(q.reporter)},
       {"LINK",double(q.link)},{"TIME",q.time},{"N",q.position.n},{"U",q.position.u},{"E",q.position.e},
       {"VN",q.velocity.n},{"VU",q.velocity.u},{"VE",q.velocity.e},{"AFFILIATION",double(q.affiliation)},
-      {"FLIGHT",q.flight?1.:0.},{"PPLI",q.ppli?1.:0.}};
+      {"FLIGHT",q.flight?1.:0.},{"PPLI",q.ppli?1.:0.},
+      {"RECEIVE_TIME",q.received},{"OBSERVATION_KNOWN",q.observation_known?1.:0.},
+      {"OBSERVATION_TIME",q.observation_known?q.time:0.}};
     for(const auto &[key,value]:fields)put(p,s+key,value);
   }
+  put(p,"F22_DL_RX_SCHEMA",2);
   put(p,"F22_DL_RX_COUNT",index);put(p,"F22_DL_RX_TIME",now);put(p,"F22_DL_RX_OWN",own_id);
   put(p,"F22_DL_RX_EPOCH",double(epoch));put(p,"F22_DL_RX_SEQUENCE",double(++sequence));
   put(p,"F22_DATALINK_RX_MESSAGES",double(received));put(p,"F22_IFDL_TX_MESSAGES",double(sent));

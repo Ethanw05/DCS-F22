@@ -134,6 +134,7 @@ function M.new(get, put, sensors)
 			put(p..'AFFILIATION',q and q.affiliation or -1)
 			put(p..'COAST',q and q.coast and 1 or 0);put(p..'VALID',q and 1 or 0)
 			put(p..'OFFSCALE',q and q.offscale and 1 or 0);put(p..'ROT',q and q.rot or 0)
+            put(p..'SA_SELECTED',q and q.source==get('F22_DONOR_SOURCE')and 1 or 0)
 		end
 		put('F22_TSD_DL_COUNT',math.min(24,#offboard))
 		put('F22_TSD_DL_OVERFLOW',math.max(0,#offboard-24))

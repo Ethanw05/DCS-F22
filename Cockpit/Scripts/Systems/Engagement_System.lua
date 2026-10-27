@@ -4,6 +4,7 @@
 local mathlib=dofile(LockOn_Options.script_path..'Systems/Weapon_Engagement.lua')
 local display=dofile(LockOn_Options.script_path..'Systems/Radar_Display.lua')
 local launch_zone=dofile(LockOn_Options.script_path..'Systems/Radar_Launch_Zone.lua')
+local equipment=dofile(LockOn_Options.script_path..'Systems/Equipment_Profile.lua')
 local sensors=get_base_data();local dt=.05;make_default_activity(dt)
 local handles={};local function h(n) if not handles[n] then handles[n]=get_param_handle(n) end;return handles[n] end
 local function get(n)return h(n):get()end
@@ -12,30 +13,71 @@ for _,name in ipairs(launch_zone.segments)do
     for _,field in ipairs({'X1','Y1','X2','Y2','VALID'})do h('F22_RDR_LAR_'..name..'_'..field)end
 end
 local clock=0;local next_log=0;local last_sequence=0;local missiles={};local files={}
+local file_count=0
 local function vector(p,a,b,c)return {get(p..a),get(p..b),get(p..c)}end
 local function target(id,now)
     local t=files[id];if not t then return nil end
     local age=now-t.time;if age<-.1 or age>20 then return nil end
     return {id=id,position=mathlib.advance(t.position,t.velocity,math.max(0,age)),velocity=t.velocity,age=math.max(0,age)}
 end
+local function remember(id,position,velocity,time)
+    if type(id)~='number'or id<1 or id>=4294967296 or id%1~=0 or not mathlib.finite(time)then
+        return false
+    end
+    for index=1,3 do
+        if not mathlib.finite(position[index])or not mathlib.finite(velocity[index])then return false end
+    end
+    if not files[id] then
+        if file_count>=256 then put('F22_FC_TRACK_OVERFLOW',1);return false end
+        file_count=file_count+1
+    end
+    files[id]={position=position,velocity=velocity,time=time}
+    return true
+end
 local function observe(now)
     if get('F22_RADAR_OBSERVATIONS_READY')>.5 then
         for i=1,math.min(64,get('F22_RADAR_OBSERVATION_COUNT')) do
             local p=string.format('F22O_%02d_',i);local id=get(p..'ID');local time=now-get(p..'AGE')
             if id>0 and get(p..'AGE')>=0 and get(p..'AGE')<=10 and (not files[id] or time>files[id].time+.01) then
-                files[id]={position=vector(p,'NORTH','ALTITUDE','EAST'),velocity=vector(p,'VN','VU','VE'),time=time}
+                local accepted=remember(id,vector(p,'NORTH','ALTITUDE','EAST'),vector(p,'VN','VU','VE'),time)
+                if not accepted then put('F22_FC_REJECTED_INPUT',1)end
             end
         end
     end
     if get('F22_STT_MOTION_VALID')>.5 and get('F22N_RADAR_MODE')==3 then
         local id=get('F22_STT_ID');local stamp=get('F22_STT_TIME')
-        if id>0 and now-stamp<1 and (not files[id] or stamp>files[id].time) then
-            files[id]={position=vector('F22_STT_','PN','PU','PE'),velocity=vector('F22_STT_','VN','VU','VE'),time=stamp}
+        if id>0 and now-stamp>=-.05 and now-stamp<1 and (not files[id] or stamp>files[id].time) then
+            local accepted=remember(id,vector('F22_STT_','PN','PU','PE'),vector('F22_STT_','VN','VU','VE'),stamp)
+            if not accepted then put('F22_FC_REJECTED_INPUT',1)end
         end
     end
-    for id,t in pairs(files) do if now-t.time>30 then files[id]=nil end end
+    for id,t in pairs(files) do
+        if now-t.time>30 then files[id]=nil;file_count=file_count-1 end
+    end
+end
+local function support_status(id,now,track)
+    if get('RADAR_PWR')<.5 or get('F22_RADAR_BACKEND_READY')<.5 or not track or track.age>6 then
+        return 3,0
+    end
+    local stt_age=now-get('F22_STT_TIME')
+    if get('F22N_RADAR_MODE')==3 and get('F22_STT_ID')==id
+        and get('F22_STT_MOTION_VALID')>.5 and stt_age>=-.05 and stt_age<=.35 then
+        return 1,1 -- Qualified native fallback remains independent of the custom owner.
+    end
+    local publication_age=now-get('F22_RADAR_TACTICAL_TIME')
+    if get('F22_RADAR_SUPPORT_ENABLED')>.5 and get('F22_TWS_GUIDANCE_BACKEND_READY')>.5
+        and publication_age>=-.05 and publication_age<=.35 then
+        for index=1,24 do
+            local prefix=string.format('F22_SUPPORT_%02d_',index)
+            local age=get(prefix..'AGE')+math.max(0,publication_age)
+            if get(prefix..'ID')==id and age>=0 and age<=6 then return 1,2 end
+        end
+    end
+    return 2,0 -- Recent geometry alone cannot establish an active support path.
 end
 function post_initialize()
+    clock,next_log,last_sequence,file_count=0,0,0,0
+    missiles,files={},{}
 	put('F22_RDR_LAR_VISIBLE',0)
     for _,name in ipairs(launch_zone.segments)do put('F22_RDR_LAR_'..name..'_VALID',0)end
     for i=1,8 do local p=string.format('F22_MSL_%02d_',i)
@@ -44,8 +86,10 @@ function post_initialize()
     for _,n in ipairs({'F22_FC_SUPPORT_DEGRADED','F22_FC_SUPPORT_LOST','F22_FC_TARGET_INPUT_VALID','F22_FC_TARGET_VALID','F22_FC_DLZ_VALID','F22_FC_SHOOT','F22_FC_TIMER_VALID'}) do put(n,0) end
 end
 function update()
+    local diagnostic_truth=equipment.supports('diagnostic_weapon_truth')
+    put('F22_FC_DIAGNOSTIC_TRUTH',diagnostic_truth and 1 or 0)
     local now=type(get_model_time)=='function' and get_model_time() or clock+dt
-    if now<clock-.1 then missiles={};files={};last_sequence=0 end;clock=now
+    if now<clock-.1 then missiles={};files={};last_sequence=0;file_count=0 end;clock=now
     observe(now)
     local n,u,e=sensors.getSelfCoordinates();local own={n,u,e}
     local ov=vector('EFM_HUD_','VN','VU','VE')
@@ -93,7 +137,12 @@ function update()
         end
     end
     local friendly=get('F22_RADAR_SELECTED_FRIENDLY')>.5
-    local ready=valid and get('MASTER_ARM')>.5 and get('F22_WEAPON_COUNT')>0 and not friendly
+    local blocker=get('WoW')>.5 and 1 or get('F22_SMS_SIM')>.5 and 2
+        or get('EFM_VEHICLE_VALID')>.5 and get('EFM_ACTUATOR_AVAILABLE')<=0 and 3
+        or get('F22_WEAPON_SELECTED_VALID')>.5 and get('F22_WEAPON_SUPPORTED')<.5 and 4 or 0
+    put('F22_FC_RELEASE_BLOCKER',blocker)
+    put('F22_FC_SHOOT_ANTICIPATORY',1) -- Doors may open after the pilot requests release.
+    local ready=blocker==0 and valid and get('MASTER_ARM')>.5 and get('F22_WEAPON_COUNT')>0 and not friendly
     -- A real uncaged IR lock supplies its own per-seeker gimbal eligibility;
     -- the radar missile steering gate must not truncate AIM-9X to 30 degrees.
     local alignment=mode==3 or math.abs(az)<math.rad(30) and math.abs(el)<math.rad(30)
@@ -135,14 +184,16 @@ function update()
             -- Registry disappearance ends the real missile. The frozen
             -- adapter watchdog never inherits a newly selected IR store's life.
             if now-m.born>m.life then alive=false end
-            m.active=real and get(m.p..'ACTIVE_VALID')>.5 and get(m.p..'ACTIVE')>.5 or m.active
+            local qualified_state=get(m.p..'STATE_SOURCE')==1 or diagnostic_truth
+            m.active=real and qualified_state and get(m.p..'ACTIVE_VALID')>.5 and get(m.p..'ACTIVE')>.5
             -- Emitting alone does not prove the seeker acquired a target.
-            m.guiding=real and m.active and get(m.p..'SEEKER_VALID')>.5 and get(m.p..'SEEKER_TRACK')>.5 or m.guiding
-            if m.mode==3 then m.guiding=real or m.guiding end
+            m.acquired_ever=m.acquired_ever or real and get(m.p..'SEEKER_ACQUIRED_EVER')>.5
+            m.guiding=real and qualified_state and m.active and get(m.p..'CURRENT_LOCK_VALID')>.5
+                and get(m.p..'SEEKER_VALID')>.5 and get(m.p..'SEEKER_TRACK')>.5
             m.tta=not m.active and mathlib.countdown(m.launch_act,m.estimate_time,now) or nil
             m.ttg=mathlib.countdown(m.launch_tof,m.estimate_time,now)
             m.tta_source=m.tta and 1 or 0;m.ttg_source=m.ttg and m.estimate_source or 0
-            if real and tm then
+            if diagnostic_truth and real and tm then
                 local pos=vector(m.p,'N','U','E');local vel=vector(m.p,'VN','VU','VE')
                 local relative=mathlib.sub(tm.position,pos);local rv=mathlib.sub(tm.velocity,vel)
                 local ttg=mathlib.intercept(relative,tm.velocity,mathlib.norm(vel))
@@ -159,22 +210,24 @@ function update()
             supported=alive and m.mode==2 and not m.guiding
             if alive then count=count+1;if not timer or m.target==id and timer.target~=id or m.sequence>timer.sequence and (m.target==id)==(timer.target==id) then timer=m end end
         else put(p..'PLOT_VALID',0) end
-        local support_state=0
+        local support_state,support_source=0,0
         if supported then
             required_count=required_count+1
             local tm=target(m.target,now)
-            if get('RADAR_PWR')<.5 or get('F22_RADAR_BACKEND_READY')<.5 or not tm or tm.age>6 then
-                support_state=3;lost_count=lost_count+1
-            elseif get('F22N_RADAR_MODE')==3 and get('F22_STT_ID')~=m.target then
-                support_state=2;degraded_count=degraded_count+1
-            else support_state=1 end
+            support_state,support_source=support_status(m.target,now,tm)
+            if support_state==3 then lost_count=lost_count+1
+            elseif support_state==2 then degraded_count=degraded_count+1 end
         end
         put(p..'SUPPORT_STATE',support_state)
+        put(p..'SUPPORT_SOURCE',support_source)
         put(p..'SUPPORT_COAST',support_state==2 and 1 or 0)
         put(p..'SUPPORT_LOST',support_state==3 and 1 or 0)
         put(p..'VALID',alive and 1 or 0);put(p..'TARGET',m and m.target or 0);put(p..'ID',m and m.id or 0)
         put(p..'SEQUENCE',m and m.sequence or 0);put(p..'SUPPORT_REQUIRED',supported and 1 or 0)
         put(p..'ACTIVE',m and m.active and 1 or 0);put(p..'SELF_GUIDING',m and m.guiding and 1 or 0);put(p..'TTA_VALID',m and m.tta and 1 or 0);put(p..'TTA',m and m.tta or 0)
+        put(p..'SEEKER_ACQUIRED_EVER',m and m.acquired_ever and 1 or 0)
+        put(p..'CURRENT_LOCK_VALID',m and get(m.p..'CURRENT_LOCK_VALID')>.5 and 1 or 0)
+        put(p..'STATE_SOURCE',m and get(m.p..'STATE_SOURCE')or 0)
         put(p..'TTG_VALID',m and m.ttg and 1 or 0);put(p..'TTG',m and m.ttg or 0)
         put(p..'TTA_SOURCE',m and m.tta_source or 0);put(p..'TTG_SOURCE',m and m.ttg_source or 0)
         put(p..'TRACK_LOST',support_state==3 and 1 or 0)

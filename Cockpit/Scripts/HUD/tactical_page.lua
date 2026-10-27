@@ -200,6 +200,12 @@ return function(api)
     dofile(LockOn_Options.script_path..'HUD/gun_funnel.lua')(api,noRange,gun_optics.frl_elevation/api.layout_scale)
     local noSight=visible("GUN_NO_SIGHT","HUD_GUN_NATIVE_VALID",0,withRange)
     static(0,-0.86,"GUN NO SOLUTION",0.025,noSight)
+    local reference='HUD_GUN_FIXED_REFERENCE'
+    group(reference,0,gun_optics.frl_elevation/api.layout_scale,{}, {},noSight)
+    local reference_unit=1/(1000*api.layout_scale)
+    line(-1.5*reference_unit,0,1.5*reference_unit,0,.75*reference_unit,reference)
+    line(0,-1.5*reference_unit,0,1.5*reference_unit,.75*reference_unit,reference)
+    static(.04,0,'REF',.018,reference) -- Fixed aircraft datum, never a computed lead.
     local ready=visible("GUN_READY","HUD_GUN_READY",1,gun)
     static(0.40,-0.69,"GUN RDY",0.025,ready)
 

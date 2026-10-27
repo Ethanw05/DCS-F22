@@ -5,6 +5,7 @@ local decode = dofile(LockOn_Options.script_path .. 'Systems/Input_Value.lua')
 local library = dofile(LockOn_Options.script_path .. 'Systems/EW_Programs.lua')
 local dispenser = dofile(LockOn_Options.script_path .. 'Systems/EW_Dispenser.lua')
 local power = get_param_handle('MAIN_POWER')
+local dispenser_methods = {'drop_flare','drop_chaff','get_flare_count','get_chaff_count'}
 local handles, held = {}, {}
 local programs = library.new()
 local runner = dispenser.new(programs)
@@ -18,7 +19,7 @@ end
 local function native()
     local ok, device = pcall(GetDevice, devices.WEAPON_NATIVE)
     if not ok or not device then return nil end
-    for _, method in ipairs({'drop_flare', 'drop_chaff', 'get_flare_count', 'get_chaff_count'}) do
+    for _, method in ipairs(dispenser_methods) do
         if type(device[method]) ~= 'function' then return nil end
     end
     return device
@@ -28,10 +29,9 @@ local function quantity(value)
 end
 local function inventory(device)
     if not device then return false, 0, 0 end
-    local ok, chaff, flare = pcall(function()
-        return device:get_chaff_count(), device:get_flare_count()
-    end)
-    if not ok or not quantity(chaff) or not quantity(flare) then return false, 0, 0 end
+    local chaff_ok, chaff = pcall(device.get_chaff_count, device)
+    local flare_ok, flare = pcall(device.get_flare_count, device)
+    if not chaff_ok or not flare_ok or not quantity(chaff) or not quantity(flare) then return false, 0, 0 end
     return true, chaff, flare
 end
 local function publish_control()

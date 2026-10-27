@@ -36,14 +36,26 @@ local hud_enabled = true
 local volume = 0.8
 local clock = 0
 local identity_memory = {}
+local identity_count = 0
+local function retain_identity(source, evidence)
+    if not identity_memory[source] then
+        if identity_count>=128 then return false end
+        identity_count=identity_count+1
+    end
+    identity_memory[source]=evidence
+    return true
+end
 local identity_sequence = nil
 local native_power = nil
 local inspection_held = {}
 for _, id in ipairs({ 10900, 10901, 10902, 10903, 10904, 10905, 10906, 10907, 10908, 10915, 10916, 10917, 10918 }) do
 	dev:listen_command(id)
 end
+for command=11130,11132 do dev:listen_command(command)end
+for command=11140,11144 do dev:listen_command(command)end
 function SetCommand(c, v)
-	if (c >= 10900 and c <= 10908)or (c>=10915 and c<=10918) then
+	if (c >= 10900 and c <= 10908)or (c>=10915 and c<=10918)
+        or (c>=11130 and c<=11132)or (c>=11140 and c<=11144) then
 		v = input_value(v, devices.RWR_SYSTEM)
 	end
 	if v <= 0 then
@@ -54,7 +66,7 @@ function SetCommand(c, v)
 		if not inspection_held[c] and get("MAIN_POWER") > 0.5 then defensive:command(c) end
 		inspection_held[c] = true;return
 	end
-	if c>=10915 and c<=10918 then
+	if c>=10915 and c<=10918 or c>=11130 and c<=11132 or c>=11140 and c<=11144 then
 		if not inspection_held[c] and get("MAIN_POWER")>.5 then tactical:command(c) end
 		inspection_held[c]=true;return
 	end
@@ -84,6 +96,7 @@ function post_initialize()
 	inspection_held = {}
 	audio = audio_library.new()
 	identity_memory = {}
+    identity_count = 0
 	identity_sequence = nil
 	clock = 0
 	native_power = nil
@@ -107,6 +120,7 @@ function update()
 				receiver = library.new()
 				audio = audio_library.new()
 				identity_memory = {}
+                identity_count = 0
 				identity_sequence = nil
 				native_power = nil
 				last_diagnostic = nil
@@ -174,7 +188,8 @@ function update()
 			-- This is the radar's qualified classification snapshot, not a raw
 			-- missing-IFF reply. Preserve both known friend and known hostile.
 			if get(p .. "VALID") > 0.5 and source > 0 and age >= 0 and age <= 30 and (class == 1 or class == 0) then
-				identity_memory[source] = { class = class, expires = clock + 30 - age }
+				local retained=retain_identity(source,{class=class,time=clock-age,expires=clock+30-age})
+                if not retained then put('F22_IFF_MEMORY_OVERFLOW',1)end
 			end
 		end
 		identity_sequence = sequence
@@ -182,17 +197,22 @@ function update()
 	for source, id in pairs(identity_memory) do
 		if id.expires <= clock then
 			identity_memory[source] = nil
+            identity_count=identity_count-1
 		end
 	end
 	for _, c in ipairs(receiver.contacts) do
 		local id = identity_memory[c.source]
-		if c.signal == 3 and not library.coasting(c) and not(id and id.class == 1) then
+        c.hostile_act=c.signal==3 and not library.coasting(c)
+		if c.hostile_act and not(id and id.class == 1) then
 			-- A fresh launch/illumination warning is itself hostile-act evidence.
 			-- Subtract observation age so cached emissions cannot renew the ID.
-			id = {class = 0, expires = clock + 30 - c.age}
-			identity_memory[c.source] = id
+			id = {class=0,time=clock-c.age,expires=clock+30-c.age}
+            local retained=retain_identity(c.source,id)
+            if not retained then put('F22_IFF_MEMORY_OVERFLOW',1)end
 		end
 		c.affiliation = id and id.class or -1
+        c.identity_time=id and id.time
+        c.hostile_time=c.hostile_act and clock-c.age or nil
 	end
 	-- Export only an attitude-qualified measured RF direction, never source position.
 	for _,c in ipairs(receiver.contacts)do

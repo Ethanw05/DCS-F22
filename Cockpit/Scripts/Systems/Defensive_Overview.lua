@@ -82,6 +82,10 @@ function M.new(get,put,sensors)
    put(p..'X',x);put(p..'Y',y);put(p..'ROT',rotation)
    put(p..'SOURCE',t and t.source or 0)
    put(p..'AFFILIATION',t and t.affiliation or -1)
+   put(p..'IDENTITY_CONFLICT',t and t.identity_conflict and 1 or 0)
+   local donor=t and t.datalink
+   put(p..'DATALINK_OBSERVATION_KNOWN',donor and donor.observation_known and 1 or 0)
+   put(p..'DATALINK_RECEIVE_AGE',donor and donor.received and math.max(0,now-donor.received)or 999)
    put(p..'SELECTED',t and t.source==selected and 1 or 0)
    put(p..'RANGED',t and has_range and 1 or 0)
    put(p..'PROXIMITY',relative and 1 or 0);put(p..'DATALINK',link)
@@ -91,6 +95,7 @@ function M.new(get,put,sensors)
    put(p..'RF',t and t.observations and t.observations.rf and 1 or 0)
    local ir,signal,coast=false,0,false
    if t then ir,signal,coast=warning(t)end
+   if donor and (donor.observation_known==false or now-donor.time>Datalink.coast)then coast=true end
    put(p..'COAST',coast and 1 or 0)
    put(p..'ALERT',(ir or signal>=3)and 1 or 0)
    put(p..'VALID',t and 1 or 0)

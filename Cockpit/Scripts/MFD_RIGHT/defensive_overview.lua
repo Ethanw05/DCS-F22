@@ -94,6 +94,7 @@ for i=1,16 do
  end
  D.text('M',.06,-.05,nil,'white',.0026,D.choice(p..'OPTICAL',1,at))
  D.text('C',-.06,-.05,nil,'white',.0026,D.choice(p..'COAST',1,at))
+ D.text('?',-.06,.05,nil,'yellow',.0028,D.choice(p..'IDENTITY_CONFLICT',1,at))
  for link,label in ipairs({'IFDL','L16'})do D.text(label,.08,.025,nil,'white',.0025,D.choice(p..'DATALINK',link,at))end
 end
 
@@ -124,6 +125,10 @@ D.text('CM FAIL',.63,-.52,nil,'yellow',.0028,D.choice('F22_CM_FAILURE',1))
 D.text('CM LOW',.63,-.31,nil,'yellow',.0028,D.choice('F22_CM_LOW',1))
 D.text('CONSENT?',-.48,-.52,nil,'yellow',.0028,D.choice('F22_CM_AWAITING_CONSENT',1))
 D.text('AUTO AUTH',-.12,-.52,nil,'yellow',.0028,D.choice('F22_CM_AUTHORIZED',1))
+D.text('SIM ID READY',-.63,-.38,nil,'white',.0028,D.choice('F22_IFF_RESPONDER_READY',1))
+D.text('SIM ID STBY',-.63,-.38,nil,'white',.0028,D.choice('F22_IFF_RESPONDER_READY',0))
+D.text('SIM REPLY',-.63,-.45,nil,'white',.0028,D.choice('F22_IFF_REPLY_RECENT',1))
+D.text('SIM EMER',-.63,-.31,nil,'yellow',.0028,D.choice('F22_IFF_RESPONDER_EMERGENCY',1))
 local cm=dofile(LockOn_Options.script_path..'Systems/EW_Dispenser.lua')
 for status,label in pairs(cm.labels)do
  D.text(label,.18,-.68,nil,'white',.0028,D.choice('F22_CM_STATUS',status))

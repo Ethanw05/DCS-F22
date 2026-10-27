@@ -15,9 +15,12 @@ function M.position(o, now)
     if not o or not finite(now) or not finite(o.time) then return end
     local age = now - o.time
     if age < -.05 or age > M.retention(o) then return end
-    local dt = math.min(math.max(0, age), M.prediction)
+    local unknown = o.observation_known == false
+    local dt = unknown and 0 or math.min(math.max(0, age), M.prediction)
     return { n = o.n + o.vn * dt, u = o.u + o.vu * dt, e = o.e + o.ve * dt,
-        age = math.max(0, age), coast = age > M.coast }
+        age = math.max(0, age), coast = unknown or age > M.coast,
+        state = (unknown or age > M.prediction) and 3 or age > 0 and 2 or 1,
+        observation_known = not unknown, received = o.received }
 end
 function M.new(get, sensors)
     local s = { records = {}, sequence = 0 }
@@ -37,7 +40,9 @@ function M.new(get, sensors)
         end
         self.clock = now
         local epoch, seq = get('F22_DL_RX_EPOCH'), get('F22_DL_RX_SEQUENCE')
-        if epoch ~= self.epoch then self.records = {}; self.seen = nil; self.epoch = epoch end
+        if epoch ~= self.epoch then
+            self.records = {}; self.seen = nil; self.received = nil; self.epoch = epoch
+        end
         local stamp, count = get('F22_DL_RX_TIME'), get('F22_DL_RX_COUNT')
         if finite(seq) and seq > 0 and seq ~= self.seen and finite(stamp)
             and now - stamp >= -.05 and now - stamp <= 1.5 and (not self.received or stamp >= self.received)
@@ -51,8 +56,16 @@ function M.new(get, sensors)
                 for _, k in ipairs({'SOURCE','REPORTER','LINK','TIME','N','U','E','VN','VU','VE','AFFILIATION','FLIGHT','PPLI'}) do
                     o[k:lower()] = get(p .. k)
                 end
+                local schema = get('F22_DL_RX_SCHEMA')
+                o.observation_known = schema == 2 and get(p .. 'OBSERVATION_KNOWN') == 1
+                o.observation_time = o.observation_known and get(p .. 'OBSERVATION_TIME') or nil
+                o.received = schema == 2 and get(p .. 'RECEIVE_TIME') or o.time
+                o.epoch = epoch
                 if not id(o.source) or not id(o.reporter) or o.source == get('F22_DL_RX_OWN')
                     or (o.link ~= 1 and o.link ~= 2) or not finite(o.time)
+                    or not finite(o.received) or o.received > stamp + .05
+                    or o.observation_known and (not finite(o.observation_time)
+                        or math.abs(o.time-o.observation_time)>.05)
                     or stamp - o.time < -.05 or stamp - o.time > M.retention(o)
                     or not finite(o.n) or not finite(o.u) or not finite(o.e)
                     or not finite(o.vn) or not finite(o.vu) or not finite(o.ve)
@@ -86,6 +99,8 @@ function M.new(get, sensors)
                     vn = o.vn, vu = o.vu, ve = o.ve, link = o.link, reporter = o.reporter,
                     friendly = o.affiliation == 1, hostile = o.affiliation == 0,
                     flight = o.flight == 1, ppli = o.ppli == 1,
+                    received = o.received, observation_known = o.observation_known,
+                    observation_time = o.observation_time, epoch = o.epoch,
                 }
             end
         end

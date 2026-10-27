@@ -3,6 +3,8 @@
 local M = { limits = { radar = 20, rf = 12, mws = 3, datalink = 75 }, bits = { radar = 1, rf = 2, mws = 4, datalink = 8 } }
 local Threat = dofile(LockOn_Options.script_path .. "Systems/Tactical_Threat.lua")
 local Geolocation = dofile(LockOn_Options.script_path .. "Systems/EW_Geolocation.lua")
+local Identification = dofile(LockOn_Options.script_path .. 'Systems/Identification_State.lua')
+local capacities = { radar = 64, rf = 16, mws = 16, datalink = 64 }
 local direction_rank = { radar = 3, mws = 2, rf = 1, datalink = 0 }
 local function finite(x)
 	return type(x) == "number" and x == x and math.abs(x) < 1e12
@@ -39,7 +41,9 @@ function M.new()
 				and (not old or old.sequence ~= batch.sequence)
 			then
 				local accepted = {}
-				for _, o in ipairs(batch.contacts or {}) do
+				local inputs = batch.contacts or {}
+				for index = 1, math.min(#inputs, capacities[sensor]) do
+					local o = inputs[index]
 					if
 						source(o.source)
 						and finite(o.age)
@@ -61,6 +65,8 @@ function M.new()
 							hostile = o.hostile == true,
 							label = o.label,
 							selected = o.selected == true,
+                            identity_time = finite(o.identity_time) and o.identity_time or nil,
+                            hostile_time = finite(o.hostile_time) and o.hostile_time or nil,
 							range = sensor == "radar" and finite(o.range) and o.range >= 40 and o.range or nil,
 							measured_range = sensor == "radar"
 									and finite(o.measured_range)
@@ -68,11 +74,14 @@ function M.new()
 									and o.measured_range
 								or nil,
 							quality = o.quality,
+                            measurement_source = (o.measurement_source==1 or o.measurement_source==2)
+                                and o.measurement_source or 0,
 							estimated = o.estimated == true,
 							uncertainty = finite(o.uncertainty) and o.uncertainty >= 0 and o.uncertainty or nil,
 						}
 						if sensor == 'datalink' then
-							for _,k in ipairs({'n','u','e','vn','vu','ve','link','reporter','flight','ppli'}) do c[k]=o[k] end
+							for _,k in ipairs({'n','u','e','vn','vu','ve','link','reporter','flight','ppli',
+                                'received','observation_known','observation_time','epoch'}) do c[k]=o[k] end
 						end
 						if sensor=="rf" then
 							c.power=finite(o.power) and o.power>=0 and o.power<=1 and o.power or nil
@@ -116,6 +125,7 @@ function M.new()
 					t.mask = t.mask + M.bits[sensor]
 					t.observations[sensor] = o
 					t.age = math.min(t.age, age)
+                    Identification.evidence(t, o, sensor)
 					if o.friendly then
 						t.affiliation = 1
 					elseif o.hostile and t.affiliation ~= 1 then

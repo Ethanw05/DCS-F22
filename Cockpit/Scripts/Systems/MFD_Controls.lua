@@ -59,6 +59,15 @@ function M.for_page(page,view,get)
   radar(15,'RNG-',10608);radar(14,'RNG+',10607);radar(6,'EMIT',10600)
   radar(20,string.format('AZ %.0f',get(ag and 'F22_AG_RADAR_WIDTH_DEG'or'F22_RADAR_SEARCH_WIDTH_DEG')),10616)
   radar(16,'CNTR',10617)
+  if not ag then c[11]=row('DONOR','view',6)end
+  if not ag and view==6 then
+   c[6]={label='NEXT',device='RWR_SYSTEM',command=11140}
+   c[7]={label='PREV',device='RWR_SYSTEM',command=11141}
+   c[8]={label='FOLLOW',device='RWR_SYSTEM',command=11144}
+   c[9]={label='REJECT',device='RWR_SYSTEM',command=11142}
+   c[12]=row('RTN','view',0)
+   return c
+  end
   if ag and get('F22_AG_GAIN_INDEX')>=1 then
    -- Current ground-radar controls, arranged on the common physical bezel.
    if get('F22_AG_RANGE_AVAILABLE')<.5 then c[14]=nil;c[15]=nil;c[20]=nil end

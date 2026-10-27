@@ -632,6 +632,12 @@ join(res.keyCommands,{
   name=_('CM - Neutral Scripted Event (Test)'),category=_('F-22 Countermeasures')},
  {down=11113,up=11113,value_down=1,value_up=0,cockpit_device_id=20,
   name=_('CM - Stop Program'),category=_('F-22 Countermeasures')},
+ {down=11130,up=11130,value_down=1,value_up=0,cockpit_device_id=18,
+  name=_('IFF - Simulated Responder Toggle'),category=_('F-22 Identification')},
+ {down=11131,up=11131,value_down=1,value_up=0,cockpit_device_id=18,
+  name=_('IFF - Simulated Emergency ID Toggle'),category=_('F-22 Identification')},
+ {down=11132,up=11132,value_down=1,value_up=0,cockpit_device_id=18,
+  name=_('IFF - Neutral Game Interrogation (Test)'),category=_('F-22 Identification')},
  {down=11120,up=11120,value_down=1,value_up=0,cockpit_device_id=4,
   name=_('Stores - Simulation Mode'),category=_('F-22 Weapons')},
 })
