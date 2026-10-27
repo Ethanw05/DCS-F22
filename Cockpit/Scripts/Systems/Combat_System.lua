@@ -72,6 +72,8 @@ local function emit(n, v)
 		send(devices.WEAPON_SYSTEM, 10804)
 	elseif n == "cage" then
 		send(devices.WEAPON_SYSTEM, 10805)
+	elseif n == "nav_cage" then
+		send(devices.HUD_FLIGHT_DATA, 11840)
 	elseif n == "nws" then
 		dispatch_action(nil, 562, 1)
 	elseif n == "autopilot_off" then
@@ -98,6 +100,7 @@ local function emit(n, v)
 	end
 end
 local logic = dofile(LockOn_Options.script_path .. "Systems/Combat_Logic.lua").new(emit)
+local physical_down, power_blocked = {}, {}
 local function context()
 	return {
 		locked = get("F22_RADAR_STT_VALID") > 0.5,
@@ -131,11 +134,14 @@ function SetCommand(c, v)
 	end
 	local n = by_id[c]
 	if n then
-		if (n == "scs_depress" or n:match("^dms_")) and get("MAIN_POWER") < 0.5 then
-			publish_display_control()
-			return
-		end
 		local decoded = input_value(v, devices.COMBAT_SYSTEM)
+		if decoded > 0 then
+			physical_down[n] = true
+			if get('MAIN_POWER') < .5 then power_blocked[n] = true end
+			if power_blocked[n] then return end
+		else
+			physical_down[n], power_blocked[n] = nil, nil
+		end
 		if log and log.write then
 			log.write("F22_HOTAS", log.INFO, n .. " value=" .. tostring(v) .. string.format(
 				" decoded=%.3f mode=%d soi=%d primary=%.0f", decoded,
@@ -158,7 +164,8 @@ function update()
 		logic:update(dt, context())
 	else
 		logic:cancel_ground_preview()
-		logic.held = {}
+		for _, held in pairs(logic.held) do held.done = true end
+		for name in pairs(physical_down) do power_blocked[name] = true end
 		emit("trigger_first", 0)
 		emit("trigger_second", 0)
 		emit("pickle", 0)

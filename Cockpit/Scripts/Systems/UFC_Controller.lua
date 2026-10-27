@@ -6,7 +6,8 @@ local function finite(v)return type(v)=='number'and v==v and math.abs(v)<1e9 end
 function M.new(get,put,send,_sensors)
  local s={page='',entry=nil,pending=nil,status='',clock=0,point=nil}
  local channels={}
- for owner,lane in pairs({FLIGHT_GUIDANCE='GUIDANCE',ALTITUDE_SYSTEM='ALT',NAV_SYSTEM='NAV',WEAPON_SYSTEM='STORES'})do
+ for owner,lane in pairs({FLIGHT_GUIDANCE='GUIDANCE',ALTITUDE_SYSTEM='ALT',NAV_SYSTEM='NAV',WEAPON_SYSTEM='STORES',
+  PILOT_WARNING_SYSTEM='WARN'})do
   channels[owner]=Transaction.channel(lane,get,put)
  end
  local function trace(event,option,detail)
@@ -86,9 +87,26 @@ function M.new(get,put,send,_sensors)
   elseif page=='NAV SETUP'then
    rows[1]=action(get('F22_NAV_REFERENCE')>.5 and'REF MAG'or'REF TRUE',function()send('FLIGHT_GUIDANCE',10939,1)end)
    rows[2]=action(get('F22_GPS_AID')>.5 and'GPS AID ON'or'GPS AID OFF',function()send('FLIGHT_GUIDANCE',10940,1)end)
-   rows[3]=action('IRS ALIGN',function()send('FLIGHT_GUIDANCE',10942,1)end)
+   rows[3]=action('GINS REFERENCES',function()self:open('GINS REFERENCES',true)end)
    rows[4]=action(text('F22_INS_STATUS_TEXT'),function()self:open('NAV QUALITY',true)end)
    rows[5]=action('MARK/TIME',function()self:open('MARK/TIME',true)end)
+  elseif page=='GINS REFERENCES'then
+   for index,role in ipairs({'NAV','HUD','SFG'})do
+    local name=role;local command=11849+index
+    local selected=get('F22_GINS_'..name..'_SOURCE')
+    rows[index]=action(name..' GINS '..selected,function()
+     self:request_action('FLIGHT_GUIDANCE',command,selected==1 and 2 or 1)end)
+   end
+   rows[4]=action('ALIGN SELECTED NAV GINS',function()self:open('GINS ALIGN',true)end)
+   rows[5]=action('RTN',function()self:open('NAV SETUP',true)end)
+  elseif page=='GINS ALIGN'then
+   for index,label in ipairs({'NORMAL EST 480 SEC','RETAINED EST 90 SEC','TRAINING EST 30 SEC'})do
+    local kind=index-1
+    rows[index]=action(label,function()self:request_action('FLIGHT_GUIDANCE',11853,kind)end)
+   end
+   rows[4]={label=get('F22_GINS_COMMAND_RESULT')==2 and text('F22_GINS_COMMAND_STATUS')
+    or text('F22_GINS_NAV_STATUS'),kind='read'}
+   rows[5]=action('RTN',function()self:open('GINS REFERENCES',true)end)
   elseif page=='NAV QUALITY'then
    local valid=get('F22_INS_ESTIMATE_VALID')>.5
    rows[1]={label=valid and'POSITION VALID'or'POSITION UNAVAILABLE',kind='read'}
@@ -160,6 +178,26 @@ function M.new(get,put,send,_sensors)
    end
    rows[4]=action(hpa and'UNIT HPA'or'UNIT INHG',function()send('ALTITUDE_SYSTEM',11023,1)end)
    rows[5]=action(get('F22_ALT_STD')>.5 and'STD'or'QNH',function()send('ALTITUDE_SYSTEM',11020,1)end)
+  elseif page=='ALT DISPLAY'then
+   local selected=get('F22_ALT_SELECTION')
+   rows[1]=action('HUD '..(({'BARO','RDR','STBY'})[selected+1]or'--'),function()
+    self:request_action('ALTITUDE_SYSTEM',11027,(selected+1)%3)end)
+   rows[2]=number(string.format('MINIMA %.0f FT',get('F22_ALT_MINIMA_FT')),0,function(buffer)
+    local value,error=integer(buffer,0,25000);if not value then return nil,error end
+    return request('ALTITUDE_SYSTEM',11028,value,equal('F22_ALT_MINIMA_FT',value))end,5)
+   rows[3]=action(get('F22_ALT_MINIMA_SOURCE')==1 and'MINIMA BARO'or'MINIMA RDR',function()
+    self:request_action('ALTITUDE_SYSTEM',11029,1-get('F22_ALT_MINIMA_SOURCE'))end)
+   rows[4]=action(get('F22_ALT_LOW_DISABLED')==1 and'RDR LOW DISABLED'or'DISABLE CURRENT RDR LOW',function()
+    self:request_action('PILOT_WARNING_SYSTEM',11035,1)end)
+   rows[5]=action('RECOVERY',function()self:open('RECOVERY',true)end)
+  elseif page=='RECOVERY'then
+   local intent=get('F22_RECOVERY_INTENT')
+   rows[1]=action('INTENT '..(({'NONE','ILS','VISUAL'})[intent+1]or'--'),function()
+    self:request_action('ALTITUDE_SYSTEM',11036,(intent+1)%3)end)
+   rows[2]={label=text('F22_RECOVERY_STATE_TEXT','RECOVERY UNAVAILABLE'),kind='read'}
+   rows[3]={label='MANUAL FLIGHT / NO AUTOLAND',kind='read'}
+   rows[4]={label=text('F22_ALT_ALERT_SOURCE','NO ALTITUDE ALERT'),kind='read'}
+   rows[5]=action('RTN',function()self:open('ALT DISPLAY',true)end)
   elseif page=='AP'then
    local active=get('F22_AP_ACTIVE')>.5;local roll=get('F22_AP_ROLL_MODE');local pitch=get('F22_AP_PITCH_MODE')
    for i,d in ipairs({{'ATTH',10951,active and roll==1 and pitch==1},{'HSEL',10954,active and roll==2},
@@ -257,6 +295,7 @@ function M.new(get,put,send,_sensors)
  function s:page_step(direction)
   if self.entry or self.pending then return end
   if self.page=='NAV'or self.page=='NAV SETUP'then self:open(self.page=='NAV'and'NAV SETUP'or'NAV',true)end
+  if self.page=='ALT'or self.page=='ALT DISPLAY'then self:open(self.page=='ALT'and'ALT DISPLAY'or'ALT',true)end
  end
  function s:update(dt)
   self.clock=self.clock+(dt or .006)
@@ -300,7 +339,7 @@ function M.new(get,put,send,_sensors)
   end
   put('ICP_STORES_MENU',self.page=='STORES'and 1 or 0)
   put('ICP_NAV_MENU',self.page=='STPT'and 1 or 0);put('ICP_CNI_MENU',self.page=='NAV'and 1 or 0)
-  put('ICP_FLIGHT_MENU',self.page=='AP'and 1 or self.page=='ALT'and 4 or 0)
+  put('ICP_FLIGHT_MENU',self.page=='AP'and 1 or(self.page=='ALT'or self.page=='ALT DISPLAY')and 4 or 0)
   put('ICP_AP_MENU',0);put('ICP_HUD_MENU',0)
  end
  s:update(0);return s

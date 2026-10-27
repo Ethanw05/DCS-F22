@@ -124,6 +124,13 @@ if(BUILD_TESTING)
         endif()
     endif()
     add_test(NAME navigation_snapshot COMMAND f22_navigation_snapshot_test)
+    add_executable(f22_cni_power_test "${CMAKE_SOURCE_DIR}/tests/test_cni_power.cpp")
+    target_include_directories(f22_cni_power_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_compile_definitions(f22_cni_power_test PRIVATE NOMINMAX)
+    if(MSVC)
+        target_compile_options(f22_cni_power_test PRIVATE /W4 /WX /analyze /analyze:external-)
+    endif()
+    add_test(NAME cni_power COMMAND f22_cni_power_test)
 endif()
 
 # Flight models use the declared MSVC/C++23 ABI. Strong warnings on the DLL

@@ -20,4 +20,14 @@ time_now=101;update(p,89874.5629,true);CHECK(!altitude(h)&&values["F22_ALTIMETER
 values["F22_ALT_PRESSURE_REQUEST_TIME"]=102;update(p,89874.5629,true);CHECK(!altitude(h));
 values["F22_ALT_PRESSURE_REQUEST_TIME"]=101;values["F22_ALT_PRESSURE_MMHG"]=NAN;update(p,89874.5629,true);CHECK(!altitude(h));
 values["F22_ALT_PRESSURE_MMHG"]=760;update(p,NAN,true);CHECK(!altitude(h));update(p,89874.5629,false);CHECK(!altitude(h));
+// The standby shares real atmospheric pressure and selected datum, with an
+// independent declared sensor failure. No geometric altitude substitution.
+update(p,89874.5629,false);update_standby(p,89874.5629,true);
+CHECK(!altitude(h)&&values["F22_ALT_STANDBY_NATIVE_VALID"]==1);
+CHECK(std::abs(values["F22_ALT_STANDBY_NATIVE_M"]-1000)<.01);
+values["F22_ALT_STANDBY_FAILURE"]=1;update_standby(p,89874.5629,true);
+CHECK(values["F22_ALT_STANDBY_NATIVE_VALID"]==0);
+update(p,89874.5629,true);CHECK(altitude(h));
+values["F22_ALT_STANDBY_FAILURE"]=0;update_standby(p,89874.5629,true);
+CHECK(values["F22_ALT_STANDBY_NATIVE_VALID"]==1);
 reset();CHECK(!altitude(h));std::cout<<"Standalone altimetry: ISA reference points, QNH datum, stale/future/invalid input and reset PASS\n";}

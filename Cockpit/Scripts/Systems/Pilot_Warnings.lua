@@ -4,6 +4,7 @@ local function finite(v)
 	return type(v) == "number" and v == v and math.abs(v) < 1e9
 end
 local Faults = dofile(LockOn_Options.script_path .. 'Systems/Fault_Registry.lua')
+local Altitude = dofile(LockOn_Options.script_path .. "Systems/Altitude_Alerts.lua")
 local Escape = dofile(LockOn_Options.script_path .. "Systems/Terrain_Escape.lua")
 function M.terrain(s, height, visible)
 	local result = Escape.solve(s, height, nil, visible)
@@ -19,32 +20,12 @@ function M.new()
 		terrain_until = -1,
 		terrain_call = nil,
 		terrain_priority = 0,
-		floors = {},
+		altitude = Altitude.new(),
 		fault_since = nil,
 		caution_since = nil,
 		last = {},
-		queued_altitude = false,
+		was_powered = false,
 	}, { __index = M })
-end
-local function floor(self, key, value, limit, valid, now)
-	if not valid or not finite(value) or not finite(limit) or limit <= 0 then
-		self.floors[key] = nil
-		return
-	end
-	local state = self.floors[key]
-	if not state or state.limit ~= limit then
-		state = { limit = limit, armed = value > limit + 100 }
-		self.floors[key] = state
-	end
-	if value > limit + 100 then
-		state.armed = true
-	end
-	if state.armed and value < limit then
-		state.armed = false
-		self.queued_altitude = true
-		self.altitude_until = now + 5
-		self.altitude_visual_until = now + 3
-	end
 end
 function M:update(s, height, visible)
 	local now = s.now
@@ -67,14 +48,15 @@ function M:update(s, height, visible)
         if self.fcs_occurrence ~= occurrence then self.fault_ack = false;self.fcs_occurrence = occurrence end
     end
 	if not s.powered then
-		self.floors = {}
+		if not self.was_powered then return { text = '', priority = 0 } end
+		self.was_powered = false
+		self.altitude:power_lost()
 		self.fault_since = nil
 		self.caution_since = nil
 		self.terrain_pending = nil
 		self.terrain_call = nil
 		self.terrain_priority = 0
 		self.terrain_until = -1
-		self.queued_altitude = false
 		self.terrain_engine = nil
 		self.spoken = nil
 		self.last = {}
@@ -82,14 +64,13 @@ function M:update(s, height, visible)
 		self.caution_ack = false
 		return { text = "", priority = 0 }
 	end
+	self.was_powered = true
     local flight_valid = s.valid and not s.ground
     local terrain = self.unavailable_terrain
     if flight_valid then
         self.terrain_engine = self.terrain_engine or Escape.new()
         terrain = self.terrain_engine:update(s, height, visible)
     else
-        self.floors = {}
-        self.queued_altitude = false
         self.altitude_visual_until = -1
     end
 	local call = terrain.call
@@ -122,19 +103,12 @@ function M:update(s, height, visible)
 			self.terrain_priority = 0
 		end
 	end
-	floor(self, "baro", s.baro, s.baro_floor, s.baro_valid and not s.gear and flight_valid, now)
-	floor(self, "radar", s.radar, s.radar_floor, s.radar_valid and not s.gear and flight_valid, now)
-	local below_floor = flight_valid and not s.gear
-		and (
-			(s.baro_valid and finite(s.baro) and finite(s.baro_floor) and s.baro_floor > 0 and s.baro < s.baro_floor)
-			or (
-				s.radar_valid
-				and finite(s.radar)
-				and finite(s.radar_floor)
-				and s.radar_floor > 0
-				and s.radar < s.radar_floor
-			)
-		)
+    local altitude_active = self.altitude:update(s, flight_valid)
+    local altitude_ticket = self.altitude.selected
+    if altitude_ticket ~= self.altitude_ticket then
+        self.last.altitude = nil
+        self.altitude_ticket = altitude_ticket
+    end
 	if s.fcs_valid and s.fcs_fault and not s.ground then
 		self.fault_since = self.fault_since or now
 	else
@@ -162,9 +136,7 @@ function M:update(s, height, visible)
 		selected = "flight_controls"
 		priority = 1
 	elseif
-		below_floor
-		or (self.queued_altitude and now < self.altitude_until)
-		or now < (self.altitude_visual_until or -1)
+        altitude_active or now < (self.altitude_visual_until or -1)
 	then
 		selected = "altitude"
 		priority = 1
@@ -182,7 +154,7 @@ function M:update(s, height, visible)
 	local busy = s.missile_warning and priority ~= 3
 	local acknowledged = selected == "flight_controls" and self.fault_ack
 		or selected == "caution" and self.caution_ack
-		or selected == "altitude" and not self.queued_altitude
+		or selected == "altitude" and not altitude_active
 	if
 		selected
 		and not acknowledged
@@ -193,21 +165,25 @@ function M:update(s, height, visible)
 		event = selected
 		-- The audio owner confirms actual playback. Pure policy callers retain
 		-- the immediate event contract unless they explicitly defer this commit.
-		if not s.defer_audio_commit then self:played(selected, now) end
+		if not s.defer_audio_commit then self:played(selected, now, altitude_ticket) end
 	end
-	return { text = text, priority = priority or 0, event = event, impact = impact, terrain = terrain }
+	return { text = text, priority = priority or 0, event = event, impact = impact, terrain = terrain,
+        altitude_ticket = altitude_ticket, altitude_label = self.altitude.label }
 end
-function M:played(name, now)
+function M:played(name, now, ticket)
 	if not name or not finite(now) then return end
 	self.last[name] = now
 	self.spoken = name
-	if name == "altitude" then self.queued_altitude = false end
+	if name == "altitude" then
+        self.altitude:played(ticket or self.altitude_ticket)
+        self.altitude_visual_until = now + 3
+    end
 end
 function M:acknowledge()
     self.faults:acknowledge()
 	self.fault_ack = self.fault_since ~= nil
 	self.caution_ack = self.caution_since ~= nil
-	self.queued_altitude = false
+	self.altitude:played(self.altitude_ticket)
 	self.altitude_visual_until = -1
 end
 return M

@@ -7,6 +7,7 @@ local handles={}
 local function h(k)if not handles[k]then handles[k]=get_param_handle(k)end return handles[k]end
 local function get(k)return h(k):get()end
 local function set(k,v)h(k):set(v)end
+local references=dofile(LockOn_Options.script_path.."Systems/Gins_References.lua").new(get,set,get_base_data())
 for _,k in ipairs({'F22_AP_ACTIVE','F22_AP_ROLL_MODE','F22_AP_PITCH_MODE','F22_AP_AT','F22_AP_MACH_HOLD',
  'F22_AP_HEADING','F22_AP_ALT','F22_AP_VS','F22_AP_SPEED','F22_AP_MACH','F22_AP_REASON','F22_AP_OVERRIDE','F22_AP_READY','F22_AP_CLOCK',
  'F22_NAV_CONFIG_PATH','F22_AP_STATUS_TEXT','F22_AP_HDG_TEXT','F22_AP_ALT_TEXT','F22_AP_SPEED_TEXT','F22_AP_VS_TEXT',
@@ -39,10 +40,9 @@ for _,key in ipairs({'F22_NAV_COURSE_SCHEMA','F22_NAV_COURSE_TRUE','F22_NAV_COUR
 local frequencies={}
 for f=108100,111900,200 do frequencies[#frequencies+1]=f;frequencies[#frequencies+1]=f+50 end
 local frequency_index=23 -- 110.30 MHz
-local align=0;local last_time;local was_powered=false
-local outage_since;local air_recovery=0;local manual_align=false;local previously_aligned=false
 local names={[0]='OFF',[1]='REC',[2]='T/R',[3]='A/A REC',[4]='A/A T/R'}
 function post_initialize()
+ set('F22_ENTRY_GUIDANCE_ACTIVE',0)
  set('F22_NAV_CONFIG_PATH',LockOn_Options.script_path..'Systems/TACAN_Native.lua')
  set('F22_TCN_CHANNEL',1);set('F22_TCN_BAND',0);set('F22_TCN_MODE',2)
  set('F22_ILS_FREQ_KHZ',frequencies[frequency_index]);set('F22_NAV_SOURCE',0)
@@ -50,15 +50,17 @@ function post_initialize()
  set('F22_NAV_REFERENCE',0);set('F22_NAV_OBS',0);publish_course()
  set('F22_INS_MODEL_ENABLED',1);set('F22_GPS_AID',1)
  local birth=LockOn_Options.init_conditions.birth_place
- align=birth=='GROUND_COLD' and 0 or 180
- previously_aligned=align>=180;outage_since=nil;air_recovery=0;manual_align=false;last_time=nil;was_powered=false
- set('F22_INS_READY',align>=180 and 1 or 0)
+ references:reset(birth~='GROUND_COLD')
 end
 for c=10930,10949 do dev:listen_command(c)end
 for c=10950,10969 do dev:listen_command(c)end
 for c=11010,11016 do dev:listen_command(c)end
 dev:listen_command(11830)
+for command=11850,11853 do dev:listen_command(command)end
 local function apply_command(command,value)
+ if command>=11850 and command<=11852 then
+  return references:select(({'NAV','HUD','SFG'})[command-11849],value)
+ elseif command==11853 then return references:align(value)end
  if command==11830 and value>0 and get('MAIN_POWER')>.5 then set('F22_NAV_SOURCE',0);return end
  if command==11016 and value>0 then dispatch_action(nil,11626,1);return end
  if command>=10505 and command<=10512 or command>=11905 and command<=11912 then
@@ -101,7 +103,7 @@ local function apply_command(command,value)
  elseif command==10939 then set('F22_NAV_REFERENCE',1-get('F22_NAV_REFERENCE'))
  elseif command==10940 then set('F22_GPS_AID',1-get('F22_GPS_AID'))
  elseif command==10941 then set('F22_NAV_OBS',0)
- elseif command==10942 then align=0;manual_align=true;air_recovery=0;set('F22_INS_READY',0)
+ elseif command==10942 then references:align(0)
  elseif command==10943 then
   set('F22_NAV_SOURCE',0);dispatch_action(devices.NAV_SYSTEM,11819,1)
  elseif command==10944 then set('F22_NAV_SOURCE',1)
@@ -116,6 +118,10 @@ function SetCommand(command,value)
  local requested,wanted=transaction:take(value)
  if not requested then return end
  if get('MAIN_POWER')<.5 then transaction:finish(value,false);return end
+ if requested>=11850 and requested<=11853 then
+  local accepted=apply_command(requested,wanted)
+  transaction:finish(value,accepted,wanted);return
+ end
  if requested>=11010 and requested<=11015 then
   dispatch_action(nil,11800,value)
   return
@@ -127,34 +133,14 @@ function SetCommand(command,value)
  transaction:finish(value,math.abs(get(key)-wanted)<.01,get(key))
 end
 function update()
+ references:update()
  local powered=get('MAIN_POWER')>.5
- local now=type(get_model_time)=='function' and get_model_time() or 0
- local delta=last_time and now-last_time or 0;last_time=now
- local dt=math.max(0,math.min(.2,delta))
- if delta<0 then align=0;manual_align=true;outage_since=nil;air_recovery=0 end
- if not powered then
-  set('F22_ENTRY_GUIDANCE_ACTIVE',0);outage_since=outage_since or now
- else
-  if outage_since then
-   if now-outage_since>5 then align=0;air_recovery=0 end
-   outage_since=nil
-  end
-  if align<180 then
-   if get('EFM_GROUND_VALID')>.5 and get('EFM_WEIGHT_ON_WHEELS')>.5 and get('HUD_GS_VALID')>.5 and get('HUD_GS_MPS')<1 then
-    align=align+dt;air_recovery=0
-   elseif previously_aligned and not manual_align and get('F22_GPS_AID')>.5 and get('EFM_HUD_VALID')>.5 then
-    -- Mod convenience: GPS-aided airborne recovery after extended power loss.
-    align=0;air_recovery=air_recovery+dt;if air_recovery>=30 then align=180 end
-   else align=0;air_recovery=0 end
-  end
- end
- was_powered=powered
- if align>=180 then previously_aligned=true;manual_align=false end
- set('F22_INS_READY',powered and align>=180 and 1 or 0)
- local text=not powered and 'IRS OFF' or align<180 and (air_recovery>0 and string.format('GPS RECOVER %02d/30',air_recovery)or string.format('ALIGN %03d/180',align))
-  or(get('F22_INS_ESTIMATE_VALID')<.5 and 'IRS POSITION INVALID'
-   or get('F22_INS_COASTING')>.5 and string.format('IRS COAST EST %.0f M',get('F22_INS_POSITION_UNCERTAINTY_M'))
-   or'IRS/GPS SIM')
+ if not powered then set('F22_ENTRY_GUIDANCE_ACTIVE',0)end
+ local ready=get('F22_INS_READY')==1
+ local text=not ready and get('F22_GINS_NAV_STATUS')or(
+  get('F22_INS_ESTIMATE_VALID')<.5 and 'IRS POSITION INVALID'
+  or get('F22_INS_COASTING')>.5 and string.format('IRS COAST EST %.0f M',get('F22_INS_POSITION_UNCERTAINTY_M'))
+  or 'GINS / GPS SIM')
  set('F22_INS_STATUS_TEXT',text)
  local pitch={[0]='OFF',[1]='ATT',[2]='ALT',[3]='RALT',[4]='V/S'}
  local roll={[0]='',[1]='ATT',[2]='HDG',[3]='NAV'}

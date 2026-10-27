@@ -18,8 +18,12 @@ return function(api)
 		local n = gate("HUD_MWS_ELEVATION_" .. v[1], "F22_MWS_ELEVATION", v[1], "HUD_MWS_WARNING")
 		static(0.18, -0.66, v[2], 0.024, n)
 	end
-	local memory = gate("HUD_MWS_MEMORY", "F22_MWS_COAST", 1, "HUD_MWS_WARNING")
+	group('HUD_MWS_MEMORY', 0, 0, {'HUD_POWER', 'F22_MWS_COAST', 'F22_MWS_POWER'},
+        {{'opacity_using_parameter', 0}, {'parameter_in_range', 1, .9, 1.1},
+            {'parameter_in_range', 2, .9, 1.1}})
+	local memory = 'HUD_MWS_MEMORY'
 	static(-0.18, -0.66, "MEM", 0.021, memory)
+    label(0, -0.66, 'F22_MWS_CLOCK', '%.0f CLOCK', 0.024, memory, 'CenterCenter')
 	-- An airborne missile's support obligation survives weapon/master-mode changes.
 	group(
 		"HUD_MISSILE_SUPPORT",

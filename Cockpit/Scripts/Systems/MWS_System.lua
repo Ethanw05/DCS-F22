@@ -21,6 +21,7 @@ end
 local function put(n, v)
 	h(n):set(v)
 end
+local supply = dofile(LockOn_Options.script_path..'Systems/EW_Power.lua').new(get)
 -- Declare every producer/indicator handle before indicator Lua states bind it.
 for _, name in ipairs({
 	"MAIN_POWER",
@@ -46,6 +47,8 @@ for _, name in ipairs({
 	"F22_MWS_AUDIO_UNTIL",
 	"F22_MWS_AUDIO_READY",
 	"F22_MWS_MUTED",
+    'F22_MWS_SUPPLY_VALID', 'F22_MWS_MEMORY_CAPACITY', 'F22_MWS_MEMORY_OVERFLOW',
+    'F22_MWS_MEMORY_EVICTIONS', 'F22_MWS_INPUT_TRUNCATED', 'F22_MWS_FRESH_COUNT',
 }) do
 	h(name)
 end
@@ -94,26 +97,44 @@ function post_initialize()
 	put("F22_MWS_ALERT", 0)
 	put("F22_MWS_AUDIO_PRIORITY", 0)
 	put("F22_MWS_AUDIO_UNTIL", 0)
+    for _, name in ipairs({'POWER', 'READY', 'COUNT', 'BLINK', 'COAST',
+        'SUPPLY_VALID', 'MEMORY_OVERFLOW', 'MEMORY_EVICTIONS', 'INPUT_TRUNCATED', 'FRESH_COUNT'}) do
+        put('F22_MWS_'..name, 0)
+    end
+    put('F22_MWS_MEMORY_CAPACITY', library.capacity)
+    for index = 1, library.capacity do put(string.format('F22_MWS_%02d_VALID', index), 0) end
 end
 function update()
-	local now = get_model_time()
-	local powered = enabled and get("MAIN_POWER") > 0.5
+    local clock_ok, now = pcall(get_model_time)
+    local clock_valid = clock_ok and library.finite(now) and now >= 0
+    if not clock_valid then now = 0 end
+    supply:update()
+	local powered = enabled and supply.electrical and clock_valid
 	put("F22_MWS_SUPPLY", powered and 1 or 0)
-	local age = now - get("F22_MWS_NATIVE_TIME")
-	local ready = get("F22_MWS_NATIVE_READY") > 0.5 and age >= -0.05 and age <= 0.35
+    put('F22_MWS_SUPPLY_VALID', supply.valid and 1 or 0)
+    local stamp = get('F22_MWS_NATIVE_TIME')
+    local age = library.finite(stamp) and now - stamp or math.huge
+	local ready = powered and get("F22_MWS_NATIVE_READY") == 1 and age >= -0.05 and age <= 0.35
 	local observations = {}
 	if powered and ready then
 		for i = 1, 16 do
 			local p = string.format("F22_MWS_NATIVE_%02d_", i)
-			if get(p .. "VALID") > 0.5 then
+			if get(p .. "VALID") == 1 then
 				observations[#observations + 1] =
-					{ source = get(p .. "SOURCE"), time = get(p .. "TIME"), az = get(p .. "AZ"), el = get(p .. "EL"), threat = get(p .. "THREAT") > .5 }
+					{ source = get(p .. "SOURCE"), time = get(p .. "TIME"), az = get(p .. "AZ"),
+                        el = get(p .. "EL"), threat = get(p .. "THREAT") == 1 }
 			end
 		end
 	end
 	receiver:update(now, observations, powered and ready)
+    put('F22_MWS_MEMORY_CAPACITY', library.capacity)
+    put('F22_MWS_MEMORY_OVERFLOW', receiver.overflow and 1 or 0)
+    put('F22_MWS_MEMORY_EVICTIONS', receiver.evictions)
+    put('F22_MWS_INPUT_TRUNCATED', receiver.input_truncated and 1 or 0)
 	local contacts = {}
+    local fresh_count = 0
 	for _,raw in ipairs(receiver.contacts)do
+		if not raw.coast then fresh_count = fresh_count + 1 end
 		local c={};for key,value in pairs(raw)do c[key]=value end
 		contacts[#contacts+1]=c
 	end
@@ -127,11 +148,12 @@ function update()
 		c.az=((-d.az+math.pi)%(2*math.pi))-math.pi;c.el=d.el
 	end
 	local first = contacts[1]
-	local alert = powered and ready and first ~= nil
+	local alert = powered and ready and first ~= nil and not first.coast
 	put("F22_MWS_POWER", powered and 1 or 0)
 	put("F22_MWS_READY", ready and 1 or 0)
 	put("F22_MWS_ALERT", alert and 1 or 0)
 	put("F22_MWS_COUNT", #contacts)
+    put('F22_MWS_FRESH_COUNT', fresh_count)
 	put("F22_MWS_BLINK", alert and now % 0.5 < 0.35 and 1 or 0)
 	put("F22_MWS_CLOCK", first and library.sector(first.az) or 0)
 	put("F22_MWS_ELEVATION", first and (first.el > math.rad(10) and 1 or first.el < math.rad(-10) and -1 or 0) or 0)

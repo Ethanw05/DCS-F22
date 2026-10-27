@@ -125,8 +125,10 @@ D.text('CM FAIL',.63,-.52,nil,'yellow',.0028,D.choice('F22_CM_FAILURE',1))
 D.text('CM LOW',.63,-.31,nil,'yellow',.0028,D.choice('F22_CM_LOW',1))
 D.text('CONSENT?',-.48,-.52,nil,'yellow',.0028,D.choice('F22_CM_AWAITING_CONSENT',1))
 D.text('AUTO AUTH',-.12,-.52,nil,'yellow',.0028,D.choice('F22_CM_AUTHORIZED',1))
-D.text('SIM ID READY',-.63,-.38,nil,'white',.0028,D.choice('F22_IFF_RESPONDER_READY',1))
-D.text('SIM ID STBY',-.63,-.38,nil,'white',.0028,D.choice('F22_IFF_RESPONDER_READY',0))
+for status,label in pairs({[0]='SIM ID STBY',[1]='SIM ID READY',[2]='SIM ID NO PWR',
+ [3]='SIM ID UNAVAIL',[4]='SIM ID CLOCK'})do
+ D.text(label,-.63,-.38,nil,'white',.0028,D.choice('F22_IFF_RESPONDER_STATUS',status))
+end
 D.text('SIM REPLY',-.63,-.45,nil,'white',.0028,D.choice('F22_IFF_REPLY_RECENT',1))
 D.text('SIM EMER',-.63,-.31,nil,'yellow',.0028,D.choice('F22_IFF_RESPONDER_EMERGENCY',1))
 local cm=dofile(LockOn_Options.script_path..'Systems/EW_Dispenser.lua')

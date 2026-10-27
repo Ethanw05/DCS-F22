@@ -5,7 +5,8 @@ local function finite(v)
 end
 function M.new()
     return setmetatable({qnh=760, saved_qnh=760, standard=false, units=0,
-        baro_floor=0, radar_floor=0, field=1, buffer='', status=''}, {__index=M})
+        baro_floor=0, radar_floor=0, minima=0, minima_source=0, display=0, recovery=0,
+        field=1, buffer='', status=''}, {__index=M})
 end
 function M:pressure()
     return self.standard and 760 or self.qnh

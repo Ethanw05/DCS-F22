@@ -26,6 +26,11 @@ for _,n in ipairs({'srm','mrm','gun','weapon_select'}) do
  for _,e in ipairs(events) do assert(e[1]~='rws' and e[1]~='boresight' and e[1]~='wide' and e[1]~='vertical') end
 end
 s:input('nav',1,c);s:input('nav',0,c);c.locked=false
+events={};s:input('cage',1,c);s:input('cage',1,c);s:input('cage',0,c)
+assert(#events==1 and events[1][1]=='nav_cage','NAV cage also commanded the seeker/repeated')
+s:set_mode(3);events={};s:input('cage',1,c);s:input('cage',0,c)
+assert(#events==1 and events[1][1]=='cage','weapon cage changed the NAV FPM')
+s:set_mode(1)
 for _,expected in ipairs({2,3,5,2}) do
  s:input('weapon_select',1,c);s:input('weapon_select',1,c)
  assert(s.mode==expected,'weapon cycle/repeated press failed')

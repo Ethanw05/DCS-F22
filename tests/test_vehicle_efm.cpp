@@ -127,6 +127,15 @@ int main(int argc,char** argv) {
     assert(get("F22_AP_PITCH_MODE")==0); // Source restoration does not engage.
     cmd(11626,1);ticks(1);assert(get("F22_AP_REASON")==0);
 
+    // Primary ADC invalidity does not disable the independent standby sensor.
+    setup(true);ticks(50);set("F22_AIRDATA_HEALTH_REQUEST",1);ticks(2);
+    assert(get("F22_ALTIMETER_NATIVE_VALID")==0 && get("F22_ALT_STANDBY_NATIVE_VALID")==1);
+    set("F22_ALT_STANDBY_FAILURE",1);ticks(2);
+    assert(get("F22_ALT_STANDBY_NATIVE_VALID")==0);
+    set("F22_AIRDATA_HEALTH_REQUEST",0);ticks(2);
+    assert(get("F22_ALTIMETER_NATIVE_VALID")==1 && get("F22_ALT_STANDBY_NATIVE_VALID")==0);
+    set("F22_ALT_STANDBY_FAILURE",0);ticks(2);
+
     // DCS's repeated trim binding delivers value zero as a valid command.
     // Event bursts alone must not move trim; elapsed simulation time does.
     setup(true);body(210);ticks(100);

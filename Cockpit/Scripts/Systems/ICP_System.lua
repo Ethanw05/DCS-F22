@@ -18,7 +18,10 @@ for c=11030,11034 do dev:listen_command(c)end
 local pages={[3001]='COM1',[3002]='COM2',[3003]='NAV',[3004]='STPT',[3005]='ALT',[3006]='HUD',[3007]='OTHR',
  [3015]='AP',[3033]='IFF',[3034]='DVR',
  [10041]='COM1',[10042]='COM2',[10043]='NAV',[10044]='STPT',[10045]='ALT',[10046]='HUD',[10047]='AP',[10053]='OTHR',[11401]='IFF',[11402]='DVR'}
-function post_initialize()put('ICP_OPACITY',get('MAIN_POWER')>.5 and 1 or 0)end
+function post_initialize()
+ held={};ui:cancel();ui.page='';ui.clock=0;ui:update(0)
+ put('ICP_OPACITY',get('MAIN_POWER')>.5 and 1 or 0)
+end
 function SetCommand(c,v)
  v=decode(v,devices.ICP_SYSTEM);if c==3014 and v<0 then v=-v end
  if v<=0 then held[c]=nil;return end

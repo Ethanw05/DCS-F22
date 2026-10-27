@@ -26,6 +26,11 @@ function M.new(get, fields)
         'EFM_PHYSICAL_STAMP', 'EFM_PHYSICAL_CLOCK_KIND', 'F22_AP_CLOCK' }) do get(key) end
     return self
 end
+local function coherent(get, owner, valid, generation, stamp, kind)
+    return owner == 1 and get('EFM_POWER_OWNER') == 1 and valid == 1
+        and get('EFM_PHYSICAL_VALID') == 1 and kind == 1 and get('EFM_PHYSICAL_CLOCK_KIND') == 1
+        and generation == get('EFM_PHYSICAL_GENERATION') and stamp == get('EFM_PHYSICAL_STAMP')
+end
 
 function M:update()
     local get = self.get
@@ -41,11 +46,7 @@ function M:update()
         self.values[key] = get(key)
     end
     local clock = get('F22_AP_CLOCK')
-    if owner ~= 1 or get('EFM_POWER_OWNER') ~= 1 or valid ~= 1
-        or get('EFM_PHYSICAL_VALID') ~= 1 or kind ~= 1 or get('EFM_PHYSICAL_CLOCK_KIND') ~= 1
-        or generation ~= get('EFM_PHYSICAL_GENERATION') or stamp ~= get('EFM_PHYSICAL_STAMP') then
-        return self
-    end
+    if not coherent(get, owner, valid, generation, stamp, kind) then return self end
     if not M.finite(generation) or generation < 1 or generation > 4294967295
         or generation % 1 ~= 0 or not M.fresh(stamp, clock) then return self end
     self.valid, self.generation, self.stamp, self.clock = true, generation, stamp, clock

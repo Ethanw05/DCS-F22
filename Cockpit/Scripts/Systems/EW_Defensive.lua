@@ -3,8 +3,10 @@ local M = {}
 local Threat = dofile(LockOn_Options.script_path .. "Systems/Tactical_Threat.lua")
 local Geolocation = dofile(LockOn_Options.script_path .. "Systems/EW_Geolocation.lua")
 local Proximity = dofile(LockOn_Options.script_path .. 'Systems/RWR_Proximity.lua')
+local Identity = dofile(LockOn_Options.script_path .. 'Systems/Identity_Inspection.lua')
 function M.new(put, label_code, sensors)
 	local s = { source = nil, step = 0, detail = false }
+    local identity = Identity.new(put, 'F22_DEFENSIVE_ID_')
 	function s:command(command)
 		if command == 10906 then
 			self.step = 1
@@ -71,8 +73,8 @@ function M.new(put, label_code, sensors)
 		put("F22_DEFENSIVE_SIGNAL", t and t.signal or 0)
 		put("F22_DEFENSIVE_AFFILIATION", t and t.affiliation or -1)
         put('F22_DEFENSIVE_IDENTITY_CONFLICT',t and t.identity_conflict and 1 or 0)
-        put('F22_DEFENSIVE_ID_RADAR_AGE',Threat.age(t and t.observations.radar,self.now))
-        put('F22_DEFENSIVE_ID_DONOR_AGE',Threat.age(t and t.observations.datalink,self.now))
+        put('F22_DEFENSIVE_FRIENDLY_PROTECTED', t and t.friendly_protected and 1 or 0)
+        identity:update(t, self.now)
 		put("F22_DEFENSIVE_RANGE_VALID", t and t.range and 1 or 0)
 		put("F22_DEFENSIVE_RANGE_NM", t and t.range and t.range / 1852 or 0)
 		local geo=t and Geolocation.relative(t.geolocation,self.now,Geolocation.position(sensors))

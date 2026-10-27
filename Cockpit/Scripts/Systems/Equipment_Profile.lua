@@ -14,6 +14,8 @@ local M = {
     afcs_analogue = 'DCS F/A-18C pilot relief; mod controller estimates',
     approach_reference_degrees = 12,
     approach_calibration = 'historical reference; production schedule and band limits unqualified',
+    gins_alignment = 'two declared references; estimated normal480/retained90/training30 seconds',
+    gins_mapping = 'shared host observations; independent failures and HUD/NAV/right-SFG selections; wiring estimated',
 }
 function M.supports(capability)
     return selected[capability] == true

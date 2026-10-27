@@ -3,6 +3,9 @@ local data=get_base_data()
 local mathhud=dofile(LockOn_Options.script_path.."Systems/HUD_FlightMath.lua")
 local layout=dofile(LockOn_Options.script_path.."HUD/layout.lua")
 local projection=dofile(LockOn_Options.script_path.."Systems/HUD_Projection.lua")
+local dev=GetSelf()
+local decode=dofile(LockOn_Options.script_path..'Systems/Input_Value.lua')
+dofile(LockOn_Options.script_path..'devices.lua')
 local dt=0.02
 make_default_activity(dt)
 local handles={}
@@ -19,6 +22,19 @@ local physical=envelope.new(read,{
     'EFM_GEAR_UNSAFE','EFM_AIRDATA_VALID','EFM_AIRDATA_STAMP','EFM_AIRDATA_CAS_MPS',
     'EFM_AIRDATA_TAS_MPS','EFM_AIRDATA_HEALTH',
 })
+local reference=dofile(LockOn_Options.script_path..'Systems/Gins_References.lua').reader(read,'HUD')
+local function reference_pose()
+    reference:update()
+    if reference.present then
+        if not reference.valid then return 0,0,0,false,false end
+        local v=reference.values
+        return v.PITCH or 0,v.ROLL or 0,v.HEADING or 0,
+            reference.valid and v.ATTITUDE_VALID==1,reference.valid and v.HEADING_VALID==1
+    end
+    local pitch,roll=data.getPitch(),data.getRoll()
+    local heading=(2*math.pi-data.getHeading())%(2*math.pi)
+    return pitch,roll,heading,mathhud.finite(pitch)and mathhud.finite(roll),mathhud.finite(heading)
+end
 local function flight(key)
     if not physical.owned then return read(key) end
     return physical.valid and physical.values[key] or nil
@@ -47,23 +63,78 @@ local previous_cas=nil
 local acceleration=0
 local diagnostic_frames=0
 local next_landing_log=0
+local caged=false
+local high_fast=false
+local approach_pressure=false
+dev:listen_command(11840)
+function SetCommand(command,value)
+    if command==11840 and decode(value,devices.HUD_FLIGHT_DATA)>0 and read('MAIN_POWER')==1 then
+        caged=not caged
+        put('HUD_FPM_CAGED',caged and 1 or 0)
+    end
+end
 function post_initialize()
+    caged=false;put('HUD_FPM_CAGED',0)
+    high_fast=false;approach_pressure=false
     peak_g=1; previous_cas=nil; acceleration=0
     put("HUD_FPM_VALID",0); put("HUD_AIRDATA_VALID",0)
     put("HUD_WIND_VALID",0); put("HUD_GS_VALID",0);put("HUD_ALT_VALID",0)
 end
+local function fpm(az,el)
+    if not az or not el then return end
+    put('HUD_FPM_COMPUTED_VALID',1)
+    put('HUD_FPM_TRUE_AZ',az);put('HUD_FPM_TRUE_EL',el)
+    local lateral=math.abs(az)<.20
+    local vertical=el>-.25 and el<.11
+    put('HUD_FPM_OFFGLASS',lateral and vertical and 0 or 1)
+    if caged and lateral and vertical then
+        local x,y=projection.planar(az,el)
+        put('HUD_FPM_GHOST_X',x);put('HUD_FPM_GHOST_Y',y);put('HUD_FPM_GHOST_VALID',1)
+    end
+    if caged then az=0 end
+    if vertical and (caged or lateral)then
+        put('HUD_FPM_X_RAD',az);put('HUD_FPM_Y_RAD',el)
+        local x,y=projection.planar(az,el)
+        put('HUD_FPM_X_SLOPE',x);put('HUD_FPM_Y_SLOPE',y);put('HUD_FPM_VALID',1)
+    end
+end
+local function altitude()
+    put('HUD_ALT_VALID',0)
+    local selected=read('F22_ALT_SELECTION')
+    local key,source='BARO','BARO'
+    if selected==1 then
+        if read('F22_ALT_RADAR_VALID')==1 then key,source='RADAR','RDR' else source='BARO FB'end
+    elseif selected==2 then key,source='STANDBY','STBY'end
+    put('HUD_ALT_SOURCE_TEXT',source)
+    local value=read('F22_ALT_'..key..'_FT')
+    if read('F22_ALT_'..key..'_VALID')==1 and mathhud.finite(value)then
+        put('HUD_ALT_FT',value);put('HUD_ALT_POINTER',-(value%1000)*2*math.pi/1000)
+        put('HUD_ALT_VALID',1)
+    end
+end
+local function pressure_confirmation()
+    local now=type(get_model_time)=='function'and get_model_time()or 0
+    local until_time=read('F22_ALT_CONFIRM_UNTIL')
+    local timed=mathhud.finite(until_time)and until_time>now and until_time-now<=5
+    put('HUD_QNH_VISIBLE',(timed or approach_pressure)and 1 or 0)
+end
+local function approach_pressure_context(cas)
+    if read('F22_ALT_BARO_VALID')~=1 then approach_pressure=false;return end
+    local baro=read('F22_ALT_BARO_FT')
+    if not mathhud.finite(baro)then approach_pressure=false;return end
+    if baro>=10000 and cas>=300 then high_fast=true;approach_pressure=false
+    elseif high_fast and baro<10000 and cas<300 then approach_pressure=true end
+end
 function update()
     physical:update()
     put('HUD_AIRDATA_DEGRADED',0)
-    put("HUD_ALT_VALID",0)
-    if read('F22_ALT_BARO_VALID')>.5 then
-        local altitude=read('F22_ALT_BARO_FT')
-        if mathhud.finite(altitude)then
-            put('HUD_ALT_POINTER',-(altitude%1000)*2*math.pi/1000);put('HUD_ALT_VALID',1)
-        end
-    end
-    local pitch,roll=data.getPitch(),data.getRoll()
-    local heading=(2*math.pi-data.getHeading())%(2*math.pi)
+    put('HUD_FPM_COMPUTED_VALID',0);put('HUD_FPM_OFFGLASS',0);put('HUD_FPM_GHOST_VALID',0)
+    altitude()
+    if read('F22_ALT_BARO_VALID')~=1 or flight('EFM_HUD_VALID')~=1 then approach_pressure=false end
+    pressure_confirmation()
+    local pitch,roll,heading,attitude_valid,heading_valid=reference_pose()
+    put('HUD_REFERENCE_ATTITUDE_VALID',attitude_valid and 1 or 0)
+    put('HUD_REFERENCE_HEADING_VALID',heading_valid and 1 or 0)
     -- The existing UFD/MFD ADIs use raw getRoll() with rotation gain +1.
     -- Keep the HUD in that same frame; negating roll mirrors the ladder.
     put("HUD_PITCH",pitch); put("HUD_ROLL",roll)
@@ -72,11 +143,11 @@ function update()
         local spread=halfwidth*math.abs(math.sin(roll))
         return center-spread>layout.ladder_y_min and center+spread<layout.ladder_y_max
     end
-    put("HUD_HORIZON_VISIBLE",inside(layout.boresight_y*layout.angular_scale-pitch*math.cos(roll),0.27*layout.angular_scale) and 1 or 0)
+    put("HUD_HORIZON_VISIBLE",attitude_valid and inside(layout.boresight_y*layout.angular_scale-pitch*math.cos(roll),0.27*layout.angular_scale) and 1 or 0)
     for step=-18,18 do
         if step~=0 then
             local center=layout.boresight_y*layout.angular_scale+(math.rad(step*5)-pitch)*math.cos(roll)
-            put("HUD_LADDER_"..step,inside(center,0.27*layout.angular_scale) and 1 or 0)
+            put("HUD_LADDER_"..step,attitude_valid and inside(center,0.27*layout.angular_scale) and 1 or 0)
         end
     end
     put("HUD_BANK_RAD",roll)
@@ -100,6 +171,9 @@ function update()
     local gear_down=get_aircraft_draw_argument_value(0)>0.95
     if physical.owned then
         local down,up,unsafe=flight('EFM_GEAR_DOWN_LOCKED'),flight('EFM_GEAR_UP_LOCKED'),flight('EFM_GEAR_UNSAFE')
+        local contact=flight('EFM_WEIGHT_ON_WHEELS')
+        own_contact=own_contact and envelope.boolean(contact)
+        gear=own_contact and contact or 1
         gear_down=down==1 and up==0 and unsafe==0 and own_contact
     end
     put("HUD_LANDING_CONFIG",gear_down and 1 or 0)
@@ -135,11 +209,7 @@ function update()
             "pitch_deg=%.3f roll_deg=%.3f heading_deg=%.3f aoa_deg=%.3f vn=%.3f ve=%.3f vu=%.3f fpm_az=%.6f fpm_el=%.6f",
             pitch*180/math.pi,roll*180/math.pi,heading*180/math.pi,aoa,n,e,u,az or 0,el or 0))
     end
-    if az and math.abs(az)<0.20 and el> -0.25 and el<0.11 then
-        put("HUD_FPM_X_RAD",az);put("HUD_FPM_Y_RAD",el)
-        local x,y=projection.planar(az,el)
-        put("HUD_FPM_X_SLOPE",x);put("HUD_FPM_Y_SLOPE",y);put("HUD_FPM_VALID",1)
-    end
+    if attitude_valid and heading_valid then fpm(az,el)end
     local cas,tas=sensed_speed()
     if cas then
         cas=cas*1.943844492
@@ -148,6 +218,7 @@ function update()
         put("HUD_IAS_POINTER",-(cas%100)*2*math.pi/100)
 
         put("HUD_AIRDATA_VALID",1)
+        approach_pressure_context(cas);pressure_confirmation()
         if previous_cas then
             local raw=(cas-previous_cas)/dt
             if math.abs(raw)<50 then acceleration=acceleration+(raw-acceleration)*(1-math.exp(-dt/0.5))
@@ -156,7 +227,10 @@ function update()
         previous_cas=cas
         put("HUD_ACCEL_UP",acceleration>0.5 and 1 or 0)
         put("HUD_ACCEL_DOWN",acceleration< -0.5 and 1 or 0)
-    else previous_cas=nil;put('HUD_ACCEL_UP',0);put('HUD_ACCEL_DOWN',0)end
+    else
+        previous_cas=nil;put('HUD_ACCEL_UP',0);put('HUD_ACCEL_DOWN',0)
+        approach_pressure=false;pressure_confirmation()
+    end
     local wn,we=flight('EFM_HUD_WN'),flight('EFM_HUD_WE')
     if not (mathhud.finite(wn) and mathhud.finite(we)) then return end
     local windspeed=math.sqrt(wn*wn+we*we)*1.943844492
@@ -166,5 +240,6 @@ function update()
     -- Numeric bearing is wind-from; arrow points with the wind's flow.
     put("HUD_WIND_ROT",heading-bearing+math.pi)
     put("HUD_WIND_VALID",windspeed>=1 and 1 or 0)
+    put('HUD_WIND_ARROW_VALID',heading_valid and windspeed>=1 and 1 or 0)
 end
 need_to_be_closed=false

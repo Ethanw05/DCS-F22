@@ -452,7 +452,7 @@ join(res.keyCommands,{
  {down=10714,up=10714,value_down=1,value_up=0,cockpit_device_id=16,name=_('Nosewheel Steering / Undesignate; Hold: Next Weapon Station'),category=_('F-22 HOTAS - Stick')},
  {down=10701,up=10701,value_down=1,value_up=0,cockpit_device_id=16,name=_('Target Management Right - Next Target; Hold: RWS / TWS; ACM: Wide Scan'),category=_('F-22 HOTAS - Stick')},
  {down=10727,up=10727,value_down=1,value_up=0,cockpit_device_id=16,name=_('Radar Range - Decrease'),category=_('F-22 HOTAS - Throttle')},
- {down=10723,up=10723,value_down=1,value_up=0,cockpit_device_id=16,name=_('AIM-9 Seeker - Cage / Uncage'),category=_('F-22 HOTAS - Throttle')},
+ {down=10723,up=10723,value_down=1,value_up=0,cockpit_device_id=16,name=_('Contextual Cage - NAV FPM / Weapon Seeker'),category=_('F-22 HOTAS - Throttle')},
  {combos={{key='1',reformers={'LCtrl','LShift'}}},down=10721,up=10721,value_down=1,value_up=0,cockpit_device_id=16,name=_('Master Mode - Navigation'),category=_('F-22 HOTAS - Throttle')},
  {down=10703,up=10703,value_down=1,value_up=0,cockpit_device_id=16,name=_('Target Management Left - IFF Interrogate; Hold: Interrogate Line of Sight'),category=_('F-22 HOTAS - Stick')},
  {down=10720,up=10720,value_down=1,value_up=0,cockpit_device_id=16,name=_('Weapon Select - Cycle Weapons (Optional)'),category=_('F-22 HOTAS - Throttle')},

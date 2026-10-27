@@ -24,3 +24,5 @@ Original WAV samples, gain and measured durations remain unchanged. Existing
 recording-length/replay/sticky-status tests pass. Additional tests cover unknown
 status without false delivery, confirmed restoration and lease expiry; actual
 native perceived mix and radio/intercom arbitration remain unqualified.
+
+ALTITUDE playback confirmation carries its original altitude occurrence ticket, independently of the next selected warning. Invalid/inferred playback cannot mark delivery. The selected repeating radar-low, minima and baro policies are described in NAV-WP09.

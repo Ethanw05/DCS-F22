@@ -63,3 +63,38 @@ local iff=dofile(SCRIPT_ROOT..'Systems/Radar_IFF.lua').new();iff:update(18,true)
 assert(iff:reply(0,18,0,0)==-1,'no reply became hostile')
 ''')
 print('Mission information: unknown/known sample epochs, donor SA isolation, conflict/protection, source evidence and responder recovery PASS')
+
+lua=ns['runtime']()
+lua.execute(r'''
+local now=100;function get_model_time()return now end
+local function p(n,v)get_param_handle(n):set(v)end
+local function g(n)return get_param_handle(n):get()end
+for name,value in pairs({MAIN_POWER=1,RADAR_PWR=0,F22_DATALINK_ENABLE=0,
+ EFM_POWER_OWNER=1,EFM_PHYSICAL_VALID=1,EFM_PHYSICAL_GENERATION=1,
+ EFM_PHYSICAL_STAMP=5,EFM_PHYSICAL_CLOCK_KIND=1,F22_AP_CLOCK=5,
+ F22_ELECTRICAL_VALID=1,EFM_MISSION_POWER_AVAILABLE=0})do p(name,value)end
+dofile(SCRIPT_ROOT..'Systems/RWR_System.lua');post_initialize();update()
+local function command(c)SetCommand(c,1);SetCommand(c,0)end
+command(11130);command(11132)
+assert(g('F22_IFF_RESPONDER_READY')==1 and g('F22_IFF_REPLY_SEQUENCE')==1
+ and g('F22_IFF_REPLY_TIME')==100 and g('F22_IFF_RESPONDER_HOST_READY')==0)
+-- No receiver update between a power/provider loss and the new input.
+p('EFM_PHYSICAL_VALID',0);command(11132)
+assert(g('F22_IFF_RESPONDER_READY')==0 and g('F22_IFF_REPLY_SEQUENCE')==1
+ and g('F22_IFF_RESPONDER_STATUS')==3,'stale READY acknowledged an invalid-frame interrogation')
+p('EFM_POWER_OWNER',0);command(11132);assert(g('F22_IFF_REPLY_SEQUENCE')==1)
+p('EFM_POWER_OWNER',1);p('EFM_PHYSICAL_VALID',1);now=101;update()
+assert(g('F22_IFF_RESPONDER_READY')==1 and g('F22_IFF_REPLY_RECENT')==0
+ and g('F22_IFF_REPLY_SEQUENCE')==1,'restoration replayed a rejected interrogation')
+command(11132);assert(g('F22_IFF_REPLY_SEQUENCE')==2 and g('F22_IFF_REPLY_TIME')==101)
+p('MAIN_POWER',0);update();assert(g('F22_IFF_RESPONDER_STATUS')==2)
+p('MAIN_POWER',1);update();command(11131);assert(g('F22_IFF_RESPONDER_EMERGENCY')==1)
+p('EFM_PHYSICAL_GENERATION',2);update()
+assert(g('F22_IFF_REPLY_RECENT')==0 and g('F22_IFF_RESPONDER_EMERGENCY')==0)
+now=0/0;command(11132)
+assert(g('F22_IFF_REPLY_SEQUENCE')==2 and g('F22_IFF_RESPONDER_STATUS')==4,
+ 'invalid input clock fell back to zero and acknowledged a reply')
+now=102;update();assert(g('F22_IFF_REPLY_SEQUENCE')==2)
+''')
+print('Simulated responder owner: current input-time supply/clock, no stale READY or fallback, '
+      'no replay, independent low-load power and physical generation reset PASS')

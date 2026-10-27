@@ -171,13 +171,14 @@ ADIUP.init_rot 			    = {0, 0, 0}
 --ADIUP.indices 			= {0, 1, 2, 2, 3, 0}
 ADIUP.level 				= 11
 ADIUP.h_clip_relation     = h_clip_relations.COMPARE
-ADIUP.element_params 	  = {page_parameter,"ADIROLL","ADIPITCH","MFD_OPACITY"} --HOPE THIS WORKS G_OP_BACK
+ADIUP.element_params 	  = {page_parameter,"ADIROLL","ADIPITCH","MFD_OPACITY",'F22_PRIMARY_ATTITUDE_VALID',} --HOPE THIS WORKS G_OP_BACK
 ADIUP.controllers		  = {
                             {"parameter_in_range",0,0.9,1.1},
                             {"rotate_using_parameter",1,1,0},
                             {"move_up_down_using_parameter",2,-0.182,0},--needs to be checked with a ladder scale
                             {"opacity_using_parameter",3},
-                          }
+ {'parameter_in_range',4,.9,1.1},
+}
 vertices(ADIUP,11)
 
 Add(ADIUP)
@@ -192,13 +193,14 @@ ADIDN.init_pos 			    = {0, 0.12, 0} --maybe its x,y,z z being depth.. again who
 ADIDN.init_rot 			    = {180, 0, 0}
 ADIDN.level 				= 11
 ADIDN.h_clip_relation       = h_clip_relations.COMPARE
-ADIDN.element_params 	  = {page_parameter,"ADIROLL","ADIPITCH","MFD_OPACITY"} --HOPE THIS WORKS G_OP_BACK
+ADIDN.element_params 	  = {page_parameter,"ADIROLL","ADIPITCH","MFD_OPACITY",'F22_PRIMARY_ATTITUDE_VALID',} --HOPE THIS WORKS G_OP_BACK
 ADIDN.controllers		  = {
                             {"parameter_in_range",0,0.9,1.1},
                             {"rotate_using_parameter",1,1,0},
                             {"move_up_down_using_parameter",2,0.182,0},--needs to be checked with a ladder scale
                             {"opacity_using_parameter",3},
-                          }
+ {'parameter_in_range',4,.9,1.1},
+}
 vertices(ADIDN,11)
 Add(ADIDN)
 -- ----------------
@@ -213,13 +215,14 @@ ADILINEM.init_pos 			    = {0, 0.12, 0} --maybe its x,y,z z being depth.. again 
 ADILINEM.init_rot 			    = {0, 0, 0}
 ADILINEM.level 				    = 11
 ADILINEM.h_clip_relation         = h_clip_relations.COMPARE
-ADILINEM.element_params 	        = {page_parameter,"ADIROLL","ADIPITCH",} --HOPE THIS WORKS G_OP_BACK
+ADILINEM.element_params 	        = {page_parameter,"ADIROLL","ADIPITCH",'F22_PRIMARY_ATTITUDE_VALID',} --HOPE THIS WORKS G_OP_BACK
 ADILINEM.controllers		                = {
                                             {"parameter_in_range",0,0.9,1.1},
                                             {"rotate_using_parameter",1,1,0},
                                             {"move_up_down_using_parameter",2,-0.182,0},--needs to be checked with a ladder scale
                                             --{"opacity_using_parameter",3},
-                                        }
+ {'parameter_in_range',3,.9,1.1},
+}
 vertices(ADILINEM,1.5)
 Add(ADILINEM)
 ----------------
@@ -233,13 +236,14 @@ ADILINE.init_pos 			    = {0, 0.12, 0} --maybe its x,y,z z being depth.. again w
 ADILINE.init_rot 			    = {0, 0, 0}
 ADILINE.level 				    = 11
 ADILINE.h_clip_relation         = h_clip_relations.COMPARE
-ADILINE.element_params 	        = {page_parameter,"ADIROLL","ADIPITCH","MFD_OPACITY",} --HOPE THIS WORKS G_OP_BACK
+ADILINE.element_params 	        = {page_parameter,"ADIROLL","ADIPITCH","MFD_OPACITY",'F22_PRIMARY_ATTITUDE_VALID',} --HOPE THIS WORKS G_OP_BACK
 ADILINE.controllers		                = {
                                             {"parameter_in_range",0,0.9,1.1},
                                             {"rotate_using_parameter",1,1,0},
                                             {"move_up_down_using_parameter",2,-0.182,0},--needs to be checked with a ladder scale
                                             {"opacity_using_parameter",3},
-                                        }
+ {'parameter_in_range',4,.9,1.1},
+}
 vertices(ADILINE,1.5)
 Add(ADILINE)
 ---------------------------------------------
@@ -253,13 +257,14 @@ ADILADDERTOP.init_pos 			    = {0, 0.12, 0} --maybe its x,y,z z being depth.. ag
 ADILADDERTOP.init_rot 			    = {0, 0, 0}
 ADILADDERTOP.level 				    = 11
 ADILADDERTOP.h_clip_relation       = h_clip_relations.COMPARE
-ADILADDERTOP.element_params 	  = {page_parameter,"ADIROLL","ADIPITCH","MFD_OPACITY"} --HOPE THIS WORKS G_OP_BACK
+ADILADDERTOP.element_params 	  = {page_parameter,"ADIROLL","ADIPITCH","MFD_OPACITY",'F22_PRIMARY_ATTITUDE_VALID',} --HOPE THIS WORKS G_OP_BACK
 ADILADDERTOP.controllers		  = {
                                         {"parameter_in_range",0,0.9,1.1},
                                         {"rotate_using_parameter",1,1,0},
                                         {"move_up_down_using_parameter",2,-0.182,0},--needs to be checked with a ladder scale
                                         {"opacity_using_parameter",3},
-                                    }
+ {'parameter_in_range',4,.9,1.1},
+}
 vertices(ADILADDERTOP,11.1)
 Add(ADILADDERTOP)
 -- ----------------
@@ -273,13 +278,14 @@ ADILADDERBOT.init_pos 			    = {0, 0.12, 0} --maybe its x,y,z z being depth.. ag
 ADILADDERBOT.init_rot 			    = {0, 0, 0}
 ADILADDERBOT.level 				    = 11
 ADILADDERBOT.h_clip_relation       = h_clip_relations.COMPARE
-ADILADDERBOT.element_params 	  = {page_parameter,"ADIROLL","ADIPITCH","MFD_OPACITY"} --HOPE THIS WORKS G_OP_BACK
+ADILADDERBOT.element_params 	  = {page_parameter,"ADIROLL","ADIPITCH","MFD_OPACITY",'F22_PRIMARY_ATTITUDE_VALID',} --HOPE THIS WORKS G_OP_BACK
 ADILADDERBOT.controllers		  = {
                             {"parameter_in_range",0,0.9,1.1},
                             {"rotate_using_parameter",1,1,0},
                             {"move_up_down_using_parameter",2,-0.182,0},--needs to be checked with a ladder scale
                             {"opacity_using_parameter",3},
-                          }
+ {'parameter_in_range',4,.9,1.1},
+}
 vertices(ADILADDERBOT,11.1)
 Add(ADILADDERBOT)
 -- -- ----------------
@@ -541,5 +547,19 @@ Add(NAV)
 
 -----------------------------------
 --MENU TEXT
+
+local unavailable=CreateElement 'ceStringSLine'
+unavailable.name=page_parameter..'_ATTITUDE_UNAVAILABLE'
+unavailable.material='F22_LCD_FONT_WHITE'
+unavailable.init_pos={0,0,0}
+unavailable.alignment='CenterCenter'
+unavailable.stringdefs={.008,.0048,0,0}
+unavailable.value='ATT DATA'
+unavailable.h_clip_relation=h_clip_relations.COMPARE
+unavailable.level=11
+unavailable.element_params={'MFD_OPACITY',page_parameter,'F22_PRIMARY_ATTITUDE_VALID'}
+unavailable.controllers={{'opacity_using_parameter',0},{'parameter_in_range',1,.9,1.1},
+ {'parameter_in_range',2,-.1,.1}}
+Add(unavailable)
 
 end

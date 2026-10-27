@@ -173,7 +173,7 @@ function M.new(emit)
 			self.dogfight = false
 			self:set_mode(({ gun = 5, srm = 3, mrm = 2 })[n])
 		elseif n == "cage" then
-			emit("cage")
+			emit(self.mode == 1 and "nav_cage" or "cage")
 		elseif n == "arm" then
 			emit("arm")
 		elseif n == "radar_power" then

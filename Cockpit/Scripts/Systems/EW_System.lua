@@ -4,31 +4,46 @@ dofile(LockOn_Options.script_path .. 'devices.lua')
 local decode = dofile(LockOn_Options.script_path .. 'Systems/Input_Value.lua')
 local library = dofile(LockOn_Options.script_path .. 'Systems/EW_Programs.lua')
 local dispenser = dofile(LockOn_Options.script_path .. 'Systems/EW_Dispenser.lua')
-local power = get_param_handle('MAIN_POWER')
 local dispenser_methods = {'drop_flare','drop_chaff','get_flare_count','get_chaff_count'}
 local handles, held = {}, {}
 local programs = library.new()
 local runner = dispenser.new(programs)
 local requested, applied, set_failed = false, nil, false
 local clock, next_retry, test_until = 0, 0, nil
+local clock_valid = true
+local update_clock
 local system, ready = 2, false -- OFF/STBY/ON; hot-start ON.
+local inventory_valid = false
+local status_outputs = {'F22_EW_BACKEND_READY', 'F22_CM_INVENTORY_VALID', 'F22_CHAFF_COUNT',
+    'F22_FLARE_COUNT', 'CHAFF_LIGHT', 'FLARE_LIGHT', 'F22_CM_LOW', 'F22_CM_FAILURE', 'ECM_ARG',
+    'F22_ECM_REQUESTED', 'F22_ECM_ACTIVE', 'F22_ECM_HOST_VALID', 'F22_ECM_TRANSMITTING_VALID',
+    'F22_ECM_TRANSMITTING', 'F22_ECM_FAILED', 'F22_ECM_PENDING', 'F22_ECM_CONTROL_READY'}
+local function read(name)
+    if not handles[name] then handles[name] = get_param_handle(name) end
+    return handles[name]:get()
+end
 local function publish(name, value)
     if not handles[name] then handles[name] = get_param_handle(name) end
     handles[name]:set(value)
 end
+local supply = dofile(LockOn_Options.script_path..'Systems/EW_Power.lua').new(read)
 local function native()
     local ok, device = pcall(GetDevice, devices.WEAPON_NATIVE)
     if not ok or not device then return nil end
-    for _, method in ipairs(dispenser_methods) do
-        if type(device[method]) ~= 'function' then return nil end
-    end
     return device
+end
+local function cm_backend(device)
+    if not device then return false end
+    for _, method in ipairs(dispenser_methods) do
+        if type(device[method]) ~= 'function' then return false end
+    end
+    return true
 end
 local function quantity(value)
     return type(value) == 'number' and value >= 0 and value < 1e6 and value % 1 == 0
 end
 local function inventory(device)
-    if not device then return false, 0, 0 end
+    if not cm_backend(device) then return false, 0, 0 end
     local chaff_ok, chaff = pcall(device.get_chaff_count, device)
     local flare_ok, flare = pcall(device.get_flare_count, device)
     if not chaff_ok or not flare_ok or not quantity(chaff) or not quantity(flare) then return false, 0, 0 end
@@ -40,8 +55,28 @@ local function publish_control()
     publish('F22_CM_SYSTEM', system)
     publish('F22_CM_READY', ready and 1 or 0)
     publish('F22_CM_SELF_TEST', test_until and 1 or 0)
+    publish('F22_CM_CLOCK_VALID', clock_valid and 1 or 0)
     publish('F22_CM_AUTO_AVAILABLE', ready and 1 or 0)
     publish('F22_CM_BYPASS_INDEPENDENT', 0) -- Direct singles share MAIN_POWER.
+    publish('F22_EW_SUPPLY_OWNER', supply.snapshot.owned and 1 or 0)
+    publish('F22_EW_SUPPLY_VALID', supply.valid and 1 or 0)
+    publish('F22_EW_ELECTRICAL_AVAILABLE', supply.electrical and 1 or 0)
+    publish('F22_ECM_POWER_AVAILABLE', supply.mission and 1 or 0)
+end
+local function refresh_supply()
+    local generation = supply.snapshot.generation
+    supply:update()
+    if supply.snapshot.owned and supply.snapshot.valid and generation ~= supply.snapshot.generation then
+        if runner.active or runner.awaiting or runner.consent then runner:revoke() end
+        requested, applied, set_failed = false, nil, false
+        inventory_valid, test_until, next_retry = false, nil, 0
+    end
+    if not supply.electrical then
+        runner:revoke(dispenser.status.power)
+        test_until = nil
+    end
+    if not supply.mission then requested = false end
+    ready = supply.electrical and clock_valid and system == 2 and inventory_valid and not test_until
 end
 function post_initialize()
     requested, applied, set_failed = false, nil, false
@@ -50,7 +85,10 @@ function post_initialize()
     system, ready = cold and 0 or 2, false
     programs = library.new()
     runner = dispenser.new(programs)
-    for _, handle in pairs(handles) do handle:set(0) end
+    inventory_valid = false
+    update_clock(false)
+    refresh_supply()
+    for _, name in ipairs(status_outputs) do publish(name, 0) end
     publish_control()
 end
 local function cm_command(command)
@@ -64,7 +102,8 @@ local function cm_command(command)
         ready = false
         runner:revoke()
     elseif command == 11109 then
-        runner:revoke(); ready = false; test_until = clock + 1 -- Game test estimate, seconds.
+        runner:revoke(); ready = false
+        if clock_valid then test_until = clock + 1 end -- Game test estimate, seconds.
     elseif command == 11110 then runner:event(ready) -- Neutral scripted event only.
     elseif command == 11111 then runner:authorize(ready)
     elseif command == 11112 then runner:revoke()
@@ -88,6 +127,8 @@ local function single(command)
     end
 end
 function SetCommand(command, value)
+    update_clock(false)
+    refresh_supply()
     if command >= 10910 and command <= 10914 or command >= 11100 and command <= 11113
         or command >= 10840 and command <= 10842 then
         local down = decode(value, devices.EW_SYSTEM) > 0.5
@@ -96,20 +137,26 @@ function SetCommand(command, value)
         if not down or previous then return end
     elseif command ~= 357 and command ~= 358 and command ~= 136 then return
     elseif value ~= nil and value <= 0 then return end
-    if power:get() <= 0.5 then return end
+    if not supply.electrical then publish_control(); return end
     if command >= 10910 and command <= 10914 then
         programs:command(command); publish_control()
     elseif command >= 11100 and command <= 11113 then cm_command(command)
-    elseif command == 10842 or command == 136 then requested = not requested
+    elseif command == 10842 or command == 136 then
+        if supply.mission then requested = not requested end
     else single((command == 357 or command == 10840) and 0 or 1) end
     publish_control()
 end
-local function update_clock()
+update_clock = function(advance)
     local previous = clock
     if type(get_model_time) == 'function' then
         local ok, now = pcall(get_model_time)
-        if ok and type(now) == 'number' and now >= 0 and now < 1e9 then clock = now end
-    else clock = clock + 0.05 end
+        clock_valid = ok and type(now) == 'number' and now >= 0 and now < 1e9
+        if clock_valid then clock = now end
+    else
+        clock_valid = true
+        if advance then clock = clock + 0.05 end
+    end
+    if not clock_valid then runner:revoke(dispenser.status.fault); test_until = nil end
     if clock < previous then
         requested, applied, set_failed = false, nil, false
         next_retry, test_until = 0, nil
@@ -117,10 +164,11 @@ local function update_clock()
     end
 end
 local function update_cm(device, valid, chaff, flare)
-    local powered = power:get() > 0.5
+    local powered = supply.electrical
+    inventory_valid = valid
     if not powered or not valid then test_until = nil end
     if test_until and clock >= test_until then test_until = nil end
-    ready = powered and system == 2 and valid and not test_until
+    ready = powered and clock_valid and system == 2 and valid and not test_until
     runner:update(device, chaff, flare, clock, ready, powered)
     publish('F22_EW_BACKEND_READY', valid and 1 or 0)
     publish('F22_CM_INVENTORY_VALID', valid and 1 or 0)
@@ -129,7 +177,7 @@ local function update_cm(device, valid, chaff, flare)
     publish('CHAFF_LIGHT', valid and powered and chaff == 0 and 1 or 0)
     publish('FLARE_LIGHT', valid and powered and flare == 0 and 1 or 0)
     publish('F22_CM_LOW', valid and (chaff <= 10 or flare <= 10) and 1 or 0)
-    publish('F22_CM_FAILURE', powered and system == 2 and not valid and 1 or 0)
+    publish('F22_CM_FAILURE', powered and system == 2 and (not valid or not clock_valid) and 1 or 0)
     publish_control()
 end
 local function ecm_read(device)
@@ -139,7 +187,7 @@ local function ecm_read(device)
     return ok and type(value) == 'boolean', value
 end
 local function update_ecm(device)
-    if power:get() <= 0.5 then requested = false end
+    if not supply.mission then requested = false end
     local valid, actual = ecm_read(device)
     local control = device and type(device.set_ECM_status) == 'function'
     if valid and control and (applied ~= requested or actual ~= requested and clock >= next_retry) then
@@ -156,20 +204,18 @@ local function update_ecm(device)
     publish('F22_ECM_TRANSMITTING', 0)
     publish('F22_ECM_FAILED', set_failed and 1 or 0)
     publish('F22_ECM_PENDING', (not valid and requested or valid and actual ~= requested) and 1 or 0)
-    publish('F22_ECM_CONTROL_READY', valid and control and not set_failed and 1 or 0)
+    publish('F22_ECM_CONTROL_READY', supply.mission and valid and control and not set_failed and 1 or 0)
     publish('ECM_ARG', valid and actual and 1 or 0)
 end
 function update()
-    update_clock()
+    update_clock(true)
+    refresh_supply()
     local device = native()
     local valid, chaff, flare = inventory(device)
     update_cm(device, valid, chaff, flare)
     update_ecm(device)
 end
-for _, name in ipairs({'F22_EW_BACKEND_READY','F22_CM_INVENTORY_VALID','F22_CHAFF_COUNT',
-    'F22_FLARE_COUNT','CHAFF_LIGHT','FLARE_LIGHT','F22_CM_LOW','F22_CM_FAILURE','ECM_ARG',
-    'F22_ECM_REQUESTED','F22_ECM_ACTIVE','F22_ECM_HOST_VALID','F22_ECM_TRANSMITTING_VALID',
-    'F22_ECM_TRANSMITTING','F22_ECM_FAILED','F22_ECM_PENDING','F22_ECM_CONTROL_READY'}) do
+for _, name in ipairs(status_outputs) do
     publish(name, 0)
 end
 publish_control() -- Producer handles must exist before native indicator binding.
