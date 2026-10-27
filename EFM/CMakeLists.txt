@@ -125,3 +125,26 @@ if(BUILD_TESTING)
     endif()
     add_test(NAME navigation_snapshot COMMAND f22_navigation_snapshot_test)
 endif()
+
+# Flight models use the declared MSVC/C++23 ABI. Strong warnings on the DLL
+# retain a recorded legacy baseline; new standalone owner code is warning-clean.
+if(MSVC)
+    target_compile_options(f22 PRIVATE /W4)
+    set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/source/RAPTOR.cpp"
+        PROPERTIES COMPILE_OPTIONS /analyze)
+endif()
+if(BUILD_TESTING)
+    add_executable(f22_vehicle_contract_test "${CMAKE_SOURCE_DIR}/tests/test_vehicle_contract.cpp")
+    if(MSVC)
+        target_compile_options(f22_vehicle_contract_test PRIVATE /W4 /WX /analyze /UNDEBUG)
+    endif()
+    add_test(NAME vehicle_physical_contract COMMAND f22_vehicle_contract_test)
+    add_executable(f22_vehicle_overhaul_test "${CMAKE_SOURCE_DIR}/tests/test_vehicle_overhaul.cpp")
+    target_compile_definitions(f22_vehicle_overhaul_test PRIVATE NOMINMAX _USE_MATH_DEFINES)
+    if(MSVC)
+        target_compile_options(f22_vehicle_overhaul_test PRIVATE /W4 /UNDEBUG)
+    endif()
+    add_dependencies(f22_vehicle_overhaul_test f22_vehicle_mock_cockpit f22)
+    add_test(NAME vehicle_overhaul_callbacks COMMAND f22_vehicle_overhaul_test
+        "$<TARGET_FILE:f22_vehicle_mock_cockpit>" "$<TARGET_FILE:f22>")
+endif()

@@ -46,6 +46,7 @@ local R_THROTTLE_POS 	= get_param_handle ("R_THROTTLE_POS")
 local APU_READY			= get_param_handle("APU_READY")
 local ufd_swap_adi 		= 0
 local PARK			    = get_param_handle("PARK")
+local parking_request = get_param_handle("F22_PARK_REQUEST")
 local IAS				= get_param_handle("IAS")
 local PowerOnOff      	= Keys.PowerOnOff
 local EnginesStart 		= Keys.EnginesStart
@@ -71,6 +72,7 @@ dev:listen_command(2006)
 dev:listen_event("GroundPowerOn")
 dev:listen_event("GroundPowerOff")
 
+local physical_power = dofile(LockOn_Options.script_path.."Systems/Vehicle_Power_Adapter.lua").new()
 local electrical = dofile(LockOn_Options.script_path.."Systems/Electrical_Computer.lua").new()
 local battery_fault = get_param_handle("BATTERY_FAILURE")
 local left_gen_fault = get_param_handle("L_GEN_FAILURE")
@@ -276,12 +278,11 @@ end
 		--print_message_to_user("Brakes OFF")
 	end
 --Parking Brakes
-		if (command == PARK_BRAKE or command == 10019 or command == 10020) and park_state == 0 then
-		    park_state = 1
-		elseif (command == PARK_BRAKE or command == 10019 or command == 10020) and park_state == 1 then
-		    park_state = 0
-		    --dispatch_action(nil,75)
-		end
+        if command == PARK_BRAKE or command == 10019 then
+            park_state = value >= 0.5 and 1 or 0
+        elseif command == 10020 then
+            park_state = 1 - park_state
+        end
 	local apu_switch_pos = get_cockpit_draw_argument_value(701)
 --Disable Engines Start Keyboard Command on Ground	
 		if command == EnginesStart and apu_pwr == 0 and sensor_data.getWOW_NoseLandingGear() == 1 and sensor_data.getEngineLeftRPM() < 3 and sensor_data.getEngineRightRPM() < 3 then
@@ -509,14 +510,26 @@ function update()
     dispatch_action(nil, 10541, right_brake)
 
 	--Param
-	APU_POWER		:set(apu_pwr)
-	APU_RPM_STATE	:set(apu_rpm)
+    local efm_owned = physical_power:update(battery_state, L_gen_state, R_gen_state, apu_state)
+    if efm_owned then
+        apu_pwr, apu_rpm = physical_power.apu_power, physical_power.apu_rpm
+        L_gen_pwr, R_gen_pwr = physical_power.left_generator, physical_power.right_generator
+        main_pwr = physical_power.main
+        if physical_power.auto_shutdown then
+            apu_state = 0
+            dev:performClickableAction(apu_switch, -1, false)
+        end
+    else
+        APU_POWER:set(apu_pwr)
+        APU_RPM_STATE:set(apu_rpm)
+    end
 	-- Battery availability is published after the reserve model below.
 	-- MAIN_POWER is published after the generator supply model below.
 	UFD_ADI			:set(ufd_swap_adi)
 	-- Generator power is measured availability, not switch position.
 	-- Supply is published after RPM-dependent state update.
 	PARK		    :set(park_state)
+    parking_request:set(park_state)
 	B_TOE			:set(B_axis_value)
 	L_TOE			:set(L_axis_value)
 	R_TOE			:set(R_axis_value)
@@ -539,6 +552,7 @@ function update()
 	end
     -- APU start/run/stop is a bounded timed state, not an update-count rate.
     -- 0.01 per 0.024s preserves the earlier nominal ramp speed.
+    if not efm_owned then
     local apu_rate = 0.01 / 0.024
     local apu_can_start = electrical:available(battery_state == 1, battery_fault:get() > .5) and apu_state == 1
         and apu_fault:get() < .5
@@ -590,6 +604,11 @@ function update()
     dc_volts:set(electrical.volts)
     essential_power:set(electrical.essential)
     electrical_valid:set(1)
+    end
+    if efm_owned and apu_played and apu_rpm <= 0.01 then
+        SOUND_APU:set(0)
+        apu_played = false
+    end
 	--Update Connectors On moving Throttles	
 	local L_THROTTLE = get_cockpit_draw_argument_value(768)
 	if prev_L_throttle_val ~= L_THROTTLE then
@@ -657,8 +676,8 @@ function update()
     local apu_autooff_qualified = apu_state == 1 and apu_switch_pos == 0
         and sensor_data.getEngineLeftRPM() >= 67
         and sensor_data.getEngineRightRPM() >= 67
-        and (L_gen_pwr == 1 or R_gen_pwr == 1)
-    if apu_autooff_qualified then
+        and L_gen_pwr == 1 and R_gen_pwr == 1
+    if not efm_owned and apu_autooff_qualified then
         apu_autooff_timer = apu_autooff_timer + dt
     else
         apu_autooff_timer = 0

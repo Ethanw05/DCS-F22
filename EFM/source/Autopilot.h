@@ -3,6 +3,7 @@
 #pragma once
 #include <algorithm>
 #include <cmath>
+#include "AirData.h"
 namespace RaptorAP {
 constexpr double pi = 3.14159265358979323846, rad = pi / 180.;
 inline double wrap(double a) { return std::remainder(a, 2 * pi); }
@@ -10,24 +11,9 @@ inline double clamp(double x, double lo, double hi) {
   return std::clamp(x, lo, hi);
 }
 // Calibrated airspeed from the same perfect-gas pitot relation used by the HUD.
-inline double pitot(double m) {
-  return m <= 1 ? std::pow(1 + .2 * m * m, 3.5)
-                : std::pow(1.2 * m * m, 3.5) *
-                      std::pow(2.4 / (2.8 * m * m - .4), 2.5);
-}
+inline double pitot(double mach) { return RaptorAirData::pitot_ratio(mach); }
 inline double cas(double tas, double sound, double pressure) {
-  if (!std::isfinite(tas) || !std::isfinite(sound) ||
-      !std::isfinite(pressure) || tas < 0 || sound < 100 || pressure <= 0)
-    return NAN;
-  double impact = pressure * (pitot(tas / sound) - 1), lo = 0, hi = 10;
-  for (int i = 0; i < 45; ++i) {
-    double m = (lo + hi) * .5;
-    if (101325 * (pitot(m) - 1) < impact)
-      lo = m;
-    else
-      hi = m;
-  }
-  return (lo + hi) * .5 * 340.293988;
+  return RaptorAirData::calibrated_speed(tas, sound, pressure);
 }
 enum Roll { Manual = 0, Attitude = 1, Heading = 2, Navigation = 3 };
 enum Pitch {

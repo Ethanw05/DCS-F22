@@ -18,6 +18,14 @@ constexpr double external_tank_capacity_kg = 605.0 * 3.785 * 0.81482;
 inline double finite(double x, double fallback = 0.0) {
     return std::isfinite(x) ? x : fallback;
 }
+// Computational input bounds, not aircraft operating limitations.
+inline bool within(double value, double lower, double upper) {
+    return std::isfinite(value) && value >= lower && value <= upper;
+}
+inline bool bounded_three(double first, double second, double third, double magnitude) {
+    return within(first, -magnitude, magnitude) && within(second, -magnitude, magnitude) &&
+        within(third, -magnitude, magnitude);
+}
 inline double unit(double x) { return std::clamp(finite(x), 0.0, 1.0); }
 inline double slew(double current, double target, double rate, double dt) {
     const double step = std::max(0.0, finite(rate)) * std::max(0.0, finite(dt));
@@ -81,9 +89,16 @@ struct Engine {
 
 struct Hydraulics {
     double left_psi = 0, right_psi = 0, brake_reserve = 0;
+    double left_capacity = 1.0, right_capacity = 1.0;
+    double left_load = 0.0, right_load = 0.0;
+    double previous_brake_demand = 0.0;
+    double left_inventory = 1.0, right_inventory = 1.0;
+    bool apu_source = false;
     void reset(bool hot) {
         left_psi = right_psi = hot ? hydraulic_nominal_psi : 0;
         brake_reserve = hot ? 1 : 0;
+        previous_brake_demand = 0.0;
+        left_inventory = right_inventory = 1.0;
     }
     static double advance(double pressure, double spool, double health, bool failed, double dt) {
         // Engine-driven pumps build from 20 to 60% core speed. Failure dumps
@@ -96,16 +111,35 @@ struct Hydraulics {
     void update(double left_spool, double right_spool, double left_health,
                 double right_health, bool left_failed, bool right_failed,
                 double brake_demand, double speed_mps, double dt) {
-        left_psi = advance(left_psi, left_spool, left_health, left_failed, dt);
-        right_psi = advance(right_psi, right_spool, right_health, right_failed, dt);
+        const double left_source = std::max(unit((left_spool - .2) / .4) * left_capacity * unit(left_health),
+                                            apu_source ? 0.65 : 0.0);
+        const double right_source = std::max(unit((right_spool - .2) / .4) * right_capacity * unit(right_health),
+                                             apu_source ? 0.65 : 0.0);
+        // Circuit failure represents the existing dump/leak abstraction, while
+        // individual pump failures do not consume fluid. Rates are estimates.
+        if (left_failed) left_inventory = std::max(0.0, left_inventory - 0.01 * dt);
+        if (right_failed) right_inventory = std::max(0.0, right_inventory - 0.01 * dt);
+        left_psi = advance_loaded(left_psi, left_inventory > 0.1 ? left_source : 0.0, left_load, left_failed, dt);
+        right_psi = advance_loaded(right_psi, right_inventory > 0.1 ? right_source : 0.0, right_load, right_failed, dt);
         const double supply = shared();
         if (supply > brake_reserve) brake_reserve = slew(brake_reserve, supply, .4, dt);
         else {
             // Stored pressure supports a finite number of braking applications;
             // holding the parking brake at rest does not consume the reserve.
-            const double demand = unit(brake_demand) * unit(speed_mps / 3.0);
-            brake_reserve = std::max(0.0, brake_reserve - (.0005 + .05 * demand) * std::max(0.0, dt));
+            // Fluid use follows applications; rolling energy belongs to the
+            // wheel/thermal owner. A held parking brake is not a heater/pump.
+            const double application = std::max(0.0, unit(brake_demand) - previous_brake_demand);
+            brake_reserve = std::max(0.0, brake_reserve - 0.05 * application - 0.0005 * dt);
         }
+        previous_brake_demand = unit(brake_demand);
+        static_cast<void>(speed_mps); // retained source-compatible legacy signature
+    }
+    static double advance_loaded(double pressure, double capacity, double load, bool failed, double dt) {
+        if (failed) return slew(pressure, 0.0, 2500.0, dt);
+        const double target = capacity > 0.01 ?
+            std::max(0.0, hydraulic_nominal_psi - 350.0 * unit(load) / capacity) : 0.0;
+        const double rate = target > pressure ? 2200.0 * capacity : 500.0;
+        return slew(pressure, target, rate, dt);
     }
     double left() const { return unit((left_psi - 500) / (hydraulic_nominal_psi - 500)); }
     double right() const { return unit((right_psi - 500) / (hydraulic_nominal_psi - 500)); }

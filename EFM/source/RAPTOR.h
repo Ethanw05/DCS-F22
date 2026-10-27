@@ -1,4 +1,4 @@
-﻿/*    Grinnelli Designs F-22A Raptor
+/*    Grinnelli Designs F-22A Raptor
     Copyright (C) 2025, Branden Hooper
 
     This program is free software: you can redistribute it and/or modify
@@ -92,13 +92,13 @@ namespace RAPTOR {
     double idle_rpm = 0.675;
     double const empty_mass = 19700;
 
-    Vec3 left_wing_pos(center_of_mass.x - 0.8, center_of_mass.y + 0.5, -wingspan / 2);
-    Vec3 right_wing_pos(center_of_mass.x - 0.8, center_of_mass.y + 0.5, wingspan / 2);
-    Vec3 tail_pos(center_of_mass.x - 0.9, center_of_mass.y, 0);
-    Vec3 left_elevon_pos(-length / 2, center_of_mass.y, -wingspan * 0.25);
-    Vec3 right_elevon_pos(-length / 2, center_of_mass.y, wingspan * 0.25);
-    Vec3 left_aileron_pos(center_of_mass.x, center_of_mass.y, -wingspan * 0.5);
-    Vec3 right_aileron_pos(center_of_mass.x, center_of_mass.y, wingspan * 0.5);
+    Vec3 left_wing_pos(-0.8, 0.5, -wingspan / 2);
+    Vec3 right_wing_pos(-0.8, 0.5, wingspan / 2);
+    Vec3 tail_pos(-0.9, 0.0, 0);
+    Vec3 left_elevon_pos(-length / 2, 0.0, -wingspan * 0.25);
+    Vec3 right_elevon_pos(-length / 2, 0.0, wingspan * 0.25);
+    Vec3 left_aileron_pos(0.0, 0.0, -wingspan * 0.5);
+    Vec3 right_aileron_pos(0.0, 0.0, wingspan * 0.5);
     Vec3 rudder_pos(-length / 2, height / 2, 0);
     Vec3 left_engine_pos(-4.793, 0, -0.716);
     Vec3 right_engine_pos(-4.793, 0, 0.716);
@@ -113,6 +113,7 @@ namespace RAPTOR {
     bool roll_analog = true;
     double yaw_input = 0, yaw_discrete = 0, yaw_trim = 0, rudder_command = 0;
     double rudder_angle = 0;
+    double left_rudder_angle = 0.0, right_rudder_angle = 0.0;
     bool yaw_analog = true;
     static double beta_integral = 0.0;
 
@@ -217,10 +218,10 @@ namespace RAPTOR {
 
     bool taxi_lights = false;
     bool landing_lights = false;
-    bool form_light = false;
+    double form_light = 0.0;
     bool nav_white = false;
     bool anti_collision = false;
-    bool aar_light = false;
+    double aar_light = 0.0;
     bool nav_lights = false;
     double anti_collision_timer = 0.0;
     bool anti_collision_blink = false;

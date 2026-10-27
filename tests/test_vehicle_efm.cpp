@@ -3,6 +3,7 @@
 #include <cmath>
 #include <array>
 #include <iostream>
+#include <crtdbg.h>
 #include "../EFM/include/FM/wHumanCustomPhysicsAPI.h"
 #include "../EFM/source/VehicleSystems.h"
 
@@ -10,6 +11,9 @@ template<typename T>T proc(HMODULE m,const char* name) {
     auto p=reinterpret_cast<T>(GetProcAddress(m,name));assert(p);return p;
 }
 int main(int argc,char** argv) {
+    _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
+    _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
     assert(argc==4);
     HMODULE clock_module=LoadLibraryA(argv[3]);assert(clock_module);
     auto clock=proc<void(*)(double)>(clock_module,"set_model_time");
@@ -54,6 +58,7 @@ int main(int argc,char** argv) {
         surface(0,0,0,0,1,0);fuel(5000);infinite(true);
         set("MAIN_POWER",1);set("BATTERY_POWER",1);
         set("L_HYD_FAILURE",0);set("R_HYD_FAILURE",0);
+        set("L_GEN_FAILURE",0);set("R_GEN_FAILURE",0);set("BATTERY_FAILURE",0);
         body(in_air?100:0);
     };
     setup(false);ticks(100);
@@ -78,8 +83,12 @@ int main(int argc,char** argv) {
     cmd(146,1);ticks(200);draw(args.data(),args.size());assert(args[9]==0);
     set("R_HYD_FAILURE",0);ticks(400);draw(args.data(),args.size());assert(args[9]>.99);
     assert(get("EFM_HYD_LEFT_PSI")==0 && get("EFM_HYD_RIGHT_PSI")>3900);
-    set("MAIN_POWER",0);set("BATTERY_POWER",0);cmd(145,1);ticks(200);draw(args.data(),args.size());assert(args[9]>.99);
-    set("MAIN_POWER",1);ticks(200);draw(args.data(),args.size());assert(args[9]==0);
+    // Test electrical recovery from an independent healthy engine/source state.
+    // The preceding prolonged dual-hydraulic loss can now starve engine boost.
+    setup(false);ticks(400);cmd(146,1);ticks(200);
+    set("L_GEN_FAILURE",1);set("R_GEN_FAILURE",1);set("BATTERY_FAILURE",1);
+    cmd(145,1);ticks(200);draw(args.data(),args.size());assert(args[9]>.99);
+    set("R_GEN_FAILURE",0);ticks(200);draw(args.data(),args.size());assert(args[9]==0);
 
     // Actual DLL callback routing: saved light IDs must not change AFCS.
     setup(true);body(210);ticks(2);cmd(11604,1);ticks(1);

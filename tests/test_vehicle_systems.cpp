@@ -2,8 +2,12 @@
 #include <cassert>
 #include <limits>
 #include <iostream>
+#include <crtdbg.h>
 using namespace RaptorVehicle;
 int main() {
+    _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
+    _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
     // A nozzle at +15 degrees must recenter after entering a zero-envelope,
     // zero-scheduled-rate region, without teleporting or violating 40 deg/s.
     double a = radians(15);
@@ -19,7 +23,7 @@ int main() {
     Hydraulics h; h.reset(true);
     for(int i=0;i<1000;++i)h.update(.67,.67,1,1,true,false,0,0,.01);
     assert(h.left_psi==0 && h.right_psi==hydraulic_nominal_psi && h.shared()==1);
-    for(int i=0;i<4000;++i)h.update(0,0,1,1,true,true,1,15,.01);
+    for(int i=0;i<4000;++i)h.update(0,0,1,1,true,true,i%100<50?1:0,15,.01);
     assert(h.shared()==0 && h.brakes()==0);
     h.reset(false);
     for(int i=0;i<1000;++i)h.update(.67,0,1,1,false,false,0,0,.01);
