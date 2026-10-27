@@ -207,20 +207,15 @@ group("F22_RDR_COVERAGE_CENTER", { "F22_RADAR_COVERAGE_CENTER_ROT", "F22_RADAR_C
 	{ "parameter_in_range", 1, 0.9, 1.1 },
 }, nil, 0, layout.origin_y)
 group("F22_RDR_SEARCH_COVERAGE", { "F22N_RADAR_MODE" }, {
-	{ "parameter_in_range", 0, -0.1, 2.9 },
+	{ "parameter_in_range", 0, -0.1, 3.1 },
 }, "F22_RDR_COVERAGE_CENTER")
 for _, side in ipairs({ -1, 1 }) do
 	local name = "F22_RDR_COVERAGE_" .. side
 	group(name, { "F22_RADAR_COVERAGE_ROT" }, { { "rotate_using_parameter", 0, side } }, "F22_RDR_SEARCH_COVERAGE")
 	line(0, 0, 0, layout.radius, "white", name, 0.0032)
 end
--- With a valid weapon envelope, its target-aligned ray supplies the STT
--- tracking line too. Avoid a second line from a different update owner.
-group("F22_RDR_TRACK_WITHOUT_ENVELOPE", { "F22N_RADAR_MODE", "F22_RDR_LAR_VISIBLE" }, {
-	{ "parameter_in_range", 0, 2.9, 3.1 },
-	{ "parameter_in_range", 1, -0.1, 0.1 },
-}, "F22_RDR_COVERAGE_CENTER")
-line(0, 0, 0, layout.radius, "white", "F22_RDR_TRACK_WITHOUT_ENVELOPE", 0.0032)
+-- A track symbol has its own measured position. A missing weapon envelope
+-- does not create a full-scale forward ray.
 -- White own-aircraft glyph, deliberately distinct from traffic and steerpoints.
 local ship = {
 	{ 0, 0.058 },
@@ -484,15 +479,10 @@ end
 text("AZ %.0f", -0.14, -0.815, "F22_RADAR_SCAN_AZ_DEG", "blue", "F22_RDR_SCAN_SEARCH", 0.0038)
 text("HT %.0f", 0.15, -0.815, "F22_RADAR_SCAN_EL_DEG", "blue", "F22_RDR_SCAN_SEARCH", 0.0038)
 text("EL %+.0f", 0, -0.865, "F22_RADAR_SCAN_CENTER_EL_DEG", "blue", "F22_RDR_SCAN_SEARCH", 0.0038)
--- The retained native detector has no qualified independent electronic-beam
--- service. Disclose this alongside the estimated processing-resource state.
-group("F22_RDR_NATIVE_LIMIT", { "F22_RADAR_NATIVE_RESTRICTED" }, { { "parameter_in_range", 0, 0.9, 1.1 } })
-text("NATIVE", -0.72, -0.89, nil, "blue", "F22_RDR_NATIVE_LIMIT", 0.0033)
+-- Show actual sensor degradation; queue depth belongs in diagnostics.
+text("AESA", -0.72, -0.89, nil, "blue", nil, 0.0033)
 group("F22_RDR_SERVICE_DEGRADED", { "F22_RADAR_SERVICE_STATE" }, { { "parameter_in_range", 0, 1.9, 2.1 } })
 text("SENS DEG", 0.70, -0.89, nil, "yellow", "F22_RDR_SERVICE_DEGRADED", 0.0033)
-group("F22_RDR_SERVICE_QUEUE", { "F22_RADAR_SERVICE_STATE", "F22_RADAR_SERVICE_PENDING" },
-    { { "parameter_in_range", 0, 0.9, 1.1 }, { "parameter_in_range", 1, 0.9, 64.1 } })
-text("PROC Q%.0f", 0.70, -0.89, "F22_RADAR_SERVICE_PENDING", "blue", "F22_RDR_SERVICE_QUEUE", 0.0033)
 dofile(LockOn_Options.script_path..'PMFD_CENTER/tactical_overlay.lua')(
  {group=group,line=line,text=text,add=add,materials=materials},layout,native_page_scale*content_scale,root)
 

@@ -1,5 +1,8 @@
 # SEN-01–04 radar: native-constrained service slice
 
+Historical slice, superseded by [the owned AESA replacement](SEN-02-owned-aesa.md).
+The restrictions and production paths below describe the earlier implementation.
+
 Baseline: `f22-overhaul-start-2026-10-27` (`c5ebbcc`); branch `codex/radar-aesa-overhaul`.
 This implements a bounded processing/resource slice and two pilot-workflow fixes.
 It does **not** complete the independent AESA sensing replacement or close SEN-01–04.

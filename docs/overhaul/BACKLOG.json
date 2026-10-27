@@ -3801,8 +3801,8 @@
       "comparison_ids": [
         "AE17"
       ],
-      "status": "partial; native boundary researched, equipment and runtime qualification remain open",
-      "implementation_note": "SEN-02-radar-service.md"
+      "status": "partial; owned common-scene provider and avLua clock qualified; equipment and integrated runtime qualification remain open",
+      "implementation_note": "SEN-02-owned-aesa.md"
     },
     {
       "id": "VEH-01",
@@ -7648,8 +7648,8 @@
         "AE09",
         "AE12"
       ],
-      "status": "partial; native-constrained finite processing/resource slice implemented, independent AESA sensing remains open",
-      "implementation_note": "SEN-02-radar-service.md"
+      "status": "partial; owned AESA sensing, interleaved finite array service and Doppler/covariance tracking implemented; broader runtime qualification open",
+      "implementation_note": "SEN-02-owned-aesa.md"
     },
     {
       "id": "VEH-07",
@@ -8624,8 +8624,8 @@
         "AS09",
         "AE13"
       ],
-      "status": "partial; bounded files, freshness-gap reacquisition and relocated cursor implemented; remaining track workflow open",
-      "implementation_note": "SEN-02-radar-service.md"
+      "status": "partial; owned measured acquisition, search during lock, covariance and responder handoff implemented; in-flight support qualification open",
+      "implementation_note": "SEN-02-owned-aesa.md"
     },
     {
       "id": "VEH-08",
@@ -9482,8 +9482,8 @@
         "AE16",
         "AS15"
       ],
-      "status": "partial; fixed/object acquisition result validated; imagery collection and native qualification remain open",
-      "implementation_note": "SEN-02-radar-service.md"
+      "status": "partial; owned surface grants, measured tracking/ranging and shared pixel renderer implemented; surface runtime qualification open",
+      "implementation_note": "SEN-02-owned-aesa.md"
     },
     {
       "id": "VEH-14",
