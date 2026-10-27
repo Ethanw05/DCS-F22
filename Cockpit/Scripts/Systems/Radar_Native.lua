@@ -1,18 +1,7 @@
--- GPL-3.0-or-later. DCS shared sensor backend, not an APG-77 performance model.
--- Configuration keys verified in the installed CockpitBase initialize routine.
-export_prefix = "F22N_"
-link_to_target_responder = true
-power_bus_handle = "F22_RADAR_SUPPLY"
-render_debug_info = false
-perfomance = {
-    tracking_azimuth={math.rad(-60),math.rad(60)},
-    roll_compensation_limits={math.rad(-70),math.rad(70)},
-    pitch_compensation_limits={math.rad(-8),math.rad(25)},
-    scan_volume_azimuth=math.rad(60),scan_volume_elevation=math.rad(20),
-    scan_beam=math.rad(3),max_available_distance=160*1852,
-    -- Native terrain scatter coefficients are mod presentation settings.
-    -- The checked bridge enables max_distance only while A/G owns the radar.
-    ground_clutter={sea={.02,.01,.01},land={3,3,4},artificial={8,4,8},
-        max_distance=0,rays_density=.5},
-}
-need_to_be_closed=true
+-- GPL-3.0-or-later. Dedicated clock for the owned C++ scene provider.
+-- No avSimpleRadar sensor, antenna, acquisition or observation cache exists.
+make_default_activity(1 / 60)
+function update()
+    -- The version-checked C++ owner wraps this native device callback.
+end
+need_to_be_closed = false

@@ -2,8 +2,7 @@
 // ABI reference: Standalone-F22-IDA-Research.md, typed Sidewinder investigation.
 // Runtime validation is still required. Reject a different CockpitBase ABI.
 #include "NativeSidewinder.h"
-#include "NativeGroundSensor.h"
-#include "NativeSTTMotion.h"
+#include "NativeAesaRadar.h"
 #include <Cockpit/CockpitAPI_Declare.h>
 #include <Windows.h>
 #include <array>
@@ -28,8 +27,6 @@ static_assert(sizeof(WeaponType)==8);
 struct Pose { double m[16]{}; };
 struct LauncherPose { float m[16]{}; };
 struct Direction { double x{}, y{}, z{}; };
-struct ScanPattern {double elevation_volume{},azimuth_volume{},azimuth{},elevation{};};
-static_assert(sizeof(ScanPattern)==32);
 // Model connector transforms can carry scale/shear. avPlatform's IR angular
 // gate assumes an orthonormal rigid pose (dot(direction, forward) >= cos(FOV)).
 bool normalize_mount_pose(Pose& p) {
@@ -109,11 +106,6 @@ struct Api {
     Aircraft aircraft{}, binding_context{}, payload{};
     Clock clock{};
     Device device{};
-    const void* radar_vtable{};
-    using PatternQuery=const ScanPattern* (__fastcall*)(const void*);
-    PatternQuery scan_pattern{};
-    Method acquisition_update{};
-    const void* responder_vtable{};
     const void* weapon_vtable{};
     const void* missile_vtable{};
     const void* guided_vtable{};
@@ -215,11 +207,6 @@ struct Api {
         BIND(aircraft,"?c_LA@cockpit@@YAPEAVIwoLA@@XZ");
         BIND(binding_context,"?binding_context@cockpit@@YAPEAVccCockpitContext@1@XZ");
         BIND(device,"?get_wide_device@ccCockpitContext@cockpit@@QEAAPEAVavDevice@2@I@Z");
-        radar_vtable=GetProcAddress(module,"??_7avSimpleRadar@cockpit@@6BccContextRelatedObject@1@@");
-        bind(module,scan_pattern,"?get_current_pattern@avSimpleRadar@cockpit@@MEBAAEBUscan_pattern_data@2@XZ");
-        bind(module,acquisition_update,"?update_acquisition@avSimpleRadar@cockpit@@MEAAXXZ");
-        responder_vtable=GetProcAddress(module,"??_7avSimpleRadar@cockpit@@6BavLinkToTargetResponder@1@@");
-        ok=radar_vtable && ok;
         BIND(gimbal_limit,"?setGimbalLimit@avSidewinderSeeker@cockpit@@QEAAXM@Z");
         BIND(sun_filter,"?setSunFilter@avSidewinderSeeker@cockpit@@QEAAXM@Z");
         BIND(motor_limits,"?set_limits@avMotor@cockpit@@QEAAXNN@Z");
@@ -314,94 +301,6 @@ bool readable(std::uintptr_t address,std::size_t size) {
     if (!address || !VirtualQuery(reinterpret_cast<void*>(address),&info,sizeof(info))) return false;
     auto end=reinterpret_cast<std::uintptr_t>(info.BaseAddress)+info.RegionSize;
     return info.State==MEM_COMMIT && !(info.Protect&(PAGE_GUARD|PAGE_NOACCESS)) && address+size<=end;
-}
-// Shared DCS target-responder ABI: destructor, is_tracking(id,weapon), selected
-// ID, selected range. The native implementation offers an ID only in STT.
-// Our interface adapter also supplies confirmed, bounded-age TWS sensor files.
-// It does not change the native search/STT state or enumerate world objects.
-struct SupportSnapshot {
-    bool enabled=false,selection_enabled=false;
-    unsigned selected=0;
-    double range=0,stamp=-100,sequence=-1,selected_until=-100;
-    std::array<unsigned,24> ids{};
-    std::array<double,24> expires{};
-};
-SRWLOCK support_lock=SRWLOCK_INIT;
-SupportSnapshot support;
-std::array<void*,5> responder_table{}; // include native RTTI locator at [-1]
-void** responder_slot=nullptr;
-std::atomic<unsigned> support_queries{0},support_accepts{0};
-using TrackQuery=bool (__fastcall*)(const void*,unsigned,unsigned);
-using TargetQuery=unsigned (__fastcall*)(const void*);
-using RangeQuery=double (__fastcall*)(const void*);
-bool support_fresh(double now) {return now-support.stamp>=0 && now-support.stamp<.35;}
-bool __fastcall support_tracking(const void* self,unsigned id,unsigned weapon) {
-    ++support_queries;
-    auto original=reinterpret_cast<const void* const*>(api.responder_vtable);
-    if (reinterpret_cast<TrackQuery>(original[1])(self,id,weapon)) return true;
-    const double now=api.clock ? api.clock() : -100;
-    AcquireSRWLockShared(&support_lock);
-    bool result=false;
-    if (support.enabled && support_fresh(now) && id) {
-        for (unsigned i=0;i<support.ids.size();++i) if (support.ids[i]==id && now<=support.expires[i]) {result=true;break;}
-    }
-    ReleaseSRWLockShared(&support_lock);if (result) ++support_accepts;return result;
-}
-unsigned __fastcall support_target(const void* self) {
-    auto original=reinterpret_cast<const void* const*>(api.responder_vtable);
-    auto native=reinterpret_cast<TargetQuery>(original[2])(self);
-    if (native) return native;
-    const double now=api.clock ? api.clock() : -100;
-    AcquireSRWLockShared(&support_lock);
-    unsigned result=support.selection_enabled && support_fresh(now) && now<=support.selected_until ? support.selected : 0;
-    ReleaseSRWLockShared(&support_lock);return result;
-}
-double __fastcall support_range(const void* self) {
-    auto original=reinterpret_cast<const void* const*>(api.responder_vtable);
-    auto native=reinterpret_cast<RangeQuery>(original[3])(self);
-    if (native>=0) return native;
-    const double now=api.clock ? api.clock() : -100;
-    AcquireSRWLockShared(&support_lock);
-    double result=support.selection_enabled && support_fresh(now) && support.selected && now<=support.selected_until ? support.range : -1;
-    ReleaseSRWLockShared(&support_lock);return result;
-}
-void update_target_support(EDPARAM& p,std::uintptr_t radar) {
-    write(p,"F22_TWS_GUIDANCE_BACKEND_READY",0);
-    if (!api.responder_vtable || read(p,"F22_RADAR_FC_ENABLE")<.5) return;
-    auto slot=reinterpret_cast<void**>(radar+192);
-    if (*slot!=api.responder_vtable && *slot!=responder_table.data()+1) return;
-    if (!responder_table[1]) {
-        const auto original=reinterpret_cast<void* const*>(api.responder_vtable);
-        responder_table[0]=original[-1];responder_table[1]=original[0];
-        responder_table[2]=reinterpret_cast<void*>(&support_tracking);
-        responder_table[3]=reinterpret_cast<void*>(&support_target);
-        responder_table[4]=reinterpret_cast<void*>(&support_range);
-    }
-    *slot=responder_table.data()+1;responder_slot=slot;
-    const auto sequence=read(p,"F22_TWS_PUBLISH_SEQUENCE");
-    AcquireSRWLockShared(&support_lock);const bool changed=sequence!=support.sequence;ReleaseSRWLockShared(&support_lock);
-    if (changed) {
-        SupportSnapshot next;next.sequence=sequence;next.stamp=api.clock ? api.clock() : -100;
-        next.enabled=read(p,"RADAR_PWR")>.5 && read(p,"F22_RADAR_SUPPORT_ENABLED")>.5;
-        next.selection_enabled=next.enabled && read(p,"F22_TWS_ACTIVE")>.5;
-        auto id=read(p,"F22_TWS_TARGET_ID");auto age=read(p,"F22_TWS_TARGET_AGE");
-        auto range=read(p,"F22_TWS_TARGET_RANGE");
-        if (id>0 && id<4294967295.0 && age>=0 && age<=6 && range>=40 && range<600000) {
-            next.selected=static_cast<unsigned>(id);next.range=range;next.selected_until=next.stamp+6-age;
-        }
-        for (unsigned i=0;i<next.ids.size();++i) {
-            char key[80];std::snprintf(key,sizeof(key),"F22_SUPPORT_%02u_ID",i+1);auto tid=read(p,key);
-            std::snprintf(key,sizeof(key),"F22_SUPPORT_%02u_AGE",i+1);auto tage=read(p,key);
-            if (tid>0 && tid<4294967295.0 && tage>=0 && tage<=6) {
-                next.ids[i]=static_cast<unsigned>(tid);next.expires[i]=next.stamp+6-tage;
-            }
-        }
-        AcquireSRWLockExclusive(&support_lock);support=next;ReleaseSRWLockExclusive(&support_lock);
-    }
-    write(p,"F22_TWS_GUIDANCE_BACKEND_READY",1);
-    write(p,"F22_TWS_SUPPORT_QUERIES",support_queries.load());
-    write(p,"F22_TWS_SUPPORT_ACCEPTS",support_accepts.load());
-    write(p,"F22_RADAR_WEAPON_TARGET_ID",support_target(reinterpret_cast<void*>(radar+192)));
 }
 struct TimeEstimate {
     unsigned target=0,type=0;
@@ -525,159 +424,6 @@ bool executable(std::uintptr_t p) {
 // next interface's RTTI is at4657b0. Preserve every original method and RTTI.
 // get_current_pattern (slot27) preserves physical beam direction, while the
 // original update_acquisition (slot23) receives matching scan-reference metrics.
-constexpr unsigned radar_primary_methods=31;
-std::array<void*,radar_primary_methods+1> radar_coordinate_table{};
-void** radar_coordinate_slot=nullptr;
-void** radar_coordinate_original=nullptr;
-void __fastcall ground_sensor_phase(void *self) {
-    // Slot15 is update_radar, not avLuaDevice::update (slot6). IDA confirms
-    // that native spatial detection runs in this callback. Preserve A/A.
-    using Update=void(__fastcall*)(void*);
-    if(radar_coordinate_original)
-        reinterpret_cast<Update>(radar_coordinate_original[15])(self);
-    NativeGroundSensor::sample(self);
-}
-std::atomic<const void*> radar_coordinate_owner{nullptr};
-void* radar_coordinate_ready_handle=nullptr;
-PFN_ED_COCKPIT_UPDATE_PARAMETER_WITH_NUMBER radar_coordinate_write=nullptr;
-struct AcquisitionCoordinates {const void* owner=nullptr;ScanPattern physical{};};
-thread_local AcquisitionCoordinates acquisition_coordinates{};
-struct AcquisitionMetric {const void* owner=nullptr;double azimuth=0,elevation=0,time=-100;};
-SRWLOCK acquisition_metric_lock=SRWLOCK_INIT;
-AcquisitionMetric acquisition_metric{};
-const ScanPattern* __fastcall coordinate_scan_pattern(const void* self) {
-    const auto native=api.scan_pattern(self);
-    if (!api.profile_valid || self!=radar_coordinate_owner.load(std::memory_order_acquire) ||
-        !readable(reinterpret_cast<std::uintptr_t>(self),2024) ||
-        *reinterpret_cast<const int*>(static_cast<const std::byte*>(self)+2020)!=2 ||
-        !readable(reinterpret_cast<std::uintptr_t>(native),sizeof(ScanPattern))) return native;
-    if (acquisition_coordinates.owner==self) return &acquisition_coordinates.physical;
-    // Returning a reference must outlive this call. Thread-local storage also
-    // avoids another execution thread overwriting a native caller's pattern.
-    thread_local ScanPattern physical;
-    physical=*native;physical.azimuth=-physical.azimuth;
-    return &physical;
-}
-void __fastcall coordinate_acquisition_update(void* self) {
-    if (!api.acquisition_update) return;
-    const auto address=reinterpret_cast<std::uintptr_t>(self);
-    if (!api.profile_valid || !api.scan_pattern || self!=radar_coordinate_owner.load(std::memory_order_acquire) ||
-        !readable(address,2024) || *reinterpret_cast<const int*>(address+2020)!=2 || acquisition_coordinates.owner==self) {
-        api.acquisition_update(self);return;
-    }
-    const auto native=api.scan_pattern(self);
-    if (!readable(reinterpret_cast<std::uintptr_t>(native),sizeof(ScanPattern))) {api.acquisition_update(self);return;}
-    const ScanPattern body=*native;
-    if (!std::isfinite(body.azimuth) || !std::isfinite(body.elevation) ||
-        std::abs(body.azimuth)>1.571 || std::abs(body.elevation)>1.571) {api.acquisition_update(self);return;}
-    // The native polar reference is Body*Pitch(scan-origin elevation). Its
-    // unit_handler/filter compare stored2000/2008 with angles in that reference.
-    // Supplying raw body angles there selects the higher neighbour at nonzero
-    // elevation. Keep beam planning separate while the original native code runs.
-    const double ce=std::cos(body.elevation),se=std::sin(body.elevation);
-    const double x=ce*std::cos(body.azimuth),y=se,z=ce*std::sin(body.azimuth);
-    const double f=x*ce+y*se,u=-x*se+y*ce;
-    const double metric_az=std::atan2(z,f),metric_el=std::atan2(u,std::hypot(f,z));
-    auto az=reinterpret_cast<double*>(address+2000),el=reinterpret_cast<double*>(address+2008);
-    struct Restore {
-        double *az,*el;double body_az,body_el;AcquisitionCoordinates previous;
-        ~Restore() {*az=body_az;*el=body_el;acquisition_coordinates=previous;}
-    } restore{az,el,body.azimuth,body.elevation,acquisition_coordinates};
-    acquisition_coordinates={self,body};acquisition_coordinates.physical.azimuth=-body.azimuth;
-    *az=metric_az;*el=metric_el;
-    const double now=api.clock ? api.clock() : -100;
-    AcquireSRWLockExclusive(&acquisition_metric_lock);
-    acquisition_metric={self,metric_az,metric_el,now};
-    ReleaseSRWLockExclusive(&acquisition_metric_lock);
-    // All detection, range/ECM gates, hit counts and the STT ID decision remain
-    // in the original native implementation. Restore only temporary coordinates.
-    api.acquisition_update(self);
-}
-void reset_radar_coordinates() {
-    radar_coordinate_owner.store(nullptr,std::memory_order_release);
-    if (radar_coordinate_slot && readable(reinterpret_cast<std::uintptr_t>(radar_coordinate_slot),8) &&
-        *radar_coordinate_slot==radar_coordinate_table.data()+1)
-        InterlockedExchangePointer(reinterpret_cast<PVOID volatile*>(radar_coordinate_slot),radar_coordinate_original);
-    radar_coordinate_slot=nullptr;radar_coordinate_original=nullptr;
-    if (radar_coordinate_ready_handle && radar_coordinate_write) radar_coordinate_write(radar_coordinate_ready_handle,0);
-    if (radar_coordinate_write) for (const char* key:{"F22_RADAR_NATIVE_BEAM_WORLD_VALID","F22_RADAR_NATIVE_SCAN_REF_BEAM_VALID","F22_RADAR_NATIVE_ACQ_METRIC_VALID"}) {
-        const auto h=handles.find(key);if (h!=handles.end()) radar_coordinate_write(h->second,0);
-    }
-    radar_coordinate_ready_handle=nullptr;radar_coordinate_write=nullptr;
-    AcquireSRWLockExclusive(&acquisition_metric_lock);acquisition_metric={};ReleaseSRWLockExclusive(&acquisition_metric_lock);
-}
-bool install_radar_coordinates(std::uintptr_t radar) {
-    if (!api.profile_valid || !api.scan_pattern || !api.acquisition_update || !api.radar_vtable || !readable(radar,2440)) return false;
-    auto slot=reinterpret_cast<void**>(radar);
-    if (*slot==radar_coordinate_table.data()+1)
-        return radar_coordinate_slot==slot && radar_coordinate_owner.load(std::memory_order_acquire)==reinterpret_cast<void*>(radar);
-    if (radar_coordinate_slot || *slot!=api.radar_vtable) return false;
-    auto original=reinterpret_cast<void**>(*slot);
-    if (!readable(reinterpret_cast<std::uintptr_t>(original)-8,(radar_primary_methods+1)*8) ||
-        original[27]!=reinterpret_cast<void*>(api.scan_pattern) || original[23]!=reinterpret_cast<void*>(api.acquisition_update)) return false;
-    const auto locator=reinterpret_cast<std::uintptr_t>(original[-1]);
-    if (!readable(locator,24) || *reinterpret_cast<const unsigned*>(locator)!=1 ||
-        *reinterpret_cast<const unsigned*>(locator+4)!=0) return false;
-    for (unsigned i=0;i<radar_primary_methods;++i)
-        if (!executable(reinterpret_cast<std::uintptr_t>(original[i]))) return false;
-    radar_coordinate_table[0]=original[-1];
-    for (unsigned i=0;i<radar_primary_methods;++i) radar_coordinate_table[i+1]=original[i];
-    radar_coordinate_table[28]=reinterpret_cast<void*>(&coordinate_scan_pattern);
-    radar_coordinate_table[24]=reinterpret_cast<void*>(&coordinate_acquisition_update);
-    radar_coordinate_table[16]=reinterpret_cast<void*>(&ground_sensor_phase);
-    radar_coordinate_slot=slot;radar_coordinate_original=original;
-    radar_coordinate_owner.store(reinterpret_cast<void*>(radar),std::memory_order_release);
-    InterlockedExchangePointer(reinterpret_cast<PVOID volatile*>(slot),radar_coordinate_table.data()+1);
-    return true;
-}
-void publish_radar_coordinates(EDPARAM& p,std::uintptr_t radar) {
-    write(p,"F22_RADAR_NATIVE_BEAM_WORLD_VALID",0);
-    write(p,"F22_RADAR_NATIVE_SCAN_REF_BEAM_VALID",0);
-    const auto pattern=coordinate_scan_pattern(reinterpret_cast<void*>(radar));
-    if (readable(reinterpret_cast<std::uintptr_t>(pattern),sizeof(ScanPattern))) {
-        write(p,"F22_RADAR_NATIVE_PATTERN_AZ",pattern->azimuth);
-        write(p,"F22_RADAR_NATIVE_PATTERN_EL",pattern->elevation);
-    }
-    write(p,"F22_RADAR_NATIVE_ACQ_BODY_AZ",*reinterpret_cast<const double*>(radar+2000));
-    write(p,"F22_RADAR_NATIVE_ACQ_BODY_EL",*reinterpret_cast<const double*>(radar+2008));
-    AcquireSRWLockShared(&acquisition_metric_lock);const auto metric=acquisition_metric;ReleaseSRWLockShared(&acquisition_metric_lock);
-    const double now=api.clock ? api.clock() : -100;
-    const bool metric_valid=api.clock && metric.owner==reinterpret_cast<void*>(radar) && metric.time>=0 && std::isfinite(metric.time) && std::isfinite(now) &&
-        now>=metric.time && now-metric.time<.35;
-    write(p,"F22_RADAR_NATIVE_ACQ_METRIC_VALID",metric_valid?1:0);
-    if (metric_valid) {
-        write(p,"F22_RADAR_NATIVE_ACQ_METRIC_AZ",metric.azimuth);write(p,"F22_RADAR_NATIVE_ACQ_METRIC_EL",metric.elevation);
-        write(p,"F22_RADAR_NATIVE_ACQ_METRIC_TIME",metric.time);
-    }
-    write(p,"F22_RADAR_NATIVE_SCAN_PHASE",*reinterpret_cast<const double*>(radar+1904));
-    const auto mode=*reinterpret_cast<const int*>(radar+2020);
-    if (mode!=1 && mode!=2 && mode!=6) return;
-    const auto beam=reinterpret_cast<const float*>(radar+1712);
-    const double bn=beam[0],bu=beam[1],be=beam[2];
-    const double world_length=std::hypot(bn,bu,be);
-    if (!std::isfinite(world_length) || std::abs(world_length-1)>1e-3) return;
-    // This is the actual native clip-volume forward direction in world axes.
-    // Project it offline with the measured aircraft pose for body angles.
-    write(p,"F22_RADAR_NATIVE_BEAM_WORLD_N",bn/world_length);
-    write(p,"F22_RADAR_NATIVE_BEAM_WORLD_U",bu/world_length);
-    write(p,"F22_RADAR_NATIVE_BEAM_WORLD_E",be/world_length);
-    write(p,"F22_RADAR_NATIVE_BEAM_WORLD_VALID",1);
-    // Full+1840 is modified by scan_for_targets: stabilization and scan-origin
-    // elevation have already been composed into this reference. It is NOT the
-    // untouched aircraft body basis. Keep these angles explicitly named.
-    const auto reference=reinterpret_cast<const float*>(radar+1840);
-    for (unsigned axis:{0u,4u,8u}) {
-        const double length=std::hypot(reference[axis],reference[axis+1],reference[axis+2]);
-        if (!std::isfinite(length) || std::abs(length-1)>1e-3) return;
-    }
-    double forward=0,right=0,up=0;
-    for (unsigned i=0;i<3;++i) {forward+=beam[i]*reference[i];right+=beam[i]*reference[i+8];up+=beam[i]*reference[i+4];}
-    const double length=std::hypot(forward,right,up);
-    if (!std::isfinite(length) || std::abs(length-1)>1e-3) return;
-    write(p,"F22_RADAR_NATIVE_SCAN_REF_BEAM_AZ",std::atan2(right,forward));
-    write(p,"F22_RADAR_NATIVE_SCAN_REF_BEAM_EL",std::atan2(up,std::hypot(forward,right)));
-    write(p,"F22_RADAR_NATIVE_SCAN_REF_BEAM_VALID",1);
-}
 void publish_launch_events(EDPARAM& p) {
     write(p,"F22_LAUNCH_EVENTS_READY",0);
     if (!api.profile_valid || !api.payload) return;
@@ -875,12 +621,9 @@ void publish_time_estimate(EDPARAM& p) {
     write(p,"F22_TOF_ACT_VALID",value.act_valid?1:0);write(p,"F22_TOF_ACT_SECONDS",value.act);
 }
 void reset_support() {
-    reset_radar_coordinates();
-    if (responder_slot && readable(reinterpret_cast<std::uintptr_t>(responder_slot),8) && *responder_slot==responder_table.data()+1) *responder_slot=const_cast<void*>(api.responder_vtable);
+    NativeAesaRadar::reset();
     if (payload_slot && readable(reinterpret_cast<std::uintptr_t>(payload_slot),8) && *payload_slot==payload_table.data()+1) *payload_slot=payload_original;
-    responder_slot=nullptr;payload_slot=nullptr;
-    AcquireSRWLockExclusive(&support_lock);support={};ReleaseSRWLockExclusive(&support_lock);
-    support_queries=0;support_accepts=0;
+    payload_slot=nullptr;
     AcquireSRWLockExclusive(&launch_lock);launched={};launched_sequence=0;ReleaseSRWLockExclusive(&launch_lock);
     AcquireSRWLockExclusive(&time_estimate_lock);time_estimate={};ReleaseSRWLockExclusive(&time_estimate_lock);
     last_tof_attempt=-1e9;last_tof_target=last_tof_type=0;
@@ -914,114 +657,6 @@ void publish_gun_ammunition(EDPARAM& p) {
         if (rounds>100000 || total>100000-rounds) return;
         total+=rounds;
     }
-}
-void apply_radar_configuration(std::uintptr_t instance) {
-    *reinterpret_cast<double*>(instance+1944)=40.0;
-    *reinterpret_cast<double*>(instance+2416)=-1.0471975511965976;
-    *reinterpret_cast<double*>(instance+2424)=1.0471975511965976;
-}
-// These are observations already detected by avSimpleRadar. Never enumerate
-// scene/world objects or create contacts here. Exact ABI profile and vtable are
-// checked before this function runs; scan_contact layout is verified in IDA.
-void publish_radar_observations(EDPARAM& p,std::uintptr_t instance) {
-    write(p,"F22_RADAR_OBSERVATIONS_READY",0);
-    write(p,"F22_RADAR_OBSERVATION_COUNT",0);
-    if (!api.clock) return;
-    const auto begin=*reinterpret_cast<const std::uintptr_t*>(instance+2168);
-    const auto end=*reinterpret_cast<const std::uintptr_t*>(instance+2176);
-    if (end<begin || (end-begin)%144 || (end-begin)/144>4096) return;
-    const auto count=static_cast<unsigned>((end-begin)/144);
-    if (count && !readable(begin,static_cast<std::size_t>(end-begin))) return;
-    const double now=api.clock();
-    if (!std::isfinite(now)) return;
-    std::map<std::uint32_t,std::uintptr_t> latest;
-    for (unsigned i=0;i<count;++i) {
-        const auto record=begin+144*i;
-        const auto id=*reinterpret_cast<const std::uint32_t*>(record+128);
-        const auto age=now-*reinterpret_cast<const double*>(record+112);
-        if (!id || !std::isfinite(age) || age<-.05 || age>10) continue;
-        const char* fields[]={"NORTH","ALTITUDE","EAST","VN","VU","VE"};
-        const int offsets[]={0,8,16,48,56,64};
-        bool valid=true;
-        for (int n=0;n<6;++n) valid=valid && std::isfinite(*reinterpret_cast<const double*>(record+offsets[n]));
-        if (!valid) continue;
-        auto prior=latest.find(id);
-        if (prior==latest.end() || *reinterpret_cast<const double*>(record+112)>
-            *reinterpret_cast<const double*>(prior->second+112)) latest[id]=record;
-    }
-    unsigned published=0;
-    const char* fields[]={"NORTH","ALTITUDE","EAST","VN","VU","VE"};
-    const int offsets[]={0,8,16,48,56,64};
-    for (const auto& [id,record]:latest) {
-        if (published>=64) break;
-        const auto age=now-*reinterpret_cast<const double*>(record+112);
-        char key[80];++published;
-        for (int n=0;n<6;++n) {
-            std::snprintf(key,sizeof(key),"F22O_%02u_%s",published,fields[n]);
-            write(p,key,*reinterpret_cast<const double*>(record+offsets[n]));
-        }
-        std::snprintf(key,sizeof(key),"F22O_%02u_ID",published);write(p,key,id);
-        std::snprintf(key,sizeof(key),"F22O_%02u_AGE",published);write(p,key,age<0 ? 0 : age);
-        std::snprintf(key,sizeof(key),"F22O_%02u_IFF",published);
-        write(p,key,*reinterpret_cast<const int*>(record+76));
-    }
-    write(p,"F22_RADAR_OBSERVATION_COUNT",published);
-    write(p,"F22_RADAR_OBSERVATIONS_READY",1);
-}
-void publish_stt_motion(EDPARAM& p,std::uintptr_t instance) {
-    write(p,"F22_STT_MOTION_VALID",0);write(p,"F22_STT_ACCEL_VALID",0);
-    if (!api.clock || !readable(instance,2136)) return;
-    auto s=NativeSTTMotion::decode(reinterpret_cast<const std::byte*>(instance),2136,api.clock());
-    if (!s.valid) return;
-    const char* axes[]={"N","U","E"};char key[64];
-    for (int i=0;i<3;++i) {
-        std::snprintf(key,sizeof(key),"F22_STT_P%s",axes[i]);write(p,key,s.position[i]);
-        std::snprintf(key,sizeof(key),"F22_STT_V%s",axes[i]);write(p,key,s.velocity[i]);
-        std::snprintf(key,sizeof(key),"F22_STT_A%s",axes[i]);write(p,key,s.acceleration_valid?s.acceleration[i]:0);
-    }
-    write(p,"F22_STT_ID",s.id);write(p,"F22_STT_TIME",s.time);
-    write(p,"F22_STT_ACCEL_VALID",s.acceleration_valid?1:0);write(p,"F22_STT_MOTION_VALID",1);
-}
-void configure_radar(EDPARAM& p) {
-    write(p,"F22_RADAR_ACQ_COORDINATES_READY",0);
-    write(p,"F22_RADAR_NATIVE_BEAM_WORLD_VALID",0);write(p,"F22_RADAR_NATIVE_SCAN_REF_BEAM_VALID",0);
-    write(p,"F22_RADAR_NATIVE_ACQ_METRIC_VALID",0);
-    radar_coordinate_ready_handle=handles["F22_RADAR_ACQ_COORDINATES_READY"];
-    radar_coordinate_write=p.ed_param_api.pfn_ed_cockpit_update_parameter_with_number;
-    write(p,"F22_STT_MOTION_VALID",0);write(p,"F22_STT_ACCEL_VALID",0);
-    write(p,"F22_RADAR_NATIVE_CONFIGURED",0);
-    write(p,"F22_RADAR_OBSERVATIONS_READY",0);
-    write(p,"F22_RADAR_NATIVE_CONFIG_REASON",1);
-    if (!api.profile_valid || !api.ready) {reset_radar_coordinates();return;}
-    // Use the same context/device accessor as GetDevice. Do not transport a
-    // Lua userdata address through a simulator numeric parameter.
-    auto context=api.binding_context();
-    write(p,"F22_RADAR_NATIVE_CONFIG_REASON",2);
-    if (!context) return;
-    auto id=read(p,"F22_RADAR_DEVICE_ID");
-    if (!std::isfinite(id) || id<1 || id>255) return;
-    auto instance=reinterpret_cast<std::uintptr_t>(api.device(context,static_cast<unsigned>(id)));
-    write(p,"F22_RADAR_NATIVE_CONFIG_REASON",3);
-    if (!readable(instance,2440)) return;
-    write(p,"F22_RADAR_NATIVE_CONFIG_REASON",4);
-    const auto table=*reinterpret_cast<const void**>(instance);
-    if (table!=api.radar_vtable && (radar_coordinate_slot!=reinterpret_cast<void**>(instance) || table!=radar_coordinate_table.data()+1)) return;
-    MEMORY_BASIC_INFORMATION memory{};
-    VirtualQuery(reinterpret_cast<void*>(instance),&memory,sizeof(memory));
-    write(p,"F22_RADAR_NATIVE_CONFIG_REASON",5);
-    if (!(memory.Protect&(PAGE_READWRITE|PAGE_WRITECOPY|PAGE_EXECUTE_READWRITE|PAGE_EXECUTE_WRITECOPY))) return;
-    write(p,"F22_RADAR_NATIVE_CONFIG_REASON",6);
-    if (!install_radar_coordinates(instance)) return;
-    write(p,"F22_RADAR_ACQ_COORDINATES_READY",1);
-    publish_radar_coordinates(p,instance);
-    apply_radar_configuration(instance);
-    publish_radar_observations(p,instance);
-    publish_stt_motion(p,instance);
-    update_target_support(p,instance);
-    write(p,"F22_RADAR_NATIVE_CONFIGURED",1);
-    write(p,"F22_RADAR_NATIVE_CONFIG_REASON",0);
-    write(p,"F22_RADAR_NATIVE_MIN_METRES",*reinterpret_cast<double*>(instance+1944));
-    write(p,"F22_RADAR_NATIVE_EL_LIMIT",*reinterpret_cast<double*>(instance+2424));
 }
 }
 
@@ -1064,6 +699,8 @@ bool read_store_configuration(EDPARAM& p,int& selected,WeaponType& type) {
 void update(EDPARAM& p,double dt) {
     const FeedbackGuard use(FeedbackAccess::Callback);
     if (!use) return; // A recurring callback never waits for teardown/another update.
+    if (!ir_feedback.accepting) return; // Retired callback cannot revive either sensor.
+    NativeAesaRadar::update(p); // Radar does not depend on IR fit, feedback handles or availability.
     const bool feedback_ready = ir_feedback.begin(p);
     if (!feedback_ready) return; // Release retires late callbacks until explicit spawn initialization.
     write(p,"F22_COMBAT_NATIVE_TICKS",++tick_sequence);
@@ -1072,7 +709,6 @@ void update(EDPARAM& p,double dt) {
     const bool valid_mode=std::isfinite(requested_mode) && requested_mode>=0 &&
         requested_mode<=10 && requested_mode==std::floor(requested_mode);
     launch_master_mode=valid_mode ? static_cast<unsigned>(requested_mode) : 0;
-    configure_radar(p);
     publish_launch_events(p);
     update_ground_release(p);
     publish_missile_data(p);

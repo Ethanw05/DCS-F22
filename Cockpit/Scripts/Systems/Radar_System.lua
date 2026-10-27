@@ -1,4 +1,4 @@
--- GPL-3.0-or-later. Single owner of radar power, controls and presentation.
+-- GPL-3.0-or-later. Single owner of owned AESA controls, tracks and presentation.
 dofile(LockOn_Options.script_path .. "devices.lua")
 dofile(LockOn_Options.script_path .. "command_defs.lua")
 local input_value = dofile(LockOn_Options.script_path .. "Systems/Input_Value.lua")
@@ -10,7 +10,6 @@ local task_library = dofile(LockOn_Options.script_path .. "Systems/Radar_Sensor_
 local sensor_tasks = task_library.new()
 local display = dofile(LockOn_Options.script_path .. "Systems/Radar_Display.lua")
 local tactical = dofile(LockOn_Options.script_path .. "Systems/Radar_Tactical.lua")
-local stt_contract = dofile(LockOn_Options.script_path .. "Systems/Radar_STT.lua")
 local identification = dofile(LockOn_Options.script_path .. "Systems/Radar_IFF.lua").new()
 local sensors = get_base_data()
 local dev = GetSelf()
@@ -29,6 +28,7 @@ end
 local function put(n, v)
 	h(n):set(v)
 end
+local aesa = dofile(LockOn_Options.script_path .. "Systems/AESA_Control.lua").new(get, put)
 tactical.publish({tracks={},clock=0}, put, false)
 sensor_tasks:publish(put,0)
 -- Indicators retain these handles; create them before their Lua states bind.
@@ -108,6 +108,8 @@ local function sync_model_clock()
 	if now < computer.clock - 0.001 then
 		computer:reset()
 		radar_service:reset(now)
+		aesa:reset()
+		native_power = nil
 		slew_x, slew_y, slew_focus, slew_role = 0, 0, nil, nil
 		acquiring = false
 		pending_unlock = false
@@ -148,7 +150,10 @@ local function sync_weapon_mode()
 	computer.scan, computer.effective_scan = nil, nil
 	computer.rf_scan_windows = {}
 	sensor_tasks:reset()
-	if mode == 7 or old_mode == 7 then slew_x, slew_y = 0, 0 end
+	if mode == 7 or old_mode == 7 then
+		slew_x, slew_y = 0, 0
+		aesa:command(510, computer, computer.clock)
+	end
 	if log and log.write then
 		log.write("F22_RADAR_WEAPON_MODE", log.INFO, string.format(
 			"t=%.3f from=%d to=%d previous=%s requested=%s return=%s native=%d acquire=%d pending_unlock=%d",
@@ -158,6 +163,11 @@ local function sync_weapon_mode()
 end
 function SetCommand(command, value)
 	local command_time = sync_model_clock()
+	-- Legacy ACM keys also broadcast an SRM role change. That change may
+	-- arrive after this callback; retain its explicit pattern before syncing.
+	if value == 1 and (command == Keys.PlaneModeVS or command == Keys.PlaneModeBore) then
+		weapon_patterns[3] = command == Keys.PlaneModeVS and "VACQ" or "BORE"
+	end
 	-- Synchronize before accepting a pattern command as well as on update:
 	-- weapon mode and its scan request can arrive during the same frame.
 	sync_weapon_mode()
@@ -291,6 +301,8 @@ function SetCommand(command, value)
 	end
 end
 function post_initialize()
+	native_power = nil
+	aesa:reset()
 	slew_x, slew_y, slew_focus, slew_role = 0, 0, nil, nil
 	radar_service:reset()
 	radar_service:publish(put, 0, telemetry_config.service_enabled, 0, false)
@@ -308,7 +320,7 @@ function post_initialize()
 	put("F22_RADAR_EMISSION_INHIBIT", 0)
 end
 local function native_command(c)
-	dispatch_action(devices.RADAR_NATIVE, c, 1)
+	aesa:command(c, computer, computer.clock)
 end
 ag = dofile(LockOn_Options.script_path .. "Systems/AG_Radar_System.lua").new(get, put, native_command)
 local function publish_quality(prefix, t)
@@ -383,25 +395,19 @@ function update()
 	put("RADAR_PWR", powered and 1 or 0)
 	put("F22N_IFF_INTERROGATOR_STATUS", powered and iff_enabled and 1 or 0)
 	put("F22_RADAR_IFF_ON", powered and iff_enabled and 1 or 0)
-	local native = nil
-	if GetDevice then
-		local ok, result = pcall(GetDevice, devices.RADAR_NATIVE)
-		if ok then
-			native = result
-		end
-	end
-	local available = native and type(native.set_power) == "function"
-	local ready = available and get("F22_RADAR_ACQ_COORDINATES_READY") > 0.5
+	local native = aesa
+	local available = true
+	local ready = get("F22_AESA_DRIVER_READY") == 1
 	local service_resource = radar_service:health(get, computer.clock + step, powered)
 	ready = ready and service_resource >= 0.1
 	put("F22_RADAR_DEVICE_ID", devices.RADAR_NATIVE)
 	-- The A/G computer keeps its frozen picture powered in SIL while the
-	-- owned native transmitter is independently inhibited.
+	-- owned AESA transmitter is independently inhibited.
 	if hud_mode==7 then
 	 if not cursor_authority then ag:command("axis_x",0,powered);ag:command("axis_y",0,powered)end
 	 ag:update(pose,computer.clock,dt,powered,ready)
 	end
-	local requested_power = powered and ready and (hud_mode~=7 or ag:emitting())
+	local requested_power = powered and ready and not emission_inhibited and (hud_mode~=7 or ag:emitting())
 	put("F22_RADAR_EMISSION_INHIBIT",(emission_inhibited or (hud_mode==7 and not ag:emitting()))and 1 or 0)
 	if available and native_power ~= requested_power then
 		local ok = pcall(function()
@@ -422,8 +428,13 @@ function update()
 		computer.rf_scan_windows={}
 		sensor_tasks:reset()
 		sensor_tasks:publish(put,computer.clock)
-		tactical.publish(computer, put, false)
-
+		local background = aesa:read(computer.clock + step, pose, display)
+		if aesa.generation_changed then computer:reset();aesa.locked,aesa.acquiring=nil,nil end
+		computer:update(step, background, 1)
+		aesa:publish(computer.clock, computer, service_resource, powered and ready, true, nil)
+		put("F22_RADAR_SUPPORT_ENABLED", powered and ready and 1 or 0)
+		put("F22_TWS_ACTIVE",0);put("F22_TWS_TARGET_ID",0)
+		tactical.publish(computer, put, powered and ready)
 		return
 	end
 	put("F22_AG_RADAR_OPERATING", 0)
@@ -438,99 +449,17 @@ function update()
 		elseif native_mode == 2 then
 			native_command(510)
 		end
-		-- Do not feed the previous STT/acquisition export into the newly
-		-- selected pattern while the native unlock command is taking effect.
-		if native_mode == 3 or native_mode == 2 then
-			native_mode = 1
-		end
 		pending_unlock = false
 		acquiring = false
 	end
-	local observations = {}
-	-- Native scan polar angles include scan-origin elevation and stabilization.
-	-- Use only sensor-detected world observations from the checked ABI bridge;
-	-- project those into the current aircraft frame for gating and acquisition.
-	local observations_ready = get("F22_RADAR_OBSERVATIONS_READY") > 0.5
+	local observations = aesa:read(computer.clock + step, pose, display)
+	if aesa.generation_changed then computer:reset();aesa.locked,aesa.acquiring=nil,nil end
+	local observations_ready = aesa.ready == true
 	put("F22_RADAR_OBSERVATION_BACKEND_READY", observations_ready and 1 or 0)
-	if
-		powered
-		and ready
-		and observations_ready
-		and pose
-		and (native_mode == 1 or native_mode == 2 or native_mode == 6)
-	then
-		for i = 1, math.min(64, math.max(0, get("F22_RADAR_OBSERVATION_COUNT"))) do
-			local p = string.format("F22O_%02d_", i)
-			local age = get(p .. "AGE")
-			local id = get(p .. "ID")
-			if
-				display.finite(age)
-				and age >= 0
-				and age <= computer:memory_time()
-				and id > 0
-				and display.finite(get(p .. "NORTH"))
-				and display.finite(get(p .. "EAST"))
-				and display.finite(get(p .. "ALTITUDE"))
-			then
-				local o = {
-					native_id = id,
-					age = age,
-					observed = computer.clock + step - age,
-					north = get(p .. "NORTH"),
-					east = get(p .. "EAST"),
-					altitude = get(p .. "ALTITUDE"),
-					iff = get(p .. "IFF"),
-					vn = get(p .. "VN"),
-					vu = get(p .. "VU"),
-					ve = get(p .. "VE"),
-				}
-				o.velocity_valid = display.finite(o.vn) and display.finite(o.ve) and display.finite(o.vu)
-				o.range, o.az, o.el = display.body_observation(o, pose, age)
-				o.iff = identification:reply(o.iff, o.observed, o.az, o.el, true)
-				observations[#observations + 1] = o
-			end
-		end
-	end
-	-- STT exports are timestamped measurements too. Re-reading one cache must
-	-- not count as another hit or make its age zero on each Lua activity.
+	native_mode = aesa:state(computer.clock + step, computer, observations)
 	local stt_observation = nil
-	if powered and ready and native_mode == 3 and pose and model_time and get("F22_STT_MOTION_VALID") > 0.5 then
-		local stamp = get("F22_STT_TIME")
-		local age = model_time - stamp
-		if stt_contract.fresh(model_time, stamp) then
-			age = math.max(0, age)
-			local o = {
-				native_id = get("F22_STT_ID"),
-				age = age,
-				observed = computer.clock + step - age,
-				north = get("F22_STT_PN"),
-				east = get("F22_STT_PE"),
-				altitude = get("F22_STT_PU"),
-				vn = get("F22_STT_VN"),
-				ve = get("F22_STT_VE"),
-				vu = get("F22_STT_VU"),
-				velocity_valid = true,
-				iff = iff_enabled and get("F22N_RADAR_STT_FRIENDLY") or -1,
-			}
-			o.velocity_valid = display.finite(o.vn) and display.finite(o.ve) and display.finite(o.vu)
-			o.range, o.az, o.el = display.body_observation(o, pose, age)
-			o.iff = identification:reply(o.iff, o.observed, o.az, o.el)
-			-- Native STT publishes a friendly boolean, not the full detected
-			-- contact class. Maintain an already confirmed affiliation while the
-			-- same exact source stays in fresh hard lock; otherwise a long dogfight
-			-- would lose known hostile ID when the old search reply aged out.
-			if o.iff == -1 then
-				local known = computer:source(o.native_id)
-				if known and ((known.friend_until and known.friend_until > computer.clock)
-					or (known.hostile_until and known.hostile_until > computer.clock)) then
-					o.iff = known.iff
-				end
-			end
-			if o.native_id > 0 and display.finite(o.range) and display.finite(o.az) and display.finite(o.el) then
-				observations[#observations + 1] = o
-				stt_observation = o
-			end
-		end
+	for i = 1, #observations do
+		if observations[i].native_id == aesa.locked then stt_observation = observations[i]; break end
 	end
 	if powered and ready and pose and telemetry_config.service_enabled then
 		observations = radar_service:process(computer.clock + step, computer, observations, native_mode, service_resource)
@@ -584,6 +513,7 @@ function update()
 	end
 	scan=sensor_tasks:update(computer.clock,computer,scan,rf_cues,
 		telemetry_config.rf_tasking_enabled~=false and powered and ready and pose~=nil and get("HUD_MODE")~=7)
+	aesa:publish(computer.clock, computer, service_resource, powered and ready, false, scan)
 	computer:set_effective_scan(scan,computer.clock)
 	sensor_tasks:publish(put,computer.clock)
 	if log and log.write then
@@ -679,7 +609,12 @@ function update()
 	put("F22_RADAR_STT_CLOSURE_VALID", closure_valid and 1 or 0)
 	put("F22_RADAR_STT_CLOSURE_KTS", closure_valid and closure or 0)
 	put("F22_RADAR_STT_VALID", stt_valid and 1 or 0)
-	local scope_range = computer:scope_range(stt_valid and sr or nil)
+	local envelope_range = nil
+	if (hud_mode == 2 or hud_mode == 3) and get("F22_DLZ_NATIVE_VALID") == 1
+		and get("F22_DLZ_TARGET_ID") == get("F22_RADAR_WEAPON_TARGET_ID") then
+		envelope_range = get("F22_DLZ_RMAX")
+	end
+	local scope_range = computer:scope_range(stt_valid and sr or nil, envelope_range)
 	put("F22_RADAR_RANGE_NM", scope_range / 1852)
 	put("F22_RADAR_HALF_RANGE_NM", scope_range / 3704)
 	put("F22_RADAR_AZ_DEG", computer.azimuth)
@@ -690,74 +625,24 @@ function update()
 	local vertical = computer.mode == "VACQ"
 	local bore = computer.mode == "BORE"
 	local wide = computer.mode == "WIDE"
-	local acm = vertical or bore or wide
 	put("F22_ACM_MODE", native_mode ~= 3 and (vertical and 2 or bore and 1 or wide and 3 or 0) or 0)
 	-- Body-frame scan coordinates: do not mix stabilized polar returns with HUD LOS.
-	local profile = computer:profile()
-	local scan_az = math.rad(profile and profile.az or computer.azimuth)
-	local scan_el = math.rad(profile and (profile.hi - profile.lo) / 2 or computer.vertical_span / 2)
-	if scan then
-		scan_az = scan.half_az
-		scan_el = scan.half_el
-	end
+	local scan_az = get("F22_AESA_CONTROL_HALF_AZ")
+	local scan_el = get("F22_AESA_CONTROL_HALF_EL")
 	put("F22_RADAR_SCAN_AZ_DEG", math.deg(scan_az) * 2)
 	put("F22_RADAR_SCAN_EL_DEG", math.deg(scan_el) * 2)
-	put("F22_RADAR_SCAN_CENTER_EL_DEG", math.deg(stt_valid and se or scan and scan.el or computer.elevation))
-	-- The selected ACM profile is the search to resume after track loss. It is
-	-- not the antenna's active direction during confirmed native STT. Show that
-	-- measured tracking LOS as one line; no invented tracking beam width.
-	put("F22_RADAR_COVERAGE_VALID", powered and ready and (native_mode ~= 3 or stt_valid) and 1 or 0)
-	local tracking_bearing = 0
-	if stt_valid then
-		-- This display is heading-up: project the observed world LOS just as
-		-- the target symbol does, including during pitch/roll maneuvers.
-		local _, bearing = display.scope_observation(stt_observation, pose,
-			math.max(0, computer.clock - stt_observation.observed))
-		tracking_bearing = bearing
-	end
-	put("F22_RADAR_COVERAGE_CENTER_ROT", stt_valid and -tracking_bearing or scan and -scan.az or 0)
+	put("F22_RADAR_SCAN_CENTER_EL_DEG", math.deg(get("F22_AESA_CONTROL_EL")))
+	-- These rays show the commanded search volume, which remains interleaved
+	-- during a priority lock. They do not represent an antenna sweep or prove
+	-- that every cell has already been illuminated.
+	put("F22_RADAR_COVERAGE_VALID", powered and ready and 1 or 0)
+	put("F22_RADAR_COVERAGE_CENTER_ROT", -get("F22_AESA_CONTROL_AZ"))
 	put("F22_RADAR_EXPANDED", computer.expand and 1 or 0)
-	put("F22_RADAR_COVERAGE_ROT", native_mode == 3 and 0 or scan_az)
-	-- Search-pattern azimuth is a native beam rotation, opposite body +Z.
-	-- Unlike the TDC input below, the native owner does not negate this input.
-	put("F22N_SCAN_ZONE_ORIGIN_AZIMUTH", scan and -scan.az or 0)
-	put(
-		"F22N_SCAN_ZONE_ORIGIN_ELEVATION",
-		scan and scan.el or profile and math.rad((profile.hi + profile.lo) / 2) or computer.elevation
-	)
-	put("F22N_SCAN_ZONE_VOLUME_AZIMUTH", scan_az * 2)
-	put("F22N_SCAN_ZONE_VOLUME_ELEVATION", scan_el * 2)
-	-- Scan centres and gates are already in the current aircraft body frame.
-	-- AUTO projects real world tracks through the current pitch/roll every tick.
-	-- Native stabilization would rotate that plan again during a maneuver.
-	put("F22N_RADAR_PITCH_BANK_STABILIZATION", 0)
-	put("F22N_RADAR_PITCH_STABILIZATION", 0)
-	put("F22N_RADAR_BANK_STABILIZATION", 0)
-	put("F22N_SCAN_VOLUME_CUT_OFF_DISTANCE_MIN", 40)
-	put("F22N_SCAN_VOLUME_CUT_OFF_DISTANCE_MAX", scan and scan.range or computer:range())
-	put("F22N_ACQUSITION_ZONE_VOLUME_AZIMUTH", math.rad(6))
-	put("F22N_RADAR_TDC_RANGE_CARRET_SIZE", 1500)
+	put("F22_RADAR_COVERAGE_ROT", scan_az)
 	local selected = computer.selected and computer.tracks[computer.selected]
-	-- Keep the native candidate-ranking centre in body +Z. The checked native
-	-- coordinate adapter supplies the opposite pattern rotation to the scanner,
-	-- so both the beam and candidate ranking follow this same selected LOS.
 	local ar, aa, ae = computer.cursor_range, computer.cursor_az, computer.elevation
-	local acquisition_track = computer.acquire_id and computer.tracks[computer.acquire_id]
-	if acquisition_track and computer.acquire then
-		ar, aa, ae =
-			display.body_observation(acquisition_track, pose, math.max(0, computer.clock - acquisition_track.observed))
-		do
-			-- Acquire around the candidate LOS, including elevation. Keeping
-			-- VACQ's search centre here does not follow a crossing close target.
-			put("F22N_SCAN_ZONE_ORIGIN_ELEVATION", ae)
-			put("F22N_SCAN_ZONE_VOLUME_ELEVATION", math.rad(10))
-			put("F22N_ACQUSITION_ZONE_VOLUME_AZIMUTH", acm and scan_az * 2 or math.rad(8))
-		end
-	end
-	put("F22N_RADAR_TDC_AZIMUTH", -aa)
-	put("F22N_RADAR_TDC_RANGE", ar)
-	-- Native acquisition can briefly enter STT and reject it between Lua ticks.
-	-- Re-request from native search; a stale local latch must not block retry.
+	-- Acquisition requests enter our own beam scheduler and require a new
+	-- measured report. Legacy command numbers are internal bindings only.
 	if
 		computer.acquire
 		and ready
@@ -800,7 +685,7 @@ function update()
 			visible[1].prediction_error_m = locked_track and locked_track.prediction_error_m
 			display.world_observation(visible[1], pose)
 		end
-		-- Other files coast honestly during single-target track.
+		-- Other files retain their actual AESA measurement ages during priority tracking.
 		for _, t in pairs(computer.tracks) do
 			if t.id ~= computer.selected and computer:quality(t) > 0 then
 				visible[#visible + 1] = t
@@ -992,7 +877,7 @@ function update()
 	end
 	publish_sequence = publish_sequence + 1
 	-- Support of an existing launched ID is independent of selecting a new
-	-- TWS launch target. STT cannot revisit other files; their real ages expire.
+	-- TWS launch target. The electronic scheduler continues servicing other files.
 	put("F22_RADAR_SUPPORT_ENABLED", powered and ready and 1 or 0)
 	put("F22_TWS_ACTIVE", powered and ready and computer.mode == "TWS" and native_mode ~= 3 and 1 or 0)
 	put("F22_TWS_TARGET_ID", computer:supportable(selected) and selected.native_id or 0)

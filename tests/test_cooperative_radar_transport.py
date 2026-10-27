@@ -18,7 +18,7 @@ local function p(n,v)get_param_handle(n):set(v)end
 local function v(n)return get_param_handle(n):get()end
 dofile(SCRIPT_ROOT..'Systems/RWR_System.lua');post_initialize()
 local rf_update=update
-dofile(SCRIPT_ROOT..'Systems/Radar_System.lua');post_initialize()
+dofile(SCRIPT_ROOT..'Systems/Radar_System.lua');post_initialize();dofile(SCRIPT_ROOT..'../../tests/legacy_measurement_fixture.lua')
 local radar_update=update;local radar_command=SetCommand
 assert(v('F22_TACTICAL_01_RF_DIRECTION_VALID')==0)
 assert(v('F22_RADAR_RF_CUE_ACTIVE')==0,'construction invented a task')
@@ -34,8 +34,8 @@ tick()
 assert(v('F22_TACTICAL_01_RF_DIRECTION_VALID')==1)
 assert(v('F22_TACTICAL_01_RF_GENERAL')==1 and v('F22_TACTICAL_01_RANGE_VALID')==0)
 assert(v('F22_RADAR_RF_CUE_ACTIVE')==1 and v('F22_RADAR_RF_CUE_SOURCE')==71)
-assert(math.abs(v('F22N_SCAN_ZONE_ORIGIN_AZIMUTH')+math.rad(35))<1e-8,'native scanner azimuth reflection missing')
-assert(math.abs(v('F22N_SCAN_ZONE_ORIGIN_ELEVATION')-math.rad(25))<1e-8)
+assert(math.abs(-v('F22_AESA_CONTROL_CUE_AZ')+math.rad(35))<1e-8,'native scanner azimuth reflection missing')
+assert(math.abs(v('F22_AESA_CONTROL_CUE_EL')-math.rad(25))<1e-8)
 assert(v('F22_RADAR_DRAWN_COUNT')==0 and v('F22_RADAR_STT_VALID')==0,'passive cue fabricated detection/lock')
 -- Same measured RF reception, but ownship turns. Search follows the fixed
 -- world direction instead of freezing the old body bearing.
@@ -45,7 +45,7 @@ p('F22_MWS_PUBLISH_SEQUENCE',1);p('F22_MWS_PUBLISH_TIME',now+.05)
 for k,x in pairs({VALID=1,SOURCE=71,AGE=0,AZ=-.5,EL=-.2})do p('F22_MWS_01_'..k,x)end
 tick()
 assert(v('F22_TACTICAL_01_DIRECTION_SOURCE')==4)
-assert(math.abs(v('F22N_SCAN_ZONE_ORIGIN_AZIMUTH')+math.rad(5))<1e-8)
+assert(math.abs(-v('F22_AESA_CONTROL_CUE_AZ')+math.rad(5))<1e-8)
 -- A genuine new radar observation in the cued volume must not be rejected
 -- merely because it is above the pilot's former +/-10-degree search slice.
 local d=dofile(SCRIPT_ROOT..'Systems/Radar_Display.lua')
@@ -58,7 +58,7 @@ tick();assert(v('F22_RADAR_DRAWN_COUNT')==1,'real RF-cued radar detection discar
 -- Manual scan elevation suspends RF steering without changing pilot intent.
 radar_command(10614,1);tick()
 assert(v('F22_RADAR_RF_CUE_ACTIVE')==0 and v('F22_RADAR_RF_MANUAL_HOLD')>7)
-assert(math.abs(v('F22N_SCAN_ZONE_ORIGIN_ELEVATION')-math.rad(2))<1e-8)
+assert(math.abs(v('F22_AESA_CONTROL_EL')-math.rad(2))<1e-8)
 -- ACM and A/G own their patterns; RF policy cannot leave a latched cue active.
 radar_command(10604,1);tick();assert(v('F22_RADAR_RF_CUE_ACTIVE')==0)
 p('HUD_MODE',7);tick();assert(v('F22_RADAR_RF_CUE_ACTIVE')==0 and v('F22_RADAR_SENSOR_TASK')==0)

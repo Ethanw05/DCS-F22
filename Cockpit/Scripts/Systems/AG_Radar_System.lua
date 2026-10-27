@@ -407,17 +407,14 @@ function M:update(pose, now, dt, powered, ready)
 			put("F22_AG_CURSOR_ARC_"..i.."_X",math.sin(a)*m.cursor_fraction*1.65)
 			put("F22_AG_CURSOR_ARC_"..i.."_Y",-.76+math.cos(a)*m.cursor_fraction*1.52)
 		end
-		local _, az, el = Display.body_observation(cursor, pose, 0)
+		local _, az = Display.body_observation(cursor, pose, 0)
 		scan = m:scan_plan(az)
-		put("F22N_SCAN_ZONE_ORIGIN_ELEVATION", el)
 	end
-	put("F22N_SCAN_ZONE_ORIGIN_AZIMUTH", -scan.az)
-	put("F22N_SCAN_ZONE_VOLUME_AZIMUTH", scan.half_az * 2)
 	put("F22_AG_RADAR_SCAN_CENTER_AZ_DEG", math.deg(video_scan.az))
 	put("F22_AG_RADAR_SCAN_AZ_DEG", math.deg(scan.half_az * 2))
 	put("F22_AG_RADAR_SCAN_LIMITED", scan.limited and 1 or 0)
 	put("F22_AG_RADAR_CURSOR_AZ_COVERED", cursor and scan.cursor_covered and 1 or 0)
-	-- One core radar video source; physical scan width is independent of the
+	-- One shared scene renderer; the AESA job width is independent of the
 	-- fixed 120-degree display field. Narrowing AZ never magnifies the image.
 	-- Steering/narrowing the illuminated sector does not change pixel mapping.
 	-- Preserve accumulated video; only a range or operating-state change erases.
@@ -431,17 +428,23 @@ function M:update(pose, now, dt, powered, ready)
 		if not operating then self.video_frozen=false;self.frozen_pose=nil end
 	end
 	if pose then
-		-- Image hold must not stop the physical search sweep. The cached video
-		-- frame retains its old angle; the native sensor consumes the live one.
+		-- Image hold retains its frame while the independent AESA still senses.
+		local service_sequence=self.get("F22_AESA_SURFACE_SEQUENCE")
+		local granted=self.get("F22_AESA_SURFACE_SERVICE")==1
+			and service_sequence~=(self.last_surface_sequence or -1)
+		self.last_surface_sequence=service_sequence
 		if operating and not acquiring and not selected then
 			local c=self.controls
-			if Modes.advance(c,dt,ev and ev.fov or m.width,not c.silent or c.active)then
+			if Modes.advance(c,ev and ev.fov or m.width,not c.silent or c.active,granted)then
 			 c.active=false;c.active_end=nil;self.video_frozen=true;self.frozen_pose=map_pose;self.frozen_view=m.exp_view;self.frozen_movers=m.movers;hold=true
 			end
 			self.sweep_phase=c.sweep;self.sweep_direction=c.direction
 		end
-		local direction,progress=self.sweep_direction,self.sweep_phase
-		local angle = math.deg(video_scan.az) + direction * (-(ev and ev.fov or m.width) / 2 + (ev and ev.fov or m.width) * progress)
+		local direction=1
+		local width=ev and ev.fov or m.width
+		local angle=math.deg(self.get("F22_AESA_SURFACE_AZ"))
+		local progress=math.max(0,math.min(1,(angle-math.deg(video_scan.az))/width+.5))
+		put("F22_AG_VIDEO_COLLECTION",math.floor(self.controls.units))
 		put("F22_AG_SENSOR_SCAN_AZ_DEG",angle);put("F22_AG_SENSOR_SCAN_DIRECTION",direction)
 		local frame = self.video_frame
 		if not hold or not frame then
@@ -457,7 +460,7 @@ function M:update(pose, now, dt, powered, ready)
 		put("F22_AG_VIDEO_SCAN_AZ_DEG", frame.angle)
 	end
 	put("F22_AG_VIDEO_TIME", now)
-	-- GMT uses the same native image path for its footprint and INTL sweeps.
+	-- GMT and MAP share the renderer and the same finite AESA service budget.
 	put("F22_AG_VIDEO_ENABLE",operating and m.mode~=7 and 1 or 0)
 	put("F22_AG_MAP_VIDEO_SHOW",m.mode==7 and 0 or 1)
 	put("F22_AG_VIDEO_FOV_DEG",ev and ev.fov or m.width)
@@ -469,12 +472,6 @@ function M:update(pose, now, dt, powered, ready)
 	put("F22_AG_VIDEO_HOLD",hold and 1 or 0)
 	put("F22_AG_VIDEO_ERASE_SEQUENCE", self.video_erase)
 	put("F22_AG_MODE",m.mode)
-	put("F22N_SCAN_ZONE_VOLUME_ELEVATION",math.rad(self.controls.fan and 40 or 6.6))
-	put("F22N_RADAR_PITCH_BANK_STABILIZATION", 0)
-	put("F22N_RADAR_PITCH_STABILIZATION", 0)
-	put("F22N_RADAR_BANK_STABILIZATION", 0)
-	put("F22N_SCAN_VOLUME_CUT_OFF_DISTANCE_MIN", 300)
-	put("F22N_SCAN_VOLUME_CUT_OFF_DISTANCE_MAX", m.range_nm * 1852)
 	local valid = get("HUD_AG_TARGET_VALID") > 0.5 and pose ~= nil
 	put("F22_AG_MAP_TARGET_VALID", valid and 1 or 0)
 	if valid then
@@ -589,7 +586,7 @@ function M:control_command(name,powered,now)
   return true
  elseif name=='active'then
   if powered and c.silent and not c.active then
-   self:cancel_preview();self:cancel_track();c.active=true;c.active_end=c.units+2;self:hold_image(false)
+   self:cancel_preview();self:cancel_track();c.active=true;c.active_end=c.units+1;self:hold_image(false)
   end
   return true
  elseif name=='data'then if powered then c.data=not c.data end;return true

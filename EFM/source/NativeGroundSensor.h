@@ -3,6 +3,7 @@
 class EDPARAM;
 namespace NativeGroundSensor {
 void update(EDPARAM &);
-void sample(void *owned_radar);
+struct ArrayService { bool granted{};double azimuth{}, resource{};bool active{}; };
+void sample(void *owned_radar, const ArrayService* service = nullptr);
 void reset();
 }

@@ -1,4 +1,4 @@
-﻿#include "CommandRouting.h"
+#include "CommandRouting.h"
 #include "NativeGunSight.h"
 /*    Grinnelli Designs F-22A Raptor
     Copyright (C) 2025, Branden Hooper
@@ -37,6 +37,7 @@
 #include "Autopilot.h"
 #include "NativeNavigation.h"
 #include "NativeSidewinder.h"
+#include "NativeAesaRadar.h"
 #include "NativeMWS.h"
 #include "NativeGroundRadar.h"
 #include "NativeGroundVideo.h"
@@ -1372,6 +1373,7 @@ void ed_fm_on_damage(int Element, double element_integrity_factor) {
     RAPTOR::element_integrity[Element] = element_integrity_factor;
     static_cast<void>(vehicle.damage.add(Element, element_integrity_factor));
     if (!RAPTOR::invincible) {
+        NativeAesaRadar::damage(Element, element_integrity_factor);
         RAPTOR::left_wing_integrity = RAPTOR::element_integrity[static_cast<size_t>(DamageElement::WingOutLeft)] *
             RAPTOR::element_integrity[static_cast<size_t>(DamageElement::WingCentreLeft)] *
             RAPTOR::element_integrity[static_cast<size_t>(DamageElement::WingInLeft)];
@@ -1423,6 +1425,7 @@ bool ed_fm_need_to_be_repaired() {
 void ed_fm_repair() {
     vehicle.repair_equipment();
     vehicle_repair_injected_faults();
+    NativeAesaRadar::repair();
     for (int i = 0; i < 137; i++) RAPTOR::element_integrity[i] = 1.0;
     RAPTOR::left_wing_integrity = RAPTOR::right_wing_integrity = RAPTOR::tail_integrity = 1.0;
     RAPTOR::left_elevon_integrity = RAPTOR::right_elevon_integrity = 1.0;

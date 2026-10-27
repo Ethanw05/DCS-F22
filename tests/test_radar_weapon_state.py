@@ -75,27 +75,18 @@ press('weapon_select');expect('RWS')
 ''')
 print('Radar weapon state: actual mode owner, direct selection, A/A toggle, dogfight restore and weapon cycle PASS')
 
-lua = namespace['runtime']()
-lua.execute(SETUP + r'''
-SetCommand(10602,1);update();mode(5)
--- A weapon change cancels an unfinished acquisition, without a latent GUN retry.
-local p='F22N_RADAR_CONTACT_01_'
-put(p..'RANGE',700);put(p..'TIME',0);update();expect('ACQ')
-put('F22N_RADAR_MODE',2);update();put(p..'TIME',-1)
-local first=#actions;mode(3);expect('TWS')
-local rejects=0;for i=first+1,#actions do if actions[i][1]==510 then rejects=rejects+1 end end
-assert(rejects==1,'unfinished native acquisition was not cancelled exactly once')
-put('F22N_RADAR_MODE',1);update();expect('TWS')
--- Keep a confirmed native STT; change the return state for reject/track loss.
-mode(5);put('F22N_RADAR_MODE',3);put('F22N_RADAR_STT_RANGE',12964);update()
-assert(val('F22_RADAR_STT_VALID')==1)
-first=#actions;mode(2)
-assert(val('F22_RADAR_STT_VALID')==1 and val('F22_ACM_MODE')==0)
-for i=first+1,#actions do assert(actions[i][1]~=509 and actions[i][1]~=510,'weapon change dropped STT')end
-put('F22N_RADAR_MODE',1);update();expect('TWS')
-mode(5);put('F22N_RADAR_MODE',3);update();first=#actions;mode(3)
-assert(val('F22_RADAR_STT_VALID')==1 and val('F22_ACM_MODE')==0)
-for i=first+1,#actions do assert(actions[i][1]~=509 and actions[i][1]~=510)end
-put('F22N_RADAR_MODE',1);update();expect('TWS')
-''')
-print('Radar weapon state: unfinished acquisition cleared, confirmed STT retained and post-loss search restored PASS')
+from radar_test_runtime import owned_runtime
+lua=owned_runtime()
+lua.execute("""
+f.put('HUD_MODE',5);f.measure(42,700);f.tick()
+assert(f.get('F22_RADAR_MODE_TEXT')=='ACQ')
+f.put('HUD_MODE',3);f.tick()
+assert(f.get('F22_RADAR_STT_VALID')==0 and f.get('F22_AESA_CONTROL_TARGET')==0)
+f.lock(42);f.command(10602,1)
+f.put('HUD_MODE',2);f.tick()
+assert(f.get('F22_RADAR_STT_VALID')==1 and f.get('F22_ACM_MODE')==0)
+f.tick(.6);assert(f.get('F22_RADAR_STT_VALID')==0)
+assert(f.get('F22_RADAR_MODE_TEXT')=='TWS')
+assert(#actions==0,'weapon switch dispatched a mechanical acquisition/unlock')
+""")
+print('Owned weapon transitions: unfinished acquisition cancelled, measured lock retained and post-loss search restored PASS')

@@ -44,7 +44,7 @@ struct View {
   bool frozen{};
   double stamp{}, north{}, altitude{}, east{}, heading{};
   double range_nm = 20, width_deg = 120;
-  double scan_direction = 1, scan_fraction{}, gain = .5;
+  double scan_direction = 1, scan_fraction{}, gain = .5, collection{};
   double antenna_elevation{},scan_center{};
   bool gmt{},interleave{},tracking{},fast{},fan=true,qualified=true,stabilized{};
   int mode=1,expansion{};

@@ -113,8 +113,8 @@ local center=-get('F22N_SCAN_ZONE_ORIGIN_AZIMUTH');local half=get('F22N_SCAN_ZON
 assert(math.abs(center)+half<=math.rad(60)+1e-9,'actual owner still requests a 115-degree edge')
 assert(get('F22_AG_RADAR_SCAN_LIMITED')==1)
 -- This is a chosen common-backend limit, not a recovered APG-77 parameter.
-dofile(SCRIPT_ROOT..'Systems/Radar_Native.lua')
-assert(math.abs(perfomance.tracking_azimuth[2]-Model.scan_azimuth_limit)<1e-9)
+dofile(SCRIPT_ROOT..'device_init.lua')
+assert(creators[devices.RADAR_NATIVE][1]=='avLuaDevice','mechanical sensor reintroduced')
 print('Bounded scan cases: '..checked)
 ''')
 print('Ground scan: 1,083 width/bearing cases, coverage flags and native parameter publication PASS')

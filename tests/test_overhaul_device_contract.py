@@ -19,7 +19,7 @@ g = lua.globals()
 
 # These slots are dereferenced by qualified native adapters, not arbitrary UI IDs.
 native_contract = {
-    'RADAR_NATIVE': (13, 'avSimpleRadar'),
+    'RADAR_NATIVE': (13, 'avLuaDevice'),
     'WEAPON_NATIVE': (15, 'avSimpleWeaponSystem'),
     'ILS_NATIVE': (24, 'avILS'),
     'NAV_POWER_NATIVE': (26, 'avSimpleElectricSystem'),

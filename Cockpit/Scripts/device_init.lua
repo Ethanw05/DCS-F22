@@ -47,10 +47,7 @@ creators[devices.AG_MARK_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."
 creators[devices.RADAR_DATA_BRIDGE] = {"avLuaDevice", LockOn_Options.script_path.."Systems/Radar_Data_Bridge.lua"}
 creators[devices.AG_BALLISTIC_COMPUTER] = {"avLuaDevice", LockOn_Options.script_path.."Systems/AG_Ballistic_Computer.lua"}
 creators[devices.HUD_FLIGHT_DATA] = {"avLuaDevice", LockOn_Options.script_path.."Systems/HUD_Flight_Data.lua"}
-local radar_config=dofile(LockOn_Options.script_path.."Systems/Radar_Config.lua")
-if radar_config.native_backend_enabled then
-    creators[devices.RADAR_NATIVE] = {"avSimpleRadar", LockOn_Options.script_path.."Systems/Radar_Native.lua"}
-end
+creators[devices.RADAR_NATIVE] = {"avLuaDevice", LockOn_Options.script_path.."Systems/Radar_Native.lua"}
 creators[devices.RADAR_COMPUTER] = {"avLuaDevice", LockOn_Options.script_path.."Systems/Radar_System.lua"}
 creators[devices.WEAPON_NATIVE] = {"avSimpleWeaponSystem", LockOn_Options.script_path.."Systems/Weapon_Native.lua"}
 creators[devices.COMBAT_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/Combat_System.lua"}

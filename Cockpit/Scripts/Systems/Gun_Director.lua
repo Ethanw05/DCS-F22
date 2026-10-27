@@ -1,5 +1,5 @@
 -- GPL-3.0-or-later. Original lock-associated director and conventional pipper.
--- Native motion comes only from the selected avSimpleRadar STT cache.
+-- Motion comes from the selected owned AESA measured track.
 local M = {}
 local Motion = dofile(LockOn_Options.script_path .. "Systems/Gun_Motion.lua")
 local Frames = dofile(LockOn_Options.script_path .. "Systems/Gun_Frames.lua")

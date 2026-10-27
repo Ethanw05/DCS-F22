@@ -38,11 +38,11 @@ lua.execute(SETUP + r'''
 press(10704);assert(val('F22_SOI')==1)
 press(10728);expect('WIDE')
 press(10702);expect('VACQ')
-assert(math.abs(val('F22N_SCAN_ZONE_VOLUME_AZIMUTH')-math.rad(10))<1e-8)
-assert(math.abs(val('F22N_SCAN_ZONE_VOLUME_ELEVATION')-math.rad(59))<1e-8)
+assert(math.abs(2*val('F22_AESA_CONTROL_HALF_AZ')-math.rad(10))<1e-8)
+assert(math.abs(2*val('F22_AESA_CONTROL_HALF_EL')-math.rad(59))<1e-8)
 press(10700);expect('BORE')
-assert(math.abs(val('F22N_SCAN_ZONE_VOLUME_AZIMUTH')-math.rad(3.3))<1e-8)
-assert(math.abs(val('F22N_SCAN_ZONE_VOLUME_ELEVATION')-math.rad(3.3))<1e-8)
+assert(math.abs(2*val('F22_AESA_CONTROL_HALF_AZ')-math.rad(3.3))<1e-8)
+assert(math.abs(2*val('F22_AESA_CONTROL_HALF_EL')-math.rad(3.3))<1e-8)
 press(10701);expect('WIDE')
 -- The selected pattern stays selected through time and repeat weapon presses.
 press(10702);for i=1,120 do tick()end;expect('VACQ')
@@ -56,21 +56,17 @@ print('HUD-focus ACM: encoded physical inputs, actual owners, native scan volume
 lua = namespace['runtime']()
 lua.execute(SETUP + r'''
 press(10704);press(10728)
-put('F22N_RADAR_MODE',3);put('F22N_RADAR_STT_RANGE',700);tick()
-assert(val('F22_RADAR_STT_VALID')==1)
-local start=#actions
-press(10702)
-assert(val('F22_RADAR_STT_VALID')==1 and val('F22_ACM_MODE')==0,'confirmed STT retained the acquisition pattern')
-for i=start+1,#actions do assert(actions[i][1]~=509 and actions[i][1]~=510,'ACM choice rejected confirmed STT')end
-put('F22N_RADAR_MODE',1);tick();expect('VACQ')
--- Acquisition is sensor-driven after the chosen scan: a high target is in VACQ.
 local p='F22N_RADAR_CONTACT_01_'
-put(p..'RANGE',700);put(p..'ELEVATION',math.rad(30));put(p..'TIME',0);tick();expect('ACQ')
-put('F22N_RADAR_MODE',2);tick();put(p..'TIME',-1)
-press(10700);expect('BORE')
-put('F22N_RADAR_MODE',1);tick();expect('BORE')
+put(p..'RANGE',700);put(p..'TIME',0);tick();tick()
+assert(val('F22_RADAR_STT_VALID')==1)
+local start=#actions;press(10702)
+assert(val('F22_RADAR_STT_VALID')==1 and val('F22_ACM_MODE')==0)
+for i=start+1,#actions do assert(actions[i][1]~=509 and actions[i][1]~=510)end
+put(p..'TIME',-1);for i=1,12 do tick()end;expect('VACQ')
+put(p..'ELEVATION',math.rad(30));put(p..'TIME',0);tick();expect('ACQ')
+put(p..'TIME',-1);press(10700);expect('BORE')
 ''')
-print('HUD-focus ACM: native STT retained, correct post-loss return and in-progress acquisition switched PASS')
+print('HUD-focus ACM: owned measured STT retained, post-loss return and in-progress acquisition switched PASS')
 
 lua = namespace['runtime']()
 lua.execute(SETUP + r'''
@@ -90,9 +86,9 @@ for _,weapon in ipairs({10728,10729})do
   for _,page in ipairs({0,7,13,6,8,9,10,11,12})do
    put(fields[focus],page);combat_command(10742,focus);tick()
    press(10700);expect('BORE')
-   assert(math.abs(val('F22N_SCAN_ZONE_VOLUME_AZIMUTH')-math.rad(3.3))<1e-8)
+   assert(math.abs(2*val('F22_AESA_CONTROL_HALF_AZ')-math.rad(3.3))<1e-8)
    press(10702);expect('VACQ')
-   assert(math.abs(val('F22N_SCAN_ZONE_VOLUME_ELEVATION')-math.rad(59))<1e-8)
+   assert(math.abs(2*val('F22_AESA_CONTROL_HALF_EL')-math.rad(59))<1e-8)
    press(10701);expect('WIDE')
    local start=#actions;press(10733);press(10726)
    assert(#actions==start,'unfocused cursor/range action reached radar')

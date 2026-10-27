@@ -21,29 +21,20 @@ end
 ''')
 print('Direct weapons: idempotent selection; A/A memory/NAV; A/G/NAV; BVR emitted during STT OK')
 
-l=runtime()
-l.execute('''
-native={set_power=function() end};function GetDevice(_) return native end
-dofile(SCRIPT_ROOT..'Systems/Radar_System.lua');dofile(SCRIPT_ROOT..'../../tests/radar_body_fixture.lua');post_initialize()
-local function put(n,v) get_param_handle(n):set(v) end
-local function val(n) return get_param_handle(n):get() end
-put('MAIN_POWER',1);put('HUD_MODE',5);put('F22N_RADAR_MODE',1);SetCommand(10602,1)
-SetCommand(10604,1);update();put('F22N_RADAR_MODE',3);put('F22N_RADAR_STT_RANGE',12964);update()
-assert(val('F22_ACM_MODE')==0 and val('F22_RADAR_STT_VALID')==1,'native track still displayed its prior acquisition pattern')
-local old=#actions;put('HUD_MODE',2);update()
-assert(val('F22_ACM_MODE')==0 and val('F22_RADAR_STT_VALID')==1,'MRM reset confirmed lock or retained VACQ')
-assert(val('PMFD_RADAR_SELECTION')==1,'MRM did not restore TWS preference')
-assert(#actions==old,'MRM transition sent native unlock')
-put('F22N_RADAR_MODE',1);update();assert(val('F22_RADAR_MODE_TEXT')=='TWS')
--- Designation in TWS publishes its real measured/predicted LOS, not STT.
-local p='F22N_RADAR_CONTACT_01_'
-put(p..'RANGE',12964);put(p..'AZIMUTH',0);put(p..'ELEVATION',0);put(p..'TIME',0)
-update();SetCommand(10618,1);update()
-assert(val('F22_RADAR_DESIGNATION_VALID')==1 and val('F22_RADAR_STT_VALID')==0)
-assert(math.abs(val('F22_RADAR_DESIGNATION_RANGE')-12964)<1e-5)
-put('MAIN_POWER',0);update();assert(val('F22_RADAR_DESIGNATION_VALID')==0)
-''')
-print('MRM transition: lock retained, ACM cleared, TWS restored; search designation LOS/power gates OK')
+from radar_test_runtime import owned_runtime
+l=owned_runtime()
+l.execute("""
+f.lock(42);f.command(10602,1)
+f.put('HUD_MODE',5);f.tick();f.put('HUD_MODE',2);f.tick()
+assert(f.get('F22_RADAR_STT_VALID')==1 and f.get('F22_ACM_MODE')==0)
+assert(f.get('PMFD_RADAR_SELECTION')==1 and #actions==0)
+f.tick(.6);assert(f.get('F22_RADAR_MODE_TEXT')=='TWS')
+f.command(10618,1);f.tick()
+assert(f.get('F22_RADAR_DESIGNATION_VALID')==1 and f.get('F22_RADAR_STT_VALID')==0)
+assert(math.abs(f.get('F22_RADAR_DESIGNATION_RANGE')-10000)<1e-5)
+f.put('MAIN_POWER',0);f.tick();assert(f.get('F22_RADAR_DESIGNATION_VALID')==0)
+""")
+print('Owned MRM transition: lock retained, ACM cleared, TWS restored; search designation LOS/power gates PASS')
 
 l=runtime()
 l.execute('''

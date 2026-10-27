@@ -32,7 +32,7 @@ assert g.plugin_config.requiredModules is None
 cockpit = runtime()
 cockpit.execute('dofile(SCRIPT_ROOT.."device_init.lua")')
 c = cockpit.globals()
-for name, native_class in [('RADAR_NATIVE','avSimpleRadar'),
+for name, native_class in [('RADAR_NATIVE','avLuaDevice'),
                            ('WEAPON_NATIVE','avSimpleWeaponSystem'),
                            ('RWR_NATIVE','avSimpleRWR'),
                            ('NAV_SYSTEM','avLuaDevice'),

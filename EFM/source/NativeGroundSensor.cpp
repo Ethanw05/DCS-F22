@@ -1,5 +1,5 @@
 // GPL-3.0-or-later. Independent bounded GMT detector using shared DCS services.
-// Scene access occurs ONLY after our owned radar's native update_radar call.
+// Scene access occurs on the owned avLuaDevice clock after the AESA scheduler.
 // No mission/export truth, global enumeration, or FA18C runtime dependency.
 #include "NativeGroundSensor.h"
 #include "GroundMovingTargets.h"
@@ -77,11 +77,11 @@ struct Api {
     reason=ok?0:3;ready.store(ok,std::memory_order_release);
   }
 } api;
-struct Controls {bool active{},search{},request{},sea{},ranging{},fan{},illuminated=true;double elevation{},stamp{},range=37040,az{},request_sequence{};Vec request_point{};unsigned selected{};};
+struct Controls {bool active{},search{},request{},sea{},ranging{},fan{},illuminated=true;double resource=1,elevation{},stamp{},range=37040,az{},request_sequence{};Vec request_point{};unsigned selected{};};
 struct Output {
   bool ready{};int reason=4;double stamp{};unsigned queries{},candidates{},terrain_rejects{},object_rejects{},speed_rejects{},ground_candidates{},truncated{};
-  Vec origin{};double heading{},az{},dt{},aspect{};std::vector<Contact> contacts;
-  bool agr_valid{};double agr_range{},agr_rate{};Vec agr_point{};
+  Vec origin{};double heading{},az{},dt{},aspect{};Contacts contacts;
+  bool agr_valid{};double agr_range{},agr_rate{},agr_stamp=-100;Vec agr_point{};
   Contact selected{};bool acquiring{},memory{},fixed{};unsigned rcs_rejects{},selected_type{};double request_sequence=-1;
 };
 std::mutex state_mutex;
@@ -89,11 +89,15 @@ Controls controls;
 Output output;
 std::atomic<std::uint64_t> epoch{1};
 Tracks tracks;
+Measurements measurements;
+struct RangeReport { double stamp=-100, release{}, range{}, rate{};bool valid{}; };
+std::array<RangeReport, 4> range_pending{};
+RangeReport range_report;
 Contact selected;
 Vec acquisition_point{};
 bool acquiring{},fixed{};
 unsigned selected_type{};
-double request_sequence=-1,acquisition_time{},previous_az{};
+double request_sequence=-1,acquisition_time{};
 std::uint64_t sampled_epoch{};
 double last_query=-1;
 std::map<std::string,void*> handles;
@@ -122,20 +126,22 @@ bool visible(const Vec&from,const Vec&to,unsigned target,unsigned own,Output&sta
   if(!terrain_visible(from,to)){++stats.terrain_rejects;return false;}
   using Segment=void(__fastcall*)(void*,const Vec&,const Vec&,unsigned,const Query&);
   void *manager=*api.manager;auto query=method<Segment>(manager,24);if(!query)return false;
-  unsigned tested=0,nearest_id=0;const double distance=length(to-from);double nearest=distance;
-  Query each=[&](Scene&object) {
+  struct SegmentState { const Vec* from;const Vec* to;Output* stats;unsigned own{},tested{},nearest_id{};
+    double distance{},nearest{}; };
+  SegmentState context{&from,&to,&stats,own,0,0,length(to-from),length(to-from)};
+  Query each=[c=&context](Scene& object) {
     const unsigned object_id=id(object);
-    if(object_id==own)return 0;
-    if(++tested>128){++stats.truncated;return 1;}
+    if(object_id==c->own)return 0;
+    if(++c->tested>32){++c->stats->truncated;return 1;}
     Vec point{},normal{};double fraction=2;
-    if(api.intersect(object,from,to,point,fraction,normal)&&fraction>=0&&fraction<=1&&fraction*distance<nearest){
-      nearest=fraction*distance;nearest_id=object_id;
+    if(api.intersect(object,*c->from,*c->to,point,fraction,normal)&&fraction>=0&&fraction<=1&&fraction*c->distance<c->nearest){
+      c->nearest=fraction*c->distance;c->nearest_id=object_id;
     }
     return 0;
   };
   // Same separate scene-object obstruction query used by APG-73 AG visibility.
   query(manager,from,to,35,each);
-  const bool accepted=tested<=128&&(nearest_id==target||distance-nearest<10);
+  const bool accepted=context.tested<=32&&(context.nearest_id==target||context.distance-context.nearest<10);
   if(!accepted)++stats.object_rejects;
   return accepted;
 }
@@ -164,30 +170,53 @@ const void *volume(Vec origin,double heading,double elevation,double half_az,dou
 }
 }
 void reset(){epoch.fetch_add(1);std::lock_guard<std::mutex>lock(state_mutex);controls={};output={};handles.clear();}
-void sample(void *owned_radar) {
+void sample(void *owned_radar, const ArrayService* service) {
   if(!owned_radar||!api.ready.load(std::memory_order_acquire))return;
   const auto generation=epoch.load();
-  if(generation!=sampled_epoch){tracks.clear();selected={};selected_type=0;acquiring=false;fixed=false;request_sequence=-1;last_query=-1;sampled_epoch=generation;}
+  if(generation!=sampled_epoch){range_pending={};range_report={};measurements.clear();tracks.clear();selected={};selected_type=0;acquiring=false;fixed=false;request_sequence=-1;last_query=-1;sampled_epoch=generation;}
   Controls c;Output stats;
   {std::lock_guard<std::mutex>lock(state_mutex);c=controls;stats=output;}
+  if(service){c.illuminated=service->granted;c.az=service->azimuth;c.resource=service->resource;c.active=c.active&&service->active;}
   const double now=api.clock();
   stats.ready=true;stats.reason=0;stats.stamp=now;
   // FRZ holds the video, not the transmitter or ground sensor. MAP can
   // request the same native acquisition/FTT path without enabling GMT search.
   if(!std::isfinite(now)||!c.active||now-c.stamp<-.05||now-c.stamp>.5) {
-    if(!c.active){tracks.clear();selected={};acquiring=false;fixed=false;}stats.agr_valid=false;stats.contacts.clear();stats.selected={};stats.fixed=false;
+    if(!c.active){range_pending={};range_report={};measurements.clear();tracks.clear();selected={};acquiring=false;fixed=false;}stats.agr_valid=false;stats.contacts.clear();stats.selected={};stats.fixed=false;
     std::lock_guard<std::mutex>lock(state_mutex);if(epoch.load()==generation)output=stats;return;
   }
   if(now>=last_query&&now-last_query<.015)return;
   const double dt=last_query<0?.02:std::clamp(now-last_query,0.,.1);
   last_query=now;tracks.advance(now);
+  measurements.release(now,[&](const Contact& measured,bool for_track) {
+    if(for_track){
+      if(acquiring||selected.id==measured.id){
+        selected=measured;acquiring=false;fixed=false;
+        selected_type=measured.velocity_valid&&length(measured.velocity)>3?2:1;tracks.clear();
+      }
+    }else tracks.observe(measured);
+  });
+  for(auto& report:range_pending)if(report.valid&&now>=report.release){range_report=report;report.valid=false;}
+  stats.agr_valid=c.ranging&&range_report.valid&&now>=range_report.stamp&&now-range_report.stamp<=.5;
+  stats.agr_stamp=range_report.stamp;stats.agr_range=range_report.range;stats.agr_rate=range_report.rate;
+  if(!c.illuminated) {
+    // Background air jobs own these intervals. Acquisition, tracking and
+    // ranging cannot bypass the common array service budget.
+    if((selected.id||fixed)&&now-selected.stamp>5){selected={};fixed=false;}
+    stats.contacts=tracks.contacts();stats.selected=selected;stats.selected_type=selected_type;
+    stats.fixed=fixed;stats.memory=selected.id||fixed;stats.acquiring=acquiring;
+    std::lock_guard<std::mutex>lock(state_mutex);if(epoch.load()==generation)output=std::move(stats);return;
+  }
   void *la=api.aircraft();using Own=void*(__fastcall*)(void*);auto own_get=method<Own>(la,40);
   void *own=own_get?own_get(la):nullptr;
   const auto basis=own?api.position(own):nullptr;
   if(!own||!readable(reinterpret_cast<std::uintptr_t>(basis),64))return;
   Vec origin{};api.point(own,&origin);
+  const auto own_speed=api.velocity(own);
+  if(!own_speed)return;
+  const Vec own_velocity{own_speed->n,own_speed->u,own_speed->e};
+  if(!std::isfinite(length(own_velocity)))return;
   const double heading=std::atan2(basis[2],basis[0]);
-  stats.agr_valid=false;
   if(c.ranging) {
     // Native beam/terrain measurement. This is independent of the bomb
     // ballistic trajectory and is invalid when the beam does not hit ground.
@@ -200,8 +229,12 @@ void sample(void *owned_radar) {
     if(ray&&elevation<-pi/180&&ray(land,from,direction,static_cast<float>(c.range),&hit)) {
       const Vec point{hit.n,hit.u,hit.e};const double distance=length(point-origin);
       if(distance>=10&&distance<=c.range) {
-        stats.agr_valid=true;stats.agr_range=distance;stats.agr_point=point;
-        if(const auto velocity=api.velocity(own))stats.agr_rate=-(velocity->n*direction.n+velocity->u*direction.u+velocity->e*direction.e);
+        // Bounded game-estimate range error and finite processing; no exact
+        // terrain-ray distance is published as a radar measurement.
+        RangeReport measured{now,now+.06/std::clamp(c.resource,.1,1.),distance+3*std::sin(now*11.2),0,true};
+        if(const auto velocity=api.velocity(own))
+          measured.rate=-(velocity->n*direction.n+velocity->u*direction.u+velocity->e*direction.e)+.4*std::sin(now*7.3);
+        for(auto& report:range_pending)if(!report.valid){report=measured;break;}
       }
     }
     stats.contacts.clear();stats.selected={};stats.fixed=false;stats.acquiring=false;
@@ -211,7 +244,7 @@ void sample(void *owned_radar) {
   using ID=unsigned(__fastcall*)(void*);void *own_vi=static_cast<std::byte*>(own)+120;
   auto own_id_get=method<ID>(own_vi,1);const unsigned own_id=own_id_get?own_id_get(own_vi):0;
   if(c.request_sequence!=request_sequence){
-    request_sequence=c.request_sequence;selected={};selected_type=0;fixed=false;acquiring=c.request;
+    request_sequence=c.request_sequence;measurements.clear();selected={};selected_type=0;fixed=false;acquiring=c.request;
     acquisition_point=c.request_point;acquisition_time=now;tracks.clear();
   }
   stats.request_sequence=request_sequence;
@@ -234,10 +267,6 @@ void sample(void *owned_radar) {
     stats.contacts.clear();stats.selected={};stats.fixed=false;stats.acquiring=false;
     std::lock_guard<std::mutex>lock(state_mutex);if(epoch.load()==generation)output=std::move(stats);return;
   }
-  if(c.search&&!c.illuminated&&!acquiring&&!tracking) {
-    stats.contacts=tracks.contacts();stats.selected={};stats.fixed=false;stats.acquiring=false;
-    std::lock_guard<std::mutex>lock(state_mutex);if(epoch.load()==generation)output=std::move(stats);return;
-  }
   const Vec aim=tracking?selected.point:acquisition_point;
   if(acquiring||tracking)az=difference(bearing(aim-origin),heading);
   // Acquired tracking still respects the forward antenna field of regard.
@@ -248,18 +277,23 @@ void sample(void *owned_radar) {
     std::lock_guard<std::mutex>lock(state_mutex);
     if(epoch.load()==generation)output=std::move(stats);return;
   }
-  const double half=(acquiring||tracking)?1.65*pi/180:
-    std::max(.001,1.5*std::abs(difference(az,previous_az)));
-  previous_az=az;
+  // Electronic pointing does not illuminate the angles between consecutive
+  // commands. Search beam width is independent of a large steering jump.
+  const double half=(acquiring||tracking)?1.65*pi/180:3*pi/180;
   const double look=-std::atan(origin.u/c.range)+c.elevation;
   const double half_el=(acquiring||tracking||!c.fan)?1.65*pi/180:std::max(.001,look+pi/2);
   const double elevation=(acquiring||tracking)?std::atan2(aim.u-origin.u,std::hypot(aim.n-origin.n,aim.e-origin.e)):(c.fan?-half_el*.5:look);
   const void *clip=volume(origin,heading+az,elevation,half,half_el);
   if(!clip)return;
-  double nearest=1e6;Contact candidate{};
-  unsigned visited=0;
-  Query each=[&](Scene&object) {
-    if(++visited>512){++stats.truncated;return 1;}
+  struct SearchState { Controls* controls;Output* stats;Vec origin,own_velocity;double heading{};unsigned own_id{},visited{},visibility{};double now{};bool tracking{};
+    double nearest=1e6;Contact candidate{}; };
+  SearchState context{&c,&stats,origin,own_velocity,heading,own_id,0,0,now,tracking};
+  Query each=[state=&context](Scene& object) {
+    auto& c=*state->controls;auto& stats=*state->stats;
+    const auto& origin=state->origin;const double heading=state->heading;
+    const unsigned own_id=state->own_id;const double now=state->now;const bool tracking=state->tracking;
+    auto& candidate=state->candidate;auto& nearest=state->nearest;
+    if(++state->visited>128){++stats.truncated;return 1;}
     ++stats.candidates;const auto object_id=id(object);
     if(!object_id||object_id==own_id)return 0;
     void *unit=moving(object);if(!unit||api.dead(unit))return 0;
@@ -276,22 +310,19 @@ void sample(void *owned_radar) {
     // Native callback rejects contacts at/above -1deg even inside the frustum.
     if(std::atan2(relative.u,std::hypot(relative.n,relative.e))>=-pi/180)return 0;
     if(acquiring){const auto d=point-acquisition_point;if(std::abs(d.n)>500||std::abs(d.u)>500||std::abs(d.e)>500||length(d)>=nearest)return 0;}
+    if(state->visibility>=16){++stats.truncated;return 0;}
+    ++state->visibility;
     if(!visible(origin,point,object_id,own_id,stats))return 0;
     Contact hit{object_id,point,velocity,now,1,difference(bearing(relative),heading),std::hypot(relative.n,relative.e)};
     if(acquiring||tracking){if(!positive_response(unit)){++stats.rcs_rejects;return 0;}candidate=hit;nearest=length(point-acquisition_point);}
-    else tracks.observe(hit);
+    else (void)measurements.queue(hit,origin,heading,c.resource,false,state->own_velocity);
     return 0;
   };
   using VolumeQuery=void(__fastcall*)(void*,const void*,unsigned,const Query&);
   void *manager=*api.manager;auto query=method<VolumeQuery>(manager,19);
   if(!query){stats.ready=false;stats.reason=5;return;}
   ++stats.queries;query(manager,clip,c.sea?34:32,each);
-  if(candidate.id){
-    if(acquiring)selected_type=length(candidate.velocity)>0?2:1;
-    if(const auto own_velocity=api.velocity(own))
-      stats.aspect=std::atan2(own_velocity->e,own_velocity->n)-bearing(candidate.velocity)+candidate.observed_az;
-    selected=candidate;acquiring=false;tracks.clear();
-  }
+  if(context.candidate.id)(void)measurements.queue(context.candidate,origin,heading,c.resource,true,own_velocity);
   // 4A4B80 initializes the acquisition timer to 3 seconds; 4A02E0 falls
   // back to a fixed terrain designation only if the same terrain LOS passes.
   if(acquiring&&now-acquisition_time>=3){
@@ -307,20 +338,21 @@ void update(EDPARAM &p) {
   Controls c;const int mode=static_cast<int>(get(p,"F22_AG_MODE"));
   c.search=mode==2||mode==3||mode==4||mode==5;c.sea=mode==4||mode==5;c.ranging=mode==7;
   c.elevation=get(p,"F22_AG_VIDEO_ANTENNA_DEG")*pi/180;c.fan=get(p,"F22_AG_VIDEO_FAN")>.5;
-  c.illuminated=get(p,"F22_AG_INTERLEAVE")<.5||get(p,"F22_AG_SENSOR_SCAN_DIRECTION")>0;
+  c.illuminated=get(p,"F22_AESA_SURFACE_SERVICE")>.5;
+  c.resource=get(p,"F22_AESA_CONTROL_RESOURCE");
   c.request=get(p,"F22_AG_TRACK_REQUEST_ACTIVE")>.5;
   c.active=get(p,"HUD_MODE")==7&&get(p,"MAIN_POWER")>.5&&get(p,"RADAR_PWR")>.5&&
     get(p,"F22_AG_RADAR_OPERATING")>.5&&(c.search||c.request||c.ranging)&&
     (get(p,"F22_AG_SILENT")<.5||get(p,"F22_AG_ACTIVE")>.5);
   c.stamp=now;c.range=get(p,"F22_AG_RADAR_RANGE_NM")*1852;
-  c.az=get(p,"F22_AG_SENSOR_SCAN_AZ_DEG")*pi/180;
+  c.az=get(p,"F22_AESA_SURFACE_AZ");
   c.request_sequence=get(p,"F22_AG_TRACK_REQUEST_SEQUENCE");c.request=get(p,"F22_AG_TRACK_REQUEST_ACTIVE")>.5;
   c.request_point={get(p,"F22_AG_TRACK_REQUEST_NORTH"),get(p,"F22_AG_TRACK_REQUEST_ALTITUDE"),get(p,"F22_AG_TRACK_REQUEST_EAST")};
   Output result;{std::lock_guard<std::mutex>lock(state_mutex);controls=c;result=output;}
   const bool fresh=api.ready&&result.ready&&now-result.stamp>=-.05&&now-result.stamp<.5;
   put(p,"F22_AG_AGR_VALID",fresh&&c.active&&result.agr_valid?1:0);
   put(p,"F22_AG_AGR_RANGE_FT",result.agr_range*3.280839895);put(p,"F22_AG_AGR_VELOCITY_KT",result.agr_rate*1.94384449);
-  put(p,"F22_AG_AGR_TIME",result.stamp);
+  put(p,"F22_AG_AGR_TIME",result.agr_stamp);
   put(p,"F22_AG_GMT_READY",fresh?1:0);put(p,"F22_AG_GMT_REASON",fresh?0:api.reason?api.reason:4);
   put(p,"F22_AG_GMT_LAST_TIME",result.stamp);put(p,"F22_AG_GMT_COUNT",fresh&&c.active?result.contacts.size():0);
   put(p,"F22_AG_GMT_QUERY_COUNT",result.queries);put(p,"F22_AG_GMT_CANDIDATES",result.candidates);
@@ -334,6 +366,13 @@ void update(EDPARAM &p) {
   put(p,"F22_AG_NATIVE_TRACK_MEMORY",tracked&&result.memory?1:0);
   put(p,"F22_AG_NATIVE_TRACK_TYPE",tracked?result.selected_type:0);
   put(p,"F22_AG_NATIVE_TRACK_TIME",t.stamp);
+  put(p,"F22_AG_NATIVE_TRACK_MEASUREMENT_SOURCE",2);
+  put(p,"F22_AG_NATIVE_TRACK_VELOCITY_VALID",tracked&&t.velocity_valid?1:0);
+  put(p,"F22_AG_NATIVE_TRACK_FILTER_VALID",tracked&&t.filter_valid?1:0);
+  put(p,"F22_AG_NATIVE_TRACK_POSITION_SIGMA_M",t.position_sigma_m);
+  put(p,"F22_AG_NATIVE_TRACK_VELOCITY_SIGMA_MPS",t.velocity_sigma_mps);
+  put(p,"F22_AG_NATIVE_TRACK_RANGE_RATE",t.range_rate);
+  put(p,"F22_AG_NATIVE_TRACK_RATE_SIGMA_MPS",t.rate_sigma_mps);
   put(p,"F22_AG_NATIVE_TRACK_ASPECT",result.aspect);
   const double tv[]={t.point.n,t.point.u,t.point.e,t.velocity.n,t.velocity.u,t.velocity.e};
   const char*tn[]={"N","U","E","VN","VU","VE"};
