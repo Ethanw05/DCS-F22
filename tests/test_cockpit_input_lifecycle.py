@@ -36,5 +36,21 @@ put('F22_SOI',4);controller:update(true)
 assert(events[#events].command==command and events[#events].value==0,'focus loss did not release original owner')
 controller:button(1,6,false);controller:button(1,6,true);controller:update(false)
 assert(events[#events].command==command and events[#events].value==0,'power loss did not release original owner')
+local actions={}
+function dispatch_action(device,command,value)actions[#actions+1]={device,command,value}end
+put('MAIN_POWER',1);put('HUD_MODE',1)
+dofile(SCRIPT_ROOT..'Systems/Combat_System.lua');post_initialize()
+local function cages()
+ local count=0
+ for _,event in ipairs(actions)do if event[2]==11840 or event[2]==10805 then count=count+1 end end
+ return count
+end
+SetCommand(10723,1);assert(cages()==1)
+put('MAIN_POWER',0);update();put('MAIN_POWER',1);update();SetCommand(10723,1)
+assert(cages()==1,'held cage re-fired after power restoration')
+SetCommand(10723,0);SetCommand(10723,1);assert(cages()==2);SetCommand(10723,0)
+put('MAIN_POWER',0);SetCommand(10723,1);update();put('MAIN_POWER',1);update();SetCommand(10723,1)
+assert(cages()==2,'unpowered press replayed on recovery')
+SetCommand(10723,0);SetCommand(10723,1);assert(cages()==3)
 ''')
 print('Saved light aliases, disjoint dispatch, held page/focus/power releases and repeat suppression PASS')
