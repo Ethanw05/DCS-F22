@@ -307,7 +307,7 @@ function update()
 	parameters.R_FIRE_LIGHT :set(R_FIRE_ARG)	
 	parameters.L_GEN_OUT    :set(L_GEN_ARG)	
 	parameters.R_GEN_OUT    :set(R_GEN_ARG)
-	parameters.CAUTION_LIGHT:set(CAUTION_ARG)
+
 	parameters.OIL_LIGHT    :set(OIL_ARG)
 	parameters.HYD_LIGHT    :set(HYD_ARG)
 	parameters.DAY_NIGHT    :set(day_night)
@@ -398,30 +398,31 @@ function update()
 	--GEN OUT LIGHT FORCE
 	if parameters.L_GEN_POWER:get() == 0 and parameters.RPM_L:get() >= 40 and sensor_data.getWOW_NoseLandingGear() == 1 then
 		parameters.L_GEN_OUT:set(1)
-		parameters.CAUTION_LIGHT:set(1)
+
 	end
 	--GEN OUT LIGHT FORCE
 	if parameters.R_GEN_POWER:get() == 0 and parameters.RPM_R:get() >= 40 and sensor_data.getWOW_NoseLandingGear() == 1 then
 		parameters.R_GEN_OUT:set(1)
-		parameters.CAUTION_LIGHT:set(1)
+
 	end
 	--HYD LIGHT FORCE
 	if parameters.L_HYD_COLOR:get() == 1 or parameters.R_HYD_COLOR:get() == 1 then
 		parameters.HYD_LIGHT:set(1)
-		parameters.CAUTION_LIGHT:set(1)
+
 	end
 	--OIL LIGHT FORCE
 	if parameters.L_OIL_COLOR:get() == 1 or parameters.R_OIL_COLOR:get() == 1 then
 		parameters.OIL_LIGHT:set(1)
-		parameters.CAUTION_LIGHT:set(1)
+
 	end
-	--CANOPY MASTER CAUTION FORCE
-	if parameters.CANOPY_LIGHT:get() == 1 then
-		parameters.CAUTION_LIGHT:set(1)
-	end
-    if get_param_handle('F22_PILOT_WARNING_VALID'):get()>.5 then
-        parameters.CAUTION_LIGHT:set(1)
+    local registry_ready = get_param_handle('F22_FAULT_REGISTRY_READY'):get() > .5
+    local attention = registry_ready and get_param_handle('F22_MASTER_ATTENTION'):get() > .5
+    if not registry_ready then
+        attention = CAUTION_ARG > .5 or parameters.L_GEN_OUT:get() > .5 or parameters.R_GEN_OUT:get() > .5
+            or parameters.HYD_LIGHT:get() > .5 or parameters.OIL_LIGHT:get() > .5
+            or parameters.CANOPY_LIGHT:get() > .5 or get_param_handle('F22_PILOT_WARNING_VALID'):get() > .5
     end
+    parameters.CAUTION_LIGHT:set(attention and 1 or 0)
     -- Turning the UFD brightness to zero must never erase fault/alert state.
     -- The display and annunciator surfaces observe the state through opacity.
     if ufd_brightness <= 0 then

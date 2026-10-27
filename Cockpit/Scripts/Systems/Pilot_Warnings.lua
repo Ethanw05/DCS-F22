@@ -3,6 +3,7 @@ local M = { names = { "pull_up", "roll_left", "roll_right", "altitude", "flight_
 local function finite(v)
 	return type(v) == "number" and v == v and math.abs(v) < 1e9
 end
+local Faults = dofile(LockOn_Options.script_path .. 'Systems/Fault_Registry.lua')
 local Escape = dofile(LockOn_Options.script_path .. "Systems/Terrain_Escape.lua")
 function M.terrain(s, height, visible)
 	local result = Escape.solve(s, height, nil, visible)
@@ -11,6 +12,8 @@ end
 function M.new()
 	return setmetatable({
 		clock = nil,
+        faults = Faults.new(),
+        unavailable_terrain = {valid = false},
 		terrain_pending = nil,
 		terrain_since = 0,
 		terrain_until = -1,
@@ -58,7 +61,12 @@ function M:update(s, height, visible)
 		end
 	end
 	self.clock = now
-	if not s.powered or not s.valid or s.ground then
+    if s.conditions then
+        self.faults:update(now, s.conditions)
+        local occurrence = self.faults.records[1].occurrence
+        if self.fcs_occurrence ~= occurrence then self.fault_ack = false;self.fcs_occurrence = occurrence end
+    end
+	if not s.powered then
 		self.floors = {}
 		self.fault_since = nil
 		self.caution_since = nil
@@ -74,8 +82,16 @@ function M:update(s, height, visible)
 		self.caution_ack = false
 		return { text = "", priority = 0 }
 	end
-	self.terrain_engine = self.terrain_engine or Escape.new()
-	local terrain = self.terrain_engine:update(s, height, visible)
+    local flight_valid = s.valid and not s.ground
+    local terrain = self.unavailable_terrain
+    if flight_valid then
+        self.terrain_engine = self.terrain_engine or Escape.new()
+        terrain = self.terrain_engine:update(s, height, visible)
+    else
+        self.floors = {}
+        self.queued_altitude = false
+        self.altitude_visual_until = -1
+    end
 	local call = terrain.call
 	local impact = terrain.impact and math.max(0, terrain.impact - math.max(0, now - (terrain.time or now))) or nil
 	if not terrain.valid then
@@ -106,9 +122,9 @@ function M:update(s, height, visible)
 			self.terrain_priority = 0
 		end
 	end
-	floor(self, "baro", s.baro, s.baro_floor, s.baro_valid and not s.gear, now)
-	floor(self, "radar", s.radar, s.radar_floor, s.radar_valid and not s.gear, now)
-	local below_floor = not s.gear
+	floor(self, "baro", s.baro, s.baro_floor, s.baro_valid and not s.gear and flight_valid, now)
+	floor(self, "radar", s.radar, s.radar_floor, s.radar_valid and not s.gear and flight_valid, now)
+	local below_floor = flight_valid and not s.gear
 		and (
 			(s.baro_valid and finite(s.baro) and finite(s.baro_floor) and s.baro_floor > 0 and s.baro < s.baro_floor)
 			or (
@@ -119,13 +135,20 @@ function M:update(s, height, visible)
 				and s.radar < s.radar_floor
 			)
 		)
-	if s.fcs_valid and s.fcs_fault then
+	if s.fcs_valid and s.fcs_fault and not s.ground then
 		self.fault_since = self.fault_since or now
 	else
 		self.fault_since = nil
 		self.fault_ack = false
 	end
-	if s.caution then
+    local caution = s.conditions and self.faults.attention > 0 or not s.conditions and s.caution
+    if s.conditions and self.caution_occurrence ~= self.faults.occurrence then
+        self.caution_ack = false
+        self.caution_since = nil
+        self.last.caution = nil
+        self.caution_occurrence = self.faults.occurrence
+    end
+	if caution then
 		self.caution_since = self.caution_since or now
 	else
 		self.caution_since = nil
@@ -181,6 +204,7 @@ function M:played(name, now)
 	if name == "altitude" then self.queued_altitude = false end
 end
 function M:acknowledge()
+    self.faults:acknowledge()
 	self.fault_ack = self.fault_since ~= nil
 	self.caution_ack = self.caution_since ~= nil
 	self.queued_altitude = false

@@ -12,4 +12,10 @@ function M.priority(get, now)
         or deadline-now > M.maximum_lease then return 0 end
     return (priority == 1 or priority == 3) and priority or 0
 end
+function M.mws(get, now)
+    local deadline = get('F22_MWS_AUDIO_UNTIL')
+    local priority = get('F22_MWS_AUDIO_PRIORITY')
+    return finite(now) and finite(deadline) and finite(priority) and priority > .5
+        and deadline > now and deadline - now <= M.maximum_lease
+end
 return M

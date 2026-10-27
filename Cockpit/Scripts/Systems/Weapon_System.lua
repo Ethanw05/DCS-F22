@@ -20,6 +20,18 @@ local dev = GetSelf()
 dofile(LockOn_Options.script_path.."devices.lua")
 dofile(LockOn_Options.script_path.."command_defs.lua")
 
+local warning_audio_gate=dofile(LockOn_Options.script_path..'Systems/Warning_Audio_Gate.lua')
+local warning_audio_handles={}
+for _,key in ipairs({'F22_PILOT_AUDIO_PRIORITY','F22_PILOT_AUDIO_UNTIL',
+ 'F22_MWS_AUDIO_PRIORITY','F22_MWS_AUDIO_UNTIL'})do
+    warning_audio_handles[key]=get_param_handle(key)
+end
+local function warning_audio_value(key)return warning_audio_handles[key]:get()end
+local function warning_audio_inhibit()
+    local now=type(get_model_time)=='function' and get_model_time() or -1
+    return warning_audio_gate.priority(warning_audio_value,now)>0 or warning_audio_gate.mws(warning_audio_value,now)
+end
+
 local update_time_step = 0.02
 make_default_activity(update_time_step)
 
@@ -632,7 +644,7 @@ function update()
     local audio_ok,audio_error=pcall(ir_audio.update,ir_audio,mode_state==3 and ir_available and parameters.MAIN_POWER:get()>.5,
         get_param_handle('F22_IR_TYPE4'):get(),get_param_handle('F22_IR_STRENGTH'):get(),
         ir_az or 0,ir_el or 0,get_param_handle('F22_IR_AIM9X_PROFILE'):get()>.5,
-        get_param_handle('F22_MWS_AUDIO_PRIORITY'):get()>.5 or get_param_handle('F22_PILOT_AUDIO_PRIORITY'):get()>.5)
+        warning_audio_inhibit())
     get_param_handle('F22_IR_AUDIO_READY'):set(audio_ok and 1 or 0)
     -- An unavailable sound resource must not stop stores, sensors, or displays.
     if not audio_ok and not ir_audio.reported then

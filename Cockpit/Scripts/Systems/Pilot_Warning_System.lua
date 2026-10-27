@@ -4,6 +4,15 @@ local dev, base = GetSelf(), get_base_data()
 local policy = dofile(LockOn_Options.script_path .. "Systems/Pilot_Warnings.lua")
 local recovery_cue = dofile(LockOn_Options.script_path .. "Systems/Terrain_Recovery_Cue.lua")
 local receiver = policy.new()
+local fault_definitions = dofile(LockOn_Options.script_path .. 'Systems/Fault_Registry.lua').definitions
+local conditions = {}
+for index, definition in ipairs(fault_definitions) do
+    conditions[index] = { valid = false, active = false }
+    for _, field in ipairs({'VALID','ACTIVE','OCCURRENCE','ACK','ONSET','CLEARED'}) do
+        get_param_handle('F22_FAULT_' .. definition.id .. '_' .. field)
+    end
+    get_param_handle('F22_FAULT_LINE_' .. index):set('')
+end
 local decode = dofile(LockOn_Options.script_path .. "Systems/Input_Value.lua")
 local handles = {}
 local function h(k)
@@ -42,6 +51,8 @@ for _, k in ipairs({
 	"F22_PILOT_TEST_ACTIVE",
 	"F22_PILOT_AUDIO_READY",
 	"F22_PILOT_AUDIO_PLAYING",
+    "F22_PILOT_AUDIO_STATUS_VALID",
+    "F22_PILOT_AUDIO_INFERRED",
 }) do
 	h(k)
 end
@@ -69,6 +80,12 @@ local terrain_outputs = {
 for _, name in ipairs(terrain_outputs) do
 	put("F22_TAWS_" .. name, 0)
 end
+for _,key in ipairs({'F22_FAULT_ACTIVE_COUNT','F22_FAULT_UNKNOWN_COUNT','F22_FAULT_UNACK_COUNT',
+ 'F22_MASTER_ATTENTION','F22_FAULT_REGISTRY_READY','F22_FAULT_OCCURRENCE',
+ 'F22_FAULT_SELECTED','F22_FAULT_HIDDEN_COUNT'})do h(key)end
+put('F22_FAULT_SELECTED_TEXT','')
+for index=1,4 do put('F22_FAULT_REFERENCE_'..index,'')end
+local references=dofile(LockOn_Options.script_path..'Systems/Cockpit_References.lua').new(get,put)
 local clock = 0
 local muted = false
 local volume = 0.8
@@ -100,6 +117,8 @@ local function stop()
 	put("F22_PILOT_AUDIO_PRIORITY", 0)
 	put("F22_PILOT_AUDIO_UNTIL", 0)
 	put("F22_PILOT_AUDIO_PLAYING", 0)
+    put("F22_PILOT_AUDIO_STATUS_VALID",0)
+    put("F22_PILOT_AUDIO_INFERRED",0)
 end
 local function reset()
 	stop()
@@ -127,7 +146,7 @@ function post_initialize()
 	local ok, t = pcall(require, "terrain")
 	terrain = ok and t or nil
 end
-for c = 11000, 11004 do
+for c = 11000, 11007 do
 	dev:listen_command(c)
 end
 function SetCommand(c, v)
@@ -139,9 +158,13 @@ function SetCommand(c, v)
 	end
 	if c == 11000 then
 		receiver:acknowledge()
+        dispatch_action(devices.FLIGHT_GUIDANCE,11016,1)
 		if playing and playing.priority < 3 then
 			stop()
 		end
+    elseif c == 11005 or c == 11006 then
+        local selected = get('F22_FAULT_SELECTED')
+        put('F22_FAULT_SELECTED', (selected - 1 + (c == 11005 and 1 or -1)) % #fault_definitions + 1)
 	elseif c == 11001 then
 		if test then
 			test = nil
@@ -233,10 +256,13 @@ local function confirm_playback(now)
 	end
 end
 local function update_playback(now)
+    put('F22_PILOT_AUDIO_INFERRED',0)
+    put('F22_PILOT_AUDIO_STATUS_VALID',0)
 	if not playing then return end
 	local sound = sounds[playing.name]
 	if sound then sound:update(1, muted and 0 or volume) end
 	local ok, active = audio_status(sound)
+    put('F22_PILOT_AUDIO_STATUS_VALID',ok and 1 or 0)
 	if playing.confirmed and now >= playing.until_time then
 		if active and sound then sound:stop() end
 		if log and log.write then
@@ -255,12 +281,74 @@ local function update_playback(now)
 			audio_error("start " .. playing.name, "source never reported playback; request remains pending", now)
 		end
 	else
-		-- With no status API, a successful play request uses the known duration.
-		confirm_playback(now)
-		if now < playing.until_time then return end
+        -- Keep the known-duration slot bounded, but an accepted call without
+        -- playback status must not mark the real event delivered.
+        put('F22_PILOT_AUDIO_INFERRED',1)
+        if now < playing.until_time then return end
+        if playing.test_step and test == playing.test_step then
+            test.index = test.index + 1
+            test.at = now + .5
+        end
+        start_retry[playing.name] = now + .5
 	end
 	-- Natural completion releases the slot; it never stops a sounding clip.
 	playing = nil
+end
+local function equipment_condition(index, valid, active)
+    conditions[index].valid = valid
+    conditions[index].active = active
+end
+local function equipment_snapshot()
+    local physical = get('EFM_VEHICLE_VALID') > .5 and get('MAIN_POWER') > .5
+    equipment_condition(1, get('MAIN_POWER') > .5 and get('EFM_FCS_INTEGRITY_VALID') > .5, get('EFM_FCS_DAMAGED') > .5)
+    equipment_condition(2, physical, get('L_GEN_OUT') > .5)
+    equipment_condition(3, physical, get('R_GEN_OUT') > .5)
+    equipment_condition(4, physical, get('L_HYD_COLOR') > .5)
+    equipment_condition(5, physical, get('R_HYD_COLOR') > .5)
+    equipment_condition(6, physical, get('L_OIL_COLOR') > .5)
+    equipment_condition(7, physical, get('R_OIL_COLOR') > .5)
+    equipment_condition(8, physical, get('CANOPY_LIGHT') > .5)
+end
+local function publish_faults(priority)
+    local faults = receiver.faults
+    put('F22_FAULT_REGISTRY_READY', 1)
+    put('F22_FAULT_ACTIVE_COUNT', faults.active)
+    put('F22_FAULT_UNKNOWN_COUNT', faults.unknown)
+    put('F22_FAULT_UNACK_COUNT', faults.attention)
+    put('F22_FAULT_OCCURRENCE', faults.occurrence)
+    put('F22_MASTER_ATTENTION', (faults.attention > 0 or priority == 3) and 1 or 0)
+    put('F22_FAULT_HIDDEN_COUNT', math.max(0, faults.active - 1))
+    local selected = get('F22_FAULT_SELECTED')
+    if selected < 1 or selected > #fault_definitions then selected = faults.first or 1 end
+    put('F22_FAULT_SELECTED', selected)
+    local id=faults.records[selected].id
+    local guidance=id=='FCS' and 'FLIGHT CONTROLS - CHECK'
+        or id=='CANOPY' and 'CANOPY POSITION - CHECK'
+        or id:sub(1,3)=='GEN' and 'ELECTRICAL SUPPLY - CHECK'
+        or id:sub(1,3)=='HYD' and 'GEAR / BRAKES / CONTROLS - CHECK' or 'ENGINE INDICATIONS - CHECK'
+    put('F22_FAULT_REFERENCE_1',guidance)
+    put('F22_FAULT_REFERENCE_2','REMAINING CAPABILITY - ASSESS')
+    put('F22_FAULT_REFERENCE_3','MANUAL RECOVERY - PLAN')
+    put('F22_FAULT_REFERENCE_4','ACK DOES NOT CLEAR THE CAUSE')
+    for index = 1, #fault_definitions do
+        local record = faults.records[index]
+        local prefix = 'F22_FAULT_' .. record.id .. '_'
+        put(prefix .. 'VALID', record.valid and 1 or 0)
+        put(prefix .. 'ACTIVE', record.active and 1 or 0)
+        put(prefix .. 'OCCURRENCE', record.occurrence)
+        put(prefix .. 'ACK', record.acknowledged)
+        put(prefix .. 'ONSET', record.onset)
+        put(prefix .. 'CLEARED', record.cleared)
+        local status = not record.valid and ' UNAVAILABLE' or record.active
+            and (record.acknowledged == record.occurrence and ' ACK' or ' NEW')
+            or record.occurrence > 0 and ' CLEARED' or ' NORMAL'
+        if record.display_status ~= status then
+            record.display_status = status
+            record.display_text = record.label .. status
+            put('F22_FAULT_LINE_' .. index, record.display_text)
+        end
+        if index == selected then put('F22_FAULT_SELECTED_TEXT', record.display_text)end
+    end
 end
 function update()
 	local now = type(get_model_time) == "function" and get_model_time() or clock + 0.05
@@ -274,8 +362,13 @@ function update()
 	local powered = get("MAIN_POWER") > 0.5
 	if not powered then
 		reset()
+        equipment_snapshot()
+        receiver.faults:update(now, conditions)
+        publish_faults(0)
 		return
 	end
+    equipment_snapshot()
+    references.update()
 	local audio_ok, all_ready = pcall(initialize_audio, now)
 	put("F22_PILOT_AUDIO_READY", audio_ok and all_ready and 1 or 0)
 	update_playback(now)
@@ -303,6 +396,7 @@ function update()
 	local gear_ok, gear = pcall(get_aircraft_draw_argument_value, 0)
 	local state = {
 		now = now,
+        conditions = conditions,
 		powered = powered,
 		valid = ok and roll_ok and get("EFM_HUD_VALID") > 0.5 and get("EFM_GROUND_VALID") > 0.5,
 		ground = get("EFM_WEIGHT_ON_WHEELS") > 0.5,
@@ -346,6 +440,7 @@ function update()
 	local height = terrain and terrain.GetHeight
 	local visible = terrain and terrain.isVisible
 	local result = receiver:update(state, height, visible)
+    publish_faults(result.priority)
 	-- The display follows the current prediction immediately. Speech completes
 	-- before the latest still-active directive gets the next slot (Hornet intercom
 	-- 0x18048ECA9..0x18048EE64). Do not queue obsolete words or stop on clear/change.

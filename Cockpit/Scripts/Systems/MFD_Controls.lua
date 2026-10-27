@@ -89,6 +89,16 @@ function M.for_page(page,view,get)
    radar(19,string.format('HT %.0f',get('F22_RADAR_SEARCH_HEIGHT_DEG')),10623)
    radar(18,'EL UP',10614);radar(17,'EL DN',10615)
   end
+ elseif page==P.checks then
+  for button,label in ipairs({'START','TAXI','T/O','LAND','STOP'})do c[button]=row(label,'view',button-1)end
+  c[6]=row('FAULTS','view',5)
+  if view>=5 then
+   c[7]={label='NEXT',device='PILOT_WARNING_SYSTEM',command=11005}
+   c[8]={label='PREV',device='PILOT_WARNING_SYSTEM',command=11006}
+   c[9]={label='ACK',device='PILOT_WARNING_SYSTEM',command=11000}
+   c[10]=row('REF','view',6)
+   if view==6 then c[12]=row('RTN','view',5)end
+  end
  elseif page==P.def then
   -- One defensive picture. Its receiver and expendable controls stay here.
   c[20]={label=get('F22_RWR_FILTER')>.5 and'THRT'or'ALL',device='RWR_SYSTEM',command=10902}

@@ -16,161 +16,39 @@
     along with this program.  If not, see https://www.gnu.org/licenses.
 --]]
 
--- Each indicator retains its own visibility parameter and Lua environment.
+-- Mod workflow references; no authentic F-22 checklist or automatic completion claim.
 return function(page_parameter)
-dofile(LockOn_Options.script_path.."MFD_COMMON/definitions.lua")
-dofile(LockOn_Options.script_path.."fonts.lua")
-dofile(LockOn_Options.script_path.."materials.lua")
-SetScale(FOV)
-
-local function vertices(object, height, half_or_double)
-    local width = height
-
-    if half_or_double == true then --
-        width = height / 2
-    end
-
-    if half_or_double == false then
-        width = height * 2
-    end
-
-    local half_width = width / 2
-    local half_height = height / 2
-    local x_positive = half_width
-    local x_negative = half_width * -1.0
-    local y_positive = half_height
-    local y_negative = half_height * -1.0
-
-    object.vertices =
-    {
-        {x_negative, y_positive},
-        {x_positive, y_positive},
-        {x_positive, y_negative},
-        {x_negative, y_negative}
-    }
-
-    object.indices = {0, 1, 2, 2, 3, 0}
-
-    object.tex_coords =
-    {
-        {0, 0},
-        {1, 0},
-        {1, 1},
-        {0, 1}
-    }
-end
-local IndicationTexturesPath = LockOn_Options.script_path.."../IndicationTextures/"--I dont think this is correct might have to add scripts.
-local BlackColor  			= {0, 0, 0, 255}--RGBA
-local WhiteColor 			= {255, 255, 255, 255}--RGBA
-local MainColor 			= {255, 255, 255, 255}--RGBA
-local GreenColor 		    = {0, 255, 0, 255}--RGBA
-local YellowColor 			= {255, 255, 0, 255}--RGBA
-local OrangeColor           = {255, 102, 0, 255}--RGBA
-local RedColor 				= {255, 0, 0, 255}--RGBA
-local ScreenColor			= {3,3,3,255}--RGBA DO NOT TOUCH 3-3-12-255 is good for on screen
---------------------------------------------------------------------------------------------------------------------------------------------
-local COLD_PAGE      = MakeMaterial(LockOn_Options.script_path.."../Scripts/IndicationTextures/check_cold.dds", GreenColor)--SYSTEM TEST
-local MASK_BOX	    = MakeMaterial(LockOn_Options.script_path.."../Scripts/IndicationTextures/mask_box.dds", ScreenColor)--SYSTEM TEST
---------------------------------------------------------------------------------------------------------------------------------------------
-local ClippingPlaneSize = 1.1 --Clipping Masks
-local ClippingWidth 	= 1.1 --Clipping Masks
-local PFD_MASK_BASE1 	= MakeMaterial(nil,{255,0,0,255})--Clipping Masks
-local PFD_MASK_BASE2 	= MakeMaterial(nil,{0,255,0,255})--Clipping Masks
---Clipping Masks
-local total_field_of_view           = CreateElement "ceMeshPoly"
-total_field_of_view.name            = "total_field_of_view"
-total_field_of_view.primitivetype   = "triangles"
-total_field_of_view.vertices        = {
-                                        {-1 * ClippingWidth,-1 * ClippingPlaneSize},
-                                        {1 * ClippingWidth,-1 * ClippingPlaneSize},
-                                        {1 * ClippingWidth,1 * ClippingPlaneSize},
-                                        {-1 * ClippingWidth,1 * ClippingPlaneSize},
-                                    }
-total_field_of_view.material        = PFD_MASK_BASE1
-total_field_of_view.indices         = {0,1,2,2,3,0}
-total_field_of_view.init_pos        = {0, 0, 0}
-total_field_of_view.init_rot        = { 0, 0, 0} -- degree NOT rad
-total_field_of_view.h_clip_relation = h_clip_relations.REWRITE_LEVEL
-total_field_of_view.level           = 1
-total_field_of_view.collimated      = false
-total_field_of_view.isvisible       = false
-Add(total_field_of_view)
---Clipping Masks
-local clipPoly               = CreateElement "ceMeshPoly"
-clipPoly.name                = "clipPoly-1"
-clipPoly.primitivetype       = "triangles"
-clipPoly.init_pos            = {0, 0, 0}
-clipPoly.init_rot            = { 0, 0 , 0} -- degree NOT rad
-clipPoly.vertices            = {
-                                {-1 * ClippingWidth,-1 * ClippingPlaneSize},
-                                {1 * ClippingWidth,-1 * ClippingPlaneSize},
-                                {1 * ClippingWidth,1 * ClippingPlaneSize},
-                                {-1 * ClippingWidth,1 * ClippingPlaneSize},
-                                    }
-clipPoly.indices             = {0,1,2,2,3,0}
-clipPoly.material            = PFD_MASK_BASE2
-clipPoly.h_clip_relation     = h_clip_relations.INCREASE_IF_LEVEL
-clipPoly.level               = 1
-clipPoly.collimated          = false
-clipPoly.isvisible           = false
-Add(clipPoly)
-------------------------------------------------------------------------------------------------CLIPPING-END----------------------------------------------------------------------------------------------
-BGROUND                     = CreateElement "ceTexPoly"
-BGROUND.name    			= "BG"
-BGROUND.material			= MASK_BOX
-BGROUND.change_opacity 		= false
-BGROUND.collimated 			= false
-BGROUND.isvisible 			= true
-BGROUND.init_pos 			= {0, 0, 0} --L-R,U-D,F-B
-BGROUND.init_rot 			= {0, 0, 0}
-BGROUND.element_params 		= {"MFD_OPACITY",page_parameter}--this may not be bneeded check when more pages done for backlight on page 7 SMS fc3 bs
-BGROUND.controllers			= {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1}}--MENU PAGE = 1
-BGROUND.level 				= 2
-BGROUND.h_clip_relation     = h_clip_relations.COMPARE
-vertices(BGROUND,3)
-Add(BGROUND)
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-COLD                    = CreateElement "ceTexPoly"
-COLD.name    			= "BG"
-COLD.material			= COLD_PAGE
-COLD.change_opacity 		= false
-COLD.collimated 			= false
-COLD.isvisible 			= true
-COLD.init_pos 			= {0, 0, 0} --L-R,U-D,F-B
-COLD.init_rot 			= {0, 0, 0}
-COLD.element_params 		= {"MFD_OPACITY",page_parameter}--this may not be bneeded check when more pages done for backlight on page 7 SMS fc3 bs
-COLD.controllers			= {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1}}--MENU PAGE = 1
-COLD.level 				= 2
-COLD.h_clip_relation    = h_clip_relations.COMPARE
-vertices(COLD,2)
-Add(COLD)
-----------------------------------------------------------------------------
---MENU TEXT
-
---------------------------------------------------------------------------------------------------- NAV
-
---------------------------------------------------------------------------------------------------- NAV
-
---------------------------------------------------------------------------------------------------- NAV
-
---------------------------------------------------------------------------------------------------- NAV
-
--- --CHECKLIST PLACEHOLDER
--- CHECKLISTPLACEHOLD 					        = CreateElement "ceStringSLine"
--- CHECKLISTPLACEHOLD.name 				    = "menu"
--- CHECKLISTPLACEHOLD.material 			    = "F22_LCD_FONT_GREEN"
--- CHECKLISTPLACEHOLD.value 			        = "CHECKLIST PLACEHOLDER"
--- CHECKLISTPLACEHOLD.stringdefs 		        = {0.0090, (0.0090) * 0.60, 0.0004, 0.001}
--- CHECKLISTPLACEHOLD.alignment 			    = "CenterCenter"
--- CHECKLISTPLACEHOLD.formats 			        = {"%s"}
--- CHECKLISTPLACEHOLD.h_clip_relation          = h_clip_relations.COMPARE
--- CHECKLISTPLACEHOLD.level 				    = 2
--- CHECKLISTPLACEHOLD.init_pos 			    = {0, 0, 0}
--- CHECKLISTPLACEHOLD.init_rot 			    = {0, 0, 0}
--- CHECKLISTPLACEHOLD.element_params 	        = {"MFD_OPACITY","LMFD_CHECKLIST_PAGE"}
--- CHECKLISTPLACEHOLD.controllers		        =   {
---                                                 {"opacity_using_parameter",0},
---                                                 {"parameter_in_range",1,0.9,1.1},--MENU PAGE = 0
--- 						                    }
--- Add(CHECKLISTPLACEHOLD)
+ local panel=page_parameter:match('^(.-)_CHECKLIST_PAGE$') or 'PMFD'
+ local view='F22_'..panel..'_VIEW'
+ local D=dofile(LockOn_Options.script_path..'MFD_COMMON/lcd.lua')(page_parameter,'F22_REFERENCE_'..panel)
+ local pages={
+  {'START',{'BATTERY / SUPPLY - CHECK','APU / ENGINE START - AS REQUIRED',
+   'FLIGHT INSTRUMENTS - CHECK','GINS ALIGNMENT - VERIFY','NAV / RADIOS - SET'}},
+  {'TAXI',{'CANOPY / RESTRAINTS - CHECK','BRAKES / STEERING - CHECK',
+   'FLIGHT CONTROLS - CHECK','FLIGHT INSTRUMENTS - CROSSCHECK','LIGHTS - AS REQUIRED'}},
+  {'TAKEOFF',{'RUNWAY / DEPARTURE - CHECK','FUEL / CONFIGURATION - CHECK',
+   'FLIGHT CONTROLS / TRIM - CHECK','WARNINGS - REVIEW','THRUST / INSTRUMENTS - CHECK'}},
+  {'LANDING',{'APPROACH / MISSED APPROACH - REVIEW','NAV / RECEIVER FLAGS - CHECK',
+   'GEAR DOWN - VERIFY','12 DEG AOA REFERENCE','BRAKES / STEERING - AS REQUIRED'}},
+  {'SHUTDOWN',{'PARKING / GROUND STATE - CHECK','STORES / MASTER ARM - SAFE',
+   'ENGINE SHUTDOWN - AS REQUIRED','ELECTRICAL SUPPLY - OFF','FAULT HISTORY - REVIEW'}},
+ }
+ for index,page in ipairs(pages)do
+  local parent=D.choice(view,index-1)
+  D.text(page[1]..' REFERENCE',0,.65,nil,'blue',.0048,parent)
+  for line,text in ipairs(page[2])do D.text(text,0,.42-(line-1)*.14,nil,'green',.0043,parent)end
+  D.text('%s',0,-.35,'F22_REFERENCE_MASS','white',.0043,parent)
+  D.text('%s',0,-.49,index==4 and 'F22_REFERENCE_GEAR'or'F22_REFERENCE_TRIM','white',.0043,parent)
+  D.text('%s',0,-.63,'F22_REFERENCE_FUEL','white',.0043,parent)
+ end
+ local faults=D.choice(view,5)
+ D.text('FAULTS / RECALL',0,.65,nil,'blue',.0048,faults)
+ for index=1,8 do D.text('%s',0,.46-(index-1)*.115,'F22_FAULT_LINE_'..index,'green',.0043,faults)end
+ D.text('ACTIVE %.0f',-.3,-.55,'F22_FAULT_ACTIVE_COUNT','yellow',.0043,faults)
+ D.text('UNKNOWN %.0f',.3,-.55,'F22_FAULT_UNKNOWN_COUNT','yellow',.0043,faults)
+ local detail=D.choice(view,6)
+ D.text('FAULT REFERENCE',0,.65,nil,'blue',.0048,detail)
+ D.text('%s',0,.45,'F22_FAULT_SELECTED_TEXT','yellow',.0043,detail)
+ for index=1,4 do D.text('%s',0,.22-(index-1)*.16,'F22_FAULT_REFERENCE_'..index,'green',.0043,detail)end
+ D.text('SIM REFERENCE',0,-.78,nil,'blue',.0036)
 end
