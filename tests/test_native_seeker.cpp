@@ -3,6 +3,7 @@
 namespace NativeGroundSensor { void sample(void*) {} }
 #include <iostream>
 #include <stdexcept>
+#include <thread>
 #define CHECK(x) do { if (!(x)) throw std::runtime_error(#x); } while (0)
 
 namespace {
@@ -27,7 +28,13 @@ void motor_limits(void*,double low,double high) { CHECK(low<-1.4 && high>1.4); }
 void set_consent(void*,bool v) { consent=v; }
 void status(void*,unsigned v) { CHECK(v==3); }
 void station(void*,int selected,int sub) { CHECK(selected>=0 && sub==0); }
-void update(void*,double) {}
+HANDLE sensor_entered = nullptr, sensor_resume = nullptr;
+void update(void*,double) {
+    if (sensor_entered) {
+        CHECK(SetEvent(sensor_entered));
+        CHECK(WaitForSingleObject(sensor_resume, 5000) == WAIT_OBJECT_0);
+    }
+}
 void slave(void*,const NativeSidewinder::Direction* v) { CHECK(std::abs(v->x-1)<1e-8);++slaves; }
 void boresight(void*,const NativeSidewinder::Pose* p) { CHECK(p->m[12]>NativeSidewinder::model_max[0]);CHECK(std::abs(std::hypot(p->m[0],p->m[1],p->m[2])-1)<1e-8); }
 bool tracking(void*) { return sensor_track && consent; }
@@ -102,6 +109,37 @@ unsigned launch_payload(void*,unsigned,unsigned,unsigned target,const float* poi
     // A native release callback may be followed immediately by a mode change.
     NativeSidewinder::launch_master_mode=3;return payload_launch_allowed ? 9876 : 0;
 }
+
+void overlapping_reset(EDPARAM& p) {
+    sensor_entered = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+    sensor_resume = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+    const auto resetting = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+    const auto retired = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+    CHECK(sensor_entered && sensor_resume && resetting && retired);
+    std::exception_ptr callback_error;
+    std::thread callback([&] {
+        try { NativeSidewinder::update(p, .02); } catch (...) { callback_error = std::current_exception(); }
+    });
+    const bool entered = WaitForSingleObject(sensor_entered, 5000) == WAIT_OBJECT_0;
+    const auto ticks = NativeSidewinder::tick_sequence;
+    NativeSidewinder::update(p, .02); // Must return immediately while the first sensor is busy.
+    const bool skipped = NativeSidewinder::tick_sequence == ticks;
+    std::thread teardown([&] {
+        SetEvent(resetting);
+        NativeSidewinder::reset(&p);
+        SetEvent(retired);
+    });
+    const bool started = WaitForSingleObject(resetting, 5000) == WAIT_OBJECT_0;
+    const bool drained = WaitForSingleObject(retired, 50) == WAIT_TIMEOUT;
+    SetEvent(sensor_resume);
+    callback.join();
+    teardown.join();
+    CloseHandle(sensor_entered); CloseHandle(sensor_resume);
+    CloseHandle(resetting); CloseHandle(retired);
+    sensor_entered = nullptr; sensor_resume = nullptr;
+    if (callback_error) std::rethrow_exception(callback_error);
+    CHECK(entered && skipped && started && drained);
+}
 }
 int main() {
     using namespace NativeSidewinder;
@@ -132,8 +170,22 @@ int main() {
     values["F22_IR_TYPE1"]=4;values["F22_IR_TYPE2"]=4;values["F22_IR_TYPE3"]=7;
     values["F22_IR_TYPE4"]=136;values["F22_RADAR_STT_VALID"]=1;
     values["MASTER_ARM"]=1;values["WoW"]=0;
+    start_feedback();
     values["F22_IR_CAGED"]=1;update(p,.02);
     CHECK(values["F22_IR_STATE"]==1 && slaves==0 && !consent);
+    CHECK(values["F22_IR_SAMPLE_OWNER"]==1 && values["F22_IR_SAMPLE_SCHEMA"]==1);
+    CHECK(values["F22_IR_SAMPLE_VALID"]==1 && values["F22_IR_SAMPLE_SEQUENCE"]==2);
+    CHECK(values["F22_IR_SAMPLE_TIME"]==now_model && values["F22_IR_SAMPLE_STATION"]==0);
+    CHECK(values["F22_IR_SAMPLE_GENERATION"]==values["F22_IR_STORE_GENERATION"]);
+    EDPARAM missing_api=p;
+    missing_api.ed_param_api.pfn_ed_cockpit_update_parameter_with_number=nullptr;
+    const auto previous_feedback_sequence=ir_feedback.sequence;
+    update(missing_api,.02);
+    CHECK(ir_feedback.sequence==previous_feedback_sequence && creations==1);
+    update(p,0);
+    CHECK(values["F22_IR_SAMPLE_VALID"]==0 && values["F22_IR_SAMPLE_SEQUENCE"]==3);
+    update(p,.02);
+    CHECK(values["F22_IR_SAMPLE_VALID"]==1 && values["F22_IR_SAMPLE_SEQUENCE"]==6);
     values["F22_IR_CAGED"]=0;update(p,.02);
     CHECK(creations==1 && last_type.level4==136 && values["F22_IR_AVAILABLE"]==1);
     CHECK(sun_filter_calls==1 && values["F22_IR_AIM9X_CONFIGURED"]==1);
@@ -188,8 +240,10 @@ int main() {
     CHECK(creations==before_generation+1 && values["F22_IR_AVAILABLE"]==1);
     values["F22_IR_STORE_GENERATION"]=43;update(p,.02);
     CHECK(creations==before_generation+2 && launches==before_generation_launches);
+    CHECK(values["F22_IR_SAMPLE_GENERATION"]==43);
     values["F22_IR_EXPOSED"]=0;update(p,.02);
     CHECK(values["F22_IR_AVAILABLE"]==0 && values["F22_IR_LOCK"]==0);
+    CHECK(values["F22_IR_SAMPLE_VALID"]==0 && std::fmod(values["F22_IR_SAMPLE_SEQUENCE"],2)==1);
     values["F22_IR_EXPOSED"]=1;values["F22_IR_EXPOSURE_TIME"]=now_model-.2;update(p,.02);
     CHECK(values["F22_IR_AVAILABLE"]==0);
     values["F22_IR_EXPOSURE_TIME"]=now_model;update(p,.02);
@@ -204,6 +258,22 @@ int main() {
         values["F22_IR_TYPE4"]=bad;update(p,.02);
         CHECK(values["F22_IR_AVAILABLE"]==0);
     }
+    values["MAIN_POWER"]=0;update(p,.02);
+    // A live-parameter reset invalidates publication before disposal. Late
+    // callback delivery cannot reconstruct the seeker or republish a sample.
+    values["F22_IR_TYPE4"]=136;values["MAIN_POWER"]=1;values["F22_IR_RELEASE_REQUEST"]=0;
+    start_feedback();update(p,.02);CHECK(values["F22_IR_SAMPLE_VALID"]==1);
+    const int before_retire_creations=creations;
+    overlapping_reset(p);
+    CHECK(values["F22_IR_SAMPLE_VALID"]==0 && !ir_feedback.accepting);
+    CHECK(handles.empty() && !constructed);
+    for (const auto pointer : ir_feedback.handles) CHECK(pointer==nullptr);
+    update(p,.02);
+    CHECK(creations==before_retire_creations && values["F22_IR_SAMPLE_VALID"]==0);
+    // Restart is explicit; it does not treat held consent as a new press.
+    api.ready=true;api.error=0; // Existing fake API functions remain bound.
+    values["F22_IR_RELEASE_REQUEST"]=1;start_feedback();update(p,.02);
+    CHECK(values["F22_IR_SAMPLE_VALID"]==1 && launches==before_generation_launches);
     values["MAIN_POWER"]=0;update(p,.02);
     alignas(16) std::array<std::byte,2440> radar{};
     auto base=reinterpret_cast<std::uintptr_t>(radar.data());

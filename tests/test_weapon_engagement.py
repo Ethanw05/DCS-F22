@@ -135,7 +135,7 @@ p('F22_SHOT_04_ALIVE',0);update();assert(v('F22_MSL_04_VALID')==0)
 -- A native AIM-9X lock beyond 30 degrees is not vetoed by an MRM gate.
 now=400;p('HUD_MODE',3);p('F22_RADAR_WEAPON_TARGET_ID',101);p('F22_DLZ_TARGET_ID',101)
 p('F22O_01_NORTH',5000);p('F22O_01_EAST',6000);p('F22O_01_ALTITUDE',5000);p('F22O_01_AGE',0)
-p('F22O_02_AGE',0);p('F22_IR_LOCK',1);p('F22_IR_CAGED',0);p('F22_WEAPON_COUNT',1)
+p('F22O_02_AGE',0);p('F22_IR_AVAILABLE',1);p('F22_IR_LOCK',1);p('F22_IR_CAGED',0);p('F22_WEAPON_COUNT',1)
 update();assert(v('F22_FC_SHOOT')==1,'native HOBS lock truncated by radar-missile angle gate')
 p('F22_IR_LOCK',0);update();assert(v('F22_FC_SHOOT')==0)
 p('F22_IR_LOCK',1);p('F22_IR_CAGED',1);update();assert(v('F22_FC_SHOOT')==0)

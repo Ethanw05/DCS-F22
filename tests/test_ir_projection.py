@@ -21,7 +21,8 @@ for _,h in ipairs({0,.4,2.8,5.9}) do for _,p in ipairs({-.4,0,.7}) do for _,r in
  assert(math.abs(a-az)<1e-12 and math.abs(e-el)<1e-12)
 end end end
 assert(m.project(f.from_pose({heading=0,pitch=0,roll=0}),{0,0,0})==nil)
-local v={F22_IR_WORLD_VALID=1,F22_IR_WORLD_FWD_N=1,F22_IR_WORLD_FWD_U=0,F22_IR_WORLD_FWD_E=0,F22_IR_STATION=0}
+local v={F22_IR_AVAILABLE=1,F22_IR_LOCK=0,F22_IR_STRENGTH=0,F22_IR_WORLD_VALID=1,
+ F22_IR_WORLD_FWD_N=1,F22_IR_WORLD_FWD_U=0,F22_IR_WORLD_FWD_E=0,F22_IR_STATION=0}
 local s=m.new({getHeading=function()return 0 end,getPitch=function()return 0 end,getRoll=function()return 0 end},function(n)return v[n] or 0 end)
 assert(s:update(true,.02)==0)
 v.F22_IR_WORLD_FWD_N=math.cos(.1);v.F22_IR_WORLD_FWD_E=math.sin(.1)

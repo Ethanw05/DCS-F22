@@ -10,6 +10,7 @@ local sensors=get_base_data();local dt=.05;make_default_activity(dt)
 local handles={};local function h(n) if not handles[n] then handles[n]=get_param_handle(n) end;return handles[n] end
 local function get(n)return h(n):get()end
 local function put(n,v)h(n):set(v)end
+local ir_feedback=dofile(LockOn_Options.script_path..'Systems/IR_Feedback.lua').new(get)
 for _,name in ipairs(launch_zone.segments)do
     for _,field in ipairs({'X1','Y1','X2','Y2','VALID'})do h('F22_RDR_LAR_'..name..'_'..field)end
 end
@@ -99,6 +100,7 @@ function update()
     local id=get('F22_RADAR_WEAPON_TARGET_ID');local t=target(id,now)
     local valid=t and t.age<=6 and get('RADAR_PWR')>.5 and physical_supply.mission
     local mode=get('HUD_MODE');local missile_mode=mode==2 or mode==3
+    ir_feedback:update(mode==3 and physical_supply.mission,now)
     put('F22_FC_TARGET_VALID',valid and 1 or 0);put('F22_FC_TARGET_INPUT_VALID',valid and 1 or 0)
     put('F22_FC_TARGET_INPUT_ID',valid and id or 0);put('F22_FC_OWN_ALTITUDE',u)
     put('F22_FC_OWN_PITCH',pose.pitch);put('F22_FC_OWN_ROLL',pose.roll);put('F22_FC_OWN_HEADING',pose.heading)
@@ -150,7 +152,9 @@ function update()
     -- the radar missile steering gate must not truncate AIM-9X to 30 degrees.
     local alignment=mode==3 or math.abs(az)<math.rad(30) and math.abs(el)<math.rad(30)
     local shoot=ready and zone and zone.inside and alignment
-    if mode==3 then shoot=shoot and get('F22_IR_LOCK')>.5 and get('F22_IR_CAGED')<.5 end
+    if mode==3 then
+        shoot=shoot and ir_feedback.locked and get('F22_IR_CAGED')<.5
+    end
     put('F22_FC_SHOOT',missile_mode and shoot and 1 or 0);put('F22_FC_TURN_WINDOW',shoot and zone.turn and 1 or 0)
     put('F22_FC_TOO_CLOSE',zone and zone.too_close and 1 or 0)
     put('F22_FC_WAIT_VALID',zone and range>maximum and closure>5 and 1 or 0)

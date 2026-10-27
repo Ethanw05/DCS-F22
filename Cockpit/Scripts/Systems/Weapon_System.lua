@@ -182,6 +182,21 @@ local previous_mode=1;local pointer_logged=false
 local ir_audio=dofile(LockOn_Options.script_path..'Systems/IR_Audio.lua').new()
 local ir_seeker_module=dofile(LockOn_Options.script_path..'Systems/IR_Seeker.lua')
 local ir_seeker=ir_seeker_module.new(sensor_data,function(n)return get_param_handle(n):get()end)
+local ir_feedback_outputs = {}
+for _, name in ipairs({'OWNER', 'VALID', 'AVAILABLE', 'LOCK', 'CUE_VALID'}) do
+    ir_feedback_outputs[name] = get_param_handle('F22_IR_FEEDBACK_'..name)
+    ir_feedback_outputs[name]:set(0)
+end
+local function reset_ir_feedback()
+    ir_seeker:reset()
+    for _, handle in pairs(ir_feedback_outputs) do handle:set(0) end
+    ir_feedback_outputs.OWNER:set(ir_seeker.feedback.owned and 1 or 0)
+    get_param_handle('HUD_IR_SEEKER_AVAILABLE'):set(0)
+    get_param_handle('HUD_IR_SEEKER_VALID'):set(0)
+    local ok, message=pcall(ir_audio.update,ir_audio,false,0,0,0,0,false,false)
+    get_param_handle('F22_IR_AUDIO_READY'):set(ok and 1 or 0)
+    if not ok and log and log.write then log.write('F22_IR_AUDIO',log.ERROR,tostring(message)) end
+end
 local ag_stores=dofile(LockOn_Options.script_path..'Systems/AG_Stores.lua').new()
 local physical_supply = dofile(LockOn_Options.script_path..'Systems/Weapon_Physical_State.lua').new()
 physical_supply:update()
@@ -416,6 +431,7 @@ end
 ------------------------------------------------------------------FUNCTION-POSTINIT---------------------------------------------------------------------------------------------------
 
 function post_initialize()
+    reset_ir_feedback()
     simulation=false
     equipment_held={}
     ag_stores=dofile(LockOn_Options.script_path..'Systems/AG_Stores.lua').new()
@@ -808,11 +824,17 @@ function update()
     end
     get_param_handle('F22_IR_CAGED'):set(caged and 1 or 0)
     get_param_handle('HUD_IR_BACKEND_READY'):set(get_param_handle('F22_IR_API_READY'):get())
-    local ir_available=physical_supply.mission and get_param_handle('F22_IR_AVAILABLE'):get()>.5
-    local ir_locked=ir_available and get_param_handle('F22_IR_LOCK'):get()>.5
-    local ir_az,ir_el=ir_seeker:update(mode_state==3 and ir_available,update_time_step)
+    local ir_now=type(get_model_time)=='function' and get_model_time() or diagnostic_clock
+    local ir_az,ir_el,ir_feedback=ir_seeker:update(mode_state==3 and physical_supply.mission,
+        update_time_step,ir_now)
+    local ir_available,ir_locked=ir_feedback.available,ir_feedback.locked
+    ir_feedback_outputs.OWNER:set(ir_feedback.owned and 1 or 0)
+    ir_feedback_outputs.VALID:set(ir_feedback.valid and 1 or 0)
+    ir_feedback_outputs.AVAILABLE:set(ir_available and 1 or 0)
+    ir_feedback_outputs.LOCK:set(ir_locked and 1 or 0)
+    ir_feedback_outputs.CUE_VALID:set(ir_az and ir_el and 1 or 0)
     local audio_ok,audio_error=pcall(ir_audio.update,ir_audio,mode_state==3 and ir_available,
-        get_param_handle('F22_IR_TYPE4'):get(),get_param_handle('F22_IR_STRENGTH'):get(),
+        get_param_handle('F22_IR_TYPE4'):get(),ir_feedback.strength,
         ir_az or 0,ir_el or 0,get_param_handle('F22_IR_AIM9X_PROFILE'):get()>.5,
         warning_audio_inhibit())
     get_param_handle('F22_IR_AUDIO_READY'):set(audio_ok and 1 or 0)
@@ -825,7 +847,7 @@ function update()
     get_param_handle('HUD_IR_SEEKER_AVAILABLE'):set(ir_available and ir_x and 1 or 0)
     get_param_handle('HUD_IR_SEEKER_X_SLOPE'):set(ir_x or 0)
     get_param_handle('HUD_IR_SEEKER_Y_SLOPE'):set(ir_y or 0)
-    get_param_handle('HUD_IR_SEEKER_VALID'):set(mode_state==3 and ir_locked and 1 or 0)
+    get_param_handle('HUD_IR_SEEKER_VALID'):set(mode_state==3 and ir_locked and ir_x and ir_y and 1 or 0)
     get_param_handle('HUD_IR_SEEKER_AZ'):set(ir_az or 0)
     get_param_handle('HUD_IR_SEEKER_EL'):set(ir_el and math.atan2(math.sin(ir_el),math.cos(ir_el)*math.cos(ir_az)) or 0)
     -- Computed director is the sole gun aiming source.

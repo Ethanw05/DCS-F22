@@ -10803,7 +10803,7 @@
         "SG02",
         "SG12"
       ],
-      "status": "exposure and generation gates implemented offline; launcher approximation disclosed; optional LOAL unavailable",
+      "status": "exposure, instance and coherent feedback/lifetime gates implemented offline; launcher approximation disclosed; optional LOAL unavailable",
       "implementation_notes": "SEN-10-15.md"
     },
     {

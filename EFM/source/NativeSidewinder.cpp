@@ -242,6 +242,59 @@ bool was_caged=true, was_release=false;
 bool head_released=false;
 unsigned launch_sequence=0, launch_id=0;
 unsigned tick_sequence=0;
+SRWLOCK feedback_lifetime_lock = SRWLOCK_INIT;
+enum class FeedbackAccess { Callback, Lifecycle };
+class FeedbackGuard {
+    bool held_ = false;
+public:
+    explicit FeedbackGuard(FeedbackAccess access) {
+        if (access == FeedbackAccess::Lifecycle) {
+            AcquireSRWLockExclusive(&feedback_lifetime_lock);
+            held_ = true;
+        } else {
+            held_ = TryAcquireSRWLockExclusive(&feedback_lifetime_lock) != 0;
+        }
+    }
+    ~FeedbackGuard() {
+        if (held_) ReleaseSRWLockExclusive(&feedback_lifetime_lock);
+    }
+    FeedbackGuard(const FeedbackGuard&) = delete;
+    FeedbackGuard& operator=(const FeedbackGuard&) = delete;
+    explicit operator bool() const { return held_; }
+};
+// Fixed publication metadata; World model seconds, independent of RAPTOR time.
+struct IrFeedbackPublication {
+    enum Field : unsigned { Owner, Schema, Valid, Sequence, Time, Station, Generation, Count };
+    std::array<void*, Count> handles{};
+    unsigned sequence = 0;
+    bool accepting = false;
+    bool begin(EDPARAM& p) {
+        if (!accepting || !p.ed_param_api.pfn_ed_cockpit_get_parameter_handle ||
+            !p.ed_param_api.pfn_ed_cockpit_update_parameter_with_number ||
+            !p.ed_param_api.pfn_ed_cockpit_parameter_value_to_number) return false;
+        constexpr std::array<const char*, Count> names = {"F22_IR_SAMPLE_OWNER", "F22_IR_SAMPLE_SCHEMA",
+            "F22_IR_SAMPLE_VALID", "F22_IR_SAMPLE_SEQUENCE", "F22_IR_SAMPLE_TIME",
+            "F22_IR_SAMPLE_STATION", "F22_IR_SAMPLE_GENERATION"};
+        for (unsigned index = 0; index < Count; ++index) {
+            if (!handles[index]) handles[index] = p.getParamHandle(names[index]);
+            if (!handles[index]) return false;
+        }
+        p.setParamNumber(handles[Owner], 1);
+        p.setParamNumber(handles[Schema], 1);
+        p.setParamNumber(handles[Valid], 0);
+        sequence = sequence >= 16777214 ? 2 : sequence + 2;
+        p.setParamNumber(handles[Sequence], sequence - 1); // Odd until committed.
+        return true;
+    }
+    void commit(EDPARAM& p, double time, int station, double generation) const {
+        p.setParamNumber(handles[Time], time);
+        p.setParamNumber(handles[Station], station);
+        p.setParamNumber(handles[Generation], generation);
+        p.setParamNumber(handles[Valid], 1);
+        p.setParamNumber(handles[Sequence], sequence); // Publish completion last.
+    }
+};
+IrFeedbackPublication ir_feedback;
 std::map<std::string,void*> handles;
 double read(EDPARAM& p,const char* name) {
     auto& h=handles[name];if (!h) h=p.getParamHandle(name);
@@ -972,10 +1025,24 @@ void configure_radar(EDPARAM& p) {
 }
 }
 
-void reset() {
+void start_feedback() {
+    const FeedbackGuard use(FeedbackAccess::Lifecycle);
+    ir_feedback.accepting = true;
+}
+
+void reset(EDPARAM* parameters) {
+    // Drain an in-flight IR update before invalidating/discarding its resources.
+    const FeedbackGuard use(FeedbackAccess::Lifecycle);
+    if (parameters && parameters->ed_param_api.pfn_ed_cockpit_get_parameter_handle &&
+        parameters->ed_param_api.pfn_ed_cockpit_update_parameter_with_number) {
+        auto handle = parameters->getParamHandle("F22_IR_SAMPLE_VALID");
+        if (handle) parameters->setParamNumber(handle, 0);
+    }
+    ir_feedback.accepting = false;
     AcquireSRWLockExclusive(&ground_release_lock);ground_release={};ReleaseSRWLockExclusive(&ground_release_lock);
     reset_support();
     dispose();handles.clear();launch_sequence=0;launch_id=0;tick_sequence=0;
+    ir_feedback = {};
 }
 
 bool read_store_configuration(EDPARAM& p,int& selected,WeaponType& type) {
@@ -995,6 +1062,10 @@ bool read_store_configuration(EDPARAM& p,int& selected,WeaponType& type) {
 }
 
 void update(EDPARAM& p,double dt) {
+    const FeedbackGuard use(FeedbackAccess::Callback);
+    if (!use) return; // A recurring callback never waits for teardown/another update.
+    const bool feedback_ready = ir_feedback.begin(p);
+    if (!feedback_ready) return; // Release retires late callbacks until explicit spawn initialization.
     write(p,"F22_COMBAT_NATIVE_TICKS",++tick_sequence);
     api.resolve();
     const double requested_mode=read(p,"F22_IR_MODE");
@@ -1137,5 +1208,6 @@ void update(EDPARAM& p,double dt) {
     }
     was_release=release;
     write(p,"F22_IR_LAUNCH_SEQUENCE",launch_sequence);write(p,"F22_IR_LAUNCH_ID",launch_id);
+    ir_feedback.commit(p, now, current_station, current_store_generation);
 }
 }

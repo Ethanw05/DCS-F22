@@ -1560,7 +1560,7 @@ void ed_fm_release() {
     NativeMWS::reset();
     NativeGroundRadar::reset();
     NativeAGWeapons::reset();
-    NativeSidewinder::reset();
+    cockpit_manager.resetWeaponFeedback();
     RAPTOR::fm_clock = 0;
     RAPTOR::sim_initialised = false;
     ed_fm_repair();
@@ -1664,6 +1664,7 @@ void CockpitManager::initialize() {
     vehicle_bus.write(VehicleSignal::AirValid, 0.0);
     vehicle_bus.write(VehicleSignal::RequestValid, 0.0);
     vehicle_repair_injected_faults();
+    NativeSidewinder::start_feedback();
     NativeDatalink::reset();
     NativeAltimetry::reset();
     NativeNavigation::reset();
@@ -1789,6 +1790,10 @@ void CockpitManager::updateCombat(double dt) {
     NativeMWS::update(param_api_);
     NativeGroundRadar::update(param_api_);
     NativeNavigation::update(param_api_);
+}
+
+void CockpitManager::resetWeaponFeedback() {
+    NativeSidewinder::reset(&param_api_);
 }
 
 void CockpitManager::update(double dt) {
