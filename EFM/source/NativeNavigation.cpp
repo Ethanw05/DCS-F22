@@ -1,5 +1,6 @@
 // GPL-3.0-or-later. Own common navigation receivers. Audited DCS PE only.
 #include "NativeNavigation.h"
+#include "CniPower.h"
 #include <Cockpit/CockpitAPI_Declare.h>
 #include <Windows.h>
 #include <cmath>
@@ -160,6 +161,7 @@ struct API {
     reason = ready ? 0 : 3;
   }
 } api;
+RaptorCni::Supply supply;
 std::map<std::string, void *> handles;
 void put(EDPARAM &p, const std::string &k, double v) {
   auto &h = handles[k];
@@ -197,11 +199,16 @@ void reset() {
     api.free(api.component);
   }
   api = API{};
+  supply = RaptorCni::Supply{};
   handles.clear();
   tlast = ilast = nullptr;
   ch = band = mode = freq = power = -1;
 }
 void update(EDPARAM &p) {
+  const auto feed = supply.sample(p);
+  put(p, "F22_CNI_SUPPLY_VALID", feed.valid ? 1 : 0);
+  put(p, "F22_CNI_RECEIVER_FEED", feed.receiver ? 1 : 0);
+  put(p, "F22_CNI_THERMAL_INHIBIT", feed.thermal ? 1 : 0);
   for (const char *k :
        {"F22_TCN_BRG_VALID", "F22_TCN_RANGE_VALID", "F22_ILS_LOC_VALID",
         "F22_ILS_GS_VALID", "F22_MAG_VALID"})
@@ -264,10 +271,10 @@ void update(EDPARAM &p) {
       api.connected_ils = i;
     }
   }
-  int on = get(p, "MAIN_POWER") > .5 ? 1 : 0;
+  int on = feed.receiver ? 1 : 0;
   if (auto electrical = owned(context, 26, api.electrical_table, 5800)) {
-    api.generator(electrical, on != 0, 1);
-    api.generator(electrical, on != 0, 2);
+    api.generator(electrical, feed.left, 1);
+    api.generator(electrical, feed.right, 2);
   }
   int wanted_ch = integer(get(p, "F22_TCN_CHANNEL"), 1, 1, 126),
       wanted_band = integer(get(p, "F22_TCN_BAND"), 0, 0, 1);
