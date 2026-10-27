@@ -42,8 +42,9 @@ function post_initialize()
 end
 for c=10930,10949 do dev:listen_command(c)end
 for c=10950,10969 do dev:listen_command(c)end
-for c=11010,11015 do dev:listen_command(c)end
+for c=11010,11016 do dev:listen_command(c)end
 local function apply_command(command,value)
+ if command==11016 and value>0 then dispatch_action(nil,11626,1);return end
  if command>=10505 and command<=10512 or command>=11905 and command<=11912 then
   if type(value)=='number' and decode(value,devices.FLIGHT_GUIDANCE)>0 then light_control:command(command)end
   return
@@ -135,12 +136,15 @@ function update()
  local roll={[0]='',[1]='ATT',[2]='HDG',[3]='NAV'}
  local active=get('F22_AP_ACTIVE')>.5
  local status=active and ('AP '..(roll[get('F22_AP_ROLL_MODE')] or '?')..' '..(pitch[get('F22_AP_PITCH_MODE')] or '?')) or 'AP OFF'
- if get('F22_AP_OVERRIDE')>.5 and active then status='AP OVERRIDE' end
+ if (get('F22_AP_OVERRIDE')>.5 or get('F22_AP_NAV_OVERRIDE')>.5) and active then status='AP OVERRIDE' end
  if get('F22_AP_AT')>.5 then status=status..(get('F22_AP_MACH_HOLD')>.5 and ' / MACH' or ' / A/T')end
- if not active and get('F22_AP_REASON')>0 then
-  local reason={[1]='ENGAGE INHIBIT',[2]='ENVELOPE / POWER',[3]='PILOT OVERRIDE',[4]='NAV LOST',[5]='RALT LIMIT'}
+ if get('F22_AP_REASON')>0 then
+  local reason={[1]='ENGAGE INHIBIT',[2]='ENVELOPE / POWER',[3]='PILOT OVERRIDE',[4]='NAV LOST',
+   [5]='VERTICAL SOURCE LOST',[6]='HEADING LOST'}
   status=status..' '..(reason[get('F22_AP_REASON')] or 'FAULT')
  end
+ if get('F22_AT_REASON')>0 and get('F22_AP_CLOCK')<get('F22_AT_FEEDBACK_UNTIL')then status=status..' / A/T OFF'end
+ if get('F22_AP_LIMITED')>.5 then status=status..' LIMIT'end
  set('F22_AP_STATUS_TEXT',status)
  local mag=get('F22_NAV_REFERENCE')>.5 and get('F22_MAG_VALID')>.5
  local d=mag and math.deg(get('F22_MAG_DECL')) or 0

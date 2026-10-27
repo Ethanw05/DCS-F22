@@ -11,7 +11,7 @@ local controls = {
 function M.new(read, apply)
     local saved = { -1, .5, .4, .5 }
     local controller = {}
-    function controller:command(command)
+    function controller.command(_self, command)
         if command >= 10505 and command <= 10512 then command = command + 1400 end
         if command < 11905 or command > 11912 then return false end
         local index = command == 11905 and 1 or command == 11906 and 1

@@ -74,7 +74,7 @@ for _,e in ipairs(events)do assert(e.d~=devices.FLIGHT_GUIDANCE,'opening AP enga
 assert(get('F22_UFC_ROW_1')=='ATTH'and get('F22_UFC_ROW_5')=='NAV CPL')
 events={};key(3010)
 local guidance={};for _,e in ipairs(events)do if e.d==devices.FLIGHT_GUIDANCE then guidance[#guidance+1]=e end end
-assert(guidance[1].c==11011 and math.abs(guidance[1].v-9842.519685)<.01 and guidance[2].c==10950,'BALT did not capture current height before engaging')
+assert(#guidance==1 and guidance[1].c==10950,'UFC must leave indicated-altitude capture to the common native owner')
 events={};key(3035);assert(events[1].c==10953,'explicit AP/AT disconnect missing')
 -- STPT uses the same transaction and retains leading zeros in the scratchpad.
 put('HUD_WP_INDEX',2);put('F22_NAV_FIX_LAT',41.5);put('F22_NAV_FIX_LON',42.5);put('F22_NAV_FIX_ALT_FT',10000);put('F22_NAV_FIX_GEO_VALID',1)

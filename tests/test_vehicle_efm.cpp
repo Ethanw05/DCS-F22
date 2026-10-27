@@ -10,7 +10,10 @@ template<typename T>T proc(HMODULE m,const char* name) {
     auto p=reinterpret_cast<T>(GetProcAddress(m,name));assert(p);return p;
 }
 int main(int argc,char** argv) {
-    assert(argc==3);
+    assert(argc==4);
+    HMODULE clock_module=LoadLibraryA(argv[3]);assert(clock_module);
+    auto clock=proc<void(*)(double)>(clock_module,"set_model_time");
+    double model_seconds=0;
     HMODULE cockpit=LoadLibraryA(argv[1]);assert(cockpit);
     auto handle=proc<void*(*)(const char*)>(cockpit,"ed_cockpit_get_parameter_handle");
     auto write=proc<void(*)(void*,double)>(cockpit,"ed_cockpit_update_parameter_with_number");
@@ -39,7 +42,7 @@ int main(int argc,char** argv) {
     auto infinite=proc<void(*)(bool)>(fm,"ed_fm_unlimited_fuel");
     auto suspension=proc<void(*)(int,const ed_fm_suspension_info*)>(fm,"ed_fm_suspension_feedback");
     auto mass=proc<bool(*)(double&,double&,double&,double&,double&,double&,double&)>(fm,"ed_fm_change_mass");
-    auto ticks=[&](int n){for(int i=0;i<n;++i)sim(.01);};
+    auto ticks=[&](int n){for(int i=0;i<n;++i){model_seconds+=.01;clock(model_seconds);cmd(10850,.01f);sim(.01);}};
     auto body=[&](double speed,double aoa=0){
         world(0,0,0,speed,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1);
         state(0,0,0,speed*std::cos(aoa),-speed*std::sin(aoa),0,
@@ -79,7 +82,7 @@ int main(int argc,char** argv) {
     set("MAIN_POWER",1);ticks(200);draw(args.data(),args.size());assert(args[9]==0);
 
     // Actual DLL callback routing: saved light IDs must not change AFCS.
-    setup(true);body(210);ticks(2);cmd(11600,1);ticks(1);
+    setup(true);body(210);ticks(2);cmd(11604,1);ticks(1);
     const double old_ap=get("F22_AP_ACTIVE");
     const double old_pitch=get("F22_AP_PITCH_MODE"), old_roll=get("F22_AP_ROLL_MODE");
     for(int command=10505;command<=10512;++command)cmd(command,1);
@@ -101,6 +104,19 @@ int main(int argc,char** argv) {
     set("F22_ENTRY_GUIDANCE_REQUEST",4);set("F22_ENTRY_GUIDANCE_VALUE",360);cmd(11800,4);
     assert(get("F22_ENTRY_GUIDANCE_ACK_REQUEST")==4 && get("F22_ENTRY_GUIDANCE_RESULT")==2);
     cmd(11603,1);
+
+    // The actual callback captures indicated pressure height, not geometric MSL.
+    setup(true);body(210);
+    atmosphere(3000,288.15,340,1.225,89874.5629,0,0,0);ticks(2);
+    cmd(11600,1);ticks(1);
+    assert(get("F22_AP_PITCH_MODE")==2);
+    assert(std::abs(get("F22_AP_ALT")-3280.839895)<.05); // Pressure 1000m, geometric 3000m.
+    set("F22_ALT_RADAR_VALID",1);set("F22_ALT_RADAR_FT",1000);set("F22_ALT_RADAR_STAMP",model_seconds);
+    cmd(11610,1);ticks(1);assert(get("F22_AP_PITCH_MODE")==3);
+    ticks(25);assert(get("F22_AP_PITCH_MODE")==0 && get("F22_AP_REASON")==5);
+    set("F22_ALT_RADAR_STAMP",model_seconds);ticks(1);
+    assert(get("F22_AP_PITCH_MODE")==0); // Source restoration does not engage.
+    cmd(11626,1);ticks(1);assert(get("F22_AP_REASON")==0);
 
     // DCS's repeated trim binding delivers value zero as a valid command.
     // Event bursts alone must not move trim; elapsed simulation time does.

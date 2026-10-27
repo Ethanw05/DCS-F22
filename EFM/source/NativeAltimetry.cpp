@@ -44,4 +44,10 @@ void update(EDPARAM&p,double static_pressure_pa,bool sample_valid){
 }
 bool altitude(double& metres){if(!valid||!clock_fn)return false;double now=clock_fn();
  if(!std::isfinite(now)||now<stamp||now-stamp>.2)return false;metres=value;return true;}
+bool model_time(double& seconds) {
+ if (!clock_fn) return false;
+ seconds = clock_fn();
+ return std::isfinite(seconds);
+}
+
 }

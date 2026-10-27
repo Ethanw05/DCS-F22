@@ -11,6 +11,7 @@ for _,k in ipairs({'MAIN_POWER','EFM_HUD_VALID','F22_ALTIMETER_NATIVE_READY','F2
  'F22_ALTIMETER_RESULT_TIME','F22_ALT_ACTUAL_PRESSURE_MMHG','F22_ALT_NATIVE_BARO_M',
  'F22_ALT_PRESSURE_MMHG','F22_ALT_PRESSURE_REQUEST_VALID','F22_ALT_PRESSURE_REQUEST_TIME',
  'F22_ALT_UNITS','F22_ALT_STD','F22_ALT_BARO_FLOOR','F22_ALT_RADAR_FLOOR',
+ 'F22_ALT_RADAR_STAMP','F22_ALT_BARO_STAMP','F22_ALT_RADAR_REASON','F22_ALT_BARO_REASON',
  'F22_ALT_DISPLAY_TEXT','F22_ALT_BARO_VALID','F22_ALT_RADAR_VALID','F22_ALT_BARO_FT','F22_ALT_RADAR_FT'})do h(k)end
 put('F22_ALT_DISPLAY_TEXT','BARO 29.92 INHG')
 local adopted=false
@@ -63,11 +64,14 @@ function update()
  local powered=get('MAIN_POWER')>.5
  local baro=get('F22_ALT_NATIVE_BARO_M')*3.280839895
  put('F22_ALT_BARO_VALID',powered and native and finite(baro)and 1 or 0)
+ put('F22_ALT_BARO_STAMP',get('F22_ALTIMETER_RESULT_TIME'))
+ put('F22_ALT_BARO_REASON',not powered and 1 or not native and 2 or not finite(baro)and 3 or 0)
  if native and finite(baro)then put('F22_ALT_BARO_FT',baro)end
  local ok,radar=pcall(base.getRadarAltitude)
  local valid=powered and get('EFM_HUD_VALID')>.5 and ok and finite(radar)and radar>=0 and radar<20000
  put('F22_ALT_RADAR_VALID',valid and 1 or 0)
- if valid then put('F22_ALT_RADAR_FT',radar*3.280839895)end
+ put('F22_ALT_RADAR_REASON',not powered and 1 or not ok and 2 or not valid and 3 or 0)
+ if valid then put('F22_ALT_RADAR_FT',radar*3.280839895);put('F22_ALT_RADAR_STAMP',now)end
 end
 make_default_activity(.05)
 need_to_be_closed=false

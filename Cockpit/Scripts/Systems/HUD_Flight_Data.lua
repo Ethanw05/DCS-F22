@@ -30,6 +30,12 @@ function post_initialize()
 end
 function update()
     put("HUD_ALT_VALID",0)
+    if read('F22_ALT_BARO_VALID')>.5 then
+        local altitude=read('F22_ALT_BARO_FT')
+        if mathhud.finite(altitude)then
+            put('HUD_ALT_POINTER',-(altitude%1000)*2*math.pi/1000);put('HUD_ALT_VALID',1)
+        end
+    end
     local pitch,roll=data.getPitch(),data.getRoll()
     local heading=(2*math.pi-data.getHeading())%(2*math.pi)
     -- The existing UFD/MFD ADIs use raw getRoll() with rotation gain +1.
@@ -104,12 +110,7 @@ function update()
         put("HUD_CAS",cas);put("HUD_TAS",tas*1.943844492)
         -- Negative mathematical rotation gives a clockwise dial needle.
         put("HUD_IAS_POINTER",-(cas%100)*2*math.pi/100)
-        if read('F22_ALT_BARO_VALID')>.5 then
-            local altitude=read('F22_ALT_BARO_FT')
-            if mathhud.finite(altitude)then
-                put('HUD_ALT_POINTER',-(altitude%1000)*2*math.pi/1000);put('HUD_ALT_VALID',1)
-            end
-        end
+
         put("HUD_AIRDATA_VALID",1)
         if previous_cas then
             local raw=(cas-previous_cas)/dt

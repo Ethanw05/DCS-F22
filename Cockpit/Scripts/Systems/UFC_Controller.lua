@@ -3,7 +3,7 @@ local Nav=dofile(LockOn_Options.script_path..'Systems/Nav_Entry.lua')
 local Transaction=dofile(LockOn_Options.script_path..'Systems/Entry_Transaction.lua')
 local M={}
 local function finite(v)return type(v)=='number'and v==v and math.abs(v)<1e9 end
-function M.new(get,put,send,sensors)
+function M.new(get,put,send,_sensors)
  local s={page='',entry=nil,pending=nil,status='',clock=0,point=nil}
  local channels={}
  for owner,lane in pairs({FLIGHT_GUIDANCE='GUIDANCE',ALTITUDE_SYSTEM='ALT',NAV_SYSTEM='NAV',WEAPON_SYSTEM='STORES'})do
@@ -46,7 +46,8 @@ function M.new(get,put,send,sensors)
   if field==1 and p.id~=old then p.valid=false;p.lat_entered=false;p.lon_entered=false end
   if p:ready()then
    put('F22_NAV_EDIT_ID',p.id);put('F22_NAV_EDIT_LAT',p.lat);put('F22_NAV_EDIT_LON',p.lon);put('F22_NAV_EDIT_ALT_FT',p.alt)
-   put('F22_ENTRY_NAV_ID',p.id);put('F22_ENTRY_NAV_LAT',p.lat);put('F22_ENTRY_NAV_LON',p.lon);put('F22_ENTRY_NAV_ALT_FT',p.alt)
+   put('F22_ENTRY_NAV_ID',p.id);put('F22_ENTRY_NAV_LAT',p.lat)
+   put('F22_ENTRY_NAV_LON',p.lon);put('F22_ENTRY_NAV_ALT_FT',p.alt)
    local id,lat,lon,alt=p.id,p.lat,p.lon,p.alt
    local pending,error=request('NAV_SYSTEM',10839,1,function()
     return get('F22_NAV_EDIT_ACK_ID')==id and math.abs(get('F22_NAV_EDIT_ACK_LAT')-lat)<1e-8
@@ -57,20 +58,7 @@ function M.new(get,put,send,sensors)
   else self.status='NEED LAT/LON'end
   return true
  end
- function s:capture_altitude(radar)
-  local altitude
-  if radar then altitude=sensors.getRadarAltitude()
-  else local _,u=sensors.getSelfCoordinates();altitude=u end
-  if not finite(altitude)then self.status='NO ALT DATA';return false end
-  send('FLIGHT_GUIDANCE',radar and 11015 or 11011,altitude*3.280839895)
-  return true
- end
- function s:ap_mode(command)
-  if command==10950 then if not self:capture_altitude(false)then return end
-  elseif command==10960 then if not self:capture_altitude(true)then return end
-  elseif(command==10954 or command==10955)and get('F22_AP_ACTIVE')<.5 then
-   if not self:capture_altitude(false)then return end
-  end
+ function s.ap_mode(_self,command)
   send('FLIGHT_GUIDANCE',command,1)
  end
  function s:rows()
@@ -97,7 +85,9 @@ function M.new(get,put,send,sensors)
    rows[1]=number(text('F22_AP_HDG_TEXT','HDG ---'),0,function(b)
     local v,e=integer(b,0,359);if not v then return nil,e end
     if get('F22_NAV_REFERENCE')>.5 and get('F22_MAG_VALID')>.5 then v=(v+math.deg(get('F22_MAG_DECL')))%360 end
-    return request('FLIGHT_GUIDANCE',11010,v,function()return math.abs((get('F22_AP_HEADING')-v+180)%360-180)<.1 end)end,3)
+    return request('FLIGHT_GUIDANCE',11010,v,function()
+     return math.abs((get('F22_AP_HEADING')-v+180)%360-180)<.1
+    end)end,3)
   elseif page=='STPT'then
    local p=self.point
    local labels={string.format('WYPT %03d',p.id),'LAT '..Nav.coord(p.lat,true,p.south),'LON '..Nav.coord(p.lon,false,p.west),string.format('ELEV %.0f FT',p.alt)}
@@ -221,12 +211,26 @@ function M.new(get,put,send,sensors)
   if get('MAIN_POWER')<.5 then self:cancel();self.page=''end
   if self.page=='STORES'and(get('F22_SMS_PROGRAM_PAGE')<.5 or get('F22_SMS_LABEL')<1 or get('HUD_AG_SUBMODE')==1
    or self.store~=get('F22_SMS_SELECTED_INDEX')or self.profile~=get('F22_SMS_PROFILE'))then self:cancel();self.page=''end
-  if self.page=='STPT'and not self.entry and not self.pending and get('HUD_WP_INDEX')~=self.point_source and not(self.point and not self.point.valid)then self:load_point()end
+  if self.page=='STPT'and not self.entry and not self.pending and get('HUD_WP_INDEX')~=self.point_source
+   and not(self.point and not self.point.valid)then self:load_point()end
   if self.pending then
    local p=self.pending;local error=p.error and p.error()
-   if error then trace('REJECT',self.entry and self.entry.option,error);if p.cancel then p.cancel()end;self.pending=nil;if self.entry then self.entry.error=error end
-   elseif p.read()then trace('ACCEPT',self.entry and self.entry.option);if p.accept then p.accept()end;if p.cancel then p.cancel()end;self.pending=nil;self.entry=nil;self.status='ENTERED'
-   elseif self.clock-p.started>1 then trace('TIMEOUT',self.entry and self.entry.option);if p.cancel then p.cancel()end;self.pending=nil;if self.entry then self.entry.error='NO RESPONSE'end end
+   if error then
+    trace('REJECT',self.entry and self.entry.option,error)
+    if p.cancel then p.cancel()end
+    self.pending=nil
+    if self.entry then self.entry.error=error end
+   elseif p.read()then
+    trace('ACCEPT',self.entry and self.entry.option)
+    if p.accept then p.accept()end
+    if p.cancel then p.cancel()end
+    self.pending=nil;self.entry=nil;self.status='ENTERED'
+   elseif self.clock-p.started>1 then
+    trace('TIMEOUT',self.entry and self.entry.option)
+    if p.cancel then p.cancel()end
+    self.pending=nil
+    if self.entry then self.entry.error='NO RESPONSE'end
+   end
   end
   put('F22_UFC_VISIBLE',self.page~=''and 1 or 0);put('F22_UFC_SELECTED',self.entry and self.entry.option or 0)
   put('F22_UFC_PAGE',self.page)

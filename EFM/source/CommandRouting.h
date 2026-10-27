@@ -4,7 +4,7 @@
 
 namespace RaptorCommands {
 constexpr int afcs_first = 11600;
-constexpr int afcs_last = 11625;
+constexpr int afcs_last = 11626;
 constexpr bool legacy_light(int command) noexcept {
     return command >= 10505 && command <= 10512;
 }

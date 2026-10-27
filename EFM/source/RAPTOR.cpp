@@ -570,14 +570,14 @@ void ed_fm_simulate(double dt) {
         const double ref_q = 0.5 * 1.225 * 200.0 * 200.0;
         const double input_deadzone = 0.025;
 
-        bool autotrim_disabled = (autopilot.active() && !autopilot.override_held) || RAPTOR::on_ground ||
+        bool autotrim_disabled = (autopilot.vertical != RaptorAP::Off && !autopilot.override_held) || RAPTOR::on_ground ||
             fabs(RAPTOR::roll) > 1.2217 ||
             RAPTOR::manual_trim_applied ||
             RAPTOR::alpha >= 9.0 ||
             ias_knots < 160.0;
 
         trim_telemetry.inhibit =
-            ((autopilot.active() && !autopilot.override_held) ? 1 : 0) |
+            ((autopilot.vertical != RaptorAP::Off && !autopilot.override_held) ? 1 : 0) |
             (RAPTOR::on_ground ? 2 : 0) |
             (fabs(RAPTOR::roll)>1.2217 ? 4 : 0) |
             (RAPTOR::manual_trim_applied ? 8 : 0) |
@@ -1905,6 +1905,8 @@ void CockpitManager::initialize() {
         "F22_ENTRY_GUIDANCE_REQUEST", "F22_ENTRY_GUIDANCE_ACTIVE",
         "F22_ENTRY_GUIDANCE_COMMAND", "F22_ENTRY_GUIDANCE_VALUE",
         "F22_ENTRY_GUIDANCE_ACK_REQUEST", "F22_ENTRY_GUIDANCE_RESULT", "F22_ENTRY_GUIDANCE_ACK_VALUE",
+        "F22_AP_NAV_OVERRIDE", "F22_AP_LIMITED", "F22_AT_REASON", "F22_AT_FEEDBACK_UNTIL",
+        "F22_ALT_RADAR_VALID", "F22_ALT_RADAR_STAMP", "F22_ALT_RADAR_FT",
         "F22_AP_REASON", "F22_AP_OVERRIDE", "F22_AP_READY", "F22_AP_CLOCK", "F22_AP_RALT",
         "EFM_FCS_INTEGRITY_VALID", "EFM_FCS_DAMAGED", "F22_ALT_PRESSURE_REQUEST_VALID",
         "EFM_VEHICLE_VALID", "EFM_HYD_LEFT_PSI", "EFM_HYD_RIGHT_PSI", "EFM_ACTUATOR_AVAILABLE",
@@ -1945,9 +1947,17 @@ void CockpitManager::initialize() {
 }
 
 void CockpitManager::navigationFrame(RaptorAP::Frame& f) {
-    double indicated;
-    if(NativeAltimetry::altitude(indicated))f.alt=indicated;
-    else if(getParameter("F22_ALT_PRESSURE_REQUEST_VALID")>.5)f.healthy=false;
+    double indicated = 0;
+    f.baro_valid = NativeAltimetry::altitude(indicated);
+    f.alt = f.baro_valid ? indicated : NAN;
+    double model_time = 0;
+    const double radar_stamp = getParameter("F22_ALT_RADAR_STAMP");
+    const double radar_ft = getParameter("F22_ALT_RADAR_FT");
+    f.radar_valid = NativeAltimetry::model_time(model_time) &&
+        getParameter("F22_ALT_RADAR_VALID") > .5 && std::isfinite(radar_stamp) &&
+        model_time >= radar_stamp && model_time - radar_stamp <= .2 &&
+        std::isfinite(radar_ft) && radar_ft >= 0 && radar_ft < 65616.8;
+    f.agl = f.radar_valid ? radar_ft / 3.280839895 : NAN;
     f.powered = f.powered && getParameter("MAIN_POWER") > .5;
     f.nav_valid=getParameter("F22_NAV_STEER_VALID")>.5;
     f.nav_track=getParameter("F22_NAV_STEER_TRACK");
@@ -2019,6 +2029,9 @@ void CockpitManager::update(double dt) {
         {"F22_AP_ALT",autopilot.selected_alt*3.280839895},{"F22_AP_VS",autopilot.selected_vs*196.850394},
         {"F22_AP_SPEED",autopilot.selected_speed*1.943844492},{"F22_AP_MACH",autopilot.selected_mach},
         {"F22_AP_REASON",double(autopilot.reason)},{"F22_AP_OVERRIDE",autopilot.override_held?1.:0.},
+        {"F22_AP_NAV_OVERRIDE",autopilot.nav_override?1.:0.},
+        {"F22_AP_LIMITED",(autopilot.pitch_limited||autopilot.roll_limited||autopilot.at_limited)?1.:0.},
+        {"F22_AT_REASON",double(autopilot.at_reason)},{"F22_AT_FEEDBACK_UNTIL",autopilot.at_feedback_until},
         {"F22_AP_READY",frame.eligible()?1.:0.},{"F22_AP_CLOCK",RAPTOR::fm_clock},
         {"F22_AP_RALT",autopilot.captured_agl*3.280839895},
         {"EFM_FCS_INTEGRITY_VALID",1.},

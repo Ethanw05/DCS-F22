@@ -41,11 +41,14 @@ if(BUILD_TESTING)
     add_library(f22_vehicle_mock_cockpit SHARED "${CMAKE_SOURCE_DIR}/tests/vehicle_mock_cockpit.cpp")
     set_target_properties(f22_vehicle_mock_cockpit PROPERTIES OUTPUT_NAME "CockpitBase"
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/vehicle_fixture/$<CONFIG>")
+    add_library(f22_vehicle_mock_world SHARED "${CMAKE_SOURCE_DIR}/tests/vehicle_mock_world.cpp")
+    set_target_properties(f22_vehicle_mock_world PROPERTIES OUTPUT_NAME "World"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/vehicle_fixture/$<CONFIG>")
     add_executable(f22_vehicle_efm_test "${CMAKE_SOURCE_DIR}/tests/test_vehicle_efm.cpp")
     target_compile_definitions(f22_vehicle_efm_test PRIVATE NOMINMAX _USE_MATH_DEFINES)
-    add_dependencies(f22_vehicle_efm_test f22_vehicle_mock_cockpit f22)
+    add_dependencies(f22_vehicle_efm_test f22_vehicle_mock_cockpit f22_vehicle_mock_world f22)
     add_test(NAME vehicle_efm_callbacks COMMAND f22_vehicle_efm_test
-        "$<TARGET_FILE:f22_vehicle_mock_cockpit>" "$<TARGET_FILE:f22>")
+        "$<TARGET_FILE:f22_vehicle_mock_cockpit>" "$<TARGET_FILE:f22>" "$<TARGET_FILE:f22_vehicle_mock_world>")
     add_executable(f22_autopilot_test "${CMAKE_SOURCE_DIR}/tests/test_autopilot.cpp")
     add_test(NAME autopilot_modes COMMAND f22_autopilot_test)
     add_executable(f22_gun_intercept_test "${CMAKE_SOURCE_DIR}/tests/test_gun_intercept.cpp")
