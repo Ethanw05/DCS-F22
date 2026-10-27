@@ -63,10 +63,14 @@ struct Environment {
         if (equipment_c >= 85.0) thermal_fault = true;
         else if (equipment_c < 75.0) thermal_fault = false;
     }
+    static bool valid_air_inputs(const EnvironmentInputs& input) {
+        return within(input.ambient_pa, 1.0, 2000000.0) &&
+            within(input.ambient_k, 100.0, 1000.0);
+    }
     static bool valid_inputs(const EnvironmentInputs& input) {
-        return std::isfinite(input.ambient_pa) && input.ambient_pa > 0.0 &&
-            std::isfinite(input.ambient_k) && input.ambient_k > 100.0 &&
-            std::isfinite(input.canopy_position);
+        return valid_air_inputs(input) && within(input.canopy_position, 0.0, 1.0) &&
+            within(input.tas_mps, 0.0, 5000.0) &&
+            within(input.internal_fuel_kg, 0.0, 8200.0);
     }
     static bool source_available(const EnvironmentInputs& input) {
         return input.powered && input.bleed_selected && !input.ecs_failed &&
@@ -84,8 +88,10 @@ struct Environment {
     void update_oxygen(const EnvironmentInputs& input, double dt) {
         obogs = conditioned_air && !input.oxygen_failed;
         primary_seen = primary_seen || obogs;
-        backup = !obogs && backup_reserve > 0.0 &&
-            ((input.modern_abos && primary_seen) || input.backup_manual);
+        // A manual backup selection overrides primary delivery. Availability of
+        // OBOGS remains a separate state; exhausted backup can revert to it.
+        backup = backup_reserve > 0.0 && (input.backup_manual ||
+            (!obogs && input.modern_abos && primary_seen));
         if (backup) backup_reserve = std::max(0.0, backup_reserve - dt / 600.0);
         // Preserve the healthy SDK pressure baseline pending an actual host test.
         // The reserve duration is an estimate, not an ABOS hardware capacity.
@@ -98,15 +104,13 @@ struct Environment {
         fog = lag(fog, fog_target, fog_target > fog ? 180.0 : 30.0, dt);
     }
     void update(const EnvironmentInputs& input, double dt) {
+        if (!within(dt, 0.0, 1.0)) return;
         valid = valid_inputs(input);
-        if (!valid) {
-            obogs = backup = conditioned_air = false;
-            oxygen_delivery_pa = 0.0;
-            return;
-        }
-        conditioned_air = source_available(input);
-        update_cabin(input, dt);
+        conditioned_air = valid_air_inputs(input) && source_available(input);
+        // Independent stored oxygen must survive invalid cabin/thermal inputs.
         update_oxygen(input, dt);
+        if (!valid) return;
+        update_cabin(input, dt);
         update_cooling(input, dt);
         update_fog(input, dt);
     }
