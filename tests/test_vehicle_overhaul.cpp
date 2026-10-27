@@ -442,6 +442,32 @@ void engine_temperature_and_control_faults(Fixture& f) {
     f.command(311,1); f.ticks(4500);
     assert(f.parameter(ED_FM_ENGINE_1_COMBUSTION) == 1);
 }
+void held_roll_input_ownership(Fixture& f) {
+    for (const float direction : {-1.0f, 1.0f}) {
+        f.air(); f.fuel(5000); f.unlimited(true); f.conditions(200);
+        f.command(2002,direction); f.ticks(100);
+        double x=0,y=0,z=0; f.moment(x,y,z);
+        const double held_moment=x;
+        assert(std::abs(held_moment)>1000);
+        // Native keyboard releases can arrive after the joystick took over.
+        // They must not steal the held axis; no repeated axis event is needed.
+        for (const int release : {198,200}) {
+            f.command(release,0); f.ticks(100); f.moment(x,y,z);
+            assert(std::abs(x-held_moment)<1.0);
+        }
+        f.ticks(1000); f.moment(x,y,z);
+        assert(std::abs(x-held_moment)<1.0);
+        f.command(2002,0); f.ticks(100); f.moment(x,y,z);
+        assert(std::abs(x)<1.0); // genuine axis centering still stops the roll command
+    }
+    f.air(); f.fuel(5000); f.unlimited(true); f.conditions(200);
+    f.command(197,1); f.command(199,1); f.ticks(100);
+    double x=0,y=0,z=0; f.moment(x,y,z); const double right_moment=x;
+    f.command(198,0); f.ticks(100); f.moment(x,y,z);
+    assert(std::abs(x-right_moment)<1.0); // left release cannot cancel right still held
+    f.command(200,0); f.ticks(100); f.moment(x,y,z);
+    assert(std::abs(x)<1.0);
+}
 } // namespace
 
 int main(int argc, char** argv) {
@@ -462,5 +488,6 @@ int main(int argc, char** argv) {
     damaged_rudder_braking(fixture);
     manual_engine_and_unlit_fuel(fixture);
     engine_temperature_and_control_faults(fixture);
+    held_roll_input_ownership(fixture);
     std::cout << "vehicle DLL: cold/APU/start, burn/mass, feed/repair, sensor truth, limits and lifecycle OK\n";
 }
