@@ -12,6 +12,7 @@ hud_projection=dofile(PROJECTION)
 values={WS_GUN_PIPER_AVAILABLE=1,WS_GUN_PIPER_AZIMUTH=.1,WS_GUN_PIPER_ELEVATION=.1}
 function get_param_handle(n)return{get=function()return values[n]or 0 end,set=function(_,v)values[n]=v end}end
 native_ready=true;mode_state=5;parameters={MAIN_POWER={get=function()return 1 end}}
+physical_supply={mission=true}
 gun_director={update=function()return nil end}
 local funnel_enabled
 gun_funnel={update=function(_,enabled)funnel_enabled=enabled end}

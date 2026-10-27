@@ -139,6 +139,20 @@ p('F22O_02_AGE',0);p('F22_IR_LOCK',1);p('F22_IR_CAGED',0);p('F22_WEAPON_COUNT',1
 update();assert(v('F22_FC_SHOOT')==1,'native HOBS lock truncated by radar-missile angle gate')
 p('F22_IR_LOCK',0);update();assert(v('F22_FC_SHOOT')==0)
 p('F22_IR_LOCK',1);p('F22_IR_CAGED',1);update();assert(v('F22_FC_SHOOT')==0)
+-- The provider's AP clock is a different epoch from this World time. APU-only
+-- main power cannot advertise SHOOT, and utility is distinct from FCS supply.
+for name,value in pairs({EFM_POWER_OWNER=1,EFM_PHYSICAL_VALID=1,EFM_PHYSICAL_GENERATION=1,
+ EFM_PHYSICAL_CLOCK_KIND=1,EFM_PHYSICAL_STAMP=10,F22_AP_CLOCK=10,F22_ELECTRICAL_VALID=1,
+ EFM_MISSION_POWER_AVAILABLE=0,EFM_UTILITY_AVAILABLE=1,EFM_ACTUATOR_AVAILABLE=1})do p(name,value)end
+p('F22_IR_CAGED',0);update()
+assert(v('F22_FC_SHOOT')==0 and v('F22_FC_RELEASE_BLOCKER')==5,'APU-only power advertised release')
+p('EFM_MISSION_POWER_AVAILABLE',1);p('EFM_UTILITY_AVAILABLE',0);update()
+assert(v('F22_FC_SHOOT')==0 and v('F22_FC_RELEASE_BLOCKER')==3,'FCS supply bypassed failed utility')
+p('EFM_ACTUATOR_AVAILABLE',0);p('EFM_UTILITY_AVAILABLE',1);update()
+assert(v('F22_FC_SHOOT')==1,'FCS authority incorrectly blocked healthy utility/mission supply')
+p('EFM_PHYSICAL_VALID',0);update();assert(v('F22_FC_SHOOT')==0,'invalid owned frame retained SHOOT')
+p('EFM_PHYSICAL_VALID',1);update();assert(v('F22_FC_SHOOT')==1)
+p('F22_IR_CAGED',1)
 shot(5,5,1005,101);p('F22_SHOT_05_MODE',3);p('F22_SHOT_05_TOF_VALID',1)
 p('F22_SHOT_05_TOF',25);p('F22_SHOT_05_TOF_SOURCE',2);p('F22_SHOT_05_ESTIMATE_TIME',now);p('F22_SHOT_05_LIFETIME',80)
 update();assert(v('F22_FC_TIMER_MODE')==3 and v('F22_MSL_05_TTG')==25 and v('F22_MSL_05_TTG_SOURCE')==3)

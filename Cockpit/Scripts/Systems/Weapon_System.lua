@@ -183,6 +183,26 @@ local ir_audio=dofile(LockOn_Options.script_path..'Systems/IR_Audio.lua').new()
 local ir_seeker_module=dofile(LockOn_Options.script_path..'Systems/IR_Seeker.lua')
 local ir_seeker=ir_seeker_module.new(sensor_data,function(n)return get_param_handle(n):get()end)
 local ag_stores=dofile(LockOn_Options.script_path..'Systems/AG_Stores.lua').new()
+local physical_supply = dofile(LockOn_Options.script_path..'Systems/Weapon_Physical_State.lua').new()
+physical_supply:update()
+local physical_outputs = {}
+for _, name in ipairs({'OWNER', 'VALID', 'GENERATION', 'STAMP'}) do
+    physical_outputs[name] = get_param_handle('F22_SMS_PHYSICAL_'..name)
+end
+physical_outputs.MISSION = get_param_handle('F22_SMS_MISSION_POWER')
+local ir_instance = {station=-2, store=-1, physical=-1, generation=0}
+local function ir_instance_generation(station)
+    local store = ag_stores:generation(station)
+    if ir_instance.station ~= station or ir_instance.store ~= store
+        or ir_instance.physical ~= physical_supply.generation then
+        ir_instance.station = station
+        ir_instance.store = store
+        ir_instance.physical = physical_supply.generation
+        -- Exhaustion withdraws the native configuration rather than reusing a token.
+        ir_instance.generation = math.min(16777216, ir_instance.generation + 1)
+    end
+    return ir_instance.generation
+end
 local entry_transactions=dofile(LockOn_Options.script_path..'Systems/Entry_Transaction.lua').channel('STORES',
  function(name)return get_param_handle(name):get()end,
  function(name,value)get_param_handle(name):set(value)end)
@@ -195,9 +215,14 @@ local function native_command(c) dispatch_action(devices.WEAPON_NATIVE,c,1) end
 local function publish_control_state()
     parameters.MASTER_ARM:set(master_arm_state)
     get_param_handle('F22_SMS_SIM'):set(simulation and 1 or 0)
+    physical_outputs.OWNER:set(physical_supply.owned and 1 or 0)
+    physical_outputs.VALID:set(physical_supply.valid and 1 or 0)
+    physical_outputs.MISSION:set(physical_supply.mission and 1 or 0)
+    physical_outputs.GENERATION:set(physical_supply.generation)
+    physical_outputs.STAMP:set(physical_supply.stamp)
     get_param_handle('F22_AG_RELEASE_CONSENT'):set(not simulation and not ag_stores.servicing
         and mode_state==7 and master_arm_state==1
-        and parameters.MAIN_POWER:get()>.5 and parameters.WoW:get()<.5
+        and physical_supply.mission and parameters.WoW:get()<.5
         and weapon_release_state==1 and ag_stores.program~=nil and not pickle_consumed and 1 or 0)
 end
 publish_control_state()
@@ -373,7 +398,7 @@ local function choose_station(native,step)
     if bomb and ag_first_selection then ag_submode=ag_stores:profile().mode;ag_first_selection=false end
     publish_stores()
     get_param_handle('F22_IR_STATION'):set(mode_state==3 and selected_station or -1)
-    get_param_handle('F22_IR_STORE_GENERATION'):set(ag_stores:generation(selected_station))
+    get_param_handle('F22_IR_STORE_GENERATION'):set(ir_instance_generation(selected_station))
     -- Events/counts cannot prove every unobserved replacement.
     get_param_handle('F22_SMS_STORE_GENERATION_VALID'):set(0)
     for level=1,4 do get_param_handle('F22_IR_TYPE'..level):set(w['level'..level] or 0) end
@@ -400,6 +425,9 @@ function post_initialize()
     ag_consent_target,pickle_consumed=nil,false
     caged,gun_command_active,native_pickle_active=true,false,false
     selected_station,ag_program_station,station_refresh=-1,-1,0
+    physical_supply:update()
+    get_param_handle('F22_IR_EXPOSURE_VALID'):set(0)
+    get_param_handle('F22_IR_EXPOSED'):set(0)
     get_param_handle('F22_IR_RELEASE_REQUEST'):set(0)
     publish_control_state()
 
@@ -434,6 +462,36 @@ local function cancel_release()
     native_pickle_active, gun_command_active = false, false
     get_param_handle('F22_IR_RELEASE_REQUEST'):set(0)
     publish_control_state()
+end
+local function withdraw_physical_consent()
+    if weapon_release_state == 1 or fire_z_weapons == 1 or first_state == 1
+        or ag_stores.program or native_pickle_active or gun_command_active then
+        local entry = ag_stores.entry
+        cancel_release()
+        if physical_supply.electrical then ag_stores.entry = entry end
+    end
+    if native_arm then
+        native_command(283)
+        native_arm = false
+    end
+    get_param_handle('F22_IR_EXPOSURE_VALID'):set(0)
+    get_param_handle('F22_IR_EXPOSED'):set(0)
+    get_param_handle('F22_IR_RELEASE_REQUEST'):set(0)
+    get_param_handle('F22_AG_RELEASE_CONSENT'):set(0)
+end
+local function refresh_physical_supply()
+    local owned, generation = physical_supply.owned, physical_supply.generation
+    physical_supply:update()
+    local replaced = physical_supply.owned and physical_supply.valid
+        and (not owned or generation ~= physical_supply.generation)
+    if replaced or not physical_supply.mission then withdraw_physical_consent() end
+    if replaced then
+        caged = true
+        selected_station = -2
+        station_refresh = 0
+        get_param_handle('F22_AG_GUIDANCE_CACHE_VALID'):set(0)
+        get_param_handle('F22_AG_SOLUTION_VALID'):set(0)
+    end
 end
 function CockpitEvent(event, _)
     if event=='WeaponRearmFirstStep' or event=='WeaponRearmComplete'
@@ -678,7 +736,7 @@ end
         local requested = (value == nil) and (weapon_release_state == 0)
             or (value ~= nil and value > 0)
         local permitted = master_arm_state == 1 and
-            parameters.MAIN_POWER:get() >= 0.5 and
+            physical_supply.mission and
             parameters.WoW:get() < 0.5
         weapon_release_state = (requested and permitted) and 1 or 0
         pickle_pos = weapon_release_state
@@ -687,7 +745,11 @@ end
 
 end
 function SetCommand(command,value)
+    refresh_physical_supply()
     handle_command(command,value)
+    -- A press received while unavailable must not survive even if power
+    -- returns before the next update callback.
+    if not physical_supply.mission then withdraw_physical_consent() end
     -- Cancellation and SAFE must reach the native callback guard within this
     -- input call, rather than leaving old consent/arm visible for 20 ms.
     if (master_arm_state==0 or simulation) and (weapon_release_state==1 or ag_stores.program or ag_stores.pending)then
@@ -700,6 +762,7 @@ function SetCommand(command,value)
 end
 ------------------------------------------------------------------FUNCTION-UPDATE---------------------------------------------------------------------------------------------------
 function update()
+    refresh_physical_supply()
     if diagnostic_clock>=next_missile_diag then
         next_missile_diag=diagnostic_clock+1
         local function r(n)return get_param_handle(n):get()end
@@ -714,7 +777,7 @@ function update()
     native_ready=ok and native and type(native.get_station_info)=='function' or false
     get_param_handle('F22_WEAPON_BACKEND_READY'):set(native_ready and 1 or 0)
     local native_permitted=not simulation and not ag_stores.servicing and native_ready
-        and master_arm_state==1 and parameters.MAIN_POWER:get()>.5 and parameters.WoW:get()<.5
+        and master_arm_state==1 and physical_supply.mission and parameters.WoW:get()<.5
     if native_arm~=native_permitted then native_command(283);native_arm=native_permitted end
     station_refresh=station_refresh-update_time_step
     if native_ready and station_refresh<=0 then
@@ -745,10 +808,10 @@ function update()
     end
     get_param_handle('F22_IR_CAGED'):set(caged and 1 or 0)
     get_param_handle('HUD_IR_BACKEND_READY'):set(get_param_handle('F22_IR_API_READY'):get())
-    local ir_available=get_param_handle('F22_IR_AVAILABLE'):get()>.5
+    local ir_available=physical_supply.mission and get_param_handle('F22_IR_AVAILABLE'):get()>.5
     local ir_locked=ir_available and get_param_handle('F22_IR_LOCK'):get()>.5
     local ir_az,ir_el=ir_seeker:update(mode_state==3 and ir_available,update_time_step)
-    local audio_ok,audio_error=pcall(ir_audio.update,ir_audio,mode_state==3 and ir_available and parameters.MAIN_POWER:get()>.5,
+    local audio_ok,audio_error=pcall(ir_audio.update,ir_audio,mode_state==3 and ir_available,
         get_param_handle('F22_IR_TYPE4'):get(),get_param_handle('F22_IR_STRENGTH'):get(),
         ir_az or 0,ir_el or 0,get_param_handle('F22_IR_AIM9X_PROFILE'):get()>.5,
         warning_audio_inhibit())
@@ -766,7 +829,7 @@ function update()
     get_param_handle('HUD_IR_SEEKER_AZ'):set(ir_az or 0)
     get_param_handle('HUD_IR_SEEKER_EL'):set(ir_el and math.atan2(math.sin(ir_el),math.cos(ir_el)*math.cos(ir_az)) or 0)
     -- Computed director is the sole gun aiming source.
-    local az,el=gun_director:update(native_ready and mode_state==5 and parameters.MAIN_POWER:get()>.5)
+    local az,el=gun_director:update(native_ready and mode_state==5 and physical_supply.mission)
     local valid=az~=nil and el~=nil
     get_param_handle('F22_GUN_USING_DIRECTOR'):set(valid and 1 or 0)
     get_param_handle('HUD_GUN_NATIVE_VALID'):set(valid and 1 or 0)
@@ -775,11 +838,11 @@ function update()
     local gun_x,gun_y=hud_projection.planar(az,el)
     get_param_handle('HUD_GUN_NATIVE_X_SLOPE'):set(gun_x or 0)
     get_param_handle('HUD_GUN_NATIVE_Y_SLOPE'):set(gun_y or 0)
-    gun_funnel:update(native_ready and mode_state==5 and parameters.MAIN_POWER:get()>.5)
+    gun_funnel:update(native_ready and mode_state==5 and physical_supply.mission)
     -- Interlock all locally dispatched weapon requests on ground, power loss,
     -- and master-arm loss. Do not confuse gear-down with weight-on-wheels.
     local ready_to_release = not simulation and not ag_stores.servicing and master_arm_state == 1
-        and parameters.MAIN_POWER:get() == 1
+        and physical_supply.mission
         and parameters.WoW:get() < 0.5
     if not ready_to_release then
         local entry=ag_stores.entry
@@ -798,16 +861,13 @@ function update()
     -- Single owner for all bay positions. Independent main/left/right bay
     -- requests, ramped with physical time, no repeated writes/overshoots.
     -- Rate approximations reproduce the earlier intended 0.02s Lua cadence.
-    local mainPower = parameters.MAIN_POWER:get() >= 0.5
+    local mainPower = physical_supply.electrical
+    local missionPower = physical_supply.mission
     -- The EFM owns hydraulic authority. A GPU supplies electricity, not
     -- pressure; ground-crew requests therefore obey the same physical supply.
-    local actuatorAuthority=1
-    if get_param_handle('EFM_VEHICLE_VALID'):get()>.5 then
-        local supply=get_param_handle('EFM_ACTUATOR_AVAILABLE'):get()
-        actuatorAuthority=type(supply)=='number'and supply==supply and math.max(0,math.min(1,supply))or 0
-    end
+    local actuatorAuthority=physical_supply.utility
     get_param_handle('F22_BAY_ACTUATOR_AUTHORITY'):set(actuatorAuthority)
-    get_param_handle('F22_BAY_ACTUATOR_VALID'):set(get_param_handle('EFM_VEHICLE_VALID'):get()>.5 and 1 or 0)
+    get_param_handle('F22_BAY_ACTUATOR_VALID'):set(physical_supply.utility_valid and 1 or 0)
     local groundContact = parameters.WoW:get() >= 0.5
     local selected = math.floor(parameters.BAY_STATION:get() + 0.5)
     if selected < 1 or selected > 4 then
@@ -819,7 +879,7 @@ function update()
         and parameters.GROUND_ORIDE:get() >= 0.5
     local groundCrewLeft = groundContact and parameters.GROUND_POWER:get() >= 0.5
         and parameters.GROUND_ORIDE:get() < 0.5
-    local releaseRequest = not groundContact and mainPower and master_arm_state == 1
+    local releaseRequest = not groundContact and missionPower and master_arm_state == 1
         and (weapon_release_state == 1 or air_oride == 1 or (mode_state==3 and not caged and get_param_handle('F22_WEAPON_COUNT'):get()>0))
     local openAll = groundOverride or (releaseRequest and selected == 4)
     local openMain = openAll or (releaseRequest and selected == 2)
@@ -853,7 +913,7 @@ function update()
         and 1 or 0)
     -- Arm annunciation depends on real WOW and main-power availability.
     parameters.ARM_STATUS:set(groundContact and 2 or
-        (master_arm_state == 1 and mainPower and 1 or 0))
+        (master_arm_state == 1 and missionPower and 1 or 0))
 
     -- Weapon release is a request distinct from an actual launch or clearance.
     local chosenBayReady = (selected == 1 and left_door_pos >= 0.98) or
@@ -861,13 +921,13 @@ function update()
         (selected == 3 and right_door_pos >= 0.98) or
         (selected == 4 and bay_door_pos >= 0.98
             and left_door_pos >= 0.98 and right_door_pos >= 0.98)
-    get_param_handle('F22_IR_EXPOSURE_VALID'):set(1)
-    get_param_handle('F22_IR_EXPOSED'):set(mode_state==3 and chosenBayReady and mainPower and 1 or 0)
+    get_param_handle('F22_IR_EXPOSURE_VALID'):set((not physical_supply.owned or physical_supply.valid)and 1 or 0)
+    get_param_handle('F22_IR_EXPOSED'):set(mode_state==3 and chosenBayReady and missionPower and 1 or 0)
     local exposure_time=type(get_model_time)=='function'and get_model_time()or diagnostic_clock
     get_param_handle('F22_IR_EXPOSURE_TIME'):set(exposure_time)
     -- Native clear-ray origin, not recovered launcher geometry.
     get_param_handle('F22_IR_APERTURE_APPROXIMATION'):set(1)
-    local canCommandNativePickle = not simulation and not ag_stores.servicing and mainPower and not groundContact
+    local canCommandNativePickle = not simulation and not ag_stores.servicing and missionPower and not groundContact
         and master_arm_state == 1 and weapon_release_state == 1
         and chosenBayReady and selected_station>=0 and mode_state ~= 5 and mode_state ~= 1
         and get_param_handle('F22_WEAPON_SUPPORTED'):get()>.5
@@ -916,8 +976,8 @@ function update()
                     local actual_n,actual_u,actual_e=sensor_data.getSelfCoordinates()
                     log.write('F22_AG_RELEASE',log.INFO,string.format('t=%.3f station=%d mode=%d predicted=(%.3f,%.3f,%.3f) origin=(%.3f,%.3f,%.3f) actual=(%.3f,%.3f,%.3f) velocity=(%.3f,%.3f,%.3f) wind=(%.3f,%.3f,%.3f) pitch=%.4f bank=%.4f delay=%.3f solution_age=%.3f remaining=%d target=(%.3f,%.3f,%.3f) target_source=%.0f target_sequence=%.0f request_time=%.6f native_time=%.6f published_time=%.6f solver_sequence=%.0f prediction_sec=%.6f',now,selected_station,ag_submode,impact.n,r('F22_AG_SOLUTION_IMPACT_U'),impact.e,r('F22_AG_OWN_N'),r('F22_AG_OWN_U'),r('F22_AG_OWN_E'),actual_n,actual_u,actual_e,r('EFM_HUD_VN'),r('EFM_HUD_VU'),r('EFM_HUD_VE'),r('EFM_HUD_WN'),r('EFM_HUD_WU'),r('EFM_HUD_WE'),sensor_data.getPitch(),sensor_data.getRoll(),r('F22_AG_BOMB_RELEASE_DELAY'),solution_age,ag_stores.program.remaining,r('F22_AG_DELIVERY_TARGET_N'),r('F22_AG_DELIVERY_TARGET_U'),r('F22_AG_DELIVERY_TARGET_E'),r('F22_AG_DELIVERY_TARGET_SOURCE'),r('F22_AG_DELIVERY_TARGET_SEQUENCE'),r('F22_AG_SOLUTION_REQUEST_TIME'),r('F22_AG_SOLUTION_NATIVE_TIME'),r('F22_AG_SOLUTION_PUBLICATION_TIME'),r('F22_AG_SOLUTION_SEQUENCE'),r('F22_AG_SOLUTION_PREDICTION_SEC')))
                 end
-                -- A successful call is only a request. Inventory or the native shot
-                -- observer must acknowledge it before another store can be requested.
+                -- A successful call is only a request. A matching armed native
+                -- launch must acknowledge it before another store can be requested.
                 -- Guided permission above requires an actual native cache
                 -- acknowledgement. dispatch_action is queued, so an immediate
                 -- refresh call cannot establish readiness before launch_station.
@@ -935,7 +995,7 @@ function update()
     end
 
     -- Gun door has its own hydraulic actuation path, documented by USAF.
-    local cannon_request = (mode_state == 5 or ground_gun) and mainPower
+    local cannon_request = (mode_state == 5 or ground_gun) and missionPower
         and not groundContact and master_arm_state == 1
         and (first_state == 1 or fire_z_weapons == 1)
     local canon_door_pos = stepDoor(get_aircraft_draw_argument_value(614),
@@ -954,7 +1014,7 @@ function update()
         -- This also guarantees a release when power/ground/arm interlocks change.
         local can_fire_gun = (not simulation and not ag_stores.servicing and native_ready
             and (mode_state == 5 or ground_gun) and master_arm_state == 1
-            and parameters.MAIN_POWER:get() == 1 and parameters.WoW:get() < 0.5
+            and missionPower and parameters.WoW:get() < 0.5
             and canon_door_pos >= 0.8 and actuatorAuthority>0)
         local gun_requested = (fire_z_weapons == 1 and can_fire_gun)
         if gun_requested ~= gun_command_active then

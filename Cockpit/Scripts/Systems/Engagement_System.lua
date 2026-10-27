@@ -5,6 +5,7 @@ local mathlib=dofile(LockOn_Options.script_path..'Systems/Weapon_Engagement.lua'
 local display=dofile(LockOn_Options.script_path..'Systems/Radar_Display.lua')
 local launch_zone=dofile(LockOn_Options.script_path..'Systems/Radar_Launch_Zone.lua')
 local equipment=dofile(LockOn_Options.script_path..'Systems/Equipment_Profile.lua')
+local physical_supply=dofile(LockOn_Options.script_path..'Systems/Weapon_Physical_State.lua').new()
 local sensors=get_base_data();local dt=.05;make_default_activity(dt)
 local handles={};local function h(n) if not handles[n] then handles[n]=get_param_handle(n) end;return handles[n] end
 local function get(n)return h(n):get()end
@@ -86,6 +87,7 @@ function post_initialize()
     for _,n in ipairs({'F22_FC_SUPPORT_DEGRADED','F22_FC_SUPPORT_LOST','F22_FC_TARGET_INPUT_VALID','F22_FC_TARGET_VALID','F22_FC_DLZ_VALID','F22_FC_SHOOT','F22_FC_TIMER_VALID'}) do put(n,0) end
 end
 function update()
+    physical_supply:update()
     local diagnostic_truth=equipment.supports('diagnostic_weapon_truth')
     put('F22_FC_DIAGNOSTIC_TRUTH',diagnostic_truth and 1 or 0)
     local now=type(get_model_time)=='function' and get_model_time() or clock+dt
@@ -95,7 +97,7 @@ function update()
     local ov=vector('EFM_HUD_','VN','VU','VE')
     local pose={north=n,altitude=u,east=e,pitch=sensors.getPitch(),roll=sensors.getRoll(),heading=(2*math.pi-sensors.getHeading())%(2*math.pi)}
     local id=get('F22_RADAR_WEAPON_TARGET_ID');local t=target(id,now)
-    local valid=t and t.age<=6 and get('RADAR_PWR')>.5 and get('MAIN_POWER')>.5
+    local valid=t and t.age<=6 and get('RADAR_PWR')>.5 and physical_supply.mission
     local mode=get('HUD_MODE');local missile_mode=mode==2 or mode==3
     put('F22_FC_TARGET_VALID',valid and 1 or 0);put('F22_FC_TARGET_INPUT_VALID',valid and 1 or 0)
     put('F22_FC_TARGET_INPUT_ID',valid and id or 0);put('F22_FC_OWN_ALTITUDE',u)
@@ -138,8 +140,9 @@ function update()
     end
     local friendly=get('F22_RADAR_SELECTED_FRIENDLY')>.5
     local blocker=get('WoW')>.5 and 1 or get('F22_SMS_SIM')>.5 and 2
-        or get('EFM_VEHICLE_VALID')>.5 and get('EFM_ACTUATOR_AVAILABLE')<=0 and 3
-        or get('F22_WEAPON_SELECTED_VALID')>.5 and get('F22_WEAPON_SUPPORTED')<.5 and 4 or 0
+        or physical_supply.utility<=0 and 3
+        or get('F22_WEAPON_SELECTED_VALID')>.5 and get('F22_WEAPON_SUPPORTED')<.5 and 4
+        or not physical_supply.mission and 5 or 0
     put('F22_FC_RELEASE_BLOCKER',blocker)
     put('F22_FC_SHOOT_ANTICIPATORY',1) -- Doors may open after the pilot requests release.
     local ready=blocker==0 and valid and get('MASTER_ARM')>.5 and get('F22_WEAPON_COUNT')>0 and not friendly
