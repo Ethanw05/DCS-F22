@@ -62,6 +62,7 @@ Independent work can proceed in parallel. Each item’s expandable details list 
 <a id="record-sc01"></a>
 <a id="record-sc35"></a>
 
+- Apply the [project Lua/C++ coding standard](../CODING_STANDARD.md) throughout the overhaul. Use the [implementation chat prompts](../handoffs/README.md) for ownership and starting instructions; radar has its own dedicated chat.
 - Use one equipment definition across registration, stores, sensors, cockpit pages and mission defaults. Distinguish installed hardware, development announcements and deliberately simulated additions.
 - Give each physical quantity one owner. Separate requested state, achieved state, valid measurement and presentation; declare units, reference frame, sample time and reset behavior.
 - Separate physics truth from measured air data and navigation estimates. Keep planned intelligence distinct from live observations, identity evidence and weapon-support authority.

@@ -1,6 +1,6 @@
 {
   "collected_utc": "2026-10-27T08:06:32.597748+00:00",
-  "mod_root": "C:\\Users\\Ethans Desktop 2.0\\Documents\\Codex\\2026-10-24\\o\\outputs\\DCS-F22",
+  "mod_root": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22",
   "purpose": "Consolidated source/provenance catalogue for the one master fidelity audit. Legacy references are leads, not new validation.",
   "retired_reports": [
     {
@@ -27903,6 +27903,102 @@
     },
     {
       "id": "OH-S013",
+      "target": "https://spinroot.com/gerard/pdf/P10.pdf",
+      "kind": "overhaul_research_source",
+      "labels": [
+        "Gerard J. Holzmann, The Power of Ten — Rules for Developing Safety Critical Code"
+      ],
+      "validation": "Original primary-authored PDF read; C-oriented rules and rationale inspected",
+      "category": "Public reference; applicability recorded separately",
+      "cited_by": [
+        {
+          "document": "F22-Mod-Overhaul-Plan.md",
+          "planning_lane": "coding_standard"
+        }
+      ]
+    },
+    {
+      "id": "OH-S014",
+      "target": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695445/SWE-061%2B-%2BCoding%2BStandards",
+      "kind": "overhaul_research_source",
+      "labels": [
+        "NASA Software Engineering Handbook Rev D, SWE-061 — Coding Standards"
+      ],
+      "validation": "Official requirement and relevant returned guidance read",
+      "category": "Public reference; applicability recorded separately",
+      "cited_by": [
+        {
+          "document": "F22-Mod-Overhaul-Plan.md",
+          "planning_lane": "coding_standard"
+        }
+      ]
+    },
+    {
+      "id": "OH-S015",
+      "target": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695494/SWE-135%2B-%2BStatic%2BAnalysis",
+      "kind": "overhaul_research_source",
+      "labels": [
+        "NASA Software Engineering Handbook Rev D, SWE-135 — Static Analysis"
+      ],
+      "validation": "Official requirement and relevant returned guidance read",
+      "category": "Public reference; applicability recorded separately",
+      "cited_by": [
+        {
+          "document": "F22-Mod-Overhaul-Plan.md",
+          "planning_lane": "coding_standard"
+        }
+      ]
+    },
+    {
+      "id": "OH-S016",
+      "target": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/105709643/SWE-220%2B-%2BCyclomatic%2BComplexity%2Bfor%2BSafety-Critical%2BSoftware",
+      "kind": "overhaul_research_source",
+      "labels": [
+        "NASA Software Engineering Handbook Rev D, SWE-220 — Cyclomatic Complexity for Safety-Critical Software"
+      ],
+      "validation": "Official requirement and threshold/exception passages read",
+      "category": "Public reference; applicability recorded separately",
+      "cited_by": [
+        {
+          "document": "F22-Mod-Overhaul-Plan.md",
+          "planning_lane": "coding_standard"
+        }
+      ]
+    },
+    {
+      "id": "OH-S017",
+      "target": "https://www.lua.org/manual/5.1/manual.html",
+      "kind": "overhaul_research_source",
+      "labels": [
+        "Lua5.1 Reference Manual"
+      ],
+      "validation": "Primary language reference passages on values, errors and automatic memory management read",
+      "category": "Public reference; applicability recorded separately",
+      "cited_by": [
+        {
+          "document": "F22-Mod-Overhaul-Plan.md",
+          "planning_lane": "coding_standard"
+        }
+      ]
+    },
+    {
+      "id": "OH-S018",
+      "target": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines",
+      "kind": "overhaul_research_source",
+      "labels": [
+        "C++ Core Guidelines"
+      ],
+      "validation": "Primary guidelines and relevant ownership/global-state passages read",
+      "category": "Public reference; applicability recorded separately",
+      "cited_by": [
+        {
+          "document": "F22-Mod-Overhaul-Plan.md",
+          "planning_lane": "coding_standard"
+        }
+      ]
+    },
+    {
+      "id": "OH-S019",
       "target": "https://www.477fg.afrc.af.mil/News/Article-Display/Article/448609/alaska-raptors-reach-major-upgrade-milestone/",
       "kind": "overhaul_research_source",
       "labels": [
@@ -27918,7 +28014,7 @@
       ]
     },
     {
-      "id": "OH-S014",
+      "id": "OH-S020",
       "target": "https://www.af.mil/News/Article-Display/Article/110530/operational-f-22s-employ-small-diameter-bombs-during-wsep/",
       "kind": "overhaul_research_source",
       "labels": [
@@ -27934,7 +28030,7 @@
       ]
     },
     {
-      "id": "OH-S015",
+      "id": "OH-S021",
       "target": "https://www.digitalcombatsimulator.com/en/support/faq/general/",
       "kind": "overhaul_research_source",
       "labels": [
@@ -27950,7 +28046,7 @@
       ]
     },
     {
-      "id": "OH-S016",
+      "id": "OH-S022",
       "target": "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-best-practices",
       "kind": "overhaul_research_source",
       "labels": [
@@ -27966,7 +28062,7 @@
       ]
     },
     {
-      "id": "OH-S017",
+      "id": "OH-S023",
       "target": "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulehandleexw",
       "kind": "overhaul_research_source",
       "labels": [
@@ -27982,7 +28078,7 @@
       ]
     },
     {
-      "id": "OH-S018",
+      "id": "OH-S024",
       "target": "https://www.dvidshub.net/image/8372276/f-22-reliability-maintainability-sustainability-event",
       "kind": "overhaul_research_source",
       "labels": [
@@ -30591,6 +30687,66 @@
       "kind": "Public F-22 primary evidence",
       "access": "Complete indexed project passage read in third pass; direct PDF unavailable",
       "planning_lane": "vehicle"
+    },
+    {
+      "id": "POLICY-P10",
+      "title": "Gerard J. Holzmann, The Power of Ten — Rules for Developing Safety Critical Code",
+      "url": "https://spinroot.com/gerard/pdf/P10.pdf",
+      "pages": "pp2–5, ten coding rules; opening scope/rationale",
+      "edition": "2006 author-hosted NASA/JPL paper",
+      "access": "Original primary-authored PDF read; C-oriented rules and rationale inspected",
+      "applicability": "Foundation for the tailored project standard; does not establish Lua/C++ runtime compliance or NASA certification",
+      "planning_lane": "coding_standard"
+    },
+    {
+      "id": "POLICY-SWE061",
+      "title": "NASA Software Engineering Handbook Rev D, SWE-061 — Coding Standards",
+      "url": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695445/SWE-061%2B-%2BCoding%2BStandards",
+      "pages": "Requirement4.4.3, rationale and standard-selection guidance",
+      "edition": "Rev D handbook accessed27 October2026",
+      "access": "Official requirement and relevant returned guidance read",
+      "applicability": "Selecting, defining and following a project standard; not a blanket NASA standard for this mod",
+      "planning_lane": "coding_standard"
+    },
+    {
+      "id": "POLICY-SWE135",
+      "title": "NASA Software Engineering Handbook Rev D, SWE-135 — Static Analysis",
+      "url": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695494/SWE-135%2B-%2BStatic%2BAnalysis",
+      "pages": "Requirement4.4.4 and analysis/complexity guidance",
+      "edition": "Rev D handbook accessed27 October2026",
+      "access": "Official requirement and relevant returned guidance read",
+      "applicability": "Analysis during development/testing and honest check results; tool availability and enforcement still need project setup",
+      "planning_lane": "coding_standard"
+    },
+    {
+      "id": "POLICY-SWE220",
+      "title": "NASA Software Engineering Handbook Rev D, SWE-220 — Cyclomatic Complexity for Safety-Critical Software",
+      "url": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/105709643/SWE-220%2B-%2BCyclomatic%2BComplexity%2Bfor%2BSafety-Critical%2BSoftware",
+      "pages": "Requirement3.7.5;15-or-lower threshold and exception rationale",
+      "edition": "Rev D handbook accessed27 October2026",
+      "access": "Official requirement and threshold/exception passages read",
+      "applicability": "NASA threshold pertains to identified safety-critical components; the mod's target10 is a separate project choice",
+      "planning_lane": "coding_standard"
+    },
+    {
+      "id": "POLICY-LUA51",
+      "title": "Lua5.1 Reference Manual",
+      "url": "https://www.lua.org/manual/5.1/manual.html",
+      "pages": "Sections2.2,2.7,2.10 and pcall/lua_error context",
+      "edition": "Lua5.1 manual accessed27 October2026",
+      "access": "Primary language reference passages on values, errors and automatic memory management read",
+      "applicability": "Lua truthiness, protected error handling and memory/GC tailoring; no whole-runtime allocation-free claim",
+      "planning_lane": "coding_standard"
+    },
+    {
+      "id": "POLICY-CPP",
+      "title": "C++ Core Guidelines",
+      "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines",
+      "pages": "R.1/R.3 resource ownership and I.2 mutable globals",
+      "edition": "Page dated14 June2026; accessed27 October2026",
+      "access": "Primary guidelines and relevant ownership/global-state passages read",
+      "applicability": "C++ resource/ownership adaptation; private DCS allocators, callback lifetimes and ABI require project-specific treatment",
+      "planning_lane": "coding_standard"
     }
   ],
   "overhaul_coordinated_references": [
@@ -30833,6 +30989,6 @@
     }
   ],
   "overhaul_plan_note": "New planning readings retain applicability and access scope. Original consolidated references are preserved without reclassification; counts are reference entries, not independent verified publications.",
-  "overhaul_assembled_utc": "2026-10-27T19:36:01.658685+00:00",
-  "overhaul_added_entries": 18
+  "overhaul_assembled_utc": "2026-10-27T20:06:57.996083+00:00",
+  "overhaul_added_entries": 24
 }

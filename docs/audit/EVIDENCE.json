@@ -1,0 +1,3183 @@
+{
+  "audit_title": "F-22 Mod Fidelity Audit",
+  "audit_date_local": "2026-10-27",
+  "timezone": "America/Denver",
+  "scope": "Read-only source/guide comparison; no fresh DCS flight, build, multiplayer or VR qualification.",
+  "snapshot": {
+    "captured_utc": "2026-10-27T07:11:10.983337+00:00",
+    "source": "C:\\Users\\Ethans Desktop 2.0\\Documents\\Codex\\2026-10-24\\o\\outputs\\DCS-F22",
+    "head": "4fdd5fcfcc9a4656a96c50c6f6d947d91249c3b5",
+    "dirty_count": 362,
+    "files": [
+      {
+        "path": "CMakePresets.json",
+        "bytes": 2316,
+        "sha256": "a4cf1ff01dc03430ec107a624a5cffc1fc85eead7b203882662c6d3de759b7ee"
+      },
+      {
+        "path": "comm.lua",
+        "bytes": 994,
+        "sha256": "5efbffe0e9e4f0fc3736ee12392a6a2c536760329a07d8d2b0cb2ca1d316156b"
+      },
+      {
+        "path": "CONTRIBUTING.md",
+        "bytes": 1588,
+        "sha256": "4b5bae1b205a8fe682978cbf00125e3ca48cc866fe2bd1ca9fafaead14622f6e"
+      },
+      {
+        "path": "Contributors.md",
+        "bytes": 465,
+        "sha256": "f289cc8cb3b74c7074bbf2fa71e95bbb19772fb0a624887739d7804dc2acf146"
+      },
+      {
+        "path": "entry.lua",
+        "bytes": 3140,
+        "sha256": "29f04d4d6e2efa03183e2f85d33f956186a6ef1405616a00aa08b0fb10181435"
+      },
+      {
+        "path": "F-22A.lua",
+        "bytes": 41669,
+        "sha256": "b34eaee5d6db37f548bccf3224787f631b353a2d7774973b2e96b99a1bd4bf15"
+      },
+      {
+        "path": "IRST Pod.lua",
+        "bytes": 1620,
+        "sha256": "4a3b388545b48de3818606fc08eeb55091d44fdb3a2c2ad2e75796234268d674"
+      },
+      {
+        "path": "IRST Sensor.lua",
+        "bytes": 1519,
+        "sha256": "1666d208605eb04bfeaf325befa0495022e7c2b700bac887e34c1f99e5ccafea"
+      },
+      {
+        "path": "README.md",
+        "bytes": 13399,
+        "sha256": "8dc98d6fade0d4568dab6dced798b8d6566e77824d1ecc93b68fcd75bae57fc9"
+      },
+      {
+        "path": "Views.lua",
+        "bytes": 4761,
+        "sha256": "1fdb4391c2685a6b43a003ca81849489b4ea227f763c4eaf8b01ed4766c574cd"
+      },
+      {
+        "path": "VLO Fuel Tank.lua",
+        "bytes": 1469,
+        "sha256": "7907f769ffde8c943179a51678a4bb76d0662336bc1aa272b40d986b0f288384"
+      },
+      {
+        "path": "Weapons.lua",
+        "bytes": 1295,
+        "sha256": "56d8b0c979809b3bd8f7c069408a0f184b25527397eb002b1a85f2458ace7a53"
+      },
+      {
+        "path": "docs/CHINESE_FORUM_RESEARCH.md",
+        "bytes": 13630,
+        "sha256": "357d3951ccbc2053c4db68cc627fbbb33caac7a338c880c0523d8a84bb361111"
+      },
+      {
+        "path": "docs/CHINESE_RESEARCH.md",
+        "bytes": 9019,
+        "sha256": "d1ce787cbee929080561dfccd722ddb111cc544cedebeef46b7d14c433fd33e0"
+      },
+      {
+        "path": "docs/DATALINK.md",
+        "bytes": 4466,
+        "sha256": "84be1400afa3c086e870800d1a6de6f7ea0532d02a525cc41b72d3f2618c4093"
+      },
+      {
+        "path": "docs/DEVELOPMENT.md",
+        "bytes": 3510,
+        "sha256": "2d2821b8cfa4f9891c9532d916563303736e9dc7e956678a8dbe8b50379bd4eb"
+      },
+      {
+        "path": "docs/HUD_AND_SYSTEMS_TEST_PLAN.md",
+        "bytes": 10013,
+        "sha256": "6e417fdb45cd77a0437dbdf76c41590a00637644a55d9c42f17bb575dcf8197f"
+      },
+      {
+        "path": "docs/NAVIGATION_AND_AUTOPILOT.md",
+        "bytes": 12881,
+        "sha256": "1739972a99ffa08fb6292524c79b73056f16410a2652582479492c9e68d55051"
+      },
+      {
+        "path": "docs/OVERHAUL_ASSESSMENT.md",
+        "bytes": 23769,
+        "sha256": "16969948618ed25b3d8d2dbe1aa6fa7f30e96560e740e4f3423487c1689adc54"
+      },
+      {
+        "path": "docs/OVERHAUL_ROADMAP.md",
+        "bytes": 9155,
+        "sha256": "42b10884525e3f24d863ade4c9c738b47969755c18ef3e389909431799dc7780"
+      },
+      {
+        "path": "docs/RESEARCH_GUIDE.md",
+        "bytes": 9120,
+        "sha256": "09a2ed4a4dea15a45ca537f11c88e62cc9aeaed778df1f0cf297cf578361de21"
+      },
+      {
+        "path": "docs/RESOURCES.md",
+        "bytes": 100974,
+        "sha256": "6903a25b011573acbb5ad92a0fe645c7ac8878ab25a619f96bc39a043f3c447d"
+      },
+      {
+        "path": "docs/STANDALONE_DESIGN.md",
+        "bytes": 23707,
+        "sha256": "8916011b9b89dcf6f034567d1d5410d59a0944f263c0866d1aafabe243fea29a"
+      },
+      {
+        "path": "Effects/F-22A_overwingVapor.lua",
+        "bytes": 1646,
+        "sha256": "9d0cd0b3b6489b5012deef2b992004baa0d97d41f986432d523279c0f8912775"
+      },
+      {
+        "path": "FM/config.lua",
+        "bytes": 9814,
+        "sha256": "0b30049eb6658825be8a785fd2e8c3c95893e52ab22d052c7b4b26a3f7dbb195"
+      },
+      {
+        "path": "tests/gun_simulation.cpp",
+        "bytes": 2685,
+        "sha256": "f5424c2b54f5ec2517a5e852bb61e0bfe304f53c0f619a8fb54094a094c99a58"
+      },
+      {
+        "path": "tests/radar_body_fixture.lua",
+        "bytes": 2099,
+        "sha256": "6766e518d2a31ef8c69cc09ee1526f0edbee98be0a3fe1c1687f3b014d7b856d"
+      },
+      {
+        "path": "tests/run_all.py",
+        "bytes": 803,
+        "sha256": "6f432901920c66e12247f85a509bbc29a4558f206f627e3591eaaac96fd2b2f5"
+      },
+      {
+        "path": "tests/stt_snapshot_fixture.lua",
+        "bytes": 694,
+        "sha256": "2c647baba185b45d2573ec2aa44a780d17b82af09cd6864bae0109496a013e17"
+      },
+      {
+        "path": "tests/test_ag_delivery.py",
+        "bytes": 5799,
+        "sha256": "88ff8a28c3edd73d354595198ffcfab32520b12b36845b5ca87ec10ca78d5534"
+      },
+      {
+        "path": "tests/test_ag_radar.py",
+        "bytes": 4245,
+        "sha256": "5eba4ed158bbb3bc297abf1de2a6281ce1c339b5bb1c61197b86cf71d6deca08"
+      },
+      {
+        "path": "tests/test_ag_usability.py",
+        "bytes": 8056,
+        "sha256": "9ec1835ee1c7c522fb01250e681384a1f8c8eab97f6e6831bc1bc15a82df7b5a"
+      },
+      {
+        "path": "tests/test_altitude_settings.py",
+        "bytes": 2204,
+        "sha256": "02ad2fa9364b392cc6a7befb913271fe08ba7489440494a6d5dfa0080ad87445"
+      },
+      {
+        "path": "tests/test_autopilot.cpp",
+        "bytes": 4942,
+        "sha256": "00d04c217fc0e60934568387ba2207d7cc4186089e1878c84589181a03a51d7a"
+      },
+      {
+        "path": "tests/test_ballistics.py",
+        "bytes": 1569,
+        "sha256": "8fe455de47fc8aedb8e888dbbd5cfe4fca160c1b46c3888abec6d1a7cac33d2f"
+      },
+      {
+        "path": "tests/test_combat_controls.py",
+        "bytes": 7275,
+        "sha256": "c9dd4a56e3e0e2fee9e6bb76d8c07b473137f36c654802bf3736b24de6c195f9"
+      },
+      {
+        "path": "tests/test_cooperative_radar.py",
+        "bytes": 6499,
+        "sha256": "236c6b9381f8dc0e287767ea392831ef68fce08bad6e71a90ccb754efb63c79f"
+      },
+      {
+        "path": "tests/test_cooperative_radar_transport.py",
+        "bytes": 4365,
+        "sha256": "bfa6e996bb3370bc4b8d7882f01cfbad61999f5660ff4f4f0f9524a5f0a37c04"
+      },
+      {
+        "path": "tests/test_datalink.py",
+        "bytes": 4474,
+        "sha256": "f474954ff56ca7ce17e20051d35792b31d5146bd189a3ea9393fddb92a2b8ce1"
+      },
+      {
+        "path": "tests/test_detected_hostile_identity.py",
+        "bytes": 2967,
+        "sha256": "b96bdcd4eabf335071bf762a52d7775d4f523037bb6a48e44dbda7b664b91cef"
+      },
+      {
+        "path": "tests/test_display_startup.py",
+        "bytes": 11568,
+        "sha256": "5dc443adb736b62e6664848298dc8675f41f01fb66d1f47290495db5b469d8e2"
+      },
+      {
+        "path": "tests/test_dlz_displays.py",
+        "bytes": 3547,
+        "sha256": "ffbcaa7f7656cb5bcad91f98d89134fceff1c3fd1e0f61cc8a6f9871369d0731"
+      },
+      {
+        "path": "tests/test_engine_indications.py",
+        "bytes": 2270,
+        "sha256": "c014e4aacaf1bfef5a993837b1687993f6ff7a290d6c49c5996e592af2739945"
+      },
+      {
+        "path": "tests/test_ew_backend_lifecycle.py",
+        "bytes": 2986,
+        "sha256": "bae70bfd2389390ffb5c7fd650e12a34f6aae7c0e35c1d3a45dddb2a5315b0f0"
+      },
+      {
+        "path": "tests/test_ew_controls.py",
+        "bytes": 3755,
+        "sha256": "2753743bacd49f47903a27f3db073aef03fba5f10d1b76732fc0397fe118ee20"
+      },
+      {
+        "path": "tests/test_ew_geolocation.py",
+        "bytes": 5439,
+        "sha256": "cb4fc10fd7d5396ed5199aed0f4aa4b838b8719c35abd16d89b923f9b73722f8"
+      },
+      {
+        "path": "tests/test_ew_geolocation_transport.py",
+        "bytes": 8117,
+        "sha256": "beda55b0ec01feb60bf5f9641ad4de7e28e2e63f211b80a582db507ab70200d1"
+      },
+      {
+        "path": "tests/test_ew_programs.py",
+        "bytes": 2863,
+        "sha256": "310c05077bbbbf95b2a8648df92fe5336d3fb48d2918afb49967f81c0321e7ba"
+      },
+      {
+        "path": "tests/test_ground_gmt.py",
+        "bytes": 4059,
+        "sha256": "611d0eb51ec87c8b023df2b6acefcb9c6e64905b32f96fe1ea19d271b4d8b2a9"
+      },
+      {
+        "path": "tests/test_ground_map_undesignate.py",
+        "bytes": 4726,
+        "sha256": "3f68d5c0de5854dc46b060054cc697a90389a0b0a9ce1019eb8c252019adc72c"
+      },
+      {
+        "path": "tests/test_ground_moving_targets.cpp",
+        "bytes": 1491,
+        "sha256": "be8c6dbe47584b18f2e93655e8341c7205fbddef4988e441498af2017d74a6c8"
+      },
+      {
+        "path": "tests/test_ground_radar_integrity.py",
+        "bytes": 7976,
+        "sha256": "722a1390b5e6495f19af292b69bb3a9a74ef992c815b754d049c3d4984baf481"
+      },
+      {
+        "path": "tests/test_ground_radar_interaction.py",
+        "bytes": 6900,
+        "sha256": "c23c71617ba3b25e1bef9544c00dd8d49e959154d0fe756fad85cae0849e119a"
+      },
+      {
+        "path": "tests/test_ground_video.py",
+        "bytes": 7384,
+        "sha256": "de56b9ae840be3e8bf86bbf635f3d7da19dbd6b8f5aabf72510214cde708479c"
+      },
+      {
+        "path": "tests/test_gun_async.py",
+        "bytes": 4058,
+        "sha256": "159dcfcb5c63deddf750e6f0789466535f72f60ef3d247ac58bca21d4836ea87"
+      },
+      {
+        "path": "tests/test_gun_director.py",
+        "bytes": 4003,
+        "sha256": "700edda5297238c8fe3cf32491305006bd75e8f2a802edc63343f3f7abe874c4"
+      },
+      {
+        "path": "tests/test_gun_flight_analysis.py",
+        "bytes": 1335,
+        "sha256": "e9384c8beac3ccda2887107e7beea0da3c1c1ca4f71f4fb8dd18def1c1a94aed"
+      },
+      {
+        "path": "tests/test_gun_flight_replay.py",
+        "bytes": 2128,
+        "sha256": "12222933f146497c231e5d1cdc46dc4d0d705d0a71a0cfdc28fc3fd63a7d6559"
+      },
+      {
+        "path": "tests/test_gun_frames.py",
+        "bytes": 1497,
+        "sha256": "5bd8c72d55339ef89ac95c0536f7eb6a65900af67d67cad613830e7df3487a2d"
+      },
+      {
+        "path": "tests/test_gun_funnel.py",
+        "bytes": 2910,
+        "sha256": "9fabab923fd74ab37c3de0dab05dc4f35d4e7b4b68fa2fe716224a43eb09c094"
+      },
+      {
+        "path": "tests/test_gun_funnel_replay.py",
+        "bytes": 5126,
+        "sha256": "7f6680aa921521a667d671fd782aea2b25400a482536a05ac99951903ade9873"
+      },
+      {
+        "path": "tests/test_gun_intercept.cpp",
+        "bytes": 1632,
+        "sha256": "6083dc8fd0d8d316e6d255bd4722faee4e8034a7db9585655169bf71f079dc01"
+      },
+      {
+        "path": "tests/test_gun_maneuver.cpp",
+        "bytes": 1260,
+        "sha256": "ad163739afed288841df116b03290e7a7e0260488ac3af4b74c8f26e4f62d1cf"
+      },
+      {
+        "path": "tests/test_gun_maneuver_display.py",
+        "bytes": 1577,
+        "sha256": "8a26c8196c0ea1a2cc25857f2a10b3fb22a0410a3a943484ef3d4e5b562a2513"
+      },
+      {
+        "path": "tests/test_gun_no_fallback.py",
+        "bytes": 1889,
+        "sha256": "a555d5fa788803bc0e4876d2aedd2871d97f4c7b92a3a63024182d9c7909e533"
+      },
+      {
+        "path": "tests/test_gun_optical_alignment.py",
+        "bytes": 2310,
+        "sha256": "b06736283cb6cd0673b37339661ca38c07f3b280338075771537a14d518a30fe"
+      },
+      {
+        "path": "tests/test_gun_reticle.py",
+        "bytes": 1459,
+        "sha256": "cbf33cab4aa823fa32ace9745244f855a617798a4c5836f09d8a17e8ba940ef8"
+      },
+      {
+        "path": "tests/test_gun_target_motion.cpp",
+        "bytes": 1154,
+        "sha256": "45d3ba4817b17de9df3ffe3672e0baada33faff0fcd523c0a09c8dd28426f5c9"
+      },
+      {
+        "path": "tests/test_high_alpha.cpp",
+        "bytes": 1427,
+        "sha256": "0c6333643ee2f23765c35d72cf90724df896a0144a017998683ad3d4416664ec"
+      },
+      {
+        "path": "tests/test_hud_adi_agreement.py",
+        "bytes": 2837,
+        "sha256": "9747906708933e6a77713b284358815076b471ac57a8eeb8319d58e046164646"
+      },
+      {
+        "path": "tests/test_hud_combiner.py",
+        "bytes": 1816,
+        "sha256": "d95e945e1e08efb79301e1e05a05eef5edbce4beb2dbf63eca541224d15c4184"
+      },
+      {
+        "path": "tests/test_hud_flight_data.py",
+        "bytes": 4192,
+        "sha256": "08d375ee08aeb0385aa949028369c6e9d1da8121573e1a5600ff661d6252b7f0"
+      },
+      {
+        "path": "tests/test_hud_landing_geometry.py",
+        "bytes": 3198,
+        "sha256": "d83b6bbd1c4125de0f3c9f19fefecd304c95826a616a74ee48ccea843c4a9db2"
+      },
+      {
+        "path": "tests/test_hud_native_units.py",
+        "bytes": 1235,
+        "sha256": "a4882742756e778d1bc763f6034ec2799a2a4e6bb109b299b88a5dd18f2002ec"
+      },
+      {
+        "path": "tests/test_hud_projection_frame.py",
+        "bytes": 6464,
+        "sha256": "3624c94bb6cbb9258c8f3d4da2b991dc336d58b94076df8b118643964b2dd9c5"
+      },
+      {
+        "path": "tests/test_hud_render_schema.py",
+        "bytes": 3304,
+        "sha256": "0cd051c71b316640781eda1784fe9ec2f41de91025aaffa3ab716435e3804e7b"
+      },
+      {
+        "path": "tests/test_hud_resources.py",
+        "bytes": 2732,
+        "sha256": "83c826b6e2331ef4a193868b02efdb9a100adf09c07919a4b2befc2a579c01ab"
+      },
+      {
+        "path": "tests/test_human_factors_workflow.py",
+        "bytes": 5055,
+        "sha256": "5244f9821e42902bc4a9461785ef2326fb64736244ad08d9655ddabdd8052ad6"
+      },
+      {
+        "path": "tests/test_icp_flight_pages.py",
+        "bytes": 3016,
+        "sha256": "b2b7c2ddef9cac1b54ce1d2eaf1ea01dfb23af6dfb2406821786933d727a8eca"
+      },
+      {
+        "path": "tests/test_ins_lifecycle.py",
+        "bytes": 3009,
+        "sha256": "31b840d81662bfded0b57456b8abeadd2b109b5c9174afb99ca8ac6204d7ae84"
+      },
+      {
+        "path": "tests/test_ir_audio.py",
+        "bytes": 2131,
+        "sha256": "2b3b894afee4452245cf4d24e3523f98c661327a6b79a7f02ed3fc335cbb7f07"
+      },
+      {
+        "path": "tests/test_ir_projection.py",
+        "bytes": 1868,
+        "sha256": "c4c3f91c9a1d00355cd6436106d52b69fdb9efae1c8996e0b4a87ee884467ee8"
+      },
+      {
+        "path": "tests/test_lcd_typography.py",
+        "bytes": 1612,
+        "sha256": "ee2e6c1a4f6652fb4f448e49015915bb4ab62a19f02d6a819be251bcead42641"
+      },
+      {
+        "path": "tests/test_mfd_menu_contract.py",
+        "bytes": 4315,
+        "sha256": "2d88b77501f232186a1848f76d0ef7ddba667440c94d9f05af277b024a30e194"
+      },
+      {
+        "path": "tests/test_mfd_shared_pages.py",
+        "bytes": 1332,
+        "sha256": "8eb13b9d6df1ffe1d230acc8293df0068cf9c15556f7589b1e605206e9ea078d"
+      },
+      {
+        "path": "tests/test_missile_support_display.py",
+        "bytes": 2139,
+        "sha256": "c57f876d13bbb2a1812cc57a23a42853361c0295dc27f00d2b56bf22d4c88026"
+      },
+      {
+        "path": "tests/test_mws.py",
+        "bytes": 3262,
+        "sha256": "3af3d7caa7ca2a4474bc7fc3cc5795a956893f7c145e6498b94862c732297f9c"
+      },
+      {
+        "path": "tests/test_native_ag_weapons.cpp",
+        "bytes": 4820,
+        "sha256": "6744aea3d0f06f2fce42cdcc3cb21bc01c16aef060e2c5ffa11c776944dfd9de"
+      },
+      {
+        "path": "tests/test_native_altimetry.cpp",
+        "bytes": 2010,
+        "sha256": "49e49f618cc2375537ca71f426020b0b24bb1744357071d753fe6ef91138c673"
+      },
+      {
+        "path": "tests/test_native_datalink.cpp",
+        "bytes": 4804,
+        "sha256": "d695931165c9b28260a141393b88bf778e571ee69d6412b6376892bba7636003"
+      },
+      {
+        "path": "tests/test_native_ground_controls.cpp",
+        "bytes": 1999,
+        "sha256": "8549eced59cc464e5d62d48162551a00c0393922e93b0e27f904b6d71bbd84c4"
+      },
+      {
+        "path": "tests/test_native_ground_publication.cpp",
+        "bytes": 4961,
+        "sha256": "75af216826aaeabe1f176ac18fb79200ea08c359f6ce352674e0c92f4cfd821b"
+      },
+      {
+        "path": "tests/test_native_ground_returns.cpp",
+        "bytes": 1478,
+        "sha256": "53b9db8b001d38a3bcc60ef33b59ce8ac2a68e7c7e16539d133c35873042fc60"
+      },
+      {
+        "path": "tests/test_native_gun_adapter.cpp",
+        "bytes": 7965,
+        "sha256": "70467396119eb260ad8972e4b21188cd8e9f3ca6f11efa0f4dcc8001d1a8f693"
+      },
+      {
+        "path": "tests/test_native_mws.cpp",
+        "bytes": 5451,
+        "sha256": "10aacbbd20d465dcb5d1bea76b180bc9b871059c98bfef00949ddfc7f00e6d5e"
+      },
+      {
+        "path": "tests/test_native_seeker.cpp",
+        "bytes": 35724,
+        "sha256": "cdcc27d35f98f89c04f623b93ba989232cc519482045f4d62e6a52413109aa1c"
+      },
+      {
+        "path": "tests/test_native_stt_motion.cpp",
+        "bytes": 1103,
+        "sha256": "d35ccb98741069f4b6fe0df12ef1609936be15e497714ec03551ad8bf87dc0f4"
+      },
+      {
+        "path": "tests/test_navigation.py",
+        "bytes": 7848,
+        "sha256": "fb8b267d0b218680cc135f33b5ce73c142ff81113840f5429ccfdfc2e71bf42b"
+      },
+      {
+        "path": "tests/test_navigation_guidance.py",
+        "bytes": 6957,
+        "sha256": "d0730e61e7140b9fe1f42cdebb8cb899ff4d0503869e88a8ae9f0f834c26ba7a"
+      },
+      {
+        "path": "tests/test_nav_data_workflow.py",
+        "bytes": 4630,
+        "sha256": "e233ca4baa628a29f9fd59da8c6feffad78f4818e7fba8cf4ddb1ae0e8d66a3c"
+      },
+      {
+        "path": "tests/test_nav_designation.py",
+        "bytes": 7181,
+        "sha256": "6e377c14239433327aa2e7a08a1122349f6396eac56014f4a6d14e838d406928"
+      },
+      {
+        "path": "tests/test_nav_entry.py",
+        "bytes": 2571,
+        "sha256": "9977eb09dbc6979a2b5777631705032dc5bf22fa3e4da3564b0d69e6b2499b70"
+      },
+      {
+        "path": "tests/test_nav_geometry.py",
+        "bytes": 2558,
+        "sha256": "edd6303c4e1b691710e7d4987849049c7d13955dfe840cf46f3416c1888fdf27"
+      },
+      {
+        "path": "tests/test_nav_workflow.py",
+        "bytes": 7223,
+        "sha256": "e0e6a78baa821a81f10f0ed209a1efa3b42b540f60ca586c1a989533b246d2ed"
+      },
+      {
+        "path": "tests/test_overhaul_attack_context.py",
+        "bytes": 1793,
+        "sha256": "bffaf309ded77858500869e2da396be11f810b5db330f510e25f1bd004d0a371"
+      },
+      {
+        "path": "tests/test_overhaul_ballistics.py",
+        "bytes": 9496,
+        "sha256": "7152e52857385e64d263232ae98923be17061bbae9ec17df7f9fa0ca667fbdc0"
+      },
+      {
+        "path": "tests/test_overhaul_defensive_overview.py",
+        "bytes": 12611,
+        "sha256": "733c5aeb256f92cef37a6744a82ab88fe1a29c85831c85d680c3c0491147bde6"
+      },
+      {
+        "path": "tests/test_overhaul_device_contract.py",
+        "bytes": 1846,
+        "sha256": "68ad87d1ca3bf9dbf3b2b96007df0efb0940c2adf5eeda8790b09be1fdff3774"
+      },
+      {
+        "path": "tests/test_overhaul_guidance_cache.py",
+        "bytes": 4821,
+        "sha256": "c91a5f6fce45db5ae54945ace0928ff511cdf3566c1b7c15f0a9f3eb0a8390a4"
+      },
+      {
+        "path": "tests/test_overhaul_hud_binding.py",
+        "bytes": 1384,
+        "sha256": "aea995a32f664adecb38a74d0b85a959cefbdf4c09bad73d6ace340f4a54fd05"
+      },
+      {
+        "path": "tests/test_overhaul_menu_routes.py",
+        "bytes": 5368,
+        "sha256": "41cf1113834f3ff57890a15e2839373781ce435781df5e753bd42d6883c17631"
+      },
+      {
+        "path": "tests/test_overhaul_release_contract.py",
+        "bytes": 5087,
+        "sha256": "d418ef1e1bff8729657b580321fe2f9d13ac701dc831479aa58a8c36f0788fd7"
+      },
+      {
+        "path": "tests/test_overhaul_stores.py",
+        "bytes": 7541,
+        "sha256": "62c34a8fc6ed41f5e9fc21f08820b5b20ef5dc63da733153a9af515a42cd3317"
+      },
+      {
+        "path": "tests/test_overhaul_stores_actuators.py",
+        "bytes": 4484,
+        "sha256": "87a29a7ff024e4665ff4c1fea2e783309ef53d8890e3f0b40f47b1df038451bc"
+      },
+      {
+        "path": "tests/test_overhaul_stores_display.py",
+        "bytes": 14266,
+        "sha256": "ceb817b1c4246a8f8d2f5f7b20b9f34ba953e7a9b461875706e9e186e3f5b64f"
+      },
+      {
+        "path": "tests/test_overhaul_tactical_binding.py",
+        "bytes": 1462,
+        "sha256": "1eedb9b9662b85a8f3c1ad0d5a621049df62614949340679de55cf0971502b5a"
+      },
+      {
+        "path": "tests/test_overhaul_vehicle_indications.py",
+        "bytes": 4449,
+        "sha256": "8e04abd777c6d482c915f6b9558adb07b123d0acf566f54c7a7084d4ea44628f"
+      },
+      {
+        "path": "tests/test_pilot_warnings.py",
+        "bytes": 3063,
+        "sha256": "1fc1281818334e3ecb8a30af85f340a733a6aae7c4f1abcb82ff70bab22972e7"
+      },
+      {
+        "path": "tests/test_pilot_warning_owner.py",
+        "bytes": 2429,
+        "sha256": "671d31a8df52d9bd121e38f7e5571a7f26615154107af9a7936a81f751057ac9"
+      },
+      {
+        "path": "tests/test_pmfd_local_pages.py",
+        "bytes": 5756,
+        "sha256": "2d18a0517c47c70658cb46a0b69ef86fd412a947364fbf839ff754e97c4d508a"
+      },
+      {
+        "path": "tests/test_radar_acm_hud_focus.py",
+        "bytes": 5202,
+        "sha256": "caeed41ee70ee6a578846263b038dbc1c5d6bc9826ef31041c90639e534cf367"
+      },
+      {
+        "path": "tests/test_radar_acm_transitions.py",
+        "bytes": 2675,
+        "sha256": "c76b8d8f4fe648d3807997bc1d7e06521ec50f1545b2c6d9886621227fe5b0ba"
+      },
+      {
+        "path": "tests/test_radar_adapter.py",
+        "bytes": 6949,
+        "sha256": "520f9a8a19a32e3908049c2b3e4362eef58d85f5aef88e589ec8dbf7b90b014a"
+      },
+      {
+        "path": "tests/test_radar_ag_handoff.py",
+        "bytes": 2039,
+        "sha256": "38ad017a19b2e6731bf5808be9b5469197e7a5ebc9f0ecd8b669463a1d71dad6"
+      },
+      {
+        "path": "tests/test_radar_bridge.py",
+        "bytes": 2000,
+        "sha256": "ec9176cd3ff5dcc65cbf6df5881953bde40d71373202a6464d42432eeef5fb58"
+      },
+      {
+        "path": "tests/test_radar_computer.py",
+        "bytes": 4787,
+        "sha256": "392fefc8c66dd1c43b06e1ec1ff7e6ad29445e02d6e5d0092f0e9cbcec0f519b"
+      },
+      {
+        "path": "tests/test_radar_integrity.py",
+        "bytes": 8127,
+        "sha256": "c8d5cab3a43c2bf79149275c08bf7e05f052c7375a844b94ef52bcd64a6b4b2d"
+      },
+      {
+        "path": "tests/test_radar_launch_zone.py",
+        "bytes": 6757,
+        "sha256": "0ca3ff42547170e35c505bb9d19739abf769612b3ae7bf12827329a8a9dc6fa6"
+      },
+      {
+        "path": "tests/test_radar_mfd_controls.py",
+        "bytes": 6481,
+        "sha256": "ed5f96ce982825f00020c3b18753edbfefc23cdf888c11decca4a93edb86f016"
+      },
+      {
+        "path": "tests/test_radar_native_units.py",
+        "bytes": 1165,
+        "sha256": "01f0f31280b0f41d26d86c0d95cf7fe5740e2958240dcc9e223b38d02e8c4e19"
+      },
+      {
+        "path": "tests/test_radar_presentation.py",
+        "bytes": 5626,
+        "sha256": "f8e7a71a2bda1bb8d582335c327394745eab54e00e228b1160ca2e28e1620bea"
+      },
+      {
+        "path": "tests/test_radar_scan_quality.py",
+        "bytes": 12385,
+        "sha256": "ec4a42fb698c446065c556d3263c162f04e5806e3eecf69c559419fee0f249b2"
+      },
+      {
+        "path": "tests/test_radar_scenario_matrix.py",
+        "bytes": 3305,
+        "sha256": "c68bd305c215b7586fef6c926e0ae05b8efc1ed5b4fb1c20bee527f49e4d899d"
+      },
+      {
+        "path": "tests/test_radar_telemetry.py",
+        "bytes": 3020,
+        "sha256": "a3be97f7ee677b92221861b8869bcde9e8ca29e0b7c8341d70696a1fec342234"
+      },
+      {
+        "path": "tests/test_radar_tracking_beam.py",
+        "bytes": 2022,
+        "sha256": "0f51783c326e4731a662a37e1502c2878a13fa1db67e18fe6432bb248c3acec0"
+      },
+      {
+        "path": "tests/test_radar_weapon_state.py",
+        "bytes": 4966,
+        "sha256": "8261e3e761078048248ddf60bc33f263f44073b1d00af50a88e578332e9b63f1"
+      },
+      {
+        "path": "tests/test_radar_world_observations.py",
+        "bytes": 1881,
+        "sha256": "3c6c8762f070f4432604eb3efc735c893654dda7c380a407c582074698bab9ce"
+      },
+      {
+        "path": "tests/test_rwr_audio.py",
+        "bytes": 2892,
+        "sha256": "fca1c5a9dc53e69fa4560431bb2a6e1d16b77aca4dfc19090d695a08aaa8aa12"
+      },
+      {
+        "path": "tests/test_rwr_bearings.py",
+        "bytes": 5267,
+        "sha256": "39289edadd6ca7f33727407a900232fe2caa5122e53ee7ab48732b46801c4640"
+      },
+      {
+        "path": "tests/test_rwr_proximity.py",
+        "bytes": 2821,
+        "sha256": "24c48a103c6969e2899b9d393d8110fc40864ecb6917a40a12dbff7b47420a79"
+      },
+      {
+        "path": "tests/test_rwr_scenario_matrix.py",
+        "bytes": 5648,
+        "sha256": "a588d70bf5ec8c3d2b5396f89bc733eab57fc7761296de7fdbb90b73a5bcb988"
+      },
+      {
+        "path": "tests/test_sensor_control.py",
+        "bytes": 5657,
+        "sha256": "bf30348049e7d38fa746ce082c54bb3bd7be15427e7b3bcba0b842a4340328af"
+      },
+      {
+        "path": "tests/test_sensor_fusion.py",
+        "bytes": 9652,
+        "sha256": "07b1e16829ccedfdea4a8c8699a195fd01e8305b8e03a76fa96942ef2c056ff3"
+      },
+      {
+        "path": "tests/test_standalone.py",
+        "bytes": 2738,
+        "sha256": "a83927edbbe9911e81059183b1eeccb80cb70c9f251d718ad21cdf5689b01187"
+      },
+      {
+        "path": "tests/test_stores_context.py",
+        "bytes": 2275,
+        "sha256": "7b26e6cb9fc0397dd5b545566035050e6be85283e9a592bfa6421c21831d2c3f"
+      },
+      {
+        "path": "tests/test_store_registration.py",
+        "bytes": 2752,
+        "sha256": "adf69db27476a6f1ecff35d93e0a538ae14875db168b5be5639058a1fd9c5fe1"
+      },
+      {
+        "path": "tests/test_tactical_identity_palette.py",
+        "bytes": 1611,
+        "sha256": "3887aa0c5c9b1fa2a107c4767f090eb8f1bdb38340ebfeba0f244cb2cc68c29c"
+      },
+      {
+        "path": "tests/test_tactical_picture.py",
+        "bytes": 5361,
+        "sha256": "330d910a9237b3fcc973d3954cb97457bc2b28a648c7b3a6baaf993523c783c3"
+      },
+      {
+        "path": "tests/test_tactical_provenance.py",
+        "bytes": 4768,
+        "sha256": "5f8d0c9eb7b9ad110d5ec6aae917d83096ecbd18c1821953d1ac553d35375935"
+      },
+      {
+        "path": "tests/test_tactical_situation.py",
+        "bytes": 4383,
+        "sha256": "d2d78d4b9bdab4de53a8af0b469f86e171c7b3775a16e0a3846e3b3027b2ecfc"
+      },
+      {
+        "path": "tests/test_tactical_startup.py",
+        "bytes": 1259,
+        "sha256": "3ea6a6fc48d9ef5a279430e1a82290043a7dd5db6c22fa2ce737de751d7cc4df"
+      },
+      {
+        "path": "tests/test_target_designation.py",
+        "bytes": 5390,
+        "sha256": "febd8a0198e64c699cd6036b71a2e27775c3bf9c6b36b735e6c679f1151f8e7a"
+      },
+      {
+        "path": "tests/test_tdc_workflow.py",
+        "bytes": 2040,
+        "sha256": "06c7c54ebe43fe6014272984927fe9c9b83b725d19937a33ce348f1278607fee"
+      },
+      {
+        "path": "tests/test_terrain_director.py",
+        "bytes": 1579,
+        "sha256": "4514a9bdb7e33f6b2547cc9a921f3cb7de8bc559fa229a9646df52d2ac166798"
+      },
+      {
+        "path": "tests/test_terrain_escape.py",
+        "bytes": 3467,
+        "sha256": "ff0c69a5eb8b698da2f4d4080e3116d4636a7b9f9bbd90a72e19bba7e8ce442a"
+      },
+      {
+        "path": "tests/test_terrain_nuisance.py",
+        "bytes": 2265,
+        "sha256": "eb78a4e458c28cda7eb177592dfec8fd772d2b764fc2522aa1922388f411bdc7"
+      },
+      {
+        "path": "tests/test_terrain_recovery_cue.py",
+        "bytes": 1752,
+        "sha256": "6ff53689c05715a2fbb8c7be69a5d326752663efee843badc60243626bafae2b"
+      },
+      {
+        "path": "tests/test_terrain_warning_owner.py",
+        "bytes": 4328,
+        "sha256": "ee784697622ef236e7c56e6b87edbe598d2e393122ff976309a5f0ac55fd5233"
+      },
+      {
+        "path": "tests/test_ufc_entry_display.py",
+        "bytes": 4533,
+        "sha256": "d26b13e645c19f155678ec20c8c8f999332314f56de17f5daae51ed2a848a2ac"
+      },
+      {
+        "path": "tests/test_vehicle_efm.cpp",
+        "bytes": 8088,
+        "sha256": "28358067f5b70157d48f253cb39126e231a66421992726b31260ba26424e613c"
+      },
+      {
+        "path": "tests/test_vehicle_electrical.py",
+        "bytes": 2207,
+        "sha256": "041f73de4e59faf338655f4bb7dae9e0a3c6f214bce8582621a9e7efdbbabd90"
+      },
+      {
+        "path": "tests/test_vehicle_systems.cpp",
+        "bytes": 2811,
+        "sha256": "24733a01606ff5ff6140d33a0ab3d2d7a4de6fb5c9937ac0d7c2042f21634fcd"
+      },
+      {
+        "path": "tests/test_warning_priority_expiry.py",
+        "bytes": 3660,
+        "sha256": "fc9e3cc92eae35307a9e490325e839e888a6cb82154d0a187ed65f4af7cd7013"
+      },
+      {
+        "path": "tests/test_warning_replay.py",
+        "bytes": 5559,
+        "sha256": "0c7b88a818106fa19112f4a84ecb7110d9cdf96065ea41d09a240533d3c00124"
+      },
+      {
+        "path": "tests/test_warning_voice_timing.py",
+        "bytes": 1923,
+        "sha256": "ba31636e1cdf2f1b51549001ceece33911828f6607da8a199c02bab05397debb"
+      },
+      {
+        "path": "tests/test_weapon_engagement.py",
+        "bytes": 8667,
+        "sha256": "98b3c1889bb7edac282b39b46f286cf017cc983e2a36f51dba9a199d5acd044c"
+      },
+      {
+        "path": "tests/test_weapon_hud_selection.py",
+        "bytes": 3695,
+        "sha256": "a0a9251c14118ff1ffa57b0524a614443abb4b01b934da567bf1348a07f14ce7"
+      },
+      {
+        "path": "tests/validate_modified_lua.py",
+        "bytes": 5005,
+        "sha256": "41ba990295b03476e82f67158e4a0d1959403efb04deabd391186614695649c5"
+      },
+      {
+        "path": "tests/vehicle_mock_cockpit.cpp",
+        "bytes": 950,
+        "sha256": "cab840f5a5563f741e0a309d0863103b737c0bdde1655f527da912115d5b0884"
+      },
+      {
+        "path": "tools/analyze_gun_flight.py",
+        "bytes": 4414,
+        "sha256": "d6efc334aa6d36e3b3d2b6212079595772a1c195886acd05fe7e1146026ec855"
+      },
+      {
+        "path": "tools/F22NativePreview.lua",
+        "bytes": 4243,
+        "sha256": "ec2326a17c32bdee9799bbc65762992d587b800c8b38db0a92c390ba0a010208"
+      },
+      {
+        "path": "tools/generate_mws_tone.py",
+        "bytes": 794,
+        "sha256": "7ecceb0755ced680b56a3d1663530d360e69e1835635d4a34e96944d21456ffb"
+      },
+      {
+        "path": "tools/generate_pilot_warning_audio.py",
+        "bytes": 2928,
+        "sha256": "7e4b0527e3f5fb13740694d1c5a26bf21895a07ceb7334f3baab2ab281a7e794"
+      },
+      {
+        "path": "tools/render_hud_preview.py",
+        "bytes": 29332,
+        "sha256": "fd53f55864dfef9a14cce29929dd1bf5d1c207297d11d3fd82f3b1f2c46e50fd"
+      },
+      {
+        "path": "tools/render_nav_preview.py",
+        "bytes": 6483,
+        "sha256": "6c0e175c2105f90bba4744f553a108b82d73e81cb3af7bc56d9cc04bfb952d39"
+      },
+      {
+        "path": "tools/render_radar_preview.py",
+        "bytes": 18384,
+        "sha256": "7f7a42c038759943b88b0d05c4410f9f924ce8ee4a7a2fd8ceb90d93145a0776"
+      },
+      {
+        "path": "tools/simulate_gun_director.py",
+        "bytes": 5183,
+        "sha256": "a88114232843c28861d802d15eaa9900e532f285031942d4a3f57606768b574f"
+      },
+      {
+        "path": "UnitPayloads/F-22A.lua",
+        "bytes": 20699,
+        "sha256": "adf5683ddeec51babd0039f99062e8cdbdef8bae7ed6cbea643ffee0fa51e9cb"
+      },
+      {
+        "path": "Weapons/AG_Training.lua",
+        "bytes": 498,
+        "sha256": "19982de902945c9482cc0132d7369a864f2006f2fdc1b865e2b02664a0c2a8ba"
+      },
+      {
+        "path": "Weapons/AIM_120_C7.lua",
+        "bytes": 11358,
+        "sha256": "ab21a1ef311e1497c14c5587c888548c68b8dbaee2370692d10466518adca63c"
+      },
+      {
+        "path": "Weapons/AIM_120_C8.lua",
+        "bytes": 11324,
+        "sha256": "38dd6f241cd6d4642333bb612b6527abafec1f67669f1551fca7334ad95736a2"
+      },
+      {
+        "path": "Weapons/AIM_120_D3.lua",
+        "bytes": 11324,
+        "sha256": "b726aec5a58044806e48c261d1a466496c3f9727fc523511e01b666dc9eaf64b"
+      },
+      {
+        "path": "Weapons/AIM_260A.lua",
+        "bytes": 11542,
+        "sha256": "15f515b4405f6ad2a610cd91f6f49f9b9d9355d39fbe6828066c996f0d86ddea"
+      },
+      {
+        "path": "Weapons/AIM_9X_BLKII.lua",
+        "bytes": 4777,
+        "sha256": "c403ccf06e3f96cdac85c980c7a40a6297194d40d163d0d8ea21b07d800cae5d"
+      },
+      {
+        "path": "Weapons/GBU_32.lua",
+        "bytes": 5529,
+        "sha256": "22d0a38b36ce5a3656cf29c2db48b405d7cab0c931de712fc97b100e6e07dae8"
+      },
+      {
+        "path": "Weapons/MAKO_A2A_C.lua",
+        "bytes": 10578,
+        "sha256": "7343099871b7d9a647966b5ad264fd73a55dab0491320038f0c5ab98d2f7ff02"
+      },
+      {
+        "path": "Weapons/MAKO_A2G_C.lua",
+        "bytes": 5424,
+        "sha256": "1bcb1495835823c19a2e00ad191f6712886de48eb0127c9b9e0866e94e3eeac0"
+      },
+      {
+        "path": "Cockpit/Scripts/clickabledata.lua",
+        "bytes": 32677,
+        "sha256": "6c11bf4dbd16ebb1b7afb07113b76d83e4c1454d6eba44e3e98267d2b71cb6d6"
+      },
+      {
+        "path": "Cockpit/Scripts/command_defs.lua",
+        "bytes": 29932,
+        "sha256": "71f608464f3844a951df34285d1ffb7d8e0ad498d6365051aaf9858f85cdefe0"
+      },
+      {
+        "path": "Cockpit/Scripts/devices.lua",
+        "bytes": 2878,
+        "sha256": "697d4540c65821788f98b356377c0e25bf12487f75c2e30b74e7f498ad2f23d9"
+      },
+      {
+        "path": "Cockpit/Scripts/device_init.lua",
+        "bytes": 7553,
+        "sha256": "bb53273d37908f672d7dc704598b1988a0a18f207b6f862ff8f6fc68a5f13b5c"
+      },
+      {
+        "path": "Cockpit/Scripts/fonts.lua",
+        "bytes": 17961,
+        "sha256": "89dfa83aee0deed257770a86f2867640e29bdbb45ab7261a1b5c5d7d6e02bd67"
+      },
+      {
+        "path": "Cockpit/Scripts/mainpanel_init.lua",
+        "bytes": 8784,
+        "sha256": "670e4ac9739fa4160f480f287b4abba0b1287cfc72329733499abc78ed954bf1"
+      },
+      {
+        "path": "Cockpit/Scripts/materials.lua",
+        "bytes": 2319,
+        "sha256": "42cf36426c3b3a54ebdf5c7855c16a1c17bd0a92ee965b0d21784ec1f0bc7d5d"
+      },
+      {
+        "path": "Cockpit/Shape/cockpit_f-22a.edm.json",
+        "bytes": 5856,
+        "sha256": "1e7cd8c205d211961de406859def97271e91d9b6c6b34f11e998e4b4daf5a58b"
+      },
+      {
+        "path": "Cockpit/Shape/cockpit_f-22a.edm.lua",
+        "bytes": 968,
+        "sha256": "f6be193fe997b4a3a69285055d264ffda948b6e744b90fb8c6cd820325e902f1"
+      },
+      {
+        "path": "Cockpit/Scripts/HUD/ag.lua",
+        "bytes": 4646,
+        "sha256": "1d3b9bace2e609c21f0eca43fc3c1d67896e24b82608d42e7dc8a2e2e146d14d"
+      },
+      {
+        "path": "Cockpit/Scripts/HUD/engagement.lua",
+        "bytes": 5166,
+        "sha256": "e55a679201412a098fa5343de16943a7ca393665810e6bc6cedc4edb99507b7d"
+      },
+      {
+        "path": "Cockpit/Scripts/HUD/font.lua",
+        "bytes": 917,
+        "sha256": "20106f48a9878ec53f32596e1aec5936cca55d3d1394845077c4a6a54b5eebb6"
+      },
+      {
+        "path": "Cockpit/Scripts/HUD/glass.lua",
+        "bytes": 4732,
+        "sha256": "3e84100c6d45bc6ddee883cc897e6e63c56870254f76fc0055dd28b41162101d"
+      },
+      {
+        "path": "Cockpit/Scripts/HUD/gun_funnel.lua",
+        "bytes": 742,
+        "sha256": "2dab105de98cf0f13092f0a938350067a4a26fc192f13ac3f9d8645ec6679b4b"
+      },
+      {
+        "path": "Cockpit/Scripts/HUD/gun_maneuver.lua",
+        "bytes": 2120,
+        "sha256": "f1bfe3348454a50bbf9fb95479369839914bc7eedfed864d5925334a4ca7f359"
+      },
+      {
+        "path": "Cockpit/Scripts/HUD/gun_reticle.lua",
+        "bytes": 1723,
+        "sha256": "0d05f07b6c73191128570676864434dec2cd15663c2da53b9ce2b32cb0fb47d8"
+      },
+      {
+        "path": "Cockpit/Scripts/HUD/init.lua",
+        "bytes": 953,
+        "sha256": "ca74e34884fb7a2a50dad52aa060f0b643e4fa1f06f6d408d0187fc5fc7f78fa"
+      },
+      {
+        "path": "Cockpit/Scripts/HUD/landing.lua",
+        "bytes": 1062,
+        "sha256": "5b6c68ff6169be7737892018ada8f67061b9112fa2ba79a4d134c0c4fac4e42a"
+      },
+      {
+        "path": "Cockpit/Scripts/HUD/layout.lua",
+        "bytes": 620,
+        "sha256": "173b492dcfcc32ae62ed2c6da3407b74fbb9582c7c5d619d5e8821d2d40ce570"
+      },
+      {
+        "path": "Cockpit/Scripts/HUD/navigation.lua",
+        "bytes": 1631,
+        "sha256": "ef986e05410e4d46a6622897d33a5826e973b44be3cb35052829223a53dda9fb"
+      },
+      {
+        "path": "Cockpit/Scripts/HUD/optics.lua",
+        "bytes": 509,
+        "sha256": "6a859ced93bcc37e6f04e961a0c516b0daa7d89d5196203058766eb7c5cae388"
+      },
+      {
+        "path": "Cockpit/Scripts/HUD/page.lua",
+        "bytes": 17481,
+        "sha256": "2422373f07a0222152f85ffcb1fc2493d784161299256f009de7ebdc792fe1b4"
+      },
+      {
+        "path": "Cockpit/Scripts/HUD/pilot_warnings.lua",
+        "bytes": 1856,
+        "sha256": "e5073b27dfd6c1c9ae5d235a9e1a196d72505396b45569d2f94893c744a6dcf2"
+      },
+      {
+        "path": "Cockpit/Scripts/HUD/style.lua",
+        "bytes": 212,
+        "sha256": "ffefe87b0f2a5ec3573a7b9e8ad5ae24043bb7ca6a19b6a2eaf4832c412ef3e6"
+      },
+      {
+        "path": "Cockpit/Scripts/HUD/tactical_page.lua",
+        "bytes": 15284,
+        "sha256": "ce4dca116f1e4e77ade1a41b6cbf536de3560c532de8d9517a158ea4f6582f19"
+      },
+      {
+        "path": "Cockpit/Scripts/ICP/definitions.lua",
+        "bytes": 5635,
+        "sha256": "8627aecf2e5c357fd776626c799bd95b03a34eba7b87cd5f618245baa33615d6"
+      },
+      {
+        "path": "Cockpit/Scripts/ICP/flight_pages.lua",
+        "bytes": 1418,
+        "sha256": "91e270ebd5b4ee735a95450eb4a4875b5ada2501fd3b3033ced621b80a458def"
+      },
+      {
+        "path": "Cockpit/Scripts/ICP/init.lua",
+        "bytes": 1198,
+        "sha256": "04c86b2f76ca4d4da32db0b569af3df18b3de16d55486c7094e6023c8bff9c0e"
+      },
+      {
+        "path": "Cockpit/Scripts/ICP/page_1.lua",
+        "bytes": 12981,
+        "sha256": "15b019a4abf37bb9d9a2781d2cadf2cea0d8433058b5991f7c9068147d4571fe"
+      },
+      {
+        "path": "Cockpit/Scripts/ICP/stores_page.lua",
+        "bytes": 795,
+        "sha256": "8859cca8f13abfb9a24e3cb9fa604b9e1b5026b36586ad344e2c549121d9b8b8"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_CENTER/adi_page.lua",
+        "bytes": 910,
+        "sha256": "dcdc6543a881807d29c630917b071761236eed6bbc9d597616e8dff145556d35"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_CENTER/bay_page.lua",
+        "bytes": 139,
+        "sha256": "331105293494a81de9b3da25d1abc165b76160ee5dd0fcf4fc42e777bbc015f6"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_CENTER/blank_page.lua",
+        "bytes": 5604,
+        "sha256": "a2be6fda428f41134f4b80c29aed2994fb1bd758c1d8037013e2ff9f8b30d8e8"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_CENTER/checklist_page.lua",
+        "bytes": 922,
+        "sha256": "4fa8e27c584a3c9759e132288748c81aaf95bb2a1b2f3ab178e5969922d08c75"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_CENTER/definitions.lua",
+        "bytes": 901,
+        "sha256": "6384ed3d341e9975d8cdd8c94a4c93c22b4706d4d5b554f8f99c14dcd129dd21"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_CENTER/eng_page.lua",
+        "bytes": 80,
+        "sha256": "c6b6408c6d380221086c76c0f3f5b45bddf86dac9190676aadd7747e027e8dcb"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_CENTER/fcs_page.lua",
+        "bytes": 80,
+        "sha256": "aab6895928d7870e36fb00647a99f1d7c51ff073de363a45d5d2b87becf05e8c"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_CENTER/fuel_page.lua",
+        "bytes": 912,
+        "sha256": "24a6ba5119f806d5c5ea2ccae6b9c8f6461bc5f27a3079950b116fb7ebc5179a"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_CENTER/hsi_page.lua",
+        "bytes": 910,
+        "sha256": "2731224d279d1dc8b29647a5fe61a8d659ada62be09944af078c7c26de465ff2"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_CENTER/init.lua",
+        "bytes": 2180,
+        "sha256": "4c8cafc4d11cf2254fa0485bae6e82d28925520d37d4cb3534fc02c00952ca55"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_CENTER/menu_page.lua",
+        "bytes": 91,
+        "sha256": "12d3aca9f9cd751d0d29bf3224bc781d02d2b61ca3fb3f36bceed2ee109ee587"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_CENTER/sensor_control.lua",
+        "bytes": 103,
+        "sha256": "4d56aca86e8f129a054f72b1784d0cf6c110ee94dd4d0efc385580b6bf58c794"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_CENTER/stores_program.lua",
+        "bytes": 168,
+        "sha256": "3a5da781d8fb1543aef929c446ea014accfc40a33a47d42645b7ee39ae2b44d1"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_COMMON/adi_page.lua",
+        "bytes": 29611,
+        "sha256": "c116c6939d8fd1ae1e7ab898d2f7292a27320eb04758eaa50c2f8a1f8a9a6cfc"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_COMMON/checklist_page.lua",
+        "bytes": 11928,
+        "sha256": "ffe475b10fcf6057b52d8250e50af4a8d1d994a858fae0def14b946626b17792"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_COMMON/definitions.lua",
+        "bytes": 5798,
+        "sha256": "d2884ef9ac2a5e871b4bb25b67f916474d81492701d11cac850a5f442eeebed7"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_COMMON/eng_page.lua",
+        "bytes": 95281,
+        "sha256": "f0541b036fd7fb12b96dae2e7f01f9b17d7b4ef91f6dba1a28b155b7b4f9c863"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_COMMON/f22_outline.lua",
+        "bytes": 1764,
+        "sha256": "6c5a9a9db55988e57f2c3be9966e519d02392c48b1ba1130a6b176a4d2fd70fc"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_COMMON/fcs_page.lua",
+        "bytes": 34128,
+        "sha256": "79d95befe67a1b0bd35e58553f39d16a233e066c5897cd16ed4c2e181a25a8ef"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_COMMON/font.lua",
+        "bytes": 1738,
+        "sha256": "37731c629380eb66770f94edaad982d61adb1a384adb6aef775f442f46cdd251"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_COMMON/fuel_page.lua",
+        "bytes": 31696,
+        "sha256": "f6ce5649c85cb47db56a4ee21ae17b9c0c63025d57d7f783e7ad2fd508d409a8"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_COMMON/lcd.lua",
+        "bytes": 4290,
+        "sha256": "79360166184ed9e4dfaf0eb4c901e1618ee33aa2b55aa7d90202dd34efaad91e"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_COMMON/menu_page.lua",
+        "bytes": 502,
+        "sha256": "680dbec0e949610846bb876e5e4cbff31f0dd637100bdfbf8bd4f1eed81c1999"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_COMMON/nav_page.lua",
+        "bytes": 11732,
+        "sha256": "be3d39f45035972598194788cb54e7739fef6de9545dfbabd2e1eaec34f92655"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_COMMON/sensor_control.lua",
+        "bytes": 1958,
+        "sha256": "6d4d55c343d4ee60fddd4e5b3b48f06c2f5c59299ccd423c981d806cfabfe4a3"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_COMMON/stores_page.lua",
+        "bytes": 7231,
+        "sha256": "8676107dbdd225852be5cfdb6fc518e5860b3fca817f48c221673ac05ec92a73"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_LEFT/adi_page.lua",
+        "bytes": 910,
+        "sha256": "8fd2f981594dd24fe85b545015ffbfea6553741882fd2c4e991a876a27425503"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_LEFT/attack_page.lua",
+        "bytes": 91,
+        "sha256": "a8803eb09110bb33df5937784aa9689c19c40b40a42e1bbbb47973e2b2173662"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_LEFT/bay_page.lua",
+        "bytes": 940,
+        "sha256": "8ca9e8a5c3ca1db627133a40fc1557788fccb50a4249a48da8630a49b693d64e"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_LEFT/checklist_page.lua",
+        "bytes": 922,
+        "sha256": "c37f085a0f11a293ee9f965f27ae4e1643ec7ff4dccf93d4e1e6988ad5155af3"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_LEFT/definitions.lua",
+        "bytes": 901,
+        "sha256": "6384ed3d341e9975d8cdd8c94a4c93c22b4706d4d5b554f8f99c14dcd129dd21"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_LEFT/eng_page.lua",
+        "bytes": 93343,
+        "sha256": "81468f89da43ce0ff8f2900665560460a261e07df5a4ac5842936369043d7bea"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_LEFT/fcs_page.lua",
+        "bytes": 33398,
+        "sha256": "a97511e5d77a92146997971251ebdb6b5d03c1d743f78e1ff6117d4558c08b20"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_LEFT/fuel_page.lua",
+        "bytes": 912,
+        "sha256": "19d0866503fae0aa1bbb3e1352a4ae3c83f3a44c08aa886e8df8c2503ed85527"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_LEFT/ground_attack.lua",
+        "bytes": 91,
+        "sha256": "a8803eb09110bb33df5937784aa9689c19c40b40a42e1bbbb47973e2b2173662"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_LEFT/hsi_page.lua",
+        "bytes": 910,
+        "sha256": "df745ff10aa5781ca3795829eb4da17a8dd86d485976276b71849766ed300c01"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_LEFT/init.lua",
+        "bytes": 2073,
+        "sha256": "52c97a6a023b7ca796a4541d9d4e2fbf129218842eb98bb78932183c4e210aaf"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_LEFT/menu_page.lua",
+        "bytes": 91,
+        "sha256": "b37d29707dc5ab40f9fed229701f556385b4c331ec9fe4e7165ee96021a2190a"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_LEFT/sensor_control.lua",
+        "bytes": 101,
+        "sha256": "2c027d2b3496c32b24894df64454f9c4c2a27b7d60d6af67bbdc5d3ba52c5e3e"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_LEFT/sms_page.lua",
+        "bytes": 91,
+        "sha256": "a8803eb09110bb33df5937784aa9689c19c40b40a42e1bbbb47973e2b2173662"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_RIGHT/adi_page.lua",
+        "bytes": 910,
+        "sha256": "e57581ea6fe033e8e04f8811d97e284e7f1b9fa2c150484fafbab4e8fc59873a"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_RIGHT/bay_page.lua",
+        "bytes": 940,
+        "sha256": "4f30a3a020356b2f95c8c9131a746ae63f345892844f809746cdd21d0f0ad3ac"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_RIGHT/blank_page.lua",
+        "bytes": 5603,
+        "sha256": "f511da724cc6ebf3289a6636780fc200a2bb8ba55ecdbabb2dc0a7be857fe17a"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_RIGHT/checklist_page.lua",
+        "bytes": 922,
+        "sha256": "a9a894838c58f9077e3b4f9a023dcd4e3993d6ab9eb2d4917122c51d69234e10"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_RIGHT/defensive_detail.lua",
+        "bytes": 9920,
+        "sha256": "dbe05b212eb78c3bd1be4d2d62b036cc8a84ea9bf24db8a8182f0187e0f06b52"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_RIGHT/defensive_overview.lua",
+        "bytes": 6083,
+        "sha256": "e4f37f5cc6daf708a5b2f866c3a196bb3ebed516bd72b86251fb3e102043e0a9"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_RIGHT/definitions.lua",
+        "bytes": 901,
+        "sha256": "6384ed3d341e9975d8cdd8c94a4c93c22b4706d4d5b554f8f99c14dcd129dd21"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_RIGHT/eng_page.lua",
+        "bytes": 93341,
+        "sha256": "630b3dedb2f21cad8c4ab0736e9941fd6973e37f74513804d3a38946fa5a5e76"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_RIGHT/fcs_page.lua",
+        "bytes": 33396,
+        "sha256": "172628ec0e466b95781019c92974dd0ff5986e925dfba7d2e80ef0fbbb53964d"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_RIGHT/fuel_page.lua",
+        "bytes": 912,
+        "sha256": "a2a17c2ec2d08fee832573912305f867a31db6c1d506745f47c8a6c77d6f71de"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_RIGHT/hsi_page.lua",
+        "bytes": 910,
+        "sha256": "afbbbbcd59c8393b999a922821803f024b01e1cce336ccda5447a5ddb452e288"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_RIGHT/init.lua",
+        "bytes": 2254,
+        "sha256": "bc4ad6a9aafbb5707e400985a25d8b90a33a80821768afb1c86948209deb0dc5"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_RIGHT/menu_page.lua",
+        "bytes": 91,
+        "sha256": "416ca9409546a092df22b20873640eb99ff54d33627866ff97448e9e505fdc97"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_RIGHT/rwr_page.lua",
+        "bytes": 225,
+        "sha256": "5aebe2cce5156d9d0659d5438fa2298c4701cb237d411c27b7b13d3c6cf44b09"
+      },
+      {
+        "path": "Cockpit/Scripts/MFD_RIGHT/sensor_control.lua",
+        "bytes": 102,
+        "sha256": "53a50c2cc8d9c85c612fc3f10fd2bd576aa0d5f81bbf73e22ccaef903448dccc"
+      },
+      {
+        "path": "Cockpit/Scripts/PMFD_CENTER/adi_page.lua",
+        "bytes": 137,
+        "sha256": "5a2562c48ab6ff416d3e7d61691c649e776737691017632802acd8c3e64b0b78"
+      },
+      {
+        "path": "Cockpit/Scripts/PMFD_CENTER/ag_radar_format.lua",
+        "bytes": 12284,
+        "sha256": "79213d83d1a4ba0db205075bd39ab027cf60815ca8aa527e7de3dac58644d391"
+      },
+      {
+        "path": "Cockpit/Scripts/PMFD_CENTER/blank_page.lua",
+        "bytes": 6427,
+        "sha256": "afc43b8af52dcad1c5308bfe66f8aef036b6ec9c471f738112e9c26c1eda19c6"
+      },
+      {
+        "path": "Cockpit/Scripts/PMFD_CENTER/checklist_page.lua",
+        "bytes": 149,
+        "sha256": "6d3838644d8aa0da2dcf400fdc7e4f0e408ad96c8b78278679b36f5b882a9ae5"
+      },
+      {
+        "path": "Cockpit/Scripts/PMFD_CENTER/config_page.lua",
+        "bytes": 22844,
+        "sha256": "a5a9b6c3739f56d7e2925d5e973c1b80081fc75d293733de859f40d3457c3f09"
+      },
+      {
+        "path": "Cockpit/Scripts/PMFD_CENTER/definitions.lua",
+        "bytes": 5635,
+        "sha256": "8627aecf2e5c357fd776626c799bd95b03a34eba7b87cd5f618245baa33615d6"
+      },
+      {
+        "path": "Cockpit/Scripts/PMFD_CENTER/eng_page.lua",
+        "bytes": 137,
+        "sha256": "037325a9f39ffd2a16048c96e127a9a7ccf95f823aeb50a036601977c52b8f4f"
+      },
+      {
+        "path": "Cockpit/Scripts/PMFD_CENTER/fcs_page.lua",
+        "bytes": 137,
+        "sha256": "6fca5583d587a043007c7d64f66b660cb0582beb316c2d7bd8b8de60d5a308b1"
+      },
+      {
+        "path": "Cockpit/Scripts/PMFD_CENTER/fuel_page.lua",
+        "bytes": 139,
+        "sha256": "ad2359b8aacf5f2e7633050fb8b0efbcfcca52ed363e9e8833db1cbcfb7817f8"
+      },
+      {
+        "path": "Cockpit/Scripts/PMFD_CENTER/init.lua",
+        "bytes": 2760,
+        "sha256": "a74c6d89ef33215ffec8b6b8ca21e4ca6e16d7b15247b72d1f6f82d0c552ad5d"
+      },
+      {
+        "path": "Cockpit/Scripts/PMFD_CENTER/map_page.lua",
+        "bytes": 7161,
+        "sha256": "f788ba4cb19843b852218fe93dd9e3e7c8047406ed89c8ed15a3071fb8de2efd"
+      },
+      {
+        "path": "Cockpit/Scripts/PMFD_CENTER/menu_page.lua",
+        "bytes": 286,
+        "sha256": "4bdbbc97db004e79986c08dab0bd68987e7a1d49530471d6db163d38cd4be94b"
+      },
+      {
+        "path": "Cockpit/Scripts/PMFD_CENTER/nav_page.lua",
+        "bytes": 137,
+        "sha256": "5fdcd40652ee070b698298b0312061c4442eb358aa2de94c5c4c31ea3e382e14"
+      },
+      {
+        "path": "Cockpit/Scripts/PMFD_CENTER/radar_format.lua",
+        "bytes": 20425,
+        "sha256": "52b8ef3019763de48975fdaa01725990e527761ae2ed0f98a345f237c2992747"
+      },
+      {
+        "path": "Cockpit/Scripts/PMFD_CENTER/radar_page.lua",
+        "bytes": 139,
+        "sha256": "3ec17330108d067403e92e00f9ae9db0aec5da3021da4202fae7fd639f6d7812"
+      },
+      {
+        "path": "Cockpit/Scripts/PMFD_CENTER/sensor_control.lua",
+        "bytes": 104,
+        "sha256": "4627669a3b400814c7bd1e9a8b427386339c98beef2ee6be0a97a776eece35b9"
+      },
+      {
+        "path": "Cockpit/Scripts/PMFD_CENTER/sfm_page.lua",
+        "bytes": 22778,
+        "sha256": "40fb0b04514ae337cf3a412b7ddb90f87ca5b3560f53e2a232e36e912d6ba8e4"
+      },
+      {
+        "path": "Cockpit/Scripts/PMFD_CENTER/stores_page.lua",
+        "bytes": 161,
+        "sha256": "345a21e5ec6b072e79cc16f440f55fbbd4b7ed119af49b126dbea6e0c0233435"
+      },
+      {
+        "path": "Cockpit/Scripts/PMFD_CENTER/sys_page.lua",
+        "bytes": 282,
+        "sha256": "e15f8efa22f1def05ea367d749774d9a9f8f83abc43a4a917063361bb54c226e"
+      },
+      {
+        "path": "Cockpit/Scripts/PMFD_CENTER/tactical_overlay.lua",
+        "bytes": 5448,
+        "sha256": "7a70a6079c97919c6b1b91b2c76fa7dd11307f79ee599e6ed28738295edc9172"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/AG_Ballistic_Computer.lua",
+        "bytes": 17732,
+        "sha256": "0f2e34196465ad91458f2c9ffc55f98caba524347cf0ef3027ac3d6eee32e7fc"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/AG_Delivery.lua",
+        "bytes": 4163,
+        "sha256": "7f250ba49ee238f48fe7c597f1b4c32a0eb6c8949cc36e73569bd75697cb0a01"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/AG_Mark_System.lua",
+        "bytes": 7441,
+        "sha256": "c079fda5b153f253c9a9cf25d52a36a4f24fa81123a38fbcf2e3c6658d5f07d8"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/AG_Radar_Computer.lua",
+        "bytes": 6589,
+        "sha256": "c9121ea7de8f9e8951aa59c9b878171a15f40393a7d878d53b39c32cda4aee78"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/AG_Radar_Modes.lua",
+        "bytes": 3516,
+        "sha256": "fd87bc4862d7830a38dcdc934eb03b8eb8d5654b63b33a877f75a67d6b0806bc"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/AG_Radar_System.lua",
+        "bytes": 22257,
+        "sha256": "5d4483a7fb7da9f75505336bfcaaed586216fa1fed0fa3087b4c1e4ef15d2237"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/AG_Release_Geometry.lua",
+        "bytes": 927,
+        "sha256": "41c5e5e9e95318b01b3301fd221f37960c9b0007a3a74c3d16f223eebdfee13b"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/AG_Stores.lua",
+        "bytes": 10675,
+        "sha256": "3b373f45fc3795f93adbe7b50c732d5755bd8d8313aed21134a627a1ef1083e2"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Altitude_Settings.lua",
+        "bytes": 2462,
+        "sha256": "cbd5e3798c891f5d0ac0f2f109bd3d673897adef53459bdd70c24ca2c47387c1"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Altitude_System.lua",
+        "bytes": 3632,
+        "sha256": "1298ce91a8806f9834afdd61f5a57ffb812e260eb866eadd5543f2d5ad1807c2"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Avionics.lua",
+        "bytes": 21478,
+        "sha256": "7f503eca238ba1c481e5f638dc3559cac38b45b872f4242924135942a570346a"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Ballistic_Point_Mass.lua",
+        "bytes": 1833,
+        "sha256": "7b2c95b4614af2b5d0fd1dc3b7a1147b01b5846f79623a7843ea74f4b290a4fa"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Combat_Commands.lua",
+        "bytes": 706,
+        "sha256": "04ceea9998aa2d9993ee751566e7d2af79fea3572cf9c43817a0a39c485945fd"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Combat_Logic.lua",
+        "bytes": 6691,
+        "sha256": "aa3d4d12943a3b8b92828a45d26694d612cedfd508b1bbb88c77f064f0b35b4d"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Combat_System.lua",
+        "bytes": 6574,
+        "sha256": "2c1f53751581fbb5b46ef73a9b4204c7cc4ba5e0c89befac0adacc7a3ac13cef"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Datalink_Tracks.lua",
+        "bytes": 4884,
+        "sha256": "1e091245431e79ada6817574f5ec47337f437da2127d1c25a5d774627ad98ce5"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Defensive_Overview.lua",
+        "bytes": 5554,
+        "sha256": "118beff000a1e970e55c49a3d0a2a475807aa24ddae62ad210dfe5cf973149ee"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Display_Routing.lua",
+        "bytes": 1111,
+        "sha256": "7b09b63df26ad91c7c804d59765ff6abe03a616ecc40d8d0d29e0d6d7563e1e6"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Electrical_Computer.lua",
+        "bytes": 1184,
+        "sha256": "258591492bd6b31ef949c64f2f6dc3f7b8f0460a0c61d228f32b6bcc0972476f"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Electrical_System.lua",
+        "bytes": 6691,
+        "sha256": "1a4823ef4cd598b8a0d83d670009ad899df50314bb4fedc41af7aa486a37c445"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Engagement_System.lua",
+        "bytes": 14333,
+        "sha256": "896d6eb5b0bb0861256b3229f329cef202cc69498e451f22bb722fc6011587d2"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Engine_Data.lua",
+        "bytes": 1493,
+        "sha256": "f12e20f1a4a54848ea28cc15932f8668722d6cc2d344ba64f7003ca085773d74"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Engine_System.lua",
+        "bytes": 27341,
+        "sha256": "cc3448830d2997cc65f68e28397cc8d6bdc761ca71dd441cdd5cde724defcb5c"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/EW_Defensive.lua",
+        "bytes": 3771,
+        "sha256": "3d927d19f8795d8b29fa0be33f0e2a9d2a85ee4390a3e4a553ad888225182d15"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/EW_Geolocation.lua",
+        "bytes": 11241,
+        "sha256": "57e8c5a26c5faf6d700cb3332555d140462df657c503eef2e4a2583bd1b5eaa2"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/EW_Indicator.lua",
+        "bytes": 3096,
+        "sha256": "b55f6e74d67f0be1e293b2340fe19958e13cfb15eee87e2935d4913429da6757"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/EW_Programs.lua",
+        "bytes": 2039,
+        "sha256": "fe635d128ed9717f2a3a0565745cd8b3d5de2e174ff38a5167e49abe7f9b1343"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/EW_System.lua",
+        "bytes": 5172,
+        "sha256": "0e4a313a505b375e5e3f496103104d4fd3d4745b33a20d6de1a8e8165cf95981"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Flight_Guidance.lua",
+        "bytes": 8468,
+        "sha256": "4100e5d5096cce91312febb6fa8e2d89552bf3a4bcd8910b2a18ac2e70f9ba14"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Gun_Director.lua",
+        "bytes": 14485,
+        "sha256": "e04047b57336aacddcf1181eec7d16845df31d8f25a51fe0d3dbd9ecc03f5755"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Gun_Frames.lua",
+        "bytes": 2159,
+        "sha256": "7fe658b340acce83be6db2dd158910d6a43bda25be4e3766550c6eefae9eafa9"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Gun_Funnel.lua",
+        "bytes": 6188,
+        "sha256": "fe70149600c5f7146c75f3aa360564b15aa3b175768243fa68f76145c4a214f7"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Gun_Funnel_Presentation.lua",
+        "bytes": 1578,
+        "sha256": "d8356e7354580455da537217b2bc7f6551003b53f02f3e446a87b3f90121cd1a"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Gun_Motion.lua",
+        "bytes": 1672,
+        "sha256": "98024008123373793e7de620588f368ba7e502f19b97c8f8f38173bbd0bc50b3"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/HUD_FlightMath.lua",
+        "bytes": 2108,
+        "sha256": "b251e09ebd7df1534be0df2a9397de48739d357b4e046529d07c633d96b22d11"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/HUD_Flight_Data.lua",
+        "bytes": 7096,
+        "sha256": "6decffb749bb347401e8eea260e8a75c0c7197bc7507252cef165a377470a9eb"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/HUD_Projection.lua",
+        "bytes": 1091,
+        "sha256": "d6814f32cb15b690a59bf1ea4f5d73049ff0cb13d02416d5a746683898ab7269"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/HUD_TargetMath.lua",
+        "bytes": 1977,
+        "sha256": "78855df41d431fe7998c7ab3f45f8e428df3ec39323d018e05950fbc227c441f"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/ICP_Flight_Pages.lua",
+        "bytes": 9146,
+        "sha256": "fc3ac472d45c7c4fb79c0265392785c09e10da21b50349885c4c02625692ee90"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/ICP_Stores_Page.lua",
+        "bytes": 3287,
+        "sha256": "d81f98d573ca24f3f1c48bdba95cf84f380ff58ddf3c89795cdb5118d937adc2"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/ICP_System.lua",
+        "bytes": 23269,
+        "sha256": "ab171ec3ab8c2eb05e053aa06902f8db88a1e3fd009da777783c8a3f25c953a6"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/ILS_Native.lua",
+        "bytes": 119,
+        "sha256": "4970877fdc982e033733b4f111f1aac4f649532a2ec6546bc6798c1270805482"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Input_Value.lua",
+        "bytes": 312,
+        "sha256": "39243eb97bd1db32e5c5110cca023f7f0c9313a9ec135006e05abaa06e82370f"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/INS_Model.lua",
+        "bytes": 2573,
+        "sha256": "937f33b9a98aa7e8de2499b6fcd336c3440f8ddef825ba1979a5998dfdb7c72d"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/IR_Audio.lua",
+        "bytes": 1882,
+        "sha256": "6468c9c7cc525011b21369c8ecba4ec16731c88cba16ddf7b80315a1bb7201a5"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/IR_Seeker.lua",
+        "bytes": 2441,
+        "sha256": "5a63c0019c25989d49d50fdd92fd1131c1f8905f8fe2ed9200f9a14f18926b58"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/MFD_System.lua",
+        "bytes": 87554,
+        "sha256": "61e39e4bebc62ebc7e4013cefbbc437cd08b20cab918859f1a1a122c8bfa666f"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/MWS_Computer.lua",
+        "bytes": 1765,
+        "sha256": "83ce7ab7b5404e85f7b1cd4be59c1d3a34ff8d89239fb80ad1cc1e542b639a95"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/MWS_Indicator.lua",
+        "bytes": 905,
+        "sha256": "93cd9a3caca7ed6a090cc5b1f677729ca83c7810adeb4492a7f328f31fb611c1"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/MWS_Native.lua",
+        "bytes": 715,
+        "sha256": "c29da090d8f37d60a673136deff6f5a8657794e818d2d1282a4d4f59b9c79b15"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/MWS_System.lua",
+        "bytes": 6752,
+        "sha256": "852008d5125bdd23af6d5f2ad0b0c8afa07e47502ea8ee5c5eecb18166a92422"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/NavGeometry.lua",
+        "bytes": 1410,
+        "sha256": "77adc75a836bc0ca2d9c3f5ab35a09c8e3109bc1ca570022808ae1025712ba8b"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Navigation_Power.lua",
+        "bytes": 134,
+        "sha256": "30d603167f24360ac75c4e4d87d029618209a71ac7a71f278ce21c1a1253c866"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Navigation_System.lua",
+        "bytes": 21459,
+        "sha256": "6b83931444c96afd5a2aeb3af37876294be232b6793f11b5c8b10bc64a3fc232"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Nav_Commands.lua",
+        "bytes": 247,
+        "sha256": "985d3432879388ad3c1df5d10dd4c7028ad34a21c86045f14ad7d32efb2db5f1"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Nav_Computer.lua",
+        "bytes": 6796,
+        "sha256": "44b3f9381ba66c2e5f565465ba810458d86d5965bcb3e3500af785f37ef28c11"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Nav_Display.lua",
+        "bytes": 1119,
+        "sha256": "b20157ad5b374092d73a2dd4a29cc5135970df7148d17be6ac20e54063104f71"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Nav_Display_Controls.lua",
+        "bytes": 1895,
+        "sha256": "991522badc4cc2d9a75b79e6087debc0608f43a0276b29b98999c4c7e72f59d8"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Nav_Entry.lua",
+        "bytes": 2557,
+        "sha256": "afb8d1d185442f61197d5427acd07af90f632eb984c8fdf381798a023c6589f4"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Nav_Guidance.lua",
+        "bytes": 6166,
+        "sha256": "1eb7e85718fd942dc8981993ee3bb6162d2c293154e0feda7b66c70146c0d657"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Pilot_Warnings.lua",
+        "bytes": 6064,
+        "sha256": "dfc88b6e48a140732061e9ba30c5ad1a8d5aa9d2750e663087ecfa4b84339256"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Pilot_Warning_System.lua",
+        "bytes": 14718,
+        "sha256": "353a9b5912beba07d7c6c7f1bebd04e9be7cfa23860f40229a0a46f86d9435b6"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/PMFD_System.lua",
+        "bytes": 26168,
+        "sha256": "edc87898c67925f7626f3140e71835dfbf86606bf42c246f2cea7a73b7805d09"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Radar_Commands.lua",
+        "bytes": 700,
+        "sha256": "daffc48d1c9e39c7d3c24e6d965d82896e3b36156eb744734698dc190ea60fc5"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Radar_Computer.lua",
+        "bytes": 24024,
+        "sha256": "8cbb0b62c2e74198fec64c469aad5467108d461129dac79fe37e542ee27ac976"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Radar_Config.lua",
+        "bytes": 284,
+        "sha256": "137b162067f401ae3456eb79562ee26e0049bce6cab8ef9151d746121e5708e3"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Radar_Data_Bridge.lua",
+        "bytes": 3736,
+        "sha256": "2727fbab8539db067797a4daca8d81e469eac1c9a7a0dde9a4b9010e3e3f4756"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Radar_Display.lua",
+        "bytes": 4939,
+        "sha256": "f0e169f75b281bfc56133f6c8e802fe23b54978167d61437c0123815f816058b"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Radar_IFF.lua",
+        "bytes": 2011,
+        "sha256": "f1e92c6b8c3940bc05f8481098444b01f21849001910531eb61633a3695c55e7"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Radar_Launch_Zone.lua",
+        "bytes": 2988,
+        "sha256": "79d9da8ec6fa0ab96d1a1e9ef3becff7e9a192f3d005fc4a2964c2ea8c3f96f1"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Radar_Native.lua",
+        "bytes": 886,
+        "sha256": "3930e499e9f4465f0cce0c925226295647652a06d65577cbb8839fe7788ba021"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Radar_Sensor_Tasking.lua",
+        "bytes": 9344,
+        "sha256": "374ce2e9225bc3453003096cb54e4a714c32b830f012bb3bd89ca399fe2a4272"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Radar_STT.lua",
+        "bytes": 1365,
+        "sha256": "ce651c8fc08a7c8c03d2f844035f0667dd47d5c41408ccadd0caae1f0a1e779e"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Radar_System.lua",
+        "bytes": 41172,
+        "sha256": "dc2fd674459c33be16fc03ccc79a85193c5626d9f987caabdac415470b0646ba"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Radar_Tactical.lua",
+        "bytes": 2113,
+        "sha256": "a1ad0fdf5d9d323cda3a113c3c056a4e11d3edd7353b94039c0252feb75ea088"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Radar_Telemetry.lua",
+        "bytes": 9697,
+        "sha256": "981c152ca2aac56a926337ba0219a3e4f5428f60671fe0a87ebbb55b119d2ad4"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/RWR_Audio.lua",
+        "bytes": 1927,
+        "sha256": "217ce9ed8ff441869532637455e0094aad60e3965160fb4746e3817047123d39"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/RWR_Bearings.lua",
+        "bytes": 2959,
+        "sha256": "4de81422d329f388f5fb60a62632af4653160a1b778e3e0935f1746c081ebb27"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/RWR_Computer.lua",
+        "bytes": 3597,
+        "sha256": "be750093eebaa8a82fd8f71c9e929fc84625b00166476fdbfafa0c1d7ccb063a"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/RWR_Native.lua",
+        "bytes": 567,
+        "sha256": "a6d616e0058b7320c5a69897f838a9ba45827209ed3e7a90c052ba15029dc1c7"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/RWR_Proximity.lua",
+        "bytes": 549,
+        "sha256": "028305406c8259b848df129a9e41b2a52847d71471aa2f1cfc54e3b34d0b98ec"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/RWR_System.lua",
+        "bytes": 11293,
+        "sha256": "75da33b8d132bacb6661130589a8d7c180fa957524dda440f5ca473dfa180aec"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Sensor_Control.lua",
+        "bytes": 1171,
+        "sha256": "1dbb06bd6429d05cd30a86de708c07b50486544e37ac0e04456ca3ae3d290fa0"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Stores_Display.lua",
+        "bytes": 2637,
+        "sha256": "1e4d412d0ca556df584f95fb3656fda41e4c241249d8f6698f51cd4d9d3636c2"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Store_Capabilities.lua",
+        "bytes": 4656,
+        "sha256": "3be5ee72e59c03db8d5d41b18cc55e84ee3e280ebb4b28e3b450c395a122e60d"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/TACAN_Native.lua",
+        "bytes": 231,
+        "sha256": "02e3bdaef5162cfd5f998c02105da5fe76e0fd50ada33aa4b082579fa1493075"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Tactical_Declutter.lua",
+        "bytes": 904,
+        "sha256": "eecbe0fdc24385cba6e22cf75cd4fafe2fff1f2e05c2e0b2189a39e00ca8ab8d"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Tactical_Identity.lua",
+        "bytes": 641,
+        "sha256": "96ac6621f3be588bff81e0ad11351a5bb3a1dd51fa7b29075fa93810aa3edb54"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Tactical_Picture.lua",
+        "bytes": 5676,
+        "sha256": "869644eda8defeeef9420f5b3b26ff32d58356bb10a0a46732d8f25488fe573d"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Tactical_Situation.lua",
+        "bytes": 8994,
+        "sha256": "0ffcae243a5c413b44d7062af3bc774d6ac1e66d19e02dd5a5cebbaaf5232cd4"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Tactical_Threat.lua",
+        "bytes": 1039,
+        "sha256": "21fda221e8ac9de387b75fb73aed58be82dcaddc55f7e62e151396e52f316e02"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Tactical_Tracks.lua",
+        "bytes": 6393,
+        "sha256": "d5791a21e75a9c6ad7615c6d65b7550ddf1c63b73e2012954f78df22abd55050"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Terrain_Director.lua",
+        "bytes": 1381,
+        "sha256": "39b967857a82894c2038911330c1cf2fc0ed544ac9c67c16590c71a6055914b2"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Terrain_Escape.lua",
+        "bytes": 11044,
+        "sha256": "94559e8ba8a567fba815b3de825f6a322205d587accc57d14f924be22b3a2305"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Terrain_Recovery_Cue.lua",
+        "bytes": 1225,
+        "sha256": "aa7b1733fda991a876674e46c288f616d6dff127a79ad5f52ef133527e9bf764"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Warning_Audio_Gate.lua",
+        "bytes": 734,
+        "sha256": "4662e00d19a735bb4c037f0e8609a7d3210504dfb9f62c5493cb10818c20a72e"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Weapon_Engagement.lua",
+        "bytes": 2217,
+        "sha256": "236e021202cf1aeb80f89aa866be02a70c540d9761d392ac887b0148772ca5f0"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Weapon_Native.lua",
+        "bytes": 275,
+        "sha256": "a9b3c1b330d160c4bc29800dc96552c77e54640a3f4ef8b004f63d671c6898c4"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Weapon_System.lua",
+        "bytes": 54896,
+        "sha256": "55c678b52f72fa3d54b5c2be02d4e8ad8c7ec475ba71bdcd6464626bc89e6bab"
+      },
+      {
+        "path": "Cockpit/Scripts/UFD_LEFT/base_page.lua",
+        "bytes": 69853,
+        "sha256": "9f6fcbd4bba26dd27bc78bd620b1118f0026116a3f436ed09f02d6dd715a620c"
+      },
+      {
+        "path": "Cockpit/Scripts/UFD_LEFT/definitions.lua",
+        "bytes": 5635,
+        "sha256": "8627aecf2e5c357fd776626c799bd95b03a34eba7b87cd5f618245baa33615d6"
+      },
+      {
+        "path": "Cockpit/Scripts/UFD_LEFT/ew_page.lua",
+        "bytes": 6670,
+        "sha256": "2c988c71a3d16e31672f668cd5ffc9c88d6c3fb2aea825cc66f1facf1bac839e"
+      },
+      {
+        "path": "Cockpit/Scripts/UFD_LEFT/init.lua",
+        "bytes": 1172,
+        "sha256": "51bc2f9325b0710443ccc3dd82404ec28a2e3f345c43cd88e48e79d484720be1"
+      },
+      {
+        "path": "Cockpit/Scripts/UFD_RIGHT/base_page.lua",
+        "bytes": 73162,
+        "sha256": "804b3ab7c7404fa8d8e62e7ba6c96c2aa75bd9eec4aaed9eaa6972e38672ddc1"
+      },
+      {
+        "path": "Cockpit/Scripts/UFD_RIGHT/definitions.lua",
+        "bytes": 5619,
+        "sha256": "b9fc1af86af2ccd82a405d2fb8c29be857d17f99b8ab497b448185b39fbb9cd1"
+      },
+      {
+        "path": "Cockpit/Scripts/UFD_RIGHT/init.lua",
+        "bytes": 1214,
+        "sha256": "74e9df97021c3e29ce5ca40cd2b30c68843e1855bcb2e586fb1c4d1465d41cf7"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/AG_Radar_Video/empty.lua",
+        "bytes": 78,
+        "sha256": "812162608880a843e2adab570c703104c731d05af0ab13fa4420cbeddad1ea59"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/AG_Radar_Video/init.lua",
+        "bytes": 1124,
+        "sha256": "bccc6de14690ec49e91e26418d63282b90b2155c85bc679ca0b9fb262dee071c"
+      },
+      {
+        "path": "docs/audit/01-integration.md",
+        "bytes": 4736,
+        "sha256": "cfd4d47b8f199405d8076d891640ff00174aa4e65ff88b9b957a65694fd843ff"
+      },
+      {
+        "path": "docs/audit/02-aerodynamics.md",
+        "bytes": 4916,
+        "sha256": "45569757a1a7c6533c4e2a0dd6ffae3779717acbb58d8673573fe91eb7e05a8f"
+      },
+      {
+        "path": "docs/audit/03-flight-controls.md",
+        "bytes": 4499,
+        "sha256": "2ae9f6d30d237523237b4021805c4a4fd8c7af15df1b7c4ca3b1e9a02df377c4"
+      },
+      {
+        "path": "docs/audit/04-thrust-vectoring.md",
+        "bytes": 4492,
+        "sha256": "ea99b4aab5962443e8628c58ff7bbca4d9d40137abc6d4a7ae124b003af842e8"
+      },
+      {
+        "path": "docs/audit/05-engines.md",
+        "bytes": 4585,
+        "sha256": "27af8e5cdcc4678a511a8b8ce6c62236e482e8718c734dc2b06bd8a7e38a239f"
+      },
+      {
+        "path": "docs/audit/06-fuel.md",
+        "bytes": 4725,
+        "sha256": "9ce2e6af93977e4c788dec5116058b7d0ff4b0e450ff8568cd3892e95c9867e8"
+      },
+      {
+        "path": "docs/audit/07-ground-handling.md",
+        "bytes": 4481,
+        "sha256": "a9734567001c938999efff6b2d74499c630f45c4abc225c5ed1e2cd5b9a4e819"
+      },
+      {
+        "path": "docs/audit/08-vehicle-systems.md",
+        "bytes": 4530,
+        "sha256": "2253ae87b934666bb733fe8e9757b923917e786f44c7f7a6122e90835c04c221"
+      },
+      {
+        "path": "docs/audit/09-avionics.md",
+        "bytes": 4696,
+        "sha256": "dd78ad2414fa6a7e82ec058c6b64dc47b313e1d4f762499aa7eb39fb13040403"
+      },
+      {
+        "path": "docs/audit/10-radar-irst.md",
+        "bytes": 4505,
+        "sha256": "c87fcddd0670c35183c9f27705745d87edfff2517d3d8abd58da9db0e6ca8b73"
+      },
+      {
+        "path": "docs/audit/11-ew-datalink.md",
+        "bytes": 4245,
+        "sha256": "2c66af098642d2dc271c8baf04a00e62bd5b120ba2d10ec930295b23cd728577"
+      },
+      {
+        "path": "docs/audit/12-weapons.md",
+        "bytes": 4793,
+        "sha256": "0ed6c01b4371ade90c3721dd3a8ccb5202f79e6d4d07a544b7f3e2d4da9481cc"
+      },
+      {
+        "path": "docs/audit/13-hud.md",
+        "bytes": 5923,
+        "sha256": "8f6969282dc43ea92bc711f6dbfc70baa5e311c1220528dafa1a0d5a0fcc67fa"
+      },
+      {
+        "path": "docs/audit/14-displays.md",
+        "bytes": 4332,
+        "sha256": "2762a46683a6c47914790362b581995fdcd5b455d13877890125ae6088cd73bc"
+      },
+      {
+        "path": "docs/audit/15-navigation.md",
+        "bytes": 3930,
+        "sha256": "442f73a884eed2192adbe7732d228c931cdbd6bbdcf93187f0efafe1c45690ef"
+      },
+      {
+        "path": "docs/audit/16-lifecycle-release.md",
+        "bytes": 4992,
+        "sha256": "f914322ac50768fad6422e9f4d454b3cb185b33d2ea942a5e10b02cc208694bc"
+      },
+      {
+        "path": "docs/audit/COVERAGE.md",
+        "bytes": 41491,
+        "sha256": "d1aa03e05bab1b82f867d4fc36bf88ec8ba739403e7a6f00d5a3a0fc11e5e763"
+      },
+      {
+        "path": "docs/audit/README.md",
+        "bytes": 6734,
+        "sha256": "3c5e165853f2528d0f9934c771afcc78f6ce495eecc7725a9994013e63de1b2e"
+      },
+      {
+        "path": "docs/audit/RESEARCH_ADDENDUM.md",
+        "bytes": 5112,
+        "sha256": "42b52ee6c3aadedb08acb1b6cd6935bbd091a13cc780df5bff2ff6c55f3dfa25"
+      },
+      {
+        "path": "docs/resources/research/AG_CCRP_ESTIMATOR.md",
+        "bytes": 1415,
+        "sha256": "0320d3bf8b3d349592cdcdd9f100bfafd2ccab7745f23fdfeb68b025b087f9e6"
+      },
+      {
+        "path": "docs/resources/research/AG_HORNET_PARITY_2026-10-26.md",
+        "bytes": 14464,
+        "sha256": "34b3d5744b9eb503245ddf3442b20f335f0bbb9d976a1c773cf64bb0ac7830a1"
+      },
+      {
+        "path": "docs/resources/research/AG_MARKPOINT.md",
+        "bytes": 2380,
+        "sha256": "9e26f1033c36c38d0e5567efe69ebcfe8b0850168760b873ce2fda045b8a4fc8"
+      },
+      {
+        "path": "docs/resources/research/AG_NATIVE_REBUILD_2026-10-26.md",
+        "bytes": 14934,
+        "sha256": "37db0d30d15962664ed3855642738d0fe86756cd0a1e85f185e90f35b8fda1c3"
+      },
+      {
+        "path": "docs/resources/research/AG_POINT_MASS_ESTIMATOR.md",
+        "bytes": 2669,
+        "sha256": "223a0396f0a6cfc19532100a2bce8173b3ffea5517a5a0a06bea9a110520ba64"
+      },
+      {
+        "path": "docs/resources/research/AG_STORES_CCIP.md",
+        "bytes": 5858,
+        "sha256": "643d081ada2c20b5690cdd6f2cc57e9a712399e72e69789f0e3ecce5c471caad"
+      },
+      {
+        "path": "docs/resources/research/AVIONICS_BRIGHTNESS_AND_WARNINGS.md",
+        "bytes": 1589,
+        "sha256": "e37ab1ecd10a714e737965f2d7c694b31aa7e38b21e1c16305df10f65f0213d9"
+      },
+      {
+        "path": "docs/resources/research/BIBLIOGRAPHY.md",
+        "bytes": 5960,
+        "sha256": "2b79d1ff3f2089466f71ea717b85a9aafae665f8ff2457b7696a23f3df5f19ca"
+      },
+      {
+        "path": "docs/resources/research/C130J_HEADING_DESIGN.md",
+        "bytes": 1407,
+        "sha256": "a2a693c10485707356c4bafcda9f4333a7636f696654dd9099cd50df54fcbb6b"
+      },
+      {
+        "path": "docs/resources/research/COOPERATIVE_SENSOR_TASKING.md",
+        "bytes": 8916,
+        "sha256": "ceed2a78c5829648ec2545b998a1ed2b0a6adfc766280ab4dd2c2a6ef389d0cb"
+      },
+      {
+        "path": "docs/resources/research/ELECTRICAL_AVAILABLE_VS_REQUESTED.md",
+        "bytes": 1136,
+        "sha256": "68e3f64be3737be6923767eec14d54965704c8c6ee7d89fb862bd48495d6bd33"
+      },
+      {
+        "path": "docs/resources/research/ENGINE_VEHICLE_APU_OWNER.md",
+        "bytes": 2704,
+        "sha256": "c70567d52ce677aaf4d33e9b17c375af3b21539c490a9d3e1333a15d5be24623"
+      },
+      {
+        "path": "docs/resources/research/GBU32_COMPATIBILITY.md",
+        "bytes": 3119,
+        "sha256": "db7ddec8087b46f8ce34340cd6131f2c12a2cbffa616a7fb2c8ff2c51c2fc376"
+      },
+      {
+        "path": "docs/resources/research/GROUND_RADAR_INTEGRITY.md",
+        "bytes": 3866,
+        "sha256": "447c66183bedabac5505401acda8610da4ad6749a376079365ee3440d7c92c60"
+      },
+      {
+        "path": "docs/resources/research/GUN_DIRECTOR_REFINEMENT.md",
+        "bytes": 7811,
+        "sha256": "1ad45305a63da98f8554b39fa24b868f93062fc485826976bde3a24cc1a8f9e3"
+      },
+      {
+        "path": "docs/resources/research/GUN_DIRECTOR_RESEARCH.md",
+        "bytes": 12250,
+        "sha256": "84cc993f079073c8e48443e0263090492ec6c0b05a05dad41fef825570072557"
+      },
+      {
+        "path": "docs/resources/research/GUN_HANDOFF_FIX.md",
+        "bytes": 3911,
+        "sha256": "2ced2fce444eddfd5231930e5ab782547978db03e376703e3efe09dbee781bf2"
+      },
+      {
+        "path": "docs/resources/research/GUN_MANEUVER_CUES.md",
+        "bytes": 5483,
+        "sha256": "aca34be8674a4e5ce43fb11b95ff09d437a29d00e05b1f9820308a766b8c30e7"
+      },
+      {
+        "path": "docs/resources/research/GUN_PIPPER_ALIGNMENT.md",
+        "bytes": 3666,
+        "sha256": "3e3fa5265c1120aa83070f79a9a61e8aab978ebb557b3d6433c0ce744020668c"
+      },
+      {
+        "path": "docs/resources/research/GUN_PIPPER_DESIGN.md",
+        "bytes": 7544,
+        "sha256": "1c06b4cc96f0ce0ef64ea7ec7c02bf800a95c2d8ca4ffb7d44c752bedbd86d5d"
+      },
+      {
+        "path": "docs/resources/research/GUN_SIGHT_CODE_MAP.md",
+        "bytes": 12710,
+        "sha256": "6f2b2adf1334dd3541faf82dc1c6313d7103656aa86bdc032b40cd59ca5da22d"
+      },
+      {
+        "path": "docs/resources/research/GUN_TARGET_MOTION.md",
+        "bytes": 8606,
+        "sha256": "dab70611817a7335a93bba152788bee2ea390b694a159c38e7309e95357e30cb"
+      },
+      {
+        "path": "docs/resources/research/HIGH_ALPHA_CONTINUITY.md",
+        "bytes": 2286,
+        "sha256": "e632936cf762e87dde934013512d0a62cb04ccf602c49ffd0bbe3e9b539b8b0a"
+      },
+      {
+        "path": "docs/resources/research/HORNET_GROUND_RADAR_STATES_2026-10-26.md",
+        "bytes": 10722,
+        "sha256": "204a1539e90bc9b40d63ae903bd110dc5db9ad8fd46bad9cc10d12a3b31609d6"
+      },
+      {
+        "path": "docs/resources/research/HORNET_TAWS_NUISANCE_REVIEW.md",
+        "bytes": 8540,
+        "sha256": "f79827cd5650718f05259dd2006b457bea9645213c6496bb999171b203640116"
+      },
+      {
+        "path": "docs/resources/research/HOT_START_AND_GENERATOR_STATE.md",
+        "bytes": 1216,
+        "sha256": "98b4da58ce2e8af555c3788866befc78ce58bdc4c75d007f9976ababc97a0c5c"
+      },
+      {
+        "path": "docs/resources/research/HUD_LANDING_WEAPON_SUPPORT_2026-10-26.md",
+        "bytes": 8038,
+        "sha256": "a96f3373bb35652bf67ade153a8f642c12644e01a8d4ce664fd32ec64220cc1c"
+      },
+      {
+        "path": "docs/resources/research/HUD_SYMBOL_LEDGER.md",
+        "bytes": 3870,
+        "sha256": "b5efe0792e1e22f67a0969415d7c5f6c7c8e94dfd5a53674ebc309f1552ea530"
+      },
+      {
+        "path": "docs/resources/research/HUD_TARGET_INTERFACE.md",
+        "bytes": 3302,
+        "sha256": "427829079058cb2c24593c4e0a98276d44f5a73bbc52c0bb27feb31d0655295b"
+      },
+      {
+        "path": "docs/resources/research/HYDRAULIC_DISPLAY_PROXY.md",
+        "bytes": 2524,
+        "sha256": "2123f1b7da657e356774d4d25a9444ae05ca8920ad62b8991b68fbae86410af8"
+      },
+      {
+        "path": "docs/resources/research/IMPLEMENTATION_RULES.md",
+        "bytes": 2228,
+        "sha256": "3731174e80a9b4322fd25aef893aa11452ac0346835011bad9fc7995e6507415"
+      },
+      {
+        "path": "docs/resources/research/IMPLEMENTATION_STATUS.md",
+        "bytes": 11197,
+        "sha256": "8f15d4e74c95cef3c95ada476bb1049a85c987b5b0daf4bde5d79759102c30fe"
+      },
+      {
+        "path": "docs/resources/research/NATIVE_DATALINK_RWR_2026-10-27.md",
+        "bytes": 4152,
+        "sha256": "eefa8a3a24159668df593fdc41ad43ec0370202c8ba5571b87a5370cb7a0aff1"
+      },
+      {
+        "path": "docs/resources/research/NAVIGATION_AUTOPILOT_EVIDENCE.md",
+        "bytes": 5225,
+        "sha256": "aa1823b2bd1fee7bf52242bf669f7be5bdcebbca48ed87684fccd109e953cf74"
+      },
+      {
+        "path": "docs/resources/research/NAV_HUD_COMPUTER.md",
+        "bytes": 3425,
+        "sha256": "ba5f1caa11731c4216f083ab5eb0512744b30f7c34cab805d3d1c7221b90f9e9"
+      },
+      {
+        "path": "docs/resources/research/NAV_LANDING_FIXES_2026-10-26.md",
+        "bytes": 5819,
+        "sha256": "454894cf785b2a3d0f563ec99897c245fd28b23d2bcbaae3503fc7c0c19c0b38"
+      },
+      {
+        "path": "docs/resources/research/NAV_STORES_WORKFLOW_2026-10-26.md",
+        "bytes": 7338,
+        "sha256": "791417597899324ad5c08d9c8dd23b87c4bb2f705be2e78633128d16eaf3bc63"
+      },
+      {
+        "path": "docs/resources/research/OVERHAUL_COMMS_HANDOFF.md",
+        "bytes": 22093,
+        "sha256": "38e92c1cbc09cd959463e3c2357267d643a02196f17f772307373d0a92e370f8"
+      },
+      {
+        "path": "docs/resources/research/OVERHAUL_DAMAGE_HANDOFF.md",
+        "bytes": 8305,
+        "sha256": "bc1e2c1254bb94c1d14d287969862fc26015af43d63b7b82aed9dbfd9a7b55a3"
+      },
+      {
+        "path": "docs/resources/research/OVERHAUL_DEFENSIVE_REVIEW.md",
+        "bytes": 4322,
+        "sha256": "0fed46bfd253f3a530ac594ed34629371e34c8dbe62f0f91f96c1f8bb92a84a1"
+      },
+      {
+        "path": "docs/resources/research/OVERHAUL_GROUND_HANDOFF.md",
+        "bytes": 22543,
+        "sha256": "f9020aeef0f391b0a2cfd2f1572727f1e5fba0779ddb57871a64b373c25e30ea"
+      },
+      {
+        "path": "docs/resources/research/OVERHAUL_HUD_HANDOFF.md",
+        "bytes": 14585,
+        "sha256": "ae5f25f145407082895e0616dc7f54bd5ff7f400f20f4adc4ad8d3d9ab33099f"
+      },
+      {
+        "path": "docs/resources/research/OVERHAUL_IMPLEMENTATION_LEDGER.md",
+        "bytes": 45806,
+        "sha256": "7581cdbeefd3caecaad1b3cfff6a38741ec6639a99b8ee054c2dda9cabe42ffd"
+      },
+      {
+        "path": "docs/resources/research/OVERHAUL_NAV_HANDOFF.md",
+        "bytes": 19162,
+        "sha256": "d5155702d11f1f26dc4636625d434595cbf22ccb6bb8ba73aeb7bd6a0bb6abc2"
+      },
+      {
+        "path": "docs/resources/research/OVERHAUL_STORES_HANDOFF.md",
+        "bytes": 20720,
+        "sha256": "784ef62bb08dfd2b80e5ab639f118c8186212325d9c6e2da5854ef20f4f3713f"
+      },
+      {
+        "path": "docs/resources/research/OVERHAUL_TACTICAL_HANDOFF.md",
+        "bytes": 23449,
+        "sha256": "08e907d7d46df00eddcf9e001d4a0d65b7d77d44f4bf748c0fd7bd4da23e15f0"
+      },
+      {
+        "path": "docs/resources/research/OVERHAUL_UI_HANDOFF.md",
+        "bytes": 14425,
+        "sha256": "d1684424b2592bc035e6df515534e57d59d52ed6f1398d8074daa6aaf8fd4643"
+      },
+      {
+        "path": "docs/resources/research/OVERHAUL_VEHICLE_HANDOFF.md",
+        "bytes": 13938,
+        "sha256": "ed9342d0571c2c6605f0d012c3b272662e34526ceb06b27d6fe262f46f8d44e5"
+      },
+      {
+        "path": "docs/resources/research/PASSIVE_RF_GEOLOCATION.md",
+        "bytes": 6758,
+        "sha256": "ca712c183f70c8a498f352077e22dd4f667de68053867c3a1f8d002580d67bfb"
+      },
+      {
+        "path": "docs/resources/research/RADAR_ACM_HUD_FOCUS_2026-10-26.md",
+        "bytes": 2077,
+        "sha256": "004fd4d1282033fee20dc60adf6ba87476c9a01d73111bda0ea1104b8b11d163"
+      },
+      {
+        "path": "docs/resources/research/RADAR_INTEGRITY_FIXES.md",
+        "bytes": 5027,
+        "sha256": "a4b967ecb1c24e668984f7ca00f3284dce5ad71415537ef8ee7c02257e7008d9"
+      },
+      {
+        "path": "docs/resources/research/RADAR_PARAM_NAMESPACE.md",
+        "bytes": 1142,
+        "sha256": "f99cf66988f86b6b5bc8a08bbc2a54667166868ed0229fcd8665916d1d949b68"
+      },
+      {
+        "path": "docs/resources/research/RADAR_STT_DATA_BRIDGE.md",
+        "bytes": 4841,
+        "sha256": "76a083e9feceaabb2b57168f29635d20799c14f9f51fa38aa80f5d5f5bc6ee5f"
+      },
+      {
+        "path": "docs/resources/research/RADAR_WEAPON_INTEGRATION.md",
+        "bytes": 2033,
+        "sha256": "524731149047e20eaded82be79aa971c9a238017e9c43121e34c16f7bd498b1c"
+      },
+      {
+        "path": "docs/resources/research/RADAR_WEAPON_STATE_2026-10-26.md",
+        "bytes": 2024,
+        "sha256": "d6401dece2a5f333f86fe4734e3bd7876d9df7ff308b0bfb45158261bf57b565"
+      },
+      {
+        "path": "docs/resources/research/README.md",
+        "bytes": 4547,
+        "sha256": "291fde708ebb21ea7de07f8c04297ae8fd5dc853a52fc3ae6d7dee802fa36ba9"
+      },
+      {
+        "path": "docs/resources/research/SYSTEMS_ACCURACY_AUDIT_2026-10-25.md",
+        "bytes": 116713,
+        "sha256": "790aa5fef678c75423c92b02fb3592f743ad9c968f9b52d6f397ec6dfdd87773"
+      },
+      {
+        "path": "docs/resources/research/TACTICAL_HUD_RADAR_EVIDENCE.md",
+        "bytes": 4300,
+        "sha256": "ae0d8e0a9818f56fd86343ca37ec2a57b47e5049a4085f9cb43024137ceabeee"
+      },
+      {
+        "path": "docs/resources/research/TERRAIN_WARNING_HANDOFF.md",
+        "bytes": 10638,
+        "sha256": "ba2008f8731897fff35126c85d1b30d5c061c196578d681dca3a2d628e44bedf"
+      },
+      {
+        "path": "docs/resources/research/USER_FLIGHT_REVIEW_2026-10-25.md",
+        "bytes": 4519,
+        "sha256": "4fd1b6d5d1c1fd4f58c82754abc1bf1b6f806ccbcc6c95510c9d80dae110180c"
+      },
+      {
+        "path": "docs/resources/research/USER_FLIGHT_REVIEW_2026-10-25_2228.md",
+        "bytes": 5383,
+        "sha256": "1c9573d7240b1e7c063883cc8460d20539ac4ab00897f7020f82244db7a8a9c7"
+      },
+      {
+        "path": "docs/resources/research/USER_FLIGHT_WEAPONS_AUDIT_2026-10-26.md",
+        "bytes": 11260,
+        "sha256": "f1094e0747b9c4655de4186d440ee10888feb9db45f84a670bc8ef761fc9147b"
+      },
+      {
+        "path": "docs/resources/research/USER_WARNING_VOICES_HANDOFF.md",
+        "bytes": 2751,
+        "sha256": "73ad2e91d5b7fe4389d93e7e045d5af80d845a2608535428f08caf26c665b7d2"
+      },
+      {
+        "path": "docs/resources/research/WEAPON_BAY_ACTUATOR_REWRITE.md",
+        "bytes": 3141,
+        "sha256": "f2b0a68bbe1cb88b0cd4eca74c10c7fb80ddfded136764d39db8d6381977f62c"
+      },
+      {
+        "path": "docs/resources/research/WEAPON_INPUT_EDGE_SEMANTICS.md",
+        "bytes": 785,
+        "sha256": "2e3f6d73d1c355191ab0f8a660e1b146f911061ba83dfd4868e561606212a56c"
+      },
+      {
+        "path": "EFM/source/Autopilot.h",
+        "bytes": 12194,
+        "sha256": "8c2337df922e3b313fd3a9fa279d71e61ed8cbc3675bc1c60b856d5001db8072"
+      },
+      {
+        "path": "EFM/source/dllmain.cpp",
+        "bytes": 314,
+        "sha256": "c1dd5b0ab9e692b5621bb06a5395c5a4a80452d3559a62435f84c9cb2cb10141"
+      },
+      {
+        "path": "EFM/source/GroundMovingTargets.h",
+        "bytes": 2329,
+        "sha256": "4063dce1a44d038392f2935c75139744b9a5b48cbb0c67b66bb8f32b3673d71d"
+      },
+      {
+        "path": "EFM/source/GroundVideoProbe.h",
+        "bytes": 12569,
+        "sha256": "79ea012c48814765540be100c8785c7b9c9d7c6d4061a0a040d5075a9984e2b0"
+      },
+      {
+        "path": "EFM/source/GroundVideoView.h",
+        "bytes": 7460,
+        "sha256": "0f5be28af3646b2327e7b4de8bff055c3eb2e9d9408bae7c353dc43d8bcca5b9"
+      },
+      {
+        "path": "EFM/source/GunIntercept.h",
+        "bytes": 4786,
+        "sha256": "55f5446f0a18feade75b48a852822a95dc319f2f9bcc73d12f9d6e3e551d38ba"
+      },
+      {
+        "path": "EFM/source/GunManeuver.h",
+        "bytes": 1553,
+        "sha256": "7c8a7302913ce45bd1853ef312c1db5a3aac1650e1edf2091fc20dfb58ae0cac"
+      },
+      {
+        "path": "EFM/source/GunTargetMotion.h",
+        "bytes": 2124,
+        "sha256": "aa0531e6e9fd2798489e2e4fdb93e4b1cceb17ef3bbb39bbe072908f33dc8662"
+      },
+      {
+        "path": "EFM/source/HighAlpha.h",
+        "bytes": 908,
+        "sha256": "c6ece10eedfa5d8ba5c1dde977230a2b40b7c15b6cb188afcdc2a5fa00961c86"
+      },
+      {
+        "path": "EFM/source/Inputs.h",
+        "bytes": 2459,
+        "sha256": "0e2a628fdc7fc6bcdbc63df1ac19e41a1772e5095d9b708d323b5278ba1e74bc"
+      },
+      {
+        "path": "EFM/source/NativeAGWeapons.cpp",
+        "bytes": 8411,
+        "sha256": "fb54db44b58e2fe646777a5ca28cf3528284fc74a101bc3e9e59b937927e7393"
+      },
+      {
+        "path": "EFM/source/NativeAGWeapons.h",
+        "bytes": 183,
+        "sha256": "c98036ccd90995bd9e65391a409246b5d9a3132c8301a94f675ba6ced4f77da8"
+      },
+      {
+        "path": "EFM/source/NativeAltimetry.cpp",
+        "bytes": 2922,
+        "sha256": "b00600ff26eeef2bab49f487ea194e2b05c509ff0a3d1379e29d64ed857091d6"
+      },
+      {
+        "path": "EFM/source/NativeAltimetry.h",
+        "bytes": 275,
+        "sha256": "5cd45a0af4476df96a455c239f24a4ca42e68284693d8b986307ca6b0ccfa6a9"
+      },
+      {
+        "path": "EFM/source/NativeDatalink.cpp",
+        "bytes": 19490,
+        "sha256": "2a37f6ce5bcec9837d670f497875dc0ec6014f2fad5d6362c1059b10aa7b9fba"
+      },
+      {
+        "path": "EFM/source/NativeDatalink.h",
+        "bytes": 116,
+        "sha256": "6758592084c721bcc9145f1df00c1d1fdeb0c06bdc89e481872a5cc24ff0c66a"
+      },
+      {
+        "path": "EFM/source/NativeGroundRadar.cpp",
+        "bytes": 7418,
+        "sha256": "3fc70d476dd031df76e634afda1f734c125b2bcdc8559438062e09163d118b32"
+      },
+      {
+        "path": "EFM/source/NativeGroundRadar.h",
+        "bytes": 150,
+        "sha256": "d26d7248882cb66217d7cddc07221ab5e171043cc365a6bc96a4ee8590ffe54b"
+      },
+      {
+        "path": "EFM/source/NativeGroundReturns.h",
+        "bytes": 1270,
+        "sha256": "15dfd1e88075fe2362b653288260f7bcac80809b4b51e2831005a59dbb8e7099"
+      },
+      {
+        "path": "EFM/source/NativeGroundSensor.cpp",
+        "bytes": 19758,
+        "sha256": "84f8e78bed11ebc3ad1512c70a4741d471aff93537549fd069b2d09977dfdcd4"
+      },
+      {
+        "path": "EFM/source/NativeGroundSensor.h",
+        "bytes": 211,
+        "sha256": "2629e905c5b28da8bc0678ec0ae4fd5f40b1ef2ca506134098f11b091ebd3356"
+      },
+      {
+        "path": "EFM/source/NativeGroundVideo.cpp",
+        "bytes": 22026,
+        "sha256": "6fac72e5052e885a45daa5e36067c76d006245fd95cb6d046e8cb0ae083a62d1"
+      },
+      {
+        "path": "EFM/source/NativeGroundVideo.h",
+        "bytes": 315,
+        "sha256": "6092faf6e365a990d1f1a7ea23b7f743387a892cd36af41de2169629e954a8ce"
+      },
+      {
+        "path": "EFM/source/NativeGunSight.cpp",
+        "bytes": 21175,
+        "sha256": "81b0d1288371214bd9ced745c822ffb2cfafa0777d655a1f9254825bd8de10fa"
+      },
+      {
+        "path": "EFM/source/NativeGunSight.h",
+        "bytes": 161,
+        "sha256": "37ca78d39a4b89daf242ef49a2e3a1125c3f0cd3565ed36b8bebc4f69b63298a"
+      },
+      {
+        "path": "EFM/source/NativeMWS.cpp",
+        "bytes": 13455,
+        "sha256": "d443cbf44070ab52852967214c3952e75bd69a7ccba79480791fc959e57326be"
+      },
+      {
+        "path": "EFM/source/NativeMWS.h",
+        "bytes": 134,
+        "sha256": "ccc5033628e232c568a2942951bec85bf7655b928fbbca491706e0d349a297d0"
+      },
+      {
+        "path": "EFM/source/NativeNavigation.cpp",
+        "bytes": 12534,
+        "sha256": "dba33aa49a14f361971476eec18ae2519e9510ceec3102018b4a4e22a0563a5e"
+      },
+      {
+        "path": "EFM/source/NativeNavigation.h",
+        "bytes": 148,
+        "sha256": "5b5e6c7de5c7f1c4daaf2f0779b36e2507ec370a40d357f81d0d89f128717e8a"
+      },
+      {
+        "path": "EFM/source/NativeSidewinder.cpp",
+        "bytes": 70642,
+        "sha256": "1c4c6d8e1fe71a5e03b653618bb09a70cba91d62fb7e38c0a0676abe6eedc0eb"
+      },
+      {
+        "path": "EFM/source/NativeSidewinder.h",
+        "bytes": 195,
+        "sha256": "1f6023cfb68791c0b12e80b0a229dfb3840e58643b3e875234ba4182733b97c5"
+      },
+      {
+        "path": "EFM/source/NativeSTTMotion.h",
+        "bytes": 1501,
+        "sha256": "6ffb672698bbe2efea1fe2a95416c5d03b66441eb6d8ff133fae2617973b9eae"
+      },
+      {
+        "path": "EFM/source/RAPTOR.cpp",
+        "bytes": 110179,
+        "sha256": "08d23134d54e91c639e4441690e5eee82a059a5b08ee116192fc5960964b6c89"
+      },
+      {
+        "path": "EFM/source/RAPTOR.h",
+        "bytes": 14668,
+        "sha256": "e52704f9afbc638985ed1cfb681f71f57b89740fb2d74db48ffe3d3af9f1b154"
+      },
+      {
+        "path": "EFM/source/Utility.h",
+        "bytes": 4554,
+        "sha256": "7b667024c1a394aa831ec176fa7cff795067b7146a6ee0bab21ef881e4fe92b0"
+      },
+      {
+        "path": "EFM/source/VehicleSystems.h",
+        "bytes": 7119,
+        "sha256": "fa59757906f6a99728963de8fcb4c0e20b0ac0664354687be7dc8e305e248ee2"
+      },
+      {
+        "path": "EFM/tests/test_native_ground_video.cpp",
+        "bytes": 7470,
+        "sha256": "228854bb6d4829048193a097303444756e7a0b1dafac124af2c7e370aed2e894"
+      },
+      {
+        "path": "EFM/include/Cockpit/ccParametersAPI.h",
+        "bytes": 3396,
+        "sha256": "2898c763b59f6234093d439eab4cce7bf9d70ed5fbcd7d98e27510c2655e7fb9"
+      },
+      {
+        "path": "EFM/include/Cockpit/CockpitAPI_Declare.h",
+        "bytes": 1080,
+        "sha256": "c0e1786a30c81b88f77aebc83e0734ccb083967d7ef96ad10e3787e0bf77683a"
+      },
+      {
+        "path": "EFM/include/FM/wHumanCustomPhysicsAPI.h",
+        "bytes": 60096,
+        "sha256": "a356c397b02959b07e969a82a1ce9fc2ddcbb8f376df947704fe831bfec5e394"
+      },
+      {
+        "path": "EFM/include/FM/wHumanCustomPhysicsAPI_ImplementationDeclare.h",
+        "bytes": 19138,
+        "sha256": "58e246eea93efe6f13903b43619defc5f7db0d1616bf50b9b35435542d74f90a"
+      },
+      {
+        "path": "Input/F-22A/name.lua",
+        "bytes": 789,
+        "sha256": "3427955031502091fb985b61ffef047eb464972e29ddc5f28f969d7d8e875b50"
+      },
+      {
+        "path": "Input/F-22A/joystick/default.lua",
+        "bytes": 51246,
+        "sha256": "e04404fa8c644810095d6aa92ea770793b9a980b4c14e75e4c79347fea6c385b"
+      },
+      {
+        "path": "Input/F-22A/keyboard/default.lua",
+        "bytes": 52761,
+        "sha256": "17e6bd4dfcb7e7f0ea1adee831339cdab307547437c69dd115bd853352b1e148"
+      },
+      {
+        "path": "Liveries/Cockpit_F-22A/default/description.lua",
+        "bytes": 887,
+        "sha256": "fc825bc0bc0dc2b126311d62ce77bb3c2749a740b1bfc50ec52089fac2700f49"
+      },
+      {
+        "path": "Liveries/F-22A/154 WG/description.lua",
+        "bytes": 1066,
+        "sha256": "699fd6c5978a9486ba0aadc832b2940404283a44718b12903e3e89047d7cec82"
+      },
+      {
+        "path": "Liveries/F-22A/18th Aggressor SQ Blue Foxes Red 23/description.lua",
+        "bytes": 1004,
+        "sha256": "5fab9027344a48582c210cb9506115acff6bef59ca38ddd50b4ca1992a053bd4"
+      },
+      {
+        "path": "Liveries/F-22A/18th Aggressor SQ Blue Foxes Red 43/description.lua",
+        "bytes": 1005,
+        "sha256": "07eba854d3c8a40f2aa4bf83de47e02ac8e5e7aacc1c982fd3f1c9b43afd82c5"
+      },
+      {
+        "path": "Liveries/F-22A/302nd Tactical Fighter Squadron (JASDF)/description.lua",
+        "bytes": 1007,
+        "sha256": "3a86729409f83201abe5906fefd74da0b25906b9122321a089e11c73e07fcfa8"
+      },
+      {
+        "path": "Liveries/F-22A/53rd Fighter SQ HaveGlass/description.lua",
+        "bytes": 1001,
+        "sha256": "fc6fb389f8ea0c8526f9f243a68e2cb8c41fcf13efbafe5da0b6caccc78c9003"
+      },
+      {
+        "path": "Liveries/F-22A/69 Thunder Squadron IAF 2.0/description.lua",
+        "bytes": 993,
+        "sha256": "b0ebe49ed76d98d044ebb38c9d7cb41ac43d77f53abf496b0cdeb939fc389f22"
+      },
+      {
+        "path": "Liveries/F-22A/AF045/description.lua",
+        "bytes": 916,
+        "sha256": "1fb416164c2f2d2099968dd458b84fc6094ad24b5189f18dace7585b36bc1614"
+      },
+      {
+        "path": "Liveries/F-22A/AF116/description.lua",
+        "bytes": 925,
+        "sha256": "9b05a340db16795fc8b77aaf47c513e46be0a1edb49b091bb6a06f3bc03e9856"
+      },
+      {
+        "path": "Liveries/F-22A/AF172/description.lua",
+        "bytes": 924,
+        "sha256": "68c52e292b4da9d238d09a6792c46c029e6a6ee660357295c43fb4015efad957"
+      },
+      {
+        "path": "Liveries/F-22A/AF188/description.lua",
+        "bytes": 917,
+        "sha256": "0e5b7d02e842449f23aba18caca21eb9dc1662908f9e8929b11cbd5b5ea374e6"
+      },
+      {
+        "path": "Liveries/F-22A/CRIPES'A MIGHTY/description.lua",
+        "bytes": 3212,
+        "sha256": "ca30e7fa9ac734ccd3b0ee56a02fb21d83b71e068fc1f5c0d9ba207c1fb8278c"
+      },
+      {
+        "path": "Liveries/F-22A/Default/description.lua",
+        "bytes": 1066,
+        "sha256": "7e8e250592f6a3d215c65da55f3b47dbc6f96a908c9fea7d67b52cf9f1d8a643"
+      },
+      {
+        "path": "Liveries/F-22A/NO MARKINGS/description.lua",
+        "bytes": 3348,
+        "sha256": "2d02bac00a93b000bf4228c5076dd774f53af02a1840581e192422f98cf21570"
+      },
+      {
+        "path": "Liveries/F-22A/SEA Fictional Raptor/description.lua",
+        "bytes": 930,
+        "sha256": "b74ee3489fac7ae4365b45788ebd7fdb4ef54abd0533e1cd220e25c10da51a57"
+      },
+      {
+        "path": "Liveries/F-22A/Starscream/description.lua",
+        "bytes": 942,
+        "sha256": "3abb8a3a2d5b06f4c40884bc6f217ed4f93fbe1f2aede016f49b338307453212"
+      },
+      {
+        "path": "Liveries/F-22A/Tigermeet/description.lua",
+        "bytes": 911,
+        "sha256": "bddf4b08fab2195e44d90d48c1959b9193b5f9ac15624b9edbcdae842afa29c2"
+      },
+      {
+        "path": "Liveries/F-22A/YF-22 Livery/description.lua",
+        "bytes": 953,
+        "sha256": "0a2fcf70251b525ec15cc5a54b55e5e6a17ce7d3e998747c168f327c69a1ff2a"
+      },
+      {
+        "path": "Missions/QuickStart/quickstart.lua",
+        "bytes": 1214,
+        "sha256": "2cc3af2de235dee0eecc1ed3591a82b312ae9ed1111195c424ca7c9be1667851"
+      },
+      {
+        "path": "tests/fixtures/mfd_page_elements.json",
+        "bytes": 1706,
+        "sha256": "4748a68556996d4355c98b8ebe1f45f3bb681d4ccd97f13fa541d0d3ba79d0bc"
+      }
+    ]
+  },
+  "evidence": {
+    "E01": [
+      {
+        "file": "entry.lua",
+        "line": 76,
+        "sha256": "29f04d4d6e2efa03183e2f85d33f956186a6ef1405616a00aa08b0fb10181435",
+        "match": "make_flyable('F-22A', current_mod_path..'/Cockpit/Scripts/', FM, current_mod_path..'/comm.lua')"
+      },
+      {
+        "file": "Cockpit/Scripts/device_init.lua",
+        "line": 34,
+        "sha256": "bb53273d37908f672d7dc704598b1988a0a18f207b6f862ff8f6fc68a5f13b5c",
+        "match": "creators = {}"
+      }
+    ],
+    "E02": [
+      {
+        "file": "Cockpit/Scripts/Systems/Radar_Native.lua",
+        "line": 7,
+        "sha256": "3930e499e9f4465f0cce0c925226295647652a06d65577cbb8839fe7788ba021",
+        "match": "perfomance = {"
+      }
+    ],
+    "E03": [
+      {
+        "file": "Cockpit/Scripts/Systems/Radar_Computer.lua",
+        "line": 4,
+        "sha256": "8cbb0b62c2e74198fec64c469aad5467108d461129dac79fe37e542ee27ac976",
+        "match": "local M = { fresh_seconds = 6, support_seconds = 6 }"
+      },
+      {
+        "file": "Cockpit/Scripts/Systems/Radar_Tactical.lua",
+        "line": 31,
+        "sha256": "a1ad0fdf5d9d323cda3a113c3c056a4e11d3edd7353b94039c0252feb75ea088",
+        "match": "for i = 1, 64 do"
+      }
+    ],
+    "E04": [
+      {
+        "file": "Cockpit/Scripts/Systems/Radar_IFF.lua",
+        "line": 4,
+        "sha256": "f1e92c6b8c3940bc05f8481098444b01f21849001910531eb61633a3695c55e7",
+        "match": "local M={request_seconds=8,los_half_angle=math.rad(3)}"
+      }
+    ],
+    "E05": [
+      {
+        "file": "Cockpit/Scripts/Systems/Radar_System.lua",
+        "line": 239,
+        "sha256": "dc2fd674459c33be16fc03ccc79a85193c5626d9f987caabdac415470b0646ba",
+        "match": "-- The shared backend can guide one STT target. Reject before swapping."
+      }
+    ],
+    "E06": [
+      {
+        "file": "EFM/source/NativeSidewinder.cpp",
+        "line": 267,
+        "sha256": "1c4c6d8e1fe71a5e03b653618bb09a70cba91d62fb7e38c0a0676abe6eedc0eb",
+        "match": "struct SupportSnapshot {"
+      },
+      {
+        "file": "EFM/source/NativeSidewinder.cpp",
+        "line": 719,
+        "sha256": "1c4c6d8e1fe71a5e03b653618bb09a70cba91d62fb7e38c0a0676abe6eedc0eb",
+        "match": "// Same exported DLZ used by the Hornet (FA18C 0x180426a5d): own altitude,"
+      }
+    ],
+    "E07": [
+      {
+        "file": "Cockpit/Scripts/Systems/Engagement_System.lua",
+        "line": 69,
+        "sha256": "896d6eb5b0bb0861256b3229f329cef202cc69498e451f22bb722fc6011587d2",
+        "match": "local fallback=valid and missile_mode and get('F22_MISSILE_DATA_VALID')>.5"
+      },
+      {
+        "file": "Cockpit/Scripts/Systems/Weapon_Engagement.lua",
+        "line": 2,
+        "sha256": "236e021202cf1aeb80f89aa866be02a70c540d9761d392ac887b0148772ca5f0",
+        "match": "-- Timings predict constant velocity; they are not missile trajectory integration."
+      }
+    ],
+    "E08": [
+      {
+        "file": "Cockpit/Scripts/Systems/AG_Radar_System.lua",
+        "line": 44,
+        "sha256": "5d4483a7fb7da9f75505336bfcaaed586216fa1fed0fa3087b4c1e4ef15d2237",
+        "match": "function M:command(name, value, powered, now)"
+      },
+      {
+        "file": "Cockpit/Scripts/Systems/AG_Radar_Computer.lua",
+        "line": 40,
+        "sha256": "c9121ea7de8f9e8951aa59c9b878171a15f40393a7d878d53b39c32cda4aee78",
+        "match": "mode = 1, movers = {},"
+      }
+    ],
+    "E09": [
+      {
+        "file": "Cockpit/Scripts/Systems/AG_Radar_Modes.lua",
+        "line": 46,
+        "sha256": "fd87bc4862d7830a38dcdc934eb03b8eb8d5654b63b33a877f75a67d6b0806bc",
+        "match": "function M.exp_geometry(pose,point,level)"
+      }
+    ],
+    "E10": [
+      {
+        "file": "EFM/source/NativeGroundSensor.cpp",
+        "line": 15,
+        "sha256": "84f8e78bed11ebc3ad1512c70a4741d471aff93537549fd069b2d09977dfdcd4",
+        "match": "namespace NativeGroundSensor { namespace {"
+      },
+      {
+        "file": "EFM/source/GroundMovingTargets.h",
+        "line": 46,
+        "sha256": "4063dce1a44d038392f2935c75139744b9a5b48cbb0c67b66bb8f32b3673d71d",
+        "match": "// FA18C 49F190 inserts on the FIRST valid observation. Search symbols"
+      }
+    ],
+    "E11": [
+      {
+        "file": "EFM/source/NativeGroundVideo.cpp",
+        "line": 15,
+        "sha256": "6fac72e5052e885a45daa5e36067c76d006245fd95cb6d046e8cb0ae083a62d1",
+        "match": "namespace NativeGroundVideo {"
+      }
+    ],
+    "E12": [
+      {
+        "file": "Cockpit/Scripts/Systems/AG_Delivery.lua",
+        "line": 26,
+        "sha256": "7f250ba49ee238f48fe7c597f1b4c32a0eb6c8949cc36e73569bd75697cb0a01",
+        "match": "-- Conservative mod LAR for a coordinate-guided bomb. This is an explicitly"
+      },
+      {
+        "file": "EFM/source/NativeAGWeapons.cpp",
+        "line": 13,
+        "sha256": "fb54db44b58e2fe646777a5ca28cf3528284fc74a101bc3e9e59b937927e7393",
+        "match": "namespace NativeAGWeapons { namespace {"
+      }
+    ],
+    "E13": [
+      {
+        "file": "Cockpit/Scripts/Systems/AG_Stores.lua",
+        "line": 4,
+        "sha256": "3b373f45fc3795f93adbe7b50c732d5755bd8d8313aed21134a627a1ef1083e2",
+        "match": "limits={quantity=8,interval_min_ms=50,interval_max_ms=2000,spacing_min_ft=10,spacing_max_ft=9999}}"
+      }
+    ],
+    "E14": [
+      {
+        "file": "Cockpit/Scripts/Systems/Store_Capabilities.lua",
+        "line": 5,
+        "sha256": "3be5ee72e59c03db8d5d41b18cc55e84ee3e280ebb4b28e3b450c395a122e60d",
+        "match": "local definitions={}"
+      }
+    ],
+    "E15": [
+      {
+        "file": "Cockpit/Scripts/Systems/Gun_Director.lua",
+        "line": 1,
+        "sha256": "e04047b57336aacddcf1181eec7d16845df31d8f25a51fe0d3dbd9ecc03f5755",
+        "match": "-- GPL-3.0-or-later. Original lock-associated director and conventional pipper."
+      },
+      {
+        "file": "EFM/source/NativeGunSight.cpp",
+        "line": 16,
+        "sha256": "81b0d1288371214bd9ced745c822ffb2cfafa0777d655a1f9254825bd8de10fa",
+        "match": "namespace NativeGunSight {"
+      }
+    ],
+    "E16": [
+      {
+        "file": "Cockpit/Scripts/Systems/INS_Model.lua",
+        "line": 2,
+        "sha256": "937f33b9a98aa7e8de2499b6fcd336c3440f8ddef825ba1979a5998dfdb7c72d",
+        "match": "-- Truth velocity remains the sensor approximation. Report an explicit uncertainty"
+      }
+    ],
+    "E17": [
+      {
+        "file": "Cockpit/Scripts/Systems/Flight_Guidance.lua",
+        "line": 30,
+        "sha256": "4100e5d5096cce91312febb6fa8e2d89552bf3a4bcd8910b2a18ac2e70f9ba14",
+        "match": "align=birth=='GROUND_COLD' and 0 or 180"
+      },
+      {
+        "file": "EFM/source/Autopilot.h",
+        "line": 6,
+        "sha256": "8c2337df922e3b313fd3a9fa279d71e61ed8cbc3675bc1c60b856d5001db8072",
+        "match": "namespace RaptorAP {"
+      }
+    ],
+    "E18": [
+      {
+        "file": "Cockpit/Scripts/Systems/Nav_Computer.lua",
+        "line": 3,
+        "sha256": "44b3f9381ba66c2e5f565465ba810458d86d5965bcb3e3500af785f37ef28c11",
+        "match": "local M={ranges={5,10,20,40,80,160,320},slots=32,radius=.56}"
+      }
+    ],
+    "E19": [
+      {
+        "file": "EFM/source/NativeNavigation.cpp",
+        "line": 10,
+        "sha256": "dba33aa49a14f361971476eec18ae2519e9510ceec3102018b4a4e22a0563a5e",
+        "match": "namespace NativeNavigation {"
+      }
+    ],
+    "E20": [
+      {
+        "file": "Cockpit/Scripts/Systems/Electrical_Computer.lua",
+        "line": 2,
+        "sha256": "258591492bd6b31ef949c64f2f6dc3f7b8f0460a0c61d228f32b6bcc0972476f",
+        "match": "-- 12 Ah, 18 A essential load, 80 A APU-start load and 8 A recharge are mod"
+      }
+    ],
+    "E21": [
+      {
+        "file": "EFM/source/VehicleSystems.h",
+        "line": 13,
+        "sha256": "fa59757906f6a99728963de8fcb4c0e20b0ac0664354687be7dc8e305e248ee2",
+        "match": "constexpr double hydraulic_nominal_psi = 3950.0; // preserves mod display scale"
+      }
+    ],
+    "E22": [
+      {
+        "file": "EFM/source/RAPTOR.cpp",
+        "line": 121,
+        "sha256": "08d23134d54e91c639e4441690e5eee82a059a5b08ee116192fc5960964b6c89",
+        "match": "void simulate_fuel_consumption(double dt)"
+      },
+      {
+        "file": "EFM/source/RAPTOR.h",
+        "line": 63,
+        "sha256": "e52704f9afbc638985ed1cfb681f71f57b89740fb2d74db48ffe3d3af9f1b154",
+        "match": "static inline std::array<double, 13> max_thrust = {"
+      },
+      {
+        "file": "EFM/source/RAPTOR.cpp",
+        "line": 1508,
+        "sha256": "08d23134d54e91c639e4441690e5eee82a059a5b08ee116192fc5960964b6c89",
+        "match": "case ED_FM_OXYGEN_SUPPLY: return 101000.0;"
+      }
+    ],
+    "E23": [
+      {
+        "file": "Cockpit/Scripts/Systems/EW_Programs.lua",
+        "line": 1,
+        "sha256": "fe635d128ed9717f2a3a0565745cd8b3d5de2e174ff38a5167e49abe7f9b1343",
+        "match": "-- GPL-3.0-or-later. Editable manual dispenser programs, no automatic release."
+      },
+      {
+        "file": "Cockpit/Scripts/Systems/EW_System.lua",
+        "line": 37,
+        "sha256": "0e4a313a505b375e5e3f496103104d4fd3d4745b33a20d6de1a8e8165cf95981",
+        "match": "\"get_ECM_status\","
+      }
+    ],
+    "E24": [
+      {
+        "file": "Cockpit/Scripts/Systems/RWR_Computer.lua",
+        "line": 23,
+        "sha256": "be750093eebaa8a82fd8f71c9e929fc84625b00166476fdbfafa0c1d7ccb063a",
+        "match": "-- Compact simulation emitter library. Type text is supplied by the receiver;"
+      }
+    ],
+    "E25": [
+      {
+        "file": "Cockpit/Scripts/Systems/EW_Geolocation.lua",
+        "line": 4,
+        "sha256": "57e8c5a26c5faf6d700cb3332555d140462df657c503eef2e4a2583bd1b5eaa2",
+        "match": "window = 45, max_samples = 32, sample_interval = 1.5, max_tracks = 16, min_samples = 5,"
+      }
+    ],
+    "E26": [
+      {
+        "file": "Cockpit/Scripts/Systems/Tactical_Tracks.lua",
+        "line": 2,
+        "sha256": "d5791a21e75a9c6ad7615c6d65b7550ddf1c63b73e2012954f78df22abd55050",
+        "match": "-- Exact simulator source identity is association plumbing, not combat ID."
+      }
+    ],
+    "E27": [
+      {
+        "file": "Cockpit/Scripts/Systems/Datalink_Tracks.lua",
+        "line": 5,
+        "sha256": "1e091245431e79ada6817574f5ec47337f437da2127d1c25a5d774627ad98ce5",
+        "match": "local M = { lifetime = 12, coast = 3, prediction = 6, max_tracks = 64 }"
+      },
+      {
+        "file": "EFM/source/NativeDatalink.cpp",
+        "line": 208,
+        "sha256": "2a37f6ce5bcec9837d670f497875dc0ec6014f2fad5d6362c1059b10aa7b9fba",
+        "match": "// J3.2 identity is retained conservatively until its enumeration is qualified."
+      }
+    ],
+    "E28": [
+      {
+        "file": "Cockpit/Scripts/Systems/MWS_Native.lua",
+        "line": 1,
+        "sha256": "c29da090d8f37d60a673136deff6f5a8657794e818d2d1282a4d4f59b9c79b15",
+        "match": "-- GPL-3.0-or-later. Common optical detector; generic six-aperture simulation."
+      }
+    ],
+    "E29": [
+      {
+        "file": "Cockpit/Scripts/Systems/Altitude_System.lua",
+        "line": 56,
+        "sha256": "1298ce91a8806f9834afdd61f5a57ffb812e260eb866eadd5543f2d5ad1807c2",
+        "match": "local ok,radar=pcall(base.getRadarAltitude)"
+      }
+    ],
+    "E30": [
+      {
+        "file": "Cockpit/Scripts/device_init.lua",
+        "line": 69,
+        "sha256": "bb53273d37908f672d7dc704598b1988a0a18f207b6f862ff8f6fc68a5f13b5c",
+        "match": "-- The shipped EDM has no HUD-CENTER/DOWN/RIGHT connector triplet."
+      }
+    ],
+    "E31": [
+      {
+        "file": "F-22A.lua",
+        "line": 204,
+        "sha256": "b34eaee5d6db37f548bccf3224787f631b353a2d7774973b2e96b99a1bd4bf15",
+        "match": "SingleChargeTotal = 240,"
+      },
+      {
+        "file": "F-22A.lua",
+        "line": 112,
+        "sha256": "b34eaee5d6db37f548bccf3224787f631b353a2d7774973b2e96b99a1bd4bf15",
+        "match": "RCS\t\t\t\t\t\t\t=\t0.0001,   -- Radar Cross Section m2 was 0.0001"
+      },
+      {
+        "file": "F-22A.lua",
+        "line": 281,
+        "sha256": "b34eaee5d6db37f548bccf3224787f631b353a2d7774973b2e96b99a1bd4bf15",
+        "match": "Guns = {gun_mount(\"M_61\", { count = 480 },{muzzle_pos = {0.50000, 0.500000, -0.000000}})},   --M_61 is F-15C Mounted Gun"
+      },
+      {
+        "file": "VLO Fuel Tank.lua",
+        "line": 27,
+        "sha256": "7907f769ffde8c943179a51678a4bb76d0662336bc1aa272b40d986b0f288384",
+        "match": "Weight\t\t\t= 180 + 605 * GALLON_TO_KG,"
+      },
+      {
+        "file": "IRST Sensor.lua",
+        "line": 42,
+        "sha256": "1666d208605eb04bfeaf325befa0495022e7c2b700bac887e34c1f99e5ccafea",
+        "match": "detection_distance ="
+      }
+    ],
+    "E32": [
+      {
+        "file": "docs/resources/research/OVERHAUL_COMMS_HANDOFF.md",
+        "line": 3,
+        "sha256": "38e92c1cbc09cd959463e3c2357267d643a02196f17f772307373d0a92e370f8",
+        "match": "2026-10-25, America/Denver. **Isolated, inactive, uninstalled and not native-flight qualified.** No user flight or installed runtime has been operated/changed by this prototype. Parent owns runtime scheduling: ground renderer, then warnings, then COM. Wait for explicit ownership handoff."
+      }
+    ],
+    "E33": [
+      {
+        "file": "docs/resources/research/IMPLEMENTATION_STATUS.md",
+        "line": 3,
+        "sha256": "8f15d4e74c95cef3c95ada476bb1049a85c987b5b0daf4bde5d79759102c30fe",
+        "match": "**Historical record, superseded 25 October 2026.** This file describes earlier commits and implementation assumptions, including the former inherited FC3 cockpit chain and older radar/A/G presentation. It is not the current capability or qualification status. Use the [current 50-finding ledger](OVERHAUL_IMPLEMENTATION_LEDGER.md), [historical accuracy audit](SYSTEMS_ACCURACY_AUDIT_2026-10-25.md) and linked overhaul handoffs. The older text is preserved for provenance."
+      },
+      {
+        "file": "docs/resources/research/OVERHAUL_IMPLEMENTATION_LEDGER.md",
+        "line": 7,
+        "sha256": "7581cdbeefd3caecaad1b3cfff6a38741ec6639a99b8ee054c2dda9cabe42ffd",
+        "match": "## Latest validation summary"
+      }
+    ],
+    "E34": [
+      {
+        "file": "docs/resources/research/AG_HORNET_PARITY_2026-10-26.md",
+        "line": 69,
+        "sha256": "34b3d5744b9eb503245ddf3442b20f335f0bbb9d976a1c773cf64bb0ac7830a1",
+        "match": "## Explicit remaining differences"
+      },
+      {
+        "file": "docs/resources/research/HORNET_GROUND_RADAR_STATES_2026-10-26.md",
+        "line": 94,
+        "sha256": "204a1539e90bc9b40d63ae903bd110dc5db9ad8fd46bad9cc10d12a3b31609d6",
+        "match": "| TDC hold/release preview | **Gap.** Our existing command is a one-shot completed designation; it does not implement the Hornet's full press/hold/slew/release interaction. |"
+      }
+    ],
+    "E35": [
+      {
+        "file": "docs/DATALINK.md",
+        "line": 66,
+        "sha256": "84be1400afa3c086e870800d1a6de6f7ea0532d02a525cc41b72d3f2618c4093",
+        "match": "## Validation status"
+      }
+    ],
+    "E36": [
+      {
+        "file": "docs/resources/research/OVERHAUL_VEHICLE_HANDOFF.md",
+        "line": 58,
+        "sha256": "ed9342d0571c2c6605f0d012c3b272662e34526ceb06b27d6fe262f46f8d44e5",
+        "match": "## Declared estimates and limitations"
+      }
+    ],
+    "E37": [
+      {
+        "file": "Cockpit/Scripts/Systems/Sensor_Control.lua",
+        "line": 1,
+        "sha256": "1dbb06bd6429d05cd30a86de708c07b50486544e37ac0e04456ca3ae3d290fa0",
+        "match": "-- GPL-3.0-or-later. SCS depress executes an existing focused-format function."
+      }
+    ]
+  },
+  "guide_sources": [
+    {
+      "name": "viper",
+      "edition_date": "2025-04-17",
+      "pages": 794,
+      "url": "https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf",
+      "sha256": "d748a70e8e7ad2412ae6b41a196f530c08f84eb1e1b4ed7dfa87c29e12c408ed"
+    },
+    {
+      "name": "hornet",
+      "edition_date": "2025-04-25",
+      "pages": 742,
+      "url": "https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf",
+      "sha256": "ad59f5830a8d3803eddcf0203ba7463ea8a74d8cfeac02cf959fa066d7803ac8"
+    }
+  ],
+  "current_revision_note": "Historical source-code evidence index retained for provenance. Dated03:35:59,04:17:52 and04:44:12 MDT behavior/reference findings and review updates are in F22-Authenticity-Comparisons.json and F22-Audit-Verification.json; each case identifies its code capture. Do not treat historical anchors as the latest capture."
+}

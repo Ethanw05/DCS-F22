@@ -1,4 +1,6 @@
 # Contributing
+All new and modified project-owned Lua and C++ follows the [project coding standard](docs/CODING_STANDARD.md), adapted from NASA/JPL guidance. Implementation work uses the [overhaul plan](docs/overhaul/README.md) and the [chat handoffs](docs/handoffs/README.md).
+
 If you'd like to contribute to the mod, please create a fork of this repository and develop whatever features, fixes, or other work you'd like to include in a branch on that fork. Then, create a pull request to merge your branch in.
 
 Tips for ensuring your pull request is merged quickly and smoothly:
