@@ -5261,7 +5261,7 @@
         "AS24",
         "AE11"
       ],
-      "status": "core state corrections implemented offline; passive coverage and actual EW effects remain unqualified",
+      "status": "bounded warning/coast, coherent supply and optional ECM lifecycle implemented offline; passive coverage and actual EW effects remain unqualified",
       "implementation_notes": "SEN-05-07.md"
     },
     {

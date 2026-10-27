@@ -27,6 +27,7 @@ end
 local function put(n, v)
 	h(n):set(v)
 end
+local supply = dofile(LockOn_Options.script_path..'Systems/EW_Power.lua').new(get)
 local tactical = dofile(LockOn_Options.script_path .. "Systems/Tactical_Picture.lua").new(get, put, sensors)
 local defensive_library = dofile(LockOn_Options.script_path .. "Systems/EW_Defensive.lua")
 local defensive = defensive_library.new(put, library.label_code, sensors)
@@ -102,6 +103,7 @@ function post_initialize()
 	native_power = nil
 	last_diagnostic = nil
 	put("F22_RWR_SUPPLY", 0)
+    put('F22_RWR_SUPPLY_VALID', 0)
 	put("F22_RWR_READY", 0)
 	if create_sound_host then
 		host = create_sound_host("F22_RWR_AUDIO", "HEADPHONES", 0, 0, 0)
@@ -136,8 +138,10 @@ function update()
 	else
 		clock = clock + step
 	end
-	local powered = enabled and get("MAIN_POWER") > 0.5
+    supply:update()
+	local powered = enabled and supply.electrical
 	put("F22_RWR_SUPPLY", powered and 1 or 0)
+    put('F22_RWR_SUPPLY_VALID', supply.valid and 1 or 0)
 	local native = nil
 	if type(GetDevice) == "function" then
 		local ok, result = pcall(GetDevice, devices.RWR_NATIVE)
@@ -220,10 +224,10 @@ function update()
 		c.bearing_world=c.bearing_compensated and measured and measured.world or nil
 	end
 	geolocation:update(clock, geolocation_library.position(sensors), receiver.contacts, bearings.tracks, ready and powered)
-	tactical:update(clock, receiver.contacts, get("MAIN_POWER") > 0.5)
+	tactical:update(clock, receiver.contacts, supply.electrical)
 	defensive.now = clock
 	defensive:update(tactical.store.contacts, critical)
-    overview:update(clock,tactical.store.contacts,get("MAIN_POWER")>.5,critical,defensive.source)
+    overview:update(clock,tactical.store.contacts,supply.electrical,critical,defensive.source)
 	put("F22_RWR_READY", ready and 1 or 0)
 	put("F22_RWR_POWER", powered and 1 or 0)
 	put("F22_RWR_MUTE", (muted or volume < 0.01) and 1 or 0)
@@ -295,7 +299,7 @@ function update()
 		step,
 		receiver.contacts,
 		powered and ready,
-		muted or volume < 0.01 or get("F22_MWS_AUDIO_PRIORITY") > 0.5 or audio_gate.priority(get, clock) > 0.5,
+		muted or volume < 0.01 or audio_gate.mws(get, clock) or audio_gate.priority(get, clock) > 0.5,
 		receiver.alert
 	)
 	for n, s in pairs(sounds) do
