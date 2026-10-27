@@ -10,14 +10,17 @@ function M:update(s)
  if not finite(now)then self.valid=false;return end
  local dt=self.clock and now-self.clock or 0;self.clock=now
  if not s.powered then self.valid=false;return end
- if not(finite(s.n)and finite(s.e)and finite(s.alt))then self.valid=false;return end
+ if dt<0 then self.last_positive_fix=nil end
  if not s.enabled then
+  if not(finite(s.n)and finite(s.e)and finite(s.alt))then self.valid=false;return end
   self.n,self.e,self.alt=s.n,s.e,s.alt;self.error=0;self.heading_error=0;self.valid=true;self.aiding=true
   return self.n,self.e,self.alt
  end
  if not s.aligned then self.valid=false;self.n=nil;return end
  if dt<0 or dt>2 then self.n=nil;self.valid=false end
  if s.aided then
+  if not(finite(s.n)and finite(s.e)and finite(s.alt))then self.valid=false;return end
+  self.last_positive_fix=now
   if not self.n or not self.valid then self.n,self.e,self.alt=s.n,s.e,s.alt;self.correcting=false
   elseif self.aiding and not self.correcting then self.n,self.e,self.alt=s.n,s.e,s.alt
   else

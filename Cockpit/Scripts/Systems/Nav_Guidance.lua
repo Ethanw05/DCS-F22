@@ -39,7 +39,8 @@ return function(get,set,own,s)
  elseif not ready then set('HUD_WP_INFO','IRS ALIGN');set('HUD_WP_TTG_TEXT','--:--:--');set('F22_NAV_STATUS_TEXT',get('F22_INS_STATUS_TEXT'))end
  local bearing,distance,course,cross,steer
  local lookahead=math.max(1852,(own.gs or 0)*25)
- local c=math.rad(get('F22_NAV_COURSE'))+reference
+ local c=get('F22_NAV_COURSE_SCHEMA')==1 and math.rad(get('F22_NAV_COURSE_TRUE'))
+  or math.rad(get('F22_NAV_COURSE'))+reference
  if source==0 and s and ready then
   bearing=s.bearing;distance=s.distance;course=s.course;cross=s.cross
   if get('F22_NAV_OBS')>.5 then course=c;cross=-math.sin(N.wrap(bearing-course))*distance end

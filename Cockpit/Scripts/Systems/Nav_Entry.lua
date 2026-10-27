@@ -2,13 +2,20 @@
 local M={}
 local function finite(x)return type(x)=='number'and x==x and math.abs(x)<math.huge end
 function M.new(id,lat,lon,alt,valid)
- local self={field=1,id=id,lat=lat,lon=lon,alt=alt,valid=valid,buffer='',error='',south=lat<0,west=lon<0}
+ local self={field=1,id=id,lat=lat,lon=lon,alt=alt,valid=valid,buffer='',error='',
+  south=lat<0,west=lon<0,below_sea=alt<0}
  function self:digit(n)if #self.buffer<({3,7,8,6})[self.field]then self.buffer=self.buffer..n;self.error=''end end
  function self:accept()
   if self.buffer==''then return true end
   local v=tonumber(self.buffer)
+  if not finite(v)or v%1~=0 or not self.buffer:match('^%d+$')then
+   self.error='ENTER DIGITS';return false
+  end
   if self.field==1 then if v<1 or v>256 then self.error='WYPT 001-256';return false end;self.id=v
-  elseif self.field==4 then if v>65000 then self.error='ELEV 0-65000 FT';return false end;self.alt=v
+  elseif self.field==4 then
+   local altitude=self.below_sea and -v or v
+   if altitude < -1640 or altitude > 65000 then self.error='ELEV -1640 TO65000';return false end
+   self.alt=altitude
   else
    local digits=self.field==2 and 7 or 8
    if #self.buffer~=digits then self.error=self.field==2 and 'LAT DDMM.MMM' or 'LON DDDMM.MMM';return false end

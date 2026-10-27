@@ -31,6 +31,7 @@ function M.new(get,put,send,_sensors)
   self.point_wait=nil
   self.point=Nav.new(get('HUD_WP_INDEX'),get('F22_NAV_FIX_LAT'),get('F22_NAV_FIX_LON'),get('F22_NAV_FIX_ALT_FT'),get('F22_NAV_FIX_GEO_VALID')>.5)
   self.point_source=get('HUD_WP_INDEX')
+  self.route_generation=get('F22_MISSION_ROUTE_GENERATION')
  end
  function s:open(page,force)
   local same=self.page==page;self:cancel();self.point_wait=nil;self.page=same and not force and''or page
@@ -80,7 +81,15 @@ function M.new(get,put,send,_sensors)
    rows[1]=action(get('F22_NAV_REFERENCE')>.5 and'REF MAG'or'REF TRUE',function()send('FLIGHT_GUIDANCE',10939,1)end)
    rows[2]=action(get('F22_GPS_AID')>.5 and'GPS AID ON'or'GPS AID OFF',function()send('FLIGHT_GUIDANCE',10940,1)end)
    rows[3]=action('IRS ALIGN',function()send('FLIGHT_GUIDANCE',10942,1)end)
-   rows[4]={label=text('F22_INS_STATUS_TEXT'),kind='read'}
+   rows[4]=action(text('F22_INS_STATUS_TEXT'),function()self:open('NAV QUALITY',true)end)
+  elseif page=='NAV QUALITY'then
+   local valid=get('F22_INS_ESTIMATE_VALID')>.5
+   rows[1]={label=valid and'POSITION VALID'or'POSITION UNAVAILABLE',kind='read'}
+   rows[2]={label=valid and string.format('POS UNC EST %.0f M',get('F22_INS_POSITION_UNCERTAINTY_M'))or'POS UNC --',kind='read'}
+   rows[3]={label=valid and string.format('HDG UNC EST %.2f',get('F22_INS_HEADING_UNCERTAINTY_DEG'))or'HDG UNC --',kind='read'}
+   local age=get('F22_INS_LAST_FIX_AGE')
+   rows[4]={label=valid and age>=0 and string.format('LAST FIX %.0f MIN',age/60)or'LAST FIX --',kind='read'}
+   rows[5]=action('RTN',function()self:open('NAV SETUP',true)end)
   elseif page=='HEADING'then
    rows[1]=number(text('F22_AP_HDG_TEXT','HDG ---'),0,function(b)
     local v,e=integer(b,0,359);if not v then return nil,e end
@@ -94,6 +103,9 @@ function M.new(get,put,send,_sensors)
    if not p.valid and not p.lat_entered then labels[2]='LAT --'end
    if not p.valid and not p.lon_entered then labels[3]='LON --'end
    for i=1,4 do local field=i;rows[i]=number(labels[i],0,function(b)return self:point_commit(field,b)end,({3,7,8,6})[i])end
+   if self.entry and self.entry.option==4 then
+    rows[5]=action(p.below_sea and'ELEV NEG'or'ELEV POS',function()p.below_sea=not p.below_sea end)
+   end
    if self.entry and(self.entry.option==2 or self.entry.option==3)then
     local latitude=self.entry.option==2
     rows[5]=action(latitude and(p.south and'HEMI S'or'HEMI N')or(p.west and'HEMI W'or'HEMI E'),function()
@@ -211,6 +223,9 @@ function M.new(get,put,send,_sensors)
   if get('MAIN_POWER')<.5 then self:cancel();self.page=''end
   if self.page=='STORES'and(get('F22_SMS_PROGRAM_PAGE')<.5 or get('F22_SMS_LABEL')<1 or get('HUD_AG_SUBMODE')==1
    or self.store~=get('F22_SMS_SELECTED_INDEX')or self.profile~=get('F22_SMS_PROFILE'))then self:cancel();self.page=''end
+  if self.page=='STPT'and self.route_generation~=get('F22_MISSION_ROUTE_GENERATION')then
+   self:cancel();self:load_point();self.status='ROUTE RELOADED'
+  end
   if self.page=='STPT'and not self.entry and not self.pending and get('HUD_WP_INDEX')~=self.point_source
    and not(self.point and not self.point.valid)then self:load_point()end
   if self.pending then

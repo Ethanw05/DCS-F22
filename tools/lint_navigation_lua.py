@@ -10,7 +10,7 @@ FILES = ["Systems/" + name + ".lua" for name in (
     "Entry_Transaction", "External_Light_Control", "Cockpit_References", "Equipment_Profile", "UFC_Controller",
     "Flight_Guidance", "Altitude_System", "Navigation_System", "MFD_Controller",
     "Fault_Registry", "Pilot_Warnings", "Pilot_Warning_System", "Warning_Audio_Gate",
-    "IR_Audio", "Avionics", "HUD_Flight_Data", "Weapon_System")]
+    "IR_Audio", "Avionics", "Mission_Data", "Nav_Entry", "INS_Model", "Nav_Guidance", "HUD_Flight_Data", "Weapon_System")]
 FILES.append("MFD_COMMON/checklist_page.lua")
 HOST = ["LockOn_Options", "GetSelf", "get_base_data", "get_param_handle", "make_default_activity",
         "GetDevice", "get_model_time", "dispatch_action", "log", "devices", "Keys", "device_commands",

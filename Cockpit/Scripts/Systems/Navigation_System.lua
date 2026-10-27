@@ -53,6 +53,9 @@ for i=1,nav.slots do
     for _,suffix in ipairs({'VALID','X1','Y1','X2','Y2','ACTIVE'}) do local k=string.format('F22_NAV_LEG_%02d_',i)..suffix;handles[k]=get_param_handle(k) end
 end
 local computer=nav.new({});local terrain
+local mission=dofile(LockOn_Options.script_path..'Systems/Mission_Data.lua').new()
+set('F22_MISSION_DATA_STATUS','')
+get('F22_MISSION_ROUTE_GENERATION')
 local function cancel_waypoint_request()
     computer.designation=nil;set('F22_NAV_TARGET_REQUEST_VALID',0);designation_status(0,'')
 end
@@ -62,31 +65,45 @@ local function quality()
  set('F22_INS_POSITION_UNCERTAINTY_M',estimate.error);set('F22_INS_HEADING_UNCERTAINTY_DEG',estimate.heading_error)
  set('F22_INS_COASTING',estimate.valid and not estimate.aiding and 1 or 0)
 end
+for _,key in ipairs({'F22_NAV_HEADING_VALID','F22_NAV_ATTITUDE_VALID','F22_NAV_REFERENCE_STAMP',
+ 'F22_GPS_OBSERVATION_VALID','F22_GPS_OBSERVATION_TIME','F22_INS_LAST_FIX_AGE','F22_GPS_FAILURE'})do get(key)end
+local own_frame,estimate_input={},{}
 local function ownship()
     set('F22_NAV_OWN_VALID',0)
-    local ok,n,a,e=pcall(base.getSelfCoordinates)
-    if not ok or not nav.finite(n) or not nav.finite(a) or not nav.finite(e) then return end
-    set('F22_NAV_OWN_N',n);set('F22_NAV_OWN_E',e)
-    local h,p,r=base.getHeading(),base.getPitch(),base.getRoll()
-    if not nav.finite(h) or not nav.finite(p) or not nav.finite(r) then return end
+    local clock=get('F22_AP_CLOCK')
+    local position_ok,n,a,e=pcall(base.getSelfCoordinates)
+    local heading_ok,h=pcall(base.getHeading)
+    local pitch_ok,p=pcall(base.getPitch)
+    local roll_ok,r=pcall(base.getRoll)
+    local heading_valid=heading_ok and nav.finite(h)
+    local attitude_valid=pitch_ok and roll_ok and nav.finite(p) and nav.finite(r)
+    local observed=position_ok and nav.finite(n) and nav.finite(a) and nav.finite(e)
+    local gps_available=observed and get('F22_GPS_FAILURE')<.5
+    set('F22_NAV_HEADING_VALID',heading_valid and 1 or 0)
+    set('F22_NAV_ATTITUDE_VALID',attitude_valid and 1 or 0)
+    set('F22_NAV_REFERENCE_STAMP',clock)
+    set('F22_GPS_OBSERVATION_VALID',gps_available and 1 or 0)
+    if gps_available then set('F22_GPS_OBSERVATION_TIME',clock)end
     local model=get('F22_INS_MODEL_ENABLED')>.5
-    local ready=not model or get('F22_INS_READY')>.5
-    if ready then
-        n,e,a=estimate:update({now=get('F22_AP_CLOCK'),powered=get('MAIN_POWER')>.5,enabled=model,
-            aligned=ready,aided=get('F22_GPS_AID')>.5,n=n,e=e,alt=a,
-            velocity_valid=get('EFM_HUD_VALID')>.5,vn=get('EFM_HUD_VN'),ve=get('EFM_HUD_VE'),vu=get('EFM_HUD_VU')})
-        quality();if not n then return end
-    else
-        estimate:update({now=get('F22_AP_CLOCK'),powered=true,enabled=true,aligned=false,n=n,e=e,alt=a})
-        quality()
-    end
-    set('F22_NAV_OWN_N',n);set('F22_NAV_OWN_E',e);set('F22_NAV_OWN_VALID',1)
-    -- Route sequencing owns its velocity input; hiding/invalidating the HUD
-    -- must not stop an otherwise healthy navigation computer.
-    local vn,ve=get('EFM_HUD_VN'),get('EFM_HUD_VE')
-    local gs=get('EFM_HUD_VALID')>.5 and nav.finite(vn) and nav.finite(ve) and math.sqrt(vn*vn+ve*ve)
-        or get('HUD_GS_VALID')>.5 and get('HUD_GS_MPS') or nil
-    return {x=n,y=e,alt=a,heading=(-h)%(2*math.pi),pitch=p,roll=r,gs=gs}
+    estimate_input.now=clock;estimate_input.powered=get('MAIN_POWER')>.5
+    estimate_input.enabled=model;estimate_input.aligned=not model or get('F22_INS_READY')>.5
+    estimate_input.aided=get('F22_GPS_AID')>.5 and gps_available
+    estimate_input.n=observed and n or nil;estimate_input.e=observed and e or nil
+    estimate_input.alt=observed and a or nil
+    estimate_input.velocity_valid=get('EFM_HUD_VALID')>.5
+    estimate_input.vn=get('EFM_HUD_VN');estimate_input.ve=get('EFM_HUD_VE');estimate_input.vu=get('EFM_HUD_VU')
+    n,e,a=estimate:update(estimate_input);quality()
+    set('F22_INS_LAST_FIX_AGE',estimate.last_positive_fix and math.max(0,clock-estimate.last_positive_fix)or -1)
+    own_frame.x,own_frame.y,own_frame.alt=n,e,a
+    own_frame.position_valid=n~=nil
+    own_frame.heading=heading_valid and (-h)%(2*math.pi)or nil
+    own_frame.pitch,own_frame.roll=attitude_valid and p or 0,attitude_valid and r or 0
+    own_frame.attitude_valid=attitude_valid
+    local vn,ve=estimate_input.vn,estimate_input.ve
+    own_frame.gs=estimate_input.velocity_valid and nav.finite(vn) and nav.finite(ve) and math.sqrt(vn*vn+ve*ve)
+        or get('HUD_GS_VALID')>.5 and get('HUD_GS_MPS')or nil
+    if n then set('F22_NAV_OWN_N',n);set('F22_NAV_OWN_E',e);set('F22_NAV_OWN_VALID',1)end
+    if heading_valid then return own_frame end
 end
 local function height(n,e)
     if not terrain or type(terrain.GetHeight)~='function' then return end
@@ -96,7 +113,16 @@ end
 local function load_route()
     local ok,route=false,nil
     if type(get_mission_route)=='function' then ok,route=pcall(get_mission_route) end
-    computer=nav.new(ok and route or {},height)
+    if not ok then set('F22_MISSION_DATA_STATUS','ROUTE UNAVAILABLE');return false end
+    route=type(route)=='table' and (route.points or route.route or route) or route
+    local accepted,partition=mission:replace('route',{
+        schema=1,source='HOST MISSION ROUTE',date='UNSPECIFIED',items=route})
+    if not accepted then set('F22_MISSION_DATA_STATUS',partition);return false end
+    computer=nav.new(partition.items,height)
+    set('F22_ENTRY_NAV_ACTIVE',0)
+    set('F22_MISSION_ROUTE_GENERATION',partition.generation)
+    set('F22_MISSION_DATA_STATUS','ROUTE LOADED')
+    return true
 end
 local function clear()
     set('F22_NAV_FIX_LAT_TEXT','--');set('F22_NAV_FIX_LON_TEXT','--');set('F22_NAV_FIX_ELEV_TEXT','--')
@@ -160,7 +186,7 @@ local function apply_command(command,value)
         if accepted then cancel_waypoint_request() end
         set('F22_NAV_EDIT_STATUS',accepted and 'UNDO COMPLETE' or 'NOTHING TO UNDO');return
     elseif command==commands.mark then
-        local own=ownship();if not own then return end
+        local own=ownship();if not own or not own.position_valid then return end
         local id=(computer.route[#computer.route]or computer.origin or {id=1}).id+1
         if computer:edit(id,own.x,own.y,own.alt)then
             cancel_waypoint_request();computer.route[computer.selected].name='MARK '..id
@@ -308,7 +334,7 @@ function update()
     set('HUD_WP_INFO',s.designated and string.format('%.1f TGT',get('HUD_AG_TGT_RANGE_NM')) or string.format('%.1f W%d',s.distance/1852,w.id))
     set('HUD_WP_TTG_TEXT',ttg);set('HUD_WP_TTG_VALID',ttg~='--:--:--' and 1 or 0)
     set('HUD_WP_CUE_VALID',0);set('HUD_WP_OFFSCREEN',0)
-    if s.designated and s.distance>1 then
+    if s.designated and s.distance>1 and own.attitude_valid then
         local f,r,u=geom.body(w.x-own.x,w.y-own.y,s.designation_alt-own.alt,own.heading,own.pitch,own.roll)
         local az=nav.atan2(r,f);local el=nav.atan2(u,math.sqrt(f*f+r*r));local cue=project(az,el)
         set('HUD_WP_AZ_RAD',az);set('HUD_WP_EL_RAD',el);set('HUD_WP_X',cue.x);set('HUD_WP_Y',cue.y)

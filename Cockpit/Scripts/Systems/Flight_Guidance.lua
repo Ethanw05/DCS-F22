@@ -23,6 +23,19 @@ local light_control=dofile(LockOn_Options.script_path..'Systems/External_Light_C
  end)
 for command=10505,10512 do dev:listen_command(command)end
 for command=11905,11912 do dev:listen_command(command)end
+local course_true=0
+local function course_reference()
+ if get('F22_NAV_REFERENCE')<.5 then return 0 end
+ if get('F22_MAG_VALID')>.5 then return math.deg(get('F22_MAG_DECL'))end
+end
+local function publish_course()
+ local reference=course_reference()
+ set('F22_NAV_COURSE_SCHEMA',1);set('F22_NAV_COURSE_TRUE',course_true)
+ set('F22_NAV_COURSE_REF_VALID',reference and 1 or 0)
+ if reference then set('F22_NAV_COURSE',(course_true-reference)%360)end
+end
+for _,key in ipairs({'F22_NAV_COURSE_SCHEMA','F22_NAV_COURSE_TRUE','F22_NAV_COURSE_REF_VALID',
+ 'F22_MAG_VALID','F22_MAG_DECL'})do h(key)end
 local frequencies={}
 for f=108100,111900,200 do frequencies[#frequencies+1]=f;frequencies[#frequencies+1]=f+50 end
 local frequency_index=23 -- 110.30 MHz
@@ -33,7 +46,8 @@ function post_initialize()
  set('F22_NAV_CONFIG_PATH',LockOn_Options.script_path..'Systems/TACAN_Native.lua')
  set('F22_TCN_CHANNEL',1);set('F22_TCN_BAND',0);set('F22_TCN_MODE',2)
  set('F22_ILS_FREQ_KHZ',frequencies[frequency_index]);set('F22_NAV_SOURCE',0)
- set('F22_NAV_REFERENCE',0);set('F22_NAV_OBS',0);set('F22_NAV_COURSE',0)
+ course_true=0
+ set('F22_NAV_REFERENCE',0);set('F22_NAV_OBS',0);publish_course()
  set('F22_INS_MODEL_ENABLED',1);set('F22_GPS_AID',1)
  local birth=LockOn_Options.init_conditions.birth_place
  align=birth=='GROUND_COLD' and 0 or 180
@@ -62,7 +76,10 @@ local function apply_command(command,value)
   if command==10946 and value%1==0 and value>=1 and value<=126 then set('F22_TCN_CHANNEL',value)
   elseif command==10947 and value>=108100 and value<=111950 and (value%200==100 or value%200==150)then
    for i,f in ipairs(frequencies)do if f==value then frequency_index=i;set('F22_ILS_FREQ_KHZ',value);break end end
-  elseif command==10949 and value>=0 and value<360 then set('F22_NAV_COURSE',value)end
+  elseif command==10949 and value>=0 and value<360 then
+   local reference=course_reference()
+   if reference then course_true=(value+reference)%360;publish_course()end
+  end
   return
  end
  value=decode(value,devices.FLIGHT_GUIDANCE)
@@ -73,7 +90,8 @@ local function apply_command(command,value)
  if get('MAIN_POWER')<.5 then return end
  if command>=10950 and command<=10969 then dispatch_action(nil,command+650,1);return end
  if command==10930 then set('F22_NAV_SOURCE',(get('F22_NAV_SOURCE')+1)%3)
- elseif command==10931 or command==10932 then set('F22_NAV_OBS',1);set('F22_NAV_COURSE',(get('F22_NAV_COURSE')+(command==10931 and 1 or -1))%360)
+ elseif command==10931 or command==10932 then
+  set('F22_NAV_OBS',1);course_true=(course_true+(command==10931 and 1 or -1))%360;publish_course()
  elseif command==10933 or command==10934 then set('F22_TCN_CHANNEL',math.max(1,math.min(126,get('F22_TCN_CHANNEL')+(command==10933 and 1 or -1))))
  elseif command==10935 then set('F22_TCN_BAND',1-get('F22_TCN_BAND'))
  elseif command==10936 then set('F22_TCN_MODE',(get('F22_TCN_MODE')+1)%5)
@@ -100,6 +118,7 @@ function SetCommand(command,value)
   dispatch_action(nil,11800,value)
   return
  end
+ if requested==10949 and course_reference()==nil then transaction:finish(value,false);return end
  local key=({[10946]='F22_TCN_CHANNEL',[10947]='F22_ILS_FREQ_KHZ',[10949]='F22_NAV_COURSE'})[requested]
  if not key then transaction:finish(value,false);return end
  apply_command(requested,wanted)
@@ -130,7 +149,9 @@ function update()
  if align>=180 then previously_aligned=true;manual_align=false end
  set('F22_INS_READY',powered and align>=180 and 1 or 0)
  local text=not powered and 'IRS OFF' or align<180 and (air_recovery>0 and string.format('GPS RECOVER %02d/30',air_recovery)or string.format('ALIGN %03d/180',align))
-  or(get('F22_GPS_AID')>.5 and 'IRS/GPS SIM' or get('F22_INS_ESTIMATE_VALID')<.5 and 'IRS POSITION INVALID' or string.format('IRS COAST EST %.0f M',get('F22_INS_POSITION_UNCERTAINTY_M')))
+  or(get('F22_INS_ESTIMATE_VALID')<.5 and 'IRS POSITION INVALID'
+   or get('F22_INS_COASTING')>.5 and string.format('IRS COAST EST %.0f M',get('F22_INS_POSITION_UNCERTAINTY_M'))
+   or'IRS/GPS SIM')
  set('F22_INS_STATUS_TEXT',text)
  local pitch={[0]='OFF',[1]='ATT',[2]='ALT',[3]='RALT',[4]='V/S'}
  local roll={[0]='',[1]='ATT',[2]='HDG',[3]='NAV'}
@@ -155,6 +176,8 @@ function update()
  set('F22_TCN_TUNE_TEXT',string.format('TCN %03d%s %s',get('F22_TCN_CHANNEL'),get('F22_TCN_BAND')>.5 and 'Y' or 'X',names[get('F22_TCN_MODE')] or '?'))
  set('F22_ILS_TUNE_TEXT',string.format('ILS %.2f',get('F22_ILS_FREQ_KHZ')/1000))
  set('F22_NAV_SOURCE_TEXT',({'WPT','TCN','ILS'})[get('F22_NAV_SOURCE')+1] or 'WPT')
- set('F22_NAV_CRS_TEXT',string.format('CRS %03d%s',get('F22_NAV_COURSE'),mag and 'M' or 'T'))
+ publish_course()
+ set('F22_NAV_CRS_TEXT',get('F22_NAV_COURSE_REF_VALID')>.5
+  and string.format('CRS %03d%s',get('F22_NAV_COURSE'),mag and 'M' or 'T')or'CRS ---M')
 end
 need_to_be_closed=false
