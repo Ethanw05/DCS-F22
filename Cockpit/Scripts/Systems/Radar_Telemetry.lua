@@ -1,6 +1,13 @@
 -- GPL-3.0-or-later. Read-only, bounded radar test telemetry in dcs.log.
 -- Changed values indicate export changes, not confirmed sensor refreshes.
 local M = {}
+local service_fields = {
+	"F22_RADAR_SERVICE_ENABLED", "F22_RADAR_SERVICE_STATE", "F22_RADAR_SERVICE_RESOURCE",
+	"F22_RADAR_SERVICE_HEALTH_KNOWN", "F22_RADAR_SERVICE_PENDING", "F22_RADAR_SERVICE_DROPPED",
+	"F22_RADAR_SERVICE_ACCEPTED", "F22_RADAR_SERVICE_WORK_S", "F22_RADAR_SERVICE_PROCESSING_S",
+	"F22_RADAR_NATIVE_RESTRICTED", "F22_RADAR_BACKGROUND_AVAILABLE", "F22_RADAR_AIR_SURFACE_CONCURRENT",
+	"F22_RADAR_SELECTED_MEASUREMENT_SOURCE", "F22_RADAR_SELECTED_AGE", "F22_AG_TRACK_TYPE",
+}
 local fields = {
 	"RADAR_PWR",
 	"MAIN_POWER",
@@ -317,6 +324,7 @@ function M.new(get, write, limit)
 			self:emit("v1,schema,t_model_s," .. table.concat(fields, ",") .. "," .. table.concat(pose_fields, ","))
 			self:emit("v1,avionics_schema,t_model_s," .. table.concat(avionics_fields, ","))
 			self:emit("v1,missile_schema,t_model_s,slot," .. table.concat(missile_fields, ","))
+			self:emit("v1,service_schema,t_model_s," .. table.concat(service_fields, ","))
 			self.started = t
 			self.next_time = t
 			self.next_contacts = t
@@ -345,6 +353,9 @@ function M.new(get, write, limit)
 		if t + 1e-8 >= self.next_contacts then
 			self.next_contacts = t + 0.2
 			self:avionics(t)
+			local service = { "v1", "service", number(t) }
+			for _, key in ipairs(service_fields) do service[#service + 1] = number(get(key)) end
+			self:emit(table.concat(service, ","))
 			self:observations(t)
 			for i = 1, 64 do
 				local p = string.format("F22N_RADAR_CONTACT_%02d_", i)

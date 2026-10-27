@@ -34,6 +34,7 @@ function M.publish(computer, put, ready, stt)
 		local quality = t and (t.hits and computer:quality(t) or 2) or 0
 		put(p .. "VALID", t and 1 or 0)
 		put(p .. "SOURCE", t and t.native_id or 0)
+		put(p .. "MEASUREMENT_SOURCE", t and (t.measurement_source or 1) or 0)
 		put(p .. "AGE", t and math.max(0, computer.clock - (t.observed or computer.clock)) or 999)
 		put(p .. "AZ", t and (t.current_az or t.az) or 0)
 		put(p .. "EL", t and (t.current_el or t.el) or 0)

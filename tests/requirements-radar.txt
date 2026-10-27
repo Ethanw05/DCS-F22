@@ -1,0 +1,5 @@
+lupa==2.6
+luaparser==3.3.0
+Pillow==11.3.0
+# Reference PDF extraction used for the package evidence note.
+pypdf==5.9.0

@@ -3,6 +3,7 @@ dofile(LockOn_Options.script_path .. "devices.lua")
 dofile(LockOn_Options.script_path .. "command_defs.lua")
 local input_value = dofile(LockOn_Options.script_path .. "Systems/Input_Value.lua")
 local radar_focus_policy = dofile(LockOn_Options.script_path .. "Systems/Radar_Focus.lua")
+local radar_service = dofile(LockOn_Options.script_path .. "Systems/Radar_Service_Adapter.lua").new()
 local commands = dofile(LockOn_Options.script_path .. "Systems/Radar_Commands.lua")
 local computer = dofile(LockOn_Options.script_path .. "Systems/Radar_Computer.lua").new()
 local task_library = dofile(LockOn_Options.script_path .. "Systems/Radar_Sensor_Tasking.lua")
@@ -44,6 +45,7 @@ for _, name in ipairs({
  "F22_AG_VIDEO_FROZEN", "F22_AG_VIDEO_ERASE_SEQUENCE",
 }) do h(name) end
 local telemetry_config = dofile(LockOn_Options.script_path .. "Systems/Radar_Config.lua")
+radar_service:publish(put, 0, telemetry_config.service_enabled, 0, false)
 local telemetry = nil
 if telemetry_config.telemetry_enabled then
 	telemetry = dofile(LockOn_Options.script_path .. "Systems/Radar_Telemetry.lua").new(get, function(row)
@@ -105,6 +107,8 @@ local function sync_model_clock()
 	end
 	if now < computer.clock - 0.001 then
 		computer:reset()
+		radar_service:reset(now)
+		slew_x, slew_y, slew_focus, slew_role = 0, 0, nil, nil
 		acquiring = false
 		pending_unlock = false
 		previous_acquire_mode = -1
@@ -164,7 +168,8 @@ function SetCommand(command, value)
 		local name = command == 10620 and "axis_x" or command == 10621 and "axis_y" or by_id[command] or legacy[command]
 		if name == "axis_x" or name == "axis_y" then
 			slew_focus, slew_role = get("F22_SOI"), get("HUD_MODE")
-			if not radar_focus_policy.allowed(get) or not computer.power or get("MAIN_POWER") <= 0.5 then value = 0 end
+			if not display.finite(value) or not radar_focus_policy.allowed(get)
+				or not computer.power or get("MAIN_POWER") <= 0.5 then value = 0 end
 		end
 		if name == "power" then
 			if value > 0 then computer.power = not computer.power; emission_inhibited = not computer.power end
@@ -181,7 +186,7 @@ function SetCommand(command, value)
 		slew_focus, slew_role = get("F22_SOI"), get("HUD_MODE")
 		slew_x = radar_focus_policy.allowed(get) and computer.power
 			and get("MAIN_POWER") > 0.5 and display.finite(value) and value or 0
-		if math.abs(value) > 0.08 then
+		if math.abs(slew_x) > 0.08 then
 			computer.cursor_follow = false
 		end
 		return
@@ -190,7 +195,7 @@ function SetCommand(command, value)
 		slew_focus, slew_role = get("F22_SOI"), get("HUD_MODE")
 		slew_y = radar_focus_policy.allowed(get) and computer.power
 			and get("MAIN_POWER") > 0.5 and display.finite(value) and value or 0
-		if math.abs(value) > 0.08 then
+		if math.abs(slew_y) > 0.08 then
 			computer.cursor_follow = false
 		end
 		return
@@ -286,6 +291,9 @@ function SetCommand(command, value)
 	end
 end
 function post_initialize()
+	slew_x, slew_y, slew_focus, slew_role = 0, 0, nil, nil
+	radar_service:reset()
+	radar_service:publish(put, 0, telemetry_config.service_enabled, 0, false)
 	sensor_tasks:reset()
 	last_sensor_task_diagnostic = nil
 	sensor_tasks:publish(put,0)
@@ -384,6 +392,8 @@ function update()
 	end
 	local available = native and type(native.set_power) == "function"
 	local ready = available and get("F22_RADAR_ACQ_COORDINATES_READY") > 0.5
+	local service_resource = radar_service:health(get, computer.clock + step, powered)
+	ready = ready and service_resource >= 0.1
 	put("F22_RADAR_DEVICE_ID", devices.RADAR_NATIVE)
 	-- The A/G computer keeps its frozen picture powered in SIL while the
 	-- owned native transmitter is independently inhibited.
@@ -406,6 +416,8 @@ function update()
 	put("F22_RADAR_BACKEND_READY", ready and 1 or 0)
 	put("F22_AG_RADAR_PAGE", hud_mode == 7 and 1 or 0)
 	if hud_mode == 7 then
+		radar_service:reset(computer.clock)
+		radar_service:publish(put, service_resource, telemetry_config.service_enabled, 0, true, ready)
 		computer.effective_scan=nil
 		computer.rf_scan_windows={}
 		sensor_tasks:reset()
@@ -520,6 +532,17 @@ function update()
 			end
 		end
 	end
+	if powered and ready and pose and telemetry_config.service_enabled then
+		observations = radar_service:process(computer.clock + step, computer, observations, native_mode, service_resource)
+		for i = 1, #observations do
+			local o = observations[i]
+			o.age = math.max(0, computer.clock + step - o.observed)
+			o.range, o.az, o.el = display.body_observation(o, pose, o.age)
+		end
+	elseif not powered or not ready or not pose then
+		radar_service:reset(computer.clock + step)
+	end
+	radar_service:publish(put, service_resource, telemetry_config.service_enabled, native_mode, false, ready)
 	if powered and ready then
 		computer:update(step, observations, native_mode)
 	else
@@ -549,6 +572,7 @@ function update()
 		end
 	end
 	local scan = nil
+	radar_service.required = required
 	if powered and ready and pose then
 		scan = computer:scan_plan(required)
 	else
@@ -950,7 +974,7 @@ function update()
 		priority[secondary.native_id] = true
 	end
 	for _, t in pairs(computer.tracks) do
-		if t.native_id and t.hits >= 2 then
+		if computer:supportable(t) then
 			support_tracks[#support_tracks + 1] = t
 		end
 	end
@@ -971,7 +995,7 @@ function update()
 	-- TWS launch target. STT cannot revisit other files; their real ages expire.
 	put("F22_RADAR_SUPPORT_ENABLED", powered and ready and 1 or 0)
 	put("F22_TWS_ACTIVE", powered and ready and computer.mode == "TWS" and native_mode ~= 3 and 1 or 0)
-	put("F22_TWS_TARGET_ID", selected and selected.hits >= 2 and selected.native_id or 0)
+	put("F22_TWS_TARGET_ID", computer:supportable(selected) and selected.native_id or 0)
 	put("F22_TWS_TARGET_AGE", selected and math.max(0, computer.clock - selected.observed) or 999)
 	put("F22_TWS_TARGET_RANGE", selected and (selected.current_range or selected.range) or 0)
 	tactical.publish(computer, put, powered and ready, stt_observation)
@@ -981,6 +1005,7 @@ function update()
 		quality_track = locked_track
 	end
 	publish_quality("F22_RADAR_SELECTED_", quality_track)
+	put("F22_RADAR_SELECTED_MEASUREMENT_SOURCE", quality_track and quality_track.measurement_source or 0)
 	put("F22_RADAR_SELECTED_SUPPORT_ELIGIBLE", powered and ready and computer:supportable(quality_track) and 1 or 0)
 	put("F22_RADAR_SELECTED_VALID", powered and ready and (computer:quality(selected) > 0 or stt_valid) and 1 or 0)
 	local friendly = native_mode == 3 and lock_iff == 1 or native_mode ~= 3 and selected and selected.iff == 1

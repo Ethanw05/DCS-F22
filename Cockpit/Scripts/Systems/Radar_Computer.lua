@@ -1,7 +1,7 @@
 -- GPL-3.0-or-later. Deterministic radar presentation/track-file computer.
 -- Input observations come from a sensor; this module never enumerates world objects.
 -- RWS/TWS/VACQ/BORE are simulation workflows, not claimed classified F-22 logic.
-local M = { fresh_seconds = 6, support_seconds = 6 }
+local M = { fresh_seconds = 6, support_seconds = 6, maximum_tracks = 64, maximum_hits = 255 }
 local rad = math.rad
 -- Reference: installed Hornet guide p171. BST is a 3.3-degree full
 -- cone; VACQ -13..+46 degrees. Our VACQ uses 10 NM for the F-22
@@ -498,7 +498,8 @@ function M.new()
 		-- Deduplicate echoes; one observation may update only one track per frame.
 		local obs = {}
 		local by_native_id = {}
-		for _, o in ipairs(observations) do
+		for observation_index = 1, math.min(M.maximum_tracks, #observations) do
+			local o = observations[observation_index]
 			if self:inside(o) then
 				local duplicate = false
 				if o.native_id and by_native_id[o.native_id] then
@@ -581,7 +582,9 @@ function M.new()
 					end
 					local rate = (o.range - t.range) / delta
 					t.rate = math.abs(rate) < 1500 and rate or nil
-					t.hits = t.hits + 1
+					-- A new return after a freshness gap is reacquisition, not
+					-- continuation of an indefinitely cumulative two-hit track.
+					t.hits = delta <= self:fresh_time() and math.min(M.maximum_hits, t.hits + 1) or 1
 					t.range = o.range
 					t.az = o.az
 					t.el = o.el
@@ -595,6 +598,7 @@ function M.new()
 					t.vu = o.vu
 					t.velocity_valid = o.velocity_valid
 					t.native_id = o.native_id
+					t.measurement_source = o.measurement_source or 1
 				end
 				if o.iff == 1 then
 					t.friend_until = math.max(t.friend_until or 0, self.clock - o.age + 30)
@@ -608,8 +612,11 @@ function M.new()
 				end
 			end
 		end
+		local track_count = 0
+		for _ in pairs(self.tracks) do track_count = track_count + 1 end
 		for i, o in ipairs(obs) do
-			if not used[i] then
+			if not used[i] and track_count < M.maximum_tracks then
+				track_count = track_count + 1
 				local id = self.next_id
 				self.next_id = id + 1
 				o.id = id
@@ -627,6 +634,7 @@ function M.new()
 					friend_until = o.iff == 1 and self.clock - o.age + 30 or nil,
 					hostile_until = o.iff == 0 and self.clock - o.age + 30 or nil,
 					native_id = o.native_id,
+					measurement_source = o.measurement_source or 1,
 					north = o.north,
 					east = o.east,
 					altitude = o.altitude,

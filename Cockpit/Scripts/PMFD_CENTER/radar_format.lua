@@ -484,6 +484,15 @@ end
 text("AZ %.0f", -0.14, -0.815, "F22_RADAR_SCAN_AZ_DEG", "blue", "F22_RDR_SCAN_SEARCH", 0.0038)
 text("HT %.0f", 0.15, -0.815, "F22_RADAR_SCAN_EL_DEG", "blue", "F22_RDR_SCAN_SEARCH", 0.0038)
 text("EL %+.0f", 0, -0.865, "F22_RADAR_SCAN_CENTER_EL_DEG", "blue", "F22_RDR_SCAN_SEARCH", 0.0038)
+-- The retained native detector has no qualified independent electronic-beam
+-- service. Disclose this alongside the estimated processing-resource state.
+group("F22_RDR_NATIVE_LIMIT", { "F22_RADAR_NATIVE_RESTRICTED" }, { { "parameter_in_range", 0, 0.9, 1.1 } })
+text("NATIVE", -0.72, -0.89, nil, "blue", "F22_RDR_NATIVE_LIMIT", 0.0033)
+group("F22_RDR_SERVICE_DEGRADED", { "F22_RADAR_SERVICE_STATE" }, { { "parameter_in_range", 0, 1.9, 2.1 } })
+text("SENS DEG", 0.70, -0.89, nil, "yellow", "F22_RDR_SERVICE_DEGRADED", 0.0033)
+group("F22_RDR_SERVICE_QUEUE", { "F22_RADAR_SERVICE_STATE", "F22_RADAR_SERVICE_PENDING" },
+    { { "parameter_in_range", 0, 0.9, 1.1 }, { "parameter_in_range", 1, 0.9, 64.1 } })
+text("PROC Q%.0f", 0.70, -0.89, "F22_RADAR_SERVICE_PENDING", "blue", "F22_RDR_SERVICE_QUEUE", 0.0033)
 dofile(LockOn_Options.script_path..'PMFD_CENTER/tactical_overlay.lua')(
  {group=group,line=line,text=text,add=add,materials=materials},layout,native_page_scale*content_scale,root)
 

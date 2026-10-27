@@ -11,9 +11,12 @@ from lupa.lua51 import LuaRuntime
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / 'Cockpit/Scripts'
 
-def runtime():
+def runtime(service_enabled=False):
     lua = LuaRuntime(unpack_returned_tuples=True)
     lua.globals().SCRIPT_ROOT = SCRIPTS.as_posix() + '/'
+    # Existing replay cases exercise the retained v2 backend. New service owner
+    # tests opt into the production-default v3 timing explicitly.
+    lua.globals().TEST_RADAR_SERVICE_ENABLED = service_enabled
     lua.execute('''
         LockOn_Options = {script_path=SCRIPT_ROOT, common_script_path='common/',
             init_conditions={birth_place='GROUND_HOT'}}
@@ -28,6 +31,10 @@ def runtime():
                 render_purpose={GENERAL=0, HUD_ONLY_VIEW=1}
             elseif string.find(path,'common/',1,true)==1 then
                 return
+            elseif path == SCRIPT_ROOT..'Systems/Radar_Config.lua' then
+                local config = original_dofile(path)
+                config.service_enabled = TEST_RADAR_SERVICE_ENABLED
+                return config
             elseif path == SCRIPT_ROOT..'fonts.lua' then
                 UFD_GRN='test-font';UFD_TEAL='test-cyan-font'
                 UFD_YEL='test-yellow-font';UFD_RED='test-red-font';UFD_FONT='test-white-font';UFD_RADAR_BLUE='test-blue-font'
