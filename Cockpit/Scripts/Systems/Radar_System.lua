@@ -97,6 +97,19 @@ local publish_sequence = 0
 local last_acquire_request = -100
 local previous_acquire_mode = -1
 local ag = nil
+local function bind_slew(value)
+	-- Releases and neutral jitter cannot adopt another display's held axis.
+	if not display.finite(value) or math.abs(value) <= 0.08 then return end
+	local focus, role = get("F22_SOI"), get("HUD_MODE")
+	if focus ~= slew_focus or role ~= slew_role then
+		slew_x, slew_y = 0, 0
+		if ag then
+			ag:command("axis_x",0,false)
+			ag:command("axis_y",0,false)
+		end
+	end
+	slew_focus, slew_role = focus, role
+end
 local function sync_model_clock()
 	if type(get_model_time) ~= "function" then
 		return
@@ -177,7 +190,7 @@ function SetCommand(command, value)
 	if get("HUD_MODE") == 7 and ag then
 		local name = command == 10620 and "axis_x" or command == 10621 and "axis_y" or by_id[command] or legacy[command]
 		if name == "axis_x" or name == "axis_y" then
-			slew_focus, slew_role = get("F22_SOI"), get("HUD_MODE")
+			bind_slew(value)
 			if not display.finite(value) or not radar_focus_policy.allowed(get)
 				or not computer.power or get("MAIN_POWER") <= 0.5 then value = 0 end
 		end
@@ -193,7 +206,7 @@ function SetCommand(command, value)
 		return
 	end
 	if command == 10620 then
-		slew_focus, slew_role = get("F22_SOI"), get("HUD_MODE")
+		bind_slew(value)
 		slew_x = radar_focus_policy.allowed(get) and computer.power
 			and get("MAIN_POWER") > 0.5 and display.finite(value) and value or 0
 		if math.abs(slew_x) > 0.08 then
@@ -202,7 +215,7 @@ function SetCommand(command, value)
 		return
 	end
 	if command == 10621 then
-		slew_focus, slew_role = get("F22_SOI"), get("HUD_MODE")
+		bind_slew(value)
 		slew_y = radar_focus_policy.allowed(get) and computer.power
 			and get("MAIN_POWER") > 0.5 and display.finite(value) and value or 0
 		if math.abs(slew_y) > 0.08 then
