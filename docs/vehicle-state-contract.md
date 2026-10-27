@@ -10,6 +10,48 @@ and [bench plot](overhaul/vehicle-bench/callback-envelope.png) reconcile sampled
 force, mass, specific excess power and delivered fuel at declared conditions.
 They impose motion and do not establish level equilibrium or sustained flight.
 
+## Resource recheck, 27 October 2026
+
+All 17 packages and their 96 tasks were compared with the collected sources and
+integrated code at `a70f525`. Individual dispositions are in the package notes:
+33 implemented within the declared simulation profile, 41 partial, 17 awaiting
+host qualification, and 5 with required behavior still missing. **The assignment
+is not fully implemented or release qualified.** Unknown production coefficients
+are not counted as demonstrated errors.
+
+| Package | Checked behavior; remaining boundary |
+| --- | --- |
+| VEH-01 lifecycle | Single ownership and bounded updates; corrected release outputs/queue. Host ordering/thread behavior remains unqualified. |
+| VEH-02 air data | SFTE relationships and separate sensed health; Nz, probe heat and icing remain unconfirmed. |
+| VEH-03 fuel/mass | Feed/transfer roles and delivered-kg ledger; empty-at-install tanks, native MOI and SES bottle mass accounting remain incomplete. |
+| VEH-04 power/APU/SES | Finite sources and analogue shutdown policy; corrected live GPU sampling. Full consumer loads, AC topology and APU-door integration remain incomplete. |
+| VEH-05 engines | Guarded phases and estimated windmill relight; separate starter/fuel/ignition, dry crank, hot/hung starts and FADEC failure workflows are missing. |
+| VEH-06 hydraulics | Four pumps, inventories, APU and tow-service abstractions; full consumer routing and bay/gun demand remain incomplete. |
+| VEH-07 FCS | Historical surface groups and pitch-priority allocation; selectable single-engine law, weight-aware bounds and resettable FCS faults remain incomplete. |
+| VEH-08 performance | Fixed force locations, wind invariance and table continuation; sustained calibration and native ground effect/store drag/MOI remain unqualified. |
+| VEH-09 gear/NWS/hook | Common guards and finite emergency/hook requests; scalar locks do not establish individual leg/door behavior or cable capture. |
+| VEH-10 brakes | Parking and pressure reserve; deceleration controller, stop-assist replacement, heat soak/fade and tire consequences are not implemented. |
+| VEH-11 ECS | Causal cooling/cabin/fog estimates; native seal/visibility and actual equipment loads remain incomplete. |
+| VEH-12 oxygen | Historical versus modern source behavior; corrected manual selection and independent backup. Capacity, production schedule and SDK response remain unqualified. |
+| VEH-13 canopy/escape | Native ownership preserved; hold/lock/no-power/escape behavior remains uncharacterized. |
+| VEH-14 damage/repair | All 19 mission IDs match; corrected destroyed forces, release and missing-rudder effects. Geometry/page and resettable FCS coverage remain incomplete. |
+| VEH-15 verification | Owner/DLL and source checks; full normal/degraded DCS mission and flight qualification remain open. |
+| AUX-01 refueling | Accepted host fuel/mass changes; pilot door/ready/contact/disconnect and argument mapping remain integration/native work. |
+| AUX-02 lights | Owned intensity and source-loss memory; actual emitter dimming, photometry and emitter-specific loads remain unqualified. |
+
+Seven corrected defects concerned manual oxygen selection, independent oxygen
+backup with invalid environment data, cached GPU availability, force validity
+with invalid mass/CG, forces regenerated after destruction, stale release
+outputs/queued mass, and missing-rudder braking/sideforce. Owning-model and DLL
+regressions pass; the healthy 288-condition grid is unchanged. Integration also
+corrected the two earlier cockpit payload findings.
+
+The saved rescue/SAB PDFs and official ED analogue pages were reread. The 2025
+Chuck guides were not newly available; prior planning access is not presented
+as a new read. VS12's catalogue title was corrected to W. Hewitt Phillips,
+*Journey Into Space Research*, NASA/SP-2005-4540; printed pp17-18 still support
+the inertia relationship.
+
 ## Ownership and timing
 
 `VehicleContext` and the existing RAPTOR physical state have one producer:
@@ -37,11 +79,16 @@ Individual source validity remains separate from publication validity.
 `EFM_FORCE_VALID=0` accompanies a deliberate zero-force fallback for missing or
 out-of-range physical producers; computational input bounds are not aircraft
 operating limits. Valid host input restores the normal force path.
+Mass/CG validity participates in force qualification. The declared destroyed
+state keeps its zero-force/zero-moment result through the end of the calculation.
+Forces stay withheld until a valid host mass callback arrives for the new spawn;
+actual DCS ordering of that first callback remains a host qualification item.
 
 Power requests use `F22_POWER_REQUEST_VALID` and an integer
 `F22_POWER_REQUEST_SEQUENCE` committed after the four request fields. The EFM
 accepts a stable sequence only. Requests persist until replaced by a complete
 request frame; actual energy and source health continue evolving independently.
+The host GPU connection is sampled each physics step, outside this transaction.
 
 Degraded air data holds the last healthy Mach/EAS control schedule, freezes
 automatic configuration/trim integration and withdraws AFCS authority. With no
@@ -166,6 +213,9 @@ cranking thresholds are declared F119 specifications. Other equipment lags,
 capacities, thermal conductances and trigger thresholds are documented estimates
 in their owning headers. The 600-second oxygen-reserve normalization is an
 independent mod calibration, not the historical EOS duration or ABOS capacity.
+Manual backup selection can use the finite reserve while OBOGS remains
+available; availability and selected delivery are different states. Invalid
+canopy/thermal inputs cannot disable the independent stored oxygen source.
 
 Verification uses the actual MSVC DLL plus a test-only CockpitBase parameter API,
 isolated numerical tests, Lua 5.1 device tests, and pinned luacheck. DCS flights,
@@ -179,11 +229,13 @@ bound new work and avoid a mass rewrite. Legacy CockpitManager/native adapters
 still allocate strings/use pre-existing native interfaces; this patch does not
 claim whole-DLL allocation or lifetime compliance. New physical model code is
 fixed-capacity and statically analyzed. Pinned lizard checked 134 focused
-physical functions: maximum cyclomatic complexity 13 and maximum 33 non-comment
+physical functions in the initial patch: maximum cyclomatic complexity 13 and maximum 33 non-comment
 lines. Six functions exceed the preferred complexity 10; none exceed the hard
 limit 15. The 288-condition callback CSV is identical before and after the
 complexity refactor. Branch coverage is not measured because
 a coverage tool was not available. See the package evidence for actual results.
+The resource recheck covers 136 focused helper functions with the same maxima;
+the new release invalidation helper is complexity 6 and 22 non-comment lines.
 
 Reproduce with CMake/VS18 x64 Debug in an isolated build directory, then
 `ctest -C Debug --output-on-failure`. Python tooling is pinned in
