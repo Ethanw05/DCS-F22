@@ -2,6 +2,13 @@
 
 A system-by-system guide to the changes needed for a faithful F-22 simulation. Follow documented F-22 behavior where available; use an explicitly chosen aircraft analogue or estimate where details remain unknown. The [audit](../audit/F22-Fidelity-Audit.html) contains the underlying comparisons.
 
+The user's current implementation requirement is to remove obsolete production
+paths, duplicate simulation owners and compatibility workarounds by migrating
+their callers to the shared current contracts. Trace callers before deletion,
+preserve saved controls/HUD/recordings through the migration, and verify complete
+workflows. Historical evidence and useful regression fixtures remain evidence;
+the actual DCS Lua 5.1 and supported native ABI remain host requirements.
+
 ## Fix first
 
 | Change | Work item |
