@@ -225,6 +225,15 @@ for i=0,15 do
 end
 line(-0.065,0,-0.022,0,0.004,"HUD_FPM")
 line(0.022,0,0.065,0,0.004,"HUD_FPM")
+-- NAV cage retains the measured vector as a compact ghost. Optical dimensions
+-- are presentation estimates on the existing collimator plane.
+group('HUD_FPM_GHOST',0,boresight_y,{'HUD_FPM_GHOST_Y','HUD_FPM_GHOST_X','HUD_POWER','HUD_FPM_GHOST_VALID'},
+  {{'move_up_down_using_parameter',0,1/layout_scale},{'move_left_right_using_parameter',1,1/layout_scale},
+   {'opacity_using_parameter',2},{'parameter_in_range',3,.9,1.1}})
+line(-.013,0,.013,0,.003,'HUD_FPM_GHOST')
+line(0,-.013,0,.013,.003,'HUD_FPM_GHOST')
+group('HUD_FPM_LIMIT',0,0,{'HUD_FPM_OFFGLASS'},{{'parameter_in_range',0,.9,1.1}})
+static(0,-.76,'FPM LIMIT',.020,'HUD_FPM_LIMIT')
 
 -- Compact heading presentation measured from the supplied F-22 reference.
 -- Current heading is a separate box above the scale. Moving degree labels

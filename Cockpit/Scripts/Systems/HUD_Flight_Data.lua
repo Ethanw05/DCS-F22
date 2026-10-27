@@ -3,6 +3,9 @@ local data=get_base_data()
 local mathhud=dofile(LockOn_Options.script_path.."Systems/HUD_FlightMath.lua")
 local layout=dofile(LockOn_Options.script_path.."HUD/layout.lua")
 local projection=dofile(LockOn_Options.script_path.."Systems/HUD_Projection.lua")
+local dev=GetSelf()
+local decode=dofile(LockOn_Options.script_path..'Systems/Input_Value.lua')
+dofile(LockOn_Options.script_path..'devices.lua')
 local dt=0.02
 make_default_activity(dt)
 local handles={}
@@ -47,14 +50,42 @@ local previous_cas=nil
 local acceleration=0
 local diagnostic_frames=0
 local next_landing_log=0
+local caged=false
+dev:listen_command(11840)
+function SetCommand(command,value)
+    if command==11840 and decode(value,devices.HUD_FLIGHT_DATA)>0 and read('MAIN_POWER')==1 then
+        caged=not caged
+        put('HUD_FPM_CAGED',caged and 1 or 0)
+    end
+end
 function post_initialize()
+    caged=false;put('HUD_FPM_CAGED',0)
     peak_g=1; previous_cas=nil; acceleration=0
     put("HUD_FPM_VALID",0); put("HUD_AIRDATA_VALID",0)
     put("HUD_WIND_VALID",0); put("HUD_GS_VALID",0);put("HUD_ALT_VALID",0)
 end
+local function fpm(az,el)
+    if not az or not el then return end
+    put('HUD_FPM_COMPUTED_VALID',1)
+    put('HUD_FPM_TRUE_AZ',az);put('HUD_FPM_TRUE_EL',el)
+    local lateral=math.abs(az)<.20
+    local vertical=el>-.25 and el<.11
+    put('HUD_FPM_OFFGLASS',lateral and vertical and 0 or 1)
+    if caged and lateral and vertical then
+        local x,y=projection.planar(az,el)
+        put('HUD_FPM_GHOST_X',x);put('HUD_FPM_GHOST_Y',y);put('HUD_FPM_GHOST_VALID',1)
+    end
+    if caged then az=0 end
+    if vertical and (caged or lateral)then
+        put('HUD_FPM_X_RAD',az);put('HUD_FPM_Y_RAD',el)
+        local x,y=projection.planar(az,el)
+        put('HUD_FPM_X_SLOPE',x);put('HUD_FPM_Y_SLOPE',y);put('HUD_FPM_VALID',1)
+    end
+end
 function update()
     physical:update()
     put('HUD_AIRDATA_DEGRADED',0)
+    put('HUD_FPM_COMPUTED_VALID',0);put('HUD_FPM_OFFGLASS',0);put('HUD_FPM_GHOST_VALID',0)
     put("HUD_ALT_VALID",0)
     if read('F22_ALT_BARO_VALID')>.5 then
         local altitude=read('F22_ALT_BARO_FT')
@@ -138,11 +169,7 @@ function update()
             "pitch_deg=%.3f roll_deg=%.3f heading_deg=%.3f aoa_deg=%.3f vn=%.3f ve=%.3f vu=%.3f fpm_az=%.6f fpm_el=%.6f",
             pitch*180/math.pi,roll*180/math.pi,heading*180/math.pi,aoa,n,e,u,az or 0,el or 0))
     end
-    if az and math.abs(az)<0.20 and el> -0.25 and el<0.11 then
-        put("HUD_FPM_X_RAD",az);put("HUD_FPM_Y_RAD",el)
-        local x,y=projection.planar(az,el)
-        put("HUD_FPM_X_SLOPE",x);put("HUD_FPM_Y_SLOPE",y);put("HUD_FPM_VALID",1)
-    end
+    fpm(az,el)
     local cas,tas=sensed_speed()
     if cas then
         cas=cas*1.943844492

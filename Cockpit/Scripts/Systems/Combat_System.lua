@@ -72,6 +72,8 @@ local function emit(n, v)
 		send(devices.WEAPON_SYSTEM, 10804)
 	elseif n == "cage" then
 		send(devices.WEAPON_SYSTEM, 10805)
+	elseif n == "nav_cage" then
+		send(devices.HUD_FLIGHT_DATA, 11840)
 	elseif n == "nws" then
 		dispatch_action(nil, 562, 1)
 	elseif n == "autopilot_off" then
