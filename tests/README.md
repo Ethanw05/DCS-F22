@@ -17,3 +17,10 @@ Numerical model, transaction, launch/release and physical-boundary tests are
 retained. Updated graph tests call format constructors, respect display name
 prefixes and exercise current physical keys. Page snapshots are refreshed only
 with review of the changed formats and their behavioral/visibility checks.
+
+The combined snapshot adds one NAV scale legend per panel and one net START
+reference element after replacing generic rows with achieved engine status/control
+rows. Their graph updates were checked against the corresponding source changes,
+TACAN component tests and the inspected START stroke-font previews. Receiver DATA
+visibility consumes the NAV owner's admitted component flags, independently of
+the native raw flags.

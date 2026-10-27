@@ -64,6 +64,8 @@ p('MFD_OPACITY',1);p('LMFD_HSI_PAGE',1);p('LMFD_HSI_PAGE_DATA',2)
 assert(shown('BRG ---')and shown('DME ---')and not shown('BRG INVALID'))
 p('F22_TCN_MODE',2);assert(shown('BRG INVALID')and shown('DME INVALID'))
 p('F22_TCN_BRG_VALID',1);p('F22_TCN_RANGE_VALID',1);p('F22_TCN_MODE',2)
+-- Native flags are admitted by the NAV owner before the format consumes them.
+p('F22_NAV_TCN_BRG_AVAILABLE',1);p('F22_NAV_TCN_RANGE_AVAILABLE',1)
 assert(not shown('BRG INVALID')and not shown('DME INVALID')and not shown('BRG ---'))
 p('LMFD_HSI_PAGE_DATA',3);assert(shown('LOC INVALID')and shown('GS INVALID'))
 p('F22_ILS_LOC_VALID',1);p('F22_ILS_GS_VALID',1)
