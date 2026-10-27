@@ -114,6 +114,21 @@ int main(int argc,char** argv) {
     assert(get("F22_ENTRY_GUIDANCE_ACK_REQUEST")==4 && get("F22_ENTRY_GUIDANCE_RESULT")==2);
     cmd(11603,1);
 
+    // Loose pre-snapshot NAV values cannot authorize coupling before the owner.
+    setup(true);body(210);ticks(2);
+    set("F22_NAV_SNAPSHOT_SCHEMA",0);set("F22_NAV_SNAPSHOT_SEQUENCE",0);
+    set("F22_NAV_STEER_VALID",1);set("F22_NAV_STEER_TRACK",.3);
+    set("F22_NAV_STEER_STAMP",get("F22_AP_CLOCK"));
+    cmd(11605,1);ticks(1);
+    assert(get("F22_AP_ROLL_MODE")==0);
+    set("F22_NAV_SNAPSHOT_SCHEMA",1);set("F22_NAV_SNAPSHOT_SEQUENCE",1);
+    set("F22_NAV_SNAPSHOT_1_VALID",1);set("F22_NAV_SNAPSHOT_1_TRACK",.3);
+    set("F22_NAV_SNAPSHOT_1_TIME",get("F22_AP_CLOCK"));set("F22_NAV_SNAPSHOT_1_TERMINAL",0);
+    cmd(11605,1);ticks(1);assert(get("F22_AP_ROLL_MODE")==3);
+    set("F22_NAV_SNAPSHOT_SCHEMA",0);ticks(1);assert(get("F22_AP_ROLL_MODE")==0);
+    set("F22_NAV_SNAPSHOT_SCHEMA",1);set("F22_NAV_SNAPSHOT_1_TIME",get("F22_AP_CLOCK"));
+    ticks(1);assert(get("F22_AP_ROLL_MODE")==0); // Restoration never engages.
+
     // The actual callback captures indicated pressure height, not geometric MSL.
     setup(true);body(210);
     atmosphere(3000,288.15,340,1.225,89874.5629,0,0,0);ticks(2);

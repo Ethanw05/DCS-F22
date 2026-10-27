@@ -1688,8 +1688,7 @@ void CockpitManager::initialize() {
         "EFM_HUD_WN", "EFM_HUD_WE", "EFM_HUD_WU", "EFM_HUD_TAS",
         "EFM_HUD_SOUND", "EFM_HUD_PRESSURE", "EFM_ENGINE_VALID",
         "EFM_ENGINE_LEFT_RPM_PCT", "EFM_ENGINE_RIGHT_RPM_PCT",
-        "EFM_GROUND_VALID", "EFM_WEIGHT_ON_WHEELS", "F22_NAV_STEER_VALID", "F22_NAV_STEER_TRACK",
-        "F22_NAV_STEER_STAMP", "F22_AP_ACTIVE", "F22_AP_ROLL_MODE", "F22_AP_PITCH_MODE", "F22_AP_AT",
+        "EFM_GROUND_VALID", "EFM_WEIGHT_ON_WHEELS", "F22_AP_ACTIVE", "F22_AP_ROLL_MODE", "F22_AP_PITCH_MODE", "F22_AP_AT",
         "F22_AP_MACH_HOLD", "F22_AP_HEADING", "F22_AP_ALT", "F22_AP_VS", "F22_AP_SPEED", "F22_AP_MACH",
         "F22_ENTRY_GUIDANCE_REQUEST", "F22_ENTRY_GUIDANCE_ACTIVE",
         "F22_ENTRY_GUIDANCE_COMMAND", "F22_ENTRY_GUIDANCE_VALUE",
@@ -1772,14 +1771,8 @@ void CockpitManager::navigationFrame(RaptorAP::Frame& f) {
     f.agl = f.radar_valid ? radar_ft / 3.280839895 : NAN;
     f.powered = f.powered && getParameter("MAIN_POWER") > .5;
     const auto navigation=navigation_snapshot_.read(param_api_);
-    if (navigation.present) {
-        f.nav_valid=navigation.valid;f.nav_track=navigation.track;
-        f.nav_time=navigation.time;f.nav_arrived=navigation.terminal;
-    } else {
-        f.nav_valid=getParameter("F22_NAV_STEER_VALID")>.5;
-        f.nav_track=getParameter("F22_NAV_STEER_TRACK");
-        f.nav_time=getParameter("F22_NAV_STEER_STAMP");
-    }
+    f.nav_valid=navigation.valid;f.nav_track=navigation.track;
+    f.nav_time=navigation.time;f.nav_arrived=navigation.terminal;
 }
 
 void CockpitManager::updateGun() {
