@@ -40,6 +40,7 @@ local function publish()
  put('F22_RECOVERY_INTENT',settings.recovery)
 end
 function post_initialize()
+ put('F22_ENTRY_ALT_ACTIVE',0)
  settings=dofile(LockOn_Options.script_path..'Systems/Altitude_Settings.lua').new();adopted=false
  previous_pressure_text=nil
  put('F22_ALT_PRESSURE_REQUEST_VALID',0);put('F22_ALT_BARO_VALID',0);put('F22_ALT_RADAR_VALID',0);publish()

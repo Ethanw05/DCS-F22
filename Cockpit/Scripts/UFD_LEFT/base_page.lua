@@ -420,13 +420,14 @@ ADIUP.init_rot 			= {0, 0, 0}
 --ADIUP.indices 			= {0, 1, 2, 2, 3, 0}
 ADIUP.level 				= 4
 ADIUP.h_clip_relation     = h_clip_relations.COMPARE
-ADIUP.element_params 	  = {"L_ADI_OPACITY","ADIROLL","ADIPITCH","UFD_OPACITY",} --HOPE THIS WORKS G_OP_BACK
+ADIUP.element_params 	  = {"L_ADI_OPACITY","ADIROLL","ADIPITCH","UFD_OPACITY",'F22_PRIMARY_ATTITUDE_VALID',} --HOPE THIS WORKS G_OP_BACK
 ADIUP.controllers		  = {
 							{"parameter_in_range",0,0.9,1.1},
 							{"rotate_using_parameter",1,1,0},
 							{"move_up_down_using_parameter",2,-0.037,0},--needs to be checked with a ladder scale
 							{"opacity_using_parameter",3},
-						  }
+ {'parameter_in_range',4,.9,1.1},
+}
 vertices(ADIUP,400)
 
 Add(ADIUP)
@@ -441,13 +442,14 @@ ADIDN.init_pos 			= {-16.2, 4.4, 0} --maybe its x,y,z z being depth.. again who 
 ADIDN.init_rot 			= {180, 0, 0}
 ADIDN.level 				= 4
 ADIDN.h_clip_relation     = h_clip_relations.COMPARE
-ADIDN.element_params 	  = {"L_ADI_OPACITY","ADIROLL","ADIPITCH","UFD_OPACITY",} --HOPE THIS WORKS G_OP_BACK
+ADIDN.element_params 	  = {"L_ADI_OPACITY","ADIROLL","ADIPITCH","UFD_OPACITY",'F22_PRIMARY_ATTITUDE_VALID',} --HOPE THIS WORKS G_OP_BACK
 ADIDN.controllers		  = {
 							{"parameter_in_range",0,0.9,1.1},
 							{"rotate_using_parameter",1,1,0},
 							{"move_up_down_using_parameter",2,0.037,0},--needs to be checked with a ladder scale
 							{"opacity_using_parameter",3},
-						  }
+ {'parameter_in_range',4,.9,1.1},
+}
 vertices(ADIDN,400)
 
 
@@ -463,13 +465,14 @@ ADILAD.init_pos 			= {-16.2, 4.4, 0} --maybe its x,y,z z being depth.. again who
 ADILAD.init_rot 			= {0, 0, 0}
 ADILAD.level 				= 4
 ADILAD.h_clip_relation     = h_clip_relations.COMPARE
-ADILAD.element_params 	  = {"L_ADI_OPACITY","ADIROLL","ADIPITCH",} --HOPE THIS WORKS G_OP_BACK
+ADILAD.element_params 	  = {"L_ADI_OPACITY","ADIROLL","ADIPITCH",'F22_PRIMARY_ATTITUDE_VALID',} --HOPE THIS WORKS G_OP_BACK
 ADILAD.controllers		  = {
 							{"opacity_using_parameter",0},
 							{"rotate_using_parameter",1,1,0},
 							{"move_up_down_using_parameter",2,-0.037,0},--needs to be checked with a ladder scale -0.094   -0.037
 							--{"opacity_using_parameter",3},
-						  }
+ {'parameter_in_range',3,.9,1.1},
+}
 vertices(ADILAD,200)
 
 Add(ADILAD)
@@ -484,13 +487,14 @@ ADILAD1MASK.init_pos 			= {-16.2, 4.4, 0} --maybe its x,y,z z being depth.. agai
 ADILAD1MASK.init_rot 			= {0, 0, 0}
 ADILAD1MASK.level 				= 4
 ADILAD1MASK.h_clip_relation     = h_clip_relations.COMPARE
-ADILAD1MASK.element_params 	  = {"L_ADI_OPACITY","ADIROLL","ADIPITCH"} --HOPE THIS WORKS G_OP_BACK
+ADILAD1MASK.element_params 	  = {"L_ADI_OPACITY","ADIROLL","ADIPITCH",'F22_PRIMARY_ATTITUDE_VALID',} --HOPE THIS WORKS G_OP_BACK
 ADILAD1MASK.controllers		  = {
 							{"parameter_in_range",0,0.9,1.1},
 							{"rotate_using_parameter",1,1,0},
 							{"move_up_down_using_parameter",2,-0.037,0},--needs to be checked with a ladder scale
-							--{"opacity_using_parameter",3}
-						  }
+							--{"opacity_using_parameter",3},
+ {'parameter_in_range',3,.9,1.1},
+}
 
 vertices(ADILAD1MASK,200)
 
@@ -506,13 +510,14 @@ ADILAD1.init_pos 			= {-16.2, 4.4, 0} --maybe its x,y,z z being depth.. again wh
 ADILAD1.init_rot 			= {0, 0, 0}
 ADILAD1.level 				= 4
 ADILAD1.h_clip_relation     = h_clip_relations.COMPARE
-ADILAD1.element_params 	  = {"L_ADI_OPACITY","ADIROLL","ADIPITCH","UFD_OPACITY",} --HOPE THIS WORKS G_OP_BACK
+ADILAD1.element_params 	  = {"L_ADI_OPACITY","ADIROLL","ADIPITCH","UFD_OPACITY",'F22_PRIMARY_ATTITUDE_VALID',} --HOPE THIS WORKS G_OP_BACK
 ADILAD1.controllers		  = {
 							{"parameter_in_range",0,0.9,1.1},
 							{"rotate_using_parameter",1,1,0},
 							{"move_up_down_using_parameter",2,-0.037,0},--needs to be checked with a ladder scale
-							{"opacity_using_parameter",3}
-						  }
+							{"opacity_using_parameter",3},
+ {'parameter_in_range',4,.9,1.1},
+}
 
 vertices(ADILAD1,200)
 
@@ -1727,4 +1732,18 @@ MACH_NUM.controllers		=   {
                                     }
                                 
 Add(MACH_NUM)
+
+local attitude_unavailable=CreateElement 'ceStringPoly'
+attitude_unavailable.name='F22_LEFT_ATTITUDE_UNAVAILABLE'
+attitude_unavailable.material=UFD_GRN
+attitude_unavailable.init_pos={-16.2,4.4,0}
+attitude_unavailable.alignment='CenterCenter'
+attitude_unavailable.stringdefs={.0045,.0045,0,0}
+attitude_unavailable.value='ATT DATA'
+attitude_unavailable.h_clip_relation=h_clip_relations.COMPARE
+attitude_unavailable.level=4
+attitude_unavailable.element_params={'L_ADI_OPACITY','UFD_OPACITY','F22_PRIMARY_ATTITUDE_VALID'}
+attitude_unavailable.controllers={{'parameter_in_range',0,.9,1.1},{'opacity_using_parameter',1},
+ {'parameter_in_range',2,-.1,.1}}
+Add(attitude_unavailable)
 ------------------------------------------------------------------------------------------------

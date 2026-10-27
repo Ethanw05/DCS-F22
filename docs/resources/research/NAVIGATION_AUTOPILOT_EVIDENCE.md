@@ -2,7 +2,7 @@
 
 ## Public F-22 evidence
 
-David R. Brower (USAF), "F-22 Avionics", The Avionics Handbook, 2001, chapter 32, identifies the integrated CNI navigation functions as GPS, TACAN and ILS, with MLS described as growth. The architecture includes an advanced ring-laser-gyro inertial reference system. This supports the equipment families; it does not establish today's production F-22 control laws, alignment times, menus or display details.
+Ronald W. Brower (USAF), "F-22 Avionics", The Avionics Handbook, 2001, chapter 32, identifies the integrated CNI navigation functions as GPS, TACAN and ILS, with MLS described as growth. The architecture includes an advanced ring-laser-gyro inertial reference system. This supports the equipment families; it does not establish today's production F-22 control laws, alignment times, menus or display details.
 
 Public chapter: https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf
 
@@ -28,16 +28,16 @@ Read from the user's existing MCP instances: CockpitBase.dll (13337), FA18C-unpa
 - Common avILS update_LOC 0x1802E1920 and update_Marker 0x1802E19C0 publish 0.6 times angular deviation, with separate validity. Positive GS error is high; the display inverts it to a fly-down bar.
 - Common avDevice::start starts the activity timer; make_default_activity alone does not.
 - avTACAN factory aliases are not registered in this host. The adapter owns one common receiver using its verified constructor, initialization, context, start, electrical connection, release and destructor contracts.
-- TACAN and ILS connectElecPower take DC then AC. Separate 28VDC/115VAC common buses are connected to modeled main-power availability.
+- TACAN and ILS connectElecPower take DC then AC. The current bridge preserves separate achieved left/right generator enables. One surviving engine generator plus usable DC is the declared estimated receiver feed; battery/GPU/APU AC conversion remains unqualified. See [CNI-03](../../overhaul/CNI-03.md).
 
 CockpitBase qualification: PE timestamp 0x6ac12468, SizeOfImage 0x59a000, DCS 2.9.30.28738 Windows x64. WorldGeneral supplies the simulator map conversion and magnetic variation. All 34 exported contracts were checked in the local PE export tables. Receiver use fails closed on a different CockpitBase ABI.
 
 ## Explicit approximations
 
-ATT/HDG/ALT/RALT/NAV implement conventional fighter relief behavior. V/S, CAS hold and Mach hold are mod extensions; the exact production F-22 mode set and gains are not established by these public references. Altitude hold currently captures geometric MSL altitude, consistent with the current mod's altitude display; it does not yet model a pilot pressure setting.
+ATT/HDG/ALT/RALT/NAV implement conventional fighter relief behavior. V/S, CAS hold and Mach hold are mod extensions; the exact production F-22 mode set and gains are not established by these public references. Current BALT captures standalone indicated pressure altitude from the selected QNH/STD setting. Radar and generic standby pressure measurements retain independent validity. See [NAV-WP03](../../overhaul/NAV-WP03.md).
 
-IRS is a 180-second stationary ground alignment model with aligned hot starts. GPS aiding supplies simulator position. With GPS disabled, ideal velocity integration supplies dead reckoning. There is no realistic drift, satellite geometry, jamming, spoofing or airborne re-alignment.
+The current two-reference simulation uses explicit normal480/retained90/training30-second estimates, independent component health, separate NAV/HUD/right-SFG selection and independent INS_Model state. GPS supplies checked host observations; coasting uncertainty and correction limits are estimates. Production drift/satellite geometry/jamming/spoofing and automatic airborne realignment are not claimed. The official indexed AFMAN11-2F-22AV3 (20 September2018), p36 §7.9.1.1 was reread27 October2026 for the alternate GINS/SFG distinction; direct PDF access still returned403. See [NAV-WP02](../../overhaul/NAV-WP02.md).
 
 CDI full scale is 2 NM for route/OBS. ILS display sensitivity is conventionally +/-2.5 degrees LOC and +/-0.7 degrees GS. NASA describes these conventional angular values in https://ntrs.nasa.gov/api/citations/20140003882/downloads/20140003882.pdf ; localizer installation widths can vary, as explained by FAA AIM https://www.faa.gov/air_traffic/publications/atpubs/aim_html/chap1_section_1.html . These are display choices rather than certification of each DCS facility.
 
-ILS is advisory only. No automatic ILS capture, autoland, VNAV, predictive terrain following, RF/accuracy model unique to the F-22, TACAN audio identification, time-on-target scheduling, ADF, ICLS or MLS is claimed. Ground TACAN T/R was exercised; A/A TACAN modes are exposed native requests but remain unqualified.
+ILS is advisory only. No automatic ILS capture, autoland, VNAV, predictive terrain following, RF/accuracy model unique to the F-22, TACAN audio identification, ADF, ICLS or MLS is claimed. Manual UTC/arrival timing is a bounded planning aid with no throttle authority. Ground TACAN T/R was exercised; A/A TACAN modes are exposed native requests but remain unqualified.

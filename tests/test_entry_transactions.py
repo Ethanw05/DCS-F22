@@ -19,11 +19,12 @@ package.preload.terrain=function()return {
  convertLatLonToMeters=function(lat,lon)return (lat-41)*100000,(lon-42)*100000 end}end
 local function get(k)return get_param_handle(k):get()end
 local function put(k,v)get_param_handle(k):set(v)end
-dofile(SCRIPT_ROOT..'Systems/Navigation_System.lua');post_initialize();local nc,nu=SetCommand,update
-dofile(SCRIPT_ROOT..'Systems/Flight_Guidance.lua');post_initialize();local gc=SetCommand
-dofile(SCRIPT_ROOT..'Systems/Altitude_System.lua');post_initialize();local ac=SetCommand
 put('MAIN_POWER',1);put('F22_AP_CLOCK',now);put('EFM_HUD_VALID',1)
-put('F22_INS_MODEL_ENABLED',0);nu()
+dofile(SCRIPT_ROOT..'Systems/Navigation_System.lua');post_initialize();local nc,nu,np=SetCommand,update,post_initialize
+dofile(SCRIPT_ROOT..'Systems/Flight_Guidance.lua');post_initialize();local gc,gu,gp=SetCommand,update,post_initialize
+dofile(SCRIPT_ROOT..'Systems/Altitude_System.lua');post_initialize();local ac,ap=SetCommand,post_initialize
+put('MAIN_POWER',1);put('F22_AP_CLOCK',now);put('EFM_HUD_VALID',1)
+put('F22_INS_MODEL_ENABLED',0);gu();nu()
 local queued={};local hold_nav=false
 function dispatch_action(device,command,value)
  if device==nil and command==11800 then queued[#queued+1]={kind='native',sequence=value}end
@@ -81,5 +82,12 @@ ui:open('HEADING',true);ui:option(1);digits(tostring(old));ui:option(1)
 local request=get('F22_ENTRY_GUIDANCE_REQUEST')
 put('F22_ENTRY_GUIDANCE_ACK_REQUEST',request-1);ui:update(.02);assert(ui.pending)
 put('MAIN_POWER',0);ui:update(.02);flush();assert(not ui.pending and ui.page=='')
+put('F22_ENTRY_GUIDANCE_ACTIVE',1);put('F22_ENTRY_ALT_ACTIVE',1);put('F22_ENTRY_NAV_ACTIVE',1)
+gp();ap();function get_mission_route()error('new mission unavailable')end;np()
+assert(get('F22_ENTRY_GUIDANCE_ACTIVE')==0 and get('F22_ENTRY_ALT_ACTIVE')==0 and get('F22_ENTRY_NAV_ACTIVE')==0)
+assert(get('F22_MISSION_ROUTE_GENERATION')==0 and get('F22_NAV_OWN_VALID')==0)
+assert(get('F22_NAV_SNAPSHOT_SEQUENCE')==0,'mission restart retained old steering publication')
+put('MAIN_POWER',1);gu();nu()
+assert(get('F22_NAV_ROUTE_COUNT')==0,'failed new-mission import inherited previous route')
 ''')
 print('Correlated UFC edits: degree headings, magnetic reference, same-ID NAV, drop/cancel/reorder and real local owners PASS')

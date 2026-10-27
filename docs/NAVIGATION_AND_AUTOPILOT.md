@@ -1,6 +1,8 @@
 # F-22 Standalone Mod - User Manual
 
-Edition 1 | Navigation and AFCS baseline | 25 October 2026
+Edition 2 | Navigation/cockpit integration | 27 October 2026
+
+This describes the selected simulation profile. Owner tests and actual DCS observations qualify different things; the new reference, altitude and recovery interfaces still require cockpit/flight qualification.
 
 
 ## 3  Understand the navigation HUD
@@ -38,18 +40,18 @@ AUTO advances through the route according to the navigation computer's arrival l
 
 ## 5  CNI: tune a radio or select a course
 
-Press ICP NAV to open the CNI page. Press it again to close. Each row shares one left edge; the separate right-side chevron marks the field selected for entry. Use the numbered ICP keys, then OP5 to enter the value.
+Press ICP NAV to open the CNI page. Press it again to close. Each row shares one left edge; the separate right-side chevron marks the field selected for entry. Select a numeric row, enter digits, then press that same option again. ENTERED means its actual owner accepted the transaction; NO RESPONSE or OWNER REJECTED leaves an error. Entry alone never engages a flight mode.
 
 *CNI labels have no selection padding. The marker does not move the label.*
 
 | Option | Operation |
 | --- | --- |
-| OP1: TACAN | Enter channel 1-126. Example: 1, 6, OP5 tunes 16. |
-| OP2: ILS | Enter five-digit MHz format: 1, 1, 0, 3, 0, OP5 tunes 110.30. Six-digit kHz is also accepted. |
-| OP3: CRS | Enter 000-359 degrees and OP5. This enables OBS course steering. |
+| OP1: TACAN | Enter channel 1-126. Example: select OP1, enter 1, 6, then OP1 again requests channel16. |
+| OP2: ILS | Select OP2, enter 1, 1, 0, 3, 0, then OP2 again requests110.30. Six-digit kHz is also accepted. |
+| OP3: CRS | Enter000–359 degrees and confirm the same row. This enables OBS course steering. |
 | OP4: BAND | Toggle TACAN X/Y. |
-| OP5: ENTER / MODE | Commit a nonempty entry; with no entry, cycle TACAN mode. |
-| Rocker UP/DOWN | Step the selected channel, frequency or course. |
+| OP5: MODE | With no numeric entry, cycle TACAN mode. |
+| Rocker UP/DOWN | Toggle NAV and NAV SETUP while no entry is pending. |
 | CLR / UNDO | Backspace; clear the entry or close when empty. |
 
 TACAN modes are OFF, REC, T/R, A/A REC and A/A T/R. REC provides bearing when available; T/R adds range. Ground T/R has been tested. Air-to-air modes are native receiver requests and have not been flight qualified.
@@ -70,20 +72,22 @@ Press ICP STPT, or NAV format DATA. OP1 selects ID, OP2 latitude, OP3 longitude 
 | Next field | Rocker UP advances to the next field. |
 | STORE | OP5 commits a complete valid transaction. |
 | CLR / UNDO | Backspace or cancel the edit. The separate Undo Last Coordinate Edit or Markpoint binding reverses one committed change. |
-| MRK | Store own position as a new markpoint. |
+| MRK | Capture a valid ownship position in the independent nine-slot mark bank. |
 
 Select a field to commit its current buffer before moving on. Latitude must remain within 90 degrees and longitude within 180 degrees, with valid minutes. Invalid or incomplete input remains an error rather than silently creating a target at zero coordinates.
 
-The public DCS terrain conversion connects geographic entry to map coordinates. A stored mark is a navigation point; use WPDSG if you want a ground target. Cold-start IRS is a simplified 180-second stationary ground alignment. Hot and airborne starts begin aligned. Disabling GPS aiding uses ideal velocity-integrated dead reckoning; restoring GPS corrects position. Real inertial drift and jamming are not modeled.
+The public DCS terrain conversion connects geographic entry to map coordinates. Mark storage does not change the route, steer to the mark or designate a weapon target. NAV SETUP → MARK/TIME exposes capture, selection and explicit mark direct-to. Direct-to uses a frozen mark snapshot; overwriting that bank slot does not move the active destination. UTC timing needs an explicit pilot time reference and remains separate from A/T.
+
+NAV SETUP → GINS REFERENCES selects independent NAV/HUD/right-SFG sources. The simulated references share healthy host observations and have independent declared failures and estimates. Normal480s, retained-heading90s and explicit TRAINING30s alignment are estimates. Movement rejects incomplete alignment; retained heading needs prior valid memory and unchanged position/heading. Hot/air starts begin aligned. GPS loss coasts with an illustrative uncertainty budget; restoration corrects with a bounded slew. Production drift rates, satellite geometry, jamming and spoofing are not recovered.
 
 ## 7  Autopilot modes and selected targets
 
-The AFCS is an independent conventional relief controller in this mod's flight model. Read the displayed AP roll and pitch modes after every selection. The following behavior describes the navigation/AFCS baseline qualified in this task; the companion AP/ALT workflow update will revise keypad presentation and altimetry.
+The AFCS is an independent conventional relief controller in this mod's flight model. Read the displayed AP roll and pitch modes after every selection. These are mod controller policies and gains, with the source and runtime limits recorded in docs/overhaul/NAV-WP07.md.
 
 | Mode | What it holds |
 | --- | --- |
 | ATT | Captures pitch and bank. It does not guarantee level flight or constant altitude. |
-| ALT | Captures the current MSL altitude. Selected-altitude bindings adjust the target in 100 ft steps. |
+| ALT | Captures current indicated pressure altitude from the accepted QNH/STD source. Selected-altitude bindings adjust the target in 100 ft steps. |
 | HDG | Steers toward selected heading, with up to 30 degrees commanded bank; retains the existing pitch mode. |
 | NAV | Steers the selected waypoint/OBS or TACAN track. Requires fresh valid guidance and retains the pitch mode. |
 | RALT | Captures current height above the surface; available from about 200 to 5,000 ft AGL with bank within 45 degrees. |
@@ -91,17 +95,17 @@ The AFCS is an independent conventional relief controller in this mod's flight m
 | CAS A/T | Captures calibrated airspeed; adjust in 5 kt steps. |
 | Mach A/T | Captures Mach; adjust in 0.01 Mach steps. |
 
-ALT, RALT and V/S are pitch choices; ATT, HDG and NAV are lateral choices. They are not a menu of automatic route descents. HDG or NAV selected with AP off starts an altitude-hold pitch mode. Use Sync Current Heading before selecting HDG if you want to prevent an unexpected turn toward an old heading target.
+ALT, RALT and V/S are pitch choices; ATT, HDG and NAV are lateral choices. They are not a menu of automatic route descents. HDG or NAV selected with AP off leaves pitch manual. A healthy existing vertical mode is retained. Use Sync Current Heading before selecting HDG if you want to prevent an unexpected turn toward an old heading target.
 
-Autothrottle operates independently of the pitch/roll autopilot. On the baseline controls, selecting an A/T mode while A/T is already active turns A/T off; disengage it before selecting the alternate mode. The companion AP controls update may simplify this workflow. A/T has bounded throttle authority and finite engine response; monitor speed during climbs, descents and transients.
+Autothrottle operates independently of the pitch/roll autopilot. CAS and Mach targets have distinct readback and independent stepping. Monitor the selected A/T state after changing a mode. A/T has bounded throttle authority and finite engine response; monitor speed during climbs, descents and transients.
 
 ## 8  Engage, take over, and diagnose AFCS
 
 - Stabilize the aircraft. Require gear up, airborne, healthy flight controls and modeled main power. Minimum engagement speed is 160 KCAS; pitch must be under 45 degrees, bank under 70 degrees and angle of attack under 20 degrees.
 - Choose a valid navigation source first. A TACAN retune needs acquisition time; cold receiver warmup is five seconds. Engage NAV only after guidance is valid.
 - Select the pitch/lateral hold you want, then verify AP status. Adjust the selected heading, altitude, V/S or speed through the named bindings.
-- Hold the override paddle to hand fly temporarily. Release to recapture attitude and the relevant current ALT/RALT height. NAV/HDG targets remain selected.
-- A firm stick input beyond about 18 percent or a trim command disconnects flight AP. This does not necessarily switch off independent A/T. Move either throttle more than about eight percent to cancel A/T, or use the combined Disengage control.
+- The ordinary paddle disconnects AP and A/T under the selected mod takeover policy. The separately named held override/recapture binding remains an explicit mod option; it does not redefine the ordinary paddle.
+- Pitch input releases the vertical mode. In CPL, roll input above about18 percent temporarily overrides lateral control and resumes below about12 percent. Trim commands disengage flight AP. Move either throttle by about eight percent to cancel A/T. These are normalized game-input thresholds, not physical forces.
 - Combined Disengage turns off AP and A/T. Electrical loss, gear/ground/envelope violations or flight-control damage inhibit/disconnect the applicable functions. NAV loss disconnects lateral flight AP; restoration does not silently reengage it.
 
 | Status | Meaning / action |
@@ -110,7 +114,8 @@ Autothrottle operates independently of the pitch/roll autopilot. On the baseline
 | ENVELOPE / POWER | Take over; restore appropriate aircraft condition before reengaging. |
 | PILOT OVERRIDE | Manual stick or trim disconnected AP. |
 | NAV LOST | Guidance failed or became stale. Retune/restore the source, then explicitly reengage. |
-| RALT LIMIT | Height or bank left the permitted RALT envelope. |
+| VERTICAL SOURCE LOST / HEADING LOST | The selected measurement/reference failed. Restore it, acknowledge the loss and deliberately reengage. |
+| LIMIT | The controller reached its modeled output bound. |
 
 RALT follows sensed height beneath the aircraft and has no terrain look-ahead. It is not a terrain-following or obstacle-avoidance system. ILS is advisory: the AP does not capture the localizer/glideslope, fly an automatic approach or autoland. Pitch and throttle relief modes also do not substitute for managing energy.
 
@@ -129,4 +134,12 @@ The common DCS receiver uses facility radio signals, not a fabricated waypoint-t
 
 `F22_NAV_STATE` in `dcs.log` records AUTO preference, sequencing hold reason, active point, sequence count, ground speed, distance/along-track/cross-track, native receiver status, ILS frequency/validity/raw deviations and HUD approach/gear state once per second and at each automatic advance. Hold codes: 0 ready, 1 MAN, 2 target designation, 3 missing velocity, 4 low speed, 5 no route, 6 unavailable ownship, 7 final point reached. See the [NAV/landing fix evidence](resources/research/NAV_LANDING_FIXES_2026-10-26.md).
 
-For a cold start, use battery/APU and engine/generator controls, establish main power, and remain stationary for IRS alignment. This edition gives navigation start requirements rather than a full engine-start checklist. After complete main-power loss, the simplified IRS must be aligned again on the ground; no airborne re-alignment is provided.
+For a cold start, use battery/APU and engine/generator controls, establish main power, and remain stationary for IRS alignment. This edition gives navigation start requirements rather than a full engine-start checklist. A healthy declared DC-powered reference can retain its estimate when main display power is lost. Longer reference power loss requires ground alignment in the core profile; no automatic airborne realignment is provided.
+
+## 10  Altitude and manual recovery selection
+
+The ALT rocker opens ALT DISPLAY: select BARO, RDR or STBY. RDR falls back to barometric height with BARO FB; STBY is explicit and shows unavailable rather than silently switching sources. Primary ADC, generic standby pressure and radar height have separate validity. The standby shares atmospheric truth and the selected pressure setting, with an independent declared failure. Five-second pressure confirmation and the high/fast-to-low/slow redisplay are Hornet-derived presentation choices.
+
+ALT DISPLAY also sets separate landing minima and disables a currently active radar-low warning through its actual owner. Radar-low repeats; master ACK does not disable it. A valid climb above the low index resets it. Minima and barometric floor crossings use separate event identities. RECOVERY selects NONE/ILS/VISUAL manual intent independently of steering. It reports localizer-only, approach, go-around, touchdown or unavailable; it commands no automatic maneuver. Terrain/obstruction protection remains advisory and is not autoland or automatic GCAS.
+
+The contextual cage binding routes NAV presses only to the flight-path marker and weapon-mode presses only to the seeker. A caged FPM retains a compact uncaged ghost when visible. FPM LIMIT means the computed vector is off-glass; missing reference data is a separate indication. Existing font, green, projection and recordings are retained; new cue placement still requires cockpit/VR qualification.

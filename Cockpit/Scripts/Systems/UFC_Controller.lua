@@ -87,9 +87,26 @@ function M.new(get,put,send,_sensors)
   elseif page=='NAV SETUP'then
    rows[1]=action(get('F22_NAV_REFERENCE')>.5 and'REF MAG'or'REF TRUE',function()send('FLIGHT_GUIDANCE',10939,1)end)
    rows[2]=action(get('F22_GPS_AID')>.5 and'GPS AID ON'or'GPS AID OFF',function()send('FLIGHT_GUIDANCE',10940,1)end)
-   rows[3]=action('IRS ALIGN',function()send('FLIGHT_GUIDANCE',10942,1)end)
+   rows[3]=action('GINS REFERENCES',function()self:open('GINS REFERENCES',true)end)
    rows[4]=action(text('F22_INS_STATUS_TEXT'),function()self:open('NAV QUALITY',true)end)
    rows[5]=action('MARK/TIME',function()self:open('MARK/TIME',true)end)
+  elseif page=='GINS REFERENCES'then
+   for index,role in ipairs({'NAV','HUD','SFG'})do
+    local name=role;local command=11849+index
+    local selected=get('F22_GINS_'..name..'_SOURCE')
+    rows[index]=action(name..' GINS '..selected,function()
+     self:request_action('FLIGHT_GUIDANCE',command,selected==1 and 2 or 1)end)
+   end
+   rows[4]=action('ALIGN SELECTED NAV GINS',function()self:open('GINS ALIGN',true)end)
+   rows[5]=action('RTN',function()self:open('NAV SETUP',true)end)
+  elseif page=='GINS ALIGN'then
+   for index,label in ipairs({'NORMAL EST 480 SEC','RETAINED EST 90 SEC','TRAINING EST 30 SEC'})do
+    local kind=index-1
+    rows[index]=action(label,function()self:request_action('FLIGHT_GUIDANCE',11853,kind)end)
+   end
+   rows[4]={label=get('F22_GINS_COMMAND_RESULT')==2 and text('F22_GINS_COMMAND_STATUS')
+    or text('F22_GINS_NAV_STATUS'),kind='read'}
+   rows[5]=action('RTN',function()self:open('GINS REFERENCES',true)end)
   elseif page=='NAV QUALITY'then
    local valid=get('F22_INS_ESTIMATE_VALID')>.5
    rows[1]={label=valid and'POSITION VALID'or'POSITION UNAVAILABLE',kind='read'}

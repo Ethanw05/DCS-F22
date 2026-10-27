@@ -22,6 +22,19 @@ local physical=envelope.new(read,{
     'EFM_GEAR_UNSAFE','EFM_AIRDATA_VALID','EFM_AIRDATA_STAMP','EFM_AIRDATA_CAS_MPS',
     'EFM_AIRDATA_TAS_MPS','EFM_AIRDATA_HEALTH',
 })
+local reference=dofile(LockOn_Options.script_path..'Systems/Gins_References.lua').reader(read,'HUD')
+local function reference_pose()
+    reference:update()
+    if reference.present then
+        if not reference.valid then return 0,0,0,false,false end
+        local v=reference.values
+        return v.PITCH or 0,v.ROLL or 0,v.HEADING or 0,
+            reference.valid and v.ATTITUDE_VALID==1,reference.valid and v.HEADING_VALID==1
+    end
+    local pitch,roll=data.getPitch(),data.getRoll()
+    local heading=(2*math.pi-data.getHeading())%(2*math.pi)
+    return pitch,roll,heading,mathhud.finite(pitch)and mathhud.finite(roll),mathhud.finite(heading)
+end
 local function flight(key)
     if not physical.owned then return read(key) end
     return physical.valid and physical.values[key] or nil
@@ -119,8 +132,9 @@ function update()
     altitude()
     if read('F22_ALT_BARO_VALID')~=1 or flight('EFM_HUD_VALID')~=1 then approach_pressure=false end
     pressure_confirmation()
-    local pitch,roll=data.getPitch(),data.getRoll()
-    local heading=(2*math.pi-data.getHeading())%(2*math.pi)
+    local pitch,roll,heading,attitude_valid,heading_valid=reference_pose()
+    put('HUD_REFERENCE_ATTITUDE_VALID',attitude_valid and 1 or 0)
+    put('HUD_REFERENCE_HEADING_VALID',heading_valid and 1 or 0)
     -- The existing UFD/MFD ADIs use raw getRoll() with rotation gain +1.
     -- Keep the HUD in that same frame; negating roll mirrors the ladder.
     put("HUD_PITCH",pitch); put("HUD_ROLL",roll)
@@ -129,11 +143,11 @@ function update()
         local spread=halfwidth*math.abs(math.sin(roll))
         return center-spread>layout.ladder_y_min and center+spread<layout.ladder_y_max
     end
-    put("HUD_HORIZON_VISIBLE",inside(layout.boresight_y*layout.angular_scale-pitch*math.cos(roll),0.27*layout.angular_scale) and 1 or 0)
+    put("HUD_HORIZON_VISIBLE",attitude_valid and inside(layout.boresight_y*layout.angular_scale-pitch*math.cos(roll),0.27*layout.angular_scale) and 1 or 0)
     for step=-18,18 do
         if step~=0 then
             local center=layout.boresight_y*layout.angular_scale+(math.rad(step*5)-pitch)*math.cos(roll)
-            put("HUD_LADDER_"..step,inside(center,0.27*layout.angular_scale) and 1 or 0)
+            put("HUD_LADDER_"..step,attitude_valid and inside(center,0.27*layout.angular_scale) and 1 or 0)
         end
     end
     put("HUD_BANK_RAD",roll)
@@ -195,7 +209,7 @@ function update()
             "pitch_deg=%.3f roll_deg=%.3f heading_deg=%.3f aoa_deg=%.3f vn=%.3f ve=%.3f vu=%.3f fpm_az=%.6f fpm_el=%.6f",
             pitch*180/math.pi,roll*180/math.pi,heading*180/math.pi,aoa,n,e,u,az or 0,el or 0))
     end
-    fpm(az,el)
+    if attitude_valid and heading_valid then fpm(az,el)end
     local cas,tas=sensed_speed()
     if cas then
         cas=cas*1.943844492
@@ -226,5 +240,6 @@ function update()
     -- Numeric bearing is wind-from; arrow points with the wind's flow.
     put("HUD_WIND_ROT",heading-bearing+math.pi)
     put("HUD_WIND_VALID",windspeed>=1 and 1 or 0)
+    put('HUD_WIND_ARROW_VALID',heading_valid and windspeed>=1 and 1 or 0)
 end
 need_to_be_closed=false

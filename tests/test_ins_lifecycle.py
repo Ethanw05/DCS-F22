@@ -27,18 +27,22 @@ local time=0;function get_model_time()return time end
 local function p(n,v)get_param_handle(n):set(v)end
 local function g(n)return get_param_handle(n):get()end
 LockOn_Options.init_conditions.birth_place='AIR_HOT'
+ p('MAIN_POWER',1);p('EFM_HUD_VALID',1);p('F22_AP_CLOCK',0)
 dofile(SCRIPT_ROOT..'Systems/Flight_Guidance.lua');post_initialize()
-p('MAIN_POWER',1);p('EFM_HUD_VALID',1);update();assert(g('F22_INS_READY')==1)
-p('MAIN_POWER',0);time=1;update();assert(g('F22_INS_READY')==0)
-p('MAIN_POWER',1);time=3;update();assert(g('F22_INS_READY')==1,'short power interruption retains alignment')
-p('MAIN_POWER',0);time=4;update();p('MAIN_POWER',1);time=10;update();assert(g('F22_INS_READY')==0)
-for n=1,299 do time=10+n*.1;update()end;assert(g('F22_INS_READY')==1,'GPS-aided airborne recovery takes about30s')
-SetCommand(10942,1);time=time+.1;update();assert(g('F22_INS_READY')==0)
-for n=1,400 do time=time+.1;update()end;assert(g('F22_INS_READY')==0,'manual alignment requires ground stationary')
+local function tick(t)time=t;p('F22_AP_CLOCK',time);update()end
+tick(0);assert(g('F22_INS_READY')==1)
+p('MAIN_POWER',0);tick(1);assert(g('F22_INS_READY')==0)
+p('MAIN_POWER',1);tick(3);assert(g('F22_INS_READY')==1,'short power interruption retains alignment')
+p('MAIN_POWER',0);tick(4);p('MAIN_POWER',1);tick(10);assert(g('F22_INS_READY')==0)
+for n=1,299 do tick(10+n*.1)end
+assert(g('F22_INS_READY')==0,'core profile invented automatic airborne realignment')
+SetCommand(10942,1);tick(time+.1)
+assert(g('F22_GINS_COMMAND_RESULT')==2 and g('F22_INS_READY')==0,'airborne ground-alignment request accepted')
+for n=1,400 do tick(time+.1)end;assert(g('F22_INS_READY')==0,'manual alignment requires ground stationary')
 p('EFM_GROUND_VALID',1);p('EFM_WEIGHT_ON_WHEELS',1);p('HUD_GS_VALID',1);p('HUD_GS_MPS',0)
-for n=1,1801 do time=time+.1;update()end;assert(g('F22_INS_READY')==1)
+for n=1,4801 do tick(time+.1)end;assert(g('F22_INS_READY')==1,'normal estimated480s alignment failed')
 SetCommand(10942,1);p('HUD_GS_MPS',5)
-for n=1,1900 do time=time+.1;update()end;assert(g('F22_INS_READY')==0,'moving alignment never completes')
-time=0;update();assert(g('F22_INS_READY')==0,'rewind resets alignment')
+for n=1,1900 do tick(time+.1)end;assert(g('F22_INS_READY')==0,'moving alignment never completes')
+tick(0);assert(g('F22_INS_READY')==0,'rewind resets alignment')
 """)
 print('INS: bounded explicit uncertainty, coherent prediction/aiding correction, invalid sensor recovery, power/airborne/ground/motion/clock lifecycle PASS')

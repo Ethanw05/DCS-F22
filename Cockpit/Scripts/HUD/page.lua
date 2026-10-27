@@ -177,8 +177,8 @@ label(counter_x,-.21,'F22_ALT_DISPLAY_TEXT','%s',.018,'HUD_PRESSURE_CONFIRM')
 -- Geometric attitude reference: moves in pitch, rotates as aircraft rolls.
 -- Every conformal cue shares the fixed nose-reference origin.
 local boresight_y=layout.boresight_y
-group("HUD_ATTITUDE_ROLL",0,boresight_y,{"HUD_ROLL","HUD_POWER"},
-    {{"rotate_using_parameter",0,1},{"opacity_using_parameter",1}})
+group("HUD_ATTITUDE_ROLL",0,boresight_y,{"HUD_ROLL","HUD_POWER",'HUD_REFERENCE_ATTITUDE_VALID'},
+    {{"rotate_using_parameter",0,1},{"opacity_using_parameter",1},{'parameter_in_range',2,.9,1.1}})
 group("HUD_ATTITUDE",0,0,{"HUD_PITCH"},
     {{"move_up_down_using_parameter",0,-1/layout_scale}},"HUD_ATTITUDE_ROLL")
 group("HUD_HORIZON",0,0,{"HUD_HORIZON_VISIBLE"},
@@ -241,7 +241,11 @@ static(0,-.76,'FPM LIMIT',.020,'HUD_FPM_LIMIT')
 -- Compact heading presentation measured from the supplied F-22 reference.
 -- Current heading is a separate box above the scale. Moving degree labels
 -- remain visible through the centre; only the scale's outer edges limit them.
-group("HUD_HEADING",0,layout.heading_y_offset)
+group("HUD_HEADING",0,layout.heading_y_offset,{'HUD_REFERENCE_HEADING_VALID'},{{'parameter_in_range',0,.9,1.1}})
+group('HUD_NO_HEADING',0,0,{'HUD_REFERENCE_HEADING_VALID'},{{'parameter_in_range',0,-.1,.1}})
+static(0,.61,'HDG --',.025,'HUD_NO_HEADING')
+group('HUD_NO_ATTITUDE',0,0,{'HUD_REFERENCE_ATTITUDE_VALID'},{{'parameter_in_range',0,-.1,.1}})
+static(-.62,.23,'ATT --',.020,'HUD_NO_ATTITUDE')
 label(0,0.74,"NAV","%03.0f",0.035,"HUD_HEADING")
 local box_x,box_bottom,box_top=0.08,0.7075,0.7725
 local baseline=0.59
@@ -333,16 +337,18 @@ for _,sign in ipairs({-1,1}) do
 end
 
 group("HUD_WIND",counter_x,0.32,{"HUD_WIND_VALID"},{{"parameter_in_range",0,0.9,1.1}})
-label(0,0.04,"HUD_WIND_DEG","%03.0f",0.021,"HUD_WIND")
+label(0,0.04,"HUD_WIND_DEG","%03.0fT",0.021,"HUD_WIND")
 label(0,-0.02,"HUD_WIND_KTS","%.0f KT",0.021,"HUD_WIND")
-group("HUD_WIND_ARROW",-0.16,0,{"HUD_WIND_ROT"},{{"rotate_using_parameter",0,1}},"HUD_WIND")
+group("HUD_WIND_ARROW",-0.16,0,{"HUD_WIND_ROT",'HUD_WIND_ARROW_VALID'},
+    {{"rotate_using_parameter",0,1},{'parameter_in_range',1,.9,1.1}},"HUD_WIND")
 line(0,-0.04,0,0.04,0.004,"HUD_WIND_ARROW")
 line(0,0.04,-0.018,0.015,0.004,"HUD_WIND_ARROW")
 line(0,0.04,0.018,0.015,0.004,"HUD_WIND_ARROW")
 
 -- The legacy lower arc sits directly over the approach FPM at this aircraft's
 -- 12-degree AOA. Clear that area for the E-bracket and received ILS guidance.
-group('HUD_BANK_SCALE',0,0,{'HUD_LANDING_CONFIG'},{{'parameter_in_range',0,-.1,.1}})
+group('HUD_BANK_SCALE',0,0,{'HUD_LANDING_CONFIG','HUD_REFERENCE_ATTITUDE_VALID'},
+    {{'parameter_in_range',0,-.1,.1},{'parameter_in_range',1,.9,1.1}})
 for i=-4,4 do
     local a=i*pi/12 -- calibrated 15-degree marks through +/-60 degrees
     -- Radial marks share the pointer's centre; they are not screen-vertical.

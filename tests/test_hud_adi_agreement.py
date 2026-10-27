@@ -1,4 +1,4 @@
-"""Compare the actual HUD producer/controllers against the unchanged ADIs."""
+"""Healthy independent HUD/primary/SFG references retain the same attitude convention."""
 from pathlib import Path
 import math,runpy
 root=Path(__file__).resolve().parents[1]
@@ -25,13 +25,15 @@ for file in ('UFD_RIGHT/base_page.lua','MFD_RIGHT/adi_page.lua'):
     adi=runtime()
     adi.execute('dofile(SCRIPT_ROOT..'+repr(file)+')')
     found=0
+    roll_parameter='F22_SFG_ROLL' if file.startswith('UFD_RIGHT') else 'ADIROLL'
+    pitch_parameter='F22_SFG_PITCH' if file.startswith('UFD_RIGHT') else 'ADIPITCH'
     for _,element in adi.globals().elements.items():
         if element['name']!='up':continue
         params=element['element_params']
-        if not params or 'ADIROLL'not in params.values() or 'ADIPITCH'not in params.values():continue
+        if not params or roll_parameter not in params.values() or pitch_parameter not in params.values():continue
         controllers={c[1]:c for _,c in element['controllers'].items()}
         r=controllers['rotate_using_parameter'];p=controllers['move_up_down_using_parameter']
-        assert params[r[2]+1]=='ADIROLL'and params[p[2]+1]=='ADIPITCH'
+        assert params[r[2]+1]==roll_parameter and params[p[2]+1]==pitch_parameter
         assert r[3]==hud_rotation and p[3]<0 and hud_pitch_gain<0
         found+=1
     assert found==1,file
@@ -45,6 +47,8 @@ for pitch in (-20,-5,0,8,20):
         adi_pitch=h['ADIPITCH']['value']; hud_pitch=h['HUD_PITCH']['value']
         assert abs(adi_roll-hud_roll)<1e-12
         assert abs(adi_pitch-hud_pitch)<1e-12
+        assert abs(h['F22_SFG_ROLL']['value']-hud_roll)<1e-12
+        assert abs(h['F22_SFG_PITCH']['value']-hud_pitch)<1e-12
         # Compare orientation and pitch displacement in each display's units.
         assert abs(math.sin(adi_roll)-math.sin(hud_roll*hud_rotation))<1e-12
         assert abs(hud_pitch_gain*hud_pitch/(1000*scale)+adi_pitch)<1e-9

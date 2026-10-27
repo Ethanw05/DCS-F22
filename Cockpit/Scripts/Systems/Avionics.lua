@@ -19,6 +19,14 @@
 
 local dev = GetSelf()
 local sensor_data = dofile(LockOn_Options.script_path.."Systems/Engine_Data.lua")(get_base_data())
+local reference_handles={}
+local function reference_handle(key)
+ if not reference_handles[key]then reference_handles[key]=get_param_handle(key)end
+ return reference_handles[key]
+end
+local attitude_references=dofile(LockOn_Options.script_path..'Systems/Attitude_References.lua').new(
+ function(key)return reference_handle(key):get()end,
+ function(key,value)reference_handle(key):set(value)end)
 
 dofile(LockOn_Options.script_path.."devices.lua")
 dofile(LockOn_Options.script_path.."command_defs.lua")
@@ -245,8 +253,7 @@ function update()
 	parameters.TAS	        :set(sensor_data.getTrueAirSpeed() * 1.944)
 	parameters.IAS	        :set(sensor_data.getIndicatedAirSpeed() * 1.944)
 	parameters.GFORCE       :set(sensor_data.getVerticalAcceleration())
-	parameters.ADI_PITCH    :set(sensor_data.getPitch() )
-	parameters.ADI_ROLL     :set(sensor_data.getRoll() )
+	attitude_references.update(sensor_data.getPitch(),sensor_data.getRoll())
 	parameters.SLIP			:set(sensor_data.getAngleOfSlide() )
 	parameters.YAW          :set(sensor_data.getRateOfYaw() )
 	parameters.ROLLRATE     :set(sensor_data.getRateOfRoll()/math.pi*180)-- Testing
