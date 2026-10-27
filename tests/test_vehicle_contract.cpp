@@ -189,6 +189,30 @@ void feed_transfer_conservation() {
     assert(fuel.accept_internal(10000, ledger) == 8200 && fuel.internal_kg() == 8200);
     assert(fuel.accept_internal(1, ledger) == 0);
 }
+
+void independent_oxygen_sources() {
+    RaptorVehicle::Environment environment;
+    RaptorVehicle::EnvironmentInputs input;
+    environment.reset(true);
+    input.powered = input.left_bleed = true;
+    environment.update(input, .02);
+    assert(environment.obogs && !environment.backup);
+    input.backup_manual = true;
+    environment.update(input, .02);
+    assert(environment.obogs && environment.backup && environment.backup_reserve < 1.0);
+    input.backup_manual = false;
+    input.canopy_position = std::numeric_limits<double>::quiet_NaN();
+    environment.update(input, .02);
+    assert(!environment.valid && environment.obogs && !environment.backup);
+    input.ambient_pa = std::numeric_limits<double>::quiet_NaN();
+    const double reserve = environment.backup_reserve;
+    environment.update(input, .02);
+    assert(!environment.valid && !environment.obogs && environment.backup);
+    assert(environment.backup_reserve < reserve && environment.oxygen_delivery_pa == 101000.0);
+    const double after = environment.backup_reserve;
+    environment.update(input, std::numeric_limits<double>::quiet_NaN());
+    assert(environment.backup_reserve == after);
+}
 } // namespace
 
 int main() {
@@ -200,5 +224,6 @@ int main() {
     power_and_start_chain();
     finite_utilities_and_repair();
     feed_transfer_conservation();
+    independent_oxygen_sources();
     std::cout << "physical contract: SI air data, bounded conservation, causal start, finite supplies, repair scopes OK\n";
 }
