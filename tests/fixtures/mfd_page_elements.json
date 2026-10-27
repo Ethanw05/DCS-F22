@@ -1,50 +1,50 @@
 {
   "MFD_LEFT/hsi_page.lua": {
-    "elements": 739,
-    "sha256": "a33b1a3ff22e392080821868aefbc5ad7fda89348e1d4c9304e242d7790a58b8"
+    "elements": 694,
+    "sha256": "1ab5c81576aa79897d9037fed3df06cb013f92c7160c884882f0b91794b5abdd"
   },
   "MFD_LEFT/fuel_page.lua": {
-    "elements": 29,
-    "sha256": "e42f35d7d0e7b1b02c408cbd8c927ee9e60124e45c285ac1c3dfd634c4ea262b"
+    "elements": 24,
+    "sha256": "f024d17c4c1d9fd0c394ed4f3bf8c25aaad3dd47ace433b695a391016d51c36a"
   },
   "MFD_LEFT/adi_page.lua": {
-    "elements": 26,
-    "sha256": "a9cea324622c99b1522ebbefffeb587effe7a3cdb49ca9eef423de45f1810f73"
+    "elements": 25,
+    "sha256": "80b7a99c5c5684a98684276a23c5ab90c547cf35e77a0dd9f32db9ddeef045e9"
   },
   "MFD_LEFT/checklist_page.lua": {
-    "elements": 9,
-    "sha256": "7dd49978b4fc549d720bfd673935278303b45e4e2290df4449826ce1c9b1dbb0"
+    "elements": 74,
+    "sha256": "ba5b85357249dd27bd150ad20ae43e8b142d03b6ac11beb465d0873c88adbc3d"
   },
   "MFD_RIGHT/hsi_page.lua": {
-    "elements": 739,
-    "sha256": "b1d5fbfcc368d4c16555652209e8565c287f7944ef21b9cd7aa404b4e9822b08"
+    "elements": 694,
+    "sha256": "1e02d77bc5319a0fdf7d8ca6394d9bff8aa5dac6882810dc2e3445a432fa5f57"
   },
   "MFD_RIGHT/fuel_page.lua": {
-    "elements": 29,
-    "sha256": "c132f6c2e8266c96a380d7365a6878e403de30fd1534304a4933b43d1cb70240"
+    "elements": 24,
+    "sha256": "fdd43eefc29b30897a65d18c1fc5789c413ef73522b708cfbb8f9a76221d14fb"
   },
   "MFD_RIGHT/adi_page.lua": {
-    "elements": 26,
-    "sha256": "1fe2efb222ec459966be0ae40f1d7707bbafe9700141fe1a9be7f24b5da2b471"
+    "elements": 25,
+    "sha256": "7c7f3b88b88c9f1ca8c76e8a10973103a0203d404c28ffa8271227bbccbb2bb6"
   },
   "MFD_RIGHT/checklist_page.lua": {
-    "elements": 9,
-    "sha256": "20bc637d5b61a594bdbdff43ac1fada53f672726c8af2881cb841dd5d5ebed06"
+    "elements": 74,
+    "sha256": "6ae3970d04c649085d3887a834978b8f61ac3325521de5668945500c2a76c379"
   },
   "MFD_CENTER/hsi_page.lua": {
-    "elements": 739,
-    "sha256": "c79ec735c3d7b64979682bf7ada8f482c3480b964fc26d542b37f2d765104a49"
+    "elements": 694,
+    "sha256": "0d0cf2deee6b216d4d0d0be9a87d98093e8af6e18137f2bd835aacf96f9945c7"
   },
   "MFD_CENTER/fuel_page.lua": {
-    "elements": 29,
-    "sha256": "bd388cefb275722bbca55f78403eb4d5816b82fb278869a8e7ff3501a666501e"
+    "elements": 24,
+    "sha256": "06693868347063d533137a636e576f77beb2ed7a89b7bb394414af32bb5732e4"
   },
   "MFD_CENTER/adi_page.lua": {
-    "elements": 26,
-    "sha256": "3e8813f18f3a21344b9bfc0c96182be7c864ad80c87e73e9547ca71cf06bd8e9"
+    "elements": 25,
+    "sha256": "c44959752244a39de46f172fee000d0afa86ff0bbdd12bf3f579c00f3eb06616"
   },
   "MFD_CENTER/checklist_page.lua": {
-    "elements": 9,
-    "sha256": "3c80930ecdc85f62b5a7531473bec8481da1883f6987af08df5fbccedb83e04f"
+    "elements": 74,
+    "sha256": "153ff789d25baa55074e3fcf3ba19ddf62d34318b33940b6562ef6c6b3331b39"
   }
 }

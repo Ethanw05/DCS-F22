@@ -80,11 +80,12 @@ print('Polar display: 25 attitude poses, full compass sweep, native TDC sign, po
 lua=runtime()
 lua.execute('''
 function MakeMaterial(_,color) return string.format('rgb-%d-%d-%d',color[1],color[2],color[3]) end
-dofile(SCRIPT_ROOT..'PMFD_CENTER/radar_page.lua')
+dofile(SCRIPT_ROOT..'PMFD_CENTER/radar_format.lua')('PMFD_RDR_PAGE','F22_COMPAT_AA_')
 local lookup={};for _,e in ipairs(elements) do lookup[e.name]=e end
-local expected={['1']='rgb-0-255-0',['-1']='rgb-255-220-0',['0']='rgb-255-35-20',['3']='rgb-0-255-255'}
+local expected={['1']='F22_AA_LINE_GREEN',['-1']='F22_AA_LINE_YELLOW',
+ ['0']='F22_AA_LINE_RED',['3']='F22_AA_LINE_CYAN'}
 for code,color in pairs(expected) do
-    local parent='F22_RDR_TRACK_1_IFF_'..code
+    local parent='F22_COMPAT_AA_F22_RDR_TRACK_1_IFF_'..code
     local root=lookup[parent];assert(root,'missing identity-specific symbol')
     assert(root.element_params[1]=='F22_SCOPE_01_AFFILIATION')
     local count=0
@@ -97,7 +98,7 @@ for code,color in pairs(expected) do
 end
 for _,e in ipairs(elements) do
     assert(e.level==20 or (e.level==19 and e.isvisible==false),'radar left its owned LCD stencil')
-    if e.kind=='ceStringSLine'then assert(e.material:find('F22_LCD_FONT_',1,true)==1,'LCD text lost its own stroke resource')end
+    if e.kind=='ceStringSLine'then assert(e.material:find('F22_AA_FONT_',1,true)==1,'LCD text lost its own stroke resource')end
     assert(e.kind~='ceStringPoly','LCD page retained the bitmap lettering')
 end
 local config=dofile(SCRIPT_ROOT..'Systems/Radar_Config.lua')

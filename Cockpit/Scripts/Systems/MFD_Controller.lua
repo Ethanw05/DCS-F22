@@ -11,6 +11,7 @@ function M.new(param,send,ground_override)
  for i,name in ipairs(R.panels)do
   local p=({R.pages.nav,R.pages.def,R.pages.stores,R.pages.tsd})[i]
   s.panels[i]={page=p,last=p,view=0}
+  put('F22_SMS_UI_PAGE_'..name,0)
   for b=1,20 do
    put('F22_MFD_'..name..'_KEY_'..b,'');put('F22_MFD_'..name..'_SEL_'..b,0)
    put('F22_MFD_'..name..'_SPAN_'..b,layout.label_span(''))
@@ -18,6 +19,7 @@ function M.new(param,send,ground_override)
   for page in pairs(R.suffix)do put(R.flag(name,page),0)end
  end
  put('F22_MFD_LABEL_ONE',1);put('F22_MFD_LAYOUT_READY',1);put('F22_DEF_DISPLAY_RANGE_NM',40)
+ put('F22_SMS_AA_CONTEXT',0);put('F22_SMS_PROGRAM_PAGE',0)
  function s:release_panel(panel)
   for button=1,20 do
    local key=panel..':'..button

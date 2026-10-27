@@ -56,7 +56,8 @@ local previous=value('LMFD_PAGE');press(10707);press(10707);mfd_update()
 assert(value('LMFD_PAGE')==previous and value('F22_SOI')==3)
 -- Actual lower-center bezel assigns control without another hat direction.
 mfd_command(10123,1);assert(value('F22_SOI')==5)
--- Focus notification release is not another focus/action.
+-- NAV now starts on the left; select a passive ENG format before this gate.
+mfd_command(10824,1);mfd_command(10066,1);mfd_update()
 control_command(10742,3);actions={};press(10741);assert(#actions==0,'system page sent sensor commands')
 control_command(10742,4);get_param_handle('RMFD_PAGE'):set(7);actions={};press(10741)
 assert(#actions==1 and actions[1][1]==10902 and actions[1][3]==devices.RWR_SYSTEM)

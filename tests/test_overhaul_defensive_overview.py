@@ -121,8 +121,8 @@ local function text(label)
  return false
 end
 post_initialize();put('MAIN_POWER',1);put('MFD_OPACITY',1);put('F22_DEF_OV_VALID',1);put('F22_DEF_OV_TIME',100);put('F22_DEFENSIVE_DETAIL',0);mfd_update()
-assert(get('F22_DEF_OV_CURRENT')==1 and visible(named.F22_DEF_OV_PAGE_BACKGROUND)and not visible(named.F22_RDR_BACKGROUND))
-assert(text('MENU')and text('DETAIL')and text('ALL/THRT')and not text('NEXT')and not text('PWR')and not text('MUTE'),'unlabelled detail controls leaked into overview')
+assert(get('F22_DEF_OV_CURRENT')==1 and visible(named.F22_COMPAT_DEF_OV__BACKGROUND))
+assert(not text('DETAIL'),'retired hidden detail view returned')
 -- Latest human mapping: positive friendly green, unknown yellow, explicit hostile red; cyan requires wing membership.
 put('F22_DEF_OV_01_VALID',1);put('F22_DEF_OV_01_RANGED',1)
 local function hue(c)
@@ -147,45 +147,37 @@ for _,e in ipairs(elements)do for _,p in ipairs(e.element_params or {})do if p==
 now=99.9;mfd_update();assert(get('F22_DEF_OV_CURRENT')==0,'future overview timestamp was accepted')
 now=100.1;put('MAIN_POWER',0);mfd_update();assert(get('F22_DEF_OV_CURRENT')==0)
 put('MAIN_POWER',1);put('F22_DEF_OV_TIME',100.1);mfd_update();put('F22_DEFENSIVE_DETAIL',1)
-assert(not visible(named.F22_DEF_OV_PAGE_BACKGROUND)and visible(named.F22_RDR_BACKGROUND),'overview and detail backgrounds overlap')
+assert(visible(named.F22_COMPAT_DEF_OV__BACKGROUND),'retired detail selector displaced unified overview')
 ''')
 print('Defensive native wrapper: construction bindings, exclusive formats, visible overview controls and independent MFD freshness PASS')
 
 lua=runtime()
 lua.execute(r'''
 local now=100;function get_model_time()return now end
-function get_aircraft_property()return 1 end
-function get_aircraft_draw_argument_value(n)return draws[n]or 0 end
-function set_aircraft_draw_argument_value(n,v)draws[n]=v end
-dofile(SCRIPT_ROOT..'Systems/RWR_System.lua');post_initialize();local receiver_command,receiver_update=SetCommand,update
-dofile(SCRIPT_ROOT..'Systems/EW_System.lua');post_initialize();local ew_command=SetCommand
-dofile(SCRIPT_ROOT..'Systems/MFD_System.lua');post_initialize();local mfd_command,mfd_update=SetCommand,update
+dofile(SCRIPT_ROOT..'Systems/RWR_System.lua');post_initialize();local rc,ru=SetCommand,update
+dofile(SCRIPT_ROOT..'Systems/EW_System.lua');post_initialize();local ec=SetCommand
+dofile(SCRIPT_ROOT..'Systems/MFD_System.lua');post_initialize();local mc,mu=SetCommand,update
 local function get(k)return get_param_handle(k):get()end
 local function put(k,v)get_param_handle(k):set(v)end
 local events={}
-function dispatch_action(device,command,value)
- events[#events+1]={device,command,value}
- if device==devices.RWR_SYSTEM then receiver_command(command,value)end
- if device==devices.EW_SYSTEM then ew_command(command,value)end
+function dispatch_action(d,c,v)
+ events[#events+1]={d,c,v}
+ if d==devices.RWR_SYSTEM then rc(c,v)elseif d==devices.EW_SYSTEM then ec(c,v)end
 end
-local function tick()receiver_update();mfd_update()end
-local function edge(button,down)mfd_command(10090+button,devices.MFD_SYSTEM+(down and .375 or .25))end
-local function button(button)edge(button,true);edge(button,false)end
-put('MAIN_POWER',1);tick();assert(get('F22_DEFENSIVE_DETAIL')==0,'Defensive did not default to overview')
-local program=get('F22_CM_PROGRAM_SELECTED')
-for i=1,20 do if i~=8 and i~=13 and i~=15 then
- events={};button(i);tick();assert(get('RMFD_PAGE')==7)
- for _,e in ipairs(events)do assert(e[1]==devices.COMBAT_SYSTEM and e[2]==10742,'overview blank key reached hidden detail/editor owner')end
+local function tick()ru();mu()end
+local function edge(b,down)mc(10090+b,devices.MFD_SYSTEM+(down and .375 or .25))end
+local function key(b)edge(b,true);edge(b,false);tick()end
+put('MAIN_POWER',1);tick();assert(get('F22_DEFENSIVE_DETAIL')==0)
+key(20);assert(get('F22_RWR_FILTER')==1,'THRT filter missed receiver')
+local before=get('F22_CM_PROGRAM_SELECTED');events={}
+edge(1,true);edge(1,true);assert(get('F22_CM_PROGRAM_SELECTED')==before%3+1)
+key(13);edge(1,false);edge(1,false)
+local downs,ups=0,0
+for _,e in ipairs(events)do if e[1]==devices.EW_SYSTEM and e[2]==10910 then
+ if e[3]==1 then downs=downs+1 elseif e[3]==0 then ups=ups+1 end
 end end
-assert(get('F22_CM_PROGRAM_SELECTED')==program)
-button(15);tick();assert(get('F22_RWR_FILTER')==1,'overview ALL/THRT did not reach the receiver')
-button(8);tick();assert(get('F22_DEFENSIVE_DETAIL')==1)
-edge(20,true);tick();assert(get('F22_CM_PROGRAM_SELECTED')==program%3+1)
-edge(20,true);tick();assert(get('F22_CM_PROGRAM_SELECTED')==program%3+1,'CM repeat down bypassed the real latch')
-button(8);tick();assert(get('F22_DEFENSIVE_DETAIL')==0)
-events={};edge(20,false)
-assert(#events==1 and events[1][1]==devices.EW_SYSTEM and events[1][2]==10910 and events[1][3]==0,'leaving DETAIL swallowed an original editor release')
-button(8);tick();button(20);assert(get('F22_CM_PROGRAM_SELECTED')==(program%3+1)%3+1,'editor remained latched after its hidden release')
-button(8);tick();button(13);mfd_update();assert(get('RMFD_MENU_PAGE')==1,'overview MENU did not reach its parent')
+assert(downs==1 and ups==1,'page change lost/duplicated original CM release')
+key(4);key(1);assert(get('F22_CM_PROGRAM_SELECTED')==(before%3+1)%3+1)
+assert(get('F22_DEF_DETAIL_RMFD')==0,'CM editing created a hidden display mode')
 ''')
-print('Defensive actual owners: overview blank keys, DETAIL-only CM editor, ALL/THRT, retained release/latch and MENU PASS')
+print('Actual unified DEF owners: filter, repeated-down suppression, page release and CM latch recovery PASS')

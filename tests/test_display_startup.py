@@ -84,6 +84,7 @@ def runtime(service_enabled=False):
         end
         function get_cockpit_draw_argument_value(n) return draws[n] or 0 end
         function get_aircraft_draw_argument_value(_) return 0 end
+        function get_aircraft_property(_) return 0 end
         function set_aircraft_draw_argument_value(...) end
         function get_clickable_element_reference(_) return nil end
         function print_message_to_user(...) end

@@ -18,9 +18,11 @@ local function put(n,v) get_param_handle(n):set(v) end
 local function val(n) return get_param_handle(n):get() end
 put('MAIN_POWER',1);put('F22N_RADAR_MODE',1)
 radar_command(10601,1);radar_update()
+dofile(SCRIPT_ROOT..'Systems/MFD_System.lua');post_initialize();local mfd_command=SetCommand
 dofile(SCRIPT_ROOT..'Systems/PMFD_System.lua');post_initialize()
 local routed={}
 function dispatch_action(device,command,value)
+ if device==devices.MFD_SYSTEM then mfd_command(command,value);return end
  if command==10742 then
   assert(device==devices.COMBAT_SYSTEM and value==2,'primary bezel notified wrong focus')
   return
@@ -30,7 +32,8 @@ function dispatch_action(device,command,value)
 end
 local function click(command)
  routed={};SetCommand(command,1);SetCommand(command,0);radar_update()
- assert(#routed==1,'bezel click/release dispatched more than one action')
+ assert(#routed==2 and routed[1][2]==routed[2][2] and routed[1][3]==1 and routed[2][3]==0,
+  'bezel must deliver one press and its matching release')
  assert(routed[1][1]==devices.RADAR_COMPUTER,'scan bypassed radar owner')
 end
 -- The visible label, numbered physical OSB and bindable OSB have one meaning.
@@ -72,7 +75,7 @@ end
 -- Side buttons are inert on MENU and with the aircraft bus off.
 SetCommand(10143,1);routed={};SetCommand(10150,1);SetCommand(10150,0)
 assert(#routed==0,'MENU button changed radar settings')
-SetCommand(10005,1);put('MAIN_POWER',0);routed={};SetCommand(10150,1)
+put('MAIN_POWER',0);routed={};SetCommand(10150,1)
 assert(#routed==0,'unpowered MFD changed radar settings')
 ''')
 
@@ -80,6 +83,7 @@ for kind in ('joystick', 'keyboard'):
     lua = runtime()
     lua.globals().INPUT_PROFILE = (ROOT / f'Input/F-22A/{kind}/default.lua').as_posix()
     lua.execute('''
+    dofile(SCRIPT_ROOT..'devices.lua')
     function _(s) return s end
     iCommandPlaneTrimUp=95;iCommandPlaneTrimDown=96;iCommandPlaneTrimLeft=93;iCommandPlaneTrimRight=94
     iCommandPlaneAirBrake=73;iCommandPlaneAirBrakeOn=147;iCommandPlaneAirBrakeOff=148

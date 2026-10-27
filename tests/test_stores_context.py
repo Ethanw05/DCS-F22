@@ -1,40 +1,34 @@
-"""Master-mode context must agree between visible Stores labels and active controls."""
-from test_display_startup import runtime
+"""Visible Stores controls and actual actions agree with aircraft master mode."""
+from cockpit_fixture import runtime
+
 lua=runtime()
-lua.execute('''
-function get_aircraft_property()return 1 end
+lua.execute(r'''
 dofile(SCRIPT_ROOT..'Systems/MFD_System.lua');post_initialize()
-local command,tick=SetCommand,update
-get_param_handle('MAIN_POWER'):set(1);get_param_handle('MFD_OPACITY'):set(1)
-get_param_handle('HUD_MODE'):set(2);get_param_handle('HUD_AG_SUBMODE'):set(2)
-get_param_handle('F22_WEAPON_NAME'):set('AIM-120C7');get_param_handle('F22_WEAPON_COUNT'):set(3)
-get_param_handle('F22_WEAPON_KIND'):set(2);tick()
-assert(get_param_handle('F22_SMS_AA_CONTEXT'):get()==1 and get_param_handle('F22_SMS_PROGRAM_PAGE'):get()==0)
-dofile(SCRIPT_ROOT..'MFD_LEFT/bay_page.lua')
-local byname={};for _,e in ipairs(elements)do byname[e.name]=e end
-local function visible(e)
- if e.parent_element and not visible(byname[e.parent_element])then return false end
- for _,c in ipairs(e.controllers or {})do
-  local p=e.element_params and e.element_params[c[2]+1];local v=p and get_param_handle(p):get()
-  if c[1]=='parameter_in_range'and(v<c[3]or v>c[4])or c[1]=='opacity_using_parameter'and v<=0 then return false end
- end
- return true
+local function put(k,v)get_param_handle(k):set(v)end
+local function get(k)return get_param_handle(k):get()end
+local function key(b)SetCommand(10060+b,devices.MFD_SYSTEM+.375);SetCommand(10060+b,devices.MFD_SYSTEM+.25);update()end
+put('MAIN_POWER',1);put('MFD_OPACITY',1);put('HUD_MODE',2);put('HUD_AG_SUBMODE',2)
+update();key(13);key(3)
+assert(get('LMFD_BAY_PAGE')==1 and get('F22_SMS_AA_CONTEXT')==1 and get('F22_SMS_PROGRAM_PAGE')==0)
+assert(get('F22_MFD_LMFD_KEY_18')=='STEP'and get('F22_MFD_LMFD_KEY_10')=='DOORS')
+actions={};key(18)
+local steps=0;for _,a in ipairs(actions)do if a[1]==10804 and a[2]==1 then steps=steps+1 end end
+assert(steps==1,'A/A STEP did not reach selection exactly once')
+for _,b in ipairs({1,2,3,4,5,6,7,8,9,11,12,14,15,16,17})do
+ assert(get('F22_MFD_LMFD_KEY_'..b)=='','hidden A/G legend appeared in A/A')
+ actions={};key(b)
+ for _,a in ipairs(actions)do assert(a[1]==10742,'blank A/A key executed a strike action')end
 end
-local function shown(text)
- for _,e in ipairs(elements)do if e.value==text and visible(e)then return true end end
- return false
-end
-assert(shown('A/A')and shown('STEP')and shown('DOORS')and shown('MENU'))
-assert(not shown('CCIP')and not shown('AUTO')and not shown('UFC')and not shown('PROG'))
-actions={};command(10078,1);command(10078,0)
-local steps=0;for _,a in ipairs(actions)do if a[1]==10804 then steps=steps+1 end end
-assert(steps==1,'A/A STEP did not reach actual weapon selection once')
-for _,b in ipairs({1,2,3,4,5,6,7,8,9,10,12,14,15,16,17})do
- actions={};command(10060+b,1);command(10060+b,0)
- for _,a in ipairs(actions)do assert(a[1]==10742,'blank A/A key reached an A/G program')end
-end
-get_param_handle('HUD_MODE'):set(7);tick()
-assert(get_param_handle('F22_SMS_AA_CONTEXT'):get()==0 and shown('CCIP')and shown('PROG'))
-get_param_handle('HUD_MODE'):set(1);tick();assert(shown('PROG'),'NAV lost A/G preparation')
+put('HUD_MODE',7);put('F22_SMS_LABEL',2);update()
+assert(get('F22_SMS_AA_CONTEXT')==0 and get('F22_MFD_LMFD_KEY_7')=='PROG'
+ and get('F22_MFD_LMFD_KEY_8')=='UFC')
+actions={};key(8);assert(actions[2][1]==10989 and actions[2][2]==1 and actions[3][2]==0)
+put('HUD_MODE',1);update();assert(get('F22_MFD_LMFD_KEY_7')=='PROG','NAV lost strike preparation')
+put('HUD_AG_SUBMODE',1);update()
+assert(get('F22_MFD_LMFD_KEY_7')==''and get('F22_MFD_LMFD_KEY_8')=='','GUN retained bomb programming')
+dofile(SCRIPT_ROOT..'MFD_COMMON/stores_page.lua')('LMFD_BAY_PAGE','F22_TEST_STORES','F22_SMS_UI_PAGE_LMFD')
+dofile(SCRIPT_ROOT..'MFD_COMMON/bezel.lua')('LMFD')
+local names={};for _,e in ipairs(elements)do assert(not names[e.name]);names[e.name]=true end
+for _,e in ipairs(elements)do assert(not e.parent_element or names[e.parent_element],'native parent unresolved')end
 ''')
-print('Actual Stores master-mode context: A/A selection/count/STEP, blank strike controls and retained NAV/A/G programming PASS')
+print('Actual Stores owner: A/A STEP, blank strike controls, NAV/A/G preparation, GUN inhibition and complete native graph PASS')

@@ -4,6 +4,8 @@ This catches malformed Lua before a user installs the experimental mod.
 It does not validate DCS runtime functions, HUD connector names or VR optics.
 """
 from pathlib import Path
+from contextlib import redirect_stdout
+from io import StringIO
 from luaparser import ast
 
 SCRIPTS = [
@@ -81,7 +83,9 @@ def main() -> None:
         Path('Input/F-22A/joystick/default.lua'),Path('Input/F-22A/keyboard/default.lua')]
     for filename in dict.fromkeys(SCRIPTS+extra):
         source = filename.read_text(encoding="utf-8-sig")
-        ast.parse(source)
+        # luaparser 3.3 emits its whole AST; retain only useful test output.
+        with redirect_stdout(StringIO()):
+            ast.parse(source)
         print(f"Parsed {filename}")
 
 if __name__ == "__main__":
