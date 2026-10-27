@@ -253,7 +253,7 @@ function update()
 	parameters.TAS	        :set(sensor_data.getTrueAirSpeed() * 1.944)
 	parameters.IAS	        :set(sensor_data.getIndicatedAirSpeed() * 1.944)
 	parameters.GFORCE       :set(sensor_data.getVerticalAcceleration())
-	attitude_references.update(sensor_data.getPitch(),sensor_data.getRoll())
+	attitude_references.update()
 	parameters.SLIP			:set(sensor_data.getAngleOfSlide() )
 	parameters.YAW          :set(sensor_data.getRateOfYaw() )
 	parameters.ROLLRATE     :set(sensor_data.getRateOfRoll()/math.pi*180)-- Testing

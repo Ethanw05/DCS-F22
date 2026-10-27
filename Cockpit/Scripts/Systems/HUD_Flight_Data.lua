@@ -25,15 +25,9 @@ local physical=envelope.new(read,{
 local reference=dofile(LockOn_Options.script_path..'Systems/Gins_References.lua').reader(read,'HUD')
 local function reference_pose()
     reference:update()
-    if reference.present then
-        if not reference.valid then return 0,0,0,false,false end
-        local v=reference.values
-        return v.PITCH or 0,v.ROLL or 0,v.HEADING or 0,
-            reference.valid and v.ATTITUDE_VALID==1,reference.valid and v.HEADING_VALID==1
-    end
-    local pitch,roll=data.getPitch(),data.getRoll()
-    local heading=(2*math.pi-data.getHeading())%(2*math.pi)
-    return pitch,roll,heading,mathhud.finite(pitch)and mathhud.finite(roll),mathhud.finite(heading)
+    if not reference.valid then return 0,0,0,false,false end
+    local v=reference.values
+    return v.PITCH,v.ROLL,v.HEADING,v.ATTITUDE_VALID==1,v.HEADING_VALID==1
 end
 local function flight(key)
     if not physical.owned then return read(key) end
@@ -135,8 +129,8 @@ function update()
     local pitch,roll,heading,attitude_valid,heading_valid=reference_pose()
     put('HUD_REFERENCE_ATTITUDE_VALID',attitude_valid and 1 or 0)
     put('HUD_REFERENCE_HEADING_VALID',heading_valid and 1 or 0)
-    -- The existing UFD/MFD ADIs use raw getRoll() with rotation gain +1.
-    -- Keep the HUD in that same frame; negating roll mirrors the ladder.
+    -- Selected references preserve the host's roll convention and gain +1.
+    -- Negating roll here would mirror the ladder relative to the ADIs.
     put("HUD_PITCH",pitch); put("HUD_ROLL",roll)
     -- Keep attitude strokes out of the fixed heading/data/roll-scale zones.
     local function inside(center,halfwidth)

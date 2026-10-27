@@ -175,3 +175,20 @@ end
 assert(moving>=5)
 ''')
 print('Native write-only ADI graphs: primary/standby pose bindings and source-valid controller indices PASS')
+
+lua = scope['runtime']()
+lua.execute(r'''
+local function get(k)return get_param_handle(k):get()end
+local function put(k,v)get_param_handle(k):set(v)end
+function get_base_data()return setmetatable({getPitch=function()return .1 end,
+ getRoll=function()return .2 end,getHeading=function()return -.3 end},
+ {__index=function()return function()return 0 end end})end
+local display=dofile(SCRIPT_ROOT..'Systems/Attitude_References.lua').new(get,put)
+display.update(.1,.2)
+assert(get('F22_PRIMARY_ATTITUDE_VALID')==0 and get('F22_SFG_ATTITUDE_VALID')==0,
+ 'missing GINS producer became healthy primary/standby attitude')
+dofile(SCRIPT_ROOT..'Systems/HUD_Flight_Data.lua');post_initialize();update()
+assert(get('HUD_REFERENCE_ATTITUDE_VALID')==0 and get('HUD_REFERENCE_HEADING_VALID')==0,
+ 'missing selected reference became raw simulator HUD attitude')
+''')
+print('Attitude consumers require the selected current reference from startup PASS')

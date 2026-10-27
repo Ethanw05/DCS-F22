@@ -63,7 +63,7 @@ function get_base_data()return setmetatable({
 local function put(k,v)get_param_handle(k):set(v)end
 local function get(k)return get_param_handle(k):get()end
 put('EFM_HUD_VALID',1);put('EFM_HUD_VN',100);put('EFM_HUD_VE',12);put('EFM_HUD_VU',-8)
-dofile(SCRIPT_ROOT..'Systems/HUD_Flight_Data.lua');post_initialize();update()
+dofile(SCRIPT_ROOT..'Systems/HUD_Flight_Data.lua');update=dofile(SCRIPT_ROOT..'../../tests/reference_frame_fixture.lua')():wrap(update);post_initialize();update()
 assert(math.abs(get('HUD_FPM_X_RAD')-planar_az)<1e-12)
 assert(math.abs(get('HUD_FPM_X_SLOPE')-x)<1e-12 and math.abs(get('HUD_FPM_Y_SLOPE')-y)<1e-12)
 package.preload.terrain=function()return {GetHeight=function()return 200 end}end

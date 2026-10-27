@@ -34,7 +34,7 @@ function get_base_data()return{
  getAngleOfAttack=function()return math.rad(12)end,getVerticalVelocity=function()return 0 end,
  getWOW_NoseLandingGear=function()return 0 end}end
 function get_aircraft_draw_argument_value()return 1 end
-dofile(SCRIPT_ROOT..'Systems/HUD_Flight_Data.lua');post_initialize();update()
+dofile(SCRIPT_ROOT..'Systems/HUD_Flight_Data.lua');update=dofile(SCRIPT_ROOT..'../../tests/reference_frame_fixture.lua')():wrap(update);post_initialize();update()
 assert(math.abs(get('HUD_CAS')-150*1.943844492)<1e-6,'HUD bypassed measured CAS')
 assert(get('HUD_EBRACKET_VALID')==0,'animation became a downlock')
 put('EFM_GEAR_DOWN_LOCKED',1);put('EFM_GEAR_UNSAFE',0);update()

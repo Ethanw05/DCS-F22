@@ -29,7 +29,7 @@ function get_base_data()return setmetatable({getAngleOfAttack=function()return m
 getWOW_NoseLandingGear=function()return sample.wow end},{__index=function()return function()return 0 end end})end
 local function p(n,v)get_param_handle(n):set(v)end
 local function g(n)return get_param_handle(n):get()end
-dofile(SCRIPT_ROOT..'Systems/HUD_Flight_Data.lua');post_initialize()
+dofile(SCRIPT_ROOT..'Systems/HUD_Flight_Data.lua');update=dofile(SCRIPT_ROOT..'../../tests/reference_frame_fixture.lua')():wrap(update);post_initialize()
 p('EFM_HUD_VALID',1);p('EFM_HUD_VN',100);p('EFM_HUD_TAS',100);p('EFM_HUD_SOUND',340);p('EFM_HUD_PRESSURE',101325)
 update();assert(g('HUD_EBRACKET_VALID')==1 and g('HUD_EBRACKET_OFFSET')==0,'on-speed bracket disappeared')
 sample.aoa=14;update();assert(math.abs(g('HUD_EBRACKET_OFFSET')-math.tan(math.rad(2)))<1e-9)

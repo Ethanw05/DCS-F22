@@ -45,7 +45,7 @@ lua.execute('''
         EFM_HUD_WN=0,EFM_HUD_WE=10,EFM_HUD_TAS=100.5,
         EFM_HUD_SOUND=340.293988,EFM_HUD_PRESSURE=101325,F22_ALT_BARO_VALID=1,F22_ALT_BARO_FT=3280.839895}
     for k,v in pairs(values) do get_param_handle(k):set(v) end
-    dofile(SCRIPT_ROOT..'Systems/HUD_Flight_Data.lua')
+    dofile(SCRIPT_ROOT..'Systems/HUD_Flight_Data.lua');update=dofile(SCRIPT_ROOT..'../../tests/reference_frame_fixture.lua')():wrap(update)
     post_initialize();update()
     assert(handles.HUD_FPM_VALID:get()==1)
     assert(math.abs(handles.HUD_FPM_Y_RAD:get()+math.rad(10))<1e-9)
