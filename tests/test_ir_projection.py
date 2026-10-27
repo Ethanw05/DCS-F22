@@ -22,13 +22,21 @@ for _,h in ipairs({0,.4,2.8,5.9}) do for _,p in ipairs({-.4,0,.7}) do for _,r in
 end end end
 assert(m.project(f.from_pose({heading=0,pitch=0,roll=0}),{0,0,0})==nil)
 local v={F22_IR_AVAILABLE=1,F22_IR_LOCK=0,F22_IR_STRENGTH=0,F22_IR_WORLD_VALID=1,
- F22_IR_WORLD_FWD_N=1,F22_IR_WORLD_FWD_U=0,F22_IR_WORLD_FWD_E=0,F22_IR_STATION=0}
+ F22_IR_WORLD_FWD_N=1,F22_IR_WORLD_FWD_U=0,F22_IR_WORLD_FWD_E=0,F22_IR_STATION=0,
+ F22_IR_SAMPLE_OWNER=1,F22_IR_SAMPLE_SCHEMA=1,F22_IR_SAMPLE_VALID=1,F22_IR_SAMPLE_SEQUENCE=0,
+ F22_IR_SAMPLE_STATION=0,F22_IR_SAMPLE_GENERATION=42,F22_IR_STORE_GENERATION=42}
 local s=m.new({getHeading=function()return 0 end,getPitch=function()return 0 end,getRoll=function()return 0 end},function(n)return v[n] or 0 end)
-assert(s:update(true,.02)==0)
+local now=10
+local function sample(enabled)
+ v.F22_IR_SAMPLE_TIME=now;v.F22_IR_SAMPLE_SEQUENCE=v.F22_IR_SAMPLE_SEQUENCE+2
+ local a,e,feedback=s:update(enabled,.02,now);now=now+.02
+ return a,e,feedback
+end
+assert(sample(true)==0)
 v.F22_IR_WORLD_FWD_N=math.cos(.1);v.F22_IR_WORLD_FWD_E=math.sin(.1)
-local a=s:update(true,.02);assert(math.abs(a-.04)<1e-12)
-v.F22_IR_WORLD_VALID=0;assert(s:update(true,.02)==nil)
-v.F22_IR_WORLD_VALID=1;a=s:update(true,.02);assert(math.abs(a-.1)<1e-12)
-assert(s:update(false,.02)==nil)
+local a=sample(true);assert(math.abs(a-.04)<1e-12)
+v.F22_IR_WORLD_VALID=0;assert(sample(true)==nil)
+v.F22_IR_WORLD_VALID=1;a=sample(true);assert(math.abs(a-.1)<1e-12)
+assert(sample(false)==nil)
 ''')
 print('IR profiles, world/body projection across attitude, smoothing, station/power validity OK')

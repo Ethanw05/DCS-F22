@@ -48,6 +48,7 @@ assert(events[#events][2]==0,'duplicate release must remain release')
 l=runtime()
 l.execute('''
 function get_aircraft_property(_) return 1 end
+function get_model_time()return 100 end
 function get_aircraft_draw_argument_value(n) return draws[n] or 0 end
 function set_aircraft_draw_argument_value(n,v) draws[n]=v end
 native={get_station_info=function(self,i)
@@ -86,11 +87,19 @@ assert(get_param_handle('F22_IR_RELEASE_REQUEST'):get()==1)
 assert(get_param_handle('F22_IR_STATION'):get()==0 and get_param_handle('F22_IR_TYPE4'):get()==22)
 for _,a in ipairs(actions) do assert(a[1]~=350,'IR launch routed to empty generic seeker') end
 SetCommand(10803,0);update();assert(get_param_handle('F22_IR_RELEASE_REQUEST'):get()==0)
-get_param_handle('F22_IR_AVAILABLE'):set(1);get_param_handle('F22_IR_LOCK'):set(0);update()
+local ir_sequence=0
+local function ir_frame()
+ ir_sequence=ir_sequence+2
+ for name,value in pairs({OWNER=1,SCHEMA=1,VALID=1,SEQUENCE=ir_sequence,TIME=get_model_time(),
+  STATION=get_param_handle('F22_IR_STATION'):get(),GENERATION=get_param_handle('F22_IR_STORE_GENERATION'):get()})do
+  get_param_handle('F22_IR_SAMPLE_'..name):set(value)
+ end
+end
+get_param_handle('F22_IR_AVAILABLE'):set(1);get_param_handle('F22_IR_LOCK'):set(0);ir_frame();update()
 assert(get_param_handle('HUD_IR_SEEKER_AVAILABLE'):get()==0,'unprojectable beam must not draw a circle')
-get_param_handle('F22_IR_WORLD_VALID'):set(1);get_param_handle('F22_IR_WORLD_FWD_N'):set(1);update()
+get_param_handle('F22_IR_WORLD_VALID'):set(1);get_param_handle('F22_IR_WORLD_FWD_N'):set(1);ir_frame();update()
 assert(get_param_handle('HUD_IR_SEEKER_AVAILABLE'):get()==1 and get_param_handle('HUD_IR_SEEKER_VALID'):get()==0)
-get_param_handle('F22_IR_LOCK'):set(1);update();assert(get_param_handle('HUD_IR_SEEKER_VALID'):get()==1)
+get_param_handle('F22_IR_LOCK'):set(1);ir_frame();update();assert(get_param_handle('HUD_IR_SEEKER_VALID'):get()==1)
 get_param_handle('F22_MWS_AUDIO_PRIORITY'):set(1);update()
 assert(get_param_handle('HUD_IR_SEEKER_VALID'):get()==1 and get_param_handle('F22_IR_CAGED'):get()==0,'MWS priority changed seeker state')
 native.get_station_info=function(self,i)return {count=i==0 and 1 or 0,CLSID='{AIM9X-BLKII}',weapon={level1=4,level2=4,level3=7,level4=10042}}end
