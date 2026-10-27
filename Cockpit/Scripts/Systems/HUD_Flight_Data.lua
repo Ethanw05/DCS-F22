@@ -100,6 +100,9 @@ function update()
     local gear_down=get_aircraft_draw_argument_value(0)>0.95
     if physical.owned then
         local down,up,unsafe=flight('EFM_GEAR_DOWN_LOCKED'),flight('EFM_GEAR_UP_LOCKED'),flight('EFM_GEAR_UNSAFE')
+        local contact=flight('EFM_WEIGHT_ON_WHEELS')
+        own_contact=own_contact and envelope.boolean(contact)
+        gear=own_contact and contact or 1
         gear_down=down==1 and up==0 and unsafe==0 and own_contact
     end
     put("HUD_LANDING_CONFIG",gear_down and 1 or 0)
