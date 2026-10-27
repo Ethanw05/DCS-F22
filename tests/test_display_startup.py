@@ -182,9 +182,10 @@ for birth in ('GROUND_HOT', 'AIR_HOT', 'GROUND_COLD'):
     ''')
     print('Native power initialization:', birth, 'OK')
 
-# Exercise the complete engine-supply -> avionics path with generic base
-# sensors returning zero and cockpit draw arguments at zero. The old tests
-# injected MAIN_POWER and brightness, bypassing the actual blackout.
+# Exercise request transport and the current physical-provider -> avionics
+# path. Native Power/DLL cases own energy and generator integration; this
+# fixture declares achieved supply rather than recreating it in Lua.
+from cockpit_fixture import power_frame
 for birth in ('GROUND_HOT', 'AIR_HOT', 'GROUND_COLD'):
     for callbacks in (True, False):
         lua = runtime()
@@ -198,7 +199,13 @@ for birth in ('GROUND_HOT', 'AIR_HOT', 'GROUND_COLD'):
             get_param_handle('EFM_ENGINE_VALID'):set(1)
             get_param_handle('EFM_ENGINE_LEFT_RPM_PCT'):set(67)
             get_param_handle('EFM_ENGINE_RIGHT_RPM_PCT'):set(67)
+        ''')
+        hot = birth != 'GROUND_COLD'
+        power_frame(lua, battery=int(hot), main=int(hot), left=int(hot), right=int(hot))
+        lua.execute('''
             engine_update()
+            assert(handles.F22_POWER_REQUEST_VALID:get()==1)
+            assert(handles.F22_BATTERY_REQUEST:get()==handles.BATTERY_POWER:get())
             dofile(SCRIPT_ROOT..'Systems/Avionics.lua')
             post_initialize()
             update()
@@ -209,13 +216,13 @@ for birth in ('GROUND_HOT', 'AIR_HOT', 'GROUND_COLD'):
         if hot:
             lua.execute('''
                 -- All generators offline: displays must really lose power.
-                handles.EFM_ENGINE_LEFT_RPM_PCT:set(0)
-                handles.EFM_ENGINE_RIGHT_RPM_PCT:set(0)
+                handles.L_GEN_POWER:set(0); handles.R_GEN_POWER:set(0)
+                handles.MAIN_POWER:set(0)
                 engine_update(); update()
                 assert(handles.MAIN_POWER:get()==0 and handles.HUD_POWER:get()==0)
                 assert(handles.MFD_OPACITY:get()==0)
                 -- Either engine can power the bus.
-                handles.EFM_ENGINE_RIGHT_RPM_PCT:set(67)
+                handles.R_GEN_POWER:set(1); handles.MAIN_POWER:set(1)
                 engine_update(); update()
                 assert(handles.HUD_POWER:get()==1 and handles.MFD_OPACITY:get()==1)
                 SetCommand(device_commands.Button_3,0)
@@ -232,6 +239,10 @@ for birth in ('GROUND_HOT', 'AIR_HOT', 'GROUND_COLD'):
                 engine_update(); update()
                 assert(handles.BATTERY_POWER:get()==1)
                 engine_command(device_commands.Button_1,0)
+                engine_update(); update()
+                assert(handles.F22_BATTERY_REQUEST:get()==0)
+                assert(handles.BATTERY_POWER:get()==1, 'request overwrote achieved supply')
+                handles.BATTERY_POWER:set(0)
                 engine_update(); update()
                 assert(handles.HUD_POWER:get()==0 and handles.MFD_OPACITY:get()==0)
             ''')

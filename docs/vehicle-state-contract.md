@@ -63,10 +63,14 @@ flight has not been captured.
 ## Ownership and timing
 
 `VehicleContext` and the existing RAPTOR physical state have one producer:
-`ed_fm_simulate` on the simulation thread. Lua sends requests and consumes EFM
-outputs after `EFM_POWER_OWNER=1`; the owner latch never falls back to a second
-Lua battery/APU model. The old Lua model supports older DLLs only before that
-latch. No recorded audio or existing command IDs are removed.
+`ed_fm_simulate` on the simulation thread. Lua always sends pilot power requests
+and consumes achieved supply only from a coherent, fresh physical snapshot.
+The duplicate Lua battery, generator, APU and auto-shutdown integrators have
+been removed with `Electrical_Computer.lua`. Missing or malformed supply is
+unavailable to the adapter; it cannot establish power or advance an APU.
+Recorded start/run/stop audio follows qualified rotation and spin-down. An APU
+spring release is neutral and cannot reverse START or undo automatic shutdown.
+Existing command IDs and recorded assets remain in use.
 
 The update order is host input/health → source availability → bounded hydraulic
 and fuel transfer → achieved configuration/control surfaces → engine state and

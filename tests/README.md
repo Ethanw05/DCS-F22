@@ -18,6 +18,14 @@ retained. Updated graph tests call format constructors, respect display name
 prefixes and exercise current physical keys. Page snapshots are refreshed only
 with review of the changed formats and their behavioral/visibility checks.
 
+The removed `Electrical_Computer.lua` supplied a second reserve/APU model before
+native ownership. Its finite depletion/recharge and APU/generator cases belong
+to `test_vehicle_contract.cpp::power_and_start_chain` and the actual DLL tests
+in `test_vehicle_overhaul.cpp` (including source loss and live GPU restoration).
+The Lua electrical tests now check request transport, explicit achieved supply,
+snapshot rejection, independent brake axes and preserved APU audio. Startup
+fixtures declare physical provider frames instead of integrating energy in Lua.
+
 The combined snapshot adds one NAV scale legend per panel and one net START
 reference element after replacing generic rows with achieved engine status/control
 rows. Their graph updates were checked against the corresponding source changes,
