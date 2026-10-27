@@ -35,6 +35,8 @@ local function load_owner(name,id)
  if post_initialize then post_initialize()end
  GetSelf=original_get_self
 end
+local guidance_physical=dofile(SCRIPT_ROOT..'../../tests/physical_frame_fixture.lua')({F22_ESSENTIAL_POWER=1})
+guidance_physical:publish(get_param_handle('F22_AP_CLOCK'):get())
 load_owner('Navigation_System',8);load_owner('AG_Mark_System',9)
 load_owner('MFD_System',5);load_owner('Flight_Guidance',25)
 load_owner('Weapon_System',4);load_owner('Combat_System',16)
@@ -51,7 +53,7 @@ local function drain()
  end
 end
 local function tick()
- now=now+.05;p('F22_AP_CLOCK',now)
+ now=now+.05;guidance_physical:publish(now)
  owners[25].update();drain()
  owners[8].update();drain();owners[9].update();drain()
  owners[8].update();owners[5].update();owners[16].update();owners[7].update();drain()

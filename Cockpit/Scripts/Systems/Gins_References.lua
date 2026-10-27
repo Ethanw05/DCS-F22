@@ -29,11 +29,6 @@ local function owned_stationary(physical)
     return physical.valid and v.EFM_GROUND_VALID == 1 and v.EFM_WEIGHT_ON_WHEELS == 1
         and v.EFM_HUD_VALID == 1 and speed < 1
 end
-local function legacy_stationary(get)
-    local speed=get('HUD_GS_MPS')
-    return get('EFM_GROUND_VALID')==1 and get('EFM_WEIGHT_ON_WHEELS')==1 and get('HUD_GS_VALID')==1
-        and Envelope.finite(speed) and speed>=0 and speed<1
-end
 local function inputs(self)
     local input, base, get, physical = self.input, self.base, self.get, self.physical
     physical:update()
@@ -44,12 +39,8 @@ local function inputs(self)
     local ok, n, _, e = false, nil, nil, nil
     if type(base.getSelfCoordinates) == 'function' then ok, n, _, e = pcall(base.getSelfCoordinates) end
     input.n, input.e = ok and n or nil, ok and e or nil
-    input.powered = get('MAIN_POWER') == 1
-    input.stationary = legacy_stationary(get)
-    if physical.owned then
-        input.powered = physical.valid and physical.values.F22_ESSENTIAL_POWER == 1
-        input.stationary = owned_stationary(physical)
-    end
+    input.powered = physical.valid and physical.values.F22_ESSENTIAL_POWER == 1
+    input.stationary = owned_stationary(physical)
     return input
 end
 local function channel_input(self, channel, shared)

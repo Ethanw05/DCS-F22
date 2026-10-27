@@ -18,6 +18,10 @@ put('MAIN_POWER',1);put('EFM_GROUND_VALID',1);put('EFM_WEIGHT_ON_WHEELS',1)
 put('HUD_GS_VALID',1);put('HUD_GS_MPS',0);put('F22_AP_CLOCK',10)
 local producer=R.new(get,put,base);producer:reset(true)
 local hud,sfg,nav=R.reader(get,'HUD'),R.reader(get,'SFG'),R.reader(get,'NAV')
+assert(hud:update().values.POWER==0 and not producer:select('NAV',2),
+ 'loose MAIN_POWER granted GINS availability without physical ownership')
+local physical=dofile(SCRIPT_ROOT..'../../tests/physical_frame_fixture.lua')({F22_ESSENTIAL_POWER=1})
+physical:publish(get('F22_AP_CLOCK'));producer:update()
 assert(hud:update().valid and hud.values.SOURCE==1 and hud.values.ATTITUDE_VALID==1)
 assert(sfg:update().valid and sfg.values.SOURCE==2 and sfg.values.ATTITUDE_VALID==1)
 put('F22_GINS_1_ATTITUDE_FAILURE',1);put('F22_GINS_1_POSITION_FAILURE',1);producer:update()
@@ -30,7 +34,7 @@ assert(sfg:update().values.ATTITUDE_VALID==1 and sfg.values.HEADING_VALID==0)
 put('F22_GINS_2_HEADING_FAILURE',0);producer:update()
 put('F22_AP_CLOCK',11);assert(not sfg:update().valid,'stale reference became current truth')
 put('F22_GINS_SCHEMA',0);assert(not sfg:update().valid and sfg.present,'legacy fallback revived after ownership')
-put('F22_GINS_SCHEMA',1);producer:update();assert(sfg:update().valid)
+put('F22_GINS_SCHEMA',1);physical:publish(get('F22_AP_CLOCK'));producer:update();assert(sfg:update().valid)
 local mixed=false
 local reader=R.reader(function(k)
  local value=get(k)
@@ -72,14 +76,18 @@ function get_aircraft_draw_argument_value()return 0 end
 function get_mission_route()return{{x=0,y=0,alt=3000},{x=10000,y=0,alt=3000}}end
 for k,v in pairs({MAIN_POWER=1,EFM_HUD_VALID=1,EFM_HUD_VN=100,EFM_HUD_VE=0,EFM_HUD_VU=0,
  EFM_HUD_TAS=100,EFM_HUD_SOUND=340,EFM_HUD_PRESSURE=101325,F22_ALT_BARO_VALID=1,
- F22_ALT_BARO_FT=10000,F22_AP_CLOCK=10})do put(k,v)end
+ F22_ALT_BARO_FT=10000,F22_AP_CLOCK=10,EFM_AIRDATA_VALID=1,EFM_AIRDATA_HEALTH=0,
+ EFM_AIRDATA_CAS_MPS=100,EFM_AIRDATA_TAS_MPS=100,EFM_AIRDATA_STAMP=10})do put(k,v)end
+local physical=dofile(SCRIPT_ROOT..'../../tests/physical_frame_fixture.lua')({F22_ESSENTIAL_POWER=1})
+physical:publish(get('F22_AP_CLOCK'))
 dofile(SCRIPT_ROOT..'Systems/Flight_Guidance.lua');post_initialize()
 local guidance,command=update,SetCommand
 dofile(SCRIPT_ROOT..'Systems/Navigation_System.lua');post_initialize();local navigation=update
 dofile(SCRIPT_ROOT..'Systems/HUD_Flight_Data.lua');post_initialize();local hud=update
 local displays=dofile(SCRIPT_ROOT..'Systems/Attitude_References.lua').new(get,put)
 local function tick()
- put('F22_AP_CLOCK',get('F22_AP_CLOCK')+.1);guidance();navigation();hud();displays.update(0/0,0/0)
+ local clock=get('F22_AP_CLOCK')+.1;physical:publish(clock);put('EFM_AIRDATA_STAMP',clock)
+ guidance();navigation();hud();displays.update(0/0,0/0)
 end
 tick();assert(get('F22_NAV_OWN_VALID')==1 and get('HUD_FPM_VALID')==1 and get('F22_SFG_ATTITUDE_VALID')==1)
 put('F22_GINS_1_POSITION_FAILURE',1);tick()
@@ -109,6 +117,7 @@ guidance();tick()
 ui:option(4);assert(ui.page=='GINS ALIGN');ui:option(2);ui:update(0)
 assert(get('F22_ENTRY_GUIDANCE_RESULT')==2,'moving aircraft accepted retained alignment')
 put('EFM_GROUND_VALID',1);put('EFM_WEIGHT_ON_WHEELS',1);put('HUD_GS_VALID',1);put('HUD_GS_MPS',0)
+put('EFM_HUD_VN',0);physical:publish(get('F22_AP_CLOCK'))
 ui:option(3);ui:update(0)
 assert(get('F22_ENTRY_GUIDANCE_RESULT')==1 and get('F22_GINS_2_ALIGN_TOTAL')==30)
 assert(get('F22_INS_READY')==0,'accepted training request invented completed alignment')
@@ -124,6 +133,8 @@ local base={getSelfCoordinates=function()return north,3000,0 end,getPitch=functi
 function get_base_data()return base end
 function get_mission_route()return{{x=0,y=0,alt=3000},{x=10000,y=0,alt=3000}}end
 put('MAIN_POWER',1);put('EFM_HUD_VALID',1);put('EFM_HUD_VN',100);put('F22_AP_CLOCK',10)
+local physical=dofile(SCRIPT_ROOT..'../../tests/physical_frame_fixture.lua')({F22_ESSENTIAL_POWER=1})
+physical:publish(get('F22_AP_CLOCK'))
 dofile(SCRIPT_ROOT..'Systems/Flight_Guidance.lua');post_initialize();local guidance=update
 dofile(SCRIPT_ROOT..'Systems/Navigation_System.lua');post_initialize();local navigation=update
 guidance();navigation();assert(get('F22_GINS_1_ESTIMATE_VALID')==1 and get('F22_GINS_2_ESTIMATE_VALID')==1)

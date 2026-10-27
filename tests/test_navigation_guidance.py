@@ -29,6 +29,8 @@ guidance(get,put,nil,nil);assert(get('HUD_HDG_BUG_VALID')==0)
 """)
 sim=runtime()
 sim.execute("""
+local guidance_physical=dofile(SCRIPT_ROOT..'../../tests/physical_frame_fixture.lua')({F22_ESSENTIAL_POWER=1})
+guidance_physical:publish(get_param_handle('F22_AP_CLOCK'):get())
 dofile(SCRIPT_ROOT..'Systems/Flight_Guidance.lua');post_initialize()
 function get(k)return get_param_handle(k):get()end
 function put(k,v)get_param_handle(k):set(v)end

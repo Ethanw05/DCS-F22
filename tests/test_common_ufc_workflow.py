@@ -22,6 +22,8 @@ function GetDevice()return native end
 local function put(k,v)get_param_handle(k):set(v)end
 local function get(k)return get_param_handle(k):get()end
 dofile(SCRIPT_ROOT..'Systems/Weapon_System.lua');post_initialize();local wc,wu=SetCommand,update
+local guidance_physical=dofile(SCRIPT_ROOT..'../../tests/physical_frame_fixture.lua')({F22_ESSENTIAL_POWER=1})
+guidance_physical:publish(get_param_handle('F22_AP_CLOCK'):get())
 dofile(SCRIPT_ROOT..'Systems/Flight_Guidance.lua');post_initialize();local fc,fu=SetCommand,update
 dofile(SCRIPT_ROOT..'Systems/Altitude_System.lua');post_initialize();local ac,au=SetCommand,update
 dofile(SCRIPT_ROOT..'Systems/ICP_System.lua');post_initialize();local ic,iu=SetCommand,update

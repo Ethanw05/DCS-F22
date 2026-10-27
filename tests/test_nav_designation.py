@@ -25,6 +25,8 @@ assert(g('F22_NAV_DESIGNATED')==0 and g('HUD_WP_CUE_VALID')==0 and g('HUD_AG_TAR
 """)
 sim=runtime()
 sim.execute("""
+local guidance_physical=dofile(SCRIPT_ROOT..'../../tests/physical_frame_fixture.lua')({F22_ESSENTIAL_POWER=1})
+guidance_physical:publish(get_param_handle('F22_AP_CLOCK'):get())
 dofile(SCRIPT_ROOT..'Systems/Flight_Guidance.lua');post_initialize();local guidance=SetCommand
 dofile(SCRIPT_ROOT..'Systems/ICP_System.lua');post_initialize()
 get_param_handle('MAIN_POWER'):set(1)

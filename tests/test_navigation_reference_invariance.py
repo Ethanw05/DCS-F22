@@ -9,6 +9,8 @@ lua = scope['runtime']()
 lua.execute(r'''
 local function get(k)return get_param_handle(k):get()end
 local function put(k,v)get_param_handle(k):set(v)end
+local guidance_physical=dofile(SCRIPT_ROOT..'../../tests/physical_frame_fixture.lua')({F22_ESSENTIAL_POWER=1})
+guidance_physical:publish(get_param_handle('F22_AP_CLOCK'):get())
 dofile(SCRIPT_ROOT..'Systems/Flight_Guidance.lua');post_initialize()
 put('MAIN_POWER',1);put('F22_MAG_VALID',1);put('F22_MAG_DECL',math.rad(10))
 SetCommand(10949,90);put('F22_NAV_OBS',1);update()
