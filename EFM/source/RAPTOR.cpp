@@ -1001,9 +1001,15 @@ void ed_fm_set_command(int command, float value) {
         RAPTOR::roll_discrete = 0;
         break;
     case RollLeft: RAPTOR::roll_discrete = -1; RAPTOR::roll_analog = false; break;
-    case RollLeftStop: RAPTOR::roll_discrete = 0; RAPTOR::roll_analog = false; break;
+    case RollLeftStop:
+        // Release only the matching keyboard request. A late release must
+        // not replace a held joystick axis with a zero discrete command.
+        if (!RAPTOR::roll_analog && RAPTOR::roll_discrete < 0) RAPTOR::roll_discrete = 0;
+        break;
     case RollRight: RAPTOR::roll_discrete = 1; RAPTOR::roll_analog = false; break;
-    case RollRightStop: RAPTOR::roll_discrete = 0; RAPTOR::roll_analog = false; break;
+    case RollRightStop:
+        if (!RAPTOR::roll_analog && RAPTOR::roll_discrete > 0) RAPTOR::roll_discrete = 0;
+        break;
     case trimLeft: trim_control.command(command); break;
     case trimRight: trim_control.command(command); break;
     case PedalYaw: RAPTOR::yaw_input = limit(-value, -1, 1); RAPTOR::yaw_discrete = 0; RAPTOR::yaw_analog = true; break;
