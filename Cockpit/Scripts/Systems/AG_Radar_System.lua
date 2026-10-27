@@ -3,11 +3,26 @@ local Model = dofile(LockOn_Options.script_path .. "Systems/AG_Radar_Computer.lu
 local Display = dofile(LockOn_Options.script_path .. "Systems/Radar_Display.lua")
 local Modes=dofile(LockOn_Options.script_path .. "Systems/AG_Radar_Modes.lua")
 local M = {}
+local function native_track(get, now)
+	local prefix = "F22_AG_NATIVE_TRACK_"
+	local id, kind, stamp = get(prefix .. "ID"), get(prefix .. "TYPE"), get(prefix .. "TIME")
+	if not Model.finite(id) or id < 0 or id % 1 ~= 0 or not Model.fresh(now, stamp, 5.25) then return end
+	if not ((kind == 3 and id == 0) or ((kind == 1 or kind == 2) and id > 0)) then return end
+	local n, u, e = get(prefix .. "N"), get(prefix .. "U"), get(prefix .. "E")
+	local vn, ve = get(prefix .. "VN"), get(prefix .. "VE")
+	if not Model.finite(n) or not Model.finite(u) or not Model.finite(e)
+		or not Model.finite(vn) or not Model.finite(ve) then return end
+	return { id = id, kind = kind, stamp = stamp,
+		display = { north = n, altitude = u, east = e },
+		speed = math.sqrt(vn * vn + ve * ve) * 1.943844492440605,
+		heading = math.atan2(ve, vn), age = math.max(0, now - stamp) }
+end
 function M.new(get, put, native_command)
 	local ok, terrain = pcall(require, "terrain")
 	put("F22_AG_MODE",1);put("F22_AG_MAP_VIDEO_SHOW",0);put("F22_AG_INTERLEAVE",0)
 	put("F22_AG_CURSOR_PREVIEW",0);put("F22_AG_VIDEO_HOLD",0);put("F22_AG_FIXED_TRACK",0)
 	put("F22_AG_TRACK_VALID",0);put("F22_AG_TRACK_REQUEST_ID",0)
+	put("F22_AG_TRACK_TYPE",0)
 	put("F22_AG_TRACK_REQUEST_ACTIVE",0);put("F22_AG_TRACK_REQUEST_SEQUENCE",0)
  for _,n in ipairs({'VIDEO_FAN','VIDEO_FROZEN','SILENT','ACTIVE','ACTIVE_AVAILABLE','EXPANSION','EXP_PENDING','DATA','DECLUTTER',
   'PLOT_SHOW','EXP1_AVAILABLE','BEAM_AVAILABLE','CURSOR_SHOW','OPTIONS_AVAILABLE','RANGE_AVAILABLE','INTL_AVAILABLE','FAST_AVAILABLE','CORRAL_SHOW','FAST','VIDEO_EXPANSION','VIDEO_CENTER_M',
@@ -339,16 +354,22 @@ function M:update(pose, now, dt, powered, ready)
 	local acquiring=operating and owned and get("F22_AG_NATIVE_TRACK_ACQUIRING")>.5
 	put("F22_AG_TRACK_ACQUIRING",acquiring and 1 or 0)
 	if operating and owned and get("F22_AG_NATIVE_TRACK_VALID")>.5 and map_pose then
-		local p="F22_AG_NATIVE_TRACK_"
-		selected={id=get(p.."ID"),stamp=get(p.."TIME"),
-			display={north=get(p.."N"),altitude=get(p.."U"),east=get(p.."E")}}
+		selected = native_track(get, now)
+	end
+	if selected then
 		selected.x,selected.y=m:project(selected.display,map_pose)
-		selected.speed=math.sqrt(get(p.."VN")^2+get(p.."VE")^2)*1.943844492440605
-		selected.heading=math.atan2(get(p.."VE"),get(p.."VN"));selected.age=math.max(0,now-selected.stamp)
-		self.selected_id=selected.id;if Modes.sea(m.mode)then m.mode=5 elseif m.mode==2 then m.mode=3 end
+		self.selected_id=selected.id
+		-- Native type3 is a terrain FTT fallback after object acquisition
+		-- fails. Never advertise it as a confirmed moving-object GMTT/SSTT.
+		if selected.kind == 3 then
+			if m.mode == 3 then m.mode = 2 elseif m.mode == 5 then m.mode = 4 end
+		elseif selected.id > 0 then
+			if Modes.sea(m.mode) then m.mode=5 elseif m.mode==2 then m.mode=3 end
+		end
 	end
 	put("F22_AG_TRACK_VALID",selected and 1 or 0);put("F22_AG_TRACK_ID",selected and selected.id or 0)
-	put("F22_AG_FIXED_TRACK",selected and m.mode==1 and 1 or 0)
+	put("F22_AG_TRACK_TYPE",selected and selected.kind or 0)
+	put("F22_AG_FIXED_TRACK",selected and (selected.kind==3 or m.mode==1) and 1 or 0)
 	if selected then
 		put("F22_AG_TRACK_X",selected.x);put("F22_AG_TRACK_Y",selected.y)
 		put("F22_AG_TRACK_SPEED",selected.speed);put("F22_AG_TRACK_HEADING",math.deg(selected.heading)%360)

@@ -42,7 +42,7 @@ assert(get('F22_AG_TRACK_REQUEST_ACTIVE')==0,'SCS press acquired before release'
 s:command('acquire',1,true,10.4)
 assert(get('F22_AG_TRACK_REQUEST_ACTIVE')==1)
 local sequence=get('F22_AG_TRACK_REQUEST_SEQUENCE')
-for k,x in pairs({VALID=1,ID=123,N=18550,U=50,E=0,TIME=10.5,VN=8,VE=0})do put('F22_AG_NATIVE_TRACK_'..k,x)end
+for k,x in pairs({VALID=1,ID=123,TYPE=2,N=18550,U=50,E=0,TIME=10.5,VN=8,VE=0})do put('F22_AG_NATIVE_TRACK_'..k,x)end
 put('F22_AG_NATIVE_TRACK_REQUEST_SEQUENCE',sequence-1)
 s:update(pose,10.5,.05,true,true);assert(get('F22_AG_TRACK_VALID')==0,'old request response became the new target')
 put('F22_AG_NATIVE_TRACK_REQUEST_SEQUENCE',sequence)
