@@ -128,7 +128,7 @@ for view=1,3 do
  local data=group('DATA_'..view,0,0,{page_key},{{'parameter_in_range',0,view-.1,view+.1}},format_root)
  text(({'WAYPOINT','TACAN','ILS'})[view],0,.72,nil,'blue',data,.0045)
  if view==1 then
-  text('WYPT %.0f',0,.52,'HUD_WP_INDEX','green',data,.0050)
+  text('%s',0,.52,'F22_NAV_POINT_LABEL','green',data,.0050)
   text('LAT',-.49,.26,nil,'blue',data,.0038);text('%s',.14,.26,'F22_NAV_FIX_LAT_TEXT','white',data,.0045)
   text('LON',-.49,.10,nil,'blue',data,.0038);text('%s',.14,.10,'F22_NAV_FIX_LON_TEXT','white',data,.0045)
   text('ELEV',-.49,-.06,nil,'blue',data,.0038);text('%s',.14,-.06,'F22_NAV_FIX_ELEV_TEXT','white',data,.0043)
@@ -160,4 +160,12 @@ for view=1,3 do
   end
  end
 end
+local mark_data=group('MARK_TIME_DATA',0,0,{page_key},{{'parameter_in_range',0,3.9,4.1}},format_root)
+text('MARK / ARRIVAL',0,.72,nil,'blue',mark_data,.0045)
+for index,key in ipairs({'MARK_TEXT','MARK_LAT_TEXT','MARK_LON_TEXT','MARK_ALT_TEXT',
+ 'CLOCK_TEXT','ARRIVAL_TEXT','TIMING_DEST_TEXT','TIMING_TEXT'})do
+ text('%s',0,.51-(index-1)*.145,'F22_NAV_'..key,index<=4 and'white'or'green',mark_data,.0043)
+end
+text('UTC MANUAL REFERENCE',0,-.76,nil,'blue',mark_data,.0036)
+
 end

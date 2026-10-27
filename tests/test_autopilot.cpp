@@ -187,6 +187,15 @@ int main() {
   const double cas_memory=axes.selected_speed;
   axes.command(11616,independent);CHECK(axes.selected_speed==cas_memory && axes.selected_mach>.8);
   axes.command(408,independent);CHECK(!axes.active() && !axes.at && axes.at_reason==0);
+  Controller arrival;
+  independent.left_throttle=independent.right_throttle=.6;
+  independent.baro_valid=true;independent.nav_valid=true;independent.nav_time=independent.time;
+  independent.alt=4500;independent.pilot_pitch=independent.pilot_roll=0;
+  arrival.command(11600,independent);arrival.command(11605,independent);
+  independent.nav_arrived=true;arrival.update(independent,.01);
+  CHECK(arrival.lateral==Heading && arrival.vertical==Altitude && arrival.reason==0);
+  CHECK(arrival.selected_heading==independent.heading);
+  independent.nav_arrived=false;arrival.update(independent,.01);CHECK(arrival.lateral==Heading);
   std::cout << "AFCS holds, wrap, navigation age, pilot takeover, paddle, "
                "limits, A/T and fault gates PASS\n";
 }

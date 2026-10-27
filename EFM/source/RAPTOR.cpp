@@ -1888,6 +1888,7 @@ CockpitManager::CockpitManager() {
 }
 
 void CockpitManager::initialize() {
+    navigation_snapshot_.initialize(param_api_);
     NativeDatalink::reset();
     NativeAltimetry::reset();
     NativeNavigation::reset();
@@ -1959,9 +1960,15 @@ void CockpitManager::navigationFrame(RaptorAP::Frame& f) {
         std::isfinite(radar_ft) && radar_ft >= 0 && radar_ft < 65616.8;
     f.agl = f.radar_valid ? radar_ft / 3.280839895 : NAN;
     f.powered = f.powered && getParameter("MAIN_POWER") > .5;
-    f.nav_valid=getParameter("F22_NAV_STEER_VALID")>.5;
-    f.nav_track=getParameter("F22_NAV_STEER_TRACK");
-    f.nav_time=getParameter("F22_NAV_STEER_STAMP");
+    const auto navigation=navigation_snapshot_.read(param_api_);
+    if (navigation.present) {
+        f.nav_valid=navigation.valid;f.nav_track=navigation.track;
+        f.nav_time=navigation.time;f.nav_arrived=navigation.terminal;
+    } else {
+        f.nav_valid=getParameter("F22_NAV_STEER_VALID")>.5;
+        f.nav_track=getParameter("F22_NAV_STEER_TRACK");
+        f.nav_time=getParameter("F22_NAV_STEER_STAMP");
+    }
 }
 
 void CockpitManager::updateGun() {

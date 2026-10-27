@@ -27,6 +27,11 @@ function M.new(get,put,send,_sensors)
   if self.page=='STORES'and(self.entry or self.pending)then send('WEAPON_SYSTEM',10980,1)end
   self.entry=nil;self.pending=nil;self.status=''
  end
+ function s:request_action(owner,command,value)
+  local pending,error=request(owner,command,value,function()return true end)
+  if pending then self.pending=pending;pending.started=self.clock;self.status='REQUESTED'
+  else self.status=error or'OWNER REJECTED'end
+ end
  function s:load_point()
   self.point_wait=nil
   self.point=Nav.new(get('HUD_WP_INDEX'),get('F22_NAV_FIX_LAT'),get('F22_NAV_FIX_LON'),get('F22_NAV_FIX_ALT_FT'),get('F22_NAV_FIX_GEO_VALID')>.5)
@@ -34,6 +39,7 @@ function M.new(get,put,send,_sensors)
   self.route_generation=get('F22_MISSION_ROUTE_GENERATION')
  end
  function s:open(page,force)
+  if page=='STPT'and get('F22_NAV_MARK_ACTIVE')>.5 then page='MARK/TIME'end
   local same=self.page==page;self:cancel();self.point_wait=nil;self.page=same and not force and''or page
   trace('OPEN')
   if self.page=='STPT'then self:load_point()end
@@ -82,6 +88,7 @@ function M.new(get,put,send,_sensors)
    rows[2]=action(get('F22_GPS_AID')>.5 and'GPS AID ON'or'GPS AID OFF',function()send('FLIGHT_GUIDANCE',10940,1)end)
    rows[3]=action('IRS ALIGN',function()send('FLIGHT_GUIDANCE',10942,1)end)
    rows[4]=action(text('F22_INS_STATUS_TEXT'),function()self:open('NAV QUALITY',true)end)
+   rows[5]=action('MARK/TIME',function()self:open('MARK/TIME',true)end)
   elseif page=='NAV QUALITY'then
    local valid=get('F22_INS_ESTIMATE_VALID')>.5
    rows[1]={label=valid and'POSITION VALID'or'POSITION UNAVAILABLE',kind='read'}
@@ -90,6 +97,33 @@ function M.new(get,put,send,_sensors)
    local age=get('F22_INS_LAST_FIX_AGE')
    rows[4]={label=valid and age>=0 and string.format('LAST FIX %.0f MIN',age/60)or'LAST FIX --',kind='read'}
    rows[5]=action('RTN',function()self:open('NAV SETUP',true)end)
+  elseif page=='MARK/TIME'then
+   rows[1]=action('CAPTURE OWN MARK',function()self:request_action('NAV_SYSTEM',11810,1)end)
+   rows[2]=number(text('F22_NAV_MARK_TEXT','MARK 1 EMPTY'),0,function(buffer)
+    local value,error=integer(buffer,1,9);if not value then return nil,error end
+    return request('NAV_SYSTEM',11811,value,equal('F22_NAV_MARK_SLOT',value))
+   end,1)
+   rows[3]=action('DIRECT SELECTED MARK',function()self:request_action('NAV_SYSTEM',11812,1)end)
+   rows[4]=action('ARRIVAL / UTC',function()self:open('TIME',true)end)
+   rows[5]=action('RTN',function()self:open('NAV SETUP',true)end)
+  elseif page=='TIME'then
+   for index,item in ipairs({{'F22_NAV_CLOCK_TEXT',11813,'F22_NAV_CLOCK_INPUT'},
+    {'F22_NAV_ARRIVAL_TEXT',11814,'F22_NAV_ARRIVAL_INPUT'}})do
+    local spec=item
+    rows[index]=number(text(spec[1]),0,function(buffer)
+     if #buffer~=6 then return nil,'HHMMSS'end
+     local value,error=integer(buffer,0,235959);if not value then return nil,error end
+     return request('NAV_SYSTEM',spec[2],value,equal(spec[3],value))
+    end,6)
+   end
+   rows[3]=number(text('F22_NAV_TIMING_DEST_TEXT','DEST --'),0,function(buffer)
+    local value,error=integer(buffer,1,256);if not value then return nil,error end
+    return request('NAV_SYSTEM',11815,value,equal('F22_NAV_TIMING_DESTINATION',value))
+   end,3)
+   rows[4]=action(get('F22_NAV_ARRIVAL_DAY')>.5 and'DAY +1'or'DAY +0',function()
+    self:request_action('NAV_SYSTEM',11816,1-get('F22_NAV_ARRIVAL_DAY'))
+   end)
+   rows[5]=action('RTN',function()self:open('MARK/TIME',true)end)
   elseif page=='HEADING'then
    rows[1]=number(text('F22_AP_HDG_TEXT','HDG ---'),0,function(b)
     local v,e=integer(b,0,359);if not v then return nil,e end
@@ -138,11 +172,17 @@ function M.new(get,put,send,_sensors)
     {spacing and'INT FT'or'INT MS',spacing and'F22_SMS_SPACING_FT'or'F22_SMS_INTERVAL_MS',spacing and 10985 or 10976,5}})do
     local item=d
     rows[i]=number(string.format('%s %.0f',item[1],get(item[2])),0,function()
-     send('WEAPON_SYSTEM',10979,1)
      local wanted=tonumber(self.entry.buffer)
-     return {read=function()return get('F22_SMS_ENTRY_FIELD')==0 and equal(item[2],wanted)()end,error=function()
+     local pending,error=request('WEAPON_SYSTEM',10979,wanted,function()
+      return get('F22_SMS_ENTRY_FIELD')==0 and equal(item[2],wanted)()
+     end)
+     if not pending then return nil,error end
+     local owner_error=pending.error
+     pending.error=function()
       if get('F22_SMS_ENTRY_ERROR')>0 then return text('F22_SMS_ENTRY_ERROR_TEXT','CHECK VALUE')end
-     end}
+      return owner_error()
+     end
+     return pending
     end,item[4],function()send('WEAPON_SYSTEM',item[3],1)end,
      function(digit)send('WEAPON_SYSTEM',10977,digit)end,
      function()send('WEAPON_SYSTEM',10978,1)end)
@@ -234,7 +274,7 @@ function M.new(get,put,send,_sensors)
     trace('REJECT',self.entry and self.entry.option,error)
     if p.cancel then p.cancel()end
     self.pending=nil
-    if self.entry then self.entry.error=error end
+    if self.entry then self.entry.error=error else self.status=error end
    elseif p.read()then
     trace('ACCEPT',self.entry and self.entry.option)
     if p.accept then p.accept()end
@@ -244,12 +284,13 @@ function M.new(get,put,send,_sensors)
     trace('TIMEOUT',self.entry and self.entry.option)
     if p.cancel then p.cancel()end
     self.pending=nil
-    if self.entry then self.entry.error='NO RESPONSE'end
+    if self.entry then self.entry.error='NO RESPONSE'else self.status='NO RESPONSE'end
    end
   end
   put('F22_UFC_VISIBLE',self.page~=''and 1 or 0);put('F22_UFC_SELECTED',self.entry and self.entry.option or 0)
   put('F22_UFC_PAGE',self.page)
-  local title=self.page=='AP'and'AP: RMB ALL OFF'or self.page=='NAV'and'NAV 1/2'or self.page=='NAV SETUP'and'NAV SETUP 2/2'or self.page
+  local title=self.page=='AP'and'AP: RMB ALL OFF'or self.page=='NAV'and'NAV 1/2'
+   or self.page=='NAV SETUP'and'NAV SETUP 2/2'or self.page=='TIME'and'UTC MANUAL'or self.page
   local rows=self:rows()
   put('F22_UFC_SCRATCH',self.entry and(self.entry.buffer~=''and self.entry.buffer..'_'or'_')or(self.status~=''and self.status or title))
   for i=1,5 do

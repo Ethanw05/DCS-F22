@@ -57,7 +57,9 @@ end
 for c=10930,10949 do dev:listen_command(c)end
 for c=10950,10969 do dev:listen_command(c)end
 for c=11010,11016 do dev:listen_command(c)end
+dev:listen_command(11830)
 local function apply_command(command,value)
+ if command==11830 and value>0 and get('MAIN_POWER')>.5 then set('F22_NAV_SOURCE',0);return end
  if command==11016 and value>0 then dispatch_action(nil,11626,1);return end
  if command>=10505 and command<=10512 or command>=11905 and command<=11912 then
   if type(value)=='number' and decode(value,devices.FLIGHT_GUIDANCE)>0 then light_control:command(command)end
@@ -101,7 +103,7 @@ local function apply_command(command,value)
  elseif command==10941 then set('F22_NAV_OBS',0)
  elseif command==10942 then align=0;manual_align=true;air_recovery=0;set('F22_INS_READY',0)
  elseif command==10943 then
-  set('F22_NAV_SOURCE',0)
+  set('F22_NAV_SOURCE',0);dispatch_action(devices.NAV_SYSTEM,11819,1)
  elseif command==10944 then set('F22_NAV_SOURCE',1)
  elseif command==10945 then set('F22_NAV_SOURCE',2)
  elseif command==10948 then set('F22_NAV_OBS',1-get('F22_NAV_OBS'))
@@ -130,7 +132,8 @@ function update()
  local delta=last_time and now-last_time or 0;last_time=now
  local dt=math.max(0,math.min(.2,delta))
  if delta<0 then align=0;manual_align=true;outage_since=nil;air_recovery=0 end
- if not powered then outage_since=outage_since or now
+ if not powered then
+  set('F22_ENTRY_GUIDANCE_ACTIVE',0);outage_since=outage_since or now
  else
   if outage_since then
    if now-outage_since>5 then align=0;air_recovery=0 end

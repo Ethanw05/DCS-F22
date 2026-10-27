@@ -82,14 +82,19 @@ function M.clip(x1,y1,x2,y2)
     if high<=low then return end
     return {x1=x1+low*dx,y1=y1+low*dy,x2=x1+high*dx,y2=y1+high*dy}
 end
-function M.solution(self,own)
-    if not own or not M.finite(own.x) or not M.finite(own.y) or not M.finite(own.alt) or not M.finite(own.heading) then return end
+local function geometry(self,own)
     local w=self.route[self.selected]
     if not w then return end
     local dn,de=w.x-own.x,w.y-own.y;local distance=math.sqrt(dn*dn+de*de)
     local bearing=M.atan2(de,dn)%(2*pi)
     local origin=self.direct_origin or self.route[self.selected-1] or self.origin
-    local s={waypoint=w,distance=distance,bearing=bearing,relative=M.wrap(bearing-own.heading),count=#self.route,selected=self.selected}
+    local s=self.solution_buffer or {}
+    self.solution_buffer=s
+    s.waypoint,s.distance,s.bearing=w,distance,bearing
+    s.relative,s.count,s.selected=M.wrap(bearing-own.heading),#self.route,self.selected
+    s.course,s.cross,s.along,s.length=nil,nil,nil,nil
+    s.sequence_from,s.sequence_reason=nil,nil
+    s.ttg,s.arrived,s.direct,s.designated,s.designation_alt=nil,nil,nil,nil,nil
     if origin then
         local ln,le=w.x-origin.x,w.y-origin.y;local length=math.sqrt(ln*ln+le*le)
         if length>1 then
@@ -97,18 +102,29 @@ function M.solution(self,own)
             s.course=M.atan2(le,ln)%(2*pi);s.cross=(ln*oe-le*on)/length;s.along=(ln*on+le*oe)/length;s.length=length
         end
     end
-    local captured=distance<=.3*1852 or (s.along and s.along>=s.length and math.abs(s.cross)<=.75*1852 and distance<=1.5*1852)
-    if self.automatic and not self.designation and M.finite(own.gs) and own.gs>15 and captured then
-        if self.selected<#self.route then
-            local previous=w.id
-            self.selected=self.selected+1;self.direct_origin=nil;self.arrived=false;self.sequence_count=self.sequence_count+1
-            -- At most one sequence per device tick, including co-located fixes.
-            self.automatic=false;local next_solution=M.solution(self,own);self.automatic=true
-            if next_solution then next_solution.sequence_from=previous;next_solution.sequence_reason=distance<=.3*1852 and 'CAPTURE' or 'PASSED' end
-            return next_solution
-        end
-        self.arrived=true
+    return s
+end
+function M.solution(self,own)
+    if not own or not M.finite(own.x) or not M.finite(own.y) or not M.finite(own.alt)
+        or not M.finite(own.heading) then return end
+    local s=geometry(self,own)
+    if not s then return end
+    local distance=s.distance
+    local captured=distance<=.3*1852 or (s.along and s.along>=s.length
+        and math.abs(s.cross)<=.75*1852 and distance<=1.5*1852)
+    if not self.designation and M.finite(own.gs) and own.gs>15 and captured then
+        if self.automatic and self.selected<#self.route then
+            local previous=s.waypoint.id
+            self.selected=self.selected+1;self.direct_origin=nil;self.arrived=false
+            self.sequence_count=self.sequence_count+1
+            -- Recompute once, without recursive sequencing or a second passage.
+            s=geometry(self,own)
+            if not s then return end
+            s.sequence_from=previous
+            s.sequence_reason=distance<=.3*1852 and 'CAPTURE' or 'PASSED'
+        elseif self.direct_origin or self.selected==#self.route then self.arrived=true end
     end
+    distance=s.distance
     s.arrived=self.arrived;s.direct=self.direct_origin~=nil
     if M.finite(own.gs) and own.gs>2.572222 then s.ttg=distance/own.gs end
     local scale=M.radius/(M.ranges[self.range_index]*1852)

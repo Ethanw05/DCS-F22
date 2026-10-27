@@ -62,6 +62,7 @@ function update()
  end
  put('F22_ALT_PRESSURE_REQUEST_TIME',now);put('F22_ALT_PRESSURE_REQUEST_VALID',adopted and 1 or 0);publish()
  local powered=get('MAIN_POWER')>.5
+ if not powered then put('F22_ENTRY_ALT_ACTIVE',0)end
  local baro=get('F22_ALT_NATIVE_BARO_M')*3.280839895
  put('F22_ALT_BARO_VALID',powered and native and finite(baro)and 1 or 0)
  put('F22_ALT_BARO_STAMP',get('F22_ALTIMETER_RESULT_TIME'))

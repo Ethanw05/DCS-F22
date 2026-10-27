@@ -14,7 +14,7 @@ local held={};make_default_activity(.006)
 for c=10041,10053 do dev:listen_command(c)end
 for c=11401,11402 do dev:listen_command(c)end
 for c=10989,10993 do dev:listen_command(c)end
-for c=11030,11033 do dev:listen_command(c)end
+for c=11030,11034 do dev:listen_command(c)end
 local pages={[3001]='COM1',[3002]='COM2',[3003]='NAV',[3004]='STPT',[3005]='ALT',[3006]='HUD',[3007]='OTHR',
  [3015]='AP',[3033]='IFF',[3034]='DVR',
  [10041]='COM1',[10042]='COM2',[10043]='NAV',[10044]='STPT',[10045]='ALT',[10046]='HUD',[10047]='AP',[10053]='OTHR',[11401]='IFF',[11402]='DVR'}
@@ -28,7 +28,8 @@ function SetCommand(c,v)
  if get('MAIN_POWER')<.5 then return end
  if c==10989 then
   if get('F22_SMS_PROGRAM_PAGE')>.5 and get('F22_SMS_LABEL')>0 and get('HUD_AG_SUBMODE')~=1 then ui:open('STORES')end
- elseif c>=11030 and c<=11033 then ui:open(c==11030 and'STPT'or c==11033 and'HEADING'or'NAV',true)
+ elseif c>=11030 and c<=11034 then
+  ui:open(c==11030 and'STPT'or c==11033 and'HEADING'or c==11034 and'MARK/TIME'or'NAV',true)
  elseif pages[c]then ui:open(pages[c])
  elseif c>=3008 and c<=3012 then ui:option(c-3007)
  elseif c>=10048 and c<=10052 then ui:option(c-10047)
@@ -37,7 +38,7 @@ function SetCommand(c,v)
  elseif c==3026 then ui:erase(true)
  elseif c==3028 then ui:erase(false)
  elseif c==3013 or c==3014 then ui:page_step(c==3013 and 1 or -1)
- elseif c==3016 then send('NAV_SYSTEM',10838,1);ui.status='MARK STORED'
+ elseif c==3016 then ui:request_action('NAV_SYSTEM',11810,1)
  end
  ui:update(0)
 end

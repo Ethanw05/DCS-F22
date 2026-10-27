@@ -44,6 +44,7 @@ struct Frame {
       nav_track{}, nav_time{};
   double time{};
   bool powered{}, ground{true}, gear{true}, healthy{}, nav_valid{};
+  bool nav_arrived{false};
   bool baro_valid{true}, radar_valid{true}, heading_valid{true}, airspeed_valid{true};
   bool valid() const {
     return std::isfinite(pitch) && std::isfinite(roll) && std::isfinite(time) &&
@@ -357,6 +358,10 @@ public:
     }
     if (!override_held && std::abs(f.pilot_pitch) > .18 && vertical != Off) {
       vertical = Off; integral = 0; reason = 3;
+    }
+    if (lateral == Navigation && f.nav_arrived && f.navigation() &&
+        f.heading_valid && std::isfinite(f.heading)) {
+      selected_heading=f.heading;heading_preset=true;lateral=Heading;nav_override=false;
     }
     if (lateral == Navigation) {
       if (std::abs(f.pilot_roll) > .18) nav_override = true;

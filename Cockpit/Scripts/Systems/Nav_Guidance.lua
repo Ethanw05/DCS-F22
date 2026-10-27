@@ -45,7 +45,7 @@ return function(get,set,own,s)
   bearing=s.bearing;distance=s.distance;course=s.course;cross=s.cross
   if get('F22_NAV_OBS')>.5 then course=c;cross=-math.sin(N.wrap(bearing-course))*distance end
   steer=course and course-clamp(math.atan((cross or 0)/lookahead),-math.pi/4,math.pi/4) or bearing
-  if s.along and s.along>s.length then steer=bearing end
+  if s.along and s.along>s.length and get('F22_NAV_OBS')<.5 then steer=bearing end
  elseif source==1 then
   -- Common receiver reports magnetic bearing. Never silently mix it with true.
   if get('F22_TCN_BRG_VALID')>.5 and get('F22_MAG_VALID')>.5 then
@@ -69,7 +69,7 @@ return function(get,set,own,s)
  end
  set('F22_NAV_GUIDANCE_VALID',bearing and 1 or 0)
  if bearing then
-  set('HUD_NAV_BUG_LABEL',source==0 and ('W'..s.waypoint.id) or 'T')
+  set('HUD_NAV_BUG_LABEL',source==0 and ((s.waypoint.mark and'M'or'W')..math.abs(s.waypoint.id))or'T')
   local relative=math.deg(N.wrap(bearing-own.heading))
   set('HUD_NAV_BUG_VALID',distance and distance<1 and 0 or 1)
   set('HUD_NAV_BUG_DEG',clamp(relative,-15,15));set('HUD_NAV_BUG_EDGE',relative< -15 and -1 or (relative>15 and 1 or 0))

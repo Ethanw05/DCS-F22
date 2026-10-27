@@ -25,6 +25,7 @@
 #include <array>
 #include <map>
 #include "VehicleSystems.h"
+#include "NavigationSnapshot.h"
 
     // ----- Aerodynamics, etc. -----
 
@@ -399,6 +400,7 @@ public:
 
 private:
     EDPARAM param_api_;
+    RaptorNavigation::Snapshot navigation_snapshot_;
     std::unordered_map<std::string, void*> param_handles_;
     std::unordered_map<int, float> draw_args_;
 
