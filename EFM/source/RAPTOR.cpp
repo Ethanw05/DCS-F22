@@ -729,15 +729,20 @@ static void simulate_vehicle_step(double dt) {
         RAPTOR::right_rudder_angle = RaptorVehicle::slew(RAPTOR::right_rudder_angle,
             limit(RAPTOR::rudder_command * rudder_max - rudder_brake, -rudder_max, rudder_max), rudder_rate, dt);
         RAPTOR::rudder_angle = 0.5 * (RAPTOR::left_rudder_angle + RAPTOR::right_rudder_angle);
+        const double left_rudder_health = RAPTOR::element_integrity[53];
+        const double right_rudder_health = RAPTOR::element_integrity[54];
+        const double rudder_health = 0.5 * (left_rudder_health + right_rudder_health);
         vehicle.achieved_speedbrake = RaptorVehicle::unit(std::abs(
-            RAPTOR::left_rudder_angle - RAPTOR::right_rudder_angle) / RAPTOR::rad(30.0));
+            RAPTOR::left_rudder_angle - RAPTOR::right_rudder_angle) / RAPTOR::rad(30.0)) * rudder_health;
         double aileron_deflection = RAPTOR::left_aileron_angle;
         add_local_force(Vec3(0, aileron_deflection * q * RAPTOR::S * 0.25 * RAPTOR::element_integrity[25], 0), RAPTOR::left_aileron_pos);
         add_local_force(Vec3(0, RAPTOR::right_aileron_angle * q * RAPTOR::S * 0.25 * RAPTOR::element_integrity[26], 0), RAPTOR::right_aileron_pos);
-        double rudder_deflection = RAPTOR::rudder_angle;
+        // Preserve the healthy aggregate gain, but weight each achieved surface
+        // before summing so damage cannot hide the surviving rudder's sideforce.
+        double rudder_deflection = 0.5 * (RAPTOR::left_rudder_angle * left_rudder_health +
+            RAPTOR::right_rudder_angle * right_rudder_health);
         if (RAPTOR::is_destroyed == true) { rudder_deflection = 0.0; }
-        const double rudder_health = 0.5 * (RAPTOR::element_integrity[53] + RAPTOR::element_integrity[54]);
-        add_local_force(Vec3(0, 0, rudder_deflection * q * RAPTOR::S * 0.3 * rudder_health), RAPTOR::rudder_pos);
+        add_local_force(Vec3(0, 0, rudder_deflection * q * RAPTOR::S * 0.3), RAPTOR::rudder_pos);
 
     }
 
