@@ -377,6 +377,71 @@ void damaged_rudder_braking(Fixture& fixture) {
     assert(std::abs(lateral[0]+lateral[1]) < 1e-6);
     assert(std::abs(longitudinal[0]-longitudinal[1]) < 1e-6);
 }
+
+void prepare_engine_start(Fixture& f) {
+    f.cold(); f.fuel(5000); f.unlimited(false); f.conditions(0);
+    f.set("F22_POWER_REQUEST_VALID",1); f.set("F22_POWER_REQUEST_SEQUENCE",1);
+    f.set("F22_BATTERY_REQUEST",1); f.set("F22_L_GEN_REQUEST",1); f.set("F22_R_GEN_REQUEST",1);
+    f.set("F22_APU_REQUEST",1); f.set("F22_L_BLEED_REQUEST",1);
+    f.set("F22_R_BLEED_REQUEST",1); f.set("F22_ECS_REQUEST",1);
+    f.ticks(1300);
+    assert(f.get("APU_READY") == 1 && f.get("EFM_ENGINE_CONTROL_SCHEMA") == 1);
+}
+
+void manual_engine_and_unlit_fuel(Fixture& f) {
+    prepare_engine_start(f);
+    f.command(11719,1); f.ticks(1500);
+    assert(f.get("EFM_L_ENGINE_PHASE") == 1 && f.get("EFM_L_STARTER_ENGAGED") == 1);
+    assert(f.parameter(ED_FM_ENGINE_1_FUEL_FLOW) == 0 && f.parameter(ED_FM_ENGINE_1_THRUST) == 0);
+    assert(f.get("EFM_L_FUEL_VALVE") == 0 && f.get("EFM_APU_FLOW_KG_S") > .05);
+    f.command(11723,1); f.command(11721,1); f.ticks(3500);
+    assert(f.get("EFM_L_ENGINE_PHASE") == 4 && f.get("EFM_L_STARTER_ENGAGED") == 0);
+    assert(f.get("EFM_L_STARTER_SELECTED") == 1); // request survives the automatic cutout
+    f.command(11719,0); f.command(11723,0); f.ticks(1);
+    assert(f.parameter(ED_FM_ENGINE_1_COMBUSTION) == 1);
+    assert(std::abs(5000 - f.getfuel() - f.drain_mass()) < 1e-7);
+    prepare_engine_start(f);
+    f.command(11719,1); f.ticks(1500);
+    f.planned_failure("f22_left_ignition"); f.command(11723,1); f.command(11721,1);
+    const double before = f.getfuel(); f.ticks(1200);
+    assert(f.get("EFM_L_START_FAULT") == 1 && f.parameter(ED_FM_ENGINE_1_COMBUSTION) == 0);
+    assert(f.parameter(ED_FM_ENGINE_1_THRUST) == 0 && before - f.getfuel() > .3);
+    assert(std::abs(5000 - f.getfuel() - f.drain_mass()) < 1e-7);
+    f.repair(); f.command(11725,1); f.ticks(1);
+    assert(f.get("EFM_L_START_FAULT") == 1 && f.get("EFM_L_START_REJECTION") == 12);
+    f.command(11721,0); f.command(11719,0); f.ticks(1600);
+    f.command(11719,1); f.ticks(1800); f.command(11719,0); f.command(11725,1); f.ticks(1);
+    assert(f.get("EFM_L_PURGE_S") == 0 && f.get("EFM_L_START_FAULT") == 0);
+    assert(f.parameter(ED_FM_ENGINE_1_COMBUSTION) == 0);
+    f.command(311,1); f.ticks(4500);
+    assert(f.get("EFM_L_ENGINE_PHASE") == 4);
+}
+
+void engine_temperature_and_control_faults(Fixture& f) {
+    prepare_engine_start(f); f.planned_failure("f22_left_hot_start");
+    f.command(311,1); f.ticks(2500);
+    assert(f.get("EFM_L_START_FAULT") == 3 && f.parameter(ED_FM_ENGINE_1_THRUST) == 0);
+    f.repair(); f.ticks(1);
+    assert(f.get("EFM_L_START_FAULT") == 3); // repair preserves purge/temperature protection
+    prepare_engine_start(f); f.planned_failure("f22_left_hung_start");
+    f.command(311,1); f.ticks(6000);
+    assert(f.get("EFM_L_START_FAULT") == 2 && f.parameter(ED_FM_ENGINE_1_THRUST) == 0);
+    f.air(); f.fuel(5000); f.unlimited(true); f.conditions(300);
+    f.command(2004,-1); f.ticks(1500);
+    f.planned_failure("f22_left_control_degraded"); f.ticks(1);
+    assert(f.get("EFM_L_ENGINE_CONTROL") == 1 && f.get("EFM_L_AUG_AVAILABLE") == 0);
+    assert(f.parameter(ED_FM_ENGINE_1_COMBUSTION) == 1);
+    f.ticks(300);
+    assert(f.parameter(ED_FM_ENGINE_1_CORE_RELATED_RPM) < .951);
+    assert(f.parameter(ED_FM_ENGINE_2_CORE_RELATED_RPM) > 1.09);
+    f.planned_failure("f22_left_control_failed"); f.ticks(1);
+    assert(f.get("EFM_L_ENGINE_CONTROL") == 2 && f.get("EFM_L_START_FAULT") == 4);
+    assert(f.parameter(ED_FM_ENGINE_1_COMBUSTION) == 0 && f.parameter(ED_FM_ENGINE_2_COMBUSTION) == 1);
+    f.repair(); f.ticks(1500); f.command(11725,1); f.ticks(1);
+    assert(f.get("EFM_L_START_FAULT") == 0 && f.parameter(ED_FM_ENGINE_1_COMBUSTION) == 0);
+    f.command(311,1); f.ticks(4500);
+    assert(f.parameter(ED_FM_ENGINE_1_COMBUSTION) == 1);
+}
 } // namespace
 
 int main(int argc, char** argv) {
@@ -395,5 +460,7 @@ int main(int argc, char** argv) {
     force_and_release_boundaries(fixture);
     live_ground_power(fixture);
     damaged_rudder_braking(fixture);
+    manual_engine_and_unlit_fuel(fixture);
+    engine_temperature_and_control_faults(fixture);
     std::cout << "vehicle DLL: cold/APU/start, burn/mass, feed/repair, sensor truth, limits and lifecycle OK\n";
 }

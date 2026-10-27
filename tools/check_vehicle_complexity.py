@@ -11,7 +11,7 @@ import lizard
 
 HEADERS = (
     "AirData.h", "VehicleLedger.h", "FuelSystem.h", "VehiclePower.h",
-    "EngineController.h", "VehicleSystems.h", "VehicleConfiguration.h",
+    "EngineController.h", "EngineStart.h", "VehicleSystems.h", "VehicleConfiguration.h",
     "VehicleEnvironment.h", "BrakeEnergy.h", "VehicleContext.h",
     "VehicleSignals.h", "VehicleFaults.h", "VehicleIntegration.h", "ThrustDeck.h",
 )

@@ -26,7 +26,21 @@ inline constexpr PlannedFault planned_faults[] = {
     {"f22_right_hyd_pump_1", Signal::RightPumpOneFault},
     {"f22_right_hyd_pump_2", Signal::RightPumpTwoFault},
     {"f22_left_engine_fire", Signal::LeftFireFault},
-    {"f22_right_engine_fire", Signal::RightFireFault}
+    {"f22_right_engine_fire", Signal::RightFireFault},
+    {"f22_left_starter", Signal::LeftStarterFault},
+    {"f22_right_starter", Signal::RightStarterFault},
+    {"f22_left_ignition", Signal::LeftIgnitionFault},
+    {"f22_right_ignition", Signal::RightIgnitionFault},
+    {"f22_left_hung_start", Signal::LeftHungStartFault},
+    {"f22_right_hung_start", Signal::RightHungStartFault},
+    {"f22_left_hot_start", Signal::LeftHotStartFault},
+    {"f22_right_hot_start", Signal::RightHotStartFault},
+    {"f22_left_control_degraded", Signal::LeftControlDegradedFault},
+    {"f22_right_control_degraded", Signal::RightControlDegradedFault},
+    {"f22_left_control_failed", Signal::LeftControlFailedFault},
+    {"f22_right_control_failed", Signal::RightControlFailedFault},
+    {"f22_left_augmentation", Signal::LeftAugmentationFault},
+    {"f22_right_augmentation", Signal::RightAugmentationFault}
 };
 
 inline bool fault_name_equal(const char* candidate, const char* expected) {

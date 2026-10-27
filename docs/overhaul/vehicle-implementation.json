@@ -150,18 +150,24 @@
     },
     {
       "id": "VEH-05",
-      "status": "guarded automatic engine operation implemented; separate fuel/ignition and FADEC failure workflows incomplete",
+      "status": "independent start, protection and control failure/recovery implemented as an estimated profile; cockpit placement and host qualification open",
       "implemented": [
         "OFF/CRANKING/LIGHTING/ACCELERATING/RUNNING/SHUTTING_DOWN/WINDMILLING",
         "one guarded start path for host commands",
         "source loss abort and explicit relight consent",
         "actual delivered combustion flow/thrust and augmentation synchronization",
-        "independent fire detection/isolation/discharge inventory"
+        "independent fire detection/isolation/discharge inventory",
+        "separate starter/fuel/ignition selection and source-qualified achieved states",
+        "dry crank; no-light, cold/warm hung, hot-start and starter-duty protection",
+        "finite fuel debit for unlit admission; purge/cooling/rest and guarded reset",
+        "logical control normal/degraded/unavailable and augmentation failure policies",
+        "read-only schema/epoch-qualified engine status consumer and disabled planned producers"
       ],
       "remaining": [
-        "independent starter/fuel/ignition selection, dry crank, hot/hung-start and FADEC failure/recovery workflows are missing",
-        "production windmill/relight envelope",
-        "fueldraulic nozzle-source topology; legacy side-hydraulic mapping remains an estimate"
+        "navigation integration placement of tested engine status/control strings on pilot displays",
+        "production windmill/relight, thermal and starter operating limits",
+        "fueldraulic nozzle-source topology; legacy side-hydraulic mapping remains an estimate",
+        "complete fire isolation of ventilation/air/electrical consumers and associated cockpit workflow"
       ],
       "resource_review": {
         "sources": [
@@ -172,19 +178,20 @@
           "ED-V16-2020",
           "VS18"
         ],
-        "checked_paths": "EngineController, engine instruments, start/stop/fire adapters",
-        "finding": "Phase guards, delivered combustion fuel, augmentation and windmill relight are implemented estimates. Separate starter/fuel/ignition controls, dry crank, hot/hung starts and FADEC failure workflows are not implemented; nozzle supply remains provisional.",
+        "checked_paths": "EngineStart/Controller, sole engine instruments, delivered fuel/mass, inputs, Engine_Status and planned producers",
+        "finding": "Starter/fuel/ignition, dry/no-light/hung/hot start and logical control failure/recovery now form a tested physical-to-status chain. The profile uses dated ED workflow analogues and explicitly estimated limits; it does not authenticate F119 thresholds or hardware topology. Nozzle supply and full fire isolation remain provisional.",
         "task_verdicts": {
           "VEH-05.01": "implemented_source_limited",
-          "VEH-05.02": "not_implemented",
-          "VEH-05.03": "partial",
+          "VEH-05.02": "implemented_source_limited",
+          "VEH-05.03": "implemented_source_limited",
           "VEH-05.04": "implemented_source_limited",
-          "VEH-05.05": "not_implemented",
+          "VEH-05.05": "implemented_source_limited",
           "VEH-05.06": "partial",
           "VEH-05.07": "partial"
         },
         "all_acceptance_confirmed": false
-      }
+      },
+      "profile": "../engine-start-profile.md"
     },
     {
       "id": "VEH-06",
@@ -595,10 +602,10 @@
       "M": "not_implemented"
     },
     "task_counts": {
-      "implemented_source_limited": 33,
-      "partial": 41,
+      "partial": 40,
+      "implemented_source_limited": 36,
       "host_qualification_pending": 17,
-      "not_implemented": 5
+      "not_implemented": 3
     },
     "all_requirements_added_and_confirmed": false,
     "source_access": {
@@ -664,6 +671,7 @@
       "d99ec97f60f90a2cd106831002ebfb76176501a1",
       "f31cdb19aca85bf053027dd3c90d9b70aad93fb0",
       "cd7f92a127d332d0920f04bedc10a9661c53d179"
-    ]
+    ],
+    "subsequent_implementation": "Engine start/control follow-through: see VEH-05 and ../engine-start-profile.md; counts reflect current source implementation, not completed host acceptance."
   }
 }

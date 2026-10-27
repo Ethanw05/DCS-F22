@@ -231,6 +231,21 @@ F_22A =
 	},
 
 	Failures = {
+		-- Source-limited engine failure profile; selected by the mission author.
+		{ id = 'f22_left_starter', label = _('F-22: Left starter'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
+		{ id = 'f22_right_starter', label = _('F-22: Right starter'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
+		{ id = 'f22_left_ignition', label = _('F-22: Left ignition / no light-off'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
+		{ id = 'f22_right_ignition', label = _('F-22: Right ignition / no light-off'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
+		{ id = 'f22_left_hung_start', label = _('F-22: Left hung start'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
+		{ id = 'f22_right_hung_start', label = _('F-22: Right hung start'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
+		{ id = 'f22_left_hot_start', label = _('F-22: Left hot start'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
+		{ id = 'f22_right_hot_start', label = _('F-22: Right hot start'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
+		{ id = 'f22_left_control_degraded', label = _('F-22: Left engine control degraded'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
+		{ id = 'f22_right_control_degraded', label = _('F-22: Right engine control degraded'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
+		{ id = 'f22_left_control_failed', label = _('F-22: Left engine control unavailable'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
+		{ id = 'f22_right_control_failed', label = _('F-22: Right engine control unavailable'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
+		{ id = 'f22_left_augmentation', label = _('F-22: Left augmentation unavailable'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
+		{ id = 'f22_right_augmentation', label = _('F-22: Right augmentation unavailable'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
 		-- Owned EFM planned faults; disabled until selected by the mission author.
 		{ id = 'f22_battery', label = _('F-22: Battery'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
 		{ id = 'f22_left_generator', label = _('F-22: Left generator'), enable = false, hh = 0, mm = 0, mmint = 1, prob = 100 },
