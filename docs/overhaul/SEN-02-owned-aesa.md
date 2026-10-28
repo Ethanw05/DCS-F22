@@ -42,7 +42,9 @@ requested times. The ground8..55kt discovery predicate is an APG-73 game analogu
 Air association now uses measured innovations/covariance; its simulator-object
 binding is private to the weapon boundary. Ground association still needs the
 same migration. Exact aspect-dependent RCS, waveforms/PRFs, ambiguity resolution,
-ECM/CFAR and false-alarm simulation remain open. These are not authenticated
+advanced ECM/CFAR and false-alarm simulation remain open. The qualified
+[incoming airborne noise layer](SEN-02-interference.md) adds common ECM effects
+through the owned receiver. These are not authenticated
 APG-77 processing or performance.
 
 Sources consulted: [Brower, 2001, ch32 Ã‚Â§32.3.2 p8](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf)

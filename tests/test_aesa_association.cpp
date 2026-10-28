@@ -9,6 +9,9 @@ using namespace AesaRadar;
 struct Scene final : Environment {
     std::array<Truth,2> objects{{{7001,{10000,3000,0},{},1},{9001,{11000,3000,0},{},1}}};
     std::size_t count=1;
+    bool interference(double now, const Pose&, const Beam&, Interference& result, QueryStats&) noexcept override {
+        result = {true,0,now,0}; return true;
+    }
     bool query(const Pose&,const Beam&,std::span<Truth> out,std::size_t& size,QueryStats&) noexcept override {
         size=count;std::copy_n(objects.begin(),count,out.begin());return true;
     }

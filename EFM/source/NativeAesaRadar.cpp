@@ -2,6 +2,7 @@
 // No avSimpleRadar detection, observation cache, antenna phase or aircraft DLL calls.
 #include "NativeAesaRadar.h"
 #include "AesaRadar.h"
+#include "AesaReceiver.h"
 #include "NativeGroundSensor.h"
 #include <Cockpit/CockpitAPI_Declare.h>
 #include <Windows.h>
@@ -9,6 +10,7 @@
 #include <atomic>
 #include <cmath>
 #include <cstdio>
+#include <cstring>
 #include <functional>
 #include <limits>
 
@@ -64,6 +66,7 @@ struct Api {
     using Velocity = const FloatVector*(__fastcall*)(const void*);
     using Type = const unsigned char*(__fastcall*)(const void*);
     using Dead = bool(__fastcall*)(const void*);
+    using Flag = bool(__fastcall*)(const void*, int);
     using Position = const float*(__fastcall*)(void*);
     using Intersection = const char*(__fastcall*)(const Scene&, const Vector&, const Vector&, Vector&, double&, Vector&);
     HMODULE common{}, objects{}, world{}, general{};
@@ -71,9 +74,26 @@ struct Api {
     Context context{}; Device device{}; Emitter emitter{};
     void* lua_vtable{}; void* lua_update{};
     Type type{}; Dead dead{}; Position position{}; Intersection intersect{};
+    Flag flag{};
+    void** ecm_vtable{};
+    void* ecm_active{}; void* ecm_strength{};
     void** manager{}; void** land{};
     std::atomic<bool> ready{};
     unsigned reason = 1;
+    bool initialize_ecm() noexcept {
+        flag = reinterpret_cast<Flag>(GetProcAddress(general, "?IsFlag@MovingObject@@QEBA?B_NH@Z"));
+        const auto base = reinterpret_cast<std::byte*>(general);
+        ecm_vtable = reinterpret_cast<void**>(base + 0x1d0778);
+        ecm_active = base + 0x65bd0; ecm_strength = base + 0x65bc0;
+        return flag && readable(ecm_vtable, 5 * sizeof(void*))
+            && ecm_vtable[1] == ecm_active && ecm_vtable[4] == ecm_strength;
+    }
+    bool scene_exports() const noexcept {
+        return clock && aircraft && point && velocity && type && dead && position && intersect && manager && land;
+    }
+    bool cockpit_exports() const noexcept {
+        return context && device && emitter && lua_vtable && lua_update;
+    }
     void initialize() noexcept {
         if (ready.load(std::memory_order_acquire) || reason >= 2) return;
         common = GetModuleHandleW(L"CockpitBase.dll"); objects = GetModuleHandleW(L"edObjects.dll");
@@ -100,12 +120,30 @@ struct Api {
             "?intersectSegment@@YAPEBDAEBVISceneObject@@AEBVVec3d@osg@@1AEAV23@AEAN2@Z"));
         manager = reinterpret_cast<void**>(GetProcAddress(objects, "?instance@viObjectManager@@2PEAV1@EA"));
         land = reinterpret_cast<void**>(GetProcAddress(general, "?globalLand@@3PEAVwTerrain@@EA"));
-        const bool available = clock && aircraft && point && velocity && type && dead && position
-            && intersect && manager && land && context && device && emitter && lua_vtable && lua_update;
+        const bool available = initialize_ecm() && scene_exports() && cockpit_exports();
         reason = available ? 0u : 3u;
         ready.store(available, std::memory_order_release);
     }
 } api;
+// Qualified common base-ECM layout. Borrowed only during the synchronous scene
+// callback; never create ECM objects, request emission, or retain their pointers.
+struct EcmView { void** table{}; void* owner{}; double strength{}; };
+static_assert(sizeof(EcmView) == 24 && offsetof(EcmView, strength) == 16);
+bool effect_strength(void* unit, bool& active, double& strength) noexcept {
+    active = false; strength = 0;
+    if (!api.flag) return false;
+    if (!api.flag(unit, 8)) return true;
+    using GetEcm = void*(__fastcall*)(void*);
+    const auto get = method<GetEcm>(unit, 57);
+    void* ecm = get ? get(unit) : nullptr;
+    if (!ecm || !readable(ecm, sizeof(EcmView)) || !readable(api.ecm_vtable, 5 * sizeof(void*))) return false;
+    EcmView view{}; std::memcpy(&view, ecm, sizeof(view));
+    if (view.table != api.ecm_vtable || view.owner != unit
+        || view.table[1] != api.ecm_active || view.table[4] != api.ecm_strength) return false;
+    if (!std::isfinite(view.strength) || view.strength < 0 || view.strength > 100) return false;
+    active = true; strength = view.strength;
+    return true;
+}
 void* moving(Scene& scene) noexcept {
     using Convert = void*(__fastcall*)(void*);
     const auto registered = method<Convert>(&scene, 6);
@@ -133,7 +171,63 @@ Box bounds(const Pose& pose, const Beam& beam) noexcept {
 }
 class Provider final : public Environment {
     void* own_{};
+    struct ReceiverQuery {
+        Provider* self{}; const Pose* pose{}; const Beam* beam{};
+        Interference* result{}; QueryStats* stats{};
+        unsigned visits{}, active{}; bool known = true;
+    };
+    bool receive_source(Scene& scene, void* unit, ReceiverQuery& query) noexcept {
+        bool active = false; double strength = 0;
+        if (!effect_strength(unit, active, strength)) return false;
+        if (!active) return true;
+        if (++query.active > AesaReceiver::maximum_sources) {
+            query.stats->truncated = true; return false;
+        }
+        Truth source{}; source.id = identity(scene); api.point(unit, &source.position);
+        if (!source.id || !finite(source.position)) return false;
+        ++query.stats->visibility_queries;
+        if (!visible(*query.pose, source, *query.stats)) return !query.stats->truncated;
+        double noise = 0;
+        if (!AesaReceiver::noise_ratio(*query.pose, *query.beam, source.position, strength, noise)) return false;
+        query.result->noise_ratio += noise;
+        ++query.result->sources;
+        return true;
+    }
+    int receive(Scene& scene, ReceiverQuery& query) noexcept {
+        if (++query.visits > AesaReceiver::maximum_visits) {
+            query.stats->truncated = true; query.known = false; return 1;
+        }
+        void* unit = moving(scene);
+        if (!unit || unit == own_ || api.dead(unit)) return 0;
+        const auto type = api.type(unit);
+        if (!readable(type, 2)) { query.known = false; return 1; }
+        if (type[0] != 1 || (type[1] != 1 && type[1] != 2)) return 0;
+        Vector position{}; api.point(unit, &position);
+        if (!finite(position)) { query.known = false; return 1; }
+        if (length(position-query.pose->position) > AesaReceiver::survey_range_m) return 0;
+        query.known = receive_source(scene, unit, query);
+        return query.known ? 0 : 1;
+    }
 public:
+    bool interference(double now, const Pose& pose, const Beam& beam,
+                      Interference& result, QueryStats& stats) noexcept override {
+        using Search = void(__fastcall*)(void*, const Box&, unsigned, const Query&);
+        using Terrain = bool(__fastcall*)(void*, const FloatVector&, const FloatVector&);
+        using Segment = void(__fastcall*)(void*, const Vector&, const Vector&, unsigned, const Query&);
+        result = {false, 0, now, 0};
+        void* manager = readable(api.manager, sizeof(void*)) ? *api.manager : nullptr;
+        void* land = readable(api.land, sizeof(void*)) ? *api.land : nullptr;
+        const auto search = method<Search>(manager, 20);
+        if (!search || !method<Terrain>(land, 15) || !method<Segment>(manager, 24)) return false;
+        ReceiverQuery context{this, &pose, &beam, &result, &stats};
+        Query each = [c = &context](Scene& scene) { return c->self->receive(scene, *c); };
+        constexpr double r = AesaReceiver::survey_range_m;
+        const Box box{{static_cast<float>(pose.position.n-r), static_cast<float>(pose.position.u-r), static_cast<float>(pose.position.e-r)},
+            {static_cast<float>(pose.position.n+r), static_cast<float>(pose.position.u+r), static_cast<float>(pose.position.e+r)}};
+        search(manager, box, 32, each);
+        result.valid = context.known && !stats.truncated;
+        return result.valid;
+    }
     bool pose(Pose& p) noexcept {
         using Own = void*(__fastcall*)(void*);
         void* aircraft = api.aircraft();
@@ -243,7 +337,8 @@ struct Parameters {
         "F22_AESA_CUE_REQUEST", "F22_AESA_CUE_TIME", "F22_AESA_CUE_DWELLS",
         "F22_AESA_ASSOCIATION_AMBIGUOUS", "F22_AESA_ASSOCIATION_DROPPED",
         "F22_AESA_SURFACE_EL", "F22_AESA_SURFACE_HALF", "F22_AESA_SURFACE_RANGE", "F22_AESA_SURFACE_TIME",
-        "F22_AESA_SURFACE_SEARCH", "F22_AESA_SURFACE_CELLS"};
+        "F22_AESA_SURFACE_SEARCH", "F22_AESA_SURFACE_CELLS",
+        "F22_AESA_INTERFERENCE_VALID", "F22_AESA_INTERFERENCE_JNR", "F22_AESA_INTERFERENCE_TIME", "F22_AESA_INTERFERENCE_SOURCES"};
     static constexpr std::array fields{"VALID", "ID", "TIME", "N", "U", "E", "VN", "VU", "VE",
         "VELOCITY_VALID", "RANGE_SIGMA_M", "ANGLE_SIGMA_RAD", "HITS",
         "FILTER_VALID", "POSITION_SIGMA_M", "VELOCITY_SIGMA_MPS", "RAW_N", "RAW_U", "RAW_E",
@@ -331,7 +426,7 @@ struct Parameters {
         publication = (publication + 2) % 16000000;
         p.setParamNumber(outputs[3], publication + 1);
         const auto& q = s.status;
-        const bool fresh = enabled && q.ready && s.epoch == epoch.load(std::memory_order_acquire)
+        const bool fresh = enabled && q.ready && q.interference.valid && s.epoch == epoch.load(std::memory_order_acquire)
             && now - q.time >= -.01 && now - q.time <= .5;
         unsigned count = 0;
         for (std::size_t i = 0; i < s.measurements.size(); ++i)
@@ -369,6 +464,21 @@ struct Parameters {
     void gated(EDPARAM& p, std::size_t index, double value, bool valid) noexcept {
         p.setParamNumber(outputs[index], valid ? value : 0);
     }
+    void publish_surface(EDPARAM& p, const Status& q, bool fresh) noexcept {
+        const auto& beam=q.surface_beam;
+        const double depression=std::atan2(beam.direction.u,std::hypot(beam.direction.n,beam.direction.e));
+        const bool surface_known=fresh&&q.surface_sequence>0;
+        gated(p,37,depression,surface_known);gated(p,38,beam.half_angle,surface_known);gated(p,39,beam.range_m,surface_known);
+        p.setParamNumber(outputs[40],surface_known?beam.completes:-100);
+        gated(p,41,q.surface_service&&beam.surface_search?1:0,fresh);
+        gated(p,42,beam.surface_cells,surface_known);
+    }
+    void publish_interference(EDPARAM& p, const Status& q, bool fresh) noexcept {
+        const bool known = fresh && q.interference.valid;
+        gated(p,43,1,known);gated(p,44,q.interference.noise_ratio,known);
+        p.setParamNumber(outputs[45],known?q.interference.time:-100);
+        gated(p,46,q.interference.sources,known);
+    }
     void publish_status(EDPARAM& p, const Snapshot& s, bool fresh, unsigned count) noexcept {
         const auto& q = s.status;
         const std::array values{fresh ? 1.0 : 0.0, fresh ? 0.0 : static_cast<double>(api.reason ? api.reason : 4),
@@ -393,20 +503,15 @@ struct Parameters {
         p.setParamNumber(outputs[34], q.cue_dwells);
         p.setParamNumber(outputs[35], q.association_ambiguous);
         p.setParamNumber(outputs[36], q.association_dropped);
-        const auto& beam=q.surface_beam;
-        const double depression=std::atan2(beam.direction.u,std::hypot(beam.direction.n,beam.direction.e));
-        const bool surface_known=fresh&&q.surface_sequence>0;
-        gated(p,37,depression,surface_known);gated(p,38,beam.half_angle,surface_known);gated(p,39,beam.range_m,surface_known);
-        p.setParamNumber(outputs[40],fresh&&q.surface_sequence>0?beam.completes:-100);
-        gated(p,41,q.surface_service&&beam.surface_search?1:0,fresh);
-        gated(p,42,beam.surface_cells,surface_known);
+        publish_surface(p,q,fresh);
+        publish_interference(p,q,fresh);
     }
 } parameters;
 bool fresh(double now, double stamp, double age) noexcept {
     return std::isfinite(now) && std::isfinite(stamp) && now >= stamp && now - stamp <= age;
 }
 bool bridge_ready(double now) noexcept {
-    return request.controls.enabled && request.controls.emit && snapshot.status.ready
+    return request.controls.enabled && request.controls.emit && snapshot.status.ready && snapshot.status.interference.valid
         && snapshot.epoch == epoch.load(std::memory_order_acquire)
         && fresh(now,request.stamp,.5) && fresh(now,snapshot.status.time,.5);
 }
@@ -558,7 +663,8 @@ void sample(void* radar) noexcept {
     if (!provider.pose(pose)) r.controls.enabled = false;
     if(r.controls.surface)r.controls.surface_request=NativeGroundSensor::pointing(now,pose);
     const bool updated = model.update(now, r.controls, pose, provider);
-    api.emitter(updated && r.controls.emit);
+    // Receiver qualification loss does not stop an otherwise commanded RF dwell.
+    api.emitter(model.status().emitting && r.controls.emit);
     auto& next = sensor_scratch;
     next.status = model.status(); next.measurements = model.measurements();
     next.bindings = model.bindings(); next.epoch = generation;

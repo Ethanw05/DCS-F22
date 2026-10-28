@@ -8,8 +8,12 @@ struct World final : Environment {
     std::array<Truth, 128> objects{};
     std::size_t count = 1;
     bool blocked{}, fail{};
+    double noise{}; bool noise_known = true;
     unsigned queries{}, visibility{};
     World() { objects[0] = {42, {20000, 3000, 0}, {0, 0, 0}, 1}; }
+    bool interference(double now, const Pose&, const Beam&, Interference& result, QueryStats&) noexcept override {
+        result = {noise_known,noise,now,noise>0?1u:0u}; return noise_known;
+    }
     bool query(const Pose&, const Beam&, std::span<Truth> out, std::size_t& size, QueryStats&) noexcept override {
         ++queries; size = count;
         for (std::size_t i = 0; i < count && i < out.size(); ++i) out[i] = objects[i];
