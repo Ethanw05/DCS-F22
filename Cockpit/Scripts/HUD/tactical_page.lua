@@ -268,7 +268,4 @@ return function(api)
 
     dofile(LockOn_Options.script_path..'HUD/ag.lua')(api)
     dofile(LockOn_Options.script_path..'HUD/pilot_warnings.lua')(api)
-    group('HUD_SENSOR_FOCUS',0,0,{'HUD_POWER','F22_SOI'},
-        {{'opacity_using_parameter',0},{'parameter_in_range',1,.9,1.1}})
-    static(-.57,-.72,'HUD',.019,'HUD_SENSOR_FOCUS')
 end

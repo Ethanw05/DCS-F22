@@ -230,6 +230,18 @@ for i=0,15 do
 end
 line(-0.065,0,-0.022,0,0.004,"HUD_FPM")
 line(0.022,0,0.065,0,0.004,"HUD_FPM")
+-- HUD sensor focus follows the velocity vector and inherits its validity.
+group('HUD_FPM_FOCUS',0,0,{'F22_SOI'},{{'parameter_in_range',0,.9,1.1}},'HUD_FPM')
+local focus_dot=CreateElement 'ceMeshPoly'
+local dot_vertices={{0,0}}
+local dot_indices={}
+for i=0,11 do
+    local angle=i*2*pi/12
+    dot_vertices[#dot_vertices+1]={.003*math.cos(angle)*drawing_scale,.003*math.sin(angle)*drawing_scale}
+    dot_indices[#dot_indices+1]=0;dot_indices[#dot_indices+1]=i+1;dot_indices[#dot_indices+1]=(i+1)%12+1
+end
+focus_dot.primitivetype='triangles';focus_dot.vertices=dot_vertices;focus_dot.indices=dot_indices
+add_base(focus_dot,'HUD_FPM_FOCUS_DOT','HUD_FPM_FOCUS')
 -- NAV cage retains the measured vector as a compact ghost. Optical dimensions
 -- are presentation estimates on the existing collimator plane.
 group('HUD_FPM_GHOST',0,boresight_y,{'HUD_FPM_GHOST_Y','HUD_FPM_GHOST_X','HUD_POWER','HUD_FPM_GHOST_VALID'},

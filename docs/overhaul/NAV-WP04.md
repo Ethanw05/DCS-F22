@@ -9,6 +9,8 @@ Actual Lua owner tests exercise biased/frozen/invalid samples, gear transit/unsa
 NAV-mode10723 now routes only to HUD11840; weapon master modes retain only seeker10805. The existing held-input owner suppresses duplicate presses. Computed FPM validity, drawing validity and off-glass status are distinct. Caged lateral FPM retains a compact uncaged ghost on the same existing plane; an off-glass measurement displays FPM LIMIT, not a sensor failure. Geometry and ghost dimensions are mod presentation estimates; flight glyph/font/green/projection and recordings are retained. Actual Combat_Logic and HUD owner tests cover exclusive routing, repeated-down, computed/off-glass distinction and cage/ghost behavior.
 # HUD ground designation and edge indication
 
+HUD sensor focus is indicated by a small filled dot inside the valid flight-path marker when SCS selects the HUD. The former separate HUD focus label is removed; the dot follows the existing marker and uses its power/validity gates.
+
 Chuck's F/A-18C guide, Part 9 and Part 10 (including p. 444), describes
 HUD/FLIR target designation as a sensor-owned point with a HUD cue. This
 mod's SCS-up HUD focus and TDC depress now issue a terrain line-of-sight
