@@ -12,7 +12,7 @@ local function put(k,v)get_param_handle(k):set(v)end
 local guide=dofile(SCRIPT_ROOT..'Systems/Nav_Guidance.lua')
 local radio=dofile(SCRIPT_ROOT..'Systems/Radio_Navigation.lua')
 local own={x=0,y=0,alt=1000,heading=0,gs=200}
-put('MAIN_POWER',1);put('HUD_MODE',1);put('HUD_FPM_VALID',1)
+put('MAIN_POWER',1);put('F22_INS_READY',1);put('HUD_MODE',1);put('HUD_FPM_VALID',1)
 put('F22_NAV_SOURCE',1);put('F22_NAV_OBS',1);put('F22_MAG_VALID',1)
 put('F22_TCN_BRG_VALID',1);put('F22_TCN_RANGE_VALID',1)
 put('F22_TCN_BRG_MAG',math.rad(4));put('F22_TCN_MODE',2)

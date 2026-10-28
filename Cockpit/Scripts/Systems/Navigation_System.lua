@@ -102,38 +102,28 @@ for _,key in ipairs({'F22_NAV_HEADING_VALID','F22_NAV_ATTITUDE_VALID','F22_NAV_R
 local own_frame,estimate_input,host_frame={},{},{}
 local function reference_estimates(input)
  nav_reference:update();hud_reference:update()
- if not nav_reference.present then
-  estimate=estimates[1];return estimate:update(input)
- end
  for index=1,2 do
   local reference=channel_references[index]:update()
-  if reference.valid then
-   input.powered=reference.values.POWER==1
-   input.aligned=reference.values.POSITION_READY==1
-   estimates[index]:update(input)
-  end
+  input.powered=reference.valid and reference.values.POWER==1
+  input.aligned=reference.valid and reference.values.POSITION_READY==1
+  estimates[index]:update(input)
   local value=estimates[index]
   local valid=reference.valid and reference.values.POSITION_READY==1 and value.valid
   set(channel_quality[index].valid,valid and 1 or 0)
   set(channel_quality[index].error,value.error)
-  set(channel_quality[index].age,value.last_positive_fix and math.max(0,input.now-value.last_positive_fix)or -1)
+  local age=value.last_positive_fix and nav.finite(input.now)and math.max(0,input.now-value.last_positive_fix)or -1
+  set(channel_quality[index].age,age)
  end
- local selected=nav_reference.valid and nav_reference.values.SOURCE or 1
- estimate=estimates[selected]
+ if not nav_reference.valid then return end
+ estimate=estimates[nav_reference.values.SOURCE]
  local healthy=nav_reference.valid and nav_reference.values.POSITION_READY==1
  if healthy and estimate.valid then return estimate.n,estimate.e,estimate.alt end
-end
-local function observed_angle(method)
- local ok,value=pcall(method)
- if ok and nav.finite(value)then return value end
 end
 local function host_observations()
  local ok,n,a,e=pcall(base.getSelfCoordinates)
  host_frame.position_valid=ok and nav.finite(n)and nav.finite(a)and nav.finite(e)
  if host_frame.position_valid then host_frame.n,host_frame.e,host_frame.alt=n,e,a
  else host_frame.n,host_frame.e,host_frame.alt=nil,nil,nil end
- host_frame.heading=observed_angle(base.getHeading)
- host_frame.pitch,host_frame.roll=observed_angle(base.getPitch),observed_angle(base.getRoll)
  return host_frame
 end
 local function estimate_observations(clock,observed)
@@ -141,36 +131,24 @@ local function estimate_observations(clock,observed)
  local gps=observed.position_valid and get('F22_GPS_FAILURE')<.5
  set('F22_GPS_OBSERVATION_VALID',gps and 1 or 0)
  if gps then set('F22_GPS_OBSERVATION_TIME',clock)end
- local model=get('F22_INS_MODEL_ENABLED')>.5
- input.now,input.powered,input.enabled=clock,get('MAIN_POWER')>.5,model
- input.aligned=not model or get('F22_INS_READY')>.5
+ input.now=clock
  input.aided=get('F22_GPS_AID')>.5 and gps
  input.n,input.e,input.alt=observed.n,observed.e,observed.alt
  input.velocity_valid=get('EFM_HUD_VALID')>.5
  input.vn,input.ve,input.vu=get('EFM_HUD_VN'),get('EFM_HUD_VE'),get('EFM_HUD_VU')
 end
-local function navigation_reference(observed)
- local heading_valid=observed.heading~=nil
- local attitude_valid=observed.pitch~=nil and observed.roll~=nil
+local function navigation_reference()
+ local heading_valid=nav_reference.valid and nav_reference.values.HEADING_VALID==1
+ local attitude_valid=nav_reference.valid and nav_reference.values.ATTITUDE_VALID==1
  own_frame.pitch,own_frame.roll=0,0
  own_frame.heading=nil
- if nav_reference.present then
-  heading_valid=nav_reference.valid and nav_reference.values.HEADING_VALID==1
-  attitude_valid=nav_reference.valid and nav_reference.values.ATTITUDE_VALID==1
-  if heading_valid then own_frame.heading=nav_reference.values.HEADING end
-  if attitude_valid then own_frame.pitch,own_frame.roll=nav_reference.values.PITCH,nav_reference.values.ROLL end
- else
-  if heading_valid then own_frame.heading=(-observed.heading)%(2*math.pi)end
-  if attitude_valid then own_frame.pitch,own_frame.roll=observed.pitch,observed.roll end
- end
+ if heading_valid then own_frame.heading=nav_reference.values.HEADING end
+ if attitude_valid then own_frame.pitch,own_frame.roll=nav_reference.values.PITCH,nav_reference.values.ROLL end
  own_frame.attitude_valid=attitude_valid
  set('F22_NAV_HEADING_VALID',heading_valid and 1 or 0);set('F22_NAV_ATTITUDE_VALID',attitude_valid and 1 or 0)
  return heading_valid
 end
 local function hud_projection_reference()
- own_frame.hud_heading,own_frame.hud_pitch,own_frame.hud_roll=own_frame.heading,own_frame.pitch,own_frame.roll
- own_frame.hud_attitude_valid=own_frame.attitude_valid
- if not hud_reference.present then return end
  own_frame.hud_attitude_valid=hud_reference.valid and hud_reference.values.ATTITUDE_VALID==1
   and hud_reference.values.HEADING_VALID==1
  if own_frame.hud_attitude_valid then
@@ -183,8 +161,6 @@ local function ground_speed()
  if input.velocity_valid and nav.finite(input.vn)and nav.finite(input.ve)then
   return math.sqrt(input.vn*input.vn+input.ve*input.ve)
  end
- local speed=get('HUD_GS_MPS')
- if get('HUD_GS_VALID')>.5 and nav.finite(speed)and speed>=0 then return speed end
 end
 local function ownship()
  set('F22_NAV_OWN_VALID',0)
@@ -192,7 +168,7 @@ local function ownship()
  local observed=host_observations()
  estimate_observations(clock,observed)
  local n,e,a=reference_estimates(estimate_input)
- local reference_ready=not nav_reference.present or nav_reference.valid and nav_reference.values.POSITION_READY==1
+ local reference_ready=nav_reference.valid and nav_reference.values.POSITION_READY==1
  quality(reference_ready)
  set('F22_NAV_REFERENCE_STAMP',clock)
  local age=-1
@@ -200,7 +176,7 @@ local function ownship()
  set('F22_INS_LAST_FIX_AGE',age)
  own_frame.x,own_frame.y,own_frame.alt=n,e,a
  own_frame.position_valid=n~=nil
- local heading_valid=navigation_reference(observed)
+ local heading_valid=navigation_reference()
  hud_projection_reference();own_frame.gs=ground_speed()
  if n then set('F22_NAV_OWN_N',n);set('F22_NAV_OWN_E',e);set('F22_NAV_OWN_VALID',1)end
  if heading_valid then return own_frame end
@@ -482,7 +458,6 @@ local function time_text(t)
     return string.format('%02d:%02d:%02d',math.floor(t/3600),math.floor(t/60)%60,t%60)
 end
 function update()
-    local owned_references=nav_reference:update().present
     radio.publish_data(get,set)
     set('F22_NAV_AUTO',computer.automatic and 1 or 0)
     set('F22_NAV_AUTO_TEXT',mark_active and'MARK'or computer.automatic and'AUTO'or'MAN')
@@ -497,12 +472,7 @@ function update()
         -- Restored power permits route feedback, never a pre-outage request.
         cancel_waypoint_request()
     end
-    if not owned_references and get('MAIN_POWER')<.5 then
-        estimate_input.now,estimate_input.powered=get('F22_AP_CLOCK'),false
-        for index=1,2 do estimates[index]:update(estimate_input)end
-        quality(false)
-    end
-    local own=(owned_references or get('MAIN_POWER')>.5)and ownship()or nil
+    local own=ownship()
     publish_extras(own)
     set('F22_NAV_ARRIVED',0)
     set('F22_NAV_COMPASS_ROT',own and own.heading or 0)

@@ -61,12 +61,12 @@ function get_mission_route()return route end
 function get_base_data()return {
  getSelfCoordinates=function()return own.n,own.alt,own.e end,
  getHeading=function()return own.h end,getPitch=function()return own.p end,getRoll=function()return own.r end}end
-dofile(SCRIPT_ROOT..'Systems/Navigation_System.lua')
+dofile(SCRIPT_ROOT..'Systems/Navigation_System.lua');local reference_fixture=dofile(SCRIPT_ROOT..'../../tests/navigation_reference_fixture.lua')();update=reference_fixture:wrap(update)
 declared={};for name in pairs(handles)do declared[name]=true end
 post_initialize()
 function p(n,v)get_param_handle(n):set(v)end
 function g(n)return get_param_handle(n):get()end
-p('MAIN_POWER',1);p('HUD_GS_VALID',1);p('HUD_GS_MPS',200);update()
+p('MAIN_POWER',1);p('F22_GPS_AID',1);p('EFM_HUD_VALID',1);p('EFM_HUD_VN',200);p('HUD_GS_VALID',1);p('HUD_GS_MPS',200);update()
 assert(g('HUD_WP_VALID')==1 and g('HUD_WP_INDEX')==2 and g('F22_NAV_ROUTE_COUNT')==2)
 assert(g('HUD_WP_CUE_VALID')==0 and g('HUD_WP_OFFSCREEN')==0,'ordinary waypoint is steering-only')
 assert(g('HUD_WP_RANGE_NM')==20 and g('HUD_WP_TTG_TEXT')=='00:03:05')
@@ -79,10 +79,10 @@ SetCommand(10830,1);SetCommand(10831,1);update();assert(g('F22_NAV_AUTO')==1,'ma
 p('HUD_GS_VALID',0);p('EFM_HUD_VALID',1);p('EFM_HUD_VN',200);p('EFM_HUD_VE',0)
 own.n=37040;update();assert(g('HUD_WP_INDEX')==3 and g('F22_NAV_SEQUENCE_COUNT')==1,'HUD invalidation stopped independent NAV sequencing')
 SetCommand(10831,1);own.n=0;p('HUD_GS_VALID',1);p('HUD_GS_MPS',200);update()
-p('MAIN_POWER',0);update();assert(g('HUD_WP_VALID')==0 and g('F22_NAV_PT_01_VALID')==0)
-SetCommand(10830,1);p('MAIN_POWER',1);update();assert(g('HUD_WP_INDEX')==2)
-own.n=0/0;update();assert(g('F22_NAV_VALID')==0 and g('HUD_WP_CUE_VALID')==0)
-own.n=0;route={route[1]};SetCommand(10836,1);update()
+p('MAIN_POWER',0);reference_fixture.physical.values.F22_ESSENTIAL_POWER=0;update();assert(g('HUD_WP_VALID')==0 and g('F22_NAV_PT_01_VALID')==0)
+SetCommand(10830,1);p('MAIN_POWER',1);reference_fixture.physical.values.F22_ESSENTIAL_POWER=1;update();assert(g('HUD_WP_INDEX')==2)
+own.n=0/0;p('EFM_HUD_VALID',0);update();assert(g('F22_NAV_VALID')==0 and g('HUD_WP_CUE_VALID')==0)
+own.n=0;p('EFM_HUD_VALID',1);route={route[1]};SetCommand(10836,1);update()
 assert(g('HUD_WP_VALID')==0 and g('F22_NAV_STATUS_TEXT')=='NO ROUTE')
 function get_mission_route()error('no route')end;SetCommand(10836,1);update();assert(g('HUD_WP_VALID')==0)
 ''')

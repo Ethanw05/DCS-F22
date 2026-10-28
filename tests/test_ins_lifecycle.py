@@ -48,3 +48,13 @@ for n=1,1900 do tick(time+.1)end;assert(g('F22_INS_READY')==0,'moving alignment 
 tick(0);assert(g('F22_INS_READY')==0,'rewind resets alignment')
 """)
 print('INS: bounded explicit uncertainty, coherent prediction/aiding correction, invalid sensor recovery, power/airborne/ground/motion/clock lifecycle PASS')
+
+# The former model-disabled path must not bypass alignment or uncertainty.
+lua=runtime()
+lua.execute("""
+local model=dofile(SCRIPT_ROOT..'Systems/INS_Model.lua').new()
+local sample={now=1,powered=true,enabled=false,aligned=false,aided=true,n=100,e=200,alt=1000}
+assert(not model:update(sample) and not model.valid,'disabled model bypassed alignment with raw truth')
+sample.aligned=true;model:update(sample)
+assert(model.valid and model.error>=15,'disabled flag created a perfect zero-error position')
+""")

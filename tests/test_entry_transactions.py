@@ -26,7 +26,7 @@ guidance_physical:publish(get_param_handle('F22_AP_CLOCK'):get())
 dofile(SCRIPT_ROOT..'Systems/Flight_Guidance.lua');post_initialize();local gc,gu,gp=SetCommand,update,post_initialize
 dofile(SCRIPT_ROOT..'Systems/Altitude_System.lua');post_initialize();local ac,ap=SetCommand,post_initialize
 put('MAIN_POWER',1);put('F22_AP_CLOCK',now);put('EFM_HUD_VALID',1)
-put('F22_INS_MODEL_ENABLED',0);gu();nu()
+gu();nu()
 local queued={};local hold_nav=false
 function dispatch_action(device,command,value)
  if device==nil and command==11800 then queued[#queued+1]={kind='native',sequence=value}end

@@ -24,6 +24,9 @@ local physical=dofile(SCRIPT_ROOT..'../../tests/physical_frame_fixture.lua')({F2
 physical:publish(get('F22_AP_CLOCK'));producer:update()
 assert(hud:update().valid and hud.values.SOURCE==1 and hud.values.ATTITUDE_VALID==1)
 assert(sfg:update().valid and sfg.values.SOURCE==2 and sfg.values.ATTITUDE_VALID==1)
+put('F22_GINS_SFG_POWER',0)
+assert(not sfg:update().valid,'powered-off role retained contradictory healthy attitude')
+producer:update();assert(sfg:update().valid)
 put('F22_GINS_1_ATTITUDE_FAILURE',1);put('F22_GINS_1_POSITION_FAILURE',1);producer:update()
 assert(hud:update().values.ATTITUDE_VALID==0 and sfg:update().values.ATTITUDE_VALID==1)
 assert(nav:update().values.POSITION_READY==0 and get('F22_INS_READY')==0)
@@ -33,7 +36,7 @@ put('F22_GINS_2_HEADING_FAILURE',1);producer:update()
 assert(sfg:update().values.ATTITUDE_VALID==1 and sfg.values.HEADING_VALID==0)
 put('F22_GINS_2_HEADING_FAILURE',0);producer:update()
 put('F22_AP_CLOCK',11);assert(not sfg:update().valid,'stale reference became current truth')
-put('F22_GINS_SCHEMA',0);assert(not sfg:update().valid and sfg.present,'legacy fallback revived after ownership')
+put('F22_GINS_SCHEMA',0);assert(not sfg:update().valid,'withdrawn schema retained reference authority')
 put('F22_GINS_SCHEMA',1);physical:publish(get('F22_AP_CLOCK'));producer:update();assert(sfg:update().valid)
 local mixed=false
 local reader=R.reader(function(k)
@@ -192,3 +195,19 @@ assert(get('HUD_REFERENCE_ATTITUDE_VALID')==0 and get('HUD_REFERENCE_HEADING_VAL
  'missing selected reference became raw simulator HUD attitude')
 ''')
 print('Attitude consumers require the selected current reference from startup PASS')
+
+lua=scope['runtime']()
+lua.execute(r'''
+local function get(k)return get_param_handle(k):get()end
+local function put(k,v)get_param_handle(k):set(v)end
+function get_base_data()return {getSelfCoordinates=function()return 100,1000,200 end,
+ getPitch=function()return .1 end,getRoll=function()return .2 end,getHeading=function()return -.3 end}end
+function get_mission_route()return{{x=0,y=0,alt=1000},{x=10000,y=0,alt=1000}}end
+put('MAIN_POWER',1);put('F22_AP_CLOCK',1);put('F22_INS_READY',1);put('F22_GPS_AID',1)
+put('EFM_HUD_VALID',1);put('EFM_HUD_VN',100);put('HUD_GS_VALID',1);put('HUD_GS_MPS',100)
+dofile(SCRIPT_ROOT..'Systems/Navigation_System.lua');post_initialize();update()
+assert(get('F22_NAV_OWN_VALID')==0 and get('F22_NAV_HEADING_VALID')==0
+ and get('F22_NAV_ATTITUDE_VALID')==0 and get('HUD_WP_VALID')==0,
+ 'missing selected GINS schema became healthy raw navigation')
+''')
+print('Navigation requires current selected GINS references from startup PASS')
