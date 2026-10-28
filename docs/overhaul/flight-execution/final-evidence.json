@@ -50,5 +50,11 @@
   "VR_observed": false,
   "MP_observed": false,
   "limitations": "Physical estimates and actual native effects listed per package; deterministic offline behavior is not aircraft validation.",
-  "physical_refuel_commit": "0a47665b7b473e1efebeae85ec291241ddc935ab"
+  "physical_refuel_commit": "0a47665b7b473e1efebeae85ec291241ddc935ab",
+  "broad_python_cases": {
+    "passed": 183,
+    "log": "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/chat1-20261028/integration-final-cases.txt",
+    "scope": "Sharedcurrentworkingcases, includes otherowners additions; no authorship claim."
+  },
+  "identity_manifest": "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/chat1-20261028/post-flight-identity.json"
 }

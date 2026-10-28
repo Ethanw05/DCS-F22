@@ -452,10 +452,17 @@ void refuel_callback_cases(Port& p) {
     require(parameter(ED_FM_FC3_AR_DOOR_PROBE_HANDLE_POS) == 1 &&
         parameter(ED_FM_CAN_ACCEPT_FUEL_FROM_TANKER) == 0,
         "Selected request was confused with achieved receptacle state");
+    std::array<float, 2000> arguments{};
+    p.draw(arguments.data(), arguments.size());
+    require(close_to(arguments[22], p.get("EFM_REFUEL_DOOR_POSITION")),
+        "Receptacle drawing did not consume achieved travel");
     for (unsigned step = 0; step < 180; ++step) p.step();
     require(p.get("EFM_REFUEL_DOOR_POSITION") >= .99 &&
         parameter(ED_FM_CAN_ACCEPT_FUEL_FROM_TANKER) == 1,
         "Achieved airborne receptacle did not admit native refuel eligibility");
+    p.draw(arguments.data(), arguments.size());
+    require(close_to(arguments[22], p.get("EFM_REFUEL_DOOR_POSITION")),
+        "Open receptacle drawing disagreed with its physical owner");
     p.put("F22_REFUEL_DISCONNECT_REQUEST", 1); p.step();
     require(parameter(ED_FM_INTERRUPT_REFUEL) == 1 &&
         parameter(ED_FM_CAN_ACCEPT_FUEL_FROM_TANKER) == 0,

@@ -1,0 +1,10 @@
+--- a/EFM/source/RAPTOR.cpp
++++ b/EFM/source/RAPTOR.cpp
+@@ -1142,6 +1142,7 @@
+     data[17] = static_cast<float>(limit(RAPTOR::left_rudder_angle / RAPTOR::rad(30), -1, 1));
+     data[18] = static_cast<float>(limit(RAPTOR::right_rudder_angle / RAPTOR::rad(30), -1, 1));
+     data[25] = static_cast<float>(vehicle.configuration.hook_position);
++    data[22] = static_cast<float>(vehicle.configuration.refuel_door);
+     data[21] = (float)limit(RAPTOR::airbrake_pos, 0, 1);
+     data[182] = (float)limit(RAPTOR::airbrake_pos, 0, 1);
+     data[184] = (float)limit(RAPTOR::airbrake_pos, 0, 1);

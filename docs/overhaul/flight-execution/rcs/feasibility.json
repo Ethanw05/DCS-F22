@@ -1,0 +1,54 @@
+{
+  "captured_at": "2026-10-28T22:28:06.863469+00:00",
+  "user_report": "InstalledEW-Gauntlet mission, passes belowabout5000ft,no observedAAA/IR/SAMlockorfire. ECMstateandactualAI detectionunobserved.",
+  "source_hashes": {
+    "F-22A.lua": "8cec308d388fc1c8c04d232c0ca736c3634ad118e2cd30ae0709bb8db989ac8c",
+    "EFM/include/FM/wHumanCustomPhysicsAPI.h": "a356c397b02959b07e969a82a1ce9fc2ddcbb8f376df947704fe831bfec5e394",
+    "EFM/include/FM/wHumanCustomPhysicsAPI_ImplementationDeclare.h": "58e246eea93efe6f13903b43619defc5f7db0d1616bf50b9b35435542d74f90a",
+    "Cockpit/Scripts/Systems/Weapon_System.lua": "7eb9da1e57cff6a73a197be38d19dea115d65353defca9d251f01bd7bb50cce6"
+  },
+  "current_registration_rcs_m2": 0.0001,
+  "dynamic_signature_connected": false,
+  "achieved_bays": {
+    "600": "main",
+    "601": "left",
+    "602": "right",
+    "owner": "Weapon_System.lua single achieved actuator owner"
+  },
+  "installed_modules": [
+    {
+      "path": "D:\\DCS\\bin\\WorldGeneral.dll",
+      "sha256": "7e9ad48e07f574333ab32c12c92a7be9c91173c57de9dda702fe433f04d6ad27",
+      "PE_timestamp": "0x6ac122f4"
+    },
+    {
+      "path": "D:\\DCS\\bin\\Flight.dll",
+      "sha256": "6caa0061687610b0df06434c29fa2d38004fc68b66e036667f6d26fceea542e9",
+      "PE_timestamp": "0x6aae1f7e"
+    },
+    {
+      "path": "D:\\DCS\\bin\\CockpitBase.dll",
+      "sha256": "163d55167503da8dd0ea9eb459e17206fc3dc8d6b4805b5b13bbe58341beb794",
+      "PE_timestamp": "0x6ac12468"
+    }
+  ],
+  "public_EFM_callback_search": "No RCS/radar-cross-section runtime setter or output enumeration in repository or installed D:/DCS/API headers.",
+  "native_exports": "getRCS(wDetectable,...),getRCS(Graphics::Model*) found in WorldGeneral. Getter export presence is not a setter contract. No ownship RCS setter found in bin export search.",
+  "body_access_limit": "WorldGeneral and Flight exported bodies have no file-backed .text. Offline UPX tool reports NotPackedException; no guessed offset/call or binary modification attempted.",
+  "receiver_only_caution": "CockpitBase avSimpleRadar get_RCS_for_target and RCS_COEFF describe receiver-side evaluation, not an authenticated change in ownship return to AI SAMs.",
+  "host_observed": false,
+  "production_RCS_changed": false,
+  "fallback": "No static balancing value substituted for the requested dynamic behavior. No AI invisible or forced-lock scripting added.",
+  "trial": {
+    "path": "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/chat1-20261028/rcs-trial/F22-RCS-SAM-Qualification.miz",
+    "groups": 20,
+    "ROE": "WEAPON_FREE0",
+    "alarm": "RED2",
+    "ECM": "pilot-controlled; no automatic command",
+    "installed": false,
+    "executed": false
+  },
+  "tests": "Current183independentcases pass, including2registration and6passiveobservation cases.5nativeflight suites pass withachievedrefuel drawing. No actualDCS signature mutation orAI behavior observation.",
+  "installed_mission_baseline": "gauntlet-baseline.json",
+  "registration_defect": "Chat2 applied exact3fieldWSTYPE_PLACEHOLDER fix under flight-registration-descriptor lease. Fresh/reloadactualLuacasesnowpass. ActualAIeffectunobserved."
+}

@@ -1,0 +1,26 @@
+{
+  "source": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Missions\\F22-EW-Gauntlet.miz",
+  "sha256": "f588bdae53968e791543b3e3c34c1cdd8755b8c41ac775c71e51a7560e128292",
+  "start_altitude_msl_m": 4200,
+  "reported_pass_altitude_ft": "below5000",
+  "groups": 38,
+  "trigger_count": 0,
+  "forced_options": {
+    "immortal": false,
+    "unlimitedWeapons": false,
+    "unlimitedFuel": false
+  },
+  "all_ground_ROE": 0,
+  "all_ground_alarm": 2,
+  "all_active": true,
+  "player_invisible": null,
+  "player_immortal": null,
+  "IR_coeff_estimates": {
+    "normal": 0.15,
+    "AB": 0.3
+  },
+  "radar_rcs_constant_m2": 0.0001,
+  "classification_defect": "WorldID/shapeindex/attribute4 nil on freshload or previousLuaTABLE on reload; verified from actualfull registration payload.3fieldcandidate passes offline; actualAI consequence unobserved.",
+  "instrumented_copy_preserves_setup": true,
+  "runtime_observed": false
+}

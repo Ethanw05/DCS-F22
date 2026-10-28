@@ -1,0 +1,37 @@
+{
+  "owner": "chat1",
+  "status": "Registration/drawarg reviewed and applied by Chat2; please include exact own diagnostic/test paths or grant independent tool commit window",
+  "title": "Publish achieved refueling travel and add passive SAM signature qualification",
+  "previous_code_commit": "0a47665b7b473e1efebeae85ec291241ddc935ab",
+  "paths": [
+    "tests/native/flight_callbacks.cpp",
+    "tools/build_signature_trial.py",
+    "tools/diagnostics/observe_signature_sam.lua",
+    "tools/diagnostics/F22RcsTelemetry.lua",
+    "tests/cases/test_signature_observation.py",
+    "docs/overhaul/flight-execution/rcs/README.md",
+    "docs/overhaul/flight-execution/rcs/feasibility.json",
+    "docs/overhaul/flight-execution/refuel-achieved-drawing.patch",
+    "tests/cases/test_aircraft_signature_registration.py",
+    "docs/overhaul/flight-execution/rcs/gauntlet-baseline.json",
+    "docs/overhaul/flight-execution/rcs/aircraft-registration.patch"
+  ],
+  "shared_patch": "refuel-achieved-drawing.patch",
+  "shared_scope": "RAPTOR.cpp only data[22] achievedrefuel publication in own physicaldraw callback; preserve native nav/lighting/entry identity edits",
+  "hashes": {
+    "tests/native/flight_callbacks.cpp": "46dda870fb9ff12e612bc6066b201aed7dc320a2bb6f222b9fa1a88821a4abf9",
+    "tools/build_signature_trial.py": "ee0b9f2dac76c27d08c873f96b4d726b137efef511d0c0fa4f49490b8af68039",
+    "tools/diagnostics/observe_signature_sam.lua": "9d7f183dec4fd6045332a82ae478642dffaeedd254d23de3792f7fbaaa3e591a",
+    "tools/diagnostics/F22RcsTelemetry.lua": "1627bb08271f06bc720b672db1c9ca1c7a5a42c61ecd285b2130ef9a997fe070",
+    "tests/cases/test_signature_observation.py": "243b076678afae02030244c72de47107013f18d3fb450aede817dc70926fa58d",
+    "docs/overhaul/flight-execution/rcs/README.md": "ab0b1e21d5ba19d21cd0129afd39c090a2fb690dfca4022622ec5e6365932a9f",
+    "docs/overhaul/flight-execution/rcs/feasibility.json": "7b782f4728c19521ead7d2ba18bc8b71ecd335775bff44e0fa4c45b045684178",
+    "docs/overhaul/flight-execution/refuel-achieved-drawing.patch": "28691525735f557d50e64307e948c6ea535868c842b209ba552e5b2066727028",
+    "tests/cases/test_aircraft_signature_registration.py": "c8631482d1f916c6c24db398c15bf66b70a0701b1d6466b631eff7bc44089f79",
+    "docs/overhaul/flight-execution/rcs/gauntlet-baseline.json": "6d725830a6a79c08131a70c86f0f21b0049704fe380d2c0beac4be5ddd0aecd8",
+    "docs/overhaul/flight-execution/rcs/aircraft-registration.patch": "924ee24e62954a505695d7b6eb84454ae954034f5b577bc560d66ae88db3ac9c"
+  },
+  "verification": "Current183independentcase methods pass, including2fresh/reloadregistrationcases and6passiveobservationcases.5nativeflight suites pass withdrawarg22. InstrumentedactualEWGauntletpreservesall38enemy groups,route,altitude,payload,nativeIDs,forcedoptions.",
+  "runtime": "No DCS/install operation; passivehook not installed. RCS dynamic backend unresolved; observer does not alter RCS,AI or aircraft.",
+  "registration_source_request": "Applied/tested by Chat2; include exact3native-type fields in integration commit. ActualAIbehaviorunobserved."
+}
