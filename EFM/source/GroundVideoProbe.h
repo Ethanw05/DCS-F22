@@ -50,9 +50,11 @@ inline double half(std::uint16_t h) {
   return sign*std::ldexp(exponent?1.+fraction/1024.:fraction/1024.,exponent?exponent-15:-14);
 }
 inline double unsigned_float(unsigned value,unsigned mantissa) {
+  if (mantissa>23) return 0;
   const unsigned exponent=value>>mantissa,fraction=value&((1u<<mantissa)-1);
   if(exponent==31)return 0;
-  return std::ldexp(exponent?1.+fraction/double(1u<<mantissa):fraction/double(1u<<mantissa),exponent?int(exponent)-15:-14);
+  const double scale=std::ldexp(1.,static_cast<int>(mantissa));
+  return std::ldexp(exponent?1.+fraction/scale:fraction/scale,exponent?int(exponent)-15:-14);
 }
 struct State {
   ID3D11Texture2D *staging{};
@@ -179,7 +181,8 @@ inline void request(Frame frame) {
   if(now>=last && now-last<1)return;
   if(pending.exchange(true))return;
   using Call=void(__cdecl *)(const std::function<void()> &,const char *);
-  auto call=reinterpret_cast<Call>(GetProcAddress(GetModuleHandleW(L"EDCore.dll"),"?callFunction@RenderingThread@ed@@YAXAEBV?$function@$$A6AXXZ@std@@PEBD@Z"));
+  const auto core=GetModuleHandleW(L"EDCore.dll");
+  auto call=core?reinterpret_cast<Call>(GetProcAddress(core,"?callFunction@RenderingThread@ed@@YAXAEBV?$function@$$A6AXXZ@std@@PEBD@Z")):nullptr;
   if(!call){pending=false;status=15;return;}
   // The asynchronous host queue retains callable code. This opt-in diagnostic
   // pins its own DLL for the process so mission/device teardown cannot unload

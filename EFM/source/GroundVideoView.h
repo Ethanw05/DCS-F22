@@ -59,6 +59,32 @@ inline bool refresh(const View& current, const View& previous, bool have_previou
   return !current.frozen && current.collection>0
       && (!have_previous || current.collection!=previous.collection);
 }
+// The common RBM renderer caches terrain across its three draw stages. Only
+// a direction transition restarts that cache; DynamicParam5 is buildDBS and
+// does nothing for MAP. This is a renderer transaction, not antenna motion.
+// Coalesce completed RF work while a captured image traverses those stages.
+class ImageCycle {
+  static constexpr unsigned pipeline_submissions = 4;
+  View image_{};
+  unsigned submitted_{};
+  int direction_ = 1;
+  bool captured_{};
+public:
+  bool capture(const View& candidate) noexcept {
+    if (!refresh(candidate, image_, captured_)) return false;
+    if (captured_ && submitted_ < pipeline_submissions) return false;
+    if (captured_) direction_ = -direction_;
+    image_ = candidate;
+    image_.scan_direction = direction_;
+    submitted_ = 0;
+    captured_ = true;
+    return true;
+  }
+  bool available() const noexcept { return captured_; }
+  const View& image() const noexcept { return image_; }
+  int direction() const noexcept { return direction_; }
+  void submitted() noexcept { if (submitted_ < pipeline_submissions) ++submitted_; }
+};
 // Physics supplies this value snapshot. Render callbacks never read scene
 // objects or use the slower cockpit/INS coordinates as an antenna position.
 struct Aircraft {

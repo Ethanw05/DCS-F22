@@ -44,6 +44,7 @@
 #include "NativeAGWeapons.h"
 #include "NativeAltimetry.h"
 #include "NativeDatalink.h"
+#include "NativeContactIdentity.h"
 #include "Inputs.h"
 #include "VehicleSystems.h"
 #include "TrimControl.h"
@@ -1587,6 +1588,7 @@ void ed_fm_release() {
     RAPTOR::internal_fuel = RAPTOR::total_fuel = 0.0;
     vehicle.fuel.set_internal(0.0);
     RAPTOR::external_tanks_equipped = false;
+    NativeContactIdentity::reset();
     NativeDatalink::reset();
     NativeAltimetry::reset();
     NativeNavigation::reset();
@@ -1698,6 +1700,7 @@ void CockpitManager::initialize() {
     vehicle_bus.write(VehicleSignal::RequestValid, 0.0);
     vehicle_repair_injected_faults();
     NativeSidewinder::start_feedback();
+    NativeContactIdentity::reset();
     NativeDatalink::reset();
     NativeAltimetry::reset();
     NativeNavigation::reset();
@@ -1802,6 +1805,7 @@ void CockpitManager::updateGun() {
 }
 
 void CockpitManager::updateCombat(double dt) {
+    NativeContactIdentity::update(param_api_);
     NativeDatalink::update(param_api_);
     const auto& sensed = vehicle.air_sensor.measured;
     const double sensed_age = RAPTOR::fm_clock - sensed.stamp_s;
