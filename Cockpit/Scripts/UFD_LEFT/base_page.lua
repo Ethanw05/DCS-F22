@@ -1,3 +1,4 @@
+local reading=dofile(LockOn_Options.script_path..'MFD_COMMON/qualified_readout.lua')
 --[[
     Grinnelli Designs F-22A Raptor
     Copyright (C) 2024, Joseph Grinnelli
@@ -687,7 +688,7 @@ BGROUND1.vertices =
 
 Add(BGROUND1)
 --------------------------------------------------
-local LENGRPM				= CreateElement "ceStringPoly"
+local LENGRPM				= {}
 LENGRPM.name				= "rad Alt"
 LENGRPM.material			= UFD_GRN
 LENGRPM.init_pos			= {-47, 40, 0} --L-R,U-D,F-B
@@ -699,10 +700,10 @@ LENGRPM.isdraw				= true
 LENGRPM.use_mipfilter		= true
 LENGRPM.h_clip_relation		= h_clip_relations.COMPARE
 LENGRPM.level				= 6
-LENGRPM.element_params		= {"UFD_OPACITY","F22_ENGINE_L_RPM_TEXT","L_ADI_OPACITY"}
-LENGRPM.formats				= {"%s"}--= {"%02.0f"}
+LENGRPM.element_params		= {"UFD_OPACITY","RPM_L","L_ADI_OPACITY"}
+LENGRPM.formats = {"%.0f"}
 LENGRPM.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
-Add(LENGRPM)
+reading.add(LENGRPM,'F22_ENGINE_L_RPM_VALID','ceStringPoly')
 -----------------------------------------------------------------------------------------
 ENGPCTL 					= CreateElement "ceStringPoly"
 ENGPCTL.name 				= "fuel numb"
@@ -739,7 +740,7 @@ ENGDEGL.controllers		= {
 								{"opacity_using_parameter",1},
 								}
 Add(ENGDEGL)
-local LENGEGT				= CreateElement "ceStringPoly"
+local LENGEGT				= {}
 LENGEGT.name				= "rad Alt"
 LENGEGT.material			= UFD_GRN
 LENGEGT.init_pos			= {-47, 33, 0} --L-R,U-D,F-B
@@ -751,10 +752,10 @@ LENGEGT.isdraw				= true
 LENGEGT.use_mipfilter		= true
 LENGEGT.h_clip_relation		= h_clip_relations.COMPARE
 LENGEGT.level				= 6
-LENGEGT.element_params		= {"UFD_OPACITY","F22_ENGINE_L_EGT_TEXT","L_ADI_OPACITY"}
-LENGEGT.formats				= {"%s"}--= {"%02.0f"}
+LENGEGT.element_params		= {"UFD_OPACITY","EGT_L","L_ADI_OPACITY"}
+LENGEGT.formats = {"%.0f"}
 LENGEGT.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
-Add(LENGEGT)
+reading.add(LENGEGT,'F22_ENGINE_L_EGT_VALID','ceStringPoly')
 -----------------------------------------------------------------------------------------
 ----------------------------------
 ---------------------------------------------------------------
@@ -859,7 +860,7 @@ BGROUND2.vertices =
 Add(BGROUND2)
 --------------------------------
 --------------------------------------------------
-local RENGRPM				= CreateElement "ceStringPoly"
+local RENGRPM				= {}
 RENGRPM.name				= "rad Alt"
 RENGRPM.material			= UFD_GRN
 RENGRPM.init_pos			= {20, 40, 0} --L-R,U-D,F-B
@@ -871,10 +872,10 @@ RENGRPM.isdraw				= true
 RENGRPM.use_mipfilter		= true
 RENGRPM.h_clip_relation		= h_clip_relations.COMPARE
 RENGRPM.level				= 6
-RENGRPM.element_params		= {"UFD_OPACITY","F22_ENGINE_R_RPM_TEXT","L_ADI_OPACITY"}
-RENGRPM.formats				= {"%s"}--= {"%02.0f"}
+RENGRPM.element_params		= {"UFD_OPACITY","RPM_R","L_ADI_OPACITY"}
+RENGRPM.formats = {"%.0f"}
 RENGRPM.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
-Add(RENGRPM)
+reading.add(RENGRPM,'F22_ENGINE_R_RPM_VALID','ceStringPoly')
 -----------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------
 ENGPCTR 					= CreateElement "ceStringPoly"
@@ -913,7 +914,7 @@ ENGDEGR.controllers		= {
 								}
 Add(ENGDEGR)
 --------------------------------------------------
-local RENGEGT				= CreateElement "ceStringPoly"
+local RENGEGT				= {}
 RENGEGT.name				= "rad Alt"
 RENGEGT.material			= UFD_GRN
 RENGEGT.init_pos			= {20, 33, 0} --L-R,U-D,F-B
@@ -925,10 +926,10 @@ RENGEGT.isdraw				= true
 RENGEGT.use_mipfilter		= true
 RENGEGT.h_clip_relation		= h_clip_relations.COMPARE
 RENGEGT.level				= 6
-RENGEGT.element_params		= {"UFD_OPACITY","F22_ENGINE_R_EGT_TEXT","L_ADI_OPACITY"}
-RENGEGT.formats				= {"%s"}--= {"%02.0f"}
+RENGEGT.element_params		= {"UFD_OPACITY","EGT_R","L_ADI_OPACITY"}
+RENGEGT.formats = {"%.0f"}
 RENGEGT.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
-Add(RENGEGT)
+reading.add(RENGEGT,'F22_ENGINE_R_EGT_VALID','ceStringPoly')
 ----------------------------------
 BGROUND3                    = CreateElement "ceTexPoly" -- speed box left
 BGROUND3.name    			= "BG"

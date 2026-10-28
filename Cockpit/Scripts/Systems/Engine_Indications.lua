@@ -2,10 +2,10 @@
 local Data = dofile(LockOn_Options.script_path .. 'Systems/Engine_Data.lua')
 local M = {}
 local specifications = {
-    {'rpm', 'RPM_', 'RPM', 1, '%d'}, {'temperature', 'EGT_', 'EGT', 1, '%d'},
-    {'oil', 'OIL_', 'OIL', 1, '%d'}, {'nozzle', '_NOZZLE_POS', 'NOZZLE', 1, '%02d'},
-    {'flow', '_FF_VALUE', 'FLOW', 2.20462 * 3600, '%02d'},
-    {'hydraulic', '_HYD_VALUE', 'HYD', 1, '%d'},
+    {'rpm', 'RPM_', 'RPM', 1}, {'temperature', 'EGT_', 'EGT', 1},
+    {'oil', 'OIL_', 'OIL', 1}, {'nozzle', '_NOZZLE_POS', 'NOZZLE', 1},
+    {'flow', '_FF_VALUE', 'FLOW', 2.20462 * 3600},
+    {'hydraulic', '_HYD_VALUE', 'HYD', 1},
 }
 
 -- Retained mod display thresholds; these are not production engine limits.
@@ -30,19 +30,9 @@ local function publish_field(field, value)
     local valid = value ~= nil
     field.valid:set(valid and 1 or 0)
     if field.color then field.color:set(field.color_value(value)) end
-    if not valid then
-        if field.last_text ~= '---' then field.text:set('---'); field.last_text = '---' end
-        field.last_integer = nil
-        return
-    end
+    if not valid then return end
     local scaled = value * field.scale
     if field.last_value ~= scaled then field.number:set(scaled); field.last_value = scaled end
-    local integer = math.floor(scaled + .5)
-    if field.last_integer ~= integer then
-        local text = string.format(field.format, integer)
-        field.text:set(text)
-        field.last_text, field.last_integer = text, integer
-    end
 end
 
 function M.new(get_handle)
@@ -53,13 +43,14 @@ function M.new(get_handle)
             local spec = specifications[field]
             local numeric = field <= 3 and (spec[2] .. letter) or (letter .. spec[2])
             local prefix = 'F22_ENGINE_' .. letter .. '_' .. spec[3]
-            local item = {metric = spec[1], scale = spec[4], format = spec[5],
-                number = get_handle(numeric), text = get_handle(prefix .. '_TEXT'),
+            local item = {metric = spec[1], scale = spec[4],
+                number = get_handle(numeric), last_value = 0,
                 valid = get_handle(prefix .. '_VALID')}
             if field <= 3 or field == 6 then
                 item.color_value = colors[spec[1]]
                 item.color = get_handle(letter .. '_' .. (field == 6 and 'HYD' or spec[3]) .. '_COLOR')
             end
+            item.number:set(0) -- Unavailable until its independent valid flag is committed.
             fields[field] = item
             publish_field(item, nil)
         end
