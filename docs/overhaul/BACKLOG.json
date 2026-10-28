@@ -4972,7 +4972,7 @@
         "AV35",
         "VG01"
       ],
-      "status": "estimated feed/transfer and conserved mass model implemented; host installation/MOI open; see vehicle-implementation.json",
+      "status": "fuel/mass boundaries and native tank-carriage adapter implemented; host ordering/MOI qualification open; see vehicle-implementation.json",
       "target": "Fuel is conserved by location and supply path. Installed tanks survive empty contents, combustion and auxiliaries draw finite fuel, and refuel/rearm transactions update mass once."
     },
     {
@@ -7238,7 +7238,7 @@
         "AV04",
         "AV05"
       ],
-      "status": "four-pump and finite hydraulic abstractions implemented; schematic detail open; see vehicle-implementation.json",
+      "status": "achieved bay/gun demand connected to timed hydraulic capacity response; production routing incomplete; see vehicle-implementation.json",
       "target": "Pump source status, circuit pressure/flow availability, routed consumer supply and accumulator energy are distinct; loss of one source has the correct declared survival behavior."
     },
     {
@@ -8956,7 +8956,7 @@
         "VG07",
         "VG09"
       ],
-      "status": "brake ownership/reserve corrections implemented; native controller/thermal replacement open; see vehicle-implementation.json",
+      "status": "artificial stopping drag replaced by native wheel torque with estimated heat/soak/fade and tire effects; runway calibration open; see vehicle-implementation.json",
       "target": "Pedal demand commands a declared deceleration response through one brake authority; wheel slip, reference motion, supply, brake energy and tire condition remain distinct."
     },
     {

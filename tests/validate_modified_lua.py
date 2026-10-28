@@ -44,6 +44,7 @@ SCRIPTS = [
     Path("Cockpit/Scripts/Systems/Gun_Motion.lua"),
     Path("Cockpit/Scripts/Systems/Gun_Frames.lua"),
     Path("Cockpit/Scripts/Systems/Weapon_System.lua"),
+    Path("Cockpit/Scripts/Systems/Vehicle_Stores_Adapter.lua"),
     Path("Cockpit/Scripts/Systems/IR_Audio.lua"),
     Path("Cockpit/Scripts/Systems/Navigation_System.lua"),
     Path("Cockpit/Scripts/Systems/Radar_Data_Bridge.lua"),

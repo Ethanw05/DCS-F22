@@ -24,7 +24,10 @@ public:
         for (std::size_t index = 0; index < size_; ++index) {
             auto& entry = entries_[index];
             if (entry.x_m == x_m && entry.y_m == y_m && entry.z_m == z_m) {
-                entry.kg += kg;
+                const double combined = entry.kg + kg;
+                if (!std::isfinite(combined)) return false;
+                entry.kg = combined;
+                if (combined == 0.0) entries_[index] = entries_[--size_];
                 return true;
             }
         }
@@ -42,6 +45,7 @@ public:
     }
     bool transfer(double kg, const std::array<double, 3>& from,
                   const std::array<double, 3>& to) {
+        if (!std::isfinite(kg) || kg < 0.0) return false;
         // Fixed-size transactional copy: either both first moments commit or
         // the transfer is refused. No allocation, partial debit or retry loop.
         MassLedger candidate = *this;

@@ -7,6 +7,7 @@
 #include "VehicleLedger.h"
 #include "BrakeEnergy.h"
 #include "FuelSystem.h"
+#include "VehicleDemand.h"
 
 namespace RaptorVehicle {
 // One object per EFM instance. Producer: ed_fm_simulate, simulation thread.
@@ -24,6 +25,7 @@ struct VehicleContext {
     MassLedger mass;
     DamageLedger damage;
     FuelSystem fuel;
+    UtilityDemand utility_demand;
     BrakeEnergy left_brake;
     BrakeEnergy right_brake;
     double raw_body_ay_mps2 = 0.0;
@@ -67,6 +69,8 @@ struct VehicleContext {
         extinguishing_attempt = false;
         fire_bottle_available = true;
         damage.clear();
+        left_brake.repair_tire();
+        right_brake.repair_tire();
         // Repair is not refueling, reserve servicing, cooling, or engine start.
     }
 };

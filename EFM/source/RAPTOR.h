@@ -132,7 +132,6 @@ namespace RAPTOR {
     double wheel_brake = 0; // common legacy command
     double left_brake_request = 0, right_brake_request = 0;
     double left_brake_achieved = 0, right_brake_achieved = 0;
-    double landing_brake_assist = 0;
 
     const double max_internal_fuel = 8200.0;
     const double max_external_fuel = 2 * RaptorVehicle::external_tank_capacity_kg;
@@ -150,6 +149,8 @@ namespace RAPTOR {
     bool external_tanks_equipped = false;
     std::map<int, double> external_fuel_stations;
     std::map<int, Vec3> external_fuel_positions;
+    std::map<int, bool> external_tank_refill_allowed;
+    std::map<int, double> external_fuel_callback_stamp;
 
     double atmosphere_density = 1.225, altitude_ASL = 0, altitude_AGL = 0, V_scalar = 0;
     double speed_of_sound = 320, mach = 0;
@@ -186,6 +187,7 @@ namespace RAPTOR {
     double current_mass = 19700.0;
     Vec3 current_inertia;
     Vec3 body_air_velocity;
+    Vec3 body_ground_velocity;
     double max_available_left_thrust = 0, max_available_right_thrust = 0;
     double max_dry_left_thrust = 0, max_dry_right_thrust = 0;
 

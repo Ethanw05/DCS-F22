@@ -56,7 +56,11 @@ enum class Signal : std::size_t {
     LeftAugmentationAvailable, RightAugmentationAvailable,
     LeftControlAvailable, RightControlAvailable,
     LeftStartResetReady, RightStartResetReady,
-    EngineIndicationSchema, LeftEngineFlow, RightEngineFlow, Count
+    EngineIndicationSchema, LeftEngineFlow, RightEngineFlow,
+    HydraulicDemandSchema, HydraulicDemandGeneration, HydraulicDemandStamp,
+    HydraulicDemandSequence, FuelInventoryValid, LeftTankInstalled, RightTankInstalled,
+    LeftBrakeEffectiveness, RightBrakeEffectiveness, LeftTireTemperature,
+    RightTireTemperature, LeftTireFailed, RightTireFailed, FuelInventoryStamp, Count
 };
 
 inline constexpr std::array<const char*, static_cast<std::size_t>(Signal::Count)> signal_names = {
@@ -117,7 +121,12 @@ inline constexpr std::array<const char*, static_cast<std::size_t>(Signal::Count)
     "EFM_L_AUG_AVAILABLE", "EFM_R_AUG_AVAILABLE",
     "EFM_L_CONTROL_AVAILABLE", "EFM_R_CONTROL_AVAILABLE",
     "EFM_L_START_RESET_READY", "EFM_R_START_RESET_READY",
-    "EFM_ENGINE_INDICATION_SCHEMA", "EFM_ENGINE_LEFT_FLOW_KG_S", "EFM_ENGINE_RIGHT_FLOW_KG_S"
+    "EFM_ENGINE_INDICATION_SCHEMA", "EFM_ENGINE_LEFT_FLOW_KG_S", "EFM_ENGINE_RIGHT_FLOW_KG_S",
+    "F22_HYD_DEMAND_SCHEMA", "F22_HYD_DEMAND_GENERATION", "F22_HYD_DEMAND_STAMP",
+    "F22_HYD_DEMAND_SEQUENCE", "F22_FUEL_INVENTORY_VALID", "F22_LEFT_TANK_INSTALLED",
+    "F22_RIGHT_TANK_INSTALLED", "EFM_L_BRAKE_EFFECTIVENESS", "EFM_R_BRAKE_EFFECTIVENESS",
+    "EFM_L_TIRE_TEMP_EST_C", "EFM_R_TIRE_TEMP_EST_C", "EFM_L_TIRE_FAILED", "EFM_R_TIRE_FAILED",
+    "F22_FUEL_INVENTORY_STAMP"
 };
 static_assert([] {
     for (const auto* name : signal_names) if (name == nullptr) return false;

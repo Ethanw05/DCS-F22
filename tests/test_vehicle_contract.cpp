@@ -213,6 +213,68 @@ void independent_oxygen_sources() {
     environment.update(input, std::numeric_limits<double>::quiet_NaN());
     assert(environment.backup_reserve == after);
 }
+
+void brake_heat_fade_and_tires() {
+    RaptorVehicle::BrakeEnergy brake;
+    brake.normal_force_n = 150000;
+    brake.update(1, 0, 25, true, .01);
+    assert(brake.energy_j == 0 && brake.temperature_c == 25);
+    brake.update(1, 70, 25, false, .01);
+    assert(brake.energy_j == 0); // airborne/unloaded pedal is not a heater
+    for (int index=0; index<3000; ++index)
+        brake.update(brake.effectiveness(), 70, 25, true, .01);
+    assert(brake.temperature_c > 450 && brake.effectiveness() < 1);
+    const double disc = brake.temperature_c, tire = brake.tire_temperature_c;
+    const double work = brake.energy_j;
+    for (int index=0; index<30000; ++index) brake.update(0, 0, 25, true, .01);
+    assert(brake.energy_j == work && brake.temperature_c < disc);
+    assert(brake.tire_temperature_c > tire && brake.tire_failed);
+    assert(brake.extra_rolling_force(30,true) < 0);
+    assert(brake.extra_rolling_force(-30,true) > 0);
+    assert(brake.extra_rolling_force(0,true) == 0);
+    assert(brake.extra_rolling_force(30,false) == 0);
+    const double remaining = brake.temperature_c;
+    brake.update(1, 100, 25, true, std::numeric_limits<double>::quiet_NaN());
+    assert(brake.temperature_c == remaining);
+    RaptorVehicle::VehicleContext vehicle;
+    vehicle.left_brake = brake;
+    vehicle.repair_equipment();
+    assert(!vehicle.left_brake.tire_failed && vehicle.left_brake.temperature_c == remaining);
+    brake.contact_stamp_s = 10;
+    assert(brake.contact_fresh(10.05) && !brake.contact_fresh(10.11));
+}
+
+void fuel_transaction_boundaries() {
+    RaptorVehicle::FuelSystem fuel;
+    RaptorVehicle::MassLedger ledger;
+    const double invalid = std::numeric_limits<double>::quiet_NaN();
+    fuel.set_internal(4000);
+    for (double amount : {-100.0, invalid, std::numeric_limits<double>::infinity()}) {
+        if (!std::isfinite(amount) || amount<0) fuel.set_internal(amount);
+        assert(fuel.accept_internal(amount,ledger) == 0);
+        assert(fuel.transfer_external(100,{0,0,-3},amount,ledger) == 0);
+        fuel.transfer_internal(amount,ledger);
+        assert(fuel.internal_kg() == 4000);
+    }
+    assert(!ledger.transfer(-1,{0,0,0},{1,0,0}));
+    RaptorVehicle::MassTransaction entry;
+    assert(!ledger.pop(entry));
+    // Canceled locations do not permanently exhaust the fixed transaction queue.
+    for (int index=0; index<1000; ++index) {
+        assert(ledger.add(1,index,0,0));
+        assert(ledger.add(-1,index,0,0));
+    }
+    assert(!ledger.pop(entry));
+    const double huge = std::numeric_limits<double>::max();
+    assert(ledger.add(huge,0,0,0) && !ledger.add(huge,0,0,0));
+    assert(ledger.pop(entry) && entry.kg == huge);
+    for (int index=0; index<64; ++index) assert(ledger.add(1,100+index,0,0));
+    assert(fuel.accept_internal(100,ledger) == 0 && fuel.internal_kg() == 4000);
+    assert(fuel.transfer_external(100,{0,0,-3},100,ledger) == 0);
+    assert(fuel.internal_kg() == 4000);
+    ledger.clear();
+    assert(fuel.accept_internal(100,ledger) == 100 && fuel.internal_kg() == 4100);
+}
 } // namespace
 
 int main() {
@@ -225,5 +287,7 @@ int main() {
     finite_utilities_and_repair();
     feed_transfer_conservation();
     independent_oxygen_sources();
+    brake_heat_fade_and_tires();
+    fuel_transaction_boundaries();
     std::cout << "physical contract: SI air data, bounded conservation, causal start, finite supplies, repair scopes OK\n";
 }
