@@ -350,6 +350,7 @@ local function qualify_flight(state)
     local v=physical.values
     local contact=physical.valid and v.EFM_GROUND_VALID==1 and Envelope.boolean(v.EFM_WEIGHT_ON_WHEELS)
     state.ground=contact and v.EFM_WEIGHT_ON_WHEELS==1
+    state.airborne=contact and v.EFM_WEIGHT_ON_WHEELS==0
     qualify_gear(state,v)
     local air=v.EFM_AIRDATA_VALID==1 and v.EFM_AIRDATA_HEALTH==0
         and Envelope.fresh(v.EFM_AIRDATA_STAMP,physical.clock)
@@ -358,7 +359,6 @@ local function qualify_flight(state)
     state.cas=air and v.EFM_AIRDATA_CAS_MPS or nil
     state.vn,state.ve,state.vu=v.EFM_HUD_VN,v.EFM_HUD_VE,v.EFM_HUD_VU
     state.wn,state.we,state.wu=v.EFM_HUD_WN,v.EFM_HUD_WE,v.EFM_HUD_WU
-    state.fcs_valid,state.fcs_fault=conditions[1].valid,conditions[1].active
 end
 local function publish_faults(priority)
     local faults = receiver.faults

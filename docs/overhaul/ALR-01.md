@@ -35,3 +35,11 @@ Physical integration: the registry now reads coherent EFM generator, hydraulic, 
 Power transitions preserve fault occurrence/history and held physical ACK latches. Audio/pending crossings stop on loss; repeated down events after restoration cannot acknowledge a newly attended condition. Mission initialization/time reversal clears the history. Actual owner tests exercise these transitions.
 
 Current-contract cleanup removes the pre-owner display-color/loose-power condition adapter. Missing physical ownership leaves all eight source-valid flags false from startup; colors and old aggregate flags cannot manufacture fault authority. Warning input/control power and master-attention consumption now follow the current owners from startup as well. Actual warning/replay fixtures publish coherent physical samples and low oil pressure, including a new fault after a display-power outage while ACK remains held. Independent source history, completed recordings, expiring audio leases and actual generator redundancy are preserved.
+
+The policy layer also consumes only the fixed per-identity catalogue. Missing,
+malformed or incomplete boolean condition records remain unknown; loose FCS and
+aggregate caution fields have no second admission route. FCS speech requires
+qualified airborne contact rather than interpreting unknown contact as airborne.
+Current equipment caution remains independent of navigation validity. Both old
+shortcuts were reproduced before removal; typed-source restoration, unknown
+phase, occurrence/ACK and actual warning/audio owner regressions pass.

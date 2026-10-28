@@ -4,9 +4,10 @@ lua=runtime()
 lua.execute('''
 local W=dofile(SCRIPT_ROOT..'Systems/Pilot_Warnings.lua')
 local function state()
- return {now=10,powered=true,valid=true,ground=false,gear=false,n=0,u=1000,e=0,
+ local conditions={};for i=1,8 do conditions[i]={valid=true,active=false}end
+ return {now=10,powered=true,valid=true,ground=false,airborne=true,gear=false,n=0,u=1000,e=0,
   vn=200,vu=0,ve=0,roll=0,heading=0,cas=200,nz=1,baro=4000,radar=700,baro_floor=0,radar_floor=500,
-  baro_valid=true,radar_valid=true,fcs_valid=true}
+  baro_valid=true,radar_valid=true,conditions=conditions}
 end
 local flat=function()return 0 end
 local s=state();assert(not W.terrain(s,flat),'level over flat terrain is safe')
@@ -39,11 +40,11 @@ w=W.new();s=state();s.u=250;s.vu=-120;s.missile_warning=true
 assert(not w:update(s,flat).event,'terrain debounce');s.now=10.25
 r=w:update(s,flat);assert(r.event=='pull_up'and r.priority==3,'urgent terrain overrides missile audio')
 w:acknowledge();s.now=13;assert(w:update(s,flat).event=='pull_up','urgent recovery is not acknowledgeable')
-w=W.new();s=state();s.fcs_fault=true;s.fcs_valid=false;w:update(s,nil)
+w=W.new();s=state();s.conditions[1].active=true;s.conditions[1].valid=false;w:update(s,nil)
 s.now=12;assert(not w:update(s,nil).event,'unknown control health is not a failure')
-s.fcs_valid=true;w:update(s,nil);s.now=12.6;assert(w:update(s,nil).event=='flight_controls')
+s.conditions[1].valid=true;w:update(s,nil);s.now=12.6;assert(w:update(s,nil).event=='flight_controls')
 w:acknowledge();s.now=40;assert(not w:update(s,nil).event)
-s.ground=true;assert(w:update(s,flat).priority==0)
+s.ground=true;s.airborne=false;assert(w:update(s,flat).priority==0)
 s.ground=false;s.powered=false;assert(w:update(s,flat).priority==0)
 ''')
 print('Pilot warnings: terrain/recovery handedness, debounce, real fault validity, floor crossing/rearm, gear/power gates and audio priorities PASS')
