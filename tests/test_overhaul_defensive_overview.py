@@ -158,6 +158,16 @@ for _,e in ipairs(elements)do for _,p in ipairs(e.element_params or {})do
 end end
 put('F22_DEF_DETAIL_RMFD',0)
 assert(not text('DEF SETUP')and not text('UNSAVED'))
+-- The EW owner permits a self-test while OFF/STBY. One status slot must not
+-- draw its normal power state and the test message on top of each other.
+for _,system in ipairs({0,1,2})do
+ put('F22_CM_SYSTEM',system);put('F22_CM_SELF_TEST',1)
+ assert(text('CM TEST')and not text('CM OFF')and not text('CM STBY'))
+end
+put('F22_CM_SELF_TEST',0);put('F22_CM_FAILURE',1)
+assert(text('CM FAIL')and not text('CM TEST'))
+put('F22_CM_FAILURE',0);put('F22_CM_SYSTEM',1)
+assert(text('CM STBY')and not text('CM FAIL')and not text('CM TEST'))
 ''')
 print('Defensive native wrapper: construction bindings, exclusive formats, visible overview controls and independent MFD freshness PASS')
 

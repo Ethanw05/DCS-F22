@@ -114,15 +114,18 @@ D.text('FLARE --',.63,-.69,nil,'white',.0032,D.choice('F22_EW_BACKEND_READY',0))
 for mode,label in ipairs({'MAN','SEMI','AUTO'})do
  D.text(label..' P%.0f',-.56,-.64,'F22_CM_NORMAL_BANK','white',.0032,D.choice('F22_CM_MODE',mode))
 end
+local not_testing=D.choice('F22_CM_SELF_TEST',0)
+local healthy=D.choice('F22_CM_FAILURE',0,not_testing)
+local operating=D.choice('F22_CM_SYSTEM',2,healthy)
 for state,label in pairs({[0]='CM OFF',[1]='CM STBY',[2]='CM ON'})do
- if state~=2 then D.text(label,-.56,-.72,nil,'yellow',.0030,D.choice('F22_CM_SYSTEM',state))end
+ if state~=2 then D.text(label,-.56,-.72,nil,'yellow',.0030,D.choice('F22_CM_SYSTEM',state,healthy))end
 end
 D.text('CM TEST',-.56,-.72,nil,'yellow',.0030,D.choice('F22_CM_SELF_TEST',1))
-D.text('CM FAIL',-.56,-.72,nil,'yellow',.0030,D.choice('F22_CM_FAILURE',1))
+D.text('CM FAIL',-.56,-.72,nil,'yellow',.0030,D.choice('F22_CM_FAILURE',1,not_testing))
 D.text('CM LOW',.63,-.52,nil,'yellow',.0030,D.choice('F22_CM_LOW',1))
-D.text('CONSENT?',-.56,-.72,nil,'yellow',.0030,D.choice('F22_CM_AWAITING_CONSENT',1))
-D.text('RUN P%.0f',-.56,-.72,'F22_CM_RUNNING_BANK','white',.0030,D.choice('F22_CM_EXECUTING',1))
-local waiting=D.choice('F22_CM_EXECUTING',0,D.choice('F22_CM_PROGRAM_RUNNING',1))
+D.text('CONSENT?',-.56,-.72,nil,'yellow',.0030,D.choice('F22_CM_AWAITING_CONSENT',1,operating))
+D.text('RUN P%.0f',-.56,-.72,'F22_CM_RUNNING_BANK','white',.0030,D.choice('F22_CM_EXECUTING',1,operating))
+local waiting=D.choice('F22_CM_EXECUTING',0,D.choice('F22_CM_PROGRAM_RUNNING',1,operating))
 D.text('REQUESTED',-.56,-.72,nil,'white',.0030,waiting)
 -- Programming has one explicit entry/return; no draft or IFF table on DEF.
 D.root=setup
