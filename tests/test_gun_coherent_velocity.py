@@ -1,4 +1,4 @@
-"""The real director must not bypass its motion fit with raw radar velocity."""
+"""No noisy radar velocity or derivative may enter the native weapon request."""
 from pathlib import Path
 import argparse
 import subprocess
@@ -25,7 +25,7 @@ if args.baseline:
     ''')
 lua.execute('''
 LockOn_Options={script_path=ROOT}
-local values={F22_RADAR_STT_VALID=1,F22_STT_MOTION_VALID=1,F22_STT_ID=42,
+local values={F22_AESA_GENERATION=7,F22_RADAR_STT_VALID=1,F22_STT_MOTION_VALID=1,F22_STT_ID=42,
  F22_STT_VELOCITY_SIGMA_MPS=2.34,EFM_HUD_VALID=1,EFM_HUD_VN=220,
  F22N_RADAR_STT_RANGE=800,F22N_RADAR_STT_AZIMUTH=0,F22N_RADAR_STT_ELEVATION=0}
 local function get(k)return values[k]or 0 end
@@ -38,6 +38,8 @@ local function dispatch(_,command)
  assert(command==10851)
  if now>1 then
   local velocity=get('F22_GUN_VE')
+  assert(get('F22_GUN_INPUT_SOURCE')==2 and get('F22_GUN_REQUEST_GENERATION')==7)
+  assert(values.F22_GUN_AE==nil and values.F22_GUN_VE==nil,'radar derivatives leaked into native weapon input')
   if previous then maximum_step=math.max(maximum_step,math.abs(velocity-previous))end
   previous=velocity;requests=requests+1
  end
@@ -55,6 +57,6 @@ for sample=0,160 do
 end
 assert(requests>100,'motion estimate stopped valid native requests')
 assert(maximum_step<.75,'raw radar velocity bypassed the motion estimate: '..maximum_step)
-print(string.format('Actual director: %.3f m/s maximum velocity step from 4.680 m/s alternating reports',maximum_step))
+print(string.format('Actual director: %.3f m/s radar velocity injected into source-2 requests despite alternating reports',maximum_step))
 ''')
 print('Coherent gun velocity handoff PASS')

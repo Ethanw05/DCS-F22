@@ -1,8 +1,7 @@
 -- GPL-3.0-or-later. Original lock-associated director and conventional pipper.
--- Motion comes from the selected owned AESA measured track.
--- Mod adapter policy: keep actual observation age within the owned STT envelope.
+-- Association comes from the owned AESA track. Native source 2 is the
+-- simulator-assisted weapon P/V/load input, separate from radar observations.
 local M = { maximum_measurement_age = .5 }
-local Motion = dofile(LockOn_Options.script_path .. "Systems/Gun_Motion.lua")
 local Stabilizer = dofile(LockOn_Options.script_path .. "Systems/Gun_Cue_Stabilizer.lua")
 local Frames = dofile(LockOn_Options.script_path .. "Systems/Gun_Frames.lua")
 local function finite(v)
@@ -66,7 +65,7 @@ end
 function M.new(sensors, get, put, dispatch, display, device_id)
     local axes = { "N", "U", "E" }
     local self =
-        { stable = 0, acc = { 0, 0, 0 }, motion = Motion.new(), sight = Stabilizer.new(), history = {}, sequence = 0 }
+        { stable = 0, sight = Stabilizer.new(), history = {}, sequence = 0 }
     -- Complete render-plane schema before native HUD elements bind. Keep
     -- existing angular telemetry and native solver buffers unchanged.
     for _,name in ipairs({"LOW","HIGH","LEFT","RIGHT"}) do
@@ -80,6 +79,7 @@ function M.new(sensors, get, put, dispatch, display, device_id)
     local function reset()
         self.id = nil
         self.stamp = nil
+        self.generation = nil
         self.stable = 0
         self.last = nil
         self.own_check = nil
@@ -88,7 +88,6 @@ function M.new(sensors, get, put, dispatch, display, device_id)
         self.solution = nil
         for index = #self.history, 1, -1 do self.history[index] = nil end
         self.senttime = nil
-        self.motion:reset()
         self.sight:reset()
         self.display_aim = nil
         put("F22_GUN_REQUEST_VALID", 0)
@@ -101,6 +100,9 @@ function M.new(sensors, get, put, dispatch, display, device_id)
     -- Publish one request at a time; consume its acknowledged result before sending another.
     local function qualified_result(pending, id, time, now)
         return get("F22_GUN_SOLUTION_VALID") > .5 and get("F22_GUN_RESULT_SCHEMA") == 2
+            and get("F22_GUN_RESULT_SOURCE") == 2
+            and get("F22_GUN_RESULT_GENERATION") == pending.generation
+            and pending.generation == get("F22_AESA_GENERATION")
             and get("F22_GUN_SOLUTION_SEQUENCE") == pending.sequence
             and get("F22_GUN_RESULT_TRACK_ID") == id and pending.id == id
             and get("F22_GUN_RESULT_TIME") == time and finite(time)
@@ -120,7 +122,7 @@ function M.new(sensors, get, put, dispatch, display, device_id)
         -- Both directions belong to the native solve epoch. Advancing only
         -- target LOS would itself create a crossing-target sawtooth.
         local los = {position[1] - own[1], position[2] - own[2], position[3] - own[3]}
-        return {time = time, id = id, sequence = pending.sequence, los = los,
+        return {time = time, id = id, generation = pending.generation, sequence = pending.sequence, los = los,
             aim = aim, bore = Frames.body(frame, bore)}
     end
     local function read_cues(solution)
@@ -164,7 +166,9 @@ function M.new(sensors, get, put, dispatch, display, device_id)
             return
         end
         local now, stamp, id = get_model_time(), get("F22_STT_TIME"), get("F22_STT_ID")
-        if not finite(now) or not finite(stamp) or not finite(id) or id < 1 then
+        local generation = get("F22_AESA_GENERATION")
+        if not finite(now) or not finite(stamp) or not finite(id) or id < 1
+            or not finite(generation) or generation < 1 then
             reset()
             return
         end
@@ -208,42 +212,31 @@ function M.new(sensors, get, put, dispatch, display, device_id)
             table.remove(self.history, 1)
         end
         local velocity = vector("F22_STT_V")
-        local sigma = get("F22_STT_VELOCITY_SIGMA_MPS")
-        if not finite(sigma) or sigma <= 0 or sigma > 100 then reset(); return end
-        if self.id ~= id then
+        if self.id ~= id or self.generation ~= generation then
             self.id = id
+            self.generation = generation
             self.stamp = stamp
             self.stable = 0
-            self.acc = { 0, 0, 0 }
             self.pending = nil
             self.solution = nil
-            self.motion:reset()
             self.sight:reset()
-            self.motion:update(stamp, velocity, sigma)
             return
         end
         if self.stamp ~= stamp then
             local elapsed = stamp - self.stamp
-            if elapsed <= 0 or elapsed > Motion.maximum_interval then
+            if elapsed <= 0 or elapsed > M.maximum_measurement_age then
                 reset()
                 return
             end
             self.stable = self.stable + elapsed
             self.stamp = stamp
-            local acceleration = self.motion:update(stamp, velocity, sigma)
-            if not acceleration then
-                reset()
-                return
-            end
-            self.acc = acceleration
         end
         put("F22_GUN_DISPLAY_REASON", 2)
         if self.stable < 0.1 then
             return
         end
-        -- Use one maneuver estimate for both terms of the native prediction.
-        -- A raw velocity correction must not bypass the fitted motion state.
-        velocity = self.motion.velocity
+        -- Measured state is used only to check the radar/body-frame contract.
+        -- The native weapon adapter independently qualifies and samples P/V/A.
         age = math.max(0, age)
         local measured = vector("F22_STT_P")
         local position = {}
@@ -252,9 +245,9 @@ function M.new(sensors, get, put, dispatch, display, device_id)
                 reset()
                 return
             end
-            position[k] = measured[k] + velocity[k] * age + 0.5 * self.acc[k] * age * age
+            position[k] = measured[k] + velocity[k] * age
         end
-        if norm(velocity) > 1500 or norm(self.acc) > 150 then
+        if norm(velocity) > 1500 then
             reset()
             return
         end
@@ -297,13 +290,10 @@ function M.new(sensors, get, put, dispatch, display, device_id)
         put("F22_GUN_REQUEST_VALID", 1)
         if not self.pending and self.senttime ~= now then
             self.sequence = self.sequence + 1
-            self.pending = { sequence = self.sequence, id = id, time = now }
+            self.pending = { sequence = self.sequence, id = id, generation = generation, time = now }
             self.senttime = now
-            for k, axis in ipairs(axes) do
-                put("F22_GUN_TARGET_" .. axis, measured[k])
-                put("F22_GUN_V" .. axis, velocity[k])
-                put("F22_GUN_A" .. axis, self.acc[k])
-            end
+            put("F22_GUN_INPUT_SOURCE", 2)
+            put("F22_GUN_REQUEST_GENERATION", generation)
             put("F22_GUN_OWN_N", n)
             put("F22_GUN_OWN_U", u)
             put("F22_GUN_OWN_E", e)
@@ -324,8 +314,9 @@ function M.new(sensors, get, put, dispatch, display, device_id)
         end
         local bore = Frames.world(frame, solution.bore)
         local los = solution.los
-        local aim = self.sight:primary(now, solution.aim, los)
-        if not aim then return end
+        -- Clean native weapon motion needs no velocity fit or lag on primary
+        -- lead. Ownship attitude still uses the current render frame.
+        local aim = solution.aim
         self.display_aim = aim
         local p = M.pipper(aim, bore, los)
         if not p then
@@ -338,7 +329,7 @@ function M.new(sensors, get, put, dispatch, display, device_id)
             return
         end
         put("F22_GUN_DIRECTOR_VALID", 1)
-        put("F22_GUN_MOTION_SOURCE", 1)
+        put("F22_GUN_MOTION_SOURCE", 2)
         put("F22_GUN_DISPLAY_REASON", 0)
         put("F22_GUN_RESPONSE_AGE", now - solution.time)
         put("F22_GUN_DISPLAY_SEQUENCE", solution.sequence)
@@ -346,7 +337,7 @@ function M.new(sensors, get, put, dispatch, display, device_id)
         put("F22_GUN_DIRECTOR_AZ", pa)
         put("F22_GUN_DIRECTOR_EL", projected)
         if solution.cues and now-solution.cues.time<=.2 then
-            local cues = self.sight:maneuver(now, solution.cues)
+            local cues = self.sight:maneuver(now, solution.cues, true)
             local points=cues and M.project_maneuver(cues,aim,bore,los,frame)
             if points then
                 for name,point in pairs(points) do

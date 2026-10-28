@@ -10,7 +10,7 @@ assert(p and p[3]<0,'a right-lead requirement moves the director pipper left')
 local aligned=M.pipper({1,0,0},{1,0,0},{1,.1,.2})
 assert(math.abs(aligned[2]/aligned[1]-.1)<1e-9 and math.abs(aligned[3]/aligned[1]-.2)<1e-9,
  'solved aim places pipper on current target')
-local values={F22_RADAR_STT_VALID=1,F22_STT_MOTION_VALID=1,F22_STT_VELOCITY_SIGMA_MPS=.4,EFM_HUD_VALID=1,
+local values={F22_AESA_GENERATION=7,F22_RADAR_STT_VALID=1,F22_STT_MOTION_VALID=1,F22_STT_VELOCITY_SIGMA_MPS=.4,EFM_HUD_VALID=1,
  F22_STT_ID=42,F22_STT_ACCEL_VALID=1,EFM_HUD_VN=220,F22_STT_VN=220,F22_STT_VU=10,F22_STT_VE=80,
  F22_STT_AN=0,F22_STT_AU=0,F22_STT_AE=0}
 local now=0;function get_model_time()return now end
@@ -21,15 +21,15 @@ local sensors={getSelfCoordinates=function()return unpack(position)end,getHeadin
  getPitch=function()return pitch end,getRoll=function()return roll end}
 local function dispatch(_,command)
  assert(command==10851);calls=calls+1
- assert(math.abs(values.F22_GUN_VE-80)<1e-9 and math.abs(values.F22_GUN_VU-10)<1e-9,
-  'constant world velocity retained through the motion fit')
+ assert(values.F22_GUN_INPUT_SOURCE==2 and values.F22_GUN_REQUEST_GENERATION==7,
+  'native gun state is independently qualified; no Lua velocity differentiation')
  put('F22_GUN_AIM_N',1);put('F22_GUN_AIM_U',0);put('F22_GUN_AIM_E',.1)
  put('F22_GUN_BORE_N',1);put('F22_GUN_BORE_U',0);put('F22_GUN_BORE_E',0)
- put('F22_GUN_RESULT_SCHEMA',2)
+ put('F22_GUN_RESULT_SCHEMA',2);put('F22_GUN_RESULT_SOURCE',2);put('F22_GUN_RESULT_GENERATION',7)
  for _,axis in ipairs({'N','U','E'})do
-  put('F22_GUN_CURRENT_'..axis,get('F22_GUN_TARGET_'..axis))
-  put('F22_GUN_CURRENT_V'..axis,get('F22_GUN_V'..axis))
-  put('F22_GUN_CURRENT_A'..axis,get('F22_GUN_A'..axis))
+  put('F22_GUN_CURRENT_'..axis,get('F22_STT_P'..axis))
+  put('F22_GUN_CURRENT_V'..axis,get('F22_STT_V'..axis))
+  put('F22_GUN_CURRENT_A'..axis,0)
  end
  put('F22_GUN_SOLUTION_VALID',1);put('F22_GUN_SOLUTION_SEQUENCE',get('F22_GUN_REQUEST_SEQUENCE'))
  put('F22_GUN_RESPONSE_SEQUENCE',get('F22_GUN_REQUEST_SEQUENCE'));put('F22_GUN_RESULT_TIME',now);put('F22_GUN_RESULT_TRACK_ID',get('F22_GUN_TRACK_ID'))

@@ -1,6 +1,7 @@
 // GPL-3.0-or-later. Original director using installed DCS shell integration.
 // ABI evidence: GUN_TARGET_MOTION.md. Reject builds outside the audited profile.
 #include "NativeGunSight.h"
+#include "NativeAesaRadar.h"
 #include "GunIntercept.h"
 #include "GunTargetMotion.h"
 #include "GunManeuver.h"
@@ -144,6 +145,7 @@ bool failed = false;
 GunManeuver::CueSet maneuver_cues;
 GunIntercept::Result previous;
 double previous_time = -1, previous_id = -1;
+std::uint64_t previous_generation{};
 struct FunnelShot { double time; V muzzle,bore,velocity,wind; };
 std::vector<FunnelShot> funnel_history;
 bool shot_at(double time,FunnelShot &out) {
@@ -223,6 +225,7 @@ void calculate_funnel(EDPARAM &p) {
 void calculate(EDPARAM &p) {
     put(p, "F22_GUN_SOLUTION_VALID", 0);
     put(p, "F22_GUN_RESULT_SCHEMA", 0);
+    put(p, "F22_GUN_RESULT_SOURCE", 0);
     put(p, "F22_GUN_MNV_VALID", 0);
     put(p, "F22_GUN_SOLVER_REASON", 1);
     if (failed || get(p, "F22_GUN_REQUEST_VALID") < .5)
@@ -253,9 +256,25 @@ void calculate(EDPARAM &p) {
     V own_position{get(p, "F22_GUN_OWN_N"), get(p, "F22_GUN_OWN_U"), get(p, "F22_GUN_OWN_E")};
     if ((muzzle - own_position).norm() > 30)
         return;
-    V target{get(p, "F22_GUN_TARGET_N"), get(p, "F22_GUN_TARGET_U"), get(p, "F22_GUN_TARGET_E")};
-    V velocity{get(p, "F22_GUN_VN"), get(p, "F22_GUN_VU"), get(p, "F22_GUN_VE")};
-    V acceleration{get(p, "F22_GUN_AN"), get(p, "F22_GUN_AU"), get(p, "F22_GUN_AE")};
+    const double identity = get(p, "F22_GUN_TRACK_ID");
+    const double generation = get(p, "F22_GUN_REQUEST_GENERATION");
+    NativeAesaRadar::GunMotion input{};
+    put(p, "F22_GUN_SOLVER_REASON", 9);
+    if (get(p, "F22_GUN_INPUT_SOURCE") != 2 || !std::isfinite(identity)
+        || identity < 1 || identity > UINT_MAX || std::floor(identity) != identity
+        || !std::isfinite(generation) || generation < 1 || generation > 9007199254740991.0
+        || std::floor(generation) != generation
+        || !NativeAesaRadar::gun_motion(static_cast<unsigned>(identity),
+            static_cast<std::uint64_t>(generation), input)) return;
+    if (previous_generation != input.generation) {
+        previous = {}; maneuver_cues = {}; previous_id = -1;
+    }
+    V target{input.position[0], input.position[1], input.position[2]};
+    V velocity{input.velocity[0], input.velocity[1], input.velocity[2]};
+    V acceleration{input.acceleration[0], input.acceleration[1], input.acceleration[2]};
+    if (!std::isfinite((target - muzzle).norm()) || (target - muzzle).norm() < 100
+        || (target - muzzle).norm() > 2000 || !std::isfinite(velocity.norm()) || velocity.norm() > 1500
+        || !std::isfinite(acceleration.norm()) || acceleration.norm() > 150) return;
     V own{get(p, "EFM_HUD_VN"), get(p, "EFM_HUD_VU"), get(p, "EFM_HUD_VE")};
     V air{get(p, "EFM_HUD_WN"), get(p, "EFM_HUD_WU"), get(p, "EFM_HUD_WE")};
     if (!std::isfinite(own.norm()) || own.norm() > 1500 || !std::isfinite(air.norm()) ||
@@ -273,12 +292,11 @@ void calculate(EDPARAM &p) {
     };
     const double requested = get(p, "F22_GUN_REQUEST_TIME"), now = api.clock();
     const double delay = now - requested;
-    double age = get(p, "F22_GUN_MEASUREMENT_AGE") + std::max(0.0, delay);
-    const double identity = get(p, "F22_GUN_TRACK_ID");
+    const double age = now - input.time;
     put(p, "F22_GUN_QUEUE_DELAY", delay);
-    // Same bounded measured-state envelope as the owned radar/gun consumer.
-    // Queue freshness is independent: delayed work cannot renew the sample.
-    constexpr double maximum_measurement_age = .5;
+    // P/V/load-derived A are sampled together at the native solve epoch. Their
+    // time is independent of the older AESA observation granting association.
+    constexpr double maximum_measurement_age = .01;
     constexpr double maximum_queue_delay = .15;
     if (!std::isfinite(now) || !std::isfinite(delay) || delay < -.01 || delay > maximum_queue_delay ||
         !std::isfinite(age) || age < 0 || age > maximum_measurement_age) {
@@ -297,7 +315,7 @@ void calculate(EDPARAM &p) {
     V actual_endpoint{};
     bool actual_valid = result.valid && trajectory(bore, result.time, actual_endpoint);
     if (result.valid && (identity != maneuver_cues.identity || now < maneuver_cues.time ||
-                         now - maneuver_cues.time >= .1)) {
+                         now - maneuver_cues.time >= .025)) {
         const auto began = std::chrono::steady_clock::now();
         maneuver_cues = {};
         maneuver_cues.identity = identity;
@@ -323,6 +341,7 @@ void calculate(EDPARAM &p) {
     previous = result;
     previous_time = now;
     previous_id = identity;
+    previous_generation = input.generation;
     put(p, "F22_GUN_ACTUAL_ENDPOINT_VALID", actual_valid ? 1 : 0);
     if (actual_valid) {
         actual_endpoint = actual_endpoint + muzzle;
@@ -366,6 +385,8 @@ void calculate(EDPARAM &p) {
     put(p, "F22_GUN_SOLUTION_SEQUENCE", get(p, "F22_GUN_REQUEST_SEQUENCE"));
     put(p, "F22_GUN_RESULT_TIME", now);
     put(p, "F22_GUN_RESULT_TRACK_ID", identity);
+    put(p, "F22_GUN_RESULT_GENERATION", static_cast<double>(input.generation));
+    put(p, "F22_GUN_RESULT_SOURCE", 2);
     if (maneuver_cues.valid && maneuver_cues.identity == identity && now - maneuver_cues.time <= .2) {
         const char* names[] = {"LOW", "HIGH", "LEFT", "RIGHT"};
         const char* axes[] = {"N", "U", "E"};
@@ -429,6 +450,7 @@ void reset() {
     maneuver_cues = {};
     previous_time = -1;
     previous_id = -1;
+    previous_generation = 0;
     failed = false;
     funnel_history.clear();
 }

@@ -77,7 +77,7 @@ struct Api {
     Flag flag{};
     void** ecm_vtable{};
     void* ecm_active{}; void* ecm_strength{};
-    void** manager{}; void** land{};
+    void** manager{}; void** land{}; void** registry{};
     std::atomic<bool> ready{};
     unsigned reason = 1;
     bool initialize_ecm() noexcept {
@@ -119,6 +119,7 @@ struct Api {
         intersect = reinterpret_cast<Intersection>(GetProcAddress(objects,
             "?intersectSegment@@YAPEBDAEBVISceneObject@@AEBVVec3d@osg@@1AEAV23@AEAN2@Z"));
         manager = reinterpret_cast<void**>(GetProcAddress(objects, "?instance@viObjectManager@@2PEAV1@EA"));
+        registry = reinterpret_cast<void**>(GetProcAddress(objects, "?instance@RegisterManager@@2PEAV1@EA"));
         land = reinterpret_cast<void**>(GetProcAddress(general, "?globalLand@@3PEAVwTerrain@@EA"));
         const bool available = initialize_ecm() && scene_exports() && cockpit_exports();
         reason = available ? 0u : 3u;
@@ -609,6 +610,66 @@ unsigned translate(unsigned id, bool to_host) noexcept {
     ReleaseSRWLockShared(&state_lock);
     return result;
 }
+struct GunBinding { unsigned host{}; std::uint64_t generation{}; };
+GunBinding gun_binding(unsigned track, std::uint64_t generation, double now) noexcept {
+    GunBinding result{};
+    AcquireSRWLockShared(&state_lock);
+    if (bridge_ready(now) && generation == snapshot.epoch && request.controls.gun_tracking
+        && request.controls.selected_id == track && request.controls.fire_control_id == track) {
+        for (std::size_t index = 0; index < snapshot.measurements.size(); ++index) {
+            const auto& t = snapshot.measurements[index];
+            const auto& b = snapshot.bindings[index];
+            if (t.id != track || !eligible(index, now) || !fresh(now, t.time, .5)) continue;
+            if (result.host || !unique_host(b.host, now)) { result = {}; break; }
+            result = {b.host, snapshot.epoch};
+        }
+    }
+    ReleaseSRWLockShared(&state_lock);
+    return result;
+}
+bool load_acceleration(void* unit, Vector& acceleration) noexcept {
+    // Hornet 0x180382320..0x1803823FC: ALL THREE load returns are float
+    // (mulss immediately follows each call). The decompiler's double is wrong.
+    using Basis = const float*(__fastcall*)(void*);
+    using Load = float(__fastcall*)(const void*);
+    auto orientation = static_cast<std::byte*>(unit) + 48;
+    const auto basis_method = method<Basis>(orientation, 3);
+    const auto nx = method<Load>(unit, 73), ny = method<Load>(unit, 74), nz = method<Load>(unit, 75);
+    if (!basis_method || !nx || !ny || !nz) return false;
+    const auto basis = basis_method(orientation);
+    if (!basis || !readable(basis, 12 * sizeof(float))) return false;
+    Vector forward{basis[0], basis[1], basis[2]}, up{basis[4], basis[5], basis[6]}, right{basis[8], basis[9], basis[10]};
+    if (!finite(forward) || !finite(up) || !finite(right)
+        || std::abs(length(forward) - 1) > .01 || std::abs(length(up) - 1) > .01
+        || std::abs(length(right) - 1) > .01) return false;
+    const double x = nx(unit), y = ny(unit), z = nz(unit);
+    if (!std::isfinite(x) || !std::isfinite(y) || !std::isfinite(z)
+        || std::abs(x) > 20 || std::abs(y) > 20 || std::abs(z) > 20) return false;
+    acceleration = (forward * x + up * y + right * z) * 9.8 - Vector{0, 9.8, 0};
+    return finite(acceleration) && length(acceleration) <= 150;
+}
+bool read_gun_motion(unsigned host, GunMotion& output) noexcept {
+    using Lookup = void*(__fastcall*)(void*, unsigned);
+    using Convert = void*(__fastcall*)(void*);
+    void* registry = readable(api.registry, sizeof(void*)) ? *api.registry : nullptr;
+    const auto lookup = method<Lookup>(registry, 2);
+    void* registered = lookup ? lookup(registry, host) : nullptr;
+    const auto convert = method<Convert>(registered, 7);
+    void* unit = convert ? convert(registered) : nullptr;
+    if (!unit || !api.dead || !api.type || !api.point || !api.flag
+        || api.dead(unit) || !api.flag(unit, 32)) return false;
+    const auto type = api.type(unit);
+    if (!readable(type, 2) || type[0] != 1 || (type[1] != 1 && type[1] != 2)) return false;
+    const auto get_velocity = method<Api::Velocity>(unit, 38);
+    const auto velocity = get_velocity ? get_velocity(unit) : nullptr;
+    if (!velocity || !readable(velocity, sizeof(*velocity))) return false;
+    const Vector v{velocity->n, velocity->u, velocity->e};
+    Vector p{}, a{}; api.point(unit, &p);
+    if (!finite(p) || !finite(v) || length(v) > 1500 || !load_acceleration(unit, a)) return false;
+    output.position = {p.n, p.u, p.e}; output.velocity = {v.n, v.u, v.e};
+    output.acceleration = {a.n, a.u, a.e};
+    return true;
+}
 unsigned selected_track() noexcept {
     AcquireSRWLockShared(&state_lock);
     const auto selected = request.controls.selected_id;
@@ -691,6 +752,22 @@ bool bind_responder() noexcept {
 }
 unsigned host_for_track(unsigned track) noexcept { return translate(track,true); }
 unsigned track_for_host(unsigned host) noexcept { return translate(host,false); }
+bool gun_motion(unsigned track, std::uint64_t generation, GunMotion& output) noexcept {
+    output = {};
+    if (!api.ready.load(std::memory_order_acquire) || !api.clock) return false;
+    const double now = api.clock();
+    const auto binding = gun_binding(track, generation, now);
+    if (!binding.host) return false;
+    GunMotion value{};
+    if (!read_gun_motion(binding.host, value)) return false;
+    const double completed = api.clock();
+    const auto checked = gun_binding(track, generation, completed);
+    if (checked.host != binding.host || checked.generation != binding.generation
+        || !fresh(completed, now, .01)) return false;
+    value.time = now; value.generation = generation;
+    output = value;
+    return true;
+}
 void damage(int cell, double integrity) noexcept {
     if (cell != 0 || !std::isfinite(integrity) || integrity < 0 || integrity > 1) return;
     // F-22A.lua names cell0 NoseCenter. Its mapping to array effectiveness is
