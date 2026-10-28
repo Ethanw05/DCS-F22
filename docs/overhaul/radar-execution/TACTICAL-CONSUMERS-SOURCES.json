@@ -1,0 +1,32 @@
+{
+  "status": "APPLIED by integrator; scoped lint corrections reviewed",
+  "review": "../chat4-weapons-ew/radar-packet-review.json",
+  "patch_sha256": "0fe5556704bd677465507edde876c292531306f249cfa44ee0c1d565ec1c3e4d",
+  "review_patch_bytes_sha256": "03856918d8dccdb8818baf5a9330516c22ec83df3195cdcba30931d721759046",
+  "files": [
+    {
+      "path": "Cockpit/Scripts/Systems/Tactical_Picture.lua",
+      "expected_sha256": "954b359476f30cf259ae2b141fe605537d04e1356a8a4e32ebcbe523c9b95e9c",
+      "proposed_text_sha256": "0df8cb1092a333639f01bceaf443390e68cd59843e2c4a5e541ce3b8edb9534a",
+      "review_proposed_text_sha256": "5d1449a5d301d5be2283007d7da35fe057ccb258ec93bd0a57df1ea79e982a72"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Tactical_Tracks.lua",
+      "expected_sha256": "4d479a9da65d3db74b8e0d30963b9f8b3c4e58146e98ccd901634da36ddb0629",
+      "proposed_text_sha256": "4499a1f26753956f473ddaed3fd51c7e692e44255f30726ddd7495387d51eed4",
+      "review_proposed_text_sha256": "4499a1f26753956f473ddaed3fd51c7e692e44255f30726ddd7495387d51eed4"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Tactical_Association.lua",
+      "expected_sha256": "90c9ff94be31676c075a39fddb7d96249ea6212dd43872aad9595654a8286370",
+      "proposed_text_sha256": "7a588c394d7f10b666277dba866885203e17b7effa2a37ceed4f27520930c23b",
+      "review_proposed_text_sha256": "7a588c394d7f10b666277dba866885203e17b7effa2a37ceed4f27520930c23b"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Tactical_Radar_History.lua",
+      "expected_sha256": "831e7bb82a57078578f23a11b9037215ceab3c289dc57236c1aab123a81a370e",
+      "proposed_text_sha256": "ab4ddbb1f909d3a0e981ab1aa5e81b181e67a7e4a9ecaf5e14409d8e0bcc18e1",
+      "review_proposed_text_sha256": "ab4ddbb1f909d3a0e981ab1aa5e81b181e67a7e4a9ecaf5e14409d8e0bcc18e1"
+    }
+  ]
+}

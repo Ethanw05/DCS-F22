@@ -6,11 +6,13 @@ local Datalink = dofile(LockOn_Options.script_path .. "Systems/Datalink_Tracks.l
 local Identification = dofile(LockOn_Options.script_path .. 'Systems/Identification_State.lua')
 local Donor = dofile(LockOn_Options.script_path .. 'Systems/Donor_Selection.lua')
 local M = {}
+local RadarSnapshot=dofile(LockOn_Options.script_path.."Systems/Radar_Tactical_Snapshot.lua")
 local Labels=dofile(LockOn_Options.script_path..'Systems/RWR_Computer.lua')
 function M.new(get, put, sensors)
 	put('F22_DATALINK_ENABLE',1)
 	put('F22_IFDL_ENABLE',1)
-	local s = { store = Tracks.new(), sequence = 0, situation = Situation.new(get, put, sensors),
+	local s = { radar = RadarSnapshot.new(get), store = Tracks.new(), sequence = 0,
+        situation = Situation.new(get, put, sensors),
         datalink = Datalink.new(get, sensors), responder = Identification.responder(get, put),
         donor = Donor.new(get, put) }
 	function s:reset()
@@ -31,14 +33,15 @@ function M.new(get, put, sensors)
 	function s:update(now, rf, power)
         self.responder:update(now)
 		self.sequence = self.sequence + 1
+		local radar_packet=self.radar:read(now)
 		local batches = {
 			datalink = self.datalink:update(now, power),
 			rf = { sequence = self.sequence, time = now, contacts = {} },
 			radar = {
-				sequence = get("F22_RADAR_TACTICAL_SEQUENCE"),
-				time = get("F22_RADAR_TACTICAL_TIME"),
-				contacts = {},
-			},
+                sequence=radar_packet and radar_packet.sequence or -1,
+                time=radar_packet and radar_packet.time or now,
+                epoch=radar_packet and radar_packet.epoch or 0,contacts={},
+            },
 			mws = {
 				sequence = get("F22_MWS_PUBLISH_SEQUENCE"),
 				time = get("F22_MWS_PUBLISH_TIME"),
@@ -65,32 +68,21 @@ function M.new(get, put, sensors)
                 hostile_time = c.hostile_time,
 			}
 		end
-		for i = 1, 64 do
-			local p = string.format("F22_RADAR_TACTICAL_%02d_", i)
-			if get(p .. "VALID") > 0.5 then
-				batches.radar.contacts[#batches.radar.contacts + 1] = {
-					source = get(p .. "SOURCE"),
-					age = get(p .. "AGE"),
-					az = get(p .. "AZ"),
-					el = get(p .. "EL"),
-					range = get(p .. "RANGE"),
-					measured_range = get(p .. "MEASURED_RANGE"),
-					quality = get(p .. "QUALITY"),
-                    label=Labels.label(get(p..'TYPE_NAME'),1),
-                    n=get(p..'POSITION_VALID')==1 and get(p..'N') or nil,
-                    u=get(p..'U'),e=get(p..'E'),vn=get(p..'VN'),vu=get(p..'VU'),ve=get(p..'VE'),
-                    measurement_source = get(p .. 'MEASUREMENT_SOURCE'),
-                    velocity_valid=get(p..'VELOCITY_VALID')==1,
-                    position_sigma_m=get(p..'POSITION_SIGMA_M'),
-                    velocity_sigma_mps=get(p..'VELOCITY_SIGMA_MPS'),
-					selected = get(p .. "SELECTED") > 0.5,
-                    identity_known=get(p..'IDENTITY_KNOWN')==1,
-                    identity_time=get(p..'IDENTITY_KNOWN')==1 and get(p..'IDENTITY_TIME') or nil,
-					friendly = get(p .. "FRIENDLY") > 0.5,
-					hostile = get(p .. "HOSTILE") > 0.5,
-				}
-			end
-		end
+        if radar_packet then
+            for i=1,#radar_packet.contacts do
+                local v=radar_packet.contacts[i]
+                batches.radar.contacts[i]={source=v.SOURCE,age=v.AGE,az=v.AZ,el=v.EL,
+                    range=v.RANGE,measured_range=v.MEASURED_RANGE,quality=v.QUALITY,
+                    label=Labels.label(v.TYPE_NAME,1),n=v.POSITION_VALID==1 and v.N or nil,
+                    u=v.U,e=v.E,vn=v.VN,vu=v.VU,ve=v.VE,epoch=radar_packet.epoch,
+                    measurement_source=v.MEASUREMENT_SOURCE,velocity_valid=v.VELOCITY_VALID==1,
+                    position_sigma_m=v.POSITION_SIGMA_M,velocity_sigma_mps=v.VELOCITY_SIGMA_MPS,
+                    selected=v.SELECTED==1,identity_known=v.IDENTITY_KNOWN==1,
+                    identity_time=v.IDENTITY_KNOWN==1 and v.IDENTITY_TIME or nil,
+                    friendly=v.FRIENDLY==1,
+                    hostile=v.HOSTILE==1}
+            end
+        end
 		for i = 1, 16 do
 			local p = string.format("F22_MWS_%02d_", i)
 			if get(p .. "VALID") > 0.5 then

@@ -1,0 +1,10 @@
+{
+  "applied": false,
+  "path": "EFM/source/NativeDatalink.cpp",
+  "baseline_sha256": "cfdb4b81794139cc0b5ec983728d9ac7eb0053d6325c8dabd11f8843b333e9d7",
+  "source_scope": "include, namespace fixed reader/packet, transmit and reset invalidation only",
+  "radio_wire_identity": "v1 radar identity explicitly unknown; versioned identity migration belongs to Chat4",
+  "native_qualification": "not performed",
+  "lifecycle": "Reader.invalidate and packet withdrawal before native terminal teardown, independent of parameter context epoch",
+  "patch_sha256": "2445c96b658c75234c6d0d3f80acf43ed209c574e2c76555904378fa054cfb62"
+}

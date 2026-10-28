@@ -28,6 +28,8 @@ end
 function M.new()
     local state={tracks={}}
     function state:update(batch,now)
+        local epoch=batch and batch.epoch
+        if epoch~=self.epoch then self.tracks={};self.epoch=epoch end
         local contacts=batch and batch.contacts or {}
         for source in pairs(self.tracks)do if not contacts[source]then self.tracks[source]=nil end end
         local count=0

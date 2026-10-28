@@ -10,6 +10,7 @@ local function key(sensor,o)
     if sensor=='datalink' then
         return sensor..':'..tostring(o.link)..':'..tostring(o.reporter)..':'..tostring(o.epoch)..':'..o.source
     end
+    if sensor=='radar' then return sensor..':'..tostring(o.epoch)..':'..o.source end
     return sensor..':'..o.source
 end
 local function known_position(o,now)

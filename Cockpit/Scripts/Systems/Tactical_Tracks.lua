@@ -39,8 +39,8 @@ function M.new()
 				and finite(batch.time)
 				and batch.time <= now + 0.05
 				and now - batch.time <= 0.25
-				and (not old or batch.time >= old.time)
-				and (not old or old.sequence ~= batch.sequence)
+				and (not old or sensor == "radar" and old.epoch ~= batch.epoch or batch.time >= old.time)
+				and (not old or old.epoch ~= batch.epoch or old.sequence ~= batch.sequence)
 			then
 				local accepted = {}
 				local inputs = batch.contacts or {}
@@ -114,7 +114,7 @@ function M.new()
 						end
 					end
 				end
-				self.batches[sensor] = { sequence = batch.sequence, time = batch.time, contacts = accepted }
+				self.batches[sensor] = { sequence = batch.sequence, time = batch.time, epoch = batch.epoch, contacts = accepted }
 			end
 		end
         self.association:associate(self.batches,now,M.limits)
