@@ -16,7 +16,7 @@ local colors = {
 	blue = MakeMaterial(nil, { 113, 188, 240, 255 }),
 	background = MakeMaterial(nil, {3,3,3,255}),
 	grid = MakeMaterial(nil, { 0, 105, 48, 170 }),
-	video = "render_target_9", -- Registered by our ccIndicator before this consumer.
+	video = MakeMaterial("mfd8", {0,255,0,255}), -- Same owned target; local green presentation.
 }
 local fonts = { green = "F22_LCD_FONT_GREEN", white = "F22_LCD_FONT_WHITE", blue = "F22_LCD_FONT_BLUE" }
 local root = "F22_AG_RADAR_FORMAT"
@@ -96,21 +96,27 @@ end
 -- Native RBM uses an orthographic square one selected range wide and deep.
 -- Its mapping matches Model.project: x=right/range*1.65, y=-.76+forward/range*1.52.
 -- Apply one per-axis display transform to video, cursor, tracks and overlays.
+local function video_quad(name,ta)
 local video = CreateElement("ceTexPoly")
 video.material = colors.video
 video.vertices = {{-.825*content_x,-.76*content_y},{.825*content_x,-.76*content_y},
 	{.825*content_x,.76*content_y},{-.825*content_x,.76*content_y}}
 video.indices = {0,1,2,0,2,3}
-video.tex_coords = {{.09,.91},{.91,.91},{.91,.09},{.09,.09}}
-video.element_params = {"F22_AG_VIDEO_READY", "F22_AG_RADAR_OPERATING","F22_AG_MAP_VIDEO_SHOW"}
+video.tex_coords = ta and {{.09,.91},{.91,.91},{.91,.09},{.09,.09}} or {{0,1},{1,1},{1,0},{0,0}}
+video.element_params = {"F22_AG_VIDEO_READY", "F22_AG_RADAR_OPERATING","F22_AG_MAP_VIDEO_SHOW","F22_AG_MODE"}
 -- This is a foreign MFD material in the PMFD parser. Its ordinary zeroed
 -- ceTexPoly parameters otherwise select BW with brightness/contrast 0/0.
 -- The common forced-color controller populates the same MFD parameter slots:
 -- colored=1, brightness=.5, contrast=.5 (neutral), third value=1. These are
 -- material inputs, not an RGB tint. No global parser/material state is changed.
 video.controllers = {{"parameter_in_range",0,.9,1.1},{"parameter_in_range",1,.9,1.1},{"parameter_in_range",2,.9,1.1},
+	{"parameter_in_range",3,ta and 5.9 or .9,ta and 6.1 or 5.1},
 	{"change_color_when_parameter_equal_to_number",0,1,.5,.5,1}}
-add(video,nil,"F22_AG_RADAR_VIDEO")
+add(video,nil,name)
+end
+-- F-16 shared MAP/DBS presets fill the texture. The TA preset keeps its inset.
+video_quad("F22_AG_RADAR_VIDEO",false)
+video_quad("F22_AG_RADAR_TA_VIDEO",true)
 local plot=gate("F22_AG_PLOT","F22_AG_PLOT_SHOW",1)
 local ordinary=gate("F22_AG_ORDINARY_PLOT","F22_AG_EXPANSION",0,plot)
 local grid_parent=gate("F22_AG_GRID_VISIBLE","F22_AG_DECLUTTER",0,ordinary)

@@ -64,7 +64,7 @@ inline bool refresh(const View& current, const View& previous, bool have_previou
 // does nothing for MAP. This is a renderer transaction, not antenna motion.
 // Coalesce completed RF work while a captured image traverses those stages.
 class ImageCycle {
-  static constexpr unsigned pipeline_submissions = 4;
+  static constexpr unsigned pipeline_submissions = 3;
   View image_{};
   unsigned submitted_{};
   int direction_ = 1;
@@ -72,7 +72,8 @@ class ImageCycle {
 public:
   bool capture(const View& candidate) noexcept {
     if (!refresh(candidate, image_, captured_)) return false;
-    if (captured_ && submitted_ < pipeline_submissions) return false;
+    const unsigned required = image_.expansion>0 && !image_.fast ? 2*pipeline_submissions : pipeline_submissions;
+    if (captured_ && submitted_ < required) return false;
     if (captured_) direction_ = -direction_;
     image_ = candidate;
     image_.scan_direction = direction_;
@@ -83,7 +84,7 @@ public:
   bool available() const noexcept { return captured_; }
   const View& image() const noexcept { return image_; }
   int direction() const noexcept { return direction_; }
-  void submitted() noexcept { if (submitted_ < pipeline_submissions) ++submitted_; }
+  void submitted() noexcept { if (submitted_ < 2*pipeline_submissions) ++submitted_; }
 };
 // Physics supplies this value snapshot. Render callbacks never read scene
 // objects or use the slower cockpit/INS coordinates as an antenna position.
@@ -118,7 +119,7 @@ inline View antenna(View v, const Aircraft &a, double now) {
     const double pe=v.stabilized?v.patch_e:v.east+v.patch_distance*std::sin(v.heading+v.patch_az);
     double n=pn-v.north,e=pe-v.east,d=std::hypot(n,e);
     if(d<100){v.enabled=false;return v;}
-    if(v.expansion==3) {
+    {
       // The magnified patch view is earth-stabilized. In a climb its look
       // direction can differ by more than 90deg from the aircraft's nose,
       // making the old nose-axis offset place our model in front of it.
@@ -209,7 +210,8 @@ union Param { std::uint64_t bits; float number; const char *text; };
 static_assert(sizeof(Param) == 8);
 inline const char *preset(const View &v) {
   if(v.mode==6)return "F18_TA";
-  return v.expansion==1?"EXP1":v.expansion==2?"EXP2":v.expansion==3?"EXP3":"MAP";
+  // Shared presets without the Hornet's five-degree DBS boresight blank.
+  return v.expansion==1?"EXP_F16":v.expansion==2?"DBS1_F16":v.expansion==3?"DBS2_F16":"GM_F16";
 }
 inline std::array<Param,18> parameters(const View &v, bool erase, bool preset) {
   std::array<Param,18> p{};

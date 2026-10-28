@@ -3,6 +3,8 @@
 #include "../EFM/source/NativeGroundVideo.cpp"
 #include <iostream>
 #include <stdexcept>
+#include <barrier>
+#include <thread>
 #define CHECK(x)                                                                                             \
   do {                                                                                                       \
     if (!(x))                                                                                                \
@@ -100,8 +102,8 @@ void moving_map() {
     cache.draw(params, render.current.north);
     CHECK(map_reference.north == render.current.north);
   }
-  CHECK(cache.completed >= 9 && cache.complete > 100);
-  CHECK(cache.captures == 10 && rbm_restarts == 10);
+  CHECK(cache.completed >= 13 && cache.complete > 100);
+  CHECK(cache.captures == 14 && rbm_restarts == 14);
   // Drain already completed work coalesced behind the last image.
   for (unsigned i = 0; i < 4; ++i)
     (void)submit(false);
@@ -129,10 +131,10 @@ void expansion_and_lifetime() {
   unsigned requests = 0;
   for (unsigned i = 0; i < 12; ++i)
     requests += submit()[5].bits ? 1u : 0u;
-  if (requests != 3 || dbs_requests != 3 || rbm_restarts != 0)
+  if (requests != 2 || dbs_requests != 2 || rbm_restarts != 0)
     std::cerr << "DBS requests=" << requests << " native=" << dbs_requests << " RBM=" << rbm_restarts
               << " captures=" << image_captures << " rejected=" << parameter_rejected << '\n';
-  CHECK(requests == 3 && dbs_requests == 3 && rbm_restarts == 0);
+  CHECK(requests == 2 && dbs_requests == 2 && rbm_restarts == 0);
   const auto made = constructors;
   const auto captured = image_captures.load();
   epoch.fetch_add(1);
@@ -166,12 +168,55 @@ void bad_buffer() {
   start();
   CHECK(condition(indicator.data()) == 3);
 }
+void shared_camera_readers() {
+  start();
+  std::barrier phase(2);
+  double getter_n{};
+  std::thread reader([&] {
+    for (unsigned i=0;i<24;++i) {
+      phase.arrive_and_wait();
+      camera(indicator.data());
+      getter_n=render.current.north;
+      phase.arrive_and_wait();
+    }
+  });
+  double first{};
+  for (unsigned i=0;i<24;++i) {
+    now+=.02;view.stamp=now;view.collection+=.01;
+    AesaRadar::Pose pose;
+    pose.position={1000+200*(now-10),3000,0};pose.velocity={200,0,0};
+    set_aircraft(&pose,now);
+    camera(indicator.data());
+    Parameters data{};Buffer buffer{&data};parameters(indicator.data(),&buffer);
+    const double published=rendered_n;
+    phase.arrive_and_wait();phase.arrive_and_wait();
+    CHECK(rendered_n==published); // A culling getter cannot overwrite submission telemetry.
+    if (!i) first=getter_n;
+  }
+  reader.join();
+  CHECK(getter_n>first+70); // A getter with no parameters must follow shared images.
+  set_aircraft(nullptr,now);
+  CHECK(!aircraft.valid);
+}
+void fast_image_cadence() {
+  unsigned detailed{};
+  for (bool fast:{false,true}) {
+    start();view.expansion=1;view.center_m=15000;view.span_m=12000;
+    view.patch_distance=15000;view.fast=fast;
+    unsigned captures=0;
+    for (unsigned i=0;i<24;++i) captures+=submit()[5].bits?1u:0u;
+    if (!fast) detailed=captures;
+    else CHECK(captures==2*detailed);
+  }
+}
 } // namespace
 int main() {
   try {
     moving_map();
     expansion_and_lifetime();
     bad_buffer();
+    shared_camera_readers();
+    fast_image_cadence();
     std::cout << "Owned ground image: repeated terrain collections, coherent multi-pass pose, RF-only "
                  "refresh, FRZ, DBS, epoch, stale/foreign/buffer withdrawal PASS\n";
     return 0;

@@ -97,9 +97,10 @@ end
 
 ''')
 ui=ns['runtime']()
+ui.execute("function MakeMaterial(name) return name or 'test-material' end")
 ui.execute(format_page.read_text())('PMFD_RDR_PAGE','')
 elements=ui.globals().elements
-# Construct every element, then check that the real page uses one video quad.
+# One shared texture, with mutually exclusive full MAP/DBS and inset TA views.
 source=format_page.read_text()
 assert source.count('CreateElement("ceTexPoly")')==1
 assert 'F22_AG_RDR_RETURN_' not in source
@@ -117,10 +118,19 @@ for _,element in elements.items():
             assert device.globals().handles[param] is not None,('video binding first created after construction',param)
 source_init=ns['runtime']()
 source_init.execute("dofile(SCRIPT_ROOT..'Systems/AG_Radar_Video/init.lua')")
-expected_material='render_target_'+str(int(source_init.globals().render_target)+1)
+expected_material='mfd'+str(int(source_init.globals().render_target))
 quad=[element for _,element in elements.items() if element.kind=='ceTexPoly']
-assert len(quad)==1 and quad[0].material==expected_material,'zero-based source / one-based material mismatch'
+assert len(quad)==2 and all(q.material==expected_material for q in quad),'owned target texture mismatch'
 assert quad[0].name=='F22_AG_RADAR_VIDEO'
+assert quad[1].name=='F22_AG_RADAR_TA_VIDEO'
+assert [quad[0].tex_coords[1][i]for i in (1,2)]==[0,1]
+assert [quad[1].tex_coords[1][i]for i in (1,2)]==[.09,.91]
+for mode in range(1,8):
+    active=0
+    for q in quad:
+        gate=next(c for _,c in q.controllers.items()if c[1]=='parameter_in_range'and c[2]==3)
+        active+=gate[3]<=mode<=gate[4]
+    assert active==(mode<=6),(mode,active)
 # A foreign MFD material does not inherit the consumer parser's .5/.5 inputs.
 # Verify the actual Lua quad explicitly supplies neutral transfer via the
 # common controller (CockpitBase 0x180387120 / GraphicsVista 0x180019990).
@@ -129,4 +139,4 @@ assert len(transfers)==1 and [v for _,v in transfers[0].items()]==[
     'change_color_when_parameter_equal_to_number',0,1,.5,.5,1]
 registration=(root/'Cockpit/Scripts/device_init.lua').read_text()
 assert registration.index('HUD/init.lua') < registration.index('Systems/AG_Radar_Video/init.lua') < registration.index('PMFD_CENTER/init.lua')
-print(f'Ground video controls: {len(elements)} elements, one video quad, scan bounds, fixed AZ scale, gain bounds, freeze, designation inhibit, power/time reset PASS')
+print(f'Ground video controls: {len(elements)} elements, one texture/exclusive MAP-TA viewports, scan bounds, fixed AZ scale, gain bounds, freeze, designation inhibit, power/time reset PASS')

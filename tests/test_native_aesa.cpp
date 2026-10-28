@@ -18,6 +18,14 @@ unsigned samples{};
 AesaRadar::SurfaceRequest pointing(double,const AesaRadar::Pose&) noexcept { return {}; }
 void sample(void*, const ArrayService&) { ++samples; }
 }
+namespace NativeGroundVideo {
+unsigned motion_samples{};
+AesaRadar::Pose motion_pose{};
+void set_aircraft(const AesaRadar::Pose* pose,double) noexcept {
+    ++motion_samples;
+    if(pose) motion_pose=*pose;
+}
+}
 #define CHECK(x) do { if (!(x)) throw std::runtime_error(#x); } while (false)
 namespace {
 using namespace NativeAesaRadar;
@@ -166,6 +174,8 @@ void scenarios() {
     }
     CHECK(AllocationProbe::count==0);
     CHECK(updates==30 && queries>0 && emitting && values["F22_AESA_COUNT"]==1);
+    CHECK(NativeGroundVideo::motion_samples>=30);
+    CHECK(NativeGroundVideo::motion_pose.position.n>100);
     CHECK(text_values[handle("F22A_01_TYPE_NAME")]=="MiG-29S");
     const auto track=static_cast<unsigned>(values["F22A_01_ID"]);
     CHECK(track>0 && track!=42 && values["F22A_01_HITS"]>=3);

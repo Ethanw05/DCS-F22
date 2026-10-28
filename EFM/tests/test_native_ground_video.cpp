@@ -106,33 +106,33 @@ int main() {
       assert(std::abs(a.north+a.center_m*std::cos(bearing)-patch.patch_n)<.001);
       assert(std::abs(a.east+a.center_m*std::sin(bearing)-patch.patch_e)<.001);
       const auto par=parameters(a,false,true);
-      assert(std::strcmp(par[7].text,level==1?"EXP1":level==2?"EXP2":"EXP3")==0);
+      assert(std::strcmp(par[7].text,level==1?"EXP_F16":level==2?"DBS1_F16":"DBS2_F16")==0);
       patch.fast=true;assert(parameters(patch,false,false)[2].number==.5f);
     }
   }
   v.mode=1;v.range_nm=20;
-  // EXP3's patch camera can look far below the aircraft's nose. A nose-axis
+  // Every expanded camera can look far below the aircraft's nose. A nose-axis
   // offset may put the aircraft in front of that camera during a climb.
   // Verify clearance along the actual rendered view, including frame timing.
   for(double pitch:{-60.,0.,30.,60.,85.})for(double heading:{0.,pi/2,pi,3*pi/2})
   for(double azimuth:{-50.,0.,50.})for(double distance:{1500.,10000.,40000.})
   for(double speed:{0.,310.})for(double age:{-.02,.05})
-  for(bool fan:{false,true})for(double offset:{-45.,0.,45.}) {
+  for(bool fan:{false,true})for(double offset:{-45.,0.,45.})for(int level:{1,2,3}) {
     Aircraft body;body.valid=true;body.stamp=5;body.north=1000;body.east=2000;body.altitude=3000;
     body.fn=std::cos(pitch*pi/180)*std::cos(heading);
     body.fu=std::sin(pitch*pi/180);body.fe=std::cos(pitch*pi/180)*std::sin(heading);
     body.vn=speed*std::cos(heading);body.ve=speed*std::sin(heading);
     const double n=body.north+body.vn*age,e=body.east+body.ve*age;
-    View patch=v;patch.expansion=3;patch.stabilized=true;patch.patch_u=100;
+    View patch=v;patch.expansion=level;patch.stabilized=true;patch.patch_u=100;
     patch.fan=fan;patch.antenna_offset=offset*pi/180;
     patch.patch_n=n+distance*std::cos(heading+azimuth*pi/180);
     patch.patch_e=e+distance*std::sin(heading+azimuth*pi/180);
     const auto mapped=antenna(patch,body,5+age);
     assert(mapped.enabled);const auto basis=position(prepare(mapped,5+age));
     const double clearance=(mapped.north-n)*basis[0]+(mapped.altitude-body.altitude)*basis[1]+(mapped.east-e)*basis[2];
-    assert(clearance>29.0 && "EXP3 camera clearance must follow its view, not the aircraft nose");
+    assert(clearance>29.0 && "Expanded camera clearance must follow its view, not the aircraft nose");
   }
-  auto p=parameters(v,true,true);assert(p[6].bits==1);assert(std::strcmp(p[7].text,"MAP")==0);
+  auto p=parameters(v,true,true);assert(p[6].bits==1);assert(std::strcmp(p[7].text,"GM_F16")==0);
   assert(p[8].number==0 && p[9].number==0 && p[10].number==50);
   v.gmt=true;p=parameters(v,false,false);assert(p[8].number==.5f&&p[9].number==50&&p[10].number==55);
   v.interleave=true;v.scan_direction=-1;p=parameters(v,false,false);assert(p[9].number==0);

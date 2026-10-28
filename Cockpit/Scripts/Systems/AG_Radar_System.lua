@@ -370,6 +370,11 @@ function M:update(pose, now, dt, powered, ready)
 		selected = native_track(get, now)
 	end
 	if selected then
+        if self.controls.expansion>0 then
+            self.controls.patch={north=selected.display.north,altitude=selected.display.altitude,east=selected.display.east}
+            self.controls.stabilized=true
+            self:expanded_view(self.live_pose)
+        end
 		selected.x,selected.y=m:project(selected.display,map_pose)
 		self.selected_id=selected.id
 		-- Native type3 is a terrain FTT fallback after object acquisition
@@ -549,14 +554,50 @@ function M:autorange(point)
  self.model.cursor_fraction=math.max(.05,math.min(.95,distance/(self.model.range_nm*1852)))
  self.model.cursor_az=Modes.wrap(math.atan2(de,dn)-pose.heading)
 end
-function M:select_expansion(point)
+function M:select_expansion(point,retained)
  local c,m=self.controls,self.model;local level=c.pending
  local view=Modes.exp_geometry(self.live_pose or self.pose,point,level)
  if not view or not view.qualified then return end
- c.patch=copy(point);c.expansion=level;c.pending=0;c.stabilized=level>1
+ c.patch=copy(point);c.expansion=level;c.pending=0;c.stabilized=retained or level>1
  c.patch_az=view.az;c.patch_distance=math.sqrt((point.north-view.north)^2+(point.east-view.east)^2)
  c.epoch=(c.epoch or 0)+1;m.exp_x=0;m.exp_y=0;m.exp_view=nil
- self:cancel_track();self:cancel_preview();self:hold_image(false)
+ self:cancel_preview();self:hold_image(false)
+end
+function M:retained_point(now)
+ if self.track_requested then
+  if self.get('F22_AG_TRACK_VALID')>.5 then
+   local track=native_track(self.get,now)
+   if track then return track.display end
+  end
+  return
+ end
+ if self.get('F22_AG_DESIGNATION_VALID')>.5 then
+  local p={north=self.get('F22_AG_DESIGNATION_NORTH'),
+   altitude=self.get('F22_AG_DESIGNATION_ALTITUDE'),east=self.get('F22_AG_DESIGNATION_EAST')}
+  if Model.finite(p.north)and Model.finite(p.altitude)and Model.finite(p.east)then return p end
+ end
+ return self.controls.patch
+end
+function M:switch_expansion(level,now)
+ local c=self.controls
+ if c.expansion==level then
+  c.expansion=0;c.pending=0;c.epoch=(c.epoch or 0)+1;self.model.exp_view=nil;return
+ end
+ local point=self:retained_point(now)
+ c.pending=level
+ if point then self:select_expansion(point,true)end
+end
+function M:switch_mode(mode)
+ local c,m=self.controls,self.model
+ self.pending_autorange=nil;self:cancel_preview()
+ if Modes.ranging(m.mode)or Modes.ranging(mode)then
+  self:cancel_track();c.patch=nil
+ end
+ m.mode=mode;c.expansion=0;c.pending=0;m.exp_view=nil;self.interleave=false
+ if mode==6 then m.width=70 elseif m.width==70 then m.width=90 end
+ m.range_nm=math.min(m.range_nm,Modes.ranges(mode)[#Modes.ranges(mode)])
+ if mode==2 and m.width==120 then m.width=90 end
+ c.epoch=(c.epoch or 0)+1
 end
 function M:expanded_view(pose)
  local c,m=self.controls,self.model
@@ -584,13 +625,8 @@ function M:control_command(name,powered,now)
  local modes={rws=1,tws=2,sea=4,ta=6,agr=7}
  if modes[name]or name=='toggle'then
   if not powered or self.video_frozen or self.preview_pose then return true end
-  self.pending_autorange=nil;self:cancel_preview();self:cancel_track()
-  if name=='toggle'then m.mode=({[1]=2,[2]=4,[3]=4,[4]=6,[5]=6,[6]=7,[7]=1})[m.mode]or 1 else m.mode=modes[name]end
-  c.expansion=0;c.pending=0;c.patch=nil;m.exp_view=nil;self.interleave=false
-  if m.mode==6 then m.width=70 elseif m.width==70 then m.width=90 end
-  m.range_nm=math.min(m.range_nm,Modes.ranges(m.mode)[#Modes.ranges(m.mode)])
-  if m.mode==2 and m.width==120 then m.width=90 end
-  c.epoch=(c.epoch or 0)+1;return true
+  local mode=modes[name]or ({[1]=2,[2]=4,[3]=4,[4]=6,[5]=6,[6]=7,[7]=1})[m.mode]or 1
+  self:switch_mode(mode);return true
  end
  if name=='silent'then
   if powered then
@@ -623,8 +659,8 @@ function M:control_command(name,powered,now)
  local level=({exp1=1,exp2=2,exp3=3})[name]
  if name=='expand'then level=c.expansion%3+1 end
  if level then
-  if powered and not Modes.ranging(m.mode)and (level~=1 or m.mode==1 or c.expansion>0)and not self.video_frozen and not self.track_requested then
-   c.pending=level
+  if powered and not Modes.ranging(m.mode)and not self.video_frozen then
+   self:switch_expansion(level,now or m.clock)
   end
   return true
  end
