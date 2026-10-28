@@ -53,7 +53,7 @@ local function get(k)return get_param_handle(k):get()end
 local function put(k,v)get_param_handle(k):set(v)end
 put('MAIN_POWER',1);put('EFM_HUD_VALID',1);put('EFM_GROUND_VALID',1);put('EFM_HUD_VN',200)
 put('F22_ALT_RADAR_VALID',1);put('F22_ALT_RADAR_FT',100);put('F22_ALT_RADAR_FLOOR',500)
-dofile(SCRIPT_ROOT..'Systems/Pilot_Warning_System.lua');post_initialize();update()
+dofile(SCRIPT_ROOT..'Systems/Pilot_Warning_System.lua');local physical=dofile(SCRIPT_ROOT..'../../tests/warning_physical_fixture.lua')();update=physical:wrap(update);SetCommand=physical:wrap(SetCommand);post_initialize();update()
 local owner,voice=SetCommand,update
 assert(get('F22_ALT_ALERT_SOURCE')=='RADAR LOW')
 owner(11000,1);voice();assert(get('F22_ALT_ALERT_SOURCE')=='RADAR LOW','master ACK disabled radar-low')

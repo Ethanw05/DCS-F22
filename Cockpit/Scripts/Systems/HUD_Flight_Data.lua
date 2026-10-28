@@ -30,6 +30,30 @@ local function reference_pose()
     local v=reference.values
     return v.PITCH,v.ROLL,v.HEADING,v.ATTITUDE_VALID==1,v.HEADING_VALID==1
 end
+local pose_diagnostic={samples=0,valid=0,minimum=math.huge,maximum=-math.huge}
+local function record_fpm(pitch,roll,heading,n,e,u,az,el)
+    local state,now=pose_diagnostic,physical.clock
+    if not mathhud.finite(now) then return end
+    local stamp=reference.stamp
+    state.samples=state.samples+1
+    if stamp then
+        local age=now-stamp
+        state.valid=state.valid+1
+        state.minimum,state.maximum=math.min(state.minimum,age),math.max(state.maximum,age)
+    end
+    if state.clock and now>=state.clock and now-state.clock<1 then return end
+    state.clock=now
+    if log and log.write then
+        log.write('F22_FPM_STATE',log.INFO,string.format(
+            't=%.3f ref=%.3f age_min_s=%.4f age_max_s=%.4f samples=%d pose_samples=%d'
+            ..' pitch=%.6f roll=%.6f heading=%.6f vn=%.3f ve=%.3f vu=%.3f'
+            ..' az=%.6f el=%.6f computed=%.0f visible=%.0f',
+            now,stamp or -1,state.valid>0 and state.minimum or -1,state.valid>0 and state.maximum or -1,
+            state.samples,state.valid,pitch,roll,heading,n,e,u,az or 0,el or 0,
+            read('HUD_FPM_COMPUTED_VALID'),read('HUD_FPM_VALID')))
+    end
+    state.samples,state.valid,state.minimum,state.maximum=0,0,math.huge,-math.huge
+end
 local function flight(key)
     return physical.valid and physical.values[key] or nil
 end
@@ -193,6 +217,7 @@ function update()
             pitch*180/math.pi,roll*180/math.pi,heading*180/math.pi,aoa,n,e,u,az or 0,el or 0))
     end
     if attitude_valid and heading_valid then fpm(az,el)end
+    record_fpm(pitch,roll,heading,n,e,u,az,el)
     local cas,tas=sensed_speed()
     if cas then
         cas=cas*1.943844492

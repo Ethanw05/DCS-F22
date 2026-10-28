@@ -66,6 +66,11 @@ return function(api, layout, gain, root)
     group('F22_DONOR_KNOWN_AGE',{'F22_DONOR_OBSERVATION_KNOWN'},
         {{'parameter_in_range',0,.9,1.1}},'F22_DONOR_DETAIL')
     text('OBS %.1fS',-.70,.58,'F22_DONOR_OBSERVATION_AGE','white','F22_DONOR_KNOWN_AGE',.0028)
+    for state,label in ipairs({'CUE QUEUED','CUE SEARCH'})do
+        local name='F22_DONOR_CUE_'..state
+        group(name,{'F22_RADAR_DONOR_STATUS'},{{'parameter_in_range',0,state-.1,state+.1}},'F22_DONOR_DETAIL')
+        text(label,-.70,.52,nil,'white',name,.0028)
+    end
 	-- Navigation remains its own producer; these are reprojected real route
 	-- segments, never a second route computer or a mission-object sensor.
 	for i = 1, 32 do

@@ -141,10 +141,11 @@ function M.new()
 			self.since = now
 		end
 	end
-	function s:publish(put, now)
+	function s:publish(put, now, plan)
 		local q = self.status or {}
-		put("F22_RADAR_SENSOR_TASK", q.task or 0)
-		put("F22_RADAR_RF_CUE_ACTIVE", q.task == 2 and 1 or 0)
+        local donor = plan and plan.cue_request and plan.cue_request > 0
+		put("F22_RADAR_SENSOR_TASK", donor and 4 or q.task or 0)
+		put("F22_RADAR_RF_CUE_ACTIVE", not donor and q.task == 2 and 1 or 0)
 		put("F22_RADAR_RF_CUE_SOURCE", q.source or 0)
 		put("F22_RADAR_RF_CUE_COUNT", q.count or 0)
 		put("F22_RADAR_RF_CUE_PENDING", q.pending or 0)

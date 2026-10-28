@@ -59,7 +59,7 @@ void engagement(double callback, bool gun, bool jitter = false) {
             world.objects[0].velocity.e = 40 * std::cos(now * .5);
         }
         if (now >= .3) {
-            c.priority_ids[0] = 42; c.fire_control_id = 42; c.gun_tracking = gun;
+            c.priority_ids[0] = radar.measurements()[0].id; c.fire_control_id = c.priority_ids[0]; c.gun_tracking = gun;
             c.half_azimuth = 60 * degree; c.half_elevation = 10 * degree;
         }
         const auto beam = radar.status().beam;
@@ -95,8 +95,8 @@ void saturated() {
     }
     for (const auto& t : radar.measurements()) if (t.valid) CHECK(t.velocity_valid);
     c.azimuth = 0; c.half_azimuth = 60 * degree; c.half_elevation = 10 * degree;
-    c.fire_control_id = 42; c.gun_tracking = true;
-    c.priority_ids = {42, 51, 43, 44, 45, 46, 47, 48, 49, 50};
+    c.fire_control_id = radar.measurements()[0].id; c.gun_tracking = true;
+    for (std::size_t i=0;i<10;++i) c.priority_ids[i] = radar.measurements()[i].id;
     std::array<double, 10> last{}, gap{};
     std::array<unsigned, 10> count{};
     double search_time = 0, track_time = 0;
@@ -107,7 +107,7 @@ void saturated() {
         if (i < 240 || radar.status().dwells == dwells) continue;
         if (!beam.priority) { search_time += now - beam.started; continue; }
         track_time += now - beam.started;
-        const auto index = beam.task_source - 42;
+        const auto index = beam.task_source - radar.measurements()[0].id;
         CHECK(index < count.size());
         if (count[index]++) gap[index] = std::max(gap[index], now - last[index]);
         last[index] = now;
@@ -125,7 +125,7 @@ void degraded() {
     Scene world; world.objects[0].position = {800, 3000, 0};
     Pose pose{}; pose.position.u = 3000;
     Controls c{}; c.enabled = true; c.half_azimuth = degree; c.half_elevation = degree;
-    c.fire_control_id = 42; c.gun_tracking = true; c.priority_ids[0] = 42;
+    c.fire_control_id = 1; c.gun_tracking = true; c.priority_ids[0] = 1;
     for (unsigned i = 0; i < 480; ++i) radar.update(i / 240.0, c, pose, world);
     world.blocked = true;
     // Previously sensed returns may finish processing after visibility is lost.
@@ -155,11 +155,99 @@ void degraded() {
     }
     CHECK(granted);
 }
+void cued_search() {
+    static Model radar;
+    radar.reset();
+    Scene world;
+    Pose pose{}; pose.position.u = 3000;
+    const double az = 40*degree, el = 25*degree;
+    world.objects[0].position = {800*std::cos(el)*std::cos(az),
+        3000+800*std::sin(el),800*std::cos(el)*std::sin(az)};
+    Controls c{}; c.enabled = true;
+    c.cue_valid = true; c.cue_azimuth = az; c.cue_elevation = el;
+    c.cue_half_azimuth = 6*degree; c.cue_half_elevation = 6*degree; c.cue_request = 22; c.range_m = 500; c.cue_range_m = 1000;
+    double left = 1, right = -1, low = 1, high = -1;
+    unsigned cued = 0, background = 0;
+    for (unsigned i = 0; i < 480; ++i) {
+        const auto beam = radar.status().beam;
+        const auto dwells = radar.status().dwells;
+        CHECK(radar.update(i/240.0,c,pose,world));
+        if (radar.status().dwells == dwells) continue;
+        if (!beam.cued) { ++background; continue; }
+        ++cued;
+        left = std::min(left,beam.azimuth); right = std::max(right,beam.azimuth);
+        low = std::min(low,beam.elevation); high = std::max(high,beam.elevation);
+    }
+    CHECK(cued > 10 && background >= 3*cued-1);
+    CHECK(right-left > 5*degree && high-low > 5*degree);
+    CHECK(radar.measurements()[0].valid && radar.measurements()[0].id > 0 && radar.measurements()[0].id != 42);
+    CHECK(radar.status().cue_request == 22 && radar.status().cue_time > 0);
+    // A malformed cue cannot replace or disable ordinary search.
+    c.cue_half_azimuth = std::numeric_limits<double>::quiet_NaN();
+    const auto previous = radar.status().cue_dwells;
+    for (unsigned i = 480; i < 600; ++i) CHECK(radar.update(i/240.0,c,pose,world));
+    CHECK(radar.status().cue_dwells <= previous+1); // Only an already-started valid look may finish.
+}
+void surface_beams() {
+    static Model radar;
+    radar.reset();Scene world;world.count=0;
+    Pose pose{};pose.position.u=3000;
+    Controls c{};c.enabled=true;c.surface=true;
+    c.surface_request.valid=true;c.surface_request.point=true;c.surface_request.range_m=12000;
+    c.surface_request.center_elevation=-30*degree;c.surface_request.half_elevation=29*degree;
+    const double slope=-30*degree;
+    c.surface_request.direction={std::cos(slope),std::sin(slope),0};
+    Beam issued{};bool started=false,received=false;
+    for(unsigned tick=0;tick<240;++tick){
+        const double now=tick/240.;
+        CHECK(radar.update(now,c,pose,world));
+        if(started&&radar.status().surface_service){
+            const auto& completed=radar.status().surface_beam;
+            CHECK(dot(completed.direction,issued.direction)>1-1e-12);
+            CHECK(completed.range_m==12000 && completed.completes==now);
+            received=true;break;
+        }
+        if(!started&&radar.status().beam.surface){
+            issued=radar.status().beam;started=true;
+            // A changed request cannot rewrite a beam already in flight.
+            c.surface_request.direction={std::cos(20*degree),-std::sin(20*degree),0};
+        }
+    }
+    CHECK(received);
+    radar.reset();c.surface_request.point=false;
+    double highest=-2,lowest=2;unsigned air=0,surface=0;
+    for(unsigned tick=0;tick<15000;++tick){
+        const auto previous=radar.status().dwells;
+        CHECK(radar.update(tick/240.,c,pose,world));
+        if(radar.status().dwells==previous)continue;
+        if(!radar.status().surface_service){++air;continue;}
+        ++surface;
+        const auto& beam=radar.status().surface_beam;
+        const double elevation=std::atan2(beam.direction.u,std::hypot(beam.direction.n,beam.direction.e));
+        highest=std::max(highest,elevation);lowest=std::min(lowest,elevation);
+        CHECK(beam.half_angle==3*degree && beam.range_m==12000);
+        CHECK(beam.surface_search && beam.surface_cells==308);
+    }
+    CHECK(surface>1000 && air>500 && highest>-5*degree && lowest<-55*degree);
+    radar.reset();c.surface_request.point=true;c.surface_request.routine=true;
+    c.surface_request.direction={std::cos(17.5*degree)*std::cos(38.123*degree),
+        -std::sin(17.5*degree),std::cos(17.5*degree)*std::sin(38.123*degree)};
+    unsigned cues=0,search=0;
+    for(unsigned tick=0;tick<2400;++tick){
+        CHECK(radar.update(tick/240.,c,pose,world));
+        if(!radar.status().surface_service)continue;
+        const auto& beam=radar.status().surface_beam;
+        if(dot(beam.direction,c.surface_request.direction)>1-1e-12){
+            ++cues;CHECK(!beam.surface_search && beam.surface_cells==0);
+        }else{++search;CHECK(beam.surface_search && beam.surface_cells==308);}
+    }
+    CHECK(cues>20 && search>=3*cues-1 && search<=3*cues+3);
+}
 }
 int main() {
     try {
         engagement(1.0 / 240, true); engagement(1.0 / 60, true); engagement(1.0 / 240, false);
-        engagement(1.0 / 240, true, true); saturated(); degraded();
+        engagement(1.0 / 240, true, true); saturated(); degraded(); cued_search(); surface_beams();
         return 0;
     } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
 }

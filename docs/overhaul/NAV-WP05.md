@@ -36,3 +36,13 @@ Ident/marker audio, actual LOC/GS sign/sensitivity, A/A reception and controlled
 station-loss scenarios remain host qualification tasks. Missing adapter fields
 do not prove that receiver audio is absent. ILS remains advisory runway guidance;
 no backcourse, ICLS/ACLS or automatic LOC/GS capture is advertised.
+# Current selected-course contract
+
+OBS steering requires schema1 canonical true course in [0,360) degrees. The
+deprecated raw display-course plus variation substitution is removed. Missing,
+withdrawn or nonfinite selected-course data withdraws OBS steering/CDI for both
+waypoints and TACAN; independently received bearing/range remains available.
+The actual guidance regression reproduced raw-course acceptance before this
+change and now covers invalid bounds, restoration, reference invariance and no
+implicit direct steering when the selected OBS course is unavailable.
+

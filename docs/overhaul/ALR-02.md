@@ -26,3 +26,21 @@ status without false delivery, confirmed restoration and lease expiry; actual
 native perceived mix and radio/intercom arbitration remain unqualified.
 
 ALTITUDE playback confirmation carries its original altitude occurrence ticket, independently of the next selected warning. Invalid/inferred playback cannot mark delivery. The selected repeating radar-low, minima and baro policies are described in NAV-WP09.
+
+Warning power, ACK/test/mute controls and terrain flight inputs now require the
+current coherent physical frame from startup. Measured CAS, achieved gear/contact
+and one coherent velocity/wind sample replace the pre-provider raw/animation
+route. The master caution lamp consumes registry attention directly; missing or
+withdrawn registry readiness cannot revive aggregate display flags or animation.
+Actual owner regressions reproduce the previous startup bypasses and cover ACK
+occurrences, power loss/recovery, unchanged full recordings, live terrain cues,
+sticky/unknown playback, and expiry when the warning owner stops. Declared
+exogenous physical fixtures qualify the adapter chain separately from DCS audio.
+
+Policy event requests never imply playback. The optional auto-confirm flag is
+removed; the sound owner confirms the actual start explicitly. ALTITUDE
+confirmation requires its original finite occurrence ticket. Missing tickets
+cannot substitute the current event, and a delayed confirmation for an older
+crossing cannot consume or rate-limit a newly selected crossing. Before/after
+policy tests cover unconfirmed retries, old/missing tickets and confirmed
+delivery; actual owner replay/priority/full-recording regressions remain intact.

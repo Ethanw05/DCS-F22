@@ -25,7 +25,7 @@ function create_sound_host()return {create_sound=function(_,name)return {
  update=function()end,play_once=function()sounding=true end,
  stop=function()sounding=false end,is_playing=function()return sounding end
 }end}end
-dofile(SCRIPT_ROOT..'Systems/Pilot_Warning_System.lua');post_initialize()
+dofile(SCRIPT_ROOT..'Systems/Pilot_Warning_System.lua');local physical=dofile(SCRIPT_ROOT..'../../tests/warning_physical_fixture.lua')();update=physical:wrap(update);SetCommand=physical:wrap(SetCommand);post_initialize()
 local function p(n,v)get_param_handle(n):set(v)end
 local function v(n)return get_param_handle(n):get()end
 p('MAIN_POWER',1);p('EFM_WEIGHT_ON_WHEELS',1)

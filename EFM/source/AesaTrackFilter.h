@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <limits>
 namespace AesaTrackFilter {
 using Vector = std::array<double, 3>;
 using Jacobian = std::array<double, 6>;
@@ -141,7 +142,7 @@ class Filter {
             p.covariance[i][j]=.5*(next[i][j]+next[j][i]);
         return true;
     }
-    bool update(Estimate& p,const Sample& s,double& score) noexcept {
+    bool update(Estimate& p,const Sample& s,double& score) const noexcept {
         for(const auto kind:{Kind::range,Kind::azimuth,Kind::elevation})
             if (!correct(p,geometry(p,s,kind),score)) return false;
         return !s.rate_valid || correct(p,doppler(p,s),score);
@@ -155,6 +156,16 @@ class Filter {
 public:
     void reset() noexcept {state_={};}
     const Estimate& state() const noexcept {return state_;}
+    // Non-mutating validation in measurement space; no scene object identity.
+    double association_score(const Sample& s) const noexcept {
+        const double unavailable = std::numeric_limits<double>::infinity();
+        if (!state_.valid || !valid_sample(s)) return unavailable;
+        const double dt = s.time-state_.time;
+        if (dt < 0 || dt > 6) return unavailable;
+        auto predicted = predict(dt);
+        double score = 0;
+        return update(predicted,s,score) && usable(predicted) && std::isfinite(score) ? score : unavailable;
+    }
     bool observe(const Sample& s) noexcept {
         if (!valid_sample(s)) return false;
         const double dt=s.time-state_.time;

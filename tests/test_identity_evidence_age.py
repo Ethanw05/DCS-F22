@@ -25,24 +25,23 @@ local function packet(sequence,known,observation)
 end
 for key,value in pairs({SOURCE=7,TIME=0,AZIMUTH=.2,ELEVATION=0,SIGNAL=3,
  PRIORITY=1,POWER=.25,GENERAL_TYPE=1,UNIT_TYPE='27'})do p('RWR_CONTACT_01_'..key,value)end
-p('F22_TWS_PUBLISH_SEQUENCE',1)
-for key,value in pairs({VALID=1,SOURCE=7,AGE=20,CLASS=1})do p('F22_IDENT_01_'..key,value)end
+p('F22_RADAR_TACTICAL_SEQUENCE',1);p('F22_RADAR_TACTICAL_TIME',now)
+for key,value in pairs({VALID=1,SOURCE=77,AGE=0,AZ=-.2,EL=0,RANGE=20000,QUALITY=2,
+ FRIENDLY=1,IDENTITY_KNOWN=1,IDENTITY_TIME=10})do p('F22_RADAR_TACTICAL_01_'..key,value)end
 packet(1,false);update()
-assert(g('F22_DEFENSIVE_SOURCE')==7 and g('F22_DEFENSIVE_IDENTITY_CONFLICT')==1
+assert(g('F22_DEFENSIVE_SOURCE')>0 and g('F22_DEFENSIVE_IDENTITY_CONFLICT')==1
  and g('F22_DEFENSIVE_FRIENDLY_PROTECTED')==1)
-assert(g('F22_DEFENSIVE_AGE')==0 and g('F22_DEFENSIVE_ID_RF_FRIEND_AGE')==20
+assert(g('F22_DEFENSIVE_AGE')==0 and g('F22_DEFENSIVE_ID_RADAR_FRIEND_AGE')==20
  and g('F22_DEFENSIVE_ID_RF_HOSTILE_AGE')==0,'fresh bearing renewed old friendly evidence')
-assert(g('F22_DEFENSIVE_ID_RADAR_VALID')==0 and g('F22_DEFENSIVE_ID_RADAR_AGE_KNOWN')==0)
-assert(g('F22_DEFENSIVE_ID_DONOR_HOSTILE')==1 and g('F22_DEFENSIVE_ID_DONOR_HOSTILE_AGE_KNOWN')==0
- and g('F22_DEFENSIVE_ID_DONOR_HOSTILE_AGE')==999
- and g('F22_DEFENSIVE_ID_DONOR_RECEIVE_AGE')==0,'unknown donor sample became a new identity observation')
+assert(g('F22_DEFENSIVE_ID_RADAR_VALID')==1 and g('F22_DEFENSIVE_ID_RADAR_AGE_KNOWN')==1)
+assert(g('F22_DEFENSIVE_ID_DONOR_VALID')==0,'unknown donor sample granted radar/RF correlation')
+SetCommand(11140,1);update()
+assert(g('F22_DONOR_OBSERVATION_AGE')==999 and g('F22_DONOR_RECEIVE_AGE')==0)
 now=31;update()
-assert(g('F22_DEFENSIVE_ID_RF_FRIEND_AGE')==21 and g('F22_DEFENSIVE_ID_RF_HOSTILE_AGE')==0
- and g('F22_DEFENSIVE_ID_DONOR_RECEIVE_AGE')==1)
+assert(g('F22_DEFENSIVE_ID_RADAR_FRIEND_AGE')==21 and g('F22_DEFENSIVE_ID_RF_HOSTILE_AGE')==0)
+assert(g('F22_DONOR_RECEIVE_AGE')==1)
 packet(2,true,25);update()
-assert(g('F22_DEFENSIVE_ID_DONOR_HOSTILE_AGE_KNOWN')==1
- and g('F22_DEFENSIVE_ID_DONOR_HOSTILE_AGE')==6
- and g('F22_DEFENSIVE_ID_DONOR_RECEIVE_AGE')==0)
+assert(g('F22_DONOR_OBSERVATION_AGE')==6 and g('F22_DONOR_RECEIVE_AGE')==0)
 now=41;update()
 assert(g('F22_DEFENSIVE_ID_RF_FRIENDLY')==0 and g('F22_DEFENSIVE_FRIENDLY_PROTECTED')==0,
  'expired friendly identity was renewed by fresh RF observations')

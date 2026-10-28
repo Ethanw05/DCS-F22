@@ -61,7 +61,7 @@ function M.new(get, sensors)
                 o.observation_time = o.observation_known and get(p .. 'OBSERVATION_TIME') or nil
                 o.received = schema == 2 and get(p .. 'RECEIVE_TIME') or o.time
                 o.epoch = epoch
-                if not id(o.source) or not id(o.reporter) or o.source == get('F22_DL_RX_OWN')
+                if not id(o.source) or not id(o.reporter) or (o.ppli==1 or o.link==2) and o.source == get('F22_DL_RX_OWN')
                     or (o.link ~= 1 and o.link ~= 2) or not finite(o.time)
                     or not finite(o.received) or o.received > stamp + .05
                     or o.observation_known and (not finite(o.observation_time)
@@ -76,9 +76,10 @@ function M.new(get, sensors)
                     or o.ppli == 1 and (o.source ~= o.reporter or o.affiliation ~= 1) then
                     valid = false; break
                 end
-                local old = records[o.source]
+                local identity=o.link..':'..o.reporter..':'..o.source
+                local old = records[identity]
                 if not old or o.time > old.time or o.time == old.time and o.link < old.link then
-                    records[o.source] = o
+                    records[identity] = o
                 end
             end
             if valid and seq == get('F22_DL_RX_SEQUENCE') and epoch == get('F22_DL_RX_EPOCH') then
@@ -94,7 +95,7 @@ function M.new(get, sensors)
                 local body = Frames.body(frame, {q.n - own.n, q.u - own.u, q.e - own.e})
                 local horizontal = math.sqrt(body[1]^2 + body[3]^2)
                 batch.contacts[#batch.contacts + 1] = {
-                    source = source, age = q.age, az = math.atan2(body[3], body[1]),
+                    source = o.source, age = q.age, az = math.atan2(body[3], body[1]),
                     el = math.atan2(body[2], horizontal), n = o.n, u = o.u, e = o.e,
                     vn = o.vn, vu = o.vu, ve = o.ve, link = o.link, reporter = o.reporter,
                     friendly = o.affiliation == 1, hostile = o.affiliation == 0,

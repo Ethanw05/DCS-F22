@@ -18,7 +18,7 @@ for birth in ('GROUND_HOT', 'AIR_HOT', 'GROUND_COLD'):
         end
         dofile(SCRIPT_ROOT..'Systems/Avionics.lua'); post_initialize(); update()
         avionics_update=update
-        assert(handles.F22_ENGINE_L_RPM_TEXT:get()=='---')
+        assert(handles.F22_ENGINE_L_RPM_TEXT==nil)
         assert(handles.F22_ENGINE_L_RPM_VALID:get()==0)
     ''')
     engine_frame(sim, left=sample, right=sample)
@@ -26,7 +26,7 @@ for birth in ('GROUND_HOT', 'AIR_HOT', 'GROUND_COLD'):
         avionics_update()
         assert(handles.RPM_L:get()==67 and handles.RPM_R:get()==67)
         assert(handles.OIL_L:get()==180.9 and handles.L_HYD_VALUE:get()==3950)
-        assert(handles.F22_ENGINE_L_RPM_TEXT:get()=='67')
+        assert(handles.F22_ENGINE_L_RPM_VALID:get()==1)
         assert(math.abs(handles.L_FF_VALUE:get()-.126*2.20462*3600)<1e-8)
         dofile(SCRIPT_ROOT..'Systems/MFD_System.lua'); post_initialize()
         draws[208]=1
@@ -43,14 +43,14 @@ for birth in ('GROUND_HOT', 'AIR_HOT', 'GROUND_COLD'):
         assert(handles.R_HYD_VALUE:get()==0 and handles.R_HYD_COLOR:get()==1)
         -- Corrupt one metric only: other engine/circuit readings survive.
         handles.EFM_ENGINE_LEFT_TEMP_C:set(0/0); avionics_update()
-        assert(handles.F22_ENGINE_L_EGT_VALID:get()==0 and handles.F22_ENGINE_L_EGT_TEXT:get()=='---')
+        assert(handles.F22_ENGINE_L_EGT_VALID:get()==0 and handles.EGT_L:get()==450)
         assert(handles.F22_ENGINE_R_EGT_VALID:get()==1 and handles.F22_ENGINE_L_OIL_VALID:get()==1)
         handles.EFM_POWER_OWNER:set(0); avionics_update()
-        assert(handles.F22_ENGINE_L_RPM_TEXT:get()=='---' and handles.F22_ENGINE_R_HYD_TEXT:get()=='---')
+        assert(handles.F22_ENGINE_L_RPM_VALID:get()==0 and handles.F22_ENGINE_R_HYD_VALID:get()==0)
     ''')
     engine_frame(sim, left=sample, right=sample, generation=2, stamp=0)
     sim.globals().avionics_update()
-    assert sim.globals().handles.F22_ENGINE_L_RPM_TEXT.value == '67'
+    assert sim.globals().handles.F22_ENGINE_L_RPM_VALID.value == 1
     print('Coherent engine indication owner, invalid/recovery and no duplicate pressure:', birth, 'PASS')
 
 # Start and detent commands reach the actual physical guard, without a second

@@ -11,3 +11,16 @@ Gins_References publishes schema/sequence/time/valid with fixed prebound fields.
 Actual guidance/NAV/HUD/UFC/display owners and write-only native element graphs cover independent component/source failures, standby survival, accepted selections, no AP engagement, GPS coast without hidden truth, failed/stale/mixed publications, movement/retained/training timing, power-source separation and rewind. The pinned focused Lizard gate enforces CCN≤15/NLOC≤60 for the new helpers; retained large HUD/UFC callbacks remain documented migration exceptions. Actual source-switch optics, right-UFD placement and in-DCS alignment/failure scenarios remain unqualified.
 
 Current-contract cleanup: reference power/stationary state requires the current coherent physical frame from startup. The MAIN_POWER/HUD-ground-speed startup substitute is removed. Missing ownership cannot permit source selection or make a channel healthy. All NAV/HUD/ADI consumers now require current selected references; optional-schema/raw-pose routes and the INS model-disable perfect-position bypass are removed. A missing channel invalidates its estimate before recovery, and GPS loss still permits healthy measured-velocity coast. NAV computes ground speed from the declared velocity observation without substituting the HUD display output. Exogenous test publishers advance actual frame metadata; reference-feed failure is separate from main display power. Absent-schema and disabled-model regressions reproduced both old bypasses before the fix. Independent standby, coasting, radio reception and alignment/rewind regressions remain.
+
+Selected-pose cadence: the prior 50ms reference publication was consumed by a
+20ms HUD, producing a repeated hold/jump pattern. The actual GINS/HUD callback
+regression reproduces 1degree peak-to-peak FPM motion during a smooth 25deg/s,
+constant-AoA maneuver. Requested 10ms publication removes that numerical alias
+across three callback phases without filtering or advancing observation times.
+Status text retains its 50ms budget; control validity/course state and selected
+reference failures remain immediate. The 19:22 player trace contains pitch rates
+up to25.6deg/s, consistent with this alias being visible. This establishes a
+timing defect, not that it explains every reported gun/FPM movement. 100Hz is a
+mod scheduling choice; actual host cadence still needs playtest confirmation.
+Bounded 1Hz F22_FPM_STATE diagnostics record original reference time, age range,
+pose/velocity and computed/visible gates for that check.

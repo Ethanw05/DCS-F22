@@ -29,6 +29,7 @@ local function put(n, v)
 	h(n):set(v)
 end
 local radar_resource=resource_policy.new(get)
+local donor_cue=dofile(LockOn_Options.script_path .. "Systems/Radar_Donor_Cue.lua").new(get,put)
 local aesa = dofile(LockOn_Options.script_path .. "Systems/AESA_Control.lua").new(get, put)
 tactical.publish({tracks={},clock=0}, put, false)
 sensor_tasks:publish(put,0)
@@ -292,7 +293,10 @@ function SetCommand(command, value)
 	end
 	sensor_tasks:command(name,computer.clock)
 	computer:command(name)
-	if name == "power" then emission_inhibited = not computer.power end
+	if name == "power" then
+        emission_inhibited = not computer.power
+        if not computer.power then donor_cue:retire(computer.clock) end
+    end
 	if (name == "designate" or name == "stt") and log and log.write then
 		local t = computer.selected and computer.tracks[computer.selected]
 		log.write(
@@ -313,6 +317,7 @@ function SetCommand(command, value)
 	end
 end
 function post_initialize()
+	donor_cue:retire(-100)
 	aesa:reset()
 	slew_x, slew_y, slew_focus, slew_role = 0, 0, nil, nil
 	radar_resource:reset()
@@ -335,6 +340,7 @@ local function native_command(c)
 end
 ag = dofile(LockOn_Options.script_path .. "Systems/AG_Radar_System.lua").new(get, put, native_command)
 local function withdraw_clock()
+    donor_cue:retire(-100)
     computer:reset()
     aesa:reset()
     slew_x,slew_y,slew_focus,slew_role=0,0,nil,nil
@@ -450,6 +456,7 @@ function update()
 	put("F22_RADAR_BACKEND_READY", ready and 1 or 0)
 	put("F22_AG_RADAR_PAGE", hud_mode == 7 and 1 or 0)
 	if hud_mode == 7 then
+		donor_cue:retire(computer.clock)
 		computer.effective_scan=nil
 		computer.rf_scan_windows={}
 		sensor_tasks:reset()
@@ -527,9 +534,11 @@ function update()
 	end
 	scan=sensor_tasks:update(computer.clock,computer,scan,rf_cues,
 		telemetry_config.rf_tasking_enabled~=false and powered and ready and pose~=nil and get("HUD_MODE")~=7)
+	scan=donor_cue:apply(computer.clock,pose,scan,requested_power and observations_ready and pose~=nil
+        and (computer.mode=="RWS" or computer.mode=="TWS") and native_mode~=3 and not computer.acquire,computer)
 	aesa:publish(computer.clock, computer, service_resource, powered and ready, false, scan)
 	computer:set_effective_scan(scan,computer.clock)
-	sensor_tasks:publish(put,computer.clock)
+	sensor_tasks:publish(put,computer.clock,scan)
 	if log and log.write then
 		local task=sensor_tasks.status or{}
 		local signature=string.format("task=%d source=%d pending=%d",task.task or 0,task.source or 0,task.pending or 0)
@@ -553,24 +562,6 @@ function update()
 	put("F22_RADAR_SUPPORT_DEGRADED", scan and scan.support_count > 0 and (scan.uncovered > 0 or scan.support_overdue > 0) and 1 or 0)
 	put("F22_RADAR_SCAN_COVERAGE_COMPLETE", powered and ready and scan and scan.uncovered == 0 and 1 or 0)
 	put("F22_RADAR_SCAN_RANGE_NM", scan and scan.range / 1852 or computer:range() / 1852)
-	local identities = {}
-	for _, t in pairs(computer.tracks) do
-		if t.native_id and t.ident_time then
-			identities[#identities + 1] = t
-		end
-	end
-	table.sort(identities, function(a, b)
-		return a.native_id < b.native_id
-	end)
-	for i = 1, 64 do
-		local p = string.format("F22_IDENT_%02d_", i)
-		local t = identities[i]
-		local age = t and math.max(0, computer.clock - t.ident_time) or 999
-		put(p .. "VALID", t and age <= 30 and 1 or 0)
-		put(p .. "SOURCE", t and t.native_id or 0)
-		put(p .. "CLASS", t and t.ident_class or -1)
-		put(p .. "AGE", age)
-	end
 	local mode = not powered and "OFF"
 		or (not ready or (not observations_ready and native_mode ~= 3)) and "SENSOR N/A"
 		or native_mode == 3 and not stt_observation and "SENSOR N/A"

@@ -10,24 +10,24 @@ local function batch(sequence,time,contacts)return {sequence=sequence,time=time,
 s:update(8,{radar=batch(1,8,{{source=1,age=0,az=.1,el=0,range=1852}}),
  rf=batch(1,8,{{source=1,age=8,az=.2,el=0,signal=3}})},true)
 local t=s.contacts[1]
-assert(t.age==0 and t.radar_age==0 and t.rf_age==8 and t.rf_coast)
+assert(t.age==8 and t.radar_age==nil and t.rf_age==8 and t.rf_coast and #s.contacts==2)
 assert(t.threat_priority==1,'fresh radar renewed old launch-warning priority')
 local v={};local d=Defensive.new(function(k,x)v[k]=x end,function()return 100 end)
 d.now=8;d:update(s.contacts,false)
-assert(v.F22_DEFENSIVE_AGE==8 and v.F22_DEFENSIVE_RF_AGE==8 and v.F22_DEFENSIVE_RANGE_AGE==0)
-assert(v.F22_DEFENSIVE_COAST==1 and v.F22_DEFENSIVE_RANGE_VALID==1)
+assert(v.F22_DEFENSIVE_AGE==8 and v.F22_DEFENSIVE_RF_AGE==8 and v.F22_DEFENSIVE_RANGE_AGE==999)
+assert(v.F22_DEFENSIVE_COAST==1 and v.F22_DEFENSIVE_RANGE_VALID==0)
 assert(v.F22_DEFENSIVE_DIRECTION_SOURCE==2)
 -- A new optical sighting renews its own field, not the remembered RF signal.
 s:update(8.1,{mws=batch(1,8.1,{{source=1,age=0,az=.3,el=.1}})},true)
 t=s.contacts[1];assert(t.optical_age==0 and t.rf_age>8 and t.threat_priority==4)
-d.now=8.1;d:update(s.contacts,false)
+d.source=nil;d.now=8.1;d:update(s.contacts,true)
 assert(v.F22_DEFENSIVE_AGE==0 and v.F22_DEFENSIVE_RF_AGE>8 and v.F22_DEFENSIVE_DIRECTION_SOURCE==4)
 -- Coasting optical memory cannot starve a genuinely fresh RF launch warning.
 s:update(9,{rf=batch(2,9,{{source=2,age=0,az=1,el=0,signal=3}})},true)
-assert(s.contacts[1].source==2 and s.contacts[1].threat_priority==3)
+assert(s.contacts[1].observations.rf.source==2 and s.contacts[1].threat_priority==3)
 -- New sequence with a regressed snapshot timestamp cannot replace fresh data.
 s:update(9.1,{rf=batch(3,8.95,{{source=3,age=0,az=0,el=0,signal=1}})},true)
-assert(s.contacts[1].source==2,'out-of-order publication replaced newer warning data')
+assert(s.contacts[1].observations.rf.source==2,'out-of-order publication replaced newer warning data')
 -- Equal-time direction selection is explicit, independent of table iteration.
 for i=1,10 do
  s=Tracks.new();s:update(5,{rf=batch(i,5,{{source=9,age=0,az=.1,el=0,signal=1}}),

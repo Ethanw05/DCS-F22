@@ -97,13 +97,19 @@ function M.new(get, put, sensors)
 		put("F22_TSD_NAV_VALID", nav and inside(x, y) and 1 or 0)
 		put("F22_TSD_NAV_LAYER", self.nav and 1 or 0)
 		put("F22_TSD_PASSIVE_LAYER", self.passive and 1 or 0)
-		local on_map = {}
+		local radar_on_map = {}
 		for i = 1, 24 do
 			local p = string.format("F22_SCOPE_%02d_", i)
 			if get(p .. "VALID") > 0.5 and get(p .. "COAST") < 0.5 then
-				on_map[get(p .. "SOURCE")] = true
+				radar_on_map[get(p .. "SOURCE")] = true
 			end
 		end
+        local on_map = {}
+        -- Scope IDs are radar track numbers; picture IDs belong to fusion.
+        for _,track in ipairs(tracks) do
+            local radar=track.observations and track.observations.radar
+            if radar and radar_on_map[radar.source] then on_map[track.source]=true end
+        end
 		local passive = {}
 		local estimates,located={},{}
 		local own=enabled and Geolocation.position(sensors)

@@ -1,6 +1,6 @@
 // Offline adapter tests. Fake sensor decisions do not validate native acquisition.
 #include "../EFM/source/NativeSidewinder.cpp"
-namespace NativeAesaRadar { void reset() noexcept {} void update(EDPARAM&) noexcept {} }
+namespace NativeAesaRadar { void reset() noexcept {} void update(EDPARAM&) noexcept {} unsigned track_for_host(unsigned host) noexcept { return host==7001 ? 101 : 0; } }
 #include <iostream>
 #include <stdexcept>
 #include <thread>
@@ -277,14 +277,15 @@ int scenarios() {
     CHECK(!launch_time_estimate(101,106,2,99.9).valid);
     void* recording_table[51]{};recording_table[20]=reinterpret_cast<void*>(&store_type);recording_table[50]=reinterpret_cast<void*>(&launch_payload);
     payload_original=recording_table;launch_master_mode=2;
-    CHECK(record_payload_launch(nullptr,2,0,101,nullptr,true)==9876);
+    CHECK(record_payload_launch(nullptr,2,0,7001,nullptr,true)==9876);
     const unsigned before_jettison=launched_sequence;
-    CHECK(record_payload_launch(nullptr,2,0,101,nullptr,false)==9876);
+    CHECK(record_payload_launch(nullptr,2,0,7001,nullptr,false)==9876);
     CHECK(launched_sequence==before_jettison);
+    CHECK(payload_target==7001); // Host launch uses its own object ID.
     CHECK(launched_sequence==1 && launched[0].target==101 && launched[0].mode==2 && launched[0].estimate.valid);
     CHECK(launched[0].estimate.act==12 && launched[0].estimate.stamp==now_model);
     const auto frozen=launched[0];payload_launch_allowed=false;launch_master_mode=2;
-    CHECK(record_payload_launch(nullptr,2,0,101,nullptr,true)==0 && launched_sequence==1);
+    CHECK(record_payload_launch(nullptr,2,0,7001,nullptr,true)==0 && launched_sequence==1);
     values["F22_RADAR_WEAPON_TARGET_ID"]=202;publish_time_estimate(p);
     CHECK(values["F22_TOF_NATIVE_VALID"]==0 && !launch_time_estimate(101,106,2,now_model).valid);
     CHECK(launched[0].target==frozen.target && launched[0].estimate.act==frozen.estimate.act);

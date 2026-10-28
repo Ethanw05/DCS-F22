@@ -4,7 +4,7 @@ Applies to all new and modified project-owned Lua and C++ during the overhaul. E
 
 ## Core rules
 
-The foundation is Gerard Holzmann's [Power of Ten](https://spinroot.com/gerard/pdf/P10.pdf), pp2–5. Its original language target is C; the project adaptations follow below.
+The foundation is Gerard Holzmann's [Power of Ten](https://spinroot.com/gerard/pdf/P10.pdf), pp2â€“5. Its original language target is C; the project adaptations follow below.
 
 | Rule | Project requirement |
 | --- | --- |
@@ -39,8 +39,9 @@ These ownership choices follow the [C++ Core Guidelines](https://isocpp.github.i
 - Check missing values, types, finite numbers, units and valid flags before calculations. Lua treats numeric 0 as true; normalize boolean/numeric native statuses explicitly.
 - Handle both the status and result of `pcall`. Report a bounded diagnostic and invalidate the affected result on failure. An absent reading is not a healthy zero; a successful call is not proof of a completed physical action.
 - Keep state changes, command routing and publication separate from rendering. A page refresh must not integrate physics, generate sensor measurements or repeat a release.
+- Match native indicator formats to host parameter storage. Numeric-looking Lua strings can become native numbers: use floating-point formats for numeric readouts and separate static unavailable labels gated by validity. Treat `CreateElement` properties as write-only; keep Lua declaration data when constructing related elements.
 
-Language behavior is documented in the [Lua 5.1 Reference Manual](https://www.lua.org/manual/5.1/manual.html), §§2.2, 2.7, 2.10 and `pcall`.
+Language behavior is documented in the [Lua 5.1 Reference Manual](https://www.lua.org/manual/5.1/manual.html), Â§Â§2.2, 2.7, 2.10 and `pcall`.
 
 ## Applying and checking the standard
 
@@ -54,3 +55,5 @@ NASA [SWE-061](https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695445/SWE-061%2B-
 - An exception records the rule, file/function, reason, bounded alternative and verification. Native callbacks/virtual methods and Lua-managed memory are tailored cases, not blanket permission to ignore the rules.
 
 All implementation chats follow this standard. A code change reports the checks actually performed and remaining exceptions. Host/runtime fidelity remains a separate question from coding quality.
+
+Native text regression (DCS2.9.30,27October2026): crash archive dcs.log-20261028-005039.zip reaches CockpitBase text_using_parameter/set_strcat_by_predefined_format with numeric70.0 supplied to %s. The dump contains the argument bits4051800000000000, format%s and element name rad Alt in the PFD font. The engine-indication producer previously published numeric-only text. Engine/UFD/fuel/stores readouts now consume typed numeric fields, with static--- under independent invalid flags; the mixed-type engine text publications are removed. test_native_text_formats.py reproduces the original70/%s pair with host-style coercion and verifies36actual native declarations using the system CRT formatter, write-only element proxies, unchanged font/geometry and separate metric/supply failure. Fuel snapshots gain only the four unavailable labels per display. This reproduces the failing contract offline; a post-fix DCS startup is still a separate host check.

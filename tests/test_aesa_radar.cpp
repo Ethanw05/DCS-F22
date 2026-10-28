@@ -32,7 +32,7 @@ int scenarios() {
     CHECK(radar.update(.079, c, pose, world)); CHECK(!radar.measurements()[0].valid);
     CHECK(radar.update(.08, c, pose, world));
     const auto first = radar.measurements()[0];
-    CHECK(first.valid && first.id == 42 && first.time == .02);
+    CHECK(first.valid && first.id != 42 && first.id > 0 && first.time == .02);
     CHECK(length(first.position - world.objects[0].position) > .001);
     CHECK(first.range_sigma_m > 0 && first.angle_sigma_rad > 0 && !first.velocity_valid);
     const auto queries = world.queries;
@@ -71,7 +71,7 @@ int scenarios() {
     CHECK(lo < -50 * degree && hi > 50 * degree);
     CHECK(coverage.status().search_dwells >= 290);
     // A selected track gets finite revisits while discovery continues.
-    c.half_azimuth = degree; c.half_elevation = degree; c.priority_ids[0] = 42;
+    c.half_azimuth = degree; c.half_elevation = degree; c.priority_ids[0] = 1;
     static Model tracking;
     for (int i = 0; i < 150; ++i) {
         if (i == 10) c.half_azimuth = 60 * degree;
@@ -105,7 +105,8 @@ int scenarios() {
     static Model store(Policy{.005,.001});
     for(int i=0;i<100;++i)store.update(i*.006,c,pose,world);
     count=0;for(const auto& t:store.measurements())if(t.valid)++count;
-    CHECK(count==maximum_tracks);
+    CHECK(count>0 && count<maximum_tracks);
+    CHECK(store.status().association_ambiguous>0); // Identical reports cannot produce64 perfectly separate targets.
     // Invalid policy values cannot create division-by-zero or an unbounded grid.
     static Model bad_policy(Policy{0,0,0});
     CHECK(bad_policy.update(0,c,pose,world)&&bad_policy.status().beam.completes>0);
@@ -113,7 +114,33 @@ int scenarios() {
         "resource loss, search/track service, generations, pause and bounded work PASS\n";
     return 0;
 }
+void clutter_reference() {
+    static std::array<Model,3> radars;
+    World world;
+    Pose pose{};pose.position.u=3000;pose.velocity.n=300;
+    Controls controls{};controls.enabled=true;
+    controls.half_azimuth=degree;controls.half_elevation=degree;
+    std::array<unsigned,3> detections{};
+    for (unsigned seed=1;seed<=512;++seed) {
+        controls.generation=seed*0x9e3779b9ull;
+        for (std::size_t scenario=0;scenario<radars.size();++scenario) {
+            // Same range and seed: co-speed lookdown, ground-notched lookdown,
+            // and clear-sky stationary target. Hidden identity is immaterial.
+            world.objects[0].position={60000,scenario==2 ? 5000.0 : 1000.0,0};
+            world.objects[0].velocity={scenario==0 ? 300.0 : 0,0,0};
+            controls.elevation=std::atan2(world.objects[0].position.u-pose.position.u,60000);
+            auto& radar=radars[scenario];radar.reset(controls.generation);
+            CHECK(radar.update(0,controls,pose,world));
+            CHECK(radar.update(.021,controls,pose,world));
+            detections[scenario]+=radar.status().detections;
+        }
+    }
+    std::cout<<"Clutter frame: co-speed="<<detections[0]<<" ground-notch="<<detections[1]
+        <<" lookup="<<detections[2]<<" /512 seeded dwells\n";
+    CHECK(detections[0]==detections[2]);
+    CHECK(detections[0]>2*detections[1] && detections[1]>0);
+}
 int main() {
-    try { return scenarios(); }
+    try { const auto result=scenarios();clutter_reference();return result; }
     catch (const std::exception& error) { std::cerr << error.what() << "\n"; return 1; }
 }

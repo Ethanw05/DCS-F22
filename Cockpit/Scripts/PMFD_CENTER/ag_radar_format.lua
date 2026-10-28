@@ -223,11 +223,12 @@ end
 group("F22_AG_GMT_SELECTED",{"F22_AG_TRACK_X","F22_AG_TRACK_Y","F22_AG_TRACK_VALID"},
 	{{"move_left_right_using_parameter",0,1},{"move_up_down_using_parameter",1,1},{"parameter_in_range",2,.9,1.1}},live)
 for i=1,4 do local y=2*(i-2.5)/840*1.52;line(-15/840*1.65,y,15/840*1.65,y,"white","F22_AG_GMT_SELECTED")end
-group("F22_AG_GMT_VECTOR",{"F22_AG_TRACK_VECTOR_ROT"},{{"rotate_using_parameter",0,1}},"F22_AG_GMT_SELECTED")
+group("F22_AG_GMT_MOTION",{"F22_AG_TRACK_MOTION_VALID"},{{"parameter_in_range",0,.5,1.5}},"F22_AG_GMT_SELECTED")
+group("F22_AG_GMT_VECTOR",{"F22_AG_TRACK_VECTOR_ROT"},{{"rotate_using_parameter",0,1}},"F22_AG_GMT_MOTION")
 line(0,0,0,20/840*1.52,"white","F22_AG_GMT_VECTOR")
 local tracked=gate("F22_AG_GMT_DATA","F22_AG_TRACK_VALID",1,live)
-text("%.0f",-.05,0,"F22_AG_TRACK_SPEED","white","F22_AG_GMT_SELECTED",.0037,"RightCenter")
-text("%03.0f°",.05,0,"F22_AG_TRACK_HEADING","white","F22_AG_GMT_SELECTED",.0037,"LeftCenter")
+text("%.0f",-.05,0,"F22_AG_TRACK_SPEED","white","F22_AG_GMT_MOTION",.0037,"RightCenter")
+text("%03.0f°",.05,0,"F22_AG_TRACK_HEADING","white","F22_AG_GMT_MOTION",.0037,"LeftCenter")
 status("MEM",gate("F22_AG_GMT_COAST_LABEL","F22_AG_TRACK_COAST",1,tracked))
 status("TRACK",gate("F22_AG_GMT_TRACK_LABEL","F22_AG_TRACK_COAST",0,tracked))
 group("F22_AG_RDR_TARGET", { "F22_AG_MAP_TARGET_X", "F22_AG_MAP_TARGET_Y", "F22_AG_MAP_TARGET_VALID" }, {

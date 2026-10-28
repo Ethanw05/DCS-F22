@@ -3,26 +3,38 @@ local Model = dofile(LockOn_Options.script_path .. "Systems/AG_Radar_Computer.lu
 local Display = dofile(LockOn_Options.script_path .. "Systems/Radar_Display.lua")
 local Modes=dofile(LockOn_Options.script_path .. "Systems/AG_Radar_Modes.lua")
 local M = {}
-local function native_track(get, now)
-	local prefix = "F22_AG_NATIVE_TRACK_"
-	local id, kind, stamp = get(prefix .. "ID"), get(prefix .. "TYPE"), get(prefix .. "TIME")
-	if not Model.finite(id) or id < 0 or id % 1 ~= 0 or not Model.fresh(now, stamp, 5.25) then return end
-	if not ((kind == 3 and id == 0) or ((kind == 1 or kind == 2) and id > 0)) then return end
-	local n, u, e = get(prefix .. "N"), get(prefix .. "U"), get(prefix .. "E")
-	local vn, ve = get(prefix .. "VN"), get(prefix .. "VE")
-	if not Model.finite(n) or not Model.finite(u) or not Model.finite(e)
-		or not Model.finite(vn) or not Model.finite(ve) then return end
-	return { id = id, kind = kind, stamp = stamp,
-		display = { north = n, altitude = u, east = e },
-		speed = math.sqrt(vn * vn + ve * ve) * 1.943844492440605,
-		heading = math.atan2(ve, vn), age = math.max(0, now - stamp) }
+local native_prefix="F22_AG_NATIVE_TRACK_"
+local function track_identity(get,now)
+    local id,kind,stamp=get(native_prefix.."ID"),get(native_prefix.."TYPE"),get(native_prefix.."TIME")
+    if not Model.finite(id) or id<0 or id%1~=0 or not Model.fresh(now,stamp,5.25) then return end
+    if not ((kind==3 and id==0) or ((kind==1 or kind==2) and id>0)) then return end
+    return id,kind,stamp
+end
+local function track_motion(get)
+    local vn,vu,ve=get(native_prefix.."VN"),get(native_prefix.."VU"),get(native_prefix.."VE")
+    local valid=get(native_prefix.."VELOCITY_VALID")==1 and Model.finite(vn) and Model.finite(vu) and Model.finite(ve)
+    valid=valid and vn*vn+vu*vu+ve*ve<=1500^2
+    return valid,vn,vu,ve
+end
+local function native_track(get,now)
+    local id,kind,stamp=track_identity(get,now)
+    if not id then return end
+    local n,u,e=get(native_prefix.."N"),get(native_prefix.."U"),get(native_prefix.."E")
+    if not Model.finite(n) or not Model.finite(u) or not Model.finite(e) then return end
+    local motion,vn,vu,ve=track_motion(get)
+    local age=math.max(0,now-stamp)
+    local display={north=n,altitude=u,east=e}
+    if motion then display.north=n+vn*age;display.altitude=u+vu*age;display.east=e+ve*age end
+    return {id=id,kind=kind,stamp=stamp,measurement={north=n,altitude=u,east=e},display=display,
+        motion_valid=motion,speed=motion and math.sqrt(vn*vn+ve*ve)*1.943844492440605 or 0,
+        heading=motion and math.atan2(ve,vn) or 0,age=age}
 end
 function M.new(get, put, native_command)
 	local ok, terrain = pcall(require, "terrain")
 	put("F22_AG_MODE",1);put("F22_AG_MAP_VIDEO_SHOW",0);put("F22_AG_INTERLEAVE",0)
 	put("F22_AG_CURSOR_PREVIEW",0);put("F22_AG_VIDEO_HOLD",0);put("F22_AG_FIXED_TRACK",0)
 	put("F22_AG_TRACK_VALID",0);put("F22_AG_TRACK_REQUEST_ID",0)
-	put("F22_AG_TRACK_TYPE",0)
+	put("F22_AG_TRACK_TYPE",0);put("F22_AG_TRACK_MOTION_VALID",0)
 	put("F22_AG_TRACK_REQUEST_ACTIVE",0);put("F22_AG_TRACK_REQUEST_SEQUENCE",0)
  for _,n in ipairs({'VIDEO_FAN','VIDEO_FROZEN','SILENT','ACTIVE','ACTIVE_AVAILABLE','EXPANSION','EXP_PENDING','DATA','DECLUTTER',
   'PLOT_SHOW','EXP1_AVAILABLE','BEAM_AVAILABLE','CURSOR_SHOW','OPTIONS_AVAILABLE','RANGE_AVAILABLE','INTL_AVAILABLE','FAST_AVAILABLE','CORRAL_SHOW','FAST','VIDEO_EXPANSION','VIDEO_CENTER_M',
@@ -369,6 +381,7 @@ function M:update(pose, now, dt, powered, ready)
 	end
 	put("F22_AG_TRACK_VALID",selected and 1 or 0);put("F22_AG_TRACK_ID",selected and selected.id or 0)
 	put("F22_AG_TRACK_TYPE",selected and selected.kind or 0)
+    put("F22_AG_TRACK_MOTION_VALID",selected and selected.motion_valid and 1 or 0)
 	put("F22_AG_FIXED_TRACK",selected and (selected.kind==3 or m.mode==1) and 1 or 0)
 	if selected then
 		put("F22_AG_TRACK_X",selected.x);put("F22_AG_TRACK_Y",selected.y)
@@ -376,10 +389,10 @@ function M:update(pose, now, dt, powered, ready)
 		put("F22_AG_TRACK_VECTOR_ROT",-get("F22_AG_NATIVE_TRACK_ASPECT"))
 		put("F22_AG_TRACK_COAST",get("F22_AG_NATIVE_TRACK_MEMORY"))
 		local last=self.last_track_point
-		local moved=not last or (selected.display.north-last.north)^2+(selected.display.east-last.east)^2>4
-			or math.abs(selected.display.altitude-last.altitude)>.5
-		if get("F22_AG_NATIVE_TRACK_MEMORY")<.5 and moved and (not self.last_track_designation or now-self.last_track_designation>=.2) then
-			self:designate_point(selected.display,now)
+		local moved=not last or (selected.measurement.north-last.north)^2+(selected.measurement.east-last.east)^2>4
+			or math.abs(selected.measurement.altitude-last.altitude)>.5
+		if get("F22_AG_NATIVE_TRACK_MEMORY")<.5 and moved and (not self.last_track_designation or selected.stamp-self.last_track_designation>=.2) then
+			self:designate_point(selected.measurement,selected.stamp)
 		end
 	elseif self.selected_id and not acquiring then
 		self:cancel_track();if m.mode==3 then m.mode=2 elseif m.mode==5 then m.mode=4 end
@@ -435,7 +448,8 @@ function M:update(pose, now, dt, powered, ready)
 		self.last_surface_sequence=service_sequence
 		if operating and not acquiring and not selected then
 			local c=self.controls
-			if Modes.advance(c,ev and ev.fov or m.width,not c.silent or c.active,granted)then
+			if Modes.advance(c,not c.silent or c.active,granted and self.get("F22_AESA_SURFACE_SEARCH")==1,
+                self.get("F22_AESA_SURFACE_CELLS"))then
 			 c.active=false;c.active_end=nil;self.video_frozen=true;self.frozen_pose=map_pose;self.frozen_view=m.exp_view;self.frozen_movers=m.movers;hold=true
 			end
 			self.sweep_phase=c.sweep;self.sweep_direction=c.direction

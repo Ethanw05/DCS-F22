@@ -38,14 +38,14 @@ assert(get('OIL_L')==0 and get('OIL_R')==210)
 assert(get('L_OIL_COLOR')==1 and get('R_OIL_COLOR')==0)
 assert(get('L_NOZZLE_POS')==12 and get('R_NOZZLE_POS')==87)
 assert(get('L_EGT_COLOR')==0 and get('R_EGT_COLOR')==1)
-assert(get('F22_ENGINE_L_OIL_TEXT')=='0', 'physical zero was hidden as unavailable')
+assert(get('OIL_L')==0 and get('F22_ENGINE_L_OIL_VALID')==1, 'physical zero was hidden as unavailable')
 put('EFM_ENGINE_LEFT_TEMP_C',0/0); avionics_update()
-assert(get('F22_ENGINE_L_EGT_TEXT')=='---' and get('F22_ENGINE_L_EGT_VALID')==0)
+assert(get('F22_ENGINE_L_EGT_VALID')==0)
 assert(get('F22_ENGINE_R_EGT_VALID')==1)
 put('EFM_HYD_LEFT_PSI',0/0); put('EFM_HYD_RIGHT_PSI',5000)
 put('EFM_ENGINE_LEFT_NOZZLE_PCT',-20); put('EFM_ENGINE_RIGHT_NOZZLE_PCT',120)
 avionics_update()
-assert(get('F22_ENGINE_L_HYD_TEXT')=='---' and get('F22_ENGINE_R_HYD_TEXT')=='---')
+assert(get('F22_ENGINE_L_HYD_VALID')==0 and get('F22_ENGINE_R_HYD_VALID')==0)
 assert(get('F22_ENGINE_L_NOZZLE_VALID')==0 and get('F22_ENGINE_R_NOZZLE_VALID')==0)
 -- Drawing/refresh never repairs invalid data or reintegrates circuit pressure.
 dofile(SCRIPT_ROOT..'Systems/MFD_System.lua'); post_initialize()
@@ -55,7 +55,8 @@ assert(get('EFM_ENGINE_LEFT_NOZZLE_PCT')==-20 and get('EFM_HYD_RIGHT_PSI')==5000
 """)
 engine_frame(lua, left=left, right=right, generation=2, stamp=0)
 lua.globals().avionics_update()
-assert lua.globals().get_param_handle('F22_ENGINE_L_EGT_TEXT').value == '650'
+assert lua.globals().get_param_handle('EGT_L').value == 650
+assert lua.globals().get_param_handle('F22_ENGINE_L_EGT_VALID').value == 1
 print('Owned engine/circuit fields: finite/independent data, unavailable/schema/epoch/torn rejection and recovery PASS')
 
 for panel in ('LEFT','RIGHT','CENTER'):
@@ -97,7 +98,7 @@ for _,element in ipairs(elements) do
     elseif string.find(element.kind,'ceString',1,true)==1 then
         for _,key in ipairs(element.element_params or {}) do
             if string.match(key,'^F22_ENGINE_[LR]_%u+_TEXT$') then
-                assert(element.formats[1]=='%s', 'unavailable marker was formatted as a numeric zero')
+                error('retired mixed-type engine text parameter returned')
             end
         end
     end
@@ -111,14 +112,14 @@ for panel in ('LEFT', 'RIGHT'):
     local count=0
     for _,element in ipairs(elements) do
         for _,key in ipairs(element.element_params or {}) do
-            if string.match(key,'^F22_ENGINE_[LR]_[RE][PG][MT]_TEXT$') then
-                assert(element.formats[1]=='%s'); count=count+1
+            if string.match(key,'^F22_ENGINE_[LR]_[RE][PG][MT]_VALID$') and element.formats then
+                assert(element.formats[1]=='%.0f'); count=count+1
             end
         end
     end
     assert(count==4)
     ''')
-print('Native rendering: 36 independent gauge gates and eight UFD string/unknown fields PASS')
+print('Native rendering: 36 independent gauge gates and eight UFD numeric/static-unavailable fields PASS')
 
 lua = runtime()
 lua.execute("dofile(SCRIPT_ROOT..'MFD_LEFT/fuel_page.lua')")
@@ -126,8 +127,8 @@ lua.execute('''
 local count=0
 for _,element in ipairs(elements) do
     for _,key in ipairs(element.element_params or {}) do
-        if string.match(key,'^F22_ENGINE_[LR]_%u+_TEXT$') then
-            assert(element.formats[1]=='%s'); count=count+1
+        if string.match(key,'^F22_ENGINE_[LR]_%u+_VALID$') and element.formats then
+            assert(element.formats[1]:sub(-1)=='f'); count=count+1
         end
     end
 end

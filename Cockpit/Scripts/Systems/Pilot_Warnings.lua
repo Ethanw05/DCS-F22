@@ -42,11 +42,9 @@ function M:update(s, height, visible)
 		end
 	end
 	self.clock = now
-    if s.conditions then
-        self.faults:update(now, s.conditions)
-        local occurrence = self.faults.records[1].occurrence
-        if self.fcs_occurrence ~= occurrence then self.fault_ack = false;self.fcs_occurrence = occurrence end
-    end
+    self.faults:update(now, s.conditions)
+    local fcs=self.faults.records[1]
+    if self.fcs_occurrence ~= fcs.occurrence then self.fault_ack = false;self.fcs_occurrence = fcs.occurrence end
 	if not s.powered then
 		if not self.was_powered then return { text = '', priority = 0 } end
 		self.was_powered = false
@@ -109,14 +107,14 @@ function M:update(s, height, visible)
         self.last.altitude = nil
         self.altitude_ticket = altitude_ticket
     end
-	if s.fcs_valid and s.fcs_fault and not s.ground then
+	if fcs.valid and fcs.active and s.airborne==true then
 		self.fault_since = self.fault_since or now
 	else
 		self.fault_since = nil
 		self.fault_ack = false
 	end
-    local caution = s.conditions and self.faults.attention > 0 or not s.conditions and s.caution
-    if s.conditions and self.caution_occurrence ~= self.faults.occurrence then
+    local caution = self.faults.attention > 0
+    if self.caution_occurrence ~= self.faults.occurrence then
         self.caution_ack = false
         self.caution_since = nil
         self.last.caution = nil
@@ -163,21 +161,22 @@ function M:update(s, height, visible)
 		and ((priority == 3 and self.spoken ~= selected) or now - (self.last[selected] or -100) > repeat_time)
 	then
 		event = selected
-		-- The audio owner confirms actual playback. Pure policy callers retain
-		-- the immediate event contract unless they explicitly defer this commit.
-		if not s.defer_audio_commit then self:played(selected, now, altitude_ticket) end
 	end
 	return { text = text, priority = priority or 0, event = event, impact = impact, terrain = terrain,
         altitude_ticket = altitude_ticket, altitude_label = self.altitude.label }
 end
 function M:played(name, now, ticket)
 	if not name or not finite(now) then return end
-	self.last[name] = now
-	self.spoken = name
 	if name == "altitude" then
-        self.altitude:played(ticket or self.altitude_ticket)
+        if not finite(ticket) or ticket<1 or ticket>16777215 or ticket%1~=0 then return end
+        self.altitude:played(ticket)
+        -- A late confirmation belongs to its original occurrence. It cannot
+        -- consume or rate-limit a different event selected while speech started.
+        if ticket~=self.altitude_ticket then return end
         self.altitude_visual_until = now + 3
     end
+	self.last[name] = now
+	self.spoken = name
 end
 function M:acknowledge()
     self.faults:acknowledge()

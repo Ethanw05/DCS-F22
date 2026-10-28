@@ -34,7 +34,7 @@ function update()
    local stamp=now-age
    if not stamps[i] or stamp>stamps[i]+.01 then hits[i]=(hits[i]or 0)+1;stamps[i]=stamp end
    for k,v in pairs({ID=1000+i,TIME=stamp,N=o.north,U=o.altitude,E=o.east,
-    VN=get(p..'VX'),VU=get(p..'VY'),VE=get(p..'VZ'),VELOCITY_VALID=1,
+    VN=get(p..'VX'),VU=get(p..'VY'),VE=get(p..'VZ'),ASSOCIATION_VALID=1,VELOCITY_VALID=1,
     HITS=hits[i],RANGE_SIGMA_M=30,ANGLE_SIGMA_RAD=.001,
     FILTER_VALID=1,POSITION_SIGMA_M=20,VELOCITY_SIGMA_MPS=10})do set(q..k,v)end
   end

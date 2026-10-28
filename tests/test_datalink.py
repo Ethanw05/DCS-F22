@@ -16,11 +16,11 @@ local function put(k,v)get_param_handle(k):set(v)end
 local p=P.new(get,put,sensors)
 put('F22_RADAR_RANGE_NM',40)
 local function packet(seq,stamp,rows)
- put('F22_DL_RX_SEQUENCE',0)
+ put('F22_DL_RX_SEQUENCE',0);put('F22_DL_RX_SCHEMA',2)
  put('F22_DL_RX_OWN',100);put('F22_DL_RX_EPOCH',1)
  put('F22_DL_RX_TIME',stamp);put('F22_DL_RX_COUNT',#rows)
  for i,row in ipairs(rows)do
-  local defaults={SOURCE=200,REPORTER=300,LINK=2,TIME=stamp,N=18520,U=3000,E=0,VN=100,VU=0,VE=0,AFFILIATION=-1,FLIGHT=0,PPLI=0}
+  local defaults={SOURCE=200,REPORTER=300,LINK=2,TIME=stamp,OBSERVATION_KNOWN=1,OBSERVATION_TIME=stamp,RECEIVE_TIME=stamp,N=18520,U=3000,E=0,VN=100,VU=0,VE=0,AFFILIATION=-1,FLIGHT=0,PPLI=0}
   for k,v in pairs(row)do defaults[k]=v end
   for k,v in pairs(defaults)do put(string.format('F22_DL_RX_%02d_',i)..k,v)end
  end
@@ -29,7 +29,7 @@ end
 packet(1,10,{{}});p:update(10,{},true)
 assert(#p.store.contacts==1)
 local t=p.store.contacts[1]
-assert(t.source==200 and t.mask==8 and not t.range and not t.selected)
+assert(t.datalink.source==200 and t.mask==8 and not t.range and not t.selected)
 assert(get('F22_TACTICAL_01_DATALINK')==2 and get('F22_TACTICAL_01_RANGE_VALID')==0)
 assert(get('F22_TSD_DL_COUNT')==1 and get('F22_TSD_DL_01_LINK')==2)
 -- Changing display range rescales/edges symbols without deleting a report.
@@ -56,11 +56,11 @@ assert(p.store.contacts[1].datalink.time==30.1,'future packet renewed report')
 -- Complete empty packet withdraws; a frozen ingress cannot reanimate it.
 packet(5,32,{});p:update(32,{},true);assert(#p.store.contacts==0)
 p:update(33,{},true);assert(#p.store.contacts==0)
--- Join native IDs; fresh onboard range remains exclusively radar-derived.
+-- Correlate timestamped world geometry with different local source numbers; fresh onboard range remains exclusively radar-derived.
 packet(6,40,{{LINK=1,REPORTER=200,SOURCE=200,PPLI=1,FLIGHT=1,AFFILIATION=1}})
-for k,v in pairs({VALID=1,SOURCE=200,AGE=0,AZ=0,EL=0,RANGE=20000,MEASURED_RANGE=19900,QUALITY=2,SELECTED=1,FRIENDLY=1})do put('F22_RADAR_TACTICAL_01_'..k,v)end
+for k,v in pairs({VALID=1,SOURCE=77,POSITION_VALID=1,N=18520,U=3000,E=0,VN=100,VU=0,VE=0,AGE=0,AZ=0,EL=0,RANGE=20000,MEASURED_RANGE=19900,QUALITY=2,SELECTED=1,FRIENDLY=1})do put('F22_RADAR_TACTICAL_01_'..k,v)end
 put('F22_RADAR_TACTICAL_SEQUENCE',1);put('F22_RADAR_TACTICAL_TIME',40)
-put('F22_SCOPE_01_VALID',1);put('F22_SCOPE_01_SOURCE',200)
+put('F22_SCOPE_01_VALID',1);put('F22_SCOPE_01_SOURCE',77)
 p:update(40,{},true);t=p.store.contacts[1]
 assert(#p.store.contacts==1 and t.mask==9 and t.affiliation==3 and t.range==20000 and t.measured_range==19900)
 assert(get('F22_TSD_DL_COUNT')==0,'duplicate symbol for a fresh radar contact')

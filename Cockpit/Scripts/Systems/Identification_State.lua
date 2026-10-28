@@ -7,7 +7,9 @@ function M.evidence(track, observation, sensor)
     track.identity_evidence[sensor] = { friendly = observation.friendly,
         hostile = observation.hostile, time = observation.identity_time or observation.time,
         hostile_time = observation.hostile_time or observation.identity_time or observation.time,
-        time_known = sensor ~= 'datalink' or observation.observation_known == true,
+        time_known = sensor=='datalink' and observation.observation_known==true
+            or sensor=='radar' and observation.identity_known==true
+            or sensor=='rf' and observation.identity_time~=nil,
         received = observation.received,
         kind = sensor == 'datalink' and 2 or 1 } -- 1 simulator-assisted, 2 donor.
     track.friendly_protected = track.friendly_protected or observation.friendly

@@ -1,15 +1,18 @@
 -- GPL-3.0-or-later. Bounded awareness selection, never a radar/weapon target.
 local Datalink = dofile(LockOn_Options.script_path .. 'Systems/Datalink_Tracks.lua')
+local Link = dofile(LockOn_Options.script_path .. 'Systems/Radar_Donor_Link.lua')
 local M = {}
 local function by_source(a,b)return a.source < b.source end
 function M.new(get, put)
-    local state = { step = 0, accepted = false, status = 0, donors = {} }
+    local state = { step = 0, accepted = false, status = 0, donors = {}, cue = Link.new(get, put) }
     function state:command(command)
+        if command == 11143 then self.status = self.cue:command() and 6 or 5; return end
+        if command == 11140 or command == 11141 or command == 11142 then self.cue:cancel(true) end
         if command == 11140 then self.step = 1
         elseif command == 11141 then self.step = -1
         elseif command == 11142 then self.source = nil; self.accepted = false; self.status = 4
         elseif command == 11144 and self.source then self.accepted = true; self.status = 2
-        elseif command == 11143 then self.status = 5 end -- Qualified consumer not installed.
+        end
     end
     function state:update(now, tracks, power)
         local epoch = get('F22_DL_RX_EPOCH')
@@ -53,7 +56,7 @@ function M.new(get, put)
         put('F22_DONOR_POSITION_STATE', position and position.state or 0)
         put('F22_DONOR_IDENTITY_CONFLICT', selected and selected.identity_conflict and 1 or 0)
         put('F22_DONOR_WEAPON_AUTHORITY', 0)
-        put('F22_DONOR_HANDOFF_AVAILABLE', 0)
+        self.cue:update(now, donor, power)
     end
     state:update(0, {}, false)
     return state

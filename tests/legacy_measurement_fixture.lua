@@ -19,7 +19,7 @@ function update()
   if valid then
    for k,v in pairs({ID=get(p..'ID'),TIME=clock-get(p..'AGE'),N=get(p..'NORTH'),
     U=get(p..'ALTITUDE'),E=get(p..'EAST'),VN=get(p..'VN'),VU=get(p..'VU'),VE=get(p..'VE'),
-    VELOCITY_VALID=1,HITS=2,RANGE_SIGMA_M=30,ANGLE_SIGMA_RAD=.001,
+    ASSOCIATION_VALID=1,VELOCITY_VALID=1,HITS=2,RANGE_SIGMA_M=30,ANGLE_SIGMA_RAD=.001,
     FILTER_VALID=1,POSITION_SIGMA_M=20,VELOCITY_SIGMA_MPS=10})do put(q..k,v)end
   end
  end

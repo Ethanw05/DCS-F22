@@ -26,7 +26,7 @@ put('MAIN_POWER',1);put('HUD_MODE',7);put('F22_SOI',2);put('F22N_RADAR_MODE',1)
 for _,n in ipairs({'RADAR_NATIVE_READY','VIDEO_SOURCE_PRESENT','VIDEO_READY','VIDEO_GEOMETRY_QUALIFIED'})do put('F22_AG_'..n,1)end
 local grant=0
 local function tick()
- grant=grant+1;put('F22_AESA_SURFACE_SERVICE',1);put('F22_AESA_SURFACE_SEQUENCE',grant)
+ grant=grant+1;put('F22_AESA_SURFACE_SERVICE',1);put('F22_AESA_SURFACE_SEARCH',1);put('F22_AESA_SURFACE_CELLS',16);put('F22_AESA_SURFACE_SEQUENCE',grant)
  put('F22_AESA_SURFACE_AZ',math.sin(grant*.3)*.5)
  now=now+.05;radar_update();mark_update()
 end

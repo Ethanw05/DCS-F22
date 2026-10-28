@@ -210,7 +210,7 @@ public:
     }
 };
 struct Request { Controls controls{}; double stamp = -100; };
-struct Snapshot { Status status{}; std::array<Measurement, maximum_tracks> measurements{}; std::uint64_t epoch{}; };
+struct Snapshot { Status status{}; std::array<Measurement, maximum_tracks> measurements{}; std::array<Binding, maximum_tracks> bindings{}; std::uint64_t epoch{}; };
 SRWLOCK state_lock = SRWLOCK_INIT;
 Request request;
 Snapshot snapshot;
@@ -230,7 +230,8 @@ struct Parameters {
         "F22_AESA_CONTROL_HALF_AZ", "F22_AESA_CONTROL_HALF_EL", "F22_AESA_CONTROL_RANGE",
         "F22_AESA_CONTROL_CUE_VALID", "F22_AESA_CONTROL_CUE_AZ", "F22_AESA_CONTROL_CUE_EL",
         "F22_AESA_CONTROL_TARGET", "F22_AESA_CONTROL_SURFACE_HALF_AZ",
-        "F22_AESA_CONTROL_FC_TARGET", "F22_AESA_CONTROL_GUN_TRACK"};
+        "F22_AESA_CONTROL_FC_TARGET", "F22_AESA_CONTROL_GUN_TRACK",
+        "F22_AESA_CONTROL_CUE_HALF_AZ", "F22_AESA_CONTROL_CUE_HALF_EL", "F22_AESA_CONTROL_CUE_REQUEST", "F22_AESA_CONTROL_CUE_RANGE"};
     static constexpr std::array output_names{
         "F22_AESA_READY", "F22_AESA_REASON", "F22_AESA_TIME", "F22_AESA_SEQUENCE", "F22_AESA_COUNT",
         "F22_AESA_BEAM_AZ", "F22_AESA_BEAM_EL", "F22_AESA_DWELLS", "F22_AESA_SEARCH_DWELLS",
@@ -238,7 +239,11 @@ struct Parameters {
         "F22_AESA_DROPS", "F22_AESA_TERRAIN_BLOCKED", "F22_AESA_OBJECT_BLOCKED", "F22_AESA_TRUNCATED",
         "F22_AESA_DRIVER_READY", "F22_TWS_GUIDANCE_BACKEND_READY", "F22_RADAR_WEAPON_TARGET_ID",
         "F22_AESA_SURFACE_SERVICE", "F22_AESA_SURFACE_AZ", "F22_AESA_SURFACE_SEQUENCE", "F22_AESA_ARRAY_KNOWN", "F22_AESA_ARRAY_HEALTH", "F22_AESA_RESOURCE", "F22_AESA_PROCESSING_S", "F22_AESA_GENERATION",
-        "F22_AESA_FC_TARGET", "F22_AESA_FC_REVISIT_S", "F22_AESA_FC_LAST_LOOK", "F22_AESA_DEADLINE_MISSES"};
+        "F22_AESA_FC_TARGET", "F22_AESA_FC_REVISIT_S", "F22_AESA_FC_LAST_LOOK", "F22_AESA_DEADLINE_MISSES",
+        "F22_AESA_CUE_REQUEST", "F22_AESA_CUE_TIME", "F22_AESA_CUE_DWELLS",
+        "F22_AESA_ASSOCIATION_AMBIGUOUS", "F22_AESA_ASSOCIATION_DROPPED",
+        "F22_AESA_SURFACE_EL", "F22_AESA_SURFACE_HALF", "F22_AESA_SURFACE_RANGE", "F22_AESA_SURFACE_TIME",
+        "F22_AESA_SURFACE_SEARCH", "F22_AESA_SURFACE_CELLS"};
     static constexpr std::array fields{"VALID", "ID", "TIME", "N", "U", "E", "VN", "VU", "VE",
         "VELOCITY_VALID", "RANGE_SIGMA_M", "ANGLE_SIGMA_RAD", "HITS",
         "FILTER_VALID", "POSITION_SIGMA_M", "VELOCITY_SIGMA_MPS", "RAW_N", "RAW_U", "RAW_E",
@@ -247,7 +252,7 @@ struct Parameters {
         "FORWARD_N", "FORWARD_U", "FORWARD_E", "UP_N", "UP_U", "UP_E", "RIGHT_N", "RIGHT_U", "RIGHT_E",
         "COV_00", "COV_01", "COV_02", "COV_03", "COV_04", "COV_05",
         "COV_11", "COV_12", "COV_13", "COV_14", "COV_15", "COV_22", "COV_23", "COV_24", "COV_25",
-        "COV_33", "COV_34", "COV_35", "COV_44", "COV_45", "COV_55"};
+        "COV_33", "COV_34", "COV_35", "COV_44", "COV_45", "COV_55", "ASSOCIATION_VALID"};
     std::array<void*, input_names.size()> inputs{};
     std::array<void*, output_names.size()> outputs{};
     std::array<void*, 10> priorities{};
@@ -309,6 +314,9 @@ struct Parameters {
         r.controls.range_m = values[10]; r.controls.cue_valid = values[11] == 1;
         r.controls.cue_azimuth = values[12]; r.controls.cue_elevation = values[13];
         r.controls.surface_half_azimuth = values[15];
+        r.controls.cue_half_azimuth = values[18]; r.controls.cue_half_elevation = values[19];
+        r.controls.cue_range_m = values[21];
+        if (!identifier(values[20], r.controls.cue_request)) r.controls.cue_valid = false;
         const bool selected_valid = identifier(values[14], r.controls.selected_id);
         if (!selected_valid) r.controls.selected_id = 0;
         if (!focus(r.controls, values)) return {};
@@ -331,9 +339,14 @@ struct Parameters {
         publish_status(p, s, fresh, count);
         p.setParamNumber(outputs[3], publication + 2);
     }
+    void publish_authority(EDPARAM& p, std::size_t i, const Measurement& m, bool valid) noexcept {
+        p.setParamNumber(contacts[i].back(), valid && m.association_valid ? 1 : 0);
+        p.setParamNumber(contacts[i][9], valid && m.association_valid && m.velocity_valid ? 1 : 0);
+    }
     bool publish_contact(EDPARAM& p, std::size_t i, const Measurement& m, bool fresh) noexcept {
         const bool valid = fresh && m.valid;
         p.setParamNumber(contacts[i][0], valid ? 1 : 0);
+        publish_authority(p,i,m,valid);
         if (!valid) { published_id[i] = 0; return false; }
         // State and covariance change only on a completed measurement.
         // Producer heartbeat/VALID still update when physics runs faster.
@@ -341,7 +354,7 @@ struct Parameters {
         published_id[i] = m.id; published_time[i] = m.time;
         const std::array values{valid ? 1.0 : 0.0, static_cast<double>(m.id), m.time,
             m.position.n, m.position.u, m.position.e, m.velocity.n, m.velocity.u, m.velocity.e,
-            m.velocity_valid ? 1.0 : 0.0, m.range_sigma_m, m.angle_sigma_rad, static_cast<double>(m.hits),
+            m.velocity_valid && m.association_valid ? 1.0 : 0.0, m.range_sigma_m, m.angle_sigma_rad, static_cast<double>(m.hits),
             m.filter_valid ? 1.0 : 0.0, m.position_sigma_m, m.velocity_sigma_mps,
             m.raw_position.n, m.raw_position.u, m.raw_position.e, m.measured_range,
             m.measured_azimuth, m.measured_elevation, m.measured_range_rate, m.rate_sigma_mps,
@@ -375,37 +388,72 @@ struct Parameters {
         gated(p, 29, q.fire_control_revisit_s, fresh);
         p.setParamNumber(outputs[30], fresh ? q.fire_control_last_look : -100);
         p.setParamNumber(outputs[31], q.deadline_misses);
+        gated(p, 32, q.cue_request, fresh);
+        p.setParamNumber(outputs[33], fresh ? q.cue_time : -100);
+        p.setParamNumber(outputs[34], q.cue_dwells);
+        p.setParamNumber(outputs[35], q.association_ambiguous);
+        p.setParamNumber(outputs[36], q.association_dropped);
+        const auto& beam=q.surface_beam;
+        const double depression=std::atan2(beam.direction.u,std::hypot(beam.direction.n,beam.direction.e));
+        const bool surface_known=fresh&&q.surface_sequence>0;
+        gated(p,37,depression,surface_known);gated(p,38,beam.half_angle,surface_known);gated(p,39,beam.range_m,surface_known);
+        p.setParamNumber(outputs[40],fresh&&q.surface_sequence>0?beam.completes:-100);
+        gated(p,41,q.surface_service&&beam.surface_search?1:0,fresh);
+        gated(p,42,beam.surface_cells,surface_known);
     }
 } parameters;
 bool fresh(double now, double stamp, double age) noexcept {
     return std::isfinite(now) && std::isfinite(stamp) && now >= stamp && now - stamp <= age;
 }
-bool eligible(const Measurement& t, unsigned id, double now) noexcept {
-    return t.valid && t.velocity_valid && t.id == id && t.hits >= 2 && fresh(now, t.time, 6);
+bool bridge_ready(double now) noexcept {
+    return request.controls.enabled && request.controls.emit && snapshot.status.ready
+        && snapshot.epoch == epoch.load(std::memory_order_acquire)
+        && fresh(now,request.stamp,.5) && fresh(now,snapshot.status.time,.5);
+}
+bool eligible(std::size_t index, double now) noexcept {
+    const auto& t = snapshot.measurements[index];
+    const auto& b = snapshot.bindings[index];
+    return t.valid && t.association_valid && t.velocity_valid && t.hits >= 3 && fresh(now,t.time,6)
+        && b.track == t.id && b.host && b.qualified;
+}
+bool unique_host(unsigned host, double now) noexcept {
+    unsigned matches = 0;
+    for (std::size_t index=0;index<snapshot.bindings.size();++index)
+        if (snapshot.bindings[index].host == host && eligible(index,now)) ++matches;
+    return matches == 1;
+}
+unsigned translate(unsigned id, bool to_host) noexcept {
+    const double now = api.clock ? api.clock() : -100;
+    unsigned result = 0;
+    AcquireSRWLockShared(&state_lock);
+    if (id && bridge_ready(now)) for (std::size_t index=0;index<snapshot.measurements.size();++index) {
+        const auto& binding = snapshot.bindings[index];
+        const auto source = to_host ? binding.track : binding.host;
+        if (source != id || !eligible(index,now)) continue;
+        if (result) { result = 0; break; } // Never choose between duplicate host bindings.
+        result = to_host ? binding.host : binding.track;
+    }
+    if (to_host && result && !unique_host(result,now)) result = 0;
+    ReleaseSRWLockShared(&state_lock);
+    return result;
+}
+unsigned selected_track() noexcept {
+    AcquireSRWLockShared(&state_lock);
+    const auto selected = request.controls.selected_id;
+    ReleaseSRWLockShared(&state_lock);
+    return selected && translate(selected,true) ? selected : 0;
 }
 // The host borrows this interface through ccCockpitContext+256. It owns no
 // storage here. Its four virtual methods match the inspected shared responder ABI.
 class Responder {
 public:
     virtual ~Responder() = default;
-    virtual bool tracking(unsigned id, unsigned /*weapon*/) const noexcept {
-        const double now = api.clock ? api.clock() : -100;
-        AcquireSRWLockShared(&state_lock);
-        const bool enabled = request.controls.enabled && request.controls.emit && snapshot.status.ready
-            && snapshot.epoch == epoch.load(std::memory_order_acquire)
-            && fresh(now, request.stamp, .5) && fresh(now, snapshot.status.time, .5);
-        bool found = false;
-        if (enabled) for (const auto& t : snapshot.measurements)
-            if (eligible(t, id, now)) { found = true; break; }
-        ReleaseSRWLockShared(&state_lock); return found;
+    virtual bool tracking(unsigned host, unsigned /*weapon*/) const noexcept {
+        return translate(host,false) != 0;
     }
-    virtual unsigned target() const noexcept {
-        AcquireSRWLockShared(&state_lock); const auto selected = request.controls.selected_id;
-        ReleaseSRWLockShared(&state_lock);
-        return selected && tracking(selected, 0) ? selected : 0;
-    }
+    virtual unsigned target() const noexcept { return translate(selected_track(),true); }
     virtual double range() const noexcept {
-        const auto selected = target();
+        const auto selected = selected_track();
         if (!selected) return -1;
         double result = -1;
         AcquireSRWLockShared(&state_lock);
@@ -469,6 +517,8 @@ bool bind_responder() noexcept {
     responder_slot = slot; return true;
 }
 }
+unsigned host_for_track(unsigned track) noexcept { return translate(track,true); }
+unsigned track_for_host(unsigned host) noexcept { return translate(host,false); }
 void damage(int cell, double integrity) noexcept {
     if (cell != 0 || !std::isfinite(integrity) || integrity < 0 || integrity > 1) return;
     // F-22A.lua names cell0 NoseCenter. Its mapping to array effectiveness is
@@ -506,17 +556,20 @@ void sample(void* radar) noexcept {
     if (!std::isfinite(now) || now - r.stamp < -.01 || now - r.stamp > .5) r.controls.enabled = false;
     Provider provider; Pose pose{};
     if (!provider.pose(pose)) r.controls.enabled = false;
+    if(r.controls.surface)r.controls.surface_request=NativeGroundSensor::pointing(now,pose);
     const bool updated = model.update(now, r.controls, pose, provider);
     api.emitter(updated && r.controls.emit);
     auto& next = sensor_scratch;
-    next.status = model.status(); next.measurements = model.measurements(); next.epoch = generation;
+    next.status = model.status(); next.measurements = model.measurements();
+    next.bindings = model.bindings(); next.epoch = generation;
     if (!updated) next.status.ready = false;
     AcquireSRWLockExclusive(&state_lock);
     if (epoch.load(std::memory_order_acquire) == generation) { snapshot = next; responder.origin = pose.position; }
     ReleaseSRWLockExclusive(&state_lock);
     const NativeGroundSensor::ArrayService service{updated && next.status.surface_service,
-        next.status.surface_azimuth, r.controls.resource, updated && r.controls.surface && r.controls.emit};
-    NativeGroundSensor::sample(radar, &service);
+        next.status.surface_azimuth, r.controls.resource, updated && r.controls.surface && r.controls.emit,
+        next.status.surface_beam};
+    NativeGroundSensor::sample(radar, service);
 }
 void update(EDPARAM& p) noexcept {
     if (!parameters.bind(p)) return;
@@ -533,7 +586,7 @@ void update(EDPARAM& p) noexcept {
     // These are shared compatibility endpoints backed entirely by our provider.
     p.setParamNumber(parameters.outputs[17], driver_ready ? 1 : 0);
     p.setParamNumber(parameters.outputs[18], support_ready ? 1 : 0);
-    p.setParamNumber(parameters.outputs[19], support_ready ? responder.target() : 0);
+    p.setParamNumber(parameters.outputs[19], support_ready ? selected_track() : 0);
     p.setParamNumber(parameters.outputs[23], available ? 1 : 0);
     p.setParamNumber(parameters.outputs[24], array_health.load(std::memory_order_acquire));
 }

@@ -1,5 +1,6 @@
 // GPL-3.0-or-later. Finite electronic beam service and measured radar reports.
 #include "AesaRadar.h"
+#include "AesaAssociation.h"
 #include <algorithm>
 #include <cmath>
 
@@ -18,6 +19,8 @@ bool valid_pose(const Pose& p) noexcept {
         && std::abs(dot(p.forward, p.right)) < .002 && std::abs(dot(p.up, p.right)) < .002;
 }
 bool valid_controls(const Controls& c) noexcept {
+    if(c.surface&&(!std::isfinite(c.surface_half_azimuth)||c.surface_half_azimuth<degree
+        ||c.surface_half_azimuth>60*degree))return false;
     const std::array ranges{
         std::array{c.resource, .1, 1.0}, std::array{c.range_m, 40.0, 160 * 1852.0},
         std::array{c.azimuth, -60 * degree, 60 * degree},
@@ -57,6 +60,32 @@ void body_angles(Vector delta, const Pose& pose, double& azimuth, double& elevat
     azimuth = std::atan2(right, forward);
     elevation = std::atan2(dot(delta, pose.up), std::hypot(forward, right));
 }
+bool valid_cue(const Controls& c) noexcept {
+    const std::array values{c.cue_azimuth,c.cue_elevation,c.cue_half_azimuth,c.cue_half_elevation,c.cue_range_m};
+    for (double value : values) if (!std::isfinite(value)) return false;
+    return std::abs(c.cue_azimuth) <= 60*degree && std::abs(c.cue_elevation) <= 60*degree
+        && c.cue_half_azimuth >= .001*degree && c.cue_half_azimuth <= 60*degree
+        && c.cue_half_elevation >= .001*degree && c.cue_half_elevation <= 60*degree
+        && c.cue_range_m >= 40 && c.cue_range_m <= 160*1852;
+}
+std::uint32_t central_cell(std::uint32_t index, std::uint32_t count) noexcept {
+    const auto middle = (count-1)/2;
+    return index%2 == 1 ? middle+(index+1)/2 : middle-index/2;
+}
+std::uint32_t grid_angles(double center_azimuth, double center_elevation, double half_azimuth,
+                 double half_elevation, double beam, std::uint32_t& cell, double& azimuth, double& elevation, bool central = false) noexcept {
+    const auto columns = static_cast<std::uint32_t>(std::ceil(half_azimuth / (beam*.7)));
+    const auto rows = static_cast<std::uint32_t>(std::ceil(half_elevation / (beam*.7)));
+    const auto count = std::clamp(columns*rows, 1u, 8192u);
+    const auto index = cell % count;
+    const auto tile = index % 2 == 0 ? index/2 : count - 1 - index/2;
+    const auto column = central ? central_cell(index%columns,columns) : tile%columns;
+    const auto row = central ? central_cell(index/columns,rows) : tile/columns;
+    azimuth = center_azimuth - half_azimuth + (column + .5)*2*half_azimuth/columns;
+    elevation = center_elevation - half_elevation + (row + .5)*2*half_elevation/rows;
+    cell = (cell+1)%count;
+    return count;
+}
 bool active_inputs(double now, const Controls& c, const Pose& pose) noexcept {
     return std::isfinite(now) && c.enabled && c.emit && valid_controls(c) && valid_pose(pose);
 }
@@ -76,7 +105,11 @@ void Model::reset(std::uint64_t generation) noexcept {
     for(auto& track:tracks_) track={};
     for(auto& pending:pending_) pending={};
     for(auto& filter:filters_) filter.reset();
+    bindings_.fill({});
+    // Track numbers never reuse a retired number during this model lifetime.
+    // A generation reset retires all public consumers separately.
     last_priority_look_.fill(-100);
+    cue_cell_ = 0; cue_turn_ = 0; surface_turn_=0;
     status_ = {}; previous_ = {};
     clock_ = -1; next_start_ = 0; priority_run_s_ = 0; cell_ = 0; turn_ = 0; surface_cell_ = 0; array_turn_ = 0; candidate_cursor_ = 0; generation_ = generation;
     random_ = 0x1a2b3c4d ^ static_cast<std::uint32_t>(generation);
@@ -99,7 +132,10 @@ Measurement* Model::find(std::uint32_t id) noexcept {
 void Model::age(double now) noexcept {
     status_.tracks = 0;
     for (auto& t : tracks_) {
-        if (t.valid && now - t.time > policy_.track_memory_s) t = {};
+        if (t.valid && now - t.time > policy_.track_memory_s) {
+            bindings_[static_cast<std::size_t>(&t-tracks_.data())] = {};
+            t = {};
+        }
         if (t.valid) ++status_.tracks;
     }
 }
@@ -125,30 +161,129 @@ bool Model::assimilate(Pending& pending, Measurement& target) noexcept {
     target = value;
     return true;
 }
-void Model::release(double now) noexcept {
-    status_.pending = 0;
-    for (auto& p : pending_) {
-        if (!p.occupied) continue;
-        if (p.release > now) { ++status_.pending; continue; }
-        auto* target = find(p.value.id);
-        if (!target) for (auto& t : tracks_) if (!t.valid) { target = &t; break; }
-        if (target && p.value.time > target->time) (void)assimilate(p, *target);
-        else if (!target) ++status_.queue_drops;
-        p.occupied = false;
+void Model::withdraw(std::size_t index) noexcept {
+    tracks_[index].association_valid = false;
+    bindings_[index].qualified = false;
+    bindings_[index].hits = 0;
+}
+void Model::commit(Pending& report, std::size_t index) noexcept {
+    auto& track = tracks_[index];
+    const auto id = track.valid ? track.id : next_track_;
+    if (!track.valid) {
+        if (next_track_ >= 16000000) { ++status_.association_dropped; return; }
+        ++next_track_;
+    }
+    report.value.id = id;
+    report.value.association_valid = true;
+    if (!assimilate(report,track)) { withdraw(index); ++status_.association_dropped; return; }
+    auto& binding = bindings_[index];
+    if (binding.track != id || binding.host != report.host) binding = {id,report.host,0,false};
+    binding.hits = std::min(255u,binding.hits+1);
+    binding.qualified = binding.host != 0 && binding.hits >= 3 && track.velocity_valid;
+}
+void Model::associate(std::span<Pending*> reports) noexcept {
+    AesaAssociation::Assignment match{};
+    std::array<bool,maximum_tracks> assigned{};
+    for (std::size_t row=0;row<reports.size();++row)
+        for (std::size_t column=0;column<tracks_.size();++column)
+            if (tracks_[column].valid)
+                match.offer(row,column,filters_[column].association_score(reports[row]->sample));
+    for (std::size_t row=0;row<reports.size();++row) {
+        const auto selected = match.selected(row);
+        if (selected == AesaAssociation::none) continue;
+        assigned[selected] = true;
+        commit(*reports[row],selected);
+    }
+    for (std::size_t column=0;column<tracks_.size();++column)
+        if (!assigned[column] && match.tracks[column].index != AesaAssociation::none) withdraw(column);
+    for (std::size_t row=0;row<reports.size();++row) {
+        if (match.selected(row) != AesaAssociation::none) continue;
+        if (match.reports[row].index != AesaAssociation::none) { ++status_.association_ambiguous; continue; }
+        birth(*reports[row]);
     }
 }
-void Model::start_surface(double now, const Controls& c, const Pose& pose) noexcept {
-    const double half = std::isfinite(c.surface_half_azimuth)
-        ? std::clamp(c.surface_half_azimuth, degree, 60 * degree) : 45 * degree;
-    const auto count = static_cast<std::uint32_t>(std::ceil(half / (policy_.beam_half_angle * .7)));
-    const auto index = surface_cell_ % count;
-    const auto tile = index % 2 == 0 ? index / 2 : count - 1 - index / 2;
-    const double azimuth = -half + (tile + .5) * 2 * half / count;
-    surface_cell_ = (surface_cell_ + 1) % count;
-    status_.beam = {direction(pose, azimuth, -10 * degree), policy_.beam_half_angle, c.range_m,
-        now, now + policy_.dwell_s / c.resource, azimuth, -10 * degree, 0, false, true};
-    status_.dwelling = true;
+void Model::birth(Pending& report) noexcept {
+    bool overlap = false;
+    for (std::size_t column=0;column<tracks_.size();++column)
+        if (tracks_[column].valid && tracks_[column].time == report.sample.time
+            && filters_[column].association_score(report.sample) <= AesaAssociation::gate) {
+            overlap = true;
+            withdraw(column);
+        }
+    if (overlap) { ++status_.association_ambiguous; return; }
+    std::size_t free = 0;
+    while (free<tracks_.size() && tracks_[free].valid) ++free;
+    if (free<tracks_.size()) commit(report,free);
+    else ++status_.queue_drops;
 }
+Model::Pending* Model::next_report(double now) noexcept {
+    Pending* first = nullptr;
+    for (auto& p : pending_)
+        if (p.occupied && p.release <= now && (!first || p.value.time < first->value.time)) first = &p;
+    return first;
+}
+std::size_t Model::batch_reports(Pending& first, double now, std::span<Pending*> reports) noexcept {
+    std::size_t count = 0;
+    for (auto& p : pending_)
+        if (p.occupied && p.value.time == first.value.time && p.release <= now && count<reports.size())
+            reports[count++] = &p;
+    return count;
+}
+void Model::release(double now) noexcept {
+    for (std::size_t batch=0;batch<maximum_pending;++batch) {
+        auto* first = next_report(now);
+        if (!first) break;
+        std::array<Pending*,maximum_returns_per_dwell> reports{};
+        const auto count = batch_reports(*first,now,reports);
+        associate(std::span<Pending*>(reports.data(),count));
+        for (std::size_t row=0;row<count;++row) reports[row]->occupied = false;
+    }
+    status_.pending = 0;
+    for (const auto& p : pending_) if (p.occupied) ++status_.pending;
+}
+
+namespace {
+bool valid_surface_request(const SurfaceRequest& request) noexcept {
+    return request.valid && finite(request.direction) && std::isfinite(request.range_m)
+        && request.range_m >= 40 && request.range_m <= 160*1852
+        && std::isfinite(request.center_elevation) && std::isfinite(request.half_elevation)
+        && std::abs(request.center_elevation) <= 60*degree
+        && request.half_elevation >= .001*degree && request.half_elevation <= 30*degree;
+}
+Vector level_direction(const Pose& pose,double azimuth,double elevation) noexcept {
+    const double heading=std::atan2(pose.forward.e,pose.forward.n)+azimuth;
+    return {std::cos(heading)*std::cos(elevation),std::sin(elevation),std::sin(heading)*std::cos(elevation)};
+}
+}
+void Model::start_surface(double now, const Controls& c, const Pose& pose) noexcept {
+    const auto& requested=c.surface_request;
+    const bool qualified=valid_surface_request(requested);
+    const double half=std::clamp(c.surface_half_azimuth,degree,60*degree);
+    double azimuth=0,elevation=0;
+    const double center=qualified ? requested.center_elevation : -30*degree;
+    const double vertical=qualified ? requested.half_elevation : 29*degree;
+    const bool pointed=qualified&&requested.point&&(!requested.routine||surface_turn_%4==1)
+        &&std::abs(length(requested.direction)-1)<.002;
+    surface_turn_=(surface_turn_+1)%4;
+    Vector ray{};
+    std::uint32_t cells=0;
+    if(pointed)ray=requested.direction;
+    else {
+        cells=grid_angles(0,center,half,vertical,policy_.beam_half_angle,surface_cell_,azimuth,elevation);
+        ray=level_direction(pose,azimuth,elevation);
+    }
+    body_angles(ray,pose,azimuth,elevation);
+    if (std::abs(azimuth)>60*degree || std::abs(elevation)>60*degree) {
+        // An unreachable request consumes no off-aircraft observation.
+        ray=direction(pose,std::clamp(azimuth,-60*degree,60*degree),std::clamp(elevation,-60*degree,60*degree));
+        body_angles(ray,pose,azimuth,elevation);
+    }
+    const double range=qualified ? requested.range_m : c.range_m;
+    status_.beam={ray,policy_.beam_half_angle,range,now,now+policy_.dwell_s/c.resource,azimuth,elevation,0,false,true};
+    status_.beam.surface_search=!pointed;status_.beam.surface_cells=cells;
+    status_.dwelling=true;
+}
+
 double Model::revisit(std::uint32_t id, std::size_t priority, const Controls& c) const noexcept {
     if (id == c.fire_control_id) return c.gun_tracking ? policy_.gun_revisit_s : policy_.fire_control_revisit_s;
     return priority >= 2 ? policy_.support_revisit_s : policy_.track_revisit_s;
@@ -183,18 +318,17 @@ Model::Task Model::priority_task(double now, const Controls& c, const Pose& pose
     }
     return next;
 }
-void Model::search_angles(const Controls& c, double& azimuth, double& elevation) noexcept {
-    const auto columns = static_cast<std::uint32_t>(std::ceil(c.half_azimuth / (policy_.beam_half_angle * .7)));
-    const auto rows = static_cast<std::uint32_t>(std::ceil(c.half_elevation / (policy_.beam_half_angle * .7)));
-    const auto count = std::clamp(columns * rows, 1u, 8192u);
-    const auto index = cell_ % count;
-    const auto tile = index % 2 == 0 ? index / 2 : count - 1 - index / 2;
-    azimuth = c.azimuth - c.half_azimuth + (tile % columns + .5) * 2 * c.half_azimuth / columns;
-    elevation = c.elevation - c.half_elevation + (tile / columns + .5) * 2 * c.half_elevation / rows;
-    cell_ = (cell_ + 1) % count;
-    if (c.cue_valid && turn_ % 4 == 1 && std::isfinite(c.cue_azimuth) && std::isfinite(c.cue_elevation)) {
-        azimuth = c.cue_azimuth; elevation = c.cue_elevation;
-    }
+bool Model::search_angles(const Controls& c, double& azimuth, double& elevation) noexcept {
+    const bool cued = c.cue_valid && valid_cue(c) && cue_turn_ == 1;
+    cue_turn_ = (cue_turn_+1)%4;
+    if (cued) {
+        const double az = std::clamp(c.cue_azimuth, -60*degree+c.cue_half_azimuth, 60*degree-c.cue_half_azimuth);
+        const double el = std::clamp(c.cue_elevation, -60*degree+c.cue_half_elevation, 60*degree-c.cue_half_elevation);
+        grid_angles(az, el, c.cue_half_azimuth, c.cue_half_elevation,
+            policy_.beam_half_angle, cue_cell_, azimuth, elevation, true);
+    } else grid_angles(c.azimuth, c.elevation, c.half_azimuth, c.half_elevation,
+        policy_.beam_half_angle, cell_, azimuth, elevation);
+    return cued;
 }
 void Model::start(double now, const Controls& c, const Pose& pose) noexcept {
     const bool surface_job = c.surface && array_turn_ % 3 != 0;
@@ -203,15 +337,16 @@ void Model::start(double now, const Controls& c, const Pose& pose) noexcept {
     auto task = priority_task(now, c, pose);
     double azimuth = 0, elevation = 0;
     if (task.track && !priority_angles(*task.track, pose, now, azimuth, elevation)) task = {};
-    if (!task.track) search_angles(c, azimuth, elevation);
+    const bool cued = !task.track && search_angles(c, azimuth, elevation);
     azimuth = std::clamp(azimuth, -60 * degree, 60 * degree);
     elevation = std::clamp(elevation, -60 * degree, 60 * degree);
     const double duration = task.track ? task.dwell : policy_.dwell_s / c.resource;
+    const double search_range = cued ? std::max(c.range_m,c.cue_range_m) : c.range_m;
     const double range = task.track ? std::min(160 * 1852.0,
-        std::max(c.range_m, length(task.track->position - pose.position) * 1.15)) : c.range_m;
+        std::max(c.range_m, length(task.track->position - pose.position) * 1.15)) : search_range;
     status_.beam = {direction(pose, azimuth, elevation), policy_.beam_half_angle, range, now,
         now + duration, azimuth, elevation, task.track ? task.track->id : 0, task.track != nullptr,
-        false, task.deadline, duration * c.resource};
+        false, task.deadline, duration * c.resource, cued, cued ? c.cue_request : 0};
     status_.dwelling = true;
     turn_ = (turn_ + 1) % 4;
 }
@@ -235,7 +370,8 @@ void Model::queue(double now, const Pose& pose, const Truth& truth, double signa
     const double coherence_ratio = policy_.dwell_s / status_.beam.integration_s;
     const double sigma_rate = std::max(.25, coherence_ratio / quality);
     const double range_rate=dot(truth.velocity-pose.velocity,delta)/range+error(sigma_rate);
-    slot->value={truth.id,1,measured,{},now,sigma_r,sigma_a,true,false};
+    slot->value={0,1,measured,{},now,sigma_r,sigma_a,true,false};
+    slot->host = truth.id;
     slot->value.measured_range=measured_range;slot->value.measured_azimuth=measured_az;
     slot->value.measured_elevation=measured_el;slot->value.measured_range_rate=range_rate;
     slot->value.rate_sigma_mps=sigma_rate;
@@ -263,9 +399,12 @@ void Model::detect(double now, const Controls& c, const Pose& pose, const Truth&
     const double ratio = policy_.reference_range_m / range;
     double signal = ratio * ratio * ratio * ratio * std::clamp(truth.cross_section_m2, .01, 100.0)
         * gain * gain * c.resource * status_.beam.integration_s / policy_.dwell_s;
-    // A simple, declared game look-down slow-target penalty, not recovered RF processing.
-    const double radial = dot(truth.velocity - pose.velocity, delta) / range;
-    if (delta.u < 0 && std::abs(radial) < 35) signal *= .15;
+    // Ground clutter shares the platform's Doppler shift. Compare the target
+    // with the stationary surface centroid, not with zero relative velocity.
+    // Width35m/s and attenuation0.15 remain declared game estimates.
+    const double target_rate = dot(truth.velocity - pose.velocity, delta) / range;
+    const double clutter_rate = -dot(pose.velocity, delta) / range;
+    if (delta.u < 0 && std::abs(target_rate-clutter_rate) < 35) signal *= .15;
     if (signal < .2) { ++status_.misses; return; }
     if (stats.visibility_queries >= maximum_visibility_queries) { stats.truncated = true; return; }
     ++stats.visibility_queries;
@@ -275,6 +414,9 @@ void Model::detect(double now, const Controls& c, const Pose& pose, const Truth&
     queue(now, pose, truth, signal);
 }
 void Model::completed_look(double now, const Controls& c) noexcept {
+    if (status_.beam.cued) {
+        status_.cue_request = status_.beam.cue_request; status_.cue_time = now; ++status_.cue_dwells;
+    }
     if (status_.beam.priority) {
         priority_run_s_ += now - status_.beam.started;
         if (const auto* track = find(status_.beam.task_source))
@@ -285,7 +427,11 @@ void Model::completed_look(double now, const Controls& c) noexcept {
 }
 void Model::observe(double now, const Controls& c, const Pose& pose, Environment& environment) noexcept {
     if (status_.beam.surface) {
-        status_.surface_service = true; status_.surface_azimuth = status_.beam.azimuth;
+        status_.surface_service = true;
+        status_.surface_beam = status_.beam;
+        status_.surface_beam.completes=now;
+        const double heading=std::atan2(pose.forward.e,pose.forward.n);
+        status_.surface_azimuth=std::remainder(std::atan2(status_.beam.direction.e,status_.beam.direction.n)-heading,2*pi);
         ++status_.surface_sequence; ++status_.dwells; status_.dwelling = false;
         return;
     }
@@ -323,6 +469,7 @@ bool Model::prepare(double now, const Controls& c) noexcept {
     if (clock_ == now) { status_.surface_service = false; return false; }
     if (configuration_changed(c)) { status_.dwelling = false; cell_ = 0; next_start_ = now; }
     reduce_resource(now, c);
+    if (c.cue_request != previous_.cue_request) cue_cell_ = 0;
     clock_ = now; previous_ = c;
     status_.ready = true; status_.emitting = true; status_.time = now; status_.resource = c.resource;
     status_.processing_s = policy_.processing_s / c.resource;

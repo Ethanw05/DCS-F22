@@ -15,7 +15,9 @@ int main(){try{
  static Tracks t;t.advance(10);t.observe({1,{1000,0,0},{8,0,0},10});CHECK(t.contacts().size()==1);
  t.observe({1,{1000.8,0,0},{8,0,0},10.1});CHECK(t.contacts().size()==1);
  t.observe({1,{1000.8,0,0},{0,0,0},10.2});CHECK(t.contacts().size()==1);
- t.advance(16.1);CHECK(t.contacts().size()==1);t.advance(16.201);CHECK(t.contacts().empty());
+ t.advance(16.1);CHECK(t.contacts().size()==1);
+ for(double time=17;time<=40;time+=1)t.advance(time);
+ CHECK(t.contacts().size()==1);t.advance(40.201);CHECK(t.contacts().empty());
  t.observe({2,{1000,0,0},{8,0,0},17});t.observe({2,{1001,0,0},{8,0,0},17.1});CHECK(t.contacts().size()==1);
  t.observe({2,{4000,0,0},{8,0,0},17.2});CHECK(t.contacts().size()==1);
  t.observe({2,{4001,0,0},{8,0,0},17.3});CHECK(t.contacts().size()==1);
@@ -34,6 +36,6 @@ int main(){try{
  CHECK(reports==2&&measured.velocity_valid&&measured.velocity.n!=truth.velocity.n);
  CHECK(!sensor.queue(truth,{0,1000,0},0,0,false));
  sensor.clear();sensor.release(11,consume);CHECK(reports==2);
- std::cout<<"GMT speed/beam, first-hit display, six-second search history and rewind PASS\n";
+ std::cout<<"GMT speed/beam, first-hit display, bounded coasting search history and rewind PASS\n";
  return 0;
 }catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

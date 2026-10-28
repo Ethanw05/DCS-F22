@@ -39,7 +39,8 @@ t:update(5,{rf},true)
 assert(math.abs(v.F22_TSD_BEARING_01_X+.20*math.sin(h))<1e-10)
 assert(math.abs(v.F22_TSD_BEARING_01_Y-(-.66+.20*math.cos(h)))<1e-10)
 -- Existing on-map radar source suppresses a second passive symbol.
-v.F22_SCOPE_01_VALID=1;v.F22_SCOPE_01_SOURCE=100;t:update(5,{rf},true)
+rf.observations.radar={source=77,time=5}
+v.F22_SCOPE_01_VALID=1;v.F22_SCOPE_01_SOURCE=77;t:update(5,{rf},true)
 assert(v.F22_TSD_BEARING_01_VALID==0 and v.F22_TSD_SELECTED_RF==1)
 v.F22_SCOPE_01_COAST=1;t:update(5,{rf},true)
 assert(v.F22_TSD_BEARING_01_VALID==1,'coasting radar ghost hid a current passive direction')

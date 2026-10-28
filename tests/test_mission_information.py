@@ -23,7 +23,7 @@ local function packet(sequence,now,known,observation)
 end
 packet(1,10,false);P:update(10,{},true)
 P:command(11140);P:update(11,{},true)
-assert(g('F22_DONOR_SOURCE')==200 and g('F22_DONOR_OBSERVATION_KNOWN')==0)
+assert(g('F22_DONOR_SOURCE')>0 and g('F22_DONOR_OBSERVATION_KNOWN')==0)
 assert(g('F22_DONOR_OBSERVATION_AGE')==999 and g('F22_DONOR_RECEIVE_AGE')==1)
 local D=dofile(SCRIPT_ROOT..'Systems/Datalink_Tracks.lua')
 local q=D.position(P.store.contacts[1].datalink,11)
@@ -37,7 +37,7 @@ assert(g('F22_RADAR_WEAPON_TARGET_ID')==0 and g('F22_RADAR_STT_VALID')==0)
 packet(2,13,true,5);P:update(13,{},true)
 assert(g('F22_DONOR_OBSERVATION_AGE')==8 and g('F22_DONOR_RECEIVE_AGE')==0)
 -- Conflicting evidence is visible while friendly protection stays independent.
-for field,value in pairs({VALID=1,SOURCE=200,AGE=0,AZ=0,EL=0,RANGE=20000,
+for field,value in pairs({VALID=1,SOURCE=77,POSITION_VALID=1,N=20800,U=1000,E=0,VN=100,VU=0,VE=0,AGE=0,AZ=0,EL=0,RANGE=20000,
  MEASURED_RANGE=20000,QUALITY=2,SELECTED=1,FRIENDLY=1,HOSTILE=0})do
  p('F22_RADAR_TACTICAL_01_'..field,value)
 end

@@ -10,7 +10,7 @@ local radar={source=10,age=0,az=.3,el=.1,range=18520,selected=true,friendly=true
 local rf={source=10,age=0,az=.31,el=.11,signal=2,label='29'}
 local ir={source=20,age=0,az=-.5,el=0}
 s:update(10,{radar=batch(1,10,{radar}),rf=batch(1,10,{rf}),mws=batch(1,10,{ir})},true)
-assert(#s.contacts==2 and s.contacts[1].source==10)
+assert(#s.contacts==2 and s.contacts[1].observations.radar.source==10)
 local t=s.contacts[1]
 assert(t.mask==3 and t.range==18520 and t.affiliation==1 and t.signal==2)
 assert(t.observations.radar.time==10 and t.uncertainty==nil)
@@ -20,9 +20,12 @@ for tick=1,140 do
  local now=10+tick*.05
  s:update(now,{radar=batch(1,now,{radar}),rf=batch(tick+1,now,{{source=10,age=0,az=.4,el=0,signal=1}})},true)
 end
-assert(#s.contacts==1 and s.contacts[1].range==nil,'RF renewed old radar range')
-assert(s.contacts[1].affiliation==1,'loss of fresh ranging erased retained positive ID')
-assert(s.contacts[1].mask==3,'radar memory should survive range expiry')
+assert(#s.contacts==2,'stale radar was treated as a fresh association')
+local warning=s.contacts[1].observations.rf and s.contacts[1] or s.contacts[2]
+local remembered=s.contacts[1].observations.radar and s.contacts[1] or s.contacts[2]
+assert(warning.observations.rf and warning.range==nil and warning.affiliation==-1)
+assert(remembered.observations.radar and remembered.affiliation==1)
+assert(remembered.range==nil,'RF renewed old radar range')
 s:update(31,{rf=batch(200,31,{{source=10,age=0,az=.4,el=0,signal=1}})},true)
 assert(#s.contacts==1 and s.contacts[1].mask==2)
 assert(s.contacts[1].affiliation==-1,'expired friendly evidence became hostile or permanent')
@@ -30,7 +33,7 @@ assert(s.contacts[1].affiliation==-1,'expired friendly evidence became hostile o
 s:update(31.05,{rf=batch(201,31.05,{{source=10,age=0,az=.4,el=0,signal=1},
  {source=11,age=0,az=.4,el=0,signal=1,range=9999}}),
  offboard=batch(1,31.05,{{source=12,age=0,az=0,el=0,range=1000}})},true)
-assert(#s.contacts==2 and s.contacts[2].source==11 and s.contacts[2].range==nil)
+assert(#s.contacts==2 and s.contacts[2].observations.rf.source==11 and s.contacts[2].range==nil)
 -- Replacing a source snapshot with empty data clears only that source.
 s:update(31.1,{rf=batch(202,31.1,{})},true);assert(#s.contacts==0)
 s:update(1,{},true);assert(#s.contacts==0)

@@ -403,14 +403,15 @@ unsigned __fastcall record_payload_launch(void* self,unsigned station,unsigned s
            !ground_identity_current(ground))return 0;
         point=ground.point.data();target=0;
     }
-    auto estimate=launch_time_estimate(target,type,mode,api.clock ? api.clock() : 0);
+    const unsigned radar_track = (mode==2 || mode==3) ? NativeAesaRadar::track_for_host(target) : 0;
+    auto estimate=launch_time_estimate(radar_track,type,mode,api.clock ? api.clock() : 0);
     auto id=reinterpret_cast<PayloadLaunch>(payload_original[50])(self,station,sub,target,point,armed);
     if (id && armed) {
         const double now=api.clock ? api.clock() : 0;
         estimate.stamp=now;
         AcquireSRWLockExclusive(&launch_lock);
         auto seq=++launched_sequence;
-        launched[(seq-1)%launched.size()]={seq,id,target,station,type,mode,now,estimate};
+        launched[(seq-1)%launched.size()]={seq,id,radar_track,station,type,mode,now,estimate};
         ReleaseSRWLockExclusive(&launch_lock);
     }
     return id;

@@ -2,6 +2,11 @@
 local N=dofile(LockOn_Options.script_path..'Systems/Nav_Computer.lua')
 local Radio=dofile(LockOn_Options.script_path..'Systems/Radio_Navigation.lua')
 local function clamp(v,a,b)return math.max(a,math.min(b,v))end
+local function selected_course(get)
+ local course=get('F22_NAV_COURSE_TRUE')
+ if get('F22_NAV_COURSE_SCHEMA')~=1 or not N.finite(course)or course<0 or course>=360 then return end
+ return math.rad(course)
+end
 return function(get,set,own,s)
  local ready=get('F22_INS_READY')==1
  local mag=get('F22_NAV_REFERENCE')>.5 and get('F22_MAG_VALID')>.5
@@ -41,12 +46,14 @@ return function(get,set,own,s)
  elseif not ready then set('HUD_WP_INFO','IRS ALIGN');set('HUD_WP_TTG_TEXT','--:--:--');set('F22_NAV_STATUS_TEXT',get('F22_INS_STATUS_TEXT'))end
  local bearing,distance,course,cross,steer
  local lookahead=math.max(1852,(own.gs or 0)*25)
- local c=get('F22_NAV_COURSE_SCHEMA')==1 and math.rad(get('F22_NAV_COURSE_TRUE'))
-  or math.rad(get('F22_NAV_COURSE'))+reference
+ local c=selected_course(get)
  if source==0 and s and ready then
   bearing=s.bearing;distance=s.distance;course=s.course;cross=s.cross
-  if get('F22_NAV_OBS')>.5 then course=c;cross=-math.sin(N.wrap(bearing-course))*distance end
+  if get('F22_NAV_OBS')>.5 then
+   course=c;cross=course and -math.sin(N.wrap(bearing-course))*distance or nil
+  end
   steer=course and course-clamp(math.atan((cross or 0)/lookahead),-math.pi/4,math.pi/4) or bearing
+  if get('F22_NAV_OBS')>.5 and not course then steer=nil end
   if s.along and s.along>s.length and get('F22_NAV_OBS')<.5 then steer=bearing end
  elseif source==1 then
   -- Common receiver reports magnetic bearing. Never silently mix it with true.
@@ -55,7 +62,7 @@ return function(get,set,own,s)
   if bearing then
    steer=bearing
    if get('F22_NAV_OBS')>.5 then
-    course=c;cross=distance and -math.sin(N.wrap(bearing-course))*distance
+    course=c;cross=course and distance and -math.sin(N.wrap(bearing-course))*distance
     steer=cross and course-clamp(math.atan(cross/lookahead),-math.pi/4,math.pi/4) or nil
    end
   end
@@ -95,5 +102,5 @@ return function(get,set,own,s)
   set('F22_NAV_COURSE_ROT',N.wrap(own.heading-course))
   set('F22_NAV_COURSE_TEXT',string.format('CRS %03d%s',math.floor(math.deg(course-reference)+.5)%360,suffix))
   set('F22_NAV_TO_FROM',bearing and math.abs(N.wrap(bearing-course))<math.pi/2 and 'TO' or 'FROM')
- elseif source~=0 then set('F22_NAV_COURSE_TEXT','CRS --');set('F22_NAV_TO_FROM','')end
+ else set('F22_NAV_COURSE_TEXT','CRS --');set('F22_NAV_TO_FROM','')end
 end

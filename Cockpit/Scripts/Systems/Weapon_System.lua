@@ -364,6 +364,14 @@ local function acknowledge_release(now)
  if not accepted or complete then pickle_consumed=true;weapon_release_state=0;pickle_pos=0 end
  if log and log.write then log.write('F22_AG_RELEASE_ACK',log.INFO,string.format('t=%.3f accepted=%s station=%d requested=%.3f sequence=%d evidence=%d native_id=%d native_sequence=%d native_time=%.3f complete=%s',now,tostring(accepted),q.station,q.time,ag_release_sequence,q.evidence or 0,q.native_id or 0,q.native_sequence or 0,q.native_time or 0,tostring(complete)))end
 end
+-- The display owns manual ground-service selection. Airborne carriage follows
+-- the selected payload, independently of the display's faster refresh cadence.
+local function active_bay(ground_contact, station, manual_selection)
+    if ground_contact or station < 0 then return manual_selection end
+    if station == 0 then return 1 end
+    if station == 10 then return 3 end
+    return 2
+end
 local function choose_station(native,step)
     local eligible={};local total=0;local infos={}
     for i=0,10 do
@@ -422,8 +430,6 @@ local function choose_station(native,step)
     get_param_handle('F22_SMS_STORE_GENERATION_VALID'):set(0)
     for level=1,4 do get_param_handle('F22_IR_TYPE'..level):set(w['level'..level] or 0) end
     get_param_handle('F22_IR_AIM9X_PROFILE'):set(mode_state==3 and ir_seeker_module.profile(info) or 0)
-    -- Side bays are stations 0 and 10; other internal missiles use main bay.
-    if selected_station>=0 then parameters.BAY_STATION:set(selected_station==0 and 1 or selected_station==10 and 3 or 2) end
 end
 -- Declare a complete invalid/empty display snapshot before indicators bind.
 publish_stores()
@@ -828,10 +834,11 @@ function update()
     ir_feedback_outputs.AVAILABLE:set(ir_available and 1 or 0)
     ir_feedback_outputs.LOCK:set(ir_locked and 1 or 0)
     ir_feedback_outputs.CUE_VALID:set(ir_az and ir_el and 1 or 0)
+    local ir_inhibit=warning_audio_inhibit()
     local audio_ok,audio_error=pcall(ir_audio.update,ir_audio,mode_state==3 and ir_available,
         get_param_handle('F22_IR_TYPE4'):get(),ir_feedback.strength,
         ir_az or 0,ir_el or 0,get_param_handle('F22_IR_AIM9X_PROFILE'):get()>.5,
-        warning_audio_inhibit())
+        ir_inhibit)
     get_param_handle('F22_IR_AUDIO_READY'):set(audio_ok and 1 or 0)
     -- An unavailable sound resource must not stop stores, sensors, or displays.
     if not audio_ok and not ir_audio.reported then
@@ -893,6 +900,7 @@ function update()
     else
         prev_bay_selection = selected
     end
+    selected = active_bay(groundContact, selected_station, selected)
     local groundOverride = groundContact and mainPower
         and parameters.GROUND_ORIDE:get() >= 0.5
     local groundCrewLeft = groundContact and parameters.GROUND_POWER:get() >= 0.5
@@ -1083,6 +1091,10 @@ function update()
                 get_param_handle('F22_RADAR_NATIVE_CONFIG_REASON'):get(),get_param_handle('F22_RADAR_NATIVE_MIN_METRES'):get(),
                 get_param_handle('F22_RADAR_NATIVE_EL_LIMIT'):get(),
                 get_param_handle('F22_IR_LAUNCH_SEQUENCE'):get(),get_param_handle('F22_IR_LAUNCH_ID'):get()))
+            log.write('F22_IR_AUDIO_STATE',log.INFO,string.format(
+                'valid=%d available=%d age=%.3f inhibit=%d on=%d starts=%d stops=%d',
+                ir_feedback.valid and 1 or 0,ir_available and 1 or 0,ir_now-ir_feedback.time,
+                ir_inhibit and 1 or 0,ir_audio.on and 1 or 0,ir_audio.starts,ir_audio.stops))
             if ir_available then
                 log.write('F22_IR_DIAG',log.INFO,string.format('search=%.0f sensor_mode=%.0f parent=%.0f target=%.0f sun=%.0f electric=%.0f world=(%.1f,%.1f,%.1f)',
                     get_param_handle('F22_IR_SEARCH_ACTIVE'):get(),get_param_handle('F22_IR_SENSOR_MODE'):get(),

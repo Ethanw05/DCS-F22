@@ -91,7 +91,8 @@ local equipment=dofile(LockOn_Options.script_path..'Systems/Equipment_Conditions
 local Envelope=dofile(LockOn_Options.script_path..'Systems/Physical_Snapshot.lua')
 local physical=Envelope.new(get,{'MAIN_POWER','EFM_HUD_VALID','EFM_GROUND_VALID','EFM_WEIGHT_ON_WHEELS',
  'EFM_GEAR_DOWN_LOCKED','EFM_GEAR_UP_LOCKED','EFM_GEAR_UNSAFE','EFM_AIRDATA_VALID',
- 'EFM_AIRDATA_STAMP','EFM_AIRDATA_CAS_MPS','EFM_AIRDATA_HEALTH'})
+ 'EFM_AIRDATA_STAMP','EFM_AIRDATA_CAS_MPS','EFM_AIRDATA_HEALTH',
+ 'EFM_HUD_VN','EFM_HUD_VE','EFM_HUD_VU','EFM_HUD_WN','EFM_HUD_WE','EFM_HUD_WU'})
 local clock = 0
 local was_powered = false
 local muted = false
@@ -173,8 +174,7 @@ local warning_entry=dofile(LockOn_Options.script_path..'Systems/Entry_Transactio
 dev:listen_command(11800)
 local function disable_low()
     physical:update()
-    local powered=get('MAIN_POWER')==1
-    if physical.owned then powered=physical.valid and physical.values.MAIN_POWER==1 end
+    local powered=physical.valid and physical.values.MAIN_POWER==1
     local now=type(get_model_time)=='function'and get_model_time()or clock
     if not powered or not Envelope.finite(now)or now<clock or now-clock>.25 then return false end
     local accepted,ticket=receiver.altitude:disable_current()
@@ -192,7 +192,8 @@ function SetCommand(c, v)
 	local down = decode(v, devices.PILOT_WARNING_SYSTEM) > 0.5
 	local old = held[c]
 	held[c] = down
-	if not down or old or get("MAIN_POWER") < 0.5 then
+    physical:update()
+	if not down or old or not physical.valid or physical.values.MAIN_POWER~=1 then
 		return
 	end
 	if c == 11000 then
@@ -346,16 +347,19 @@ local function qualify_gear(state,v)
     state.gear=state.gear_down
 end
 local function qualify_flight(state)
-    if not physical.owned then return end
     local v=physical.values
     local contact=physical.valid and v.EFM_GROUND_VALID==1 and Envelope.boolean(v.EFM_WEIGHT_ON_WHEELS)
     state.ground=contact and v.EFM_WEIGHT_ON_WHEELS==1
+    state.airborne=contact and v.EFM_WEIGHT_ON_WHEELS==0
     qualify_gear(state,v)
     local air=v.EFM_AIRDATA_VALID==1 and v.EFM_AIRDATA_HEALTH==0
         and Envelope.fresh(v.EFM_AIRDATA_STAMP,physical.clock)
         and Envelope.finite(v.EFM_AIRDATA_CAS_MPS) and v.EFM_AIRDATA_CAS_MPS>=0
-    state.valid=state.valid and physical.valid and contact and air
+    state.valid=state.valid and physical.valid and v.EFM_HUD_VALID==1 and contact and air
     state.cas=air and v.EFM_AIRDATA_CAS_MPS or nil
+    state.vn,state.ve,state.vu=v.EFM_HUD_VN,v.EFM_HUD_VE,v.EFM_HUD_VU
+    state.wn,state.we,state.wu=v.EFM_HUD_WN,v.EFM_HUD_WE,v.EFM_HUD_WU
+    -- Recovery capability uses the same qualified condition catalogue as speech.
     state.fcs_valid,state.fcs_fault=conditions[1].valid,conditions[1].active
 end
 local function publish_faults(priority)
@@ -409,9 +413,8 @@ function update()
 	end
 	clock = now
 	references.update()
-	local powered = get("MAIN_POWER") > 0.5
     physical:update()
-    if physical.owned then powered=physical.valid and physical.values.MAIN_POWER==1 end
+    local powered=physical.valid and physical.values.MAIN_POWER==1
 	if not powered then
 		if was_powered then reset(true) end
         equipment_snapshot()
@@ -426,16 +429,12 @@ function update()
 	update_playback(now)
 	local ok, n, u, e = pcall(base.getSelfCoordinates)
 	local roll_ok, roll = pcall(base.getRoll)
-	local cas_ok, cas = pcall(function()
-		return base.getIndicatedAirSpeed()
-	end)
 	local nz_ok, nz = pcall(function()
 		return base.getVerticalAcceleration()
 	end)
 	local heading_ok, heading = pcall(function()
 		return -base.getHeading()
 	end)
-	put("F22_TAWS_IAS_MPS", cas_ok and type(cas) == "number" and cas == cas and cas or 0)
 	put("F22_TAWS_LOAD_G", nz_ok and type(nz) == "number" and nz == nz and nz or 0)
 	put("F22_TAWS_HEADING_RAD", heading_ok and type(heading) == "number" and heading == heading and heading or 0)
 	local roll_rate = 0
@@ -445,28 +444,18 @@ function update()
 		end
 		previous_pose = { time = now, roll = roll }
 	end
-	local gear_ok, gear = pcall(get_aircraft_draw_argument_value, 0)
 	local state = {
 		now = now,
         conditions = conditions,
 		powered = powered,
-		valid = ok and roll_ok and get("EFM_HUD_VALID") > 0.5 and get("EFM_GROUND_VALID") > 0.5,
-		ground = get("EFM_WEIGHT_ON_WHEELS") > 0.5,
-		gear = gear_ok and gear > 0.05,
+		valid = ok and roll_ok,
 		n = n,
 		u = u,
 		e = e,
 		roll = roll,
-		vn = get("EFM_HUD_VN"),
-		vu = get("EFM_HUD_VU"),
-		ve = get("EFM_HUD_VE"),
-		cas = cas_ok and cas or nil,
 		nz = nz_ok and nz or nil,
 		heading = heading_ok and heading or nil,
 		roll_rate = roll_rate,
-		wn = get("EFM_HUD_WN"),
-		wu = get("EFM_HUD_WU"),
-		we = get("EFM_HUD_WE"),
 		baro = get("F22_ALT_BARO_FT"),
 		baro_valid = get("F22_ALT_BARO_VALID") > 0.5,
 		baro_floor = get("F22_ALT_BARO_FLOOR"),
@@ -475,16 +464,8 @@ function update()
 		radar = get("F22_ALT_RADAR_FT"),
 		radar_valid = get("F22_ALT_RADAR_VALID") > 0.5,
 		radar_floor = get("F22_ALT_RADAR_FLOOR"),
-		fcs_valid = get("EFM_FCS_INTEGRITY_VALID") > 0.5,
-		fcs_fault = get("EFM_FCS_DAMAGED") > 0.5,
-		caution = get("OIL_LIGHT") > 0.5
-			or get("HYD_LIGHT") > 0.5
-			or get("L_GEN_OUT") > 0.5
-			or get("R_GEN_OUT") > 0.5
-			or get("CANOPY_LIGHT") > 0.5,
 		missile_warning = get("F22_MWS_ALERT") > 0.5 or get("F22_RWR_ALERT") >= 3,
 		audio_busy = playing ~= nil or muted or volume <= 0.01 or not audio_ok or not host,
-		defer_audio_commit = true,
 	}
     qualify_flight(state)
 	put('F22_TAWS_IAS_MPS',state.cas or 0)

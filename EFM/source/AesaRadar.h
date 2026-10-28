@@ -32,6 +32,10 @@ struct Beam {
     std::uint32_t task_source{};
     bool priority{}, surface{};
     double deadline{}, integration_s{};
+    bool cued{};
+    std::uint32_t cue_request{};
+    bool surface_search{};
+    std::uint32_t surface_cells{};
 };
 // Environment truth is private input. It is never a published measurement.
 struct Truth {
@@ -49,11 +53,18 @@ public:
     virtual bool query(const Pose&, const Beam&, std::span<Truth>, std::size_t&, QueryStats&) noexcept = 0;
     virtual bool visible(const Pose&, const Truth&, QueryStats&) noexcept = 0;
 };
+struct SurfaceRequest {
+    bool valid{}, point{}, routine{};
+    Vector direction{};
+    double range_m{}, center_elevation{}, half_elevation{};
+};
 struct Controls {
     bool enabled{}, surface{}, emit = true;
     bool cue_valid{};
-    double cue_azimuth{}, cue_elevation{};
+    double cue_azimuth{}, cue_elevation{}, cue_half_azimuth{}, cue_half_elevation{}, cue_range_m{};
+    std::uint32_t cue_request{};
     double surface_half_azimuth = 45 * degree;
+    SurfaceRequest surface_request{};
     double resource = 1, azimuth{}, elevation{}, half_azimuth = 60 * degree;
     double half_elevation = 10 * degree, range_m = 160 * 1852.0;
     std::array<std::uint32_t, 10> priority_ids{};
@@ -80,6 +91,12 @@ struct Measurement {
     double measured_range{}, measured_azimuth{}, measured_elevation{}, measured_range_rate{}, rate_sigma_mps{};
     std::array<double, 21> covariance{};
     Vector sensor_origin{},sensor_velocity{},sensor_forward{},sensor_up{},sensor_right{};
+    bool association_valid{};
+};
+// Private simulator bridge. Never published as sensor identity or used for association.
+struct Binding {
+    std::uint32_t track{}, host{}, hits{};
+    bool qualified{};
 };
 struct Status {
     bool ready{}, emitting{}, dwelling{}, truncated{};
@@ -89,8 +106,12 @@ struct Status {
     double time{}, resource{}, processing_s{};
     bool surface_service{};
     double surface_azimuth{};
+    Beam surface_beam{};
     std::uint32_t surface_sequence{}, fire_control_id{}, deadline_misses{};
     double fire_control_revisit_s{}, fire_control_last_look = -100;
+    std::uint32_t cue_request{}, cue_dwells{};
+    double cue_time = -100;
+    std::uint32_t association_ambiguous{}, association_dropped{};
 };
 class Model {
 public:
@@ -99,8 +120,9 @@ public:
     bool update(double now, const Controls&, const Pose&, Environment&) noexcept;
     const auto& measurements() const noexcept { return tracks_; }
     const Status& status() const noexcept { return status_; }
+    const auto& bindings() const noexcept { return bindings_; }
 private:
-    struct Pending { Measurement value{}; AesaTrackFilter::Sample sample{}; double release{}; bool occupied{}; };
+    struct Pending { Measurement value{}; AesaTrackFilter::Sample sample{}; double release{}; bool occupied{}; std::uint32_t host{}; };
     struct Task {
         Measurement* track{};
         double dwell{}, deadline{};
@@ -110,23 +132,31 @@ private:
     std::array<Measurement, maximum_tracks> tracks_{};
     std::array<Pending, maximum_pending> pending_{};
     std::array<AesaTrackFilter::Filter, maximum_tracks> filters_{};
+    std::array<Binding, maximum_tracks> bindings_{};
     std::array<double, maximum_tracks> last_priority_look_{};
     std::array<Truth, maximum_candidates> candidates_{};
     Status status_{};
     double clock_ = -1, next_start_{}, priority_run_s_{};
     std::uint64_t generation_{};
-    std::uint32_t random_ = 0x1a2b3c4d, cell_{}, turn_{}, surface_cell_{}, array_turn_{}, candidate_cursor_{};
+    std::uint32_t random_ = 0x1a2b3c4d, cell_{}, turn_{}, surface_cell_{}, array_turn_{}, candidate_cursor_{}, cue_cell_{}, cue_turn_{};
+    std::uint32_t next_track_ = 1, surface_turn_{};
     double uniform() noexcept;
     double error(double sigma) noexcept;
     bool configuration_changed(const Controls&) const noexcept;
     void age(double now) noexcept;
     void release(double now) noexcept;
+    void associate(std::span<Pending*>) noexcept;
+    void birth(Pending&) noexcept;
+    Pending* next_report(double now) noexcept;
+    std::size_t batch_reports(Pending&, double, std::span<Pending*>) noexcept;
+    void commit(Pending&, std::size_t) noexcept;
+    void withdraw(std::size_t) noexcept;
     bool assimilate(Pending&, Measurement&) noexcept;
     void start_surface(double, const Controls&, const Pose&) noexcept;
     double revisit(std::uint32_t id, std::size_t priority, const Controls&) const noexcept;
     double track_dwell(const Measurement&, const Pose&) const noexcept;
     Task priority_task(double now, const Controls&, const Pose&) noexcept;
-    void search_angles(const Controls&, double& azimuth, double& elevation) noexcept;
+    bool search_angles(const Controls&, double& azimuth, double& elevation) noexcept;
     void start(double now, const Controls&, const Pose&) noexcept;
     void completed_look(double now, const Controls&) noexcept;
     void observe(double now, const Controls&, const Pose&, Environment&) noexcept;

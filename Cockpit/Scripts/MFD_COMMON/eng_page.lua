@@ -1,5 +1,6 @@
 -- Shared existing format; all data remain with their current system owners.
 return function(page_parameter)
+local reading=dofile(LockOn_Options.script_path..'MFD_COMMON/qualified_readout.lua')
 -- Oil needles consume achieved PSI at the legacy270psi sweep.
 --[[
     Grinnelli Designs F-22A Raptor
@@ -804,7 +805,7 @@ NOZBOXLL.h_clip_relation       = h_clip_relations.COMPARE
 vertices(NOZBOXLL,0.225)
 Add(NOZBOXLL)
 ----------------------------------------------------------------------------------------------------------------FUEL FLOW NUMBERS RIGHT
-NOZR		                = CreateElement "ceStringSLine"
+local NOZR		                = {}
 NOZR.name				    = "rad Alt"
 NOZR.material			    = "F22_LCD_FONT_GREEN"
 NOZR.init_pos			    = {0.40,-0.29, 0} --L-R,U-D,F-B
@@ -816,12 +817,12 @@ NOZR.isdraw				    = true
 NOZR.use_mipfilter		    = true
 NOZR.h_clip_relation		= h_clip_relations.COMPARE
 NOZR.level				    = 2
-NOZR.element_params		    = {"MFD_OPACITY","F22_ENGINE_R_NOZZLE_TEXT",page_parameter}
-NOZR.formats				= {"%s"}--= {"%02.0f"}
+NOZR.element_params		    = {"MFD_OPACITY","R_NOZZLE_POS",page_parameter}
+NOZR.formats = {"%02.0f"}
 NOZR.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
-Add(NOZR)
+reading.add(NOZR,'F22_ENGINE_R_NOZZLE_VALID','ceStringSLine')
 ----------------------------------------------------------------------------------------------------------------FUEL FLOW NUMBERS RIGHT
-NOZL		                = CreateElement "ceStringSLine"
+local NOZL		                = {}
 NOZL.name				    = "rad Alt"
 NOZL.material			    = "F22_LCD_FONT_GREEN"
 NOZL.init_pos			    = {-0.28,-0.29, 0} --L-R,U-D,F-B
@@ -833,12 +834,12 @@ NOZL.isdraw				    = true
 NOZL.use_mipfilter		    = true
 NOZL.h_clip_relation		= h_clip_relations.COMPARE
 NOZL.level				    = 2
-NOZL.element_params		    = {"MFD_OPACITY","F22_ENGINE_L_NOZZLE_TEXT",page_parameter}
-NOZL.formats				= {"%s"}--= {"%02.0f"}
+NOZL.element_params		    = {"MFD_OPACITY","L_NOZZLE_POS",page_parameter}
+NOZL.formats = {"%02.0f"}
 NOZL.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
-Add(NOZL)
+reading.add(NOZL,'F22_ENGINE_L_NOZZLE_VALID','ceStringSLine')
 ----------------------------------------------------------------------------------------------------------------FUEL FLOW NUMBERS RIGHT
-FUELFR		                = CreateElement "ceStringSLine"
+local FUELFR		                = {}
 FUELFR.name				    = "rad Alt"
 FUELFR.material			    = "F22_LCD_FONT_GREEN"
 FUELFR.init_pos			    = {0.34, -0.43, 0} --L-R,U-D,F-B
@@ -850,12 +851,12 @@ FUELFR.isdraw				= true
 FUELFR.use_mipfilter		= true
 FUELFR.h_clip_relation		= h_clip_relations.COMPARE
 FUELFR.level				= 2
-FUELFR.element_params		= {"MFD_OPACITY","F22_ENGINE_R_FLOW_TEXT",page_parameter}
-FUELFR.formats				= {"%s"}--= {"%02.0f"}
+FUELFR.element_params		= {"MFD_OPACITY","R_FF_VALUE",page_parameter}
+FUELFR.formats = {"%02.0f"}
 FUELFR.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
-Add(FUELFR)
+reading.add(FUELFR,'F22_ENGINE_R_FLOW_VALID','ceStringSLine')
 ----------------------------------------------------------------------------------------------------------------FUEL FLOW NUMBERS LEFT
-FUELFL		                = CreateElement "ceStringSLine"
+local FUELFL		                = {}
 FUELFL.name				    = "rad Alt"
 FUELFL.material			    = "F22_LCD_FONT_GREEN"
 FUELFL.init_pos			    = {-0.34, -0.43, 0} --L-R,U-D,F-B
@@ -867,10 +868,10 @@ FUELFL.isdraw				= true
 FUELFL.use_mipfilter		= true
 FUELFL.h_clip_relation		= h_clip_relations.COMPARE
 FUELFL.level				= 2
-FUELFL.element_params		= {"MFD_OPACITY","F22_ENGINE_L_FLOW_TEXT",page_parameter}
-FUELFL.formats				= {"%s"}--= {"%02.0f"}
+FUELFL.element_params		= {"MFD_OPACITY","L_FF_VALUE",page_parameter}
+FUELFL.formats = {"%02.0f"}
 FUELFL.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
-Add(FUELFL)
+reading.add(FUELFL,'F22_ENGINE_L_FLOW_VALID','ceStringSLine')
 ----------------------------------------------------------------------------------------------------------------CHK
 ----RPM YELLOW TEXT
     --RPM_Y 					    = CreateElement "ceStringSLine"
@@ -1288,7 +1289,7 @@ R_NEEDLE_HYD_R.h_clip_relation      = h_clip_relations.COMPARE
 vertices(R_NEEDLE_HYD_R ,0.20)
 Add(R_NEEDLE_HYD_R)
 -----------------------------------------------------------------------------------------------------------TEXT NUMBERS R RPM YEL
-R_RPM_TEXT_G				    = CreateElement "ceStringSLine"
+local R_RPM_TEXT_G				    = {}
 R_RPM_TEXT_G.name				= "rad Alt"
 R_RPM_TEXT_G.material			= "F22_LCD_FONT_GREEN"
 R_RPM_TEXT_G.init_pos			= {0.28, 0.69, 0} --L-R,U-D,F-B
@@ -1300,8 +1301,8 @@ R_RPM_TEXT_G.isdraw				= true
 R_RPM_TEXT_G.use_mipfilter		= true
 R_RPM_TEXT_G.h_clip_relation	= h_clip_relations.COMPARE
 R_RPM_TEXT_G.level				= 2
-R_RPM_TEXT_G.element_params		= {"MFD_OPACITY","F22_ENGINE_R_RPM_TEXT",page_parameter,"R_RPM_COLOR"}
-R_RPM_TEXT_G.formats			= {"%s"}--= {"%02.0f"}
+R_RPM_TEXT_G.element_params		= {"MFD_OPACITY","RPM_R",page_parameter,"R_RPM_COLOR"}
+R_RPM_TEXT_G.formats = {"%.0f"}
 R_RPM_TEXT_G.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1309,9 +1310,9 @@ R_RPM_TEXT_G.controllers		=   {
                                         {"parameter_in_range",3,0.4,0.6}
                                     }
                                 
-Add(R_RPM_TEXT_G)
+reading.add(R_RPM_TEXT_G,'F22_ENGINE_R_RPM_VALID','ceStringSLine')
 -----------------------------------------------------------------------------------------------------------R RPM ORANGE
-R_RPM_TEXT_O				    = CreateElement "ceStringSLine"
+local R_RPM_TEXT_O				    = {}
 R_RPM_TEXT_O.name				= "rad Alt"
 R_RPM_TEXT_O.material			= "F22_LCD_FONT_ORANGE"
 R_RPM_TEXT_O.init_pos			= {0.28, 0.69, 0} --L-R,U-D,F-B
@@ -1323,8 +1324,8 @@ R_RPM_TEXT_O.isdraw				= true
 R_RPM_TEXT_O.use_mipfilter		= true
 R_RPM_TEXT_O.h_clip_relation	= h_clip_relations.COMPARE
 R_RPM_TEXT_O.level				= 2
-R_RPM_TEXT_O.element_params		= {"MFD_OPACITY","F22_ENGINE_R_RPM_TEXT",page_parameter,"R_RPM_COLOR"}
-R_RPM_TEXT_O.formats			= {"%s"}--= {"%02.0f"}
+R_RPM_TEXT_O.element_params		= {"MFD_OPACITY","RPM_R",page_parameter,"R_RPM_COLOR"}
+R_RPM_TEXT_O.formats = {"%.0f"}
 R_RPM_TEXT_O.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1332,9 +1333,9 @@ R_RPM_TEXT_O.controllers		=   {
                                         {"parameter_in_range",3,0.9,1.1}
                                     }
                                 
-Add(R_RPM_TEXT_O)
+reading.add(R_RPM_TEXT_O,'F22_ENGINE_R_RPM_VALID','ceStringSLine')
 -----------------------------------------------------------------------------------------------------------L RPM YEL
-L_RPM_TEXT_G				    = CreateElement "ceStringSLine"
+local L_RPM_TEXT_G				    = {}
 L_RPM_TEXT_G.name				= "rad Alt"
 L_RPM_TEXT_G.material			= "F22_LCD_FONT_GREEN"
 L_RPM_TEXT_G.init_pos			= {-0.41, 0.69, 0} --L-R,U-D,F-B
@@ -1346,8 +1347,8 @@ L_RPM_TEXT_G.isdraw				= true
 L_RPM_TEXT_G.use_mipfilter		= true
 L_RPM_TEXT_G.h_clip_relation	= h_clip_relations.COMPARE
 L_RPM_TEXT_G.level				= 2
-L_RPM_TEXT_G.element_params		= {"MFD_OPACITY","F22_ENGINE_L_RPM_TEXT",page_parameter,"L_RPM_COLOR"}
-L_RPM_TEXT_G.formats			= {"%s"}--= {"%02.0f"}
+L_RPM_TEXT_G.element_params		= {"MFD_OPACITY","RPM_L",page_parameter,"L_RPM_COLOR"}
+L_RPM_TEXT_G.formats = {"%.0f"}
 L_RPM_TEXT_G.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1355,9 +1356,9 @@ L_RPM_TEXT_G.controllers		=   {
                                         {"parameter_in_range",3,0.4,0.6}
                                     }
                                 
-Add(L_RPM_TEXT_G)
+reading.add(L_RPM_TEXT_G,'F22_ENGINE_L_RPM_VALID','ceStringSLine')
 -----------------------------------------------------------------------------------------------------------L RPM ORANGE
-L_RPM_TEXT_O				    = CreateElement "ceStringSLine"
+local L_RPM_TEXT_O				    = {}
 L_RPM_TEXT_O.name				= "rad Alt"
 L_RPM_TEXT_O.material			= "F22_LCD_FONT_ORANGE"
 L_RPM_TEXT_O.init_pos			= {-0.41, 0.69, 0} --L-R,U-D,F-B
@@ -1369,8 +1370,8 @@ L_RPM_TEXT_O.isdraw				= true
 L_RPM_TEXT_O.use_mipfilter		= true
 L_RPM_TEXT_O.h_clip_relation	= h_clip_relations.COMPARE
 L_RPM_TEXT_O.level				= 2
-L_RPM_TEXT_O.element_params		= {"MFD_OPACITY","F22_ENGINE_L_RPM_TEXT",page_parameter,"L_RPM_COLOR"}
-L_RPM_TEXT_O.formats			= {"%s"}--= {"%02.0f"}
+L_RPM_TEXT_O.element_params		= {"MFD_OPACITY","RPM_L",page_parameter,"L_RPM_COLOR"}
+L_RPM_TEXT_O.formats = {"%.0f"}
 L_RPM_TEXT_O.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1378,9 +1379,9 @@ L_RPM_TEXT_O.controllers		=   {
                                         {"parameter_in_range",3,0.9,1.1}
                                     }
                                 
-Add(L_RPM_TEXT_O)
+reading.add(L_RPM_TEXT_O,'F22_ENGINE_L_RPM_VALID','ceStringSLine')
 -----------------------------------------------------------------------------------------------------------TEXT NUMBERS R EGT YEL
-R_EGT_TEXT_G				    = CreateElement "ceStringSLine"
+local R_EGT_TEXT_G				    = {}
 R_EGT_TEXT_G.name				= "rad Alt"
 R_EGT_TEXT_G.material			= "F22_LCD_FONT_GREEN"
 R_EGT_TEXT_G.init_pos			= {0.28, 0.39, 0} --L-R,U-D,F-B
@@ -1392,8 +1393,8 @@ R_EGT_TEXT_G.isdraw				= true
 R_EGT_TEXT_G.use_mipfilter		= true
 R_EGT_TEXT_G.h_clip_relation	= h_clip_relations.COMPARE
 R_EGT_TEXT_G.level				= 2
-R_EGT_TEXT_G.element_params		= {"MFD_OPACITY","F22_ENGINE_R_EGT_TEXT",page_parameter,"R_EGT_COLOR"}
-R_EGT_TEXT_G.formats			= {"%s"}--= {"%02.0f"}
+R_EGT_TEXT_G.element_params		= {"MFD_OPACITY","EGT_R",page_parameter,"R_EGT_COLOR"}
+R_EGT_TEXT_G.formats = {"%.0f"}
 R_EGT_TEXT_G.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1401,9 +1402,9 @@ R_EGT_TEXT_G.controllers		=   {
                                         {"parameter_in_range",3,-0.1,0.1}
                                     }
                                 
-Add(R_EGT_TEXT_G)
+reading.add(R_EGT_TEXT_G,'F22_ENGINE_R_EGT_VALID','ceStringSLine')
 -----------------------------------------------------------------------------------------------------------R EGT YELLOW
-R_EGT_TEXT_Y				    = CreateElement "ceStringSLine"
+local R_EGT_TEXT_Y				    = {}
 R_EGT_TEXT_Y.name				= "rad Alt"
 R_EGT_TEXT_Y.material			= "F22_LCD_FONT_YELLOW"
 R_EGT_TEXT_Y.init_pos			= {0.28, 0.39, 0} --L-R,U-D,F-B
@@ -1415,8 +1416,8 @@ R_EGT_TEXT_Y.isdraw				= true
 R_EGT_TEXT_Y.use_mipfilter		= true
 R_EGT_TEXT_Y.h_clip_relation	= h_clip_relations.COMPARE
 R_EGT_TEXT_Y.level				= 2
-R_EGT_TEXT_Y.element_params		= {"MFD_OPACITY","F22_ENGINE_R_EGT_TEXT",page_parameter,"R_EGT_COLOR"}
-R_EGT_TEXT_Y.formats			= {"%s"}--= {"%02.0f"}
+R_EGT_TEXT_Y.element_params		= {"MFD_OPACITY","EGT_R",page_parameter,"R_EGT_COLOR"}
+R_EGT_TEXT_Y.formats = {"%.0f"}
 R_EGT_TEXT_Y.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1424,9 +1425,9 @@ R_EGT_TEXT_Y.controllers		=   {
                                         {"parameter_in_range",3,0.4,0.6}
                                     }
                                 
-Add(R_EGT_TEXT_Y)
+reading.add(R_EGT_TEXT_Y,'F22_ENGINE_R_EGT_VALID','ceStringSLine')
 -----------------------------------------------------------------------------------------------------------R EGT RED
-R_EGT_TEXT_R				    = CreateElement "ceStringSLine"
+local R_EGT_TEXT_R				    = {}
 R_EGT_TEXT_R.name				= "rad Alt"
 R_EGT_TEXT_R.material			= "F22_LCD_FONT_RED"
 R_EGT_TEXT_R.init_pos			= {0.28, 0.39, 0} --L-R,U-D,F-B
@@ -1438,8 +1439,8 @@ R_EGT_TEXT_R.isdraw				= true
 R_EGT_TEXT_R.use_mipfilter		= true
 R_EGT_TEXT_R.h_clip_relation	= h_clip_relations.COMPARE
 R_EGT_TEXT_R.level				= 2
-R_EGT_TEXT_R.element_params		= {"MFD_OPACITY","F22_ENGINE_R_EGT_TEXT",page_parameter,"R_EGT_COLOR"}
-R_EGT_TEXT_R.formats			= {"%s"}--= {"%02.0f"}
+R_EGT_TEXT_R.element_params		= {"MFD_OPACITY","EGT_R",page_parameter,"R_EGT_COLOR"}
+R_EGT_TEXT_R.formats = {"%.0f"}
 R_EGT_TEXT_R.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1447,9 +1448,9 @@ R_EGT_TEXT_R.controllers		=   {
                                         {"parameter_in_range",3,0.9,1.1}
                                     }
                                 
-Add(R_EGT_TEXT_R)
+reading.add(R_EGT_TEXT_R,'F22_ENGINE_R_EGT_VALID','ceStringSLine')
 -----------------------------------------------------------------------------------------------------------L EGT YEL
-L_EGT_TEXT_G				    = CreateElement "ceStringSLine"
+local L_EGT_TEXT_G				    = {}
 L_EGT_TEXT_G.name				= "rad Alt"
 L_EGT_TEXT_G.material			= "F22_LCD_FONT_GREEN"
 L_EGT_TEXT_G.init_pos			= {-0.41, 0.39, 0} --L-R,U-D,F-B
@@ -1461,8 +1462,8 @@ L_EGT_TEXT_G.isdraw				= true
 L_EGT_TEXT_G.use_mipfilter		= true
 L_EGT_TEXT_G.h_clip_relation	= h_clip_relations.COMPARE
 L_EGT_TEXT_G.level				= 2
-L_EGT_TEXT_G.element_params		= {"MFD_OPACITY","F22_ENGINE_L_EGT_TEXT",page_parameter,"L_EGT_COLOR"}
-L_EGT_TEXT_G.formats			= {"%s"}--= {"%02.0f"}
+L_EGT_TEXT_G.element_params		= {"MFD_OPACITY","EGT_L",page_parameter,"L_EGT_COLOR"}
+L_EGT_TEXT_G.formats = {"%.0f"}
 L_EGT_TEXT_G.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1470,9 +1471,9 @@ L_EGT_TEXT_G.controllers		=   {
                                         {"parameter_in_range",3,-0.1,0.1}
                                     }
                                 
-Add(L_EGT_TEXT_G)
+reading.add(L_EGT_TEXT_G,'F22_ENGINE_L_EGT_VALID','ceStringSLine')
 -----------------------------------------------------------------------------------------------------------R EGT YELLOW
-L_EGT_TEXT_Y				    = CreateElement "ceStringSLine"
+local L_EGT_TEXT_Y				    = {}
 L_EGT_TEXT_Y.name				= "rad Alt"
 L_EGT_TEXT_Y.material			= "F22_LCD_FONT_YELLOW"
 L_EGT_TEXT_Y.init_pos			= {-0.41, 0.39, 0} --L-R,U-D,F-B
@@ -1484,8 +1485,8 @@ L_EGT_TEXT_Y.isdraw				= true
 L_EGT_TEXT_Y.use_mipfilter		= true
 L_EGT_TEXT_Y.h_clip_relation	= h_clip_relations.COMPARE
 L_EGT_TEXT_Y.level				= 2
-L_EGT_TEXT_Y.element_params		= {"MFD_OPACITY","F22_ENGINE_L_EGT_TEXT",page_parameter,"L_EGT_COLOR"}
-L_EGT_TEXT_Y.formats			= {"%s"}--= {"%02.0f"}
+L_EGT_TEXT_Y.element_params		= {"MFD_OPACITY","EGT_L",page_parameter,"L_EGT_COLOR"}
+L_EGT_TEXT_Y.formats = {"%.0f"}
 L_EGT_TEXT_Y.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1493,9 +1494,9 @@ L_EGT_TEXT_Y.controllers		=   {
                                         {"parameter_in_range",3,0.4,0.6}
                                     }
                                 
-Add(L_EGT_TEXT_Y)
+reading.add(L_EGT_TEXT_Y,'F22_ENGINE_L_EGT_VALID','ceStringSLine')
 -----------------------------------------------------------------------------------------------------------L EGT RED
-L_EGT_TEXT_R				    = CreateElement "ceStringSLine"
+local L_EGT_TEXT_R				    = {}
 L_EGT_TEXT_R.name				= "rad Alt"
 L_EGT_TEXT_R.material			= "F22_LCD_FONT_RED"
 L_EGT_TEXT_R.init_pos			= {-0.41, 0.39, 0} --L-R,U-D,F-B
@@ -1507,8 +1508,8 @@ L_EGT_TEXT_R.isdraw				= true
 L_EGT_TEXT_R.use_mipfilter		= true
 L_EGT_TEXT_R.h_clip_relation	= h_clip_relations.COMPARE
 L_EGT_TEXT_R.level				= 2
-L_EGT_TEXT_R.element_params		= {"MFD_OPACITY","F22_ENGINE_L_EGT_TEXT",page_parameter,"L_EGT_COLOR"}
-L_EGT_TEXT_R.formats			= {"%s"}--= {"%02.0f"}
+L_EGT_TEXT_R.element_params		= {"MFD_OPACITY","EGT_L",page_parameter,"L_EGT_COLOR"}
+L_EGT_TEXT_R.formats = {"%.0f"}
 L_EGT_TEXT_R.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1516,9 +1517,9 @@ L_EGT_TEXT_R.controllers		=   {
                                         {"parameter_in_range",3,0.9,1.1}
                                     }
                                 
-Add(L_EGT_TEXT_R)
+reading.add(L_EGT_TEXT_R,'F22_ENGINE_L_EGT_VALID','ceStringSLine')
 -----------------------------------------------------------------------------------------------------------L OIL GRN
-L_OIL_TEXT_G				    = CreateElement "ceStringSLine"
+local L_OIL_TEXT_G				    = {}
 L_OIL_TEXT_G.name				= "rad Alt"
 L_OIL_TEXT_G.material			= "F22_LCD_FONT_GREEN"
 L_OIL_TEXT_G.init_pos			= {-0.40, 0.10, 0} --L-R,U-D,F-B
@@ -1530,8 +1531,8 @@ L_OIL_TEXT_G.isdraw				= true
 L_OIL_TEXT_G.use_mipfilter		= true
 L_OIL_TEXT_G.h_clip_relation	= h_clip_relations.COMPARE
 L_OIL_TEXT_G.level				= 2
-L_OIL_TEXT_G.element_params		= {"MFD_OPACITY","F22_ENGINE_L_OIL_TEXT",page_parameter,"L_OIL_COLOR"}
-L_OIL_TEXT_G.formats			= {"%s"}--= {"%02.0f"}
+L_OIL_TEXT_G.element_params		= {"MFD_OPACITY","OIL_L",page_parameter,"L_OIL_COLOR"}
+L_OIL_TEXT_G.formats = {"%.0f"}
 L_OIL_TEXT_G.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1539,9 +1540,9 @@ L_OIL_TEXT_G.controllers		=   {
                                         {"parameter_in_range",3,-0.1,0.1}
                                     }
                                 
-Add(L_OIL_TEXT_G)
+reading.add(L_OIL_TEXT_G,'F22_ENGINE_L_OIL_VALID','ceStringSLine')
 -----------------------------------------------------------------------------------------------------------L OIL RED
-L_OIL_TEXT_R				    = CreateElement "ceStringSLine"
+local L_OIL_TEXT_R				    = {}
 L_OIL_TEXT_R.name				= "rad Alt"
 L_OIL_TEXT_R.material			= "F22_LCD_FONT_RED"
 L_OIL_TEXT_R.init_pos			= {-0.40, 0.10, 0} --L-R,U-D,F-B
@@ -1553,8 +1554,8 @@ L_OIL_TEXT_R.isdraw				= true
 L_OIL_TEXT_R.use_mipfilter		= true
 L_OIL_TEXT_R.h_clip_relation	= h_clip_relations.COMPARE
 L_OIL_TEXT_R.level				= 2
-L_OIL_TEXT_R.element_params		= {"MFD_OPACITY","F22_ENGINE_L_OIL_TEXT",page_parameter,"L_OIL_COLOR"}
-L_OIL_TEXT_R.formats			= {"%s"}--= {"%02.0f"}
+L_OIL_TEXT_R.element_params		= {"MFD_OPACITY","OIL_L",page_parameter,"L_OIL_COLOR"}
+L_OIL_TEXT_R.formats = {"%.0f"}
 L_OIL_TEXT_R.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1562,9 +1563,9 @@ L_OIL_TEXT_R.controllers		=   {
                                         {"parameter_in_range",3,0.9,1.1}
                                     }
                                 
-Add(L_OIL_TEXT_R)
+reading.add(L_OIL_TEXT_R,'F22_ENGINE_L_OIL_VALID','ceStringSLine')
 -----------------------------------------------------------------------------------------------------------R OIL GRN
-R_OIL_TEXT_G				    = CreateElement "ceStringSLine"
+local R_OIL_TEXT_G				    = {}
 R_OIL_TEXT_G.name				= "rad Alt"
 R_OIL_TEXT_G.material			= "F22_LCD_FONT_GREEN"
 R_OIL_TEXT_G.init_pos			= {0.26, 0.10, 0} --L-R,U-D,F-B
@@ -1576,8 +1577,8 @@ R_OIL_TEXT_G.isdraw				= true
 R_OIL_TEXT_G.use_mipfilter		= true
 R_OIL_TEXT_G.h_clip_relation	= h_clip_relations.COMPARE
 R_OIL_TEXT_G.level				= 2
-R_OIL_TEXT_G.element_params		= {"MFD_OPACITY","F22_ENGINE_R_OIL_TEXT",page_parameter,"R_OIL_COLOR"}
-R_OIL_TEXT_G.formats			= {"%s"}--= {"%02.0f"}
+R_OIL_TEXT_G.element_params		= {"MFD_OPACITY","OIL_R",page_parameter,"R_OIL_COLOR"}
+R_OIL_TEXT_G.formats = {"%.0f"}
 R_OIL_TEXT_G.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1585,9 +1586,9 @@ R_OIL_TEXT_G.controllers		=   {
                                         {"parameter_in_range",3,-0.1,0.1}
                                     }
                                 
-Add(R_OIL_TEXT_G)
+reading.add(R_OIL_TEXT_G,'F22_ENGINE_R_OIL_VALID','ceStringSLine')
 -----------------------------------------------------------------------------------------------------------R OIL RED
-R_OIL_TEXT_R				    = CreateElement "ceStringSLine"
+local R_OIL_TEXT_R				    = {}
 R_OIL_TEXT_R.name				= "rad Alt"
 R_OIL_TEXT_R.material			= "F22_LCD_FONT_RED"
 R_OIL_TEXT_R.init_pos			= {0.26, 0.10, 0} --L-R,U-D,F-B
@@ -1599,8 +1600,8 @@ R_OIL_TEXT_R.isdraw				= true
 R_OIL_TEXT_R.use_mipfilter		= true
 R_OIL_TEXT_R.h_clip_relation	= h_clip_relations.COMPARE
 R_OIL_TEXT_R.level				= 2
-R_OIL_TEXT_R.element_params		= {"MFD_OPACITY","F22_ENGINE_R_OIL_TEXT",page_parameter,"R_OIL_COLOR"}
-R_OIL_TEXT_R.formats			= {"%s"}--= {"%02.0f"}
+R_OIL_TEXT_R.element_params		= {"MFD_OPACITY","OIL_R",page_parameter,"R_OIL_COLOR"}
+R_OIL_TEXT_R.formats = {"%.0f"}
 R_OIL_TEXT_R.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1608,9 +1609,9 @@ R_OIL_TEXT_R.controllers		=   {
                                         {"parameter_in_range",3,0.9,1.1}
                                     }
                                 
-Add(R_OIL_TEXT_R)
+reading.add(R_OIL_TEXT_R,'F22_ENGINE_R_OIL_VALID','ceStringSLine')
 -------------------------------------------------------------------------------------------------------------L HYD GREEN
-L_HYD_TEXT_G				    = CreateElement "ceStringSLine"
+local L_HYD_TEXT_G				    = {}
 L_HYD_TEXT_G.name				= "rad Alt"
 L_HYD_TEXT_G.material			= "F22_LCD_FONT_GREEN"
 L_HYD_TEXT_G.init_pos			= {-0.70, -0.61, 0} --L-R,U-D,F-B
@@ -1622,8 +1623,8 @@ L_HYD_TEXT_G.isdraw				= true
 L_HYD_TEXT_G.use_mipfilter		= true
 L_HYD_TEXT_G.h_clip_relation	= h_clip_relations.COMPARE
 L_HYD_TEXT_G.level				= 2
-L_HYD_TEXT_G.element_params		= {"MFD_OPACITY","F22_ENGINE_L_HYD_TEXT",page_parameter,"L_HYD_COLOR"}
-L_HYD_TEXT_G.formats			= {"%s"}--= {"%02.0f"}
+L_HYD_TEXT_G.element_params		= {"MFD_OPACITY","L_HYD_VALUE",page_parameter,"L_HYD_COLOR"}
+L_HYD_TEXT_G.formats = {"%.0f"}
 L_HYD_TEXT_G.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1631,9 +1632,9 @@ L_HYD_TEXT_G.controllers		=   {
                                         {"parameter_in_range",3,-0.1,0.1}
                                     }
                                 
-Add(L_HYD_TEXT_G)
+reading.add(L_HYD_TEXT_G,'F22_ENGINE_L_HYD_VALID','ceStringSLine')
 -----------------------------------------------------------------------------------------------------------L HYD RED
-L_HYD_TEXT_R				    = CreateElement "ceStringSLine"
+local L_HYD_TEXT_R				    = {}
 L_HYD_TEXT_R.name				= "rad Alt"
 L_HYD_TEXT_R.material			= "F22_LCD_FONT_RED"
 L_HYD_TEXT_R.init_pos			= {-0.70, -0.61, 0} --L-R,U-D,F-B
@@ -1645,8 +1646,8 @@ L_HYD_TEXT_R.isdraw				= true
 L_HYD_TEXT_R.use_mipfilter		= true
 L_HYD_TEXT_R.h_clip_relation	= h_clip_relations.COMPARE
 L_HYD_TEXT_R.level				= 2
-L_HYD_TEXT_R.element_params		= {"MFD_OPACITY","F22_ENGINE_L_HYD_TEXT",page_parameter,"L_HYD_COLOR"}
-L_HYD_TEXT_R.formats			= {"%s"}--= {"%02.0f"}
+L_HYD_TEXT_R.element_params		= {"MFD_OPACITY","L_HYD_VALUE",page_parameter,"L_HYD_COLOR"}
+L_HYD_TEXT_R.formats = {"%.0f"}
 L_HYD_TEXT_R.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1654,9 +1655,9 @@ L_HYD_TEXT_R.controllers		=   {
                                         {"parameter_in_range",3,0.9,1.1}
                                     }
                                 
-Add(L_HYD_TEXT_R)
+reading.add(L_HYD_TEXT_R,'F22_ENGINE_L_HYD_VALID','ceStringSLine')
 -------------------------------------------------------------------------------------------------------------R HYD GREEN
-R_HYD_TEXT_G				    = CreateElement "ceStringSLine"
+local R_HYD_TEXT_G				    = {}
 R_HYD_TEXT_G.name				= "rad Alt"
 R_HYD_TEXT_G.material			= "F22_LCD_FONT_GREEN"
 R_HYD_TEXT_G.init_pos			= {-0.25, -0.61, 0} --L-R,U-D,F-B
@@ -1668,8 +1669,8 @@ R_HYD_TEXT_G.isdraw				= true
 R_HYD_TEXT_G.use_mipfilter		= true
 R_HYD_TEXT_G.h_clip_relation	= h_clip_relations.COMPARE
 R_HYD_TEXT_G.level				= 2
-R_HYD_TEXT_G.element_params		= {"MFD_OPACITY","F22_ENGINE_R_HYD_TEXT",page_parameter,"R_HYD_COLOR"}
-R_HYD_TEXT_G.formats			= {"%s"}--= {"%02.0f"}
+R_HYD_TEXT_G.element_params		= {"MFD_OPACITY","R_HYD_VALUE",page_parameter,"R_HYD_COLOR"}
+R_HYD_TEXT_G.formats = {"%.0f"}
 R_HYD_TEXT_G.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1677,9 +1678,9 @@ R_HYD_TEXT_G.controllers		=   {
                                         {"parameter_in_range",3,-0.1,0.1}
                                     }
                                 
-Add(R_HYD_TEXT_G)
+reading.add(R_HYD_TEXT_G,'F22_ENGINE_R_HYD_VALID','ceStringSLine')
 -----------------------------------------------------------------------------------------------------------R HYD RED
-R_HYD_TEXT_R				    = CreateElement "ceStringSLine"
+local R_HYD_TEXT_R				    = {}
 R_HYD_TEXT_R.name				= "rad Alt"
 R_HYD_TEXT_R.material			= "F22_LCD_FONT_RED"
 R_HYD_TEXT_R.init_pos			= {-0.25, -0.61, 0} --L-R,U-D,F-B
@@ -1691,8 +1692,8 @@ R_HYD_TEXT_R.isdraw				= true
 R_HYD_TEXT_R.use_mipfilter		= true
 R_HYD_TEXT_R.h_clip_relation	= h_clip_relations.COMPARE
 R_HYD_TEXT_R.level				= 2
-R_HYD_TEXT_R.element_params		= {"MFD_OPACITY","F22_ENGINE_R_HYD_TEXT",page_parameter,"R_HYD_COLOR"}
-R_HYD_TEXT_R.formats			= {"%s"}--= {"%02.0f"}
+R_HYD_TEXT_R.element_params		= {"MFD_OPACITY","R_HYD_VALUE",page_parameter,"R_HYD_COLOR"}
+R_HYD_TEXT_R.formats = {"%.0f"}
 R_HYD_TEXT_R.controllers		=   {
                                         {"opacity_using_parameter",0},
                                         {"text_using_parameter",1,0},
@@ -1700,7 +1701,7 @@ R_HYD_TEXT_R.controllers		=   {
                                         {"parameter_in_range",3,0.9,1.1}
                                     }
                                 
-Add(R_HYD_TEXT_R)
+reading.add(R_HYD_TEXT_R,'F22_ENGINE_R_HYD_VALID','ceStringSLine')
 
 -------------------------------------------------------------------------CABIN PRESS SLUT
 CABIN_BOX                       = CreateElement "ceTexPoly" --top center box

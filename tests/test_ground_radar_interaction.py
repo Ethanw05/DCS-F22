@@ -43,12 +43,20 @@ assert(get('F22_AG_TRACK_REQUEST_ACTIVE')==0,'SCS press acquired before release'
 s:command('acquire',1,true,10.4)
 assert(get('F22_AG_TRACK_REQUEST_ACTIVE')==1)
 local sequence=get('F22_AG_TRACK_REQUEST_SEQUENCE')
-for k,x in pairs({VALID=1,ID=123,TYPE=2,N=18550,U=50,E=0,TIME=10.5,VN=8,VE=0})do put('F22_AG_NATIVE_TRACK_'..k,x)end
+for k,x in pairs({VALID=1,ID=123,TYPE=2,N=18550,U=50,E=0,TIME=10.5,VN=8,VU=0,VE=0,VELOCITY_VALID=1})do put('F22_AG_NATIVE_TRACK_'..k,x)end
 put('F22_AG_NATIVE_TRACK_REQUEST_SEQUENCE',sequence-1)
 s:update(pose,10.5,.05,true,true);assert(get('F22_AG_TRACK_VALID')==0,'old request response became the new target')
 put('F22_AG_NATIVE_TRACK_REQUEST_SEQUENCE',sequence)
 s:update(pose,10.55,.05,true,true)
 assert(get('F22_AG_TRACK_VALID')==1 and get('F22_AG_MODE')==3)
+assert(get('F22_AG_TRACK_MOTION_VALID')==1)
+assert(math.abs(s.last_track_point.north-18550)<1e-9,'predicted display became a fresh observation')
+local original_sequence=get('F22_AG_DESIGNATION_SEQUENCE')
+put('F22_AG_NATIVE_TRACK_MEMORY',1);s:update(pose,10.56,.01,true,true)
+assert(get('F22_AG_DESIGNATION_SEQUENCE')==original_sequence,'coasting prediction renewed designation')
+put('F22_AG_NATIVE_TRACK_VELOCITY_VALID',0);s:update(pose,10.57,.01,true,true)
+assert(get('F22_AG_TRACK_MOTION_VALID')==0,'unknown ground motion remained a healthy vector')
+
 s:command('undesignate',1,true,10.55);s:update(pose,10.6,.05,true,true)
 assert(get('F22_AG_TRACK_VALID')==0 and get('F22_AG_MODE')==2,'cached native track survived reject')
 s:command('rws',1,true,10.6);s:update(pose,10.65,.05,true,true)

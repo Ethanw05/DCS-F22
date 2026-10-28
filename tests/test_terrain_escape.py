@@ -10,7 +10,7 @@ lua.execute('''
 LockOn_Options={script_path=ROOT}
 local E=dofile(ROOT..'Systems/Terrain_Escape.lua')
 local function state()
- return {now=0,n=0,u=1200,e=0,vn=200,vu=-120,ve=0,cas=200,nz=1,heading=0,roll=math.rad(80)}
+ return {now=0,n=0,u=1200,e=0,vn=200,vu=-120,ve=0,cas=200,nz=1,heading=0,roll=math.rad(80),fcs_valid=true,fcs_fault=false}
 end
 local flat=function()return 0 end
 for _,side in ipairs({-1,1})do

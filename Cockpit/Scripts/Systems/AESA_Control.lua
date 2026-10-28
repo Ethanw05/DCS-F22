@@ -53,7 +53,9 @@ function M:read(now, pose, display)
             o.native_id, o.observed, o.age = id, time, math.max(0,now-time)
             o.north, o.altitude, o.east = n, u, e
             o.vn, o.vu, o.ve = get(p.."VN"), get(p.."VU"), get(p.."VE")
-            o.velocity_valid = get(p.."VELOCITY_VALID") == 1 and finite(o.vn) and finite(o.vu) and finite(o.ve)
+            o.association_valid = get(p.."ASSOCIATION_VALID") == 1
+            o.velocity_valid = get(p.."VELOCITY_VALID") == 1 and o.association_valid
+                and finite(o.vn) and finite(o.vu) and finite(o.ve)
             o.velocity_valid = o.velocity_valid and o.filter_valid and finite(o.velocity_sigma_mps)
                 and o.velocity_sigma_mps > 0 and o.velocity_sigma_mps <= 100
             o.measurement_source, o.iff = 2, -1
@@ -81,7 +83,7 @@ function M:state(now, computer, observations)
             and finite(o.range_sigma_m) and o.range_sigma_m > 0 then
             self.locked, self.acquiring = o.native_id, nil
         end
-        if self.locked == o.native_id and o.age <= .5 then lock = o end
+        if self.locked == o.native_id and o.age <= .5 and o.association_valid then lock = o end
     end
     if not computer.power or not self.emitting then self.locked, self.acquiring, lock = nil,nil,nil end
     if self.locked and not lock then self.locked = nil end
@@ -115,7 +117,12 @@ function M:publish(now, computer, resource, powered, surface, plan)
     put("F22_AESA_CONTROL_HALF_EL",math.rad(p and (p.hi-p.lo)/2 or computer.vertical_span/2))
     put("F22_AESA_CONTROL_RANGE",p and p.nm*1852 or computer.ranges[computer.range_index]*1852)
     put("F22_AESA_CONTROL_CUE_VALID",plan and plan.rf_cued and 1 or 0)
-    put("F22_AESA_CONTROL_CUE_AZ",plan and plan.az or 0); put("F22_AESA_CONTROL_CUE_EL",plan and plan.el or 0)
+    put("F22_AESA_CONTROL_CUE_AZ",plan and (plan.cue_az or plan.az) or 0)
+    put("F22_AESA_CONTROL_CUE_EL",plan and (plan.cue_el or plan.el) or 0)
+    put("F22_AESA_CONTROL_CUE_HALF_AZ",plan and (plan.cue_half_az or plan.half_az) or 0)
+    put("F22_AESA_CONTROL_CUE_HALF_EL",plan and (plan.cue_half_el or plan.half_el) or 0)
+    put("F22_AESA_CONTROL_CUE_REQUEST",plan and plan.cue_request or 0)
+    put("F22_AESA_CONTROL_CUE_RANGE",plan and (plan.cue_range or plan.range) or 0)
     local selected = computer.selected and computer.tracks[computer.selected]
     local focus = not surface and (self.acquiring or self.locked) or 0
     put("F22_AESA_CONTROL_FC_TARGET",focus)

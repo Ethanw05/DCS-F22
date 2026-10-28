@@ -46,7 +46,7 @@ function create_sound_host()return {create_sound=function(_,path)
  sounds[name]=s;return s
 end}end
 local function g(k)return get_param_handle(k):get()end
-dofile(SCRIPT_ROOT..'Systems/Pilot_Warning_System.lua');post_initialize()
+dofile(SCRIPT_ROOT..'Systems/Pilot_Warning_System.lua');local physical=dofile(SCRIPT_ROOT..'../../tests/warning_physical_fixture.lua')();update=physical:wrap(update);SetCommand=physical:wrap(SetCommand);post_initialize()
 get_param_handle('MAIN_POWER'):set(1);get_param_handle('EFM_WEIGHT_ON_WHEELS'):set(1)
 local expected={'pull_up','roll_left','roll_right','altitude','flight_controls','caution','terrain'}
 -- Run the entire actual owner's test twice, reusing every sound source.

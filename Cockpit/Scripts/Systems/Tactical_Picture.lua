@@ -74,8 +74,12 @@ function M.new(get, put, sensors)
 					range = get(p .. "RANGE"),
 					measured_range = get(p .. "MEASURED_RANGE"),
 					quality = get(p .. "QUALITY"),
+                    n=get(p..'POSITION_VALID')==1 and get(p..'N') or nil,
+                    u=get(p..'U'),e=get(p..'E'),vn=get(p..'VN'),vu=get(p..'VU'),ve=get(p..'VE'),
                     measurement_source = get(p .. 'MEASUREMENT_SOURCE'),
 					selected = get(p .. "SELECTED") > 0.5,
+                    identity_known=get(p..'IDENTITY_KNOWN')==1,
+                    identity_time=get(p..'IDENTITY_KNOWN')==1 and get(p..'IDENTITY_TIME') or nil,
 					friendly = get(p .. "FRIENDLY") > 0.5,
 					hostile = get(p .. "HOSTILE") > 0.5,
 				}

@@ -12,6 +12,12 @@ local M = { definitions = {
 local function finite(value)
     return type(value) == 'number' and value == value and math.abs(value) < 1e9
 end
+local function condition_at(conditions, index)
+    if type(conditions)~='table' then return end
+    local condition=conditions[index]
+    if type(condition)~='table' or type(condition.valid)~='boolean' or type(condition.active)~='boolean' then return end
+    return condition
+end
 function M.new()
     local registry = { records = {}, occurrence = 0, active = 0, unknown = 0, attention = 0 }
     for index, definition in ipairs(M.definitions) do
@@ -22,7 +28,7 @@ function M.new()
         if not finite(now) then return end
         self.active, self.unknown, self.attention, self.first = 0, 0, 0, nil
         for index = 1, #M.definitions do
-            local record, condition = self.records[index], conditions[index]
+            local record, condition = self.records[index], condition_at(conditions,index)
             local valid = condition and condition.valid == true
             if valid then
                 local active = condition.active == true
