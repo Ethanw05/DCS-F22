@@ -8,7 +8,7 @@ import argparse
 import json
 import math
 import re
-import runpy
+import sys
 import xml.etree.ElementTree as ET
 from PIL import Image, ImageDraw, ImageFont
 
@@ -19,7 +19,8 @@ parser.add_argument('--navigation', action='store_true',help='Render navigation 
 parser.add_argument('--radar', action='store_true',help='Add explicitly synthetic radar/weapon sensor fixtures')
 args = parser.parse_args()
 args.output.mkdir(parents=True, exist_ok=True)
-runtime = runpy.run_path(str(ROOT/'tests/test_display_startup.py'))['runtime']
+sys.path.insert(0, str(ROOT/'tests'))
+from cockpit_fixture import runtime
 lua = runtime()
 lua.execute('dofile(SCRIPT_ROOT.."HUD/page.lua")')
 layout=lua.execute('return dofile(SCRIPT_ROOT.."HUD/layout.lua")')

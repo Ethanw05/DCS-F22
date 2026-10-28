@@ -170,9 +170,11 @@ end
 local counter_x=0.62
 dial(-counter_x,0.02,0.085,"HUD_CAS","HUD_IAS_POINTER")
 dial(counter_x,0.02,0.115,"HUD_ALT_FT","HUD_ALT_POINTER","HUD_ALT_DATA","HUD_NO_ALT_DATA")
-label(counter_x,-.16,'HUD_ALT_SOURCE_TEXT','%s',.020)
+-- Reserve separate right-column rows for source, pressure and flight data.
+-- Centering BARO between VV and radar altitude made their glyphs overlap.
+label(.72,-.16,'HUD_ALT_SOURCE_TEXT','%s',.020,nil,'RightCenter')
 group('HUD_PRESSURE_CONFIRM',0,0,{'HUD_QNH_VISIBLE'},{{'parameter_in_range',0,.9,1.1}})
-label(counter_x,-.21,'F22_ALT_DISPLAY_TEXT','%s',.018,'HUD_PRESSURE_CONFIRM')
+label(.72,-.21,'F22_ALT_DISPLAY_TEXT','%s',.018,'HUD_PRESSURE_CONFIRM','RightCenter')
 
 -- Geometric attitude reference: moves in pitch, rotates as aircraft rolls.
 -- Every conformal cue shares the fixed nose-reference origin.
@@ -318,11 +320,11 @@ label(left_edge,-0.196,"MACH","M %.2f",0.021,nil,"LeftCenter")
 label(left_edge,-0.288,"GFORCE","G %.1f",0.021,nil,"LeftCenter")
 label(left_edge,-0.326,"HUD_AOA_DEG","A %.1f",0.021,nil,"LeftCenter")
 label(left_edge,-0.402,"HUD_G_MAX","%.1f",0.021,nil,"LeftCenter")
-label(right_edge,-0.140,"VV","VV %.0f",0.021,nil,"RightCenter")
-label(right_edge,-0.174,"RADALT","R %.0f",0.021,nil,"RightCenter")
+label(right_edge,-0.260,"VV","VV %.0f",0.021,nil,"RightCenter")
+label(right_edge,-0.310,"RADALT","R %.0f",0.021,nil,"RightCenter")
 group("HUD_NAV_INFO",0,0,{"HUD_MODE"},{{"parameter_in_range",0,.9,1.1}})
-label(right_edge,-0.242,"HUD_WP_INFO","%s",0.021,"HUD_NAV_INFO","RightCenter")
-label(right_edge,-0.310,"HUD_WP_TTG_TEXT","TTG %s",0.021,"HUD_NAV_INFO","RightCenter")
+label(right_edge,-0.420,"HUD_WP_INFO","%s",0.021,"HUD_NAV_INFO","RightCenter")
+label(right_edge,-0.470,"HUD_WP_TTG_TEXT","TTG %s",0.021,"HUD_NAV_INFO","RightCenter")
 
 -- Signed vertical-speed arc around the altitude instrument.
 for _,sign in ipairs({-1,1}) do
