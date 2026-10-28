@@ -4,7 +4,7 @@ local M={labels=caps.labels,short_labels=caps.short_labels,
  limits={quantity=8,interval_min_ms=50,interval_max_ms=2000,spacing_min_ft=10,spacing_max_ft=9999}}
 function M.new()
  return setmetatable({groups={},profiles={},profile_indices={},targets={},missions={},mission_slots={},mission_modes={},
-  stations={},inventory_expectations={},target_sequence=0,service_sequence=0}, {__index=M})
+  stations={},inventory_expectations={},history={},target_sequence=0,service_sequence=0}, {__index=M})
 end
 local function valid_count(value)
  return type(value)=='number' and value>=0 and value<=128 and value%1==0
@@ -66,6 +66,10 @@ function M:profile()
  return p
 end
 function M:refresh(infos)
+ -- Normalize host records before any target, grouping or release consumer.
+ local admitted={}
+ for station=0,10 do admitted[station]=caps.station(infos[station]) end
+ infos=admitted
  self:observe_stations(infos)
  local groups,by={},{ };self.infos=infos
  for station,target in pairs(self.targets)do local info=infos[station];if info and (caps.key(info)~=target.key or (info.count or 0)<=0)then self.targets[station]=nil end end
@@ -78,6 +82,7 @@ function M:refresh(infos)
  end
  self.groups=groups
  if not by[self.selected] and not self.program then self.selected=groups[1] and groups[1].key or nil end
+ return infos
 end
 function M:ready_count()
  local g=self:group();if not g or not g.supported then return 0 end
@@ -183,11 +188,14 @@ function M:released(now,impact)
 end
 function M:request(station,info,now,impact,sequence)
  if not finite(now)or not finite(station)or station%1~=0 or station<0 or station>10
-  or not info or not valid_count(info.count)or info.count<1
+  or not caps.station(info)or info.count<1
   or sequence~=nil and (not finite(sequence)or sequence<0 or sequence%1~=0)then return false end
  if not self.program or self.pending or not info or not self:station_ready(station)then return false end
  self.pending={station=station,count=info.count,key=caps.key(info),generation=self:generation(station),
   type4=(info.weapon or {}).level4 or 0,time=now,impact=impact,sequence=sequence or 0}
+ self.pending.outcome='pending'
+ self.history[station]=self.pending -- At most one most recent request per station.
+ self.last_outcome=self.pending
  return true
 end
 function M:station_ready(station)
@@ -211,6 +219,7 @@ function M:acknowledge(infos,now,shot)
   -- that station so its delayed decrement cannot acknowledge a second shot.
   if native and not inventory then self.inventory_expectations[q.station]={key=q.key,count=q.count-1}end
   q.evidence=2;q.native_id=shot.id;q.native_sequence=shot.sequence;q.native_time=shot.time
+  q.outcome='confirmed'
   self.pending=nil;return true,self:released(now,q.impact),q
  end
  return nil
@@ -222,7 +231,22 @@ function M:unconfirmed()
 end
 function M:retain_unconfirmed()
  local q=self.pending
- if q then self.inventory_expectations[q.station]={key=q.key,count=q.count-1,unconfirmed=true}end
+ if q then
+  q.outcome='unresolved'
+  self.inventory_expectations[q.station]={key=q.key,count=q.count-1,unconfirmed=true}
+ end
+end
+function M:reconcile(shot,now)
+ if type(shot)~='table' or not finite(now) then return false end
+ local request=self.history[shot.station]
+ if not request or request.outcome~='unresolved'
+  or not shot_matches(shot,request,now) then return false end
+ request.outcome='late_confirmed'
+ request.evidence=2
+ request.native_id,request.native_sequence,request.native_time=shot.id,shot.sequence,shot.time
+ self.last_outcome=request
+ -- Reconcile history only. No release program, consent or new ACK is created.
+ return true
 end
 function M:fail_request()self:retain_unconfirmed();self.pending=nil;self.program=nil;self.failed=true end
 function M:begin_entry(field)

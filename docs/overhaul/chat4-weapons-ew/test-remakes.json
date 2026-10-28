@@ -1,0 +1,58 @@
+[
+  {
+    "path": "tests/test_weapon_transactions.py",
+    "deleted_sha256": "926782bb7b8e95fd127b1f7d192409b676dfaa5e48136ec4a4506a2b3493a174",
+    "replacement": "tests/cases/test_weapon_release.py",
+    "requirements": [
+      "R-WPN-001"
+    ],
+    "status": "deleted; independent replacement under construction"
+  },
+  {
+    "path": "tests/test_weapon_hud_selection.py",
+    "deleted_sha256": "970b6805f34369c329efb25dbf5244af7b31c844092400d8bed510ff381a9cb2",
+    "replacement": "tests/cases/test_weapon_release.py",
+    "requirements": [
+      "R-WPN-001"
+    ],
+    "status": "deleted; independent replacement under construction"
+  },
+  {
+    "path": "tests/test_ew_backend_lifecycle.py",
+    "deleted_sha256": "88cfbef09ba8bd61f7b5772160b46f79b03ec393222b9b1a5faf6f20dabef5b4",
+    "replacement": "tests/cases/test_cm_lifecycle.py",
+    "requirements": [
+      "R-WPN-003"
+    ],
+    "status": "deleted; replacement under construction"
+  },
+  {
+    "path": "tests/test_ew_controls.py",
+    "deleted_sha256": "71261511258d814e2ae58f8dc04fbcab30b55c8d2f6771a2bbe9e454ec26e384",
+    "replacement": "tests/cases/test_cm_lifecycle.py",
+    "requirements": [
+      "R-WPN-003"
+    ],
+    "status": "deleted; replacement under construction"
+  },
+  {
+    "path": "tests/test_ew_programs.py",
+    "deleted_sha256": "7babea2b14c52da01f82fd4298b1b01e1f2e8536aaf17658e2419876c43cb135",
+    "replacement": "tests/cases/test_cm_lifecycle.py",
+    "requirements": [
+      "R-WPN-003"
+    ],
+    "status": "deleted; replacement under construction"
+  },
+  {
+    "path": "tests/test_store_registration.py",
+    "deleted_sha256": "adf69db27476a6f1ecff35d93e0a538ae14875db168b5be5639058a1fd9c5fe1",
+    "replacement": "tests/cases/test_store_profile.py",
+    "requirements": [
+      "R-WPN-007",
+      "R-REG-001",
+      "R-REG-002"
+    ],
+    "status": "deleted; independent replacement under construction"
+  }
+]

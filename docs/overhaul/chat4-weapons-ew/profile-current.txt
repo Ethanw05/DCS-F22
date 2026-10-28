@@ -1,0 +1,9 @@
+test_each_optional_family_is_selected_off_and_cannot_release (test_store_profile.StoreProfile.test_each_optional_family_is_selected_off_and_cannot_release) ... ok
+test_legacy_mission_alias_has_no_bomb_delivery_authority (test_store_profile.StoreProfile.test_legacy_mission_alias_has_no_bomb_delivery_authority) ... ok
+test_optional_presets_are_labelled_without_changing_mission_names (test_store_profile.StoreProfile.test_optional_presets_are_labelled_without_changing_mission_names) ... ok
+test_supplied_ferry_uses_only_the_registered_sensor_station (test_store_profile.StoreProfile.test_supplied_ferry_uses_only_the_registered_sensor_station) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.005s
+
+OK

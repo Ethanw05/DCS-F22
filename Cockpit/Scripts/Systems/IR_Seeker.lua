@@ -1,12 +1,13 @@
 -- GPL-3.0-or-later. Capability classification is separate from launch identity.
 -- Hornet reference: FA18C 31B000/31C6A0, documented in the research notes.
 local M={}
+local Stores=dofile(LockOn_Options.script_path..'Systems/Store_Capabilities.lua')
 local Frames=dofile(LockOn_Options.script_path..'Systems/Gun_Frames.lua')
 local Feedback=dofile(LockOn_Options.script_path..'Systems/IR_Feedback.lua')
 local aim9x={['{5CE2FF2A-645A-4197-B48D-8720AC69394F}']=true,
     ['{AIM9X-BLKII}']=true,['{LAU_115_2xAIM9X-II}']=true,['{LAU_115_2xAIM9X-II}}']=true}
 function M.profile(info)
-    if not info or (info.count or 0)<=0 then return 0 end
+    if not Stores.station(info) or info.count<=0 then return 0 end
     local w=info.weapon or {}
     return (w.level4==136 or aim9x[info.CLSID or info.clsid or '']) and 1 or 0
 end

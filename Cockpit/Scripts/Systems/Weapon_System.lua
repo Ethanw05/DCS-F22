@@ -224,7 +224,12 @@ local ag_program_station=-1
 local station_refresh=0
 local last_native_diagnostic=nil
 local diagnostic_clock=0;local next_diagnostic=0;local next_telemetry=0;local next_missile_diag=0
-local function native_command(c) dispatch_action(devices.WEAPON_NATIVE,c,1) end
+local function native_command(command)
+    if type(dispatch_action)~='function' then return false end
+    local ok,result=pcall(dispatch_action,devices.WEAPON_NATIVE,command,1)
+    return ok and result~=false
+end
+local withdraw_native
 local function publish_control_state()
     parameters.MASTER_ARM:set(master_arm_state)
     physical_outputs.OWNER:set(physical_supply.owned and 1 or 0)
@@ -313,6 +318,9 @@ local function publish_stores()
   or not g.supported and 8 or p.quantity>g.count and 3 or p.quantity%p.pair~=0 and 9
   or not store_caps.mode_available(g,p.mode)and 4 or 5
  local text={[1]='RELEASING',[2]='NO STORE',[3]='QTY EXCEEDS LOAD',[4]='MODE UNAVAILABLE',[5]='PROGRAM SET',[6]='RELEASE PENDING',[7]='RELEASE UNCONFIRMED',[8]='WPN UNAVAIL',[9]='CHECK PAIR QTY'}
+ if status==7 and ag_stores.last_outcome and ag_stores.last_outcome.outcome=='late_confirmed' then
+  text[7]='LATE RELEASE CONFIRMED'
+ end
  put('STATUS',status);put('STATUS_TEXT',text[status]);put('AVAILABLE',g and g.count or 0)
  put('READY_COUNT',ag_stores:ready_count());put('FUZE_PROGRAMMABLE',0);put('SELECTED_INDEX',g and g.index or 0);put('QUANTITY',p.quantity)
  put('INTERVAL_MS',p.interval*1000);put('INTERVAL_MODE',p.interval_mode);put('SPACING_FT',p.spacing_ft)
@@ -353,6 +361,12 @@ local function newest_ground_shot(pending)
  return best
 end
 local function acknowledge_release(now)
+ for station=0,10 do
+  local request=ag_stores.history[station]
+  if request and request.outcome=='unresolved' then
+   ag_stores:reconcile(newest_ground_shot(request),now)
+  end
+ end
  local accepted,complete,q=ag_stores:acknowledge(station_infos,now,newest_ground_shot(ag_stores.pending))
  if accepted==nil then return end
  if accepted then
@@ -370,15 +384,20 @@ local function active_bay(ground_contact, station, manual_selection)
     return 2
 end
 local function choose_station(native,step)
+    if not native_ready or not native or type(native.select_station)~='function' then
+        withdraw_native()
+        return false
+    end
     local eligible={};local total=0;local infos={}
+    local reads=0
     for i=0,10 do
         local ok,info=pcall(function() return native:get_station_info(i) end)
-        if ok then infos[i]=info end
+        if ok then reads=reads+1;infos[i]=info end
     end
+    if reads==0 then withdraw_native();return false end
+    infos=ag_stores:refresh(infos)
     station_infos=infos
     vehicle_inventory_stamp = physical_supply.valid and physical_supply.stamp or -1
-    ag_stores:refresh(infos)
-    acknowledge_release(type(get_model_time)=='function'and get_model_time()or diagnostic_clock)
     local group=ag_stores:group()
     for i=0,10 do local info=infos[i]
         local kind=store_kind(info)
@@ -398,8 +417,11 @@ local function choose_station(native,step)
     if mode_state==5 or mode_state==1 or (mode_state==7 and ag_submode==1)then next_station=-1 end
     if selected_station~=next_station then
         if mode_state==7 then get_param_handle('F22_AG_SOLUTION_VALID'):set(0) end
-        native:select_station(next_station);selected_station=next_station
+        local ok,result=pcall(native.select_station,native,next_station)
+        if not ok or result==false or result==0 then withdraw_native();return false end
+        selected_station=next_station
     end
+    acknowledge_release(type(get_model_time)=='function'and get_model_time()or diagnostic_clock)
     if mode_state==7 and selected_station>=0 then ag_program_station=selected_station end
     get_param_handle('F22_WEAPON_STATION'):set(selected_station)
     local info=infos[selected_station];local w=info and info.weapon or {}
@@ -427,6 +449,7 @@ local function choose_station(native,step)
     get_param_handle('F22_SMS_STORE_GENERATION_VALID'):set(0)
     for level=1,4 do get_param_handle('F22_IR_TYPE'..level):set(w['level'..level] or 0) end
     get_param_handle('F22_IR_AIM9X_PROFILE'):set(mode_state==3 and ir_seeker_module.profile(info) or 0)
+    return true
 end
 -- Declare a complete invalid/empty display snapshot before indicators bind.
 publish_stores()
@@ -485,6 +508,32 @@ local function cancel_release()
     native_pickle_active, gun_command_active = false, false
     get_param_handle('F22_IR_RELEASE_REQUEST'):set(0)
     publish_control_state()
+end
+withdraw_native=function()
+    if ag_stores.pending then ag_stores:fail_request() end
+    cancel_release()
+    native_ready=false
+    selected_station,station_refresh=-1,0
+    station_infos=ag_stores:refresh({})
+    vehicle_inventory_stamp=-1
+    if native_arm then native_command(283);native_arm=false end
+    for _,name in ipairs({'F22_WEAPON_BACKEND_READY','F22_WEAPON_SELECTED_VALID',
+        'F22_WEAPON_SUPPORTED','F22_WEAPON_COUNT','F22_WEAPON_CATEGORY_COUNT',
+        'F22_AG_SOLUTION_VALID','F22_AG_GUIDANCE_CACHE_VALID','F22_IR_EXPOSURE_VALID',
+        'F22_IR_EXPOSED','F22_IR_RELEASE_REQUEST'}) do get_param_handle(name):set(0) end
+    get_param_handle('F22_WEAPON_STATION'):set(-1)
+    get_param_handle('F22_WEAPON_NAME'):set('')
+    publish_stores()
+end
+local function native_device()
+    local ok,native=false,nil
+    if type(GetDevice)=='function' then ok,native=pcall(GetDevice,devices.WEAPON_NATIVE) end
+    local shape=type(native)=='table' or type(native)=='userdata'
+    native_ready=ok and shape and type(native.get_station_info)=='function'
+        and type(native.select_station)=='function' or false
+    if not native_ready then withdraw_native() end
+    get_param_handle('F22_WEAPON_BACKEND_READY'):set(native_ready and 1 or 0)
+    return native_ready and native or nil
 end
 local function withdraw_physical_consent()
     if weapon_release_state == 1 or fire_z_weapons == 1 or first_state == 1
@@ -551,7 +600,7 @@ local function correlated_commit(sequence)
 end
 ------------------------------------------------------------------FUNCTION-SETCOMMAND---------------------------------------------------------------------------------------------------
 local function handle_command(command,value)
-    local trigger_permitted = not ag_stores.servicing and physical_supply.mission
+    local trigger_permitted = native_ready and not ag_stores.servicing and physical_supply.mission
         and master_arm_state == 1 and parameters.WoW:get() < .5
     if trigger_input:input(command, value, trigger_permitted) then
         first_state, fire_z_weapons = trigger_input:state()
@@ -750,7 +799,8 @@ end
         -- backwards-compatible toggle for a legacy action with no value.
         local requested = (value == nil) and (weapon_release_state == 0)
             or (value ~= nil and value > 0)
-        local permitted = master_arm_state == 1 and
+        if not requested then pickle_consumed=false end
+        local permitted = native_ready and not pickle_consumed and master_arm_state == 1 and
             physical_supply.mission and
             parameters.WoW:get() < 0.5
         weapon_release_state = (requested and permitted) and 1 or 0
@@ -761,10 +811,14 @@ end
 end
 function SetCommand(command,value)
     refresh_physical_supply()
+    native_device()
+    if not native_ready and (command==10803 or command==10026)
+        and (value==nil or value>0) then pickle_consumed=true end
     handle_command(command,value)
     -- A press received while unavailable must not survive even if power
     -- returns before the next update callback.
     if not physical_supply.mission then withdraw_physical_consent() end
+    if not native_ready then withdraw_native() end
     -- Cancellation and SAFE must reach the native callback guard within this
     -- input call, rather than leaving old consent/arm visible for 20 ms.
     if master_arm_state==0 and (weapon_release_state==1 or ag_stores.program
@@ -787,10 +841,7 @@ function update()
             r('F22_LAUNCH_SEQUENCE'),r('F22_SHOT_01_ID'),r('F22_SHOT_01_TARGET'),r('F22_SHOT_01_MODE'),r('F22_SHOT_01_ALIVE'),r('F22_SHOT_01_ACTIVE'),
             r('F22_SHOT_01_ACTIVE_RANGE'),r('F22_SHOT_01_N'),r('F22_SHOT_01_U'),r('F22_SHOT_01_E'))) end
     end
-    local ok,native=false,nil
-    if GetDevice then ok,native=pcall(GetDevice,devices.WEAPON_NATIVE) end
-    native_ready=ok and native and type(native.get_station_info)=='function' or false
-    get_param_handle('F22_WEAPON_BACKEND_READY'):set(native_ready and 1 or 0)
+    local native=native_device()
     local native_permitted=not ag_stores.servicing and native_ready
         and master_arm_state==1 and physical_supply.mission and parameters.WoW:get()<.5
     if native_arm~=native_permitted then native_command(283);native_arm=native_permitted end
@@ -852,7 +903,7 @@ function update()
     get_param_handle('HUD_IR_SEEKER_EL'):set(ir_el and math.atan2(math.sin(ir_el),math.cos(ir_el)*math.cos(ir_az)) or 0)
     -- Interlock all locally dispatched weapon requests on ground, power loss,
     -- and master-arm loss. Do not confuse gear-down with weight-on-wheels.
-    local ready_to_release = not ag_stores.servicing and master_arm_state == 1
+    local ready_to_release = native_ready and not ag_stores.servicing and master_arm_state == 1
         and physical_supply.mission
         and parameters.WoW:get() < 0.5
     if not ready_to_release then
@@ -943,7 +994,7 @@ function update()
     get_param_handle('F22_IR_EXPOSURE_TIME'):set(exposure_time)
     -- Native clear-ray origin, not recovered launcher geometry.
     get_param_handle('F22_IR_APERTURE_APPROXIMATION'):set(1)
-    local canCommandNativePickle = not ag_stores.servicing and missionPower and not groundContact
+    local canCommandNativePickle = native_ready and not ag_stores.servicing and missionPower and not groundContact
         and master_arm_state == 1 and weapon_release_state == 1
         and chosenBayReady and selected_station>=0 and mode_state ~= 5 and mode_state ~= 1
         and get_param_handle('F22_WEAPON_SUPPORTED'):get()>.5
@@ -962,7 +1013,7 @@ function update()
             ag_stores:cancel();weapon_release_state=0;pickle_pos=0;pickle_consumed=true
         end
         local now=type(get_model_time)=='function'and get_model_time()or diagnostic_clock
-        if ag_stores.pending then choose_station(native,false)end
+        if ag_stores.pending and native_ready then choose_station(native,false)end
         local solution_age=now-get_param_handle('F22_AG_SOLUTION_TIME'):get()
         local solution=get_param_handle('F22_AG_SOLUTION_VALID'):get()>.5
             and get_param_handle('F22_AG_SOLUTION_SCHEMA'):get()==2
@@ -997,9 +1048,9 @@ function update()
                 -- Guided permission above requires an actual native cache
                 -- acknowledgement. dispatch_action is queued, so an immediate
                 -- refresh call cannot establish readiness before launch_station.
-                local accepted=pcall(native.launch_station,native,selected_station)
-                if not accepted then ag_stores:fail_request();pickle_consumed=true;weapon_release_state=0;pickle_pos=0 end
-                station_refresh=0;choose_station(native,false)
+                local ok,result=pcall(native.launch_station,native,selected_station)
+                if not ok or result==false or result==0 then withdraw_native()
+                else station_refresh=0;choose_station(native,false) end
             end
         end
         publish_stores()

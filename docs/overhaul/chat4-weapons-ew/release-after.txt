@@ -1,0 +1,13 @@
+test_device_loss_retires_pending_and_recovery_does_not_replay (test_weapon_release.ReleaseTransactions.test_device_loss_retires_pending_and_recovery_does_not_replay) ... ok
+test_late_native_outcome_updates_history_without_restoring_consent (test_weapon_release.ReleaseTransactions.test_late_native_outcome_updates_history_without_restoring_consent) ... ok
+test_malformed_station_does_not_hide_independent_valid_station (test_weapon_release.ReleaseTransactions.test_malformed_station_does_not_hide_independent_valid_station) ... ok
+test_only_matching_native_outcome_completes (test_weapon_release.ReleaseTransactions.test_only_matching_native_outcome_completes) ... ok
+test_rearm_and_safe_cancel_before_native_outcomes (test_weapon_release.ReleaseTransactions.test_rearm_and_safe_cancel_before_native_outcomes) ... ok
+test_station_and_selection_exceptions_are_unavailable (test_weapon_release.ReleaseTransactions.test_station_and_selection_exceptions_are_unavailable) ... ok
+test_station_boundary_contract_and_ir_consumer (test_weapon_release.ReleaseTransactions.test_station_boundary_contract_and_ir_consumer) ... ok
+test_throwing_launch_is_uncertain_and_never_retried (test_weapon_release.ReleaseTransactions.test_throwing_launch_is_uncertain_and_never_retried) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.152s
+
+OK

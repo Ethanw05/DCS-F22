@@ -1,0 +1,11 @@
+test_dispatch_alone_cannot_complete_and_loss_does_not_replay (test_cm_lifecycle.Countermeasures.test_dispatch_alone_cannot_complete_and_loss_does_not_replay) ... ok
+test_draft_is_independent_of_saved_normal_and_direct_banks (test_cm_lifecycle.Countermeasures.test_draft_is_independent_of_saved_normal_and_direct_banks) ... ok
+test_man_normal_and_direct_observe_counts_and_complete (test_cm_lifecycle.Countermeasures.test_man_normal_and_direct_observe_counts_and_complete) ... ok
+test_missing_throwing_and_nonfinite_clocks_revoke_readiness (test_cm_lifecycle.Countermeasures.test_missing_throwing_and_nonfinite_clocks_revoke_readiness) ... ok
+test_rollback_and_clock_recovery_require_fresh_request (test_cm_lifecycle.Countermeasures.test_rollback_and_clock_recovery_require_fresh_request) ... ok
+test_semi_auto_remain_unavailable_without_qualified_event_provider (test_cm_lifecycle.Countermeasures.test_semi_auto_remain_unavailable_without_qualified_event_provider) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.022s
+
+OK

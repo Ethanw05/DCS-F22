@@ -1,0 +1,68 @@
+{
+  "owner": "chat4",
+  "status": "requested; not a lease grant",
+  "shared_status": "docs/overhaul/integration/STATUS.json",
+  "baseline_commit": "7513f931a8bf1016a72e8eb184a9c98074786e81",
+  "requests": [
+    {
+      "id": "weapons-release",
+      "packages": [
+        "P-WPN-001",
+        "P-WPN-003",
+        "P-WPN-007"
+      ],
+      "regions": [
+        "Weapon_System backend/selection/release retirement",
+        "Store_Capabilities station ingress",
+        "AG_Stores unresolved transactions",
+        "EW_System source/clock availability",
+        "UnitPayloads optional preset metadata"
+      ],
+      "needed_gates": [
+        "P-INT-001 adopted",
+        "P-INT-002 HARNESS_READY"
+      ],
+      "shared_changes": "No common controls/display/audio or registration/CMake edits planned. NativeGunSight calculate_ground finite-clock change is a separate P-WPN-006 region.",
+      "test_ports": [
+        "tests/host.py explicit Lua51 Host",
+        "explicit qualified physical frame and World clock",
+        "station get/select/launch errors, correlated launch publication, native CM count port"
+      ],
+      "review_required": "Domain source changes remain Chat4; native/wire/shared region and commits serialized by Chat2."
+    },
+    {
+      "id": "weapons-native",
+      "packages": [
+        "P-WPN-006",
+        "D-P-WPN-001"
+      ],
+      "regions": [
+        "NativeGunSight.cpp::calculate_ground finite clock admission",
+        "NativeDatalink.cpp::transmit/read/report/wire identity known/time/clock/epoch"
+      ],
+      "needed_gates": [
+        "HARNESS_READY",
+        "checked native read contract P-INT-008 for donor",
+        "D-P-RAD-001 complete packet admission before donor"
+      ],
+      "review_required": "Chat3 tactical packet schema; no native wire edit before accepted packet provider."
+    },
+    {
+      "id": "weapons-payload-profile",
+      "packages": [
+        "P-WPN-007"
+      ],
+      "regions": [
+        "UnitPayloads/F-22A.lua preset14 and displayName profile-only optional labels"
+      ],
+      "expected_sha256": "adf5683ddeec51babd0039f99062e8cdbdef8bae7ed6cbea643ffee0fa51e9cb",
+      "needed_gates": [
+        "HARNESS_READY satisfied"
+      ],
+      "proposed_change": "Remove only the two unregistered IRST_SENSOR_Pod rows on stations4/8 from supplied preset14; retain valid F22_IRST station6. Keep every preset name/ID and annotate displayName OPTIONAL OFF for all selected-off additional_weapons/irds presets. No F-22A.lua aircraft registration, saved missions or controls change.",
+      "status": "request; focused patch will be prepared without applying until lease"
+    }
+  ],
+  "test_ownership": "76 exact artifacts in baseline.json. Only relevant assigned artifacts will be deleted/remade per completed package, after harness readiness and immediate hash recheck. Original recordings/research preserved.",
+  "runtime_slot": "not requested yet; no simulator/install/build operations"
+}

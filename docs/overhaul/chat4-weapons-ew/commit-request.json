@@ -1,0 +1,50 @@
+{
+  "owner": "chat4",
+  "status": "READY_FOR_INTEGRATOR_COMMIT",
+  "packages": [
+    "P-WPN-001",
+    "P-WPN-003",
+    "P-WPN-007 (legacy alias withdrawal only; supplied-preset patch awaits lease)"
+  ],
+  "subject": "fix weapons release loss and CM source readiness",
+  "paths": [
+    "Cockpit/Scripts/Systems/AG_Stores.lua",
+    "Cockpit/Scripts/Systems/Store_Capabilities.lua",
+    "Cockpit/Scripts/Systems/IR_Seeker.lua",
+    "Cockpit/Scripts/Systems/Weapon_System.lua",
+    "Cockpit/Scripts/Systems/EW_System.lua",
+    "Cockpit/Scripts/Systems/Defensive_Controls.lua",
+    "tests/weapon_ports.py",
+    "tests/cases/test_weapon_release.py",
+    "tests/cases/test_cm_lifecycle.py",
+    "tests/test_weapon_transactions.py",
+    "tests/test_weapon_hud_selection.py",
+    "tests/test_ew_backend_lifecycle.py",
+    "tests/test_ew_controls.py",
+    "tests/test_ew_programs.py"
+  ],
+  "documentation_directory": "docs/overhaul/chat4-weapons-ew",
+  "current_source_hashes": {
+    "Cockpit/Scripts/Systems/AG_Stores.lua": "41b883f7b6d90d8eb86038dd274397ad2c8aad06c0565930ef9a52c168276e97",
+    "Cockpit/Scripts/Systems/Store_Capabilities.lua": "9bf6d237dd92ddf5ebdfb4f135c3145c5bf5d4f0c3933da2f7be60c2598872e6",
+    "Cockpit/Scripts/Systems/IR_Seeker.lua": "8086e5bc8df82441cea3574e66a7dffcf32b923871f72bb3ddf79721daced981",
+    "Cockpit/Scripts/Systems/Weapon_System.lua": "5ef54c34ab5e5c7510abdcd08bffcb4463a11c796acf9eb504965ef533a3751e",
+    "Cockpit/Scripts/Systems/EW_System.lua": "1ac62584e40fb51c32172034ab32014e52046d2eacf7fbaf605e4b6ea56f02ed",
+    "Cockpit/Scripts/Systems/Defensive_Controls.lua": "a491b37dbebef664950839978351384d5afb3e84bce0c7d31237b6a3f72ec6a5",
+    "tests/weapon_ports.py": "0e6a7f19ede4aa0a3dfb070d4ea48815da7bc91401659803530264eec28c6bb1",
+    "tests/cases/test_weapon_release.py": "57d747b95979a37f7a473f378e4d70e353499aef7fa2bc98dd5467169453c703",
+    "tests/cases/test_cm_lifecycle.py": "3616475f9a135faeb103d0c47675daba37a504dcbf07a4b0826c7cdb77c96302"
+  },
+  "checks": {
+    "release": "8 passing requirement tests",
+    "cm": "6 passing requirement tests",
+    "lua": "6 files compile Lua5.1; zero new pinned lint diagnostics"
+  },
+  "limits": [
+    "No matched DCS/native effects or install/runtime slot",
+    "No aircraft calibration, optics/audio/MP qualification",
+    "71 assigned legacy artifacts still await their package remakes",
+    "tests/cases/test_store_profile.py has two expected pre-fix supplied-preset failures pending payload-profile.patch lease; omit it from the first completed tranche or grant/apply patch before all-case verification."
+  ],
+  "instructions": "Only these exact paths and this own documentation directory are Chat4 completed tranche. Serialize commit; no other source/tests staged by Chat4. NativeSidewinder/common files untouched."
+}

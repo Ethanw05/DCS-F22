@@ -9,7 +9,9 @@ local function add(ids,label,kind,delivery,supported,guided)
 end
 add({'{F22-MK83-TRAINING}'},1,7,'bomb',true)
 add({'{GBU_32_V_2B}'},2,7,'bomb',true,true)
-add({'{GBU32_JDAM}'},3,7,'bomb',true,true)
+-- Preserve the saved mission alias. Its native definition is an A/A missile;
+-- it cannot claim a supported guided-bomb effect or receive release consent.
+add({'{GBU32_JDAM}'},3,7,'unsupported',false,true)
 add({'{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}'},5,3,'ir',true)
 add({'{5CE2FF2A-645A-4197-B48D-8720AC69394F}','{AIM9X-BLKII}','{LAU_115_2xAIM9X-II}','{LAU_115_2xAIM9X-II}}'},6,3,'ir',true)
 add({'{40EF17B7-F508-45de-8566-6FFECC0C1AB8}','{C8E06185-7CD6-4C90-959F-044679E90751}','{AIM-120C-7}','{AIM-120C-8}','{LAU_115_2xAIM-120C-7}','{LAU_115_2xAIM-120C-8}'},7,2,'radar',true)
@@ -20,6 +22,8 @@ add({'{MAKO_A2A_C}'},10,2,'radar',true)
 add({'{MAKO_A2G_C}'},11,7,'unsupported',false,true)
 add({'{LDTP_FUEL_Tank}','{E1F29B21-F291-4589-9FD8-3272EEC69506}'},12,nil,'fuel',false)
 add({'{F22_IRST}'},13,nil,'sensor',false)
+definitions['{F22_IRST}'].optional_equipment='irds'
+definitions['{F22_IRST}'].evidence='optional sensor carriage; player observation backend unqualified'
 add({'CATM-9M','{CATM-9M}'},15,nil,'training',false)
 for _,id in ipairs({'{AIM-260A}','{LAU_115_2xAIM-260A}','{MAKO_A2A_C}','{MAKO_A2G_C}'})do
  definitions[id].optional_equipment='additional_weapons'
@@ -38,6 +42,25 @@ identity({'{AIM-120D-3}','{LAU_115_2xAIM-120D-3}'},'AIM-120D3')
 identity({'{AIM-260A}','{LAU_115_2xAIM-260A}'},'AIM-260A')
 identity({'{MAKO_A2A_C}'},'MAKO A/A')
 identity({'{AIM9X-BLKII}','{LAU_115_2xAIM9X-II}','{LAU_115_2xAIM9X-II}}'},'AIM-9X II')
+-- One station-admission contract for native inventory and direct consumers.
+-- A zero count and absent descriptor are legitimate empty-station shapes.
+local station_strings={'CLSID','clsid','displayName','name'}
+local station_levels={'level1','level2','level3','level4'}
+function M.station(info)
+ if type(info)~='table' or type(info.count)~='number' or info.count<0
+  or info.count>128 or info.count%1~=0 then return nil end
+ if info.weapon~=nil and type(info.weapon)~='table' then return nil end
+ local weapon=info.weapon or {}
+ for level=1,4 do
+  local value=weapon[station_levels[level]]
+  if value~=nil and (type(value)~='number' or value<0 or value>4294967295
+   or value%1~=0) then return nil end
+ end
+ for _,key in ipairs(station_strings) do
+  if info[key]~=nil and type(info[key])~='string' then return nil end
+ end
+ return info
+end
 function M.key(info)
  if type(info)~='table'then return ''end
  local w=type(info.weapon)=='table'and info.weapon or {}
@@ -45,8 +68,7 @@ function M.key(info)
  return type(id)=='string'and id~=''and id or table.concat({w.level1 or 0,w.level2 or 0,w.level3 or 0,w.level4 or 0},':')
 end
 function M.describe(info)
- if type(info)~='table'or type(info.count)~='number'or info.count~=info.count
-  or info.count<=0 or info.count>128 or info.count%1~=0 then return nil end
+ if not M.station(info) or info.count<=0 then return nil end
  local key=M.key(info);local original=definitions[key];local w=info.weapon or {}
  local cap={key=key,count=info.count,type4=w.level4 or 0}
  if original then for k,v in pairs(original)do cap[k]=v end

@@ -11,7 +11,10 @@ local programs = library.new()
 local runner = dispenser.new(programs)
 local requested, applied, set_failed = false, nil, false
 local clock, next_retry, test_until = 0, 0, nil
-local clock_valid = true
+local clock_valid = false
+-- No qualified production warning-event bridge is installed. A diagnostic
+-- stimulus cannot authenticate source identity/time/generation or authorize CM.
+local event_source_ready = false
 -- 10840-10842 belong to NAV undo/designate/undesignate. DCS listeners also
 -- receive other devices' commands, so cockpit_device_id cannot isolate them.
 local direct_flare, direct_chaff, ecm_toggle = 11114, 11115, 11116
@@ -61,7 +64,9 @@ local function publish_control()
     publish('F22_CM_READY', ready and 1 or 0)
     publish('F22_CM_SELF_TEST', test_until and 1 or 0)
     publish('F22_CM_CLOCK_VALID', clock_valid and 1 or 0)
-    publish('F22_CM_AUTO_AVAILABLE', ready and 1 or 0)
+    publish('F22_CM_EVENT_SOURCE_READY', event_source_ready and 1 or 0)
+    publish('F22_CM_SEMI_AVAILABLE', ready and event_source_ready and 1 or 0)
+    publish('F22_CM_AUTO_AVAILABLE', ready and event_source_ready and 1 or 0)
     publish('F22_CM_BYPASS_INDEPENDENT', 0) -- Direct singles share MAIN_POWER.
     publish('F22_EW_SUPPLY_OWNER', supply.snapshot.owned and 1 or 0)
     publish('F22_EW_SUPPLY_VALID', supply.valid and 1 or 0)
@@ -91,7 +96,7 @@ function post_initialize()
     programs = library.new()
     runner = dispenser.new(programs)
     inventory_valid = false
-    update_clock(false)
+    update_clock()
     refresh_supply()
     for _, name in ipairs(status_outputs) do publish(name, 0) end
     publish_control()
@@ -109,8 +114,8 @@ local function cm_command(command)
     elseif command == 11109 then
         runner:revoke(); ready = false
         if clock_valid then test_until = clock + 1 end -- Game test estimate, seconds.
-    elseif command == 11110 then runner:event(ready) -- Neutral scripted event only.
-    elseif command == 11111 then runner:authorize(ready)
+    elseif command == 11110 then runner:event(ready and event_source_ready)
+    elseif command == 11111 then runner:authorize(ready and event_source_ready)
     elseif command == 11112 then runner:revoke()
     elseif command == 11113 then runner:stop()
     end
@@ -132,7 +137,7 @@ local function single(command)
     end
 end
 function SetCommand(command, value)
-    update_clock(false)
+    update_clock()
     refresh_supply()
     if command >= 10910 and command <= 10914 or command >= 11100 and command <= ecm_toggle then
         local down = decode(value, devices.EW_SYSTEM) > 0.5
@@ -141,7 +146,7 @@ function SetCommand(command, value)
         if not down or previous then return end
     elseif command ~= 357 and command ~= 358 and command ~= 136 then return
     elseif value ~= nil and value <= 0 then return end
-    if not supply.electrical then publish_control(); return end
+    if not supply.electrical or not clock_valid then publish_control(); return end
     if command >= 10910 and command <= 10914 then
         programs:command(command); publish_control()
     elseif command >= 11100 and command <= 11113 then cm_command(command)
@@ -150,15 +155,14 @@ function SetCommand(command, value)
     else single((command == 357 or command == direct_flare) and 0 or 1) end
     publish_control()
 end
-update_clock = function(advance)
+update_clock = function()
     local previous = clock
     if type(get_model_time) == 'function' then
         local ok, now = pcall(get_model_time)
         clock_valid = ok and type(now) == 'number' and now >= 0 and now < 1e9
         if clock_valid then clock = now end
     else
-        clock_valid = true
-        if advance then clock = clock + 0.05 end
+        clock_valid = false
     end
     if not clock_valid then runner:revoke(dispenser.status.fault); test_until = nil end
     if clock < previous then
@@ -217,7 +221,7 @@ local function update_ecm(device)
     publish('ECM_ARG', valid and actual and 1 or 0)
 end
 function update()
-    update_clock(true)
+    update_clock()
     refresh_supply()
     local device = native()
     local valid, chaff, flare = inventory(device)

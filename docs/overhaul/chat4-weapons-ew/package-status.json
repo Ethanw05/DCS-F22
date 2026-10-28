@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "owner": "chat4",
+  "selected_profile": "public_f22_manual_recovery@1",
+  "reviewed_head": "7513f931a8bf1016a72e8eb184a9c98074786e81",
+  "stage": "IMPLEMENTING_AFTER_HARNESS_READY",
+  "shared_gates": {
+    "P_INT_001": "ADOPTED per integrator STATUS",
+    "P_INT_002": "HARNESS_READY per integrator STATUS",
+    "P_INT_003": "safe_build_ready; runtime identity open",
+    "P_INT_008": "awaiting checked native read contract for donor migration"
+  },
+  "packages": [
+    {
+      "id": "P-WPN-001",
+      "requirements": [
+        "R-WPN-001"
+      ],
+      "findings": [
+        "F-WPN-001",
+        "F-WPN-005"
+      ],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "status": "source implemented; eight independent replacement tests pass; native/DCS qualification open",
+      "tests": "2 legacy tests deleted/remade; tests/cases/test_weapon_release.py",
+      "native_runtime": "not qualified",
+      "outcomes": {
+        "normal": "matching native record only; count alone and wrong station/type rejected",
+        "limit": "station shapes/count bounds; independent valid station retained",
+        "failure": "nil/throwing backend, select/launch exceptions/rejection retire current request",
+        "recovery": "fresh consent after reconciliation; late record updates history without current ACK"
+      }
+    },
+    {
+      "id": "P-WPN-002",
+      "requirements": [
+        "R-WPN-002",
+        "D-R-WPN-002"
+      ],
+      "findings": [
+        "F-WPN-002"
+      ],
+      "cleanup": [],
+      "dependencies": [
+        "P-FLT-002",
+        "P-INT-001",
+        "P-INT-002",
+        "P-WPN-001"
+      ],
+      "status": "waiting P-FLT-002 qualified utility/achieved-door provider; no consumer replacement applied",
+      "tests": "assigned bay/physical consumer remakes deferred until provider evidence",
+      "native_runtime": "not qualified"
+    },
+    {
+      "id": "P-WPN-003",
+      "requirements": [
+        "R-WPN-003"
+      ],
+      "findings": [
+        "F-WPN-003",
+        "F-WPN-006"
+      ],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "status": "source implemented with explicit warning-provider unavailable; six replacement tests pass; actual native CM effects open",
+      "tests": "3 legacy tests deleted/remade; tests/cases/test_cm_lifecycle.py",
+      "native_runtime": "not qualified",
+      "outcomes": {
+        "normal": "MAN/direct native count port effects and saved/draft separation",
+        "limit": "one bounded dispatcher and program input bounds retained",
+        "failure": "missing/throwing/nonfinite/negative clock unavailable; dispatch without effect never completes",
+        "recovery": "rollback/recovery cancels consent; fresh request required"
+      },
+      "event_provider": "no qualified production warning-event source; SEMI/AUTO unavailable with CM UNAV pilot control feedback"
+    },
+    {
+      "id": "P-WPN-004",
+      "requirements": [
+        "R-WPN-004",
+        "R-WPN-008",
+        "D-R-WPN-001",
+        "D-R-WPN-003"
+      ],
+      "findings": [
+        "D-WPN-001",
+        "D-WPN-003"
+      ],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "D-P-WPN-001"
+      ],
+      "status": "feasibility inspection done; IFF_PROVIDER_READY not yet declared",
+      "tests": "not deleted or run; preserve pending HARNESS_READY",
+      "native_runtime": "not qualified",
+      "backend": "matched CockpitBase exports IffTransceiver response query candidates; no qualified instance/request/reply/source-clock/lifetime adapter",
+      "evidence": "iff-host-inspection.json",
+      "blockers": [
+        "D-P-WPN-001 versioned identity chain",
+        "actual matched-host endpoint qualification or independently tested explicit unavailable provider contract"
+      ]
+    },
+    {
+      "id": "P-WPN-005",
+      "requirements": [
+        "R-WPN-005"
+      ],
+      "findings": [],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-WPN-001",
+        "P-WPN-002"
+      ],
+      "status": "waiting P-WPN-002 achieved bay contract; existing IR readiness preserved",
+      "tests": "not deleted or run; preserve pending HARNESS_READY",
+      "native_runtime": "not qualified",
+      "blockers": [
+        "qualified physical/door provider",
+        "matched loaded DLL/Lua and audible DCS result"
+      ]
+    },
+    {
+      "id": "P-WPN-006",
+      "requirements": [
+        "R-WPN-006",
+        "R-WPN-008",
+        "D-R-WPN-002"
+      ],
+      "findings": [
+        "F-WPN-007",
+        "D-WPN-002"
+      ],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "status": "finite ground-gun clock patch prepared; native region lease/caller cutover pending",
+      "tests": "not deleted or run; preserve pending HARNESS_READY",
+      "native_runtime": "not qualified",
+      "patch": "gun-clock.patch",
+      "retained": "source2 simulator-assisted 120Hz primary gun unchanged",
+      "blockers": [
+        "native read-adapter lease/checked caller migration",
+        "native finite clock replacement port",
+        "actual payload/gun threading/retirement and DCS effects"
+      ]
+    },
+    {
+      "id": "P-WPN-007",
+      "requirements": [
+        "R-REG-001",
+        "R-REG-002",
+        "R-WPN-007"
+      ],
+      "findings": [
+        "F-WPN-004",
+        "F-REG-001"
+      ],
+      "cleanup": [
+        "C-WPN-003",
+        "C-WPN-006"
+      ],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "status": "legacy alias release authority withdrawn and IRST profile tag implemented; supplied preset patch prepared pending shared lease",
+      "tests": "one assigned legacy test deleted; 4 independent profile cases; two pass after capability fix, two pending supplied preset patch",
+      "native_runtime": "not qualified",
+      "patch": "payload-profile.patch",
+      "blockers": [
+        "UnitPayloads shared lease",
+        "native selected store / AI / MP / optional backend qualification"
+      ]
+    },
+    {
+      "id": "P-WPN-008",
+      "requirements": [
+        "R-WPN-009"
+      ],
+      "findings": [],
+      "cleanup": [
+        "C-WPN-001",
+        "C-WPN-002",
+        "C-WPN-004",
+        "C-WPN-005"
+      ],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-WPN-001",
+        "P-WPN-003",
+        "P-WPN-004",
+        "P-WPN-005",
+        "P-WPN-006",
+        "P-WPN-007"
+      ],
+      "status": "6 of 76 assigned artifacts deleted/remade so far; remaining legacy artifacts excluded by independent common runner",
+      "tests": "test-remakes.json exact retirement identities",
+      "native_runtime": "not qualified",
+      "blockers": [
+        "remaining package implementations and independent remakes",
+        "native lifetime/caller cleanup proof; histories and callback cost qualification"
+      ]
+    },
+    {
+      "id": "P-WPN-009",
+      "requirements": [
+        "R-REG-003",
+        "R-WPN-004",
+        "R-WPN-007",
+        "R-WPN-008",
+        "R-WPN-009"
+      ],
+      "findings": [],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "status": "audit source coverage retained; actual deferred host/failure-ID/effect qualifications pending",
+      "tests": "not deleted or run; preserve pending HARNESS_READY",
+      "native_runtime": "not qualified",
+      "blockers": [
+        "shared host/runtime slot and matched native effects",
+        "actual eleven failure-ID applicability/physical ownership",
+        "2D/VR/MP evidence"
+      ]
+    },
+    {
+      "id": "D-P-WPN-001",
+      "requirements": [
+        "D-R-WPN-001"
+      ],
+      "findings": [
+        "D-WPN-001"
+      ],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-INT-008",
+        "D-P-RAD-001"
+      ],
+      "status": "waiting D-P-RAD-001 local tactical packet admission and checked native consumer cutover",
+      "tests": "not deleted or run; preserve pending HARNESS_READY",
+      "native_runtime": "not qualified",
+      "blockers": [
+        "D-P-RAD-001 provider packet/lease contract",
+        "P-INT-008 actual checked caller migration in leased native region",
+        "two-participant native clock/transport qualification"
+      ]
+    }
+  ],
+  "requested_regions": [
+    {
+      "path": "EFM/source/NativeGunSight.cpp",
+      "region": "calculate_ground finite clock admission",
+      "state": "proposal only; no shared edit requested yet"
+    },
+    {
+      "path": "EFM/source/NativeDatalink.cpp",
+      "region": "transmit/report/wire identity provenance",
+      "state": "depends on D-P-RAD-001 and P-INT-008"
+    },
+    {
+      "path": "EFM/source/NativeSidewinder.cpp",
+      "region": "payload lifecycle/launch outcome qualification",
+      "state": "no edit without integrator lease"
+    }
+  ],
+  "runtime_slot": "not acquired; no installation/simulator operations",
+  "build": "not invoked; current CMake output overwrites source bin"
+}

@@ -14,7 +14,9 @@ local function primary(c, get)
     c[18] = command('MUTE', 'RWR_SYSTEM', 10901)
     c[18].selected = get('F22_RWR_MUTE') > .5
     local awaiting = get('F22_CM_AWAITING_CONSENT') > .5
-    if get('F22_CM_READY') > .5 and (awaiting or get('F22_CM_MODE') == 3) then
+    if get('F22_CM_MODE') ~= 1 and get('F22_CM_AUTO_AVAILABLE') ~= 1 then
+        c[3] = {label = 'CM UNAV'}
+    elseif get('F22_CM_READY') > .5 and (awaiting or get('F22_CM_MODE') == 3) then
         if get('F22_CM_AUTHORIZED') > .5 then
             c[3] = command('REVOKE', 'EW_SYSTEM', 11112)
         else

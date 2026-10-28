@@ -1,0 +1,148 @@
+test_device_loss_retires_pending_and_recovery_does_not_replay (test_weapon_release.ReleaseTransactions.test_device_loss_retires_pending_and_recovery_does_not_replay) ... 
+  test_device_loss_retires_pending_and_recovery_does_not_replay (test_weapon_release.ReleaseTransactions.test_device_loss_retires_pending_and_recovery_does_not_replay) (failure='missing') ... ERROR
+  test_device_loss_retires_pending_and_recovery_does_not_replay (test_weapon_release.ReleaseTransactions.test_device_loss_retires_pending_and_recovery_does_not_replay) (failure='throw') ... ERROR
+test_malformed_station_does_not_hide_independent_valid_station (test_weapon_release.ReleaseTransactions.test_malformed_station_does_not_hide_independent_valid_station) ... ERROR
+test_only_matching_native_outcome_completes (test_weapon_release.ReleaseTransactions.test_only_matching_native_outcome_completes) ... FAIL
+test_station_and_selection_exceptions_are_unavailable (test_weapon_release.ReleaseTransactions.test_station_and_selection_exceptions_are_unavailable) ... 
+  test_station_and_selection_exceptions_are_unavailable (test_weapon_release.ReleaseTransactions.test_station_and_selection_exceptions_are_unavailable) (port='station_state', failure='throw') ... FAIL
+  test_station_and_selection_exceptions_are_unavailable (test_weapon_release.ReleaseTransactions.test_station_and_selection_exceptions_are_unavailable) (port='selection_state', failure='throw') ... ERROR
+  test_station_and_selection_exceptions_are_unavailable (test_weapon_release.ReleaseTransactions.test_station_and_selection_exceptions_are_unavailable) (port='selection_state', failure='reject') ... FAIL
+test_station_boundary_contract_and_ir_consumer (test_weapon_release.ReleaseTransactions.test_station_boundary_contract_and_ir_consumer) ... ERROR
+test_throwing_launch_is_uncertain_and_never_retried (test_weapon_release.ReleaseTransactions.test_throwing_launch_is_uncertain_and_never_retried) ... FAIL
+
+======================================================================
+ERROR: test_device_loss_retires_pending_and_recovery_does_not_replay (test_weapon_release.ReleaseTransactions.test_device_loss_retires_pending_and_recovery_does_not_replay) (failure='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\cases\test_weapon_release.py", line 32, in test_device_loss_retires_pending_and_recovery_does_not_replay
+    h.tick(solve=True)
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\weapon_ports.py", line 73, in tick
+    self.update()
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\host.py", line 34, in update
+    self.env.update()
+  File "lupa/lua51.pyx", line 921, in lupa.lua51._LuaObject.__call__
+  File "lupa/lua51.pyx", line 1886, in lupa.lua51.call_lua
+  File "lupa/lua51.pyx", line 1913, in lupa.lua51.execute_lua_call
+  File "lupa/lua51.pyx", line 1794, in lupa.lua51.raise_lua_error
+lupa.lua51.LuaError: ...NG\DCS-F22\Cockpit\Scripts\Systems\Weapon_System.lua:401: attempt to index local 'native' (a nil value)
+stack traceback:
+	...NG\DCS-F22\Cockpit\Scripts\Systems\Weapon_System.lua:401: in function 'choose_station'
+	...NG\DCS-F22\Cockpit\Scripts\Systems\Weapon_System.lua:965: in function <...NG\DCS-F22\Cockpit\Scripts\Systems\Weapon_System.lua:779>
+
+======================================================================
+ERROR: test_device_loss_retires_pending_and_recovery_does_not_replay (test_weapon_release.ReleaseTransactions.test_device_loss_retires_pending_and_recovery_does_not_replay) (failure='throw')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\cases\test_weapon_release.py", line 32, in test_device_loss_retires_pending_and_recovery_does_not_replay
+    h.tick(solve=True)
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\weapon_ports.py", line 73, in tick
+    self.update()
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\host.py", line 34, in update
+    self.env.update()
+  File "lupa/lua51.pyx", line 921, in lupa.lua51._LuaObject.__call__
+  File "lupa/lua51.pyx", line 1886, in lupa.lua51.call_lua
+  File "lupa/lua51.pyx", line 1913, in lupa.lua51.execute_lua_call
+  File "lupa/lua51.pyx", line 1794, in lupa.lua51.raise_lua_error
+lupa.lua51.LuaError: ...NG\DCS-F22\Cockpit\Scripts\Systems\Weapon_System.lua:401: attempt to call method 'select_station' (a nil value)
+stack traceback:
+	...NG\DCS-F22\Cockpit\Scripts\Systems\Weapon_System.lua:401: in function 'choose_station'
+	...NG\DCS-F22\Cockpit\Scripts\Systems\Weapon_System.lua:965: in function <...NG\DCS-F22\Cockpit\Scripts\Systems\Weapon_System.lua:779>
+
+======================================================================
+ERROR: test_malformed_station_does_not_hide_independent_valid_station (test_weapon_release.ReleaseTransactions.test_malformed_station_does_not_hide_independent_valid_station)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\cases\test_weapon_release.py", line 80, in test_malformed_station_does_not_hide_independent_valid_station
+    h.tick()
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\weapon_ports.py", line 73, in tick
+    self.update()
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\host.py", line 34, in update
+    self.env.update()
+  File "lupa/lua51.pyx", line 921, in lupa.lua51._LuaObject.__call__
+  File "lupa/lua51.pyx", line 1886, in lupa.lua51.call_lua
+  File "lupa/lua51.pyx", line 1913, in lupa.lua51.execute_lua_call
+  File "lupa/lua51.pyx", line 1794, in lupa.lua51.raise_lua_error
+lupa.lua51.LuaError: ...S-F22/Cockpit/Scripts/Systems/Store_Capabilities.lua:51: attempt to index local 'w' (a number value)
+stack traceback:
+	...S-F22/Cockpit/Scripts/Systems/Store_Capabilities.lua:51: in function 'describe'
+	...ODDING/DCS-F22/Cockpit/Scripts/Systems/AG_Stores.lua:72: in function 'refresh'
+	...NG\DCS-F22\Cockpit\Scripts\Systems\Weapon_System.lua:380: in function 'choose_station'
+	...NG\DCS-F22\Cockpit\Scripts\Systems\Weapon_System.lua:799: in function <...NG\DCS-F22\Cockpit\Scripts\Systems\Weapon_System.lua:779>
+
+======================================================================
+ERROR: test_station_and_selection_exceptions_are_unavailable (test_weapon_release.ReleaseTransactions.test_station_and_selection_exceptions_are_unavailable) (port='selection_state', failure='throw')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\cases\test_weapon_release.py", line 60, in test_station_and_selection_exceptions_are_unavailable
+    h.tick()
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\weapon_ports.py", line 73, in tick
+    self.update()
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\host.py", line 34, in update
+    self.env.update()
+  File "lupa/lua51.pyx", line 921, in lupa.lua51._LuaObject.__call__
+  File "lupa/lua51.pyx", line 1886, in lupa.lua51.call_lua
+  File "lupa/lua51.pyx", line 1913, in lupa.lua51.execute_lua_call
+  File "lupa/lua51.pyx", line 1794, in lupa.lua51.raise_lua_error
+lupa.lua51.LuaError: [string "..."]:23: selection service lost
+stack traceback:
+	[C]: in function 'error'
+	[string "..."]:23: in function 'select_station'
+	...NG\DCS-F22\Cockpit\Scripts\Systems\Weapon_System.lua:401: in function 'choose_station'
+	...NG\DCS-F22\Cockpit\Scripts\Systems\Weapon_System.lua:799: in function <...NG\DCS-F22\Cockpit\Scripts\Systems\Weapon_System.lua:779>
+
+======================================================================
+ERROR: test_station_boundary_contract_and_ir_consumer (test_weapon_release.ReleaseTransactions.test_station_boundary_contract_and_ir_consumer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\cases\test_weapon_release.py", line 94, in test_station_boundary_contract_and_ir_consumer
+    self.assertIsNone(h.execute('return caps.describe(bad)'))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\host.py", line 31, in execute
+    return execute(self.env, source)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "lupa/lua51.pyx", line 921, in lupa.lua51._LuaObject.__call__
+  File "lupa/lua51.pyx", line 1886, in lupa.lua51.call_lua
+  File "lupa/lua51.pyx", line 1913, in lupa.lua51.execute_lua_call
+  File "lupa/lua51.pyx", line 1794, in lupa.lua51.raise_lua_error
+lupa.lua51.LuaError: ...S-F22/Cockpit/Scripts/Systems/Store_Capabilities.lua:51: attempt to index local 'w' (a number value)
+stack traceback:
+	...S-F22/Cockpit/Scripts/Systems/Store_Capabilities.lua:51: in function <...S-F22/Cockpit/Scripts/Systems/Store_Capabilities.lua:47>
+	(tail call): ?
+	(tail call): ?
+
+======================================================================
+FAIL: test_only_matching_native_outcome_completes (test_weapon_release.ReleaseTransactions.test_only_matching_native_outcome_completes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\cases\test_weapon_release.py", line 14, in test_only_matching_native_outcome_completes
+    self.assertEqual(h.get('F22_AG_RELEASE_SEQUENCE'), 0)
+AssertionError: None != 0
+
+======================================================================
+FAIL: test_station_and_selection_exceptions_are_unavailable (test_weapon_release.ReleaseTransactions.test_station_and_selection_exceptions_are_unavailable) (port='station_state', failure='throw')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\cases\test_weapon_release.py", line 61, in test_station_and_selection_exceptions_are_unavailable
+    self.assertEqual(h.get('F22_WEAPON_BACKEND_READY'), 0)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_station_and_selection_exceptions_are_unavailable (test_weapon_release.ReleaseTransactions.test_station_and_selection_exceptions_are_unavailable) (port='selection_state', failure='reject')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\cases\test_weapon_release.py", line 61, in test_station_and_selection_exceptions_are_unavailable
+    self.assertEqual(h.get('F22_WEAPON_BACKEND_READY'), 0)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_throwing_launch_is_uncertain_and_never_retried (test_weapon_release.ReleaseTransactions.test_throwing_launch_is_uncertain_and_never_retried)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\cases\test_weapon_release.py", line 70, in test_throwing_launch_is_uncertain_and_never_retried
+    self.assertEqual(h.get('F22_SMS_RELEASE_PENDING'), 0)
+AssertionError: 1 != 0
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.074s
+
+FAILED (failures=4, errors=5)

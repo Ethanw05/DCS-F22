@@ -1,0 +1,38 @@
+[
+  {
+    "path": "Cockpit/Scripts/Systems/AG_Stores.lua",
+    "compiled_lua51": true,
+    "new_lint": [],
+    "retained_diagnostics": 12
+  },
+  {
+    "path": "Cockpit/Scripts/Systems/Store_Capabilities.lua",
+    "compiled_lua51": true,
+    "new_lint": [],
+    "retained_diagnostics": 8
+  },
+  {
+    "path": "Cockpit/Scripts/Systems/IR_Seeker.lua",
+    "compiled_lua51": true,
+    "new_lint": [],
+    "retained_diagnostics": 0
+  },
+  {
+    "path": "Cockpit/Scripts/Systems/Weapon_System.lua",
+    "compiled_lua51": true,
+    "new_lint": [],
+    "retained_diagnostics": 55
+  },
+  {
+    "path": "Cockpit/Scripts/Systems/EW_System.lua",
+    "compiled_lua51": true,
+    "new_lint": [],
+    "retained_diagnostics": 0
+  },
+  {
+    "path": "Cockpit/Scripts/Systems/Defensive_Controls.lua",
+    "compiled_lua51": true,
+    "new_lint": [],
+    "retained_diagnostics": 0
+  }
+]

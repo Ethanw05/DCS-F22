@@ -1,0 +1,52 @@
+test_each_optional_family_is_selected_off_and_cannot_release (test_store_profile.StoreProfile.test_each_optional_family_is_selected_off_and_cannot_release) ... FAIL
+test_legacy_mission_alias_has_no_bomb_delivery_authority (test_store_profile.StoreProfile.test_legacy_mission_alias_has_no_bomb_delivery_authority) ... FAIL
+test_optional_presets_are_labelled_without_changing_mission_names (test_store_profile.StoreProfile.test_optional_presets_are_labelled_without_changing_mission_names) ... FAIL
+test_supplied_ferry_uses_only_the_registered_sensor_station (test_store_profile.StoreProfile.test_supplied_ferry_uses_only_the_registered_sensor_station) ... FAIL
+
+======================================================================
+FAIL: test_each_optional_family_is_selected_off_and_cannot_release (test_store_profile.StoreProfile.test_each_optional_family_is_selected_off_and_cannot_release)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\cases\test_store_profile.py", line 30, in test_each_optional_family_is_selected_off_and_cannot_release
+    self.assertIsNotNone(option, identifier)
+AssertionError: unexpectedly None : {F22_IRST}
+
+======================================================================
+FAIL: test_legacy_mission_alias_has_no_bomb_delivery_authority (test_store_profile.StoreProfile.test_legacy_mission_alias_has_no_bomb_delivery_authority)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\cases\test_store_profile.py", line 15, in test_legacy_mission_alias_has_no_bomb_delivery_authority
+    self.assertFalse(h.env.legacy.supported)
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_optional_presets_are_labelled_without_changing_mission_names (test_store_profile.StoreProfile.test_optional_presets_are_labelled_without_changing_mission_names)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\cases\test_store_profile.py", line 51, in test_optional_presets_are_labelled_without_changing_mission_names
+    self.assertEqual('OPTIONAL OFF' in p.displayName, selected_off, p.name)
+AssertionError: False != True : 02) 2xAIM9X BLK II, 6xAIM-260
+
+======================================================================
+FAIL: test_supplied_ferry_uses_only_the_registered_sensor_station (test_store_profile.StoreProfile.test_supplied_ferry_uses_only_the_registered_sensor_station)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22\tests\cases\test_store_profile.py", line 42, in test_supplied_ferry_uses_only_the_registered_sensor_station
+    self.assertEqual(sensors, [(6, '{F22_IRST}')])
+AssertionError: Lists differ: [(8, '{IRST_SENSOR_Pod}'), (4, '{IRST_SENSOR_Pod}'), (6, '{F22_IRST}')] != [(6, '{F22_IRST}')]
+
+First differing element 0:
+(8, '{IRST_SENSOR_Pod}')
+(6, '{F22_IRST}')
+
+First list contains 2 additional elements.
+First extra element 1:
+(4, '{IRST_SENSOR_Pod}')
+
+- [(8, '{IRST_SENSOR_Pod}'), (4, '{IRST_SENSOR_Pod}'), (6, '{F22_IRST}')]
++ [(6, '{F22_IRST}')]
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.008s
+
+FAILED (failures=4)

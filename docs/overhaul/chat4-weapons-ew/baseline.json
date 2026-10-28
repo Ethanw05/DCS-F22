@@ -1,0 +1,1606 @@
+{
+  "schema_version": 1,
+  "owner": "chat4",
+  "reviewed_head": "7513f931a8bf1016a72e8eb184a9c98074786e81",
+  "branch": "main",
+  "head": "7513f931a8bf1016a72e8eb184a9c98074786e81",
+  "initial_status": "M tools/compose_ew_gauntlet.lua\n M tools/research_sar_point_targets.py\n?? Cockpit.zip\n?? EFM.zip\n?? docs/overhaul/flight-execution/\n?? docs/overhaul/integration/",
+  "files": [
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Ballistic_Computer.lua",
+      "reviewed_sha256": "1f4e2ca1aaf24efcc9048b5f43172bc246ba806f9e631c551d9246c3f87c0bf9",
+      "current_sha256": "1f4e2ca1aaf24efcc9048b5f43172bc246ba806f9e631c551d9246c3f87c0bf9",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_CCIP_Target.lua",
+      "reviewed_sha256": "954e458987490984bed2b60ca2c45592a6f41e969fa81f313645fce3d4752a15",
+      "current_sha256": "954e458987490984bed2b60ca2c45592a6f41e969fa81f313645fce3d4752a15",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Delivery.lua",
+      "reviewed_sha256": "7f250ba49ee238f48fe7c597f1b4c32a0eb6c8949cc36e73569bd75697cb0a01",
+      "current_sha256": "7f250ba49ee238f48fe7c597f1b4c32a0eb6c8949cc36e73569bd75697cb0a01",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Mark_System.lua",
+      "reviewed_sha256": "184c9fa74f9d35d35dd79d9625dc95d46a3d579fb7fb70ba262abc0201238391",
+      "current_sha256": "184c9fa74f9d35d35dd79d9625dc95d46a3d579fb7fb70ba262abc0201238391",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Release_Geometry.lua",
+      "reviewed_sha256": "41c5e5e9e95318b01b3301fd221f37960c9b0007a3a74c3d16f223eebdfee13b",
+      "current_sha256": "41c5e5e9e95318b01b3301fd221f37960c9b0007a3a74c3d16f223eebdfee13b",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Stores.lua",
+      "reviewed_sha256": "0d52b6c047ca75fa81a6c8c80eb1ba4dfd0e1f2f693752b0bee98d31310259e1",
+      "current_sha256": "0d52b6c047ca75fa81a6c8c80eb1ba4dfd0e1f2f693752b0bee98d31310259e1",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Ballistic_Point_Mass.lua",
+      "reviewed_sha256": "7b2c95b4614af2b5d0fd1dc3b7a1147b01b5846f79623a7843ea74f4b290a4fa",
+      "current_sha256": "7b2c95b4614af2b5d0fd1dc3b7a1147b01b5846f79623a7843ea74f4b290a4fa",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Combat_Commands.lua",
+      "reviewed_sha256": "04ceea9998aa2d9993ee751566e7d2af79fea3572cf9c43817a0a39c485945fd",
+      "current_sha256": "04ceea9998aa2d9993ee751566e7d2af79fea3572cf9c43817a0a39c485945fd",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Combat_Logic.lua",
+      "reviewed_sha256": "ef84e7253520d81f3c7bb07682256f1c633fcb5d48d469521d2ddb0563d30912",
+      "current_sha256": "ef84e7253520d81f3c7bb07682256f1c633fcb5d48d469521d2ddb0563d30912",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Combat_System.lua",
+      "reviewed_sha256": "040a3ce45148f31e842b985c2198458d43d86050d53254a198ed8717a046a7c3",
+      "current_sha256": "040a3ce45148f31e842b985c2198458d43d86050d53254a198ed8717a046a7c3",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Datalink_Tracks.lua",
+      "reviewed_sha256": "f7ecc0861b859228ffba9194ee6f04c1710b9145ad67a405f60fc5805f3ba141",
+      "current_sha256": "f7ecc0861b859228ffba9194ee6f04c1710b9145ad67a405f60fc5805f3ba141",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Defensive_Controls.lua",
+      "reviewed_sha256": "c63c51b4f684f7ebe01953eba9cf37284b88d46a78561cc64c09c3820d75873f",
+      "current_sha256": "c63c51b4f684f7ebe01953eba9cf37284b88d46a78561cc64c09c3820d75873f",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Defensive_Overview.lua",
+      "reviewed_sha256": "83c86da3e4c4a7931d014c6fb909398ca00c15849f662b841b24eb6646080dc0",
+      "current_sha256": "83c86da3e4c4a7931d014c6fb909398ca00c15849f662b841b24eb6646080dc0",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Donor_Selection.lua",
+      "reviewed_sha256": "24dd838e239f4588ae6504f07e613b6b3277324ccb1907d3d9a051e5a03bc4fe",
+      "current_sha256": "24dd838e239f4588ae6504f07e613b6b3277324ccb1907d3d9a051e5a03bc4fe",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/ECM_Status.lua",
+      "reviewed_sha256": "a9d6f3ec2c5b085497a94b9b08ff19709eda7669f4309ce06eb34b19f7487a96",
+      "current_sha256": "a9d6f3ec2c5b085497a94b9b08ff19709eda7669f4309ce06eb34b19f7487a96",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/EW_Defensive.lua",
+      "reviewed_sha256": "55dacb3503becf92096395edc90f540703fd57e284e84307d5bc06fcbc3a8ea2",
+      "current_sha256": "55dacb3503becf92096395edc90f540703fd57e284e84307d5bc06fcbc3a8ea2",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/EW_Dispenser.lua",
+      "reviewed_sha256": "1c38bec3a37b78b178f253d53913efc80d98a627ca29f146c801c81a92cdcc0f",
+      "current_sha256": "1c38bec3a37b78b178f253d53913efc80d98a627ca29f146c801c81a92cdcc0f",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/EW_Geolocation.lua",
+      "reviewed_sha256": "57e8c5a26c5faf6d700cb3332555d140462df657c503eef2e4a2583bd1b5eaa2",
+      "current_sha256": "57e8c5a26c5faf6d700cb3332555d140462df657c503eef2e4a2583bd1b5eaa2",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/EW_Power.lua",
+      "reviewed_sha256": "804138ac5c47af4b658f9326b34497d717190b61598a921fd6865d25d7abbc95",
+      "current_sha256": "804138ac5c47af4b658f9326b34497d717190b61598a921fd6865d25d7abbc95",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/EW_Programs.lua",
+      "reviewed_sha256": "80a1f8f7cee4743cec5b608192c61ff2842b8f1dd83fd5a0454853ce27a90ee1",
+      "current_sha256": "80a1f8f7cee4743cec5b608192c61ff2842b8f1dd83fd5a0454853ce27a90ee1",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/EW_System.lua",
+      "reviewed_sha256": "1a2f948d3be3dc9a40f6f2c412bada317d9379f698fc836ec558703dbd08edab",
+      "current_sha256": "1a2f948d3be3dc9a40f6f2c412bada317d9379f698fc836ec558703dbd08edab",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Engagement_System.lua",
+      "reviewed_sha256": "6f3ecc97597e4d03cb6b090341af07f4ef2311739e5efc580a9df0dbee29d792",
+      "current_sha256": "6f3ecc97597e4d03cb6b090341af07f4ef2311739e5efc580a9df0dbee29d792",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Equipment_Profile.lua",
+      "reviewed_sha256": "df3054e151939d32caffea7876be84cdaaa6a877a07c250417e828d9a1f610a8",
+      "current_sha256": "df3054e151939d32caffea7876be84cdaaa6a877a07c250417e828d9a1f610a8",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Gun_Cue_Stabilizer.lua",
+      "reviewed_sha256": "0dd7d375e784554c1dd171da8b67cf020adafa063d0adb36c7b2d17335eda18f",
+      "current_sha256": "0dd7d375e784554c1dd171da8b67cf020adafa063d0adb36c7b2d17335eda18f",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Gun_Director.lua",
+      "reviewed_sha256": "0234f1141761518cc7e4e76d795203c5e67d44373785bd0b2da6610ae6139987",
+      "current_sha256": "0234f1141761518cc7e4e76d795203c5e67d44373785bd0b2da6610ae6139987",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Gun_Frames.lua",
+      "reviewed_sha256": "30610797bdaee76ba53ab363d040e2767c53ded8bc63e6661bdb4996902377f3",
+      "current_sha256": "30610797bdaee76ba53ab363d040e2767c53ded8bc63e6661bdb4996902377f3",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Gun_Funnel.lua",
+      "reviewed_sha256": "8bbfd0f39a1d4563eb41bc35de6d4caac88dff584250f8fb0d3e15f1576766b5",
+      "current_sha256": "8bbfd0f39a1d4563eb41bc35de6d4caac88dff584250f8fb0d3e15f1576766b5",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Gun_Funnel_Presentation.lua",
+      "reviewed_sha256": "7255f80f514913d8cce4e138dfda00e483a19f072f2abacc36ec08063f04847e",
+      "current_sha256": "7255f80f514913d8cce4e138dfda00e483a19f072f2abacc36ec08063f04847e",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Gun_Maneuver_Observer.lua",
+      "reviewed_sha256": "eb52eafb2f7a63dbda3eadbf7d0bef89adde06aa264c986f6332be74bb857ea1",
+      "current_sha256": "eb52eafb2f7a63dbda3eadbf7d0bef89adde06aa264c986f6332be74bb857ea1",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Gun_Motion.lua",
+      "reviewed_sha256": "a5ed597f5156bc8216afea38340bb9999ff43e1212d75dd759fb74c6823b8ed3",
+      "current_sha256": "a5ed597f5156bc8216afea38340bb9999ff43e1212d75dd759fb74c6823b8ed3",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Gun_System.lua",
+      "reviewed_sha256": "81a8c23b0745e38bc5eaf224fd35e72a97d50610467c16a4c1216f1fa4dabcb3",
+      "current_sha256": "81a8c23b0745e38bc5eaf224fd35e72a97d50610467c16a4c1216f1fa4dabcb3",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/ICP_Stores_Page.lua",
+      "reviewed_sha256": "d81f98d573ca24f3f1c48bdba95cf84f380ff58ddf3c89795cdb5118d937adc2",
+      "current_sha256": "d81f98d573ca24f3f1c48bdba95cf84f380ff58ddf3c89795cdb5118d937adc2",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/IR_Audio.lua",
+      "reviewed_sha256": "442abe943097517dead6c9fa6e0109e01e8fd1c731de6b5d08bc9f63502376db",
+      "current_sha256": "442abe943097517dead6c9fa6e0109e01e8fd1c731de6b5d08bc9f63502376db",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/IR_Feedback.lua",
+      "reviewed_sha256": "541664ecacdb3d4ce914c52c4948a5d70d8950939674befaf91d72fc0e1bae9c",
+      "current_sha256": "541664ecacdb3d4ce914c52c4948a5d70d8950939674befaf91d72fc0e1bae9c",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/IR_Seeker.lua",
+      "reviewed_sha256": "7cf8cf6b67fe8daf3b16d163fadfd72cf7305f6cd38c6541f4f955b332480554",
+      "current_sha256": "7cf8cf6b67fe8daf3b16d163fadfd72cf7305f6cd38c6541f4f955b332480554",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Identification_State.lua",
+      "reviewed_sha256": "2494c492c4cb845fbf932d41c33d32d1969d1f5d837f3dd696606e0eefe43f2c",
+      "current_sha256": "2494c492c4cb845fbf932d41c33d32d1969d1f5d837f3dd696606e0eefe43f2c",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Identity_Inspection.lua",
+      "reviewed_sha256": "732d5e4b704fc17d4c8450c9887167eb646407304462fd0469fe9d9cbc22814a",
+      "current_sha256": "732d5e4b704fc17d4c8450c9887167eb646407304462fd0469fe9d9cbc22814a",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/MWS_Computer.lua",
+      "reviewed_sha256": "3d13fab4f611357033c5027dfdb226869947b6aa9a529fd8646a5e0b6782221b",
+      "current_sha256": "3d13fab4f611357033c5027dfdb226869947b6aa9a529fd8646a5e0b6782221b",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/MWS_Native.lua",
+      "reviewed_sha256": "c29da090d8f37d60a673136deff6f5a8657794e818d2d1282a4d4f59b9c79b15",
+      "current_sha256": "c29da090d8f37d60a673136deff6f5a8657794e818d2d1282a4d4f59b9c79b15",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/MWS_System.lua",
+      "reviewed_sha256": "86f48faa0f27316a34036eacd20ad0d030ca6aa1967fb016fa172ee007d47042",
+      "current_sha256": "86f48faa0f27316a34036eacd20ad0d030ca6aa1967fb016fa172ee007d47042",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/RWR_Affiliation.lua",
+      "reviewed_sha256": "497f541be431155d2f7effd6ce1f96d93a8bb0ae986dabd99a1a40f2c3555ae6",
+      "current_sha256": "497f541be431155d2f7effd6ce1f96d93a8bb0ae986dabd99a1a40f2c3555ae6",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/RWR_Audio.lua",
+      "reviewed_sha256": "00e5780e57a61b34cf82658f0896ae0a32f268a23111ee4c999a49db66a47fd3",
+      "current_sha256": "00e5780e57a61b34cf82658f0896ae0a32f268a23111ee4c999a49db66a47fd3",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/RWR_Bearings.lua",
+      "reviewed_sha256": "716bf7d680252f85f192279b62cecc003adcd64abc67a0f306273d8dac56e969",
+      "current_sha256": "716bf7d680252f85f192279b62cecc003adcd64abc67a0f306273d8dac56e969",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/RWR_Computer.lua",
+      "reviewed_sha256": "99812709a7c2c54636113ab1114ae036ac43031fab68e79be7b2e61d5dbbe9b2",
+      "current_sha256": "99812709a7c2c54636113ab1114ae036ac43031fab68e79be7b2e61d5dbbe9b2",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/RWR_Native.lua",
+      "reviewed_sha256": "f3fae5cdc1daaed04233d5e998a53009ce8617aca35dff1e06b48a6703fb824d",
+      "current_sha256": "f3fae5cdc1daaed04233d5e998a53009ce8617aca35dff1e06b48a6703fb824d",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/RWR_Proximity.lua",
+      "reviewed_sha256": "028305406c8259b848df129a9e41b2a52847d71471aa2f1cfc54e3b34d0b98ec",
+      "current_sha256": "028305406c8259b848df129a9e41b2a52847d71471aa2f1cfc54e3b34d0b98ec",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/RWR_System.lua",
+      "reviewed_sha256": "f862d42f6ea8a365200797763f465446536a32ae317d4cb397eea38aa65f52f3",
+      "current_sha256": "f862d42f6ea8a365200797763f465446536a32ae317d4cb397eea38aa65f52f3",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Tactical.lua",
+      "reviewed_sha256": "32ff9548c40f000d64bc2cb0963228c27fa4f8953a969bce99cd599e9cbc67a1",
+      "current_sha256": "32ff9548c40f000d64bc2cb0963228c27fa4f8953a969bce99cd599e9cbc67a1",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Sensor_Control.lua",
+      "reviewed_sha256": "ee50352df3b552dd14502ba52e5c5e04a04aef6a1e17467882e1ecbe489bb419",
+      "current_sha256": "ee50352df3b552dd14502ba52e5c5e04a04aef6a1e17467882e1ecbe489bb419",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Store_Capabilities.lua",
+      "reviewed_sha256": "c68aa321ae9469f6db40cfea0b27aa26b6b8e80bc86d3d99e85710ca730e2da8",
+      "current_sha256": "c68aa321ae9469f6db40cfea0b27aa26b6b8e80bc86d3d99e85710ca730e2da8",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Stores_Display.lua",
+      "reviewed_sha256": "3f693b24ba70675a306d241f724538b94212a28a91c8647f67b7b74dfe7f52c1",
+      "current_sha256": "3f693b24ba70675a306d241f724538b94212a28a91c8647f67b7b74dfe7f52c1",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Tactical_Association.lua",
+      "reviewed_sha256": "90c9ff94be31676c075a39fddb7d96249ea6212dd43872aad9595654a8286370",
+      "current_sha256": "90c9ff94be31676c075a39fddb7d96249ea6212dd43872aad9595654a8286370",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Tactical_Declutter.lua",
+      "reviewed_sha256": "eecbe0fdc24385cba6e22cf75cd4fafe2fff1f2e05c2e0b2189a39e00ca8ab8d",
+      "current_sha256": "eecbe0fdc24385cba6e22cf75cd4fafe2fff1f2e05c2e0b2189a39e00ca8ab8d",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Tactical_Identity.lua",
+      "reviewed_sha256": "96ac6621f3be588bff81e0ad11351a5bb3a1dd51fa7b29075fa93810aa3edb54",
+      "current_sha256": "96ac6621f3be588bff81e0ad11351a5bb3a1dd51fa7b29075fa93810aa3edb54",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Tactical_Picture.lua",
+      "reviewed_sha256": "954b359476f30cf259ae2b141fe605537d04e1356a8a4e32ebcbe523c9b95e9c",
+      "current_sha256": "954b359476f30cf259ae2b141fe605537d04e1356a8a4e32ebcbe523c9b95e9c",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Tactical_RF_Association.lua",
+      "reviewed_sha256": "82c8bcbab347c8bb34bca333b16c68a7d0634ab63a0be7e9d68a6aab9146edff",
+      "current_sha256": "82c8bcbab347c8bb34bca333b16c68a7d0634ab63a0be7e9d68a6aab9146edff",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Tactical_Threat.lua",
+      "reviewed_sha256": "21fda221e8ac9de387b75fb73aed58be82dcaddc55f7e62e151396e52f316e02",
+      "current_sha256": "21fda221e8ac9de387b75fb73aed58be82dcaddc55f7e62e151396e52f316e02",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Tactical_Tracks.lua",
+      "reviewed_sha256": "4d479a9da65d3db74b8e0d30963b9f8b3c4e58146e98ccd901634da36ddb0629",
+      "current_sha256": "4d479a9da65d3db74b8e0d30963b9f8b3c4e58146e98ccd901634da36ddb0629",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Vehicle_Stores_Adapter.lua",
+      "reviewed_sha256": "9137d87a4888195c0f0bf4c4518b49967307b98171afc57b5b3cef44488f4c85",
+      "current_sha256": "9137d87a4888195c0f0bf4c4518b49967307b98171afc57b5b3cef44488f4c85",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Weapon_Engagement.lua",
+      "reviewed_sha256": "236e021202cf1aeb80f89aa866be02a70c540d9761d392ac887b0148772ca5f0",
+      "current_sha256": "236e021202cf1aeb80f89aa866be02a70c540d9761d392ac887b0148772ca5f0",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Weapon_Native.lua",
+      "reviewed_sha256": "a9b3c1b330d160c4bc29800dc96552c77e54640a3f4ef8b004f63d671c6898c4",
+      "current_sha256": "a9b3c1b330d160c4bc29800dc96552c77e54640a3f4ef8b004f63d671c6898c4",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Weapon_Physical_State.lua",
+      "reviewed_sha256": "274a462326b737787373b1538d6319c91863357ce42ed8e39b4f94057a97178b",
+      "current_sha256": "274a462326b737787373b1538d6319c91863357ce42ed8e39b4f94057a97178b",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Weapon_System.lua",
+      "reviewed_sha256": "516293d3015b883ebbf0fa98963dab704dbefe88511ccddec417b5bffdb4d5f3",
+      "current_sha256": "516293d3015b883ebbf0fa98963dab704dbefe88511ccddec417b5bffdb4d5f3",
+      "matches_review": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Weapon_Trigger_Input.lua",
+      "reviewed_sha256": "f5b6f402f896dfd3833be6e7611cc8ebceb2267e2c4bf0406ea96d0e7b545304",
+      "current_sha256": "f5b6f402f896dfd3833be6e7611cc8ebceb2267e2c4bf0406ea96d0e7b545304",
+      "matches_review": true
+    },
+    {
+      "path": "EFM/source/GunIntercept.h",
+      "reviewed_sha256": "55f5446f0a18feade75b48a852822a95dc319f2f9bcc73d12f9d6e3e551d38ba",
+      "current_sha256": "55f5446f0a18feade75b48a852822a95dc319f2f9bcc73d12f9d6e3e551d38ba",
+      "matches_review": true
+    },
+    {
+      "path": "EFM/source/GunManeuver.h",
+      "reviewed_sha256": "7c8a7302913ce45bd1853ef312c1db5a3aac1650e1edf2091fc20dfb58ae0cac",
+      "current_sha256": "7c8a7302913ce45bd1853ef312c1db5a3aac1650e1edf2091fc20dfb58ae0cac",
+      "matches_review": true
+    },
+    {
+      "path": "EFM/source/GunTargetMotion.h",
+      "reviewed_sha256": "aa0531e6e9fd2798489e2e4fdb93e4b1cceb17ef3bbb39bbe072908f33dc8662",
+      "current_sha256": "aa0531e6e9fd2798489e2e4fdb93e4b1cceb17ef3bbb39bbe072908f33dc8662",
+      "matches_review": true
+    },
+    {
+      "path": "EFM/source/NativeAGWeapons.cpp",
+      "reviewed_sha256": "fb54db44b58e2fe646777a5ca28cf3528284fc74a101bc3e9e59b937927e7393",
+      "current_sha256": "fb54db44b58e2fe646777a5ca28cf3528284fc74a101bc3e9e59b937927e7393",
+      "matches_review": true
+    },
+    {
+      "path": "EFM/source/NativeContactIdentity.cpp",
+      "reviewed_sha256": "752627d76295f6706e6dffc56235ff66e415d792a0d6784ff71c78527dd98eca",
+      "current_sha256": "752627d76295f6706e6dffc56235ff66e415d792a0d6784ff71c78527dd98eca",
+      "matches_review": true
+    },
+    {
+      "path": "EFM/source/NativeDatalink.cpp",
+      "reviewed_sha256": "cfdb4b81794139cc0b5ec983728d9ac7eb0053d6325c8dabd11f8843b333e9d7",
+      "current_sha256": "cfdb4b81794139cc0b5ec983728d9ac7eb0053d6325c8dabd11f8843b333e9d7",
+      "matches_review": true
+    },
+    {
+      "path": "EFM/source/NativeDatalink.h",
+      "reviewed_sha256": "6758592084c721bcc9145f1df00c1d1fdeb0c06bdc89e481872a5cc24ff0c66a",
+      "current_sha256": "6758592084c721bcc9145f1df00c1d1fdeb0c06bdc89e481872a5cc24ff0c66a",
+      "matches_review": true
+    },
+    {
+      "path": "EFM/source/NativeGunSight.cpp",
+      "reviewed_sha256": "6c18cee665413400df6ee3053f965b8c2e2f4d462f1dc94cd7e47f062c179408",
+      "current_sha256": "6c18cee665413400df6ee3053f965b8c2e2f4d462f1dc94cd7e47f062c179408",
+      "matches_review": true
+    },
+    {
+      "path": "EFM/source/NativeMWS.cpp",
+      "reviewed_sha256": "6c4feead9e9f443fa411d88f3f738fc92f20fda95ced6f38db68680e54ae9899",
+      "current_sha256": "6c4feead9e9f443fa411d88f3f738fc92f20fda95ced6f38db68680e54ae9899",
+      "matches_review": true
+    },
+    {
+      "path": "EFM/source/NativeSidewinder.cpp",
+      "reviewed_sha256": "bfee40246d6b27180a4a84df63243df218b906b966b0bee141894bd30b262ce6",
+      "current_sha256": "bfee40246d6b27180a4a84df63243df218b906b966b0bee141894bd30b262ce6",
+      "matches_review": true
+    },
+    {
+      "path": "F-22A.lua",
+      "reviewed_sha256": "ccb122f14e28f17be47e8ef40e8f60ece45b2328d13293934fada3afc409e2f0",
+      "current_sha256": "ccb122f14e28f17be47e8ef40e8f60ece45b2328d13293934fada3afc409e2f0",
+      "matches_review": true
+    },
+    {
+      "path": "IRST Pod.lua",
+      "reviewed_sha256": "4a3b388545b48de3818606fc08eeb55091d44fdb3a2c2ad2e75796234268d674",
+      "current_sha256": "4a3b388545b48de3818606fc08eeb55091d44fdb3a2c2ad2e75796234268d674",
+      "matches_review": true
+    },
+    {
+      "path": "IRST Sensor.lua",
+      "reviewed_sha256": "1666d208605eb04bfeaf325befa0495022e7c2b700bac887e34c1f99e5ccafea",
+      "current_sha256": "1666d208605eb04bfeaf325befa0495022e7c2b700bac887e34c1f99e5ccafea",
+      "matches_review": true
+    },
+    {
+      "path": "UnitPayloads/F-22A.lua",
+      "reviewed_sha256": "adf5683ddeec51babd0039f99062e8cdbdef8bae7ed6cbea643ffee0fa51e9cb",
+      "current_sha256": "adf5683ddeec51babd0039f99062e8cdbdef8bae7ed6cbea643ffee0fa51e9cb",
+      "matches_review": true
+    },
+    {
+      "path": "Weapons.lua",
+      "reviewed_sha256": "56d8b0c979809b3bd8f7c069408a0f184b25527397eb002b1a85f2458ace7a53",
+      "current_sha256": "56d8b0c979809b3bd8f7c069408a0f184b25527397eb002b1a85f2458ace7a53",
+      "matches_review": true
+    },
+    {
+      "path": "Weapons/AG_Training.lua",
+      "reviewed_sha256": "19982de902945c9482cc0132d7369a864f2006f2fdc1b865e2b02664a0c2a8ba",
+      "current_sha256": "19982de902945c9482cc0132d7369a864f2006f2fdc1b865e2b02664a0c2a8ba",
+      "matches_review": true
+    },
+    {
+      "path": "Weapons/AIM_120_C7.lua",
+      "reviewed_sha256": "ab21a1ef311e1497c14c5587c888548c68b8dbaee2370692d10466518adca63c",
+      "current_sha256": "ab21a1ef311e1497c14c5587c888548c68b8dbaee2370692d10466518adca63c",
+      "matches_review": true
+    },
+    {
+      "path": "Weapons/AIM_120_C8.lua",
+      "reviewed_sha256": "38dd6f241cd6d4642333bb612b6527abafec1f67669f1551fca7334ad95736a2",
+      "current_sha256": "38dd6f241cd6d4642333bb612b6527abafec1f67669f1551fca7334ad95736a2",
+      "matches_review": true
+    },
+    {
+      "path": "Weapons/AIM_120_D3.lua",
+      "reviewed_sha256": "b726aec5a58044806e48c261d1a466496c3f9727fc523511e01b666dc9eaf64b",
+      "current_sha256": "b726aec5a58044806e48c261d1a466496c3f9727fc523511e01b666dc9eaf64b",
+      "matches_review": true
+    },
+    {
+      "path": "Weapons/AIM_260A.lua",
+      "reviewed_sha256": "15f515b4405f6ad2a610cd91f6f49f9b9d9355d39fbe6828066c996f0d86ddea",
+      "current_sha256": "15f515b4405f6ad2a610cd91f6f49f9b9d9355d39fbe6828066c996f0d86ddea",
+      "matches_review": true
+    },
+    {
+      "path": "Weapons/AIM_9X_BLKII.lua",
+      "reviewed_sha256": "c403ccf06e3f96cdac85c980c7a40a6297194d40d163d0d8ea21b07d800cae5d",
+      "current_sha256": "c403ccf06e3f96cdac85c980c7a40a6297194d40d163d0d8ea21b07d800cae5d",
+      "matches_review": true
+    },
+    {
+      "path": "Weapons/GBU_32.lua",
+      "reviewed_sha256": "22d0a38b36ce5a3656cf29c2db48b405d7cab0c931de712fc97b100e6e07dae8",
+      "current_sha256": "22d0a38b36ce5a3656cf29c2db48b405d7cab0c931de712fc97b100e6e07dae8",
+      "matches_review": true
+    },
+    {
+      "path": "Weapons/MAKO_A2A_C.lua",
+      "reviewed_sha256": "7343099871b7d9a647966b5ad264fd73a55dab0491320038f0c5ab98d2f7ff02",
+      "current_sha256": "7343099871b7d9a647966b5ad264fd73a55dab0491320038f0c5ab98d2f7ff02",
+      "matches_review": true
+    },
+    {
+      "path": "Weapons/MAKO_A2G_C.lua",
+      "reviewed_sha256": "1bcb1495835823c19a2e00ad191f6712886de48eb0127c9b9e0866e94e3eeac0",
+      "current_sha256": "1bcb1495835823c19a2e00ad191f6712886de48eb0127c9b9e0866e94e3eeac0",
+      "matches_review": true
+    },
+    {
+      "path": "tests/fixtures/gun_deferred_pursuit.csv",
+      "reviewed_sha256": "3e39e921da80fd521655ea5b6bbf565dc6394a9f35eaf302eaaeb0e42a16cf91",
+      "current_sha256": "3e39e921da80fd521655ea5b6bbf565dc6394a9f35eaf302eaaeb0e42a16cf91",
+      "matches_review": true
+    },
+    {
+      "path": "tests/gun_simulation.cpp",
+      "reviewed_sha256": "f5424c2b54f5ec2517a5e852bb61e0bfe304f53c0f619a8fb54094a094c99a58",
+      "current_sha256": "f5424c2b54f5ec2517a5e852bb61e0bfe304f53c0f619a8fb54094a094c99a58",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_ag_delivery.py",
+      "reviewed_sha256": "abf5f137e0589148b76b9f105e5247c84cdda86c42bfa9a84a3fd758ec8feefa",
+      "current_sha256": "abf5f137e0589148b76b9f105e5247c84cdda86c42bfa9a84a3fd758ec8feefa",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_ag_usability.py",
+      "reviewed_sha256": "abfc77593a80e6b36460f8c9fec95d79c03e2c98ff0959f93498fcd6ff659ef4",
+      "current_sha256": "abfc77593a80e6b36460f8c9fec95d79c03e2c98ff0959f93498fcd6ff659ef4",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_ballistics.py",
+      "reviewed_sha256": "8fe455de47fc8aedb8e888dbbd5cfe4fca160c1b46c3888abec6d1a7cac33d2f",
+      "current_sha256": "8fe455de47fc8aedb8e888dbbd5cfe4fca160c1b46c3888abec6d1a7cac33d2f",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_combat_controls.py",
+      "reviewed_sha256": "f45b124ce15580bfbf831b7d3ad3894bf6c7682a849e9447508f75818d04899d",
+      "current_sha256": "f45b124ce15580bfbf831b7d3ad3894bf6c7682a849e9447508f75818d04899d",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_datalink.py",
+      "reviewed_sha256": "b56333215c60e69a57a8f407df0e08cf526cae4eac9669a3e3a720b6f7ac4448",
+      "current_sha256": "b56333215c60e69a57a8f407df0e08cf526cae4eac9669a3e3a720b6f7ac4448",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_defensive_lifecycle.py",
+      "reviewed_sha256": "1ee89b2c52395b6d13f973d544ccc6a0967a9dc94278c3d95f39221328444cd3",
+      "current_sha256": "1ee89b2c52395b6d13f973d544ccc6a0967a9dc94278c3d95f39221328444cd3",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_detected_hostile_identity.py",
+      "reviewed_sha256": "795712927747c0cf893dc4f4452ba53863c5f66e78869d08dfedcf0ab2b71fb7",
+      "current_sha256": "795712927747c0cf893dc4f4452ba53863c5f66e78869d08dfedcf0ab2b71fb7",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_ew_backend_lifecycle.py",
+      "reviewed_sha256": "88cfbef09ba8bd61f7b5772160b46f79b03ec393222b9b1a5faf6f20dabef5b4",
+      "current_sha256": "88cfbef09ba8bd61f7b5772160b46f79b03ec393222b9b1a5faf6f20dabef5b4",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_ew_controls.py",
+      "reviewed_sha256": "71261511258d814e2ae58f8dc04fbcab30b55c8d2f6771a2bbe9e454ec26e384",
+      "current_sha256": "71261511258d814e2ae58f8dc04fbcab30b55c8d2f6771a2bbe9e454ec26e384",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_ew_geolocation.py",
+      "reviewed_sha256": "cb4fc10fd7d5396ed5199aed0f4aa4b838b8719c35abd16d89b923f9b73722f8",
+      "current_sha256": "cb4fc10fd7d5396ed5199aed0f4aa4b838b8719c35abd16d89b923f9b73722f8",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_ew_geolocation_transport.py",
+      "reviewed_sha256": "c7bd91b1e0707992fb4eae4d9fe44c44bba8203644124c3cc4dcec9e16840d77",
+      "current_sha256": "c7bd91b1e0707992fb4eae4d9fe44c44bba8203644124c3cc4dcec9e16840d77",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_ew_programs.py",
+      "reviewed_sha256": "7babea2b14c52da01f82fd4298b1b01e1f2e8536aaf17658e2419876c43cb135",
+      "current_sha256": "7babea2b14c52da01f82fd4298b1b01e1f2e8536aaf17658e2419876c43cb135",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_fault_identity.py",
+      "reviewed_sha256": "d1ce745d2bf06d30abe91bc2c49fc8c686b0ad34a48914e92db73ec9578a9ba7",
+      "current_sha256": "d1ce745d2bf06d30abe91bc2c49fc8c686b0ad34a48914e92db73ec9578a9ba7",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_gun_async.py",
+      "reviewed_sha256": "3d42af454a5d996bceca9cab3d796cca48380718638c7afd110295855fc79e4a",
+      "current_sha256": "3d42af454a5d996bceca9cab3d796cca48380718638c7afd110295855fc79e4a",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_gun_coherent_velocity.py",
+      "reviewed_sha256": "63fefabeab3b36d5b697495d688893f77ef701da699bee6edb2b9505b4250989",
+      "current_sha256": "63fefabeab3b36d5b697495d688893f77ef701da699bee6edb2b9505b4250989",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_gun_cue_stabilizer.py",
+      "reviewed_sha256": "2662567b8cbb508f810e0baebc621586dc6b84142665bbbb8c36339355df5bf4",
+      "current_sha256": "2662567b8cbb508f810e0baebc621586dc6b84142665bbbb8c36339355df5bf4",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_gun_director.py",
+      "reviewed_sha256": "0450a51857bd47e8ebbb0d67be4678218ec293a14fd8ade6263b62495d3c74ae",
+      "current_sha256": "0450a51857bd47e8ebbb0d67be4678218ec293a14fd8ade6263b62495d3c74ae",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_gun_fast_response.py",
+      "reviewed_sha256": "912053412f074c832d90ae59b07851c2a46d7e3e2ac174253bdf48e792dd592e",
+      "current_sha256": "912053412f074c832d90ae59b07851c2a46d7e3e2ac174253bdf48e792dd592e",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_gun_flight_analysis.py",
+      "reviewed_sha256": "e9384c8beac3ccda2887107e7beea0da3c1c1ca4f71f4fb8dd18def1c1a94aed",
+      "current_sha256": "e9384c8beac3ccda2887107e7beea0da3c1c1ca4f71f4fb8dd18def1c1a94aed",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_gun_flight_replay.py",
+      "reviewed_sha256": "753f6144d71bbce73bd3ce4587c1fe0788d44d7f35d29921dd628c3f9af9ec71",
+      "current_sha256": "753f6144d71bbce73bd3ce4587c1fe0788d44d7f35d29921dd628c3f9af9ec71",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_gun_frames.py",
+      "reviewed_sha256": "81dd18f61cd07b5fcd769be6ec83e1244959166f7aae83fc355ea4c8d95f324f",
+      "current_sha256": "81dd18f61cd07b5fcd769be6ec83e1244959166f7aae83fc355ea4c8d95f324f",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_gun_funnel.py",
+      "reviewed_sha256": "9fabab923fd74ab37c3de0dab05dc4f35d4e7b4b68fa2fe716224a43eb09c094",
+      "current_sha256": "9fabab923fd74ab37c3de0dab05dc4f35d4e7b4b68fa2fe716224a43eb09c094",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_gun_funnel_replay.py",
+      "reviewed_sha256": "7f6680aa921521a667d671fd782aea2b25400a482536a05ac99951903ade9873",
+      "current_sha256": "7f6680aa921521a667d671fd782aea2b25400a482536a05ac99951903ade9873",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_gun_intercept.cpp",
+      "reviewed_sha256": "6083dc8fd0d8d316e6d255bd4722faee4e8034a7db9585655169bf71f079dc01",
+      "current_sha256": "6083dc8fd0d8d316e6d255bd4722faee4e8034a7db9585655169bf71f079dc01",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_gun_maneuver.cpp",
+      "reviewed_sha256": "ad163739afed288841df116b03290e7a7e0260488ac3af4b74c8f26e4f62d1cf",
+      "current_sha256": "ad163739afed288841df116b03290e7a7e0260488ac3af4b74c8f26e4f62d1cf",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_gun_maneuver_display.py",
+      "reviewed_sha256": "8a26c8196c0ea1a2cc25857f2a10b3fb22a0410a3a943484ef3d4e5b562a2513",
+      "current_sha256": "8a26c8196c0ea1a2cc25857f2a10b3fb22a0410a3a943484ef3d4e5b562a2513",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_gun_measured_cadence.py",
+      "reviewed_sha256": "6f767ee9140a8c0cdcc836d1718ff3e2c1df8ff844cc0ef069ae7ec794e40488",
+      "current_sha256": "6f767ee9140a8c0cdcc836d1718ff3e2c1df8ff844cc0ef069ae7ec794e40488",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_gun_motion_noise.py",
+      "reviewed_sha256": "6c6b843c77a6a4d5ea473629c41d705ed3645b03af2dfe0ef5eafbf694180a64",
+      "current_sha256": "6c6b843c77a6a4d5ea473629c41d705ed3645b03af2dfe0ef5eafbf694180a64",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_gun_motion_player.py",
+      "reviewed_sha256": "70b87c3545fa3a0c7a9d4aee49416288c64419179f47d84b934d55c8e9586e80",
+      "current_sha256": "70b87c3545fa3a0c7a9d4aee49416288c64419179f47d84b934d55c8e9586e80",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_gun_no_fallback.py",
+      "reviewed_sha256": "3c38fbc6e2f22668a0fe3d1d101b2bd218998ead5f607a6ee5d825604cebf6b2",
+      "current_sha256": "3c38fbc6e2f22668a0fe3d1d101b2bd218998ead5f607a6ee5d825604cebf6b2",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_gun_optical_alignment.py",
+      "reviewed_sha256": "b06736283cb6cd0673b37339661ca38c07f3b280338075771537a14d518a30fe",
+      "current_sha256": "b06736283cb6cd0673b37339661ca38c07f3b280338075771537a14d518a30fe",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_gun_packet_coherence.py",
+      "reviewed_sha256": "b5e17397fe454fd530a528d9c8c0656d2d7192fae9346d5040e5093b4e9fecfc",
+      "current_sha256": "b5e17397fe454fd530a528d9c8c0656d2d7192fae9346d5040e5093b4e9fecfc",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_gun_reticle.py",
+      "reviewed_sha256": "cbf33cab4aa823fa32ace9745244f855a617798a4c5836f09d8a17e8ba940ef8",
+      "current_sha256": "cbf33cab4aa823fa32ace9745244f855a617798a4c5836f09d8a17e8ba940ef8",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_gun_target_motion.cpp",
+      "reviewed_sha256": "45d3ba4817b17de9df3ffe3672e0baada33faff0fcd523c0a09c8dd28426f5c9",
+      "current_sha256": "45d3ba4817b17de9df3ffe3672e0baada33faff0fcd523c0a09c8dd28426f5c9",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_identity_evidence_age.py",
+      "reviewed_sha256": "2e40ae94692a2619366b8cf2f809a6b43f7c22849ee7776f367876c756d2d326",
+      "current_sha256": "2e40ae94692a2619366b8cf2f809a6b43f7c22849ee7776f367876c756d2d326",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_ir_audio.py",
+      "reviewed_sha256": "c40e332c49eb2d52db3e549301844487fe563c32d6a7e7634ec5569231b7815c",
+      "current_sha256": "c40e332c49eb2d52db3e549301844487fe563c32d6a7e7634ec5569231b7815c",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_ir_bay_owner.py",
+      "reviewed_sha256": "21d9c7f730cbba79faefc3dae0d4b4702da60a96162545cc3a2bdecbf012e346",
+      "current_sha256": "21d9c7f730cbba79faefc3dae0d4b4702da60a96162545cc3a2bdecbf012e346",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_ir_feedback.py",
+      "reviewed_sha256": "44542a6895cbc448efb7bc0eb849f11488b45f1db8613aaf29b45b8a74af8938",
+      "current_sha256": "44542a6895cbc448efb7bc0eb849f11488b45f1db8613aaf29b45b8a74af8938",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_ir_preparation.py",
+      "reviewed_sha256": "9fad2bd6091ec2a251327e9773dd29f11fa15e1ae4cd1cfd822ca9b25e6bce6a",
+      "current_sha256": "9fad2bd6091ec2a251327e9773dd29f11fa15e1ae4cd1cfd822ca9b25e6bce6a",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_ir_projection.py",
+      "reviewed_sha256": "3fce6a590826164af016200f82adef6635fea2db16166ee16c6f59960c7f770c",
+      "current_sha256": "3fce6a590826164af016200f82adef6635fea2db16166ee16c6f59960c7f770c",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_mws.py",
+      "reviewed_sha256": "9f8ec49f9615e01e2ace0d9b6f81da15be2e5a4dc220f98c41f77138a15f3c53",
+      "current_sha256": "9f8ec49f9615e01e2ace0d9b6f81da15be2e5a4dc220f98c41f77138a15f3c53",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_native_ag_weapons.cpp",
+      "reviewed_sha256": "6744aea3d0f06f2fce42cdcc3cb21bc01c16aef060e2c5ffa11c776944dfd9de",
+      "current_sha256": "6744aea3d0f06f2fce42cdcc3cb21bc01c16aef060e2c5ffa11c776944dfd9de",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_native_contact_identity.cpp",
+      "reviewed_sha256": "2018a4bd516abd556b413a9c645c8f41438f660893527fb34b8cb3222ade68c7",
+      "current_sha256": "2018a4bd516abd556b413a9c645c8f41438f660893527fb34b8cb3222ade68c7",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_native_datalink.cpp",
+      "reviewed_sha256": "fa6b90c25916eaa6ea09aaf1941b8c91dbc4fed84be4a7af2280a7f2ed3e1f7b",
+      "current_sha256": "fa6b90c25916eaa6ea09aaf1941b8c91dbc4fed84be4a7af2280a7f2ed3e1f7b",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_native_gun_adapter.cpp",
+      "reviewed_sha256": "10361ce288a7636cfe5f44b85621d5775eaaec9506745b7558259a2c843f3383",
+      "current_sha256": "10361ce288a7636cfe5f44b85621d5775eaaec9506745b7558259a2c843f3383",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_native_mws.cpp",
+      "reviewed_sha256": "3b8871b487cdb65fa5da9bf24cbd2a65033279ae4e56b1693a398314b860e91a",
+      "current_sha256": "3b8871b487cdb65fa5da9bf24cbd2a65033279ae4e56b1693a398314b860e91a",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_native_seeker.cpp",
+      "reviewed_sha256": "4bd7759efd62535d205bedda2477b58410ca353f6c250503dddfc210c720cfa6",
+      "current_sha256": "4bd7759efd62535d205bedda2477b58410ca353f6c250503dddfc210c720cfa6",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_nav_ew_isolation.py",
+      "reviewed_sha256": "59f6fb43a86f99d37fdd45e292dc1fdbf7b7c2abb75f1e2c2fb52c1154c6777e",
+      "current_sha256": "59f6fb43a86f99d37fdd45e292dc1fdbf7b7c2abb75f1e2c2fb52c1154c6777e",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_overhaul_ballistics.py",
+      "reviewed_sha256": "9839016eb66eddedf62a06094331af81f50c8fcb948d61cd4a47da20e4d3ecc7",
+      "current_sha256": "9839016eb66eddedf62a06094331af81f50c8fcb948d61cd4a47da20e4d3ecc7",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_overhaul_defensive_overview.py",
+      "reviewed_sha256": "5df47cd340fba4395d6aeefa6983ea0e2288f577254804031367377cffee9b68",
+      "current_sha256": "5df47cd340fba4395d6aeefa6983ea0e2288f577254804031367377cffee9b68",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_overhaul_stores.py",
+      "reviewed_sha256": "9f30df0cd949bfd9837cc98531e02998a64cde7c6b3157e31a5778bfd4f0e880",
+      "current_sha256": "9f30df0cd949bfd9837cc98531e02998a64cde7c6b3157e31a5778bfd4f0e880",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_overhaul_stores_actuators.py",
+      "reviewed_sha256": "4b5bc4ab269a809b1fd52a0eb0a397935382c092c28eb285d695e765c1d89508",
+      "current_sha256": "4b5bc4ab269a809b1fd52a0eb0a397935382c092c28eb285d695e765c1d89508",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_overhaul_stores_display.py",
+      "reviewed_sha256": "3f4a775f82e2951a21c522da81f2bff268e5281c268098f3fcffece23902435e",
+      "current_sha256": "3f4a775f82e2951a21c522da81f2bff268e5281c268098f3fcffece23902435e",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_overhaul_tactical_binding.py",
+      "reviewed_sha256": "1eedb9b9662b85a8f3c1ad0d5a621049df62614949340679de55cf0971502b5a",
+      "current_sha256": "1eedb9b9662b85a8f3c1ad0d5a621049df62614949340679de55cf0971502b5a",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_rwr_affiliation.py",
+      "reviewed_sha256": "8ffa517da07c1cd1adbb4f2d1808b7a08bc00fa95625388cfc30925a59d5c203",
+      "current_sha256": "8ffa517da07c1cd1adbb4f2d1808b7a08bc00fa95625388cfc30925a59d5c203",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_rwr_audio.py",
+      "reviewed_sha256": "176cc7e7fadb40e0d13d69a97671a84f2f22cec7ded97979aa23296f9106ab15",
+      "current_sha256": "176cc7e7fadb40e0d13d69a97671a84f2f22cec7ded97979aa23296f9106ab15",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_rwr_bearings.py",
+      "reviewed_sha256": "a8d88e1249a3aa07c4dbe4523f86fe3c77e19dffceee1ba4e380734895c340d9",
+      "current_sha256": "a8d88e1249a3aa07c4dbe4523f86fe3c77e19dffceee1ba4e380734895c340d9",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_rwr_proximity.py",
+      "reviewed_sha256": "24c48a103c6969e2899b9d393d8110fc40864ecb6917a40a12dbff7b47420a79",
+      "current_sha256": "24c48a103c6969e2899b9d393d8110fc40864ecb6917a40a12dbff7b47420a79",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_rwr_scenario_matrix.py",
+      "reviewed_sha256": "fa3eaa26d112ca6dbdf0c5adec33d7940800366d3ad68840d2f3a41ac2605909",
+      "current_sha256": "fa3eaa26d112ca6dbdf0c5adec33d7940800366d3ad68840d2f3a41ac2605909",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_store_registration.py",
+      "reviewed_sha256": "adf69db27476a6f1ecff35d93e0a538ae14875db168b5be5639058a1fd9c5fe1",
+      "current_sha256": "adf69db27476a6f1ecff35d93e0a538ae14875db168b5be5639058a1fd9c5fe1",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_stores_context.py",
+      "reviewed_sha256": "2062fa74f8f7c2068a8e79894320669d65e7feea8a0f3e959f91f8514465aeec",
+      "current_sha256": "2062fa74f8f7c2068a8e79894320669d65e7feea8a0f3e959f91f8514465aeec",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_tactical_association.py",
+      "reviewed_sha256": "d2649db9125c157760c8e5d6242ed4cfc7d5422138c6f1cbf70fdcd3fd9ec498",
+      "current_sha256": "d2649db9125c157760c8e5d6242ed4cfc7d5422138c6f1cbf70fdcd3fd9ec498",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_tactical_identity_palette.py",
+      "reviewed_sha256": "3887aa0c5c9b1fa2a107c4767f090eb8f1bdb38340ebfeba0f244cb2cc68c29c",
+      "current_sha256": "3887aa0c5c9b1fa2a107c4767f090eb8f1bdb38340ebfeba0f244cb2cc68c29c",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_tactical_picture.py",
+      "reviewed_sha256": "7507d7f0fad4da4eef4bbc21aa6434b1ba8ebc868321362516f1f6f221610947",
+      "current_sha256": "7507d7f0fad4da4eef4bbc21aa6434b1ba8ebc868321362516f1f6f221610947",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_tactical_provenance.py",
+      "reviewed_sha256": "9b3aaba110a0d66abbca6fe2af60d054772df9598cae2b182269a69dfc2835da",
+      "current_sha256": "9b3aaba110a0d66abbca6fe2af60d054772df9598cae2b182269a69dfc2835da",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_tactical_situation.py",
+      "reviewed_sha256": "daea9a29563098792287761811f5bd98e77431b13843f9082fae9357538ecad6",
+      "current_sha256": "daea9a29563098792287761811f5bd98e77431b13843f9082fae9357538ecad6",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_tactical_startup.py",
+      "reviewed_sha256": "3ea6a6fc48d9ef5a279430e1a82290043a7dd5db6c22fa2ce737de751d7cc4df",
+      "current_sha256": "3ea6a6fc48d9ef5a279430e1a82290043a7dd5db6c22fa2ce737de751d7cc4df",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_ufc_mouse_stores.py",
+      "reviewed_sha256": "d230812c65f91aa003995dcd4910ca072e314218b4812ca0479a409195830bb9",
+      "current_sha256": "d230812c65f91aa003995dcd4910ca072e314218b4812ca0479a409195830bb9",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_vehicle_stores_adapter.py",
+      "reviewed_sha256": "14186705b36d562fee0adddc559b041189cad5e203bbf255d041aa67772b28b1",
+      "current_sha256": "14186705b36d562fee0adddc559b041189cad5e203bbf255d041aa67772b28b1",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_weapon_engagement.py",
+      "reviewed_sha256": "8aa1f96bc771709ceb5572e7792a3df07bfa7dc8585a8a6fbd4d6d1a46e1e0ae",
+      "current_sha256": "8aa1f96bc771709ceb5572e7792a3df07bfa7dc8585a8a6fbd4d6d1a46e1e0ae",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_weapon_hud_selection.py",
+      "reviewed_sha256": "970b6805f34369c329efb25dbf5244af7b31c844092400d8bed510ff381a9cb2",
+      "current_sha256": "970b6805f34369c329efb25dbf5244af7b31c844092400d8bed510ff381a9cb2",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_weapon_physical_consumer.py",
+      "reviewed_sha256": "49bf6e5e06bd5ae82c6eee322453a49589d369b4845fa0d613d1551ee1caa873",
+      "current_sha256": "49bf6e5e06bd5ae82c6eee322453a49589d369b4845fa0d613d1551ee1caa873",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_weapon_transactions.py",
+      "reviewed_sha256": "926782bb7b8e95fd127b1f7d192409b676dfaa5e48136ec4a4506a2b3493a174",
+      "current_sha256": "926782bb7b8e95fd127b1f7d192409b676dfaa5e48136ec4a4506a2b3493a174",
+      "matches_review": true
+    },
+    {
+      "path": "tests/test_weapon_trigger_inputs.py",
+      "reviewed_sha256": "aae459deaeb3776a7381d460c9c059722829ebcb3a8ddd1dc725b9a2d599be87",
+      "current_sha256": "aae459deaeb3776a7381d460c9c059722829ebcb3a8ddd1dc725b9a2d599be87",
+      "matches_review": true
+    }
+  ],
+  "owned_test_retirement_map": [
+    {
+      "path": "tests/fixtures/gun_deferred_pursuit.csv",
+      "sha256": "3e39e921da80fd521655ea5b6bbf565dc6394a9f35eaf302eaaeb0e42a16cf91",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/gun_simulation.cpp",
+      "sha256": "f5424c2b54f5ec2517a5e852bb61e0bfe304f53c0f619a8fb54094a094c99a58",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_ag_delivery.py",
+      "sha256": "abf5f137e0589148b76b9f105e5247c84cdda86c42bfa9a84a3fd758ec8feefa",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_ag_usability.py",
+      "sha256": "abfc77593a80e6b36460f8c9fec95d79c03e2c98ff0959f93498fcd6ff659ef4",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_ballistics.py",
+      "sha256": "8fe455de47fc8aedb8e888dbbd5cfe4fca160c1b46c3888abec6d1a7cac33d2f",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_combat_controls.py",
+      "sha256": "f45b124ce15580bfbf831b7d3ad3894bf6c7682a849e9447508f75818d04899d",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_datalink.py",
+      "sha256": "b56333215c60e69a57a8f407df0e08cf526cae4eac9669a3e3a720b6f7ac4448",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_defensive_lifecycle.py",
+      "sha256": "1ee89b2c52395b6d13f973d544ccc6a0967a9dc94278c3d95f39221328444cd3",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_detected_hostile_identity.py",
+      "sha256": "795712927747c0cf893dc4f4452ba53863c5f66e78869d08dfedcf0ab2b71fb7",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_ew_backend_lifecycle.py",
+      "sha256": "88cfbef09ba8bd61f7b5772160b46f79b03ec393222b9b1a5faf6f20dabef5b4",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_ew_controls.py",
+      "sha256": "71261511258d814e2ae58f8dc04fbcab30b55c8d2f6771a2bbe9e454ec26e384",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_ew_geolocation.py",
+      "sha256": "cb4fc10fd7d5396ed5199aed0f4aa4b838b8719c35abd16d89b923f9b73722f8",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_ew_geolocation_transport.py",
+      "sha256": "c7bd91b1e0707992fb4eae4d9fe44c44bba8203644124c3cc4dcec9e16840d77",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_ew_programs.py",
+      "sha256": "7babea2b14c52da01f82fd4298b1b01e1f2e8536aaf17658e2419876c43cb135",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_fault_identity.py",
+      "sha256": "d1ce745d2bf06d30abe91bc2c49fc8c686b0ad34a48914e92db73ec9578a9ba7",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_gun_async.py",
+      "sha256": "3d42af454a5d996bceca9cab3d796cca48380718638c7afd110295855fc79e4a",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_gun_coherent_velocity.py",
+      "sha256": "63fefabeab3b36d5b697495d688893f77ef701da699bee6edb2b9505b4250989",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_gun_cue_stabilizer.py",
+      "sha256": "2662567b8cbb508f810e0baebc621586dc6b84142665bbbb8c36339355df5bf4",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_gun_director.py",
+      "sha256": "0450a51857bd47e8ebbb0d67be4678218ec293a14fd8ade6263b62495d3c74ae",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_gun_fast_response.py",
+      "sha256": "912053412f074c832d90ae59b07851c2a46d7e3e2ac174253bdf48e792dd592e",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_gun_flight_analysis.py",
+      "sha256": "e9384c8beac3ccda2887107e7beea0da3c1c1ca4f71f4fb8dd18def1c1a94aed",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_gun_flight_replay.py",
+      "sha256": "753f6144d71bbce73bd3ce4587c1fe0788d44d7f35d29921dd628c3f9af9ec71",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_gun_frames.py",
+      "sha256": "81dd18f61cd07b5fcd769be6ec83e1244959166f7aae83fc355ea4c8d95f324f",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_gun_funnel.py",
+      "sha256": "9fabab923fd74ab37c3de0dab05dc4f35d4e7b4b68fa2fe716224a43eb09c094",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_gun_funnel_replay.py",
+      "sha256": "7f6680aa921521a667d671fd782aea2b25400a482536a05ac99951903ade9873",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_gun_intercept.cpp",
+      "sha256": "6083dc8fd0d8d316e6d255bd4722faee4e8034a7db9585655169bf71f079dc01",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_gun_maneuver.cpp",
+      "sha256": "ad163739afed288841df116b03290e7a7e0260488ac3af4b74c8f26e4f62d1cf",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_gun_maneuver_display.py",
+      "sha256": "8a26c8196c0ea1a2cc25857f2a10b3fb22a0410a3a943484ef3d4e5b562a2513",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_gun_measured_cadence.py",
+      "sha256": "6f767ee9140a8c0cdcc836d1718ff3e2c1df8ff844cc0ef069ae7ec794e40488",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_gun_motion_noise.py",
+      "sha256": "6c6b843c77a6a4d5ea473629c41d705ed3645b03af2dfe0ef5eafbf694180a64",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_gun_motion_player.py",
+      "sha256": "70b87c3545fa3a0c7a9d4aee49416288c64419179f47d84b934d55c8e9586e80",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_gun_no_fallback.py",
+      "sha256": "3c38fbc6e2f22668a0fe3d1d101b2bd218998ead5f607a6ee5d825604cebf6b2",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_gun_optical_alignment.py",
+      "sha256": "b06736283cb6cd0673b37339661ca38c07f3b280338075771537a14d518a30fe",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_gun_packet_coherence.py",
+      "sha256": "b5e17397fe454fd530a528d9c8c0656d2d7192fae9346d5040e5093b4e9fecfc",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_gun_reticle.py",
+      "sha256": "cbf33cab4aa823fa32ace9745244f855a617798a4c5836f09d8a17e8ba940ef8",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_gun_target_motion.cpp",
+      "sha256": "45d3ba4817b17de9df3ffe3672e0baada33faff0fcd523c0a09c8dd28426f5c9",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_identity_evidence_age.py",
+      "sha256": "2e40ae94692a2619366b8cf2f809a6b43f7c22849ee7776f367876c756d2d326",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_ir_audio.py",
+      "sha256": "c40e332c49eb2d52db3e549301844487fe563c32d6a7e7634ec5569231b7815c",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_ir_bay_owner.py",
+      "sha256": "21d9c7f730cbba79faefc3dae0d4b4702da60a96162545cc3a2bdecbf012e346",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_ir_feedback.py",
+      "sha256": "44542a6895cbc448efb7bc0eb849f11488b45f1db8613aaf29b45b8a74af8938",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_ir_preparation.py",
+      "sha256": "9fad2bd6091ec2a251327e9773dd29f11fa15e1ae4cd1cfd822ca9b25e6bce6a",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_ir_projection.py",
+      "sha256": "3fce6a590826164af016200f82adef6635fea2db16166ee16c6f59960c7f770c",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_mws.py",
+      "sha256": "9f8ec49f9615e01e2ace0d9b6f81da15be2e5a4dc220f98c41f77138a15f3c53",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_native_ag_weapons.cpp",
+      "sha256": "6744aea3d0f06f2fce42cdcc3cb21bc01c16aef060e2c5ffa11c776944dfd9de",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_native_contact_identity.cpp",
+      "sha256": "2018a4bd516abd556b413a9c645c8f41438f660893527fb34b8cb3222ade68c7",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_native_datalink.cpp",
+      "sha256": "fa6b90c25916eaa6ea09aaf1941b8c91dbc4fed84be4a7af2280a7f2ed3e1f7b",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_native_gun_adapter.cpp",
+      "sha256": "10361ce288a7636cfe5f44b85621d5775eaaec9506745b7558259a2c843f3383",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_native_mws.cpp",
+      "sha256": "3b8871b487cdb65fa5da9bf24cbd2a65033279ae4e56b1693a398314b860e91a",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_native_seeker.cpp",
+      "sha256": "4bd7759efd62535d205bedda2477b58410ca353f6c250503dddfc210c720cfa6",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_nav_ew_isolation.py",
+      "sha256": "59f6fb43a86f99d37fdd45e292dc1fdbf7b7c2abb75f1e2c2fb52c1154c6777e",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_overhaul_ballistics.py",
+      "sha256": "9839016eb66eddedf62a06094331af81f50c8fcb948d61cd4a47da20e4d3ecc7",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_overhaul_defensive_overview.py",
+      "sha256": "5df47cd340fba4395d6aeefa6983ea0e2288f577254804031367377cffee9b68",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_overhaul_stores.py",
+      "sha256": "9f30df0cd949bfd9837cc98531e02998a64cde7c6b3157e31a5778bfd4f0e880",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_overhaul_stores_actuators.py",
+      "sha256": "4b5bc4ab269a809b1fd52a0eb0a397935382c092c28eb285d695e765c1d89508",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_overhaul_stores_display.py",
+      "sha256": "3f4a775f82e2951a21c522da81f2bff268e5281c268098f3fcffece23902435e",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_overhaul_tactical_binding.py",
+      "sha256": "1eedb9b9662b85a8f3c1ad0d5a621049df62614949340679de55cf0971502b5a",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_rwr_affiliation.py",
+      "sha256": "8ffa517da07c1cd1adbb4f2d1808b7a08bc00fa95625388cfc30925a59d5c203",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_rwr_audio.py",
+      "sha256": "176cc7e7fadb40e0d13d69a97671a84f2f22cec7ded97979aa23296f9106ab15",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_rwr_bearings.py",
+      "sha256": "a8d88e1249a3aa07c4dbe4523f86fe3c77e19dffceee1ba4e380734895c340d9",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_rwr_proximity.py",
+      "sha256": "24c48a103c6969e2899b9d393d8110fc40864ecb6917a40a12dbff7b47420a79",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_rwr_scenario_matrix.py",
+      "sha256": "fa3eaa26d112ca6dbdf0c5adec33d7940800366d3ad68840d2f3a41ac2605909",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_store_registration.py",
+      "sha256": "adf69db27476a6f1ecff35d93e0a538ae14875db168b5be5639058a1fd9c5fe1",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_stores_context.py",
+      "sha256": "2062fa74f8f7c2068a8e79894320669d65e7feea8a0f3e959f91f8514465aeec",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_tactical_association.py",
+      "sha256": "d2649db9125c157760c8e5d6242ed4cfc7d5422138c6f1cbf70fdcd3fd9ec498",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_tactical_identity_palette.py",
+      "sha256": "3887aa0c5c9b1fa2a107c4767f090eb8f1bdb38340ebfeba0f244cb2cc68c29c",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_tactical_picture.py",
+      "sha256": "7507d7f0fad4da4eef4bbc21aa6434b1ba8ebc868321362516f1f6f221610947",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_tactical_provenance.py",
+      "sha256": "9b3aaba110a0d66abbca6fe2af60d054772df9598cae2b182269a69dfc2835da",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_tactical_situation.py",
+      "sha256": "daea9a29563098792287761811f5bd98e77431b13843f9082fae9357538ecad6",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_tactical_startup.py",
+      "sha256": "3ea6a6fc48d9ef5a279430e1a82290043a7dd5db6c22fa2ce737de751d7cc4df",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_ufc_mouse_stores.py",
+      "sha256": "d230812c65f91aa003995dcd4910ca072e314218b4812ca0479a409195830bb9",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_vehicle_stores_adapter.py",
+      "sha256": "14186705b36d562fee0adddc559b041189cad5e203bbf255d041aa67772b28b1",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_weapon_engagement.py",
+      "sha256": "8aa1f96bc771709ceb5572e7792a3df07bfa7dc8585a8a6fbd4d6d1a46e1e0ae",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_weapon_hud_selection.py",
+      "sha256": "970b6805f34369c329efb25dbf5244af7b31c844092400d8bed510ff381a9cb2",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_weapon_physical_consumer.py",
+      "sha256": "49bf6e5e06bd5ae82c6eee322453a49589d369b4845fa0d613d1551ee1caa873",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_weapon_transactions.py",
+      "sha256": "926782bb7b8e95fd127b1f7d192409b676dfaa5e48136ec4a4506a2b3493a174",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    },
+    {
+      "path": "tests/test_weapon_trigger_inputs.py",
+      "sha256": "aae459deaeb3776a7381d460c9c059722829ebcb3a8ddd1dc725b9a2d599be87",
+      "accountable_chat": "chat4",
+      "execution_disposition": "delete and independently remake test/fixture/runner, or explicitly classify original source measurement as research evidence; no old test retained as final acceptance oracle",
+      "audit_action": "unchanged",
+      "rebuild_stage": "P-INT-002 common harness plus owning domain package; finalP-INT-006closure"
+    }
+  ],
+  "audit": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Deep-Audit-2026-10-28-1351",
+  "status": "pre-edit identity; no production or test mutation"
+}
