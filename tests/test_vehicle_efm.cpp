@@ -195,7 +195,22 @@ int main(int argc,char** argv) {
 
     // Callback-reported tank station IDs are authoritative, without guessing
     // whether the host's station enumeration is zero- or one-based.
-    cold();fuel(8190);external(1,1000,0,0,-3);external(9,500,0,0,3);
+    cold();fuel(8190);ticks(1);external(1,1000,0,0,-3);external(9,500,0,0,3);
+    auto tank_inventory=[&](bool installed) {
+        set("F22_HYD_DEMAND_VALID",0);
+        set("F22_HYD_DEMAND_SCHEMA",1);
+        set("F22_HYD_DEMAND_GENERATION",get("EFM_PHYSICAL_GENERATION"));
+        set("F22_HYD_DEMAND_STAMP",get("F22_AP_CLOCK"));
+        set("F22_HYD_DEMAND_SEQUENCE",get("F22_HYD_DEMAND_SEQUENCE")+1);
+        set("F22_L_HYD_LOAD",0);set("F22_R_HYD_LOAD",0);
+        set("F22_FUEL_INVENTORY_VALID",1);
+        set("F22_FUEL_INVENTORY_STAMP",get("F22_AP_CLOCK"));
+        set("F22_LEFT_TANK_INSTALLED",installed?1:0);
+        set("F22_RIGHT_TANK_INSTALLED",installed?1:0);
+        set("F22_HYD_DEMAND_VALID",1);
+        ticks(1);
+    };
+    ticks(1);tank_inventory(true);
     const double cap=RaptorVehicle::external_tank_capacity_kg;
     assert(param(ED_FM_CAN_ACCEPT_FUEL_FROM_TANKER)==1);
     refuel(10000);
@@ -206,6 +221,13 @@ int main(int argc,char** argv) {
     assert(std::abs(total+(10+2*cap-1500))<1e-8);
     refuel(100);assert(!mass(dm,x,y,z,ix,iy,iz));
     external(1,0,0,0,-3);external(9,0,0,0,3);assert(getexternal()==0);
+    ticks(1);tank_inventory(true);
+    assert(param(ED_FM_CAN_ACCEPT_FUEL_FROM_TANKER)==1); // empty attached tanks survive
+    refuel(100);assert(getexternal()==100);
+    assert(mass(dm,x,y,z,ix,iy,iz) && dm==-100);
+    assert(!mass(dm,x,y,z,ix,iy,iz));
+    tank_inventory(false); // current observed carriage removal, not zero contents
+    assert(getexternal()==0 && !mass(dm,x,y,z,ix,iy,iz));
     assert(param(ED_FM_CAN_ACCEPT_FUEL_FROM_TANKER)==0); // no ghost installed tanks
     cold();fuel(500);cmd(2004,-1);ticks(50);
     assert(param(ED_FM_ENGINE_1_CORE_RPM)==0 && param(ED_FM_ENGINE_1_RPM)==0);
