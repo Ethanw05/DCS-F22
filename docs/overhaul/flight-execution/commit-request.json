@@ -1,6 +1,6 @@
 {
   "owner": "chat1",
-  "status": "READY_FINAL_PHYSICAL_REFUEL_COMMIT",
+  "status": "COMMITTED_PHYSICAL_REFUEL; exclusive staging slot released",
   "title": "Own per-leg gear state and finite physical source, oxygen and FCS transitions",
   "packages": [
     "P-FLT-002",
@@ -85,5 +85,7 @@
   "shared_regions": "Only Chat1 physical hunks are staged via prepared index-only RAPTOR versions; Chat2 checked-read/nav/entry/altitude/lighting hunks remain unstaged. C-DEEP-002 flash_on removal integrated by Chat2 is included as the precise requested cleanup.",
   "native_build": "F22-Build/chat1-20261028/aircraft; safe external Release output; normal source bin untouched",
   "remaining_request": "Physical/refuel software ready to commit under granted slot. Installed/loaded identity and actual DCS/VR/MP/calibration remain unqualified. Dynamic RCS is additional user scope under investigation.",
-  "qualification": "Source/numerical software scope only. Explicit native oxygen/canopy/gear-host unavailable flags, no-go emergency-EW source and absent independent aircraft performance validation are recorded in physical-profile-decisions.md. No installation or DCS operation performed."
+  "qualification": "Source/numerical software scope only. Explicit native oxygen/canopy/gear-host unavailable flags, no-go emergency-EW source and absent independent aircraft performance validation are recorded in physical-profile-decisions.md. No installation or DCS operation performed.",
+  "commit": "0a47665b7b473e1efebeae85ec291241ddc935ab",
+  "commit_slot_released": true
 }

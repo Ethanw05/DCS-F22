@@ -31,7 +31,7 @@
         "Original atmosphere provenance gates environment/ADC/standby/wind; independent kinematics and finite backup retained.",
         "32 actual-DLL invalid-input cases; HUD owner failure/recovery; Chat4 checked native full-flight consumer changes now present."
       ],
-      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
+      "commit_reference": "0a47665b7b473e1efebeae85ec291241ddc935ab"
     },
     {
       "id": "P-FLT-002",
@@ -60,7 +60,7 @@
         "20000 independent fuel/mass/first-moment events and full64ledger refusal/recovery.",
         "Essential/mission/utility and battery aggregate budgets retained; gear/refuel utilities consume existing System2 mapping."
       ],
-      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
+      "commit_reference": "0a47665b7b473e1efebeae85ec291241ddc935ab"
     },
     {
       "id": "P-FLT-003",
@@ -85,7 +85,7 @@
         "Manual/auto start, feed loss/restart consent, degraded/unavailable control, no-light/purge/reset verified on owning controller.",
         "Duplicate start timers/rates retired; engine deck and hydraulic nozzle mapping retained as declared estimates."
       ],
-      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
+      "commit_reference": "0a47665b7b473e1efebeae85ec291241ddc935ab"
     },
     {
       "id": "P-FLT-004",
@@ -118,7 +118,7 @@
         "Cruise/achieved-gear approach/achieved-door refuel profile retained; single-engine approach uses baseline estimated law.",
         "Write-only g_assist, unused locals and duplicate outer pitch local retired without gain changes."
       ],
-      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
+      "commit_reference": "0a47665b7b473e1efebeae85ec291241ddc935ab"
     },
     {
       "id": "P-FLT-005",
@@ -144,7 +144,7 @@
         "6 structural/suspension damage tests isolate the appropriate leg; pressure loss retains achieved locks.",
         "Fresh deployed-wheel contact and stale brake/heat/repair checks pass."
       ],
-      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
+      "commit_reference": "0a47665b7b473e1efebeae85ec291241ddc935ab"
     },
     {
       "id": "P-FLT-006",
@@ -176,7 +176,7 @@
         "Independent reserve survives invalid environment; qualified canopy required for cabin-valid.",
         "600s thermal refinement plus source-loss/empty-fuel sensitivity tested."
       ],
-      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
+      "commit_reference": "0a47665b7b473e1efebeae85ec291241ddc935ab"
     },
     {
       "id": "P-FLT-007",
@@ -202,7 +202,7 @@
         "Owner cases exercise engine/source/start failures and repair retaining fuel,SES,oxygen,disc heat and no start consent.",
         "Per-leg damage repair/lock/lamp publication is single-owner."
       ],
-      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
+      "commit_reference": "0a47665b7b473e1efebeae85ec291241ddc935ab"
     },
     {
       "id": "P-FLT-008",
@@ -231,7 +231,7 @@
         "Air-data identities, high-alpha continuity, pitch allocation,matched airborne wind translation and invalid mass refusal pass.",
         "Six-family physical provenance/sensitivity matrix retained; dated high-alpha correction appended preserving original measurements."
       ],
-      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
+      "commit_reference": "0a47665b7b473e1efebeae85ec291241ddc935ab"
     },
     {
       "id": "P-FLT-009",
@@ -262,7 +262,7 @@
         "SDK tanker eligibility requires current valid airborne physics,essentialpower,achieveddoor,capacity and no disconnect. Invalid disconnect read stops refueling.",
         "Existing checked native lighting consumers retained; audio recordings/wrappers preserved pending actual host reachability."
       ],
-      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
+      "commit_reference": "0a47665b7b473e1efebeae85ec291241ddc935ab"
     },
     {
       "id": "P-FLT-010",
@@ -301,7 +301,7 @@
         "All16assigned legacy artifacts deleted and independently remade. Five native suites and15Lua cases pass.",
         "Fresh cold/hot/air-hot with/without release and histories,trim,draw-only/invaliddt/bounded10s callback verified."
       ],
-      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
+      "commit_reference": "0a47665b7b473e1efebeae85ec291241ddc935ab"
     },
     {
       "id": "D-P-FLT-001",
@@ -324,12 +324,13 @@
       "verified_outcomes": [
         "One common generation reset clears yaw/pitch/roll transient filters.54actual-DLL same-fresh-input comparisons and no-advance/large-dt checks pass."
       ],
-      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
+      "commit_reference": "0a47665b7b473e1efebeae85ec291241ddc935ab"
     }
   ],
   "source_commit": {
     "flight_validity_and_yaw": "a21145f7d03a7edbc111e9407138a198217b34c3",
-    "unused_helpers": "db8df9b2da87850baf82148cc28f8bf790ba7c58"
+    "unused_helpers": "db8df9b2da87850baf82148cc28f8bf790ba7c58",
+    "physical_refuel": "0a47665b7b473e1efebeae85ec291241ddc935ab"
   },
   "tests": "All16assigned legacy artifacts independently remade;5native suites +15Lua cases pass.",
   "evidence": "final-evidence.json",

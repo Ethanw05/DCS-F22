@@ -49,5 +49,6 @@
   "DCS_observed": false,
   "VR_observed": false,
   "MP_observed": false,
-  "limitations": "Physical estimates and actual native effects listed per package; deterministic offline behavior is not aircraft validation."
+  "limitations": "Physical estimates and actual native effects listed per package; deterministic offline behavior is not aircraft validation.",
+  "physical_refuel_commit": "0a47665b7b473e1efebeae85ec291241ddc935ab"
 }
