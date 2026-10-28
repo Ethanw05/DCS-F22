@@ -33,5 +33,23 @@ research artifacts are excluded. A restore script retains the playtest folder
 while moving the previous installation back. DCS is not launched by deployment.
 
 The package's build.json and installed F22-PLAYTEST.json record exact revisions,
-DLL hash, checks, installation path and backup. Subsequent obsolete-path cleanup
-continues in source worktrees; this installed snapshot stays fixed for playtesting.
+DLL hash, checks, installation path and backup. Completed follow-up fixes are
+installed into the same normal mod after their combined checks; the current
+receipt identifies the latest source and DLL rather than implying the frozen
+base is still the complete installed state.
+
+Follow-up integration preserves the wing-datum turn correction, strict IR/AIM-9
+preparation, measured-cadence gun adapter and deadline-based AESA scheduling.
+Current power/engine indications use coherent physical data and show unavailable
+fields explicitly. The next combined integration also contains strict CNI/radar
+resource ownership, mandatory native NAV snapshots, selected GINS-only
+HUD/ADI/NAV consumers and removal of the optional perfect-position INS path.
+Independent standby/coasting and radio reception remain. The DEF page uses
+routine controls plus explicit SETUP; blank keys retain no action authority.
+
+That combined source passes 29/29 native tests (unused STT decoder test retired),
+161/161 script checks, 269 Cockpit/Input/Weapons/root Lua compiles and zero new
+navigation/radar lint findings. The current integration receipt, full previous
+installation backup and file hashes distinguish this source qualification from
+in-game flight/gun/AESA/failure/optical qualification. Other retained callback
+and pre-provider cleanup work is not declared complete by this package.
