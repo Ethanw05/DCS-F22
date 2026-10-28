@@ -1,5 +1,6 @@
 // GPL-3.0-or-later. Own common navigation receivers. Audited DCS PE only.
 #include "NativeNavigation.h"
+#include "NativeAltimetry.h"
 #include "CniPower.h"
 #include <Cockpit/CockpitAPI_Declare.h>
 #include <Windows.h>
@@ -173,17 +174,43 @@ struct API {
 } api;
 RaptorCni::Supply supply;
 std::map<std::string, void *> handles;
-void put(EDPARAM &p, const std::string &k, double v) {
+bool put(EDPARAM &p, const std::string &k, double v) {
   auto &h = handles[k];
   if (!h)
     h = p.getParamHandle(k.c_str());
-  p.setParamNumber(h, v);
+  return p.setParamNumber(h, v);
 }
 bool get(EDPARAM &p, const std::string &k, double& value) {
   auto &h = handles[k];
   if (!h)
     h = p.getParamHandle(k.c_str());
   return p.getParamNumber(h,value);
+}
+unsigned magnetic_sequence=0;
+bool magnetic_generation(EDPARAM& p,double& generation) {
+  double valid=0;
+  return get(p,"EFM_PHYSICAL_VALID",valid) && valid==1
+      && get(p,"EFM_PHYSICAL_GENERATION",generation) && generation>=1
+      && generation<=4294967295.0 && generation==std::floor(generation);
+}
+bool commit_magnetic(EDPARAM& p,unsigned sequence,double generation,std::uint64_t epoch) {
+  double after=0;
+  if (!magnetic_generation(p,after) || after!=generation || p.epoch()!=epoch) return false;
+  if (!put(p,"F22_MAG_VALID",1) || !put(p,"F22_MAG_SEQUENCE",sequence)) return false;
+  magnetic_sequence=sequence;
+  return true;
+}
+bool publish_magnetic(EDPARAM& p,double declination,double now) {
+  if (!std::isfinite(now) || now<0 || !std::isfinite(declination) || std::abs(declination)>=1.57) return false;
+  double generation=0;
+  if (!magnetic_generation(p,generation)) return false;
+  const auto epoch=p.epoch();
+  const unsigned next=magnetic_sequence>=16777212 ? 2 : magnetic_sequence+2;
+  if (!put(p,"F22_MAG_SEQUENCE",next-1) || !put(p,"F22_MAG_VALID",0)) return false;
+  const std::pair<const char*,double> fields[]={{"F22_MAG_SCHEMA",1},{"F22_MAG_CLOCK_KIND",2},
+      {"F22_MAG_GENERATION",generation},{"F22_MAG_STAMP",now},{"F22_MAG_DECL",declination}};
+  for (const auto& field:fields) if (!put(p,field.first,field.second)) return false;
+  return commit_magnetic(p,next,generation,epoch);
 }
 void *tlast{}, *ilast{};
 int ch = -1, band = -1, mode = -1, freq = -1, power = -1;
@@ -256,6 +283,7 @@ void reset() {
   handles.clear();
   tlast = ilast = nullptr;
   ch = band = mode = freq = power = -1;
+  magnetic_sequence=0;
 }
 void update(EDPARAM &p) {
   put(p, "F22_NAV_SQUELCH_VALID", 0);
@@ -406,10 +434,8 @@ void update(EDPARAM &p) {
     if (!std::isfinite(lat) || !std::isfinite(lon)) return;
     const double d =
         api.decl(lat,lon);
-    if (std::isfinite(d) && std::abs(d) < 1.57) {
-      put(p, "F22_MAG_DECL", d);
-      put(p, "F22_MAG_VALID", 1);
-    }
+    double observed=0;
+    if (NativeAltimetry::model_time(observed)) (void)publish_magnetic(p,d,observed);
   }
 }
 } // namespace NativeNavigation

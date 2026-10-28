@@ -89,11 +89,11 @@ local function label(x,y,param,fmt,h,parent,alignment)
     e.controllers = {{"text_using_parameter",0,0},{"opacity_using_parameter",1}}
     add_base(e,id("HUD_TEXT"),parent,true)
 end
-local function static(x,y,value,h,parent)
+local function static(x,y,value,h,parent,alignment)
     local e = CreateElement "ceStringSLine"
     e.material = hud_font
     e.init_pos = {x*drawing_scale,y*drawing_scale,0}
-    e.alignment = "CenterCenter"
+    e.alignment = alignment or "CenterCenter"
     e.stringdefs = {h*font_scale,h*font_scale*font_width_scale,h*font_scale*0.2,0}
     e.value = value
     e.element_params = {"HUD_POWER"}
@@ -255,12 +255,12 @@ static(0,-.76,'FPM LIMIT',.020,'HUD_FPM_LIMIT')
 -- Compact heading presentation measured from the supplied F-22 reference.
 -- Current heading is a separate box above the scale. Moving degree labels
 -- remain visible through the centre; only the scale's outer edges limit them.
-group("HUD_HEADING",0,layout.heading_y_offset,{'HUD_REFERENCE_HEADING_VALID'},{{'parameter_in_range',0,.9,1.1}})
-group('HUD_NO_HEADING',0,0,{'HUD_REFERENCE_HEADING_VALID'},{{'parameter_in_range',0,-.1,.1}})
+group("HUD_HEADING",0,layout.heading_y_offset,{'HUD_HEADING_DISPLAY_VALID'},{{'parameter_in_range',0,.9,1.1}})
+group('HUD_NO_HEADING',0,0,{'HUD_HEADING_DISPLAY_VALID'},{{'parameter_in_range',0,-.1,.1}})
 static(0,.61,'HDG --',.025,'HUD_NO_HEADING')
 group('HUD_NO_ATTITUDE',0,0,{'HUD_REFERENCE_ATTITUDE_VALID'},{{'parameter_in_range',0,-.1,.1}})
 static(-.62,.23,'ATT --',.020,'HUD_NO_ATTITUDE')
-label(0,0.74,"NAV","%03.0f",0.035,"HUD_HEADING")
+label(0,0.74,"HUD_HEADING_DISPLAY","%03.0f",0.035,"HUD_HEADING")
 local box_x,box_bottom,box_top=0.08,0.7075,0.7725
 local baseline=0.59
 line(-box_x,box_bottom,box_x,box_bottom,0.004,"HUD_HEADING")
@@ -331,12 +331,20 @@ group("HUD_GROUND_DATA",0,0,{"HUD_GS_VALID"},{{"parameter_in_range",0,0.9,1.1}})
 local left_edge,right_edge=-0.72,0.72
 label(left_edge,-0.120,"HUD_GS_KTS","GS %.0f",0.021,"HUD_GROUND_DATA","LeftCenter")
 label(left_edge,-0.158,"HUD_TAS","T %.0f",0.021,"HUD_AIRDATA","LeftCenter")
-label(left_edge,-0.196,"MACH","M %.2f",0.021,nil,"LeftCenter")
-label(left_edge,-0.288,"GFORCE","G %.1f",0.021,nil,"LeftCenter")
-label(left_edge,-0.326,"HUD_AOA_DEG","A %.1f",0.021,nil,"LeftCenter")
-label(left_edge,-0.402,"HUD_G_MAX","%.1f",0.021,nil,"LeftCenter")
-label(right_edge,-0.260,"VV","VV %.0f",0.021,nil,"RightCenter")
-label(right_edge,-0.310,"RADALT","R %.0f",0.021,nil,"RightCenter")
+local function measured_label(x,y,parameter,format,valid,alignment,missing)
+    local visible='HUD_MEASURED_'..parameter
+    local unavailable=visible..'_UNAVAILABLE'
+    group(visible,0,0,{valid},{{'parameter_in_range',0,.9,1.1}})
+    group(unavailable,0,0,{valid},{{'parameter_in_range',0,-.1,.1}})
+    label(x,y,parameter,format,.021,visible,alignment)
+    static(x,y,missing,.021,unavailable,alignment)
+end
+measured_label(left_edge,-.196,'MACH','M %.2f','F22_SIDE_MACH_VALID','LeftCenter','M ---')
+measured_label(left_edge,-.288,'GFORCE','G %.1f','F22_SIDE_G_VALID','LeftCenter','G ---')
+measured_label(left_edge,-.326,'HUD_AOA_DEG','A %.1f','HUD_AOA_VALID','LeftCenter','A ---')
+measured_label(left_edge,-.402,'HUD_G_MAX','%.1f','HUD_G_MAX_VALID','LeftCenter','---')
+measured_label(right_edge,-.260,'VV','VV %.0f','F22_SIDE_VS_VALID','RightCenter','VV ---')
+measured_label(right_edge,-.310,'RADALT','R %.0f','F22_SIDE_RADAR_VALID','RightCenter','R ---')
 group("HUD_NAV_INFO",0,0,{"HUD_MODE"},{{"parameter_in_range",0,.9,1.1}})
 label(right_edge,-0.420,"HUD_WP_INFO","%s",0.021,"HUD_NAV_INFO","RightCenter")
 label(right_edge,-0.470,"HUD_WP_TTG_TEXT","TTG %s",0.021,"HUD_NAV_INFO","RightCenter")
@@ -345,8 +353,9 @@ label(right_edge,-0.470,"HUD_WP_TTG_TEXT","TTG %s",0.021,"HUD_NAV_INFO","RightCe
 for _,sign in ipairs({-1,1}) do
     for i=1,32 do
         local name="HUD_VS_ARC_"..sign.."_"..i
-        group(name,counter_x,0.02,{"HUD_VS_ARC_COUNT","HUD_VS_SIGN"},
-            {{"parameter_in_range",0,i-0.1,32.1},{"parameter_in_range",1,sign-0.1,sign+0.1}})
+        group(name,counter_x,0.02,{"HUD_VS_ARC_COUNT","HUD_VS_SIGN","HUD_VS_VALID"},
+            {{"parameter_in_range",0,i-.1,32.1},{"parameter_in_range",1,sign-.1,sign+.1},
+                {'parameter_in_range',2,.9,1.1}})
         -- Start at nine o'clock: climb grows up the left side, descent down.
         local a,b=-pi/2+sign*(i-1)*2*pi/32,-pi/2+sign*i*2*pi/32
         line(0.145*math.sin(a),0.145*math.cos(a),0.145*math.sin(b),0.145*math.cos(b),0.003,name)
@@ -378,8 +387,8 @@ line(-0.018,-0.405,0,-0.37,0.004,"HUD_BANK_POINTER")
 line(0,-0.37,0.018,-0.405,0.004,"HUD_BANK_POINTER")
 line(-0.018,-0.405,0.018,-0.405,0.004,"HUD_BANK_POINTER")
 group("HUD_SLIP_POINTER",0,-0.45,{"HUD_BANK_RAD"},{{"rotate_using_parameter",0,1}},'HUD_BANK_SCALE')
-group("HUD_SLIP_BAR",0,-0.43,{"HUD_BANK_SLIP"},
-    {{"move_left_right_using_parameter",0,1}},"HUD_SLIP_POINTER")
+group("HUD_SLIP_BAR",0,-0.43,{"HUD_BANK_SLIP","HUD_SLIP_VALID"},
+    {{"move_left_right_using_parameter",0,1},{'parameter_in_range',1,.9,1.1}},"HUD_SLIP_POINTER")
 line(-0.018,0,0.018,0,0.005,"HUD_SLIP_BAR")
 
 -- Isolated per-mode presentation and sensor-validity markers.

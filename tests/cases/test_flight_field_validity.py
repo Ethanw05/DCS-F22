@@ -6,6 +6,7 @@ from host import Host
 
 def flight_host():
     host = Host()
+    host.state.time=30
     for name, sample in {
         'getAngleOfSlide': 0, 'getVerticalAcceleration': 1,
         'getAngleOfAttack': 0, 'getVerticalVelocity': 0,
@@ -17,6 +18,7 @@ def flight_host():
         'EFM_POWER_OWNER': 1, 'EFM_PHYSICAL_VALID': 1,
         'EFM_PHYSICAL_GENERATION': 7, 'EFM_PHYSICAL_CLOCK_KIND': 1,
         'EFM_PHYSICAL_STAMP': 3, 'F22_AP_CLOCK': 3, 'MAIN_POWER': 1,
+        'EFM_PHYSICAL_WORLD_STAMP':30,'EFM_PHYSICAL_WORLD_CLOCK_KIND':2,
         'EFM_HUD_VALID': 1, 'EFM_HUD_KINEMATICS_VALID': 1,
         'EFM_HUD_VN': 200, 'EFM_HUD_VE': 0, 'EFM_HUD_VU': 0,
         'EFM_HUD_WN': 5, 'EFM_HUD_WE': 0,
@@ -26,7 +28,8 @@ def flight_host():
         'EFM_AIRDATA_VALID': 1, 'EFM_AIRDATA_STAMP': 3,
         'EFM_AIRDATA_CAS_MPS': 140, 'EFM_AIRDATA_TAS_MPS': 200,
         'EFM_AIRDATA_HEALTH': 0,
-        'F22_GINS_VALID': 1, 'F22_GINS_SCHEMA': 1,
+        'F22_GINS_VALID': 1, 'F22_GINS_SCHEMA': 2,'F22_GINS_GENERATION':7,
+        'F22_GINS_WORLD_STAMP':30,'F22_GINS_WORLD_CLOCK_KIND':2,
         'F22_GINS_SEQUENCE': 4, 'F22_GINS_STAMP': 3,
         'F22_GINS_HUD_SOURCE': 1, 'F22_GINS_HUD_POWER': 1,
         'F22_GINS_HUD_ATTITUDE_VALID': 1, 'F22_GINS_HUD_HEADING_VALID': 1,

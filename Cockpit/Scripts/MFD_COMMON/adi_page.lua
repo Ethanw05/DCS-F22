@@ -17,6 +17,7 @@
 --]]
 
 -- Each indicator retains its own visibility parameter and Lua environment.
+local reading=dofile(LockOn_Options.script_path..'MFD_COMMON/qualified_readout.lua')
 return function(page_parameter)
 dofile(LockOn_Options.script_path.."MFD_COMMON/definitions.lua")
 dofile(LockOn_Options.script_path.."fonts.lua")
@@ -340,7 +341,7 @@ ADIILS_H.isvisible 				= true
 ADIILS_H.init_pos 				= {0, 0.12, 0} --L-R,U-D,F-B
 ADIILS_H.init_rot 				= {0, 0, 0}
 ADIILS_H.element_params 		= {"MFD_OPACITY",page_parameter,"ILS_HORIZON","ILSN_VIS"}--this may not be bneeded check when more pages done for backlight on page 7 SMS fc3 bs
-ADIILS_H.controllers			= {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"move_left_right_using_parameter",2,0.045,0},{"parameter_in_range",3,0.9,1.1}}
+ADIILS_H.controllers			= {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"move_left_right_using_parameter",2,0.045,0}}
 ADIILS_H.level 				    = 11
 ADIILS_H.h_clip_relation       = h_clip_relations.COMPARE
 vertices(ADIILS_H, 1.3, true)
@@ -355,7 +356,7 @@ ADIILS_V.isvisible 				= true
 ADIILS_V.init_pos 				= {0, 0.12, 0} --L-R,U-D,F-B
 ADIILS_V.init_rot 				= {90, 0, 0}
 ADIILS_V.element_params 		= {"MFD_OPACITY",page_parameter,"ILS_VERT","ILSN_VIS"}--this may not be bneeded check when more pages done for backlight on page 7 SMS fc3 bs
-ADIILS_V.controllers			= {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"move_left_right_using_parameter",2,0.045,0},{"parameter_in_range",3,0.9,1.1}}
+ADIILS_V.controllers			= {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"move_left_right_using_parameter",2,0.045,0}}
 ADIILS_V.level 					= 11
 ADIILS_V.h_clip_relation       = h_clip_relations.COMPARE
 vertices(ADIILS_V, 1.3, true)
@@ -391,7 +392,7 @@ ADIMASKGLOW.h_clip_relation     = h_clip_relations.COMPARE
 vertices(ADIMASKGLOW,2.5)
 Add(ADIMASKGLOW)
 ----------------------------------------------------------------------------------------------------------------------------------------------PARAM HERE
-SLIPBOX                    = CreateElement "ceTexPoly"
+local SLIPBOX = {}
 SLIPBOX.name    			= "BG"
 SLIPBOX.material			= SLIP_BALL
 SLIPBOX.change_opacity 		= false
@@ -408,7 +409,7 @@ SLIPBOX.controllers			= {
 SLIPBOX.level 				= 11
 SLIPBOX.h_clip_relation     = h_clip_relations.COMPARE
 vertices(SLIPBOX,0.10,false)
-Add(SLIPBOX)
+reading.graphic(SLIPBOX,'F22_SIDE_SLIP_VALID','ceTexPoly')
 -----------------------------------------------------------------------------------------------------------------------------------MASK--NO OPACITY
 ADIMASKSLIP                    = CreateElement "ceTexPoly"
 ADIMASKSLIP.name    			= "BG"
@@ -471,7 +472,7 @@ vertices(RING,2.5)
 Add(RING)
 -----------------------------------
 --Indicated Airspeed
-IAS						= CreateElement "ceStringSLine"
+local IAS = {}
 IAS.name				= "Indicated Airspeed"
 IAS.material			= "F22_LCD_FONT_WHITE"
 IAS.init_pos			= {-0.54, 0.65, 0} --L-R,U-D,F-B
@@ -487,9 +488,10 @@ IAS.element_params		= {"MFD_OPACITY","IAS",page_parameter}
 IAS.formats				= {"%.0f"} --{"%.0f"}
 IAS.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
 vertices(IAS,2.5)
-Add(IAS)
+IAS.name=page_parameter..'_NAV_IAS'
+reading.add(IAS,'F22_SIDE_IAS_VALID','ceStringSLine')
 ----------------------------------------------------------------------------------------------------------------------------------------------
-BAROALT						= CreateElement "ceStringSLine"
+local BAROALT = {}
 BAROALT.name				= "Indicated Airspeed"
 BAROALT.material			= "F22_LCD_FONT_WHITE"
 BAROALT.init_pos			= {0.85, 0.65, 0} --L-R,U-D,F-B
@@ -501,13 +503,14 @@ BAROALT.isdraw				= true
 BAROALT.use_mipfilter		= true
 BAROALT.h_clip_relation		= h_clip_relations.COMPARE
 BAROALT.level				= 11
-BAROALT.element_params		= {"MFD_OPACITY","BAROALT",page_parameter,"F22_SIDE_BARO_VALID"}
+BAROALT.element_params		= {"MFD_OPACITY","BAROALT",page_parameter}
 BAROALT.formats				= {"%.0f"} --{"%.0f"}
-BAROALT.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,.9,1.1}}
+BAROALT.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
 vertices(BAROALT,2.5)
-Add(BAROALT)
+BAROALT.name=page_parameter..'_NAV_BAROALT'
+reading.add(BAROALT,'F22_SIDE_BARO_VALID','ceStringSLine')
 ----------------------------------------------------------------------------------------------------------------------------------------------
-FPM						= CreateElement "ceStringSLine"
+local FPM = {}
 FPM.name				= "Indicated Airspeed"
 FPM.material			= "F22_LCD_FONT_WHITE"
 FPM.init_pos			= {0.85, 0.75, 0} --L-R,U-D,F-B
@@ -519,14 +522,15 @@ FPM.isdraw				= true
 FPM.use_mipfilter		= true
 FPM.h_clip_relation		= h_clip_relations.COMPARE
 FPM.level				= 11
-FPM.element_params		= {"MFD_OPACITY","VV",page_parameter,"F22_SIDE_VS_VALID"}
+FPM.element_params		= {"MFD_OPACITY","VV",page_parameter}
 FPM.formats				= {"%.0f"} --{"%.0f"}
 FPM.controllers = {{"opacity_using_parameter",0},{"text_using_parameter",1,0},
-    {"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,0.9,1.1}}
+    {"parameter_in_range",2,0.9,1.1}}
 vertices(FPM,2.5)
-Add(FPM)
+FPM.name=page_parameter..'_NAV_FPM'
+reading.add(FPM,'F22_SIDE_VS_VALID','ceStringSLine')
 ----------------------------------------------------------------------------------------------------------------------------------------------
-NAV						= CreateElement "ceStringSLine"
+local NAV = {}
 NAV.name				= "heading numb"
 NAV.material			= "F22_LCD_FONT_WHITE"
 NAV.init_pos			= {0, 0.85, 0} --L-R,U-D,F-B
@@ -542,7 +546,8 @@ NAV.element_params		= {"MFD_OPACITY","NAV",page_parameter}
 NAV.formats				= {"%03.0f"} --{"%.0f"}
 NAV.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
 vertices(NAV,2.5)
-Add(NAV)
+NAV.name=page_parameter..'_NAV_NAV'
+reading.add(NAV,'F22_SIDE_HEADING_VALID','ceStringSLine')
 --------------------------------------------------------------------------------------------------- MENU TEXT
 --MENU TEXT
 

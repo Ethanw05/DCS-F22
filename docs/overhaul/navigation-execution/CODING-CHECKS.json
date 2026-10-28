@@ -1,0 +1,35 @@
+{
+  "Lua_lint": {
+    "tool": "Luacheck1.2.0",
+    "pinned_commit": "cc089e3f65acdd1ef8716cc73a3eca24a6b845e4",
+    "new_findings": 0,
+    "scope": "11 changed navigation/cockpit Lua files"
+  },
+  "native": "Four actual CNI/input/clock/publication suites pass; replacement publication/control fixtures /W4 /WX /analyze",
+  "new_modules": {
+    "Cockpit_Currentness": {
+      "maximum_CCN": 11,
+      "maximum_statement_lines": 9
+    },
+    "Magnetic_Reference": {
+      "maximum_CCN": 9,
+      "maximum_statement_lines": 13
+    },
+    "Side_Indications": {
+      "maximum_CCN": 7,
+      "maximum_statement_lines": 14
+    }
+  },
+  "exceptions": [
+    {
+      "function": "HUD_Flight_Data.update",
+      "reason": "Existing ordered display callback; retain drawing/FPM/landing order while new admission resides in small bounded helpers",
+      "limit": "Fixed36ladder updates; no unbounded new work; full decision coverage/DCS timing not measured"
+    },
+    {
+      "function": "CockpitManager.update",
+      "reason": "Existing bounded field publication callback; only World stamp/kind added to its cockpit publication region",
+      "limit": "Clock export resolved at explicit startup; no new callback allocation or waiting"
+    }
+  ]
+}

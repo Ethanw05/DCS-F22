@@ -2,7 +2,8 @@
 from host import Host
 
 
-def seed_physical(h, clock=2, generation=3):
+def seed_physical(h, clock=2, generation=3, world=None):
+    if world is None: world=h.state.time
     h.seed({'EFM_POWER_OWNER':1,'EFM_PHYSICAL_VALID':1,'EFM_PHYSICAL_GENERATION':generation,
             'EFM_PHYSICAL_STAMP':clock,'EFM_PHYSICAL_CLOCK_KIND':1,'F22_AP_CLOCK':clock,
             'MAIN_POWER':1,'BATTERY_POWER':1,'F22_ESSENTIAL_POWER':1,'EFM_HUD_VALID':1,
@@ -10,7 +11,8 @@ def seed_physical(h, clock=2, generation=3):
             'EFM_GROUND_VALID':1,'EFM_WEIGHT_ON_WHEELS':0,'EFM_GEAR_UP_LOCKED':1,
             'EFM_GEAR_DOWN_LOCKED':0,'EFM_GEAR_UNSAFE':0,'EFM_AIRDATA_VALID':1,
             'EFM_AIRDATA_STAMP':clock,'EFM_AIRDATA_CAS_MPS':100,
-            'EFM_AIRDATA_TAS_MPS':110,'EFM_AIRDATA_HEALTH':0})
+            'EFM_AIRDATA_TAS_MPS':110,'EFM_AIRDATA_HEALTH':0,'EFM_AIRDATA_MACH':.5,
+            'EFM_PHYSICAL_WORLD_STAMP':world,'EFM_PHYSICAL_WORLD_CLOCK_KIND':2})
 
 
 def avionics_sensors(h):
@@ -21,7 +23,10 @@ def avionics_sensors(h):
                        'getBarometricAltitude':1000,'getMachNumber':.5,
                        'getRadarAltitude':600,'getTotalFuelWeight':5000}.items():
         h.sensor(name,value)
+        h.state.sensors[name]=h.lua.eval('function(port) return function() return port() end end')(h.state.sensors[name])
     h.sensor('getSelfCoordinates',(0,1000,0))
+    h.state.sensors['getSelfCoordinates']=h.lua.eval('function(port) return function() return port() end end')(
+        h.state.sensors['getSelfCoordinates'])
     h.env.get_cockpit_draw_argument_value=lambda _:0
     h.env.get_aircraft_draw_argument_value=lambda _:0
     h.env.set_aircraft_draw_argument_value=lambda *args:None
@@ -31,8 +36,8 @@ def avionics_sensors(h):
 def altitude_host():
     h=Host()
     avionics_sensors(h)
-    seed_physical(h)
     h.state.time=10
+    seed_physical(h)
     h.load('Systems/Altitude_System.lua')
     h.env.post_initialize()
     h.seed({'F22_ALTIMETER_NATIVE_READY':1,'F22_ALTIMETER_NATIVE_VALID':1,

@@ -103,9 +103,15 @@
       "owner": "chat2",
       "captured_sha256": "06afe90e47602c6113131b70d25add15b603f83e183510207e3965d48dbe3d12",
       "execution_sha256": "06afe90e47602c6113131b70d25add15b603f83e183510207e3965d48dbe3d12",
-      "status": "pending_domain_remake",
-      "replacement": null,
-      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+      "status": "deleted_replaced",
+      "replacement": [
+        "tests/navigation_ports.py",
+        "tests/cases/test_gins_admission.py",
+        "tests/cases/test_side_indications.py"
+      ],
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data",
+      "retired_sha256": "06afe90e47602c6113131b70d25add15b603f83e183510207e3965d48dbe3d12",
+      "coverage_limits": "Actual generation/source/axis/currentness/failure/reset tests; alignment calibration and full selected AFCS/route qualification remain open under NAV001/NAV006"
     },
     {
       "path": "tests/owned_radar_fixture.lua",
@@ -121,9 +127,15 @@
       "owner": "chat2",
       "captured_sha256": "539ab7b02fa0ba412f029bddeded65d866ee881da909fd8cb3c90a38d3aae985",
       "execution_sha256": "539ab7b02fa0ba412f029bddeded65d866ee881da909fd8cb3c90a38d3aae985",
-      "status": "pending_domain_remake",
-      "replacement": null,
-      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+      "status": "deleted_replaced",
+      "replacement": [
+        "tests/navigation_ports.py",
+        "tests/cases/test_gins_admission.py",
+        "tests/cases/test_side_indications.py"
+      ],
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data",
+      "retired_sha256": "539ab7b02fa0ba412f029bddeded65d866ee881da909fd8cb3c90a38d3aae985",
+      "coverage_limits": "Actual generation/source/axis/currentness/failure/reset tests; alignment calibration and full selected AFCS/route qualification remain open under NAV001/NAV006"
     },
     {
       "path": "tests/radar_body_fixture.lua",
@@ -157,9 +169,15 @@
       "owner": "chat2",
       "captured_sha256": "4bc6d17eb46e4d6da5bfd5399d4775f414f99e4b8b4961bbf3b4966a402f61ae",
       "execution_sha256": "4bc6d17eb46e4d6da5bfd5399d4775f414f99e4b8b4961bbf3b4966a402f61ae",
-      "status": "pending_domain_remake",
-      "replacement": null,
-      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+      "status": "deleted_replaced",
+      "replacement": [
+        "tests/navigation_ports.py",
+        "tests/cases/test_gins_admission.py",
+        "tests/cases/test_side_indications.py"
+      ],
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data",
+      "retired_sha256": "4bc6d17eb46e4d6da5bfd5399d4775f414f99e4b8b4961bbf3b4966a402f61ae",
+      "coverage_limits": "Actual generation/source/axis/currentness/failure/reset tests; alignment calibration and full selected AFCS/route qualification remain open under NAV001/NAV006"
     },
     {
       "path": "tests/requirements-radar.txt",
@@ -316,9 +334,14 @@
       "owner": "chat2",
       "captured_sha256": "47297c76911c9e65c33c798f9e2ef2f9e2bfec5f00d589b8825f85d3cb1a548c",
       "execution_sha256": "47297c76911c9e65c33c798f9e2ef2f9e2bfec5f00d589b8825f85d3cb1a548c",
-      "status": "pending_domain_remake",
-      "replacement": null,
-      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+      "status": "deleted_replaced",
+      "replacement": [
+        "tests/cases/test_altitude_admission.py",
+        "tests/cases/test_altitude_owners.py",
+        "tests/native/altitude_snapshot.cpp"
+      ],
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data",
+      "coverage_limit": "This tranche covers independent currentness/supply/writer ownership. Broader navigation/input/optics/native/multiplayer requirements remain assigned and unqualified; old assertions were not copied."
     },
     {
       "path": "tests/test_ap_off_confirmation.py",
@@ -388,9 +411,12 @@
       "owner": "chat2",
       "captured_sha256": "0b4b8ba59773a85177342892280f5ce79cfd1b450fe60ec4814688b11333ca39",
       "execution_sha256": "0b4b8ba59773a85177342892280f5ce79cfd1b450fe60ec4814688b11333ca39",
-      "status": "pending_domain_remake",
-      "replacement": null,
-      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+      "status": "deleted_replaced",
+      "replacement": [
+        "tests/cases/test_mfd_supply_ownership.py"
+      ],
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data",
+      "coverage_limit": "This tranche covers independent currentness/supply/writer ownership. Broader navigation/input/optics/native/multiplayer requirements remain assigned and unqualified; old assertions were not copied."
     },
     {
       "path": "tests/test_common_ufc_workflow.py",
@@ -601,9 +627,15 @@
       "owner": "chat2",
       "captured_sha256": "c3b5e1145eff45a95cb3dedb7a0cef5f7f3afce8ea4b1491116a2be0129fc4ee",
       "execution_sha256": "c3b5e1145eff45a95cb3dedb7a0cef5f7f3afce8ea4b1491116a2be0129fc4ee",
-      "status": "pending_domain_remake",
-      "replacement": null,
-      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+      "status": "deleted_replaced",
+      "replacement": [
+        "tests/navigation_ports.py",
+        "tests/cases/test_gins_admission.py",
+        "tests/cases/test_side_indications.py"
+      ],
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data",
+      "retired_sha256": "c3b5e1145eff45a95cb3dedb7a0cef5f7f3afce8ea4b1491116a2be0129fc4ee",
+      "coverage_limits": "Actual generation/source/axis/currentness/failure/reset tests; alignment calibration and full selected AFCS/route qualification remain open under NAV001/NAV006"
     },
     {
       "path": "tests/test_ground_collection.py",

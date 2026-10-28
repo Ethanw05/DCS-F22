@@ -35,7 +35,7 @@ void request(Put put, double sequence, double target) {
     put("MAIN_POWER",1);
     put("F22_ENTRY_GUIDANCE_REQUEST",sequence);
 }
-void check(const Module& cockpit, const Module& aircraft) {
+void check(const Module& cockpit, const Module& world, const Module& aircraft) {
     const auto put = cockpit.symbol<Put>("flight_set_number");
     const auto get = cockpit.symbol<Get>("flight_get_number");
     const auto conversion = cockpit.symbol<Conversion>("flight_set_conversion");
@@ -82,7 +82,17 @@ void check(const Module& cockpit, const Module& aircraft) {
     aircraft.symbol<void(*)()>("ed_fm_hot_start_in_air")();
     request(put,3,180);command(11800,3);
     require(get("F22_ENTRY_GUIDANCE_ACK_REQUEST")==3,"Explicit new startup did not reacquire context");
+    const auto set_clock=world.symbol<void(*)(double)>("flight_set_model_time");
+    const auto simulate=aircraft.symbol<void(*)(double)>("ed_fm_simulate");
+    set_clock(200);simulate(.006);
+    require(get("EFM_PHYSICAL_WORLD_STAMP")==200 && get("EFM_PHYSICAL_WORLD_CLOCK_KIND")==2,
+            "Cockpit publication did not preserve the independent World clock");
+    set_clock(NAN);simulate(.006);
+    require(get("EFM_PHYSICAL_WORLD_STAMP")==-100,"Invalid World clock became a current sample");
+    set_clock(201);simulate(.006);
+    require(get("EFM_PHYSICAL_WORLD_STAMP")==201,"World clock publication did not recover");
     aircraft.symbol<void(*)()>("ed_fm_release")();
+    require(get("EFM_PHYSICAL_WORLD_CLOCK_KIND")==0,"Release retained a qualified cockpit clock");
 }
 }
 int main(int argc, char** argv) {
@@ -97,10 +107,10 @@ int main(int argc, char** argv) {
             aircraft.symbol<void(*)(float*,std::size_t)>("ed_fm_set_fc3_cockpit_draw_args_v2")
                 (draw.data(),draw.size());
             Module cockpit(argv[1]),world(argv[2]);
-            check(cockpit,aircraft);
+            check(cockpit,world,aircraft);
         } else {
             Module cockpit(argv[1]),world(argv[2]),aircraft(argv[3]);
-            check(cockpit,aircraft);
+            check(cockpit,world,aircraft);
         }
         std::cout << "Actual EFM entry/draw: zero, six independent failed reads and recovery pass\n";
         return 0;

@@ -2,13 +2,15 @@
 -- Independent failures/selections are modeled; production wiring is unknown.
 local Align = dofile(LockOn_Options.script_path .. 'Systems/Gins_Alignment.lua')
 local Envelope = dofile(LockOn_Options.script_path .. 'Systems/Physical_Snapshot.lua')
+local Currentness=dofile(LockOn_Options.script_path..'Systems/Cockpit_Currentness.lua')
 local M, Producer = {}, {}
 Producer.__index = Producer
 local roles = { 'NAV', 'HUD', 'SFG' }
 local components = { 'ATTITUDE_FAILURE', 'HEADING_FAILURE', 'POSITION_FAILURE', 'FAILURE', 'POWER_FAILURE' }
 local payload = { 'SOURCE', 'POWER', 'ATTITUDE_VALID', 'HEADING_VALID', 'POSITION_READY', 'PITCH', 'ROLL', 'HEADING' }
 local channel_fields = { 'ALIGN_PROGRESS', 'ALIGN_TOTAL', 'ALIGN_KIND', 'STATUS' }
-local common = { 'VALID', 'SCHEMA', 'SEQUENCE', 'STAMP', 'COMMAND_STATUS', 'COMMAND_RESULT', 'NAV_STATUS' }
+local common = { 'VALID', 'SCHEMA', 'SEQUENCE', 'STAMP', 'GENERATION','WORLD_STAMP','WORLD_CLOCK_KIND',
+    'COMMAND_STATUS', 'COMMAND_RESULT', 'NAV_STATUS' }
 local function bind(get, prefix, names, keys)
     for index = 1, #names do
         local name = names[index]
@@ -32,6 +34,8 @@ end
 local function inputs(self)
     local input, base, get, physical = self.input, self.base, self.get, self.physical
     physical:update()
+    input.world=Currentness.clock()
+    input.current=self.currentness:update(physical,input.world)
     input.now = get('F22_AP_CLOCK')
     input.pitch, input.roll = observation(base.getPitch), observation(base.getRoll)
     local heading = observation(base.getHeading)
@@ -39,7 +43,7 @@ local function inputs(self)
     local ok, n, _, e = false, nil, nil, nil
     if type(base.getSelfCoordinates) == 'function' then ok, n, _, e = pcall(base.getSelfCoordinates) end
     input.n, input.e = ok and n or nil, ok and e or nil
-    input.powered = physical.valid and physical.values.F22_ESSENTIAL_POWER == 1
+    input.powered = input.current and physical.values.F22_ESSENTIAL_POWER == 1
     input.stationary = owned_stationary(physical)
     return input
 end
@@ -98,9 +102,9 @@ local function role_publish(self, role, shared)
 end
 function M.new(get, put, base)
     local self = setmetatable({get=get, put=put, base=base, channels={}, input={}, role_keys={}, keys={},
-        selected={NAV=1, HUD=1, SFG=2}, sequence=0}, Producer)
+        selected={NAV=1, HUD=1, SFG=2}, sequence=0,currentness=Currentness.new()}, Producer)
     self.physical = Envelope.new(get, {'F22_ESSENTIAL_POWER','EFM_GROUND_VALID','EFM_WEIGHT_ON_WHEELS',
-        'EFM_HUD_VALID','EFM_HUD_VN','EFM_HUD_VE'})
+        'EFM_HUD_VALID','EFM_HUD_VN','EFM_HUD_VE','EFM_PHYSICAL_WORLD_STAMP','EFM_PHYSICAL_WORLD_CLOCK_KIND'})
     bind(get, 'F22_GINS_', common, self.keys)
     for index=1,#roles do
         local role=roles[index];self.role_keys[role]={}
@@ -116,8 +120,10 @@ function M.new(get, put, base)
     return self
 end
 function Producer:reset(aligned)
-    self.sequence=0;self.selected.NAV,self.selected.HUD,self.selected.SFG=1,1,2
-    publish(self,'VALID',0);publish(self,'SCHEMA',1);publish(self,'SEQUENCE',0)
+    self.sequence=0;self.generation=nil;self.currentness:reset()
+    self.selected.NAV,self.selected.HUD,self.selected.SFG=1,1,2
+    publish(self,'VALID',0);publish(self,'SCHEMA',2);publish(self,'SEQUENCE',0);publish(self,'GENERATION',0)
+    publish(self,'WORLD_STAMP',-100);publish(self,'WORLD_CLOCK_KIND',0)
     publish(self,'COMMAND_STATUS','');publish(self,'COMMAND_RESULT',0)
     for index=1,2 do
         local channel=self.channels[index]
@@ -130,12 +136,21 @@ end
 function Producer:update()
     publish(self,'VALID',0)
     local shared=inputs(self)
-    if not Envelope.finite(shared.now) or self.sequence>=16777215 then
+    if not shared.current or not Envelope.finite(shared.now) then
         self.put('F22_INS_READY',0);publish(self,'NAV_STATUS','REFERENCE PUBLICATION INVALID');return
     end
+    if self.generation and self.generation~=self.physical.generation then
+        self.sequence=0
+        for index=1,2 do self.channels[index].alignment=Align.new(false)end
+    end
+    if self.sequence>=16777215 then
+        self.put('F22_INS_READY',0);publish(self,'NAV_STATUS','REFERENCE SEQUENCE EXHAUSTED');return
+    end
+    self.generation=self.physical.generation
     for index=1,2 do channel_update(self,self.channels[index],shared)end
     for index=1,#roles do role_publish(self,roles[index],shared)end
-    publish(self,'STAMP',shared.now);publish(self,'SCHEMA',1)
+    publish(self,'STAMP',shared.now);publish(self,'SCHEMA',2);publish(self,'GENERATION',self.generation)
+    publish(self,'WORLD_STAMP',shared.world);publish(self,'WORLD_CLOCK_KIND',2)
     self.sequence=self.sequence+1
     publish(self,'SEQUENCE',self.sequence);publish(self,'VALID',1)
     local selected=self.channels[self.selected.NAV]
@@ -165,8 +180,9 @@ function M.reader(get, role)
         names[index] = 'F22_GINS_' .. role .. '_' .. fields[index]; get(names[index]); values[fields[index]] = 0
     end
     for _, key in ipairs({ 'F22_GINS_SCHEMA', 'F22_GINS_VALID', 'F22_GINS_SEQUENCE',
-        'F22_GINS_STAMP', 'F22_AP_CLOCK' }) do get(key) end
-    return setmetatable({ get = get, names = names, values = values, valid = false }, Reader)
+        'F22_GINS_STAMP','F22_GINS_GENERATION','F22_GINS_WORLD_STAMP','F22_GINS_WORLD_CLOCK_KIND',
+        'EFM_PHYSICAL_GENERATION','F22_AP_CLOCK' }) do get(key) end
+    return setmetatable({ get=get,names=names,values=values,valid=false,currentness=Currentness.new() },Reader)
 end
 local function frame_epoch(sequence, stamp, get)
     return Envelope.finite(sequence) and sequence>=1 and sequence<=16777215 and sequence%1==0
@@ -182,13 +198,26 @@ local function frame_payload(values)
     return math.abs(values.PITCH)<=4*math.pi and math.abs(values.ROLL)<=4*math.pi
         and values.HEADING>=0 and values.HEADING<2*math.pi
 end
+local function generation_valid(value)
+    return Envelope.finite(value) and value>=1 and value<=4294967295 and value%1==0
+end
+local function frame_unchanged(get,sequence,stamp,generation,world_stamp,kind)
+    return get('F22_GINS_VALID')==1 and get('F22_GINS_SCHEMA')==2
+        and get('F22_GINS_SEQUENCE')==sequence and get('F22_GINS_STAMP')==stamp
+        and get('F22_GINS_WORLD_STAMP')==world_stamp and get('F22_GINS_WORLD_CLOCK_KIND')==kind
+        and get('F22_GINS_GENERATION')==generation and generation==get('EFM_PHYSICAL_GENERATION')
+        and get('EFM_PHYSICAL_VALID')==1
+end
 local function complete_frame(self)
     local get=self.get
     local sequence,stamp=get('F22_GINS_SEQUENCE'),get('F22_GINS_STAMP')
+    local generation=get('F22_GINS_GENERATION')
+    local world_stamp,kind=get('F22_GINS_WORLD_STAMP'),get('F22_GINS_WORLD_CLOCK_KIND')
     for index=1,#fields do self.values[fields[index]]=get(self.names[index])end
-    if get('F22_GINS_VALID')~=1 or get('F22_GINS_SEQUENCE')~=sequence
-        or get('F22_GINS_STAMP')~=stamp or get('F22_GINS_SCHEMA')~=1 then return false end
+    if not frame_unchanged(get,sequence,stamp,generation,world_stamp,kind) then return false end
+    if not generation_valid(generation) then return false end
     local valid=frame_epoch(sequence,stamp,get) and frame_payload(self.values)
+        and self.currentness:sample(generation,kind,world_stamp,true,Currentness.clock())
     if valid then self.stamp,self.sequence=stamp,sequence end
     return valid
 end
@@ -196,7 +225,7 @@ function Reader:update()
     local get=self.get
     self.valid=false;self.stamp,self.sequence=nil,nil
     local schema=get('F22_GINS_SCHEMA')
-    if schema~=1 or get('F22_GINS_VALID')~=1 then return self end
+    if schema~=2 or get('F22_GINS_VALID')~=1 then return self end
     self.valid=complete_frame(self)
     return self
 end

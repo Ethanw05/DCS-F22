@@ -1684,6 +1684,10 @@ void CockpitManager::initialize() {
     parameters_ready_ = false;
     param_handles_.clear();
     if (!param_api_.initialize()) return;
+    cockpit_world_clock_ = nullptr;
+    if (const auto world = GetModuleHandleW(L"World.dll"))
+        cockpit_world_clock_ = reinterpret_cast<double(__cdecl*)()>(
+            GetProcAddress(world,"?GetModelTime@wTime@@SANXZ"));
     navigation_snapshot_.initialize(param_api_);
     altitude_snapshot_.initialize(param_api_);
     vehicle_bus.initialize(param_api_);
@@ -1701,7 +1705,8 @@ void CockpitManager::initialize() {
     NativeGroundRadar::reset();
     NativeAGWeapons::reset();
     NativeGunSight::reset();
-    const char* hud_names[] = {"EFM_HUD_VALID", "EFM_HUD_KINEMATICS_VALID", "EFM_HUD_VN", "EFM_HUD_VE", "EFM_HUD_VU",
+    const char* hud_names[] = {"EFM_PHYSICAL_WORLD_STAMP", "EFM_PHYSICAL_WORLD_CLOCK_KIND",
+        "EFM_HUD_VALID", "EFM_HUD_KINEMATICS_VALID", "EFM_HUD_VN", "EFM_HUD_VE", "EFM_HUD_VU",
         "EFM_HUD_WN", "EFM_HUD_WE", "EFM_HUD_WU", "EFM_HUD_TAS",
         "EFM_HUD_SOUND", "EFM_HUD_PRESSURE", "EFM_ENGINE_VALID",
         "EFM_ENGINE_LEFT_RPM_PCT", "EFM_ENGINE_RIGHT_RPM_PCT",
@@ -1753,10 +1758,16 @@ void CockpitManager::initialize() {
     param_api_.setParamNumber(param_handles_["MAIN_POWER"], (RAPTOR::left_engine_state == RAPTOR::RUNNING || RAPTOR::right_engine_state == RAPTOR::RUNNING) ? 1.0 : 0.0);
     param_api_.setParamNumber(param_handles_["BATTERY_POWER"], (RAPTOR::left_engine_switch || RAPTOR::right_engine_switch) ? 1.0 : 0.0);
     parameters_ready_ = true;
+    param_api_.setParamNumber(param_handles_["EFM_PHYSICAL_WORLD_STAMP"],-100);
+    param_api_.setParamNumber(param_handles_["EFM_PHYSICAL_WORLD_CLOCK_KIND"],0);
 }
 
 void CockpitManager::invalidatePhysical() {
     parameters_ready_ = false; // Stop subsequent cockpit producers before release/reset.
+    const auto clock_handle = param_handles_.find("EFM_PHYSICAL_WORLD_STAMP");
+    if (clock_handle != param_handles_.end()) param_api_.setParamNumber(clock_handle->second,-100);
+    const auto clock_kind = param_handles_.find("EFM_PHYSICAL_WORLD_CLOCK_KIND");
+    if (clock_kind != param_handles_.end()) param_api_.setParamNumber(clock_kind->second,0);
     constexpr VehicleSignal signals[] = {
         VehicleSignal::Valid, VehicleSignal::AirValid, VehicleSignal::ElectricalValid,
         VehicleSignal::EnvironmentValid, VehicleSignal::MassValid, VehicleSignal::ForceValid,
@@ -1836,6 +1847,7 @@ void CockpitManager::retireParameters() {
     parameters_ready_ = false;
     param_api_.invalidate();
     param_handles_.clear();
+    cockpit_world_clock_ = nullptr;
 }
 
 void CockpitManager::update(double dt) {
@@ -1945,6 +1957,11 @@ void CockpitManager::update(double dt) {
     updateFormationLights(dt);
     updateNavAntiCollisionLights(dt);
     vehicle_publish_mass();
+    const double world_stamp = cockpit_world_clock_ ? cockpit_world_clock_() : -100;
+    if (const auto slot=param_handles_.find("EFM_PHYSICAL_WORLD_STAMP");slot!=param_handles_.end())
+        (void)param_api_.setParamNumber(slot->second,std::isfinite(world_stamp) && world_stamp>=0 ? world_stamp : -100);
+    if (const auto slot=param_handles_.find("EFM_PHYSICAL_WORLD_CLOCK_KIND");slot!=param_handles_.end())
+        (void)param_api_.setParamNumber(slot->second,cockpit_world_clock_ ? 2 : 0);
     vehicle_publish();
 }
 

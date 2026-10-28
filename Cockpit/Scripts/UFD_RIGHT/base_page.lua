@@ -802,7 +802,7 @@ BGROUND1a.vertices =
 Add(BGROUND1a)
 ----------------------------------------------------------------
 --Heading Digital
-local NAV				= CreateElement "ceStringPoly"
+local NAV = {}
 NAV.name				= "Navigation"
 NAV.material			= UFD_FONT
 NAV.init_pos			= {-16.8, 40.8, 0} --L-R,U-D,F-B
@@ -814,10 +814,11 @@ NAV.isdraw				= true
 NAV.use_mipfilter		= true
 NAV.h_clip_relation		= h_clip_relations.COMPARE
 NAV.level				= 6
-NAV.element_params		= {"R_ADI_OPACITY","NAV","UFD_OPACITY"}
+NAV.element_params		= {"R_ADI_OPACITY","F22_SFG_HEADING","UFD_OPACITY"}
 NAV.formats				= {"%03.0f"}
 NAV.controllers			= {{"parameter_in_range",0,0.9,1.1},{"text_using_parameter",1,0},{"opacity_using_parameter",2}}
-Add(NAV)
+NAV.name='F22_SIDE_RIGHT_NAV'
+reading.add(NAV,'F22_SIDE_SFG_HEADING_VALID','ceStringPoly')
 ----------------------------------------------------
 BGROUND2                    = CreateElement "ceTexPoly" --top right box
 BGROUND2.name    			= "BG"
@@ -965,7 +966,7 @@ BGROUND3.vertices =
 Add(BGROUND3)
 ---------------------------------------------------------------------
 --Indicated Airspeed
-local IAS				= CreateElement "ceStringPoly"
+local IAS = {}
 IAS.name				= "Indicated Airspeed"
 IAS.material			= UFD_FONT
 IAS.init_pos			= {-60, 4.4, 0} --L-R,U-D,F-B
@@ -980,7 +981,8 @@ IAS.level				= 6
 IAS.element_params		= {"UFD_OPACITY","IAS","R_ADI_OPACITY"}
 IAS.formats				= {"%03.0f"} --{"%.0f"}
 IAS.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
-Add(IAS)
+IAS.name='F22_SIDE_RIGHT_IAS'
+reading.add(IAS,'F22_SIDE_IAS_VALID','ceStringPoly')
 ---------------------------------------------------------------------
 BGROUND4                    = CreateElement "ceTexPoly" -- alt box right
 BGROUND4.name    			= "BG"
@@ -1016,7 +1018,7 @@ BGROUND4.vertices =
 Add(BGROUND4)
 -----------------------------------------------------
 --Barometric Alt
-local BARO				= CreateElement "ceStringPoly"
+local BARO = {}
 BARO.name				= "Baro Alt"
 BARO.material			= UFD_FONT
 BARO.init_pos			= {26.5, 4.4, 0} --L-R,U-D,F-B
@@ -1028,10 +1030,11 @@ BARO.isdraw				= true
 BARO.use_mipfilter		= true
 BARO.h_clip_relation	= h_clip_relations.COMPARE
 BARO.level				= 6
-BARO.element_params		= {"UFD_OPACITY","BAROALT","R_ADI_OPACITY","F22_SIDE_BARO_VALID"}
+BARO.element_params		= {"UFD_OPACITY","BAROALT","R_ADI_OPACITY"}
 BARO.formats			= {"%05.0f"}
-BARO.controllers		= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,.9,1.1}}
-Add(BARO)
+BARO.controllers		= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
+BARO.name='F22_SIDE_RIGHT_BARO'
+reading.add(BARO,'F22_SIDE_BARO_VALID','ceStringPoly')
 -----------------------------------------------------
 BGROUND5                    = CreateElement "ceTexPoly" -- alt box right lower
 BGROUND5.name    			= "BG"
@@ -1065,7 +1068,7 @@ BGROUND5.vertices =
 
 Add(BGROUND5)
 --------------------------------------------------------------------------
-local RADALT				= CreateElement "ceStringPoly"
+local RADALT = {}
 RADALT.name				= "rad Alt"
 RADALT.material			= UFD_FONT
 RADALT.init_pos			= {26, -32.5, 0} --L-R,U-D,F-B
@@ -1080,7 +1083,8 @@ RADALT.level				= 6
 RADALT.element_params		= {"UFD_OPACITY","RADALT","R_ADI_OPACITY"}
 RADALT.formats			= {"%05.0f"}
 RADALT.controllers		= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
-Add(RADALT)
+RADALT.name='F22_SIDE_RIGHT_RADALT'
+reading.add(RADALT,'F22_SIDE_RADAR_VALID','ceStringPoly')
 
 ---------------------------------------------------------------------TRIM--STOP
 ADITRIMMASK                    	= CreateElement "ceTexPoly"
@@ -1191,7 +1195,7 @@ FUELLINEMASK.isvisible 				= true
 FUELLINEMASK.init_pos 				= {43, -77, 0} --maybe its x,y,z z being depth.. again who the fuck knows?
 --FUELLINE.init_rot 			= {0, 0, 0}
 FUELLINEMASK.element_params 		= {"FUELL","R_ADI_OPACITY"} --HOPE THIS WORKS G_OP_BACK
---FUELLINE.element_params 		= {"UFD_OPACITY","L_ADI_OPACITY","F22_SIDE_BARO_VALID"} --HOPE THIS WORKS G_OP_BACK
+--FUELLINE.element_params 		= {"UFD_OPACITY","L_ADI_OPACITY"} --HOPE THIS WORKS G_OP_BACK
 FUELLINEMASK.controllers			= 	{
 								   			{"move_up_down_using_parameter",0,0.00081,0}, --{"move_up_down_using_parameter",0,0.00052,0},
 								   			{"parameter_in_range",1,0.9,1.1}
@@ -1609,46 +1613,7 @@ GPOWER.controllers		= 	{	{"parameter_in_range",0,0.9,1.1},
 							}
 Add(GPOWER)
 -------------------------------------------------------------
-GTXT 					= CreateElement "ceStringPoly"
-GTXT.name 				= "gtext"
-GTXT.material 			= UFD_GRN --FONT_RPM--
-GTXT.value 				= "G:"
-GTXT.stringdefs 		= {0.0040, 0.0040, 0.0004, 0.001}
-GTXT.alignment 			= "CenterCenter"
-GTXT.formats 			= {"%s"}
-GTXT.h_clip_relation  	= h_clip_relations.COMPARE
-GTXT.level 				= 10
-GTXT.init_rot 			= {0, 0, 0}
-GTXT.init_pos 			= {-55, -25, 0}
-GTXT.element_params 	= {"R_WAR_OPACITY","UFD_OPACITY"} --get_param_handle
-GTXT.controllers		= 	{	{"parameter_in_range",0,0.9,1.1},
-								--{"parameter_in_range",1,0.9,1.1}, 
-								{"opacity_using_parameter",1}
-							}
-Add(GTXT)
---------------
---------------
-G_NUM				    = CreateElement "ceStringPoly"
-G_NUM.name				= "G_NUM"
-G_NUM.material			= UFD_GRN
-G_NUM.init_pos			= {-42, -25, 0} --L-R,U-D,F-B
-G_NUM.alignment			= "RightCenter"
-G_NUM.stringdefs		= {0.0040, 0.0040, 0, 0.0} --either 004 or 005
-G_NUM.additive_alpha	= true
-G_NUM.collimated		= false
-G_NUM.isdraw			= true	
-G_NUM.use_mipfilter		= true
-G_NUM.h_clip_relation	= h_clip_relations.COMPARE
-G_NUM.level				= 10
-G_NUM.element_params	= {"UFD_OPACITY","GFORCE","R_WAR_OPACITY"}
-G_NUM.formats			= {"%02.2f"}--= {"%02.0f"}
-G_NUM.controllers		=   {
-                                        {"opacity_using_parameter",0},
-                                        {"text_using_parameter",1,0},
-                                        {"parameter_in_range",2,0.9,1.1}
-                                    }
-                                
-Add(G_NUM)
+
 ------------------------------------------------------------------------
 -------------------------------------------------------------
 GTXT 					= CreateElement "ceStringPoly"
@@ -1670,7 +1635,7 @@ GTXT.controllers		= 	{	{"parameter_in_range",0,0.9,1.1},
 Add(GTXT)
 --------------
 --------------
-G_NUM				    = CreateElement "ceStringPoly"
+local G_NUM = {}
 G_NUM.name				= "G_NUM"
 G_NUM.material			= UFD_GRN
 G_NUM.init_pos			= {-42, -25, 0} --L-R,U-D,F-B
@@ -1690,7 +1655,8 @@ G_NUM.controllers		=   {
                                         {"parameter_in_range",2,0.9,1.1}
                                     }
                                 
-Add(G_NUM)
+G_NUM.name='F22_SIDE_RIGHT_G_NUM'
+reading.add(G_NUM,'F22_SIDE_G_VALID','ceStringPoly')
 ------------------------------------------------------------------------------------------------
 -------------------------------------------------------------
 AOATXT 					= CreateElement "ceStringPoly"
@@ -1712,7 +1678,7 @@ AOATXT.controllers		= 	{	{"parameter_in_range",0,0.9,1.1},
 Add(AOATXT)
 --------------
 --------------
-AOA_NUM				    = CreateElement "ceStringPoly"
+local AOA_NUM = {}
 AOA_NUM.name				= "G_NUM"
 AOA_NUM.material			= UFD_GRN
 AOA_NUM.init_pos			= {-42, -13, 0} --L-R,U-D,F-B
@@ -1732,7 +1698,8 @@ AOA_NUM.controllers		=   {
                                         {"parameter_in_range",2,0.9,1.1}
                                     }
                                 
-Add(AOA_NUM)
+AOA_NUM.name='F22_SIDE_RIGHT_AOA_NUM'
+reading.add(AOA_NUM,'F22_SIDE_AOA_VALID','ceStringPoly')
 ------------------------------------------------------------------------------------------------
 
 -------------------------------------------------------------
@@ -1755,7 +1722,7 @@ MACHTXT.controllers		= 	{	{"parameter_in_range",0,0.9,1.1},
 Add(MACHTXT)
 --------------
 --------------
-MACH_NUM				    = CreateElement "ceStringPoly"
+local MACH_NUM = {}
 MACH_NUM.name				= "G_NUM"
 MACH_NUM.material			= UFD_GRN
 MACH_NUM.init_pos			= {-42, -19, 0} --L-R,U-D,F-B
@@ -1775,7 +1742,8 @@ MACH_NUM.controllers		=   {
                                         {"parameter_in_range",2,0.9,1.1}
                                     }
                                 
-Add(MACH_NUM)
+MACH_NUM.name='F22_SIDE_RIGHT_MACH_NUM'
+reading.add(MACH_NUM,'F22_SIDE_MACH_VALID','ceStringPoly')
 
 local sfg_unavailable=CreateElement 'ceStringPoly'
 sfg_unavailable.name='F22_RIGHT_SFG_UNAVAILABLE'

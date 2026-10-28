@@ -2,6 +2,7 @@
 #include "../../EFM/source/NativeNavigation.cpp"
 #include "../../EFM/source/NativeMWS.cpp"
 #include <iostream>
+namespace NativeAltimetry { bool model_time(double&) { return false; } }
 
 namespace {
 constexpr std::array<const char*,6> names{{"F22_TCN_CHANNEL","F22_TCN_BAND","F22_TCN_MODE",

@@ -1,0 +1,13 @@
+{
+  "head": "361268a67bf6cd943f3b717239e0c89cd970703c",
+  "baseline_git_source_sha256": {
+    "Cockpit/Scripts/MFD_COMMON/adi_page.lua": "9895cce750f5a99aa974834041fc3cbed676eba5650daf6dccfac326f8a60880",
+    "Cockpit/Scripts/UFD_LEFT/base_page.lua": "78b6a1a74dbfbde2576dca727be9dd37678447d6cb7e0f13f712ea7b75a384e7",
+    "Cockpit/Scripts/UFD_RIGHT/base_page.lua": "c812d0e573b510eb125ed1b51132edc27713b8c0e10a3acb00f85e8076a755de"
+  },
+  "side_execution_sha256_before_edit": {
+    "Cockpit/Scripts/UFD_LEFT/base_page.lua": "f269a23af40f94232ae5bec88c4d2432d9188dbf880aa62e0089a23d47f3f690",
+    "Cockpit/Scripts/UFD_RIGHT/base_page.lua": "5f2329bf6bb86916cd8c18293928e412764c3fc1778718000123c675128e4841"
+  },
+  "scope": "Navigation declarations only; fonts/materials/positions/scales retained; first duplicate right G graph removed"
+}

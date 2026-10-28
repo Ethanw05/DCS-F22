@@ -1,0 +1,17 @@
+{
+  "navigation_tests": 32,
+  "passed": true,
+  "native_passed": true,
+  "native_suites": 4,
+  "source_files": {
+    "Cockpit/Scripts/Systems/Avionics.lua": "2a35d394f29a6df4d1d8aabba631d3ec768c0014d536cab80695a99d67d0660f",
+    "Cockpit/Scripts/Systems/Cockpit_Currentness.lua": "b1e9b5bad36c05df267e71b32dcce9c72cedb587edfabfdb306b427f03646399",
+    "Cockpit/Scripts/Systems/Gins_References.lua": "8f618e2d9cd189e3230641ab632841d52536b3aefbe7058af05ded40a679f825",
+    "Cockpit/Scripts/Systems/HUD_Flight_Data.lua": "fe28954b16524150cb3101458157c46ce52a1cc455700916edc40ed51d15205f",
+    "Cockpit/Scripts/Systems/Magnetic_Reference.lua": "c2ca9feac6cd298b21c1be804359df033035c23e2994d1695179f52e4c215b11",
+    "Cockpit/Scripts/Systems/Side_Indications.lua": "67d70fc910b4ee6fa3f0da1a4d9eb1403538611257437f24be2a3a85c6a99a45"
+  },
+  "DCS_qualified": false,
+  "installed": false,
+  "limits": "Actual owner/host-port tests; native private CNI lifetime, real optics and aircraft calibration are not qualified"
+}

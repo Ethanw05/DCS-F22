@@ -27,7 +27,7 @@ class AltitudeOwners(unittest.TestCase):
         hud();side()
         self.assertEqual(h.get('HUD_ALT_VALID'),1)
         self.assertEqual(h.get('F22_SIDE_BARO_VALID'),1)
-        seed_physical(h,clock=12);h.state.time=20
+        h.state.time=20;seed_physical(h,clock=12)
         hud();side()
         self.assertEqual(h.get('HUD_ALT_VALID'),0)
         self.assertEqual(h.get('F22_SIDE_BARO_VALID'),0)

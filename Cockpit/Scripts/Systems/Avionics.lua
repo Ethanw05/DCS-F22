@@ -34,14 +34,13 @@ local attitude_references=dofile(LockOn_Options.script_path..'Systems/Attitude_R
  function(key)return reference_handle(key):get()end,
  function(key,value)reference_handle(key):set(value)end)
 local function altitude_read(key)return reference_handle(key):get()end
-local altitude_physical=dofile(LockOn_Options.script_path..'Systems/Physical_Snapshot.lua').new(altitude_read,
- {'EFM_HUD_KINEMATICS_VALID','EFM_HUD_VU'})
+local Side=dofile(LockOn_Options.script_path..'Systems/Side_Indications.lua')
+local side=Side.new(altitude_read,function(key,value)reference_handle(key):set(value)end,sensor_data)
+local altitude_physical=dofile(LockOn_Options.script_path..'Systems/Physical_Snapshot.lua').new(altitude_read,Side.fields)
 local Altitude=dofile(LockOn_Options.script_path..'Systems/Altitude_Snapshot.lua')
 local altitude_frame=Altitude.new(altitude_read)
 local baro_current=get_param_handle('F22_SIDE_BARO_VALID')
-local vertical_speed_current=get_param_handle('F22_SIDE_VS_VALID')
 baro_current:set(0)
-vertical_speed_current:set(0)
 
 dofile(LockOn_Options.script_path.."devices.lua")
 dofile(LockOn_Options.script_path.."command_defs.lua")
@@ -67,19 +66,9 @@ local parameters =
 	R_WAR_OPACITY 		 = get_param_handle("R_WAR_OPACITY"),
 	L_ADI_OPACITY     	 = get_param_handle("L_ADI_OPACITY"),
 	L_WAR_OPACITY 		 = get_param_handle("L_WAR_OPACITY"),
-	TAS				     = get_param_handle("TAS"),
-	IAS				     = get_param_handle("IAS"),
-	GFORCE			     = get_param_handle("GFORCE"),
-	AOA			     	 = get_param_handle("AOA"),
-	VV			     	 = get_param_handle("VV"),
 	ADI_PITCH 		     = get_param_handle("ADIPITCH"),
 	ADI_ROLL			 = get_param_handle("ADIROLL"),
-	SLIP				 = get_param_handle("SLIP"),
-	YAW				     = get_param_handle("YAW"),
-	ROLLRATE			 = get_param_handle("ROLLRATE"),
-	NAV                  = get_param_handle("NAV"),
 	BARO 				 = get_param_handle("BAROALT"),
-	RADALT			     = get_param_handle("RADALT"),
 	RPM_L                = get_param_handle("RPM_L"),
 	RPM_R                = get_param_handle("RPM_R"),
 	EGT_L                = get_param_handle("EGT_L"),
@@ -123,24 +112,9 @@ local parameters =
 	RMFD_MASK            = get_param_handle("RMFD_MASK"),
 	PMFD_MASK            = get_param_handle("PMFD_MASK"),
 	DAY_NIGHT	         = get_param_handle("DAY_NIGHT"),
-	MACH	         	 = get_param_handle("MACH"),
-	PITCHRATE	         = get_param_handle("PITCHRATE"),
-	YAWRATE	         	 = get_param_handle("YAWRATE"),
     EFM_INTERNAL_FUEL_KG = get_param_handle("EFM_INTERNAL_FUEL_KG"),
     EFM_EXTERNAL_FUEL_KG = get_param_handle("EFM_EXTERNAL_FUEL_KG"),
 	HUD_POWER = get_param_handle("HUD_POWER"),
-	HUD_PITCH = get_param_handle("HUD_PITCH"),
-	HUD_ROLL = get_param_handle("HUD_ROLL"),
-	HUD_FPA = get_param_handle("HUD_FPA"),
-	HUD_SLIP = get_param_handle("HUD_SLIP"),
-	HUD_IAS_POINTER = get_param_handle("HUD_IAS_POINTER"),
-	HUD_ALT_POINTER = get_param_handle("HUD_ALT_POINTER"),
-	HUD_HEADING_OFFSET = get_param_handle("HUD_HEADING_OFFSET"),
-	HUD_TICK_M20 = get_param_handle("HUD_TICK_M20"),
-	HUD_TICK_M10 = get_param_handle("HUD_TICK_M10"),
-	HUD_TICK_C00 = get_param_handle("HUD_TICK_C00"),
-	HUD_TICK_P10 = get_param_handle("HUD_TICK_P10"),
-	HUD_TICK_P20 = get_param_handle("HUD_TICK_P20"),
 }
 
 local day_night = 0
@@ -173,6 +147,7 @@ dev:listen_command(10027)--swap bind ufd
 
 function post_initialize()
 	swap_held={}
+    side:reset()
 	mfd_brightness_knob = 1
 	ufd_brightness_knob = 1
 	--print_message_to_user("AVIONICS SYSTEM POST INIT")
@@ -232,11 +207,7 @@ function update()
     altitude_physical:update()
     altitude_frame:update(altitude_physical.generation,altitude_physical.valid,Altitude.clock())
     baro_current:set(altitude_frame.sources.BARO.valid and 1 or 0)
-    local vertical_speed=altitude_physical.values.EFM_HUD_VU
-    local vertical_valid=altitude_physical.valid and altitude_physical.values.EFM_HUD_KINEMATICS_VALID==1
-        and type(vertical_speed)=='number' and vertical_speed==vertical_speed and math.abs(vertical_speed)<math.huge
-    vertical_speed_current:set(vertical_valid and 1 or 0)
-    if vertical_valid then parameters.VV:set(vertical_speed*196.850394)end
+    local side_current=side:update(altitude_physical,altitude_frame,Altitude.clock())
 	startup_diagnostic_ticks = startup_diagnostic_ticks + 1
 	--print_message_to_user(parameters.FLAPS_DOWN:get())
 
@@ -273,49 +244,9 @@ function update()
 
 	--parameters.UFD_OPACITY  :set(UFD_KNOB)
 	--parameters.MFD_OPACITY  :set(MFD_KNOB)
-	parameters.TAS	        :set(sensor_data.getTrueAirSpeed() * 1.944)
-	parameters.IAS	        :set(sensor_data.getIndicatedAirSpeed() * 1.944)
-	parameters.GFORCE       :set(sensor_data.getVerticalAcceleration())
 	attitude_references.update()
-	parameters.SLIP			:set(sensor_data.getAngleOfSlide() )
-	parameters.YAW          :set(sensor_data.getRateOfYaw() )
-	parameters.ROLLRATE     :set(sensor_data.getRateOfRoll()/math.pi*180)-- Testing
-	parameters.PITCHRATE    :set(sensor_data.getRateOfPitch()/math.pi*180)-- Testing
-	parameters.YAWRATE      :set(sensor_data.getRateOfYaw()/math.pi*180)-- Testing
-	parameters.AOA			:set(sensor_data.getAngleOfAttack()/math.pi*180)
-    -- Independent experimental HUD data model. Airspeed/altitude and attitude
-    -- are sensor-derived. C-130-style heading tape is a deliberately hybrid choice.
-    local pitch = sensor_data.getPitch()
-    local roll = sensor_data.getRoll()
-    local heading = (360 - sensor_data.getHeading() * 180 / math.pi) % 360
-    if get_param_handle('F22_NAV_REFERENCE'):get()>.5 and get_param_handle('F22_MAG_VALID'):get()>.5 then
-        heading=(heading-math.deg(get_param_handle('F22_MAG_DECL'):get()))%360
-    end
-    local ias = math.max(0, sensor_data.getIndicatedAirSpeed() * 1.943844492)
-    local tas = math.max(1.0, sensor_data.getTrueAirSpeed())
-    local climb = sensor_data.getVerticalVelocity()
-    local flight_path = math.atan(climb / tas)
-
-    parameters.HUD_POWER:set((parameters.MAIN_POWER:get() == 1 and parameters.BATTERY_POWER:get() == 1) and 1 or 0)
-    -- Attitude, projected velocity and counter needles are owned exclusively
-    -- by HUD_Flight_Data; do not overwrite them with the old approximations.
-    local heading_base = math.floor(heading / 10.0) * 10
-    parameters.HUD_HEADING_OFFSET:set(heading - heading_base)
-    parameters.HUD_TICK_M20:set((heading_base - 20) % 360)
-    parameters.HUD_TICK_M10:set((heading_base - 10) % 360)
-    parameters.HUD_TICK_C00:set(heading_base % 360)
-    parameters.HUD_TICK_P10:set((heading_base + 10) % 360)
-    parameters.HUD_TICK_P20:set((heading_base + 20) % 360)
-
-	parameters.MACH			:set(sensor_data.getMachNumber())
-	--parameters.NAV          :set(360 - sensor_data.getHeading()/math.pi*180) -- Working, don't change
-	hdg_int = math.floor(heading)
-	if (hdg_int > 359) then
-   		hdg_int = 0
-	end
-	parameters.NAV:set(hdg_int)
-	--parameters.NAV			:set((359 - sensor_data.getHeading() * 180/math.pi))
-	parameters.RADALT       :set(sensor_data.getRadarAltitude() * 3.280839895 ) -- Working, don't change
+    local supply=altitude_physical.values
+    parameters.HUD_POWER:set(side_current and supply.MAIN_POWER==1 and supply.BATTERY_POWER==1 and 1 or 0)
 	if altitude_frame.sources.BARO.valid then parameters.BARO:set(altitude_frame.sources.BARO.value)end
 	parameters.FUELL        :set(sensor_data.getTotalFuelWeight() * 0.01 ) -- Working, don't change: 0.36622 
 	parameters.FUEL         :set(sensor_data.getTotalFuelWeight() * 2.20462 ) -- Working, don't change: 0.36622
@@ -340,8 +271,10 @@ function update()
     -- guidance distinguishes legibility/brightness from warning content.
     -- Night mode is a bounded gain, NOT subtraction of a fixed 0.9 level.
     local function clamp01(v) return math.max(0, math.min(1, v)) end
-    local electrical_available = parameters.BATTERY_POWER:get() >= 0.5 and
-        (parameters.MAIN_POWER:get() >= 0.5 or parameters.APU_RPM_STATE:get() >= 2)
+    local apu=supply.APU_RPM_STATE
+    local apu_available=type(apu)=='number' and apu==apu and apu>=2 and apu<=4
+    local electrical_available=side_current and supply.BATTERY_POWER==1
+        and (supply.MAIN_POWER==1 or apu_available)
     local night_factor = day_night == 1 and 0.18 or 1.0
     local ufd_brightness = electrical_available and clamp01(UFD_KNOB) * night_factor or 0
     local mfd_brightness = electrical_available and clamp01(MFD_KNOB) * night_factor or 0
@@ -393,7 +326,8 @@ function update()
 		parameters.APU_SPOOL:set(1)
 		parameters.APU_READY:set(0)
 		--print_message_to_user("APU SPOOLING UP")
-	elseif parameters.APU_POWER:get() == 1 and parameters.APU_RPM_STATE:get() > 0.10 and parameters.APU_RPM_STATE:get() < 3.80 then
+	elseif parameters.APU_POWER:get()==1 and parameters.APU_RPM_STATE:get()>.10
+        and parameters.APU_RPM_STATE:get()<3.80 then
 		parameters.APU_SPOOL:set(1)
 		parameters.APU_READY:set(0)
 		--print_message_to_user("APU SPOOLING DOWN")			

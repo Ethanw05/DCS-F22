@@ -21,11 +21,31 @@ local physical=envelope.new(read,{
     'EFM_HUD_VALID','EFM_HUD_KINEMATICS_VALID','EFM_HUD_VN','EFM_HUD_VE','EFM_HUD_VU','EFM_HUD_WN','EFM_HUD_WE',
     'EFM_GROUND_VALID','EFM_WEIGHT_ON_WHEELS','EFM_GEAR_DOWN_LOCKED','EFM_GEAR_UP_LOCKED',
     'EFM_GEAR_UNSAFE','EFM_NWS_SELECTED','EFM_AIRDATA_VALID','EFM_AIRDATA_STAMP','EFM_AIRDATA_CAS_MPS',
-    'EFM_AIRDATA_TAS_MPS','EFM_AIRDATA_HEALTH',
+    'EFM_AIRDATA_TAS_MPS','EFM_AIRDATA_HEALTH','EFM_PHYSICAL_WORLD_STAMP','EFM_PHYSICAL_WORLD_CLOCK_KIND',
 })
 local reference=dofile(LockOn_Options.script_path..'Systems/Gins_References.lua').reader(read,'HUD')
 local Altitude=dofile(LockOn_Options.script_path..'Systems/Altitude_Snapshot.lua')
 local altitude_frame=Altitude.new(read)
+local Magnetic=dofile(LockOn_Options.script_path..'Systems/Magnetic_Reference.lua')
+local currentness=dofile(LockOn_Options.script_path..'Systems/Cockpit_Currentness.lua').new()
+local function observed(fn)
+    local ok,value=pcall(fn)
+    if ok and mathhud.finite(value) then return value end
+end
+local function cockpit_current(now)
+    return currentness:update(physical,now)
+end
+local function heading_display(heading,valid,now)
+    local value
+    if valid then value=Magnetic.heading(read,heading,read('F22_NAV_REFERENCE'),physical.generation,now)end
+    put('HUD_HEADING_DISPLAY_VALID',value~=nil and 1 or 0)
+    if value==nil then return end
+    put('HUD_HEADING_DISPLAY',math.floor(value)%360)
+    local base=math.floor(value/10)*10
+    put('HUD_HEADING_OFFSET',value-base)
+    put('HUD_TICK_M20',(base-20)%360);put('HUD_TICK_M10',(base-10)%360)
+    put('HUD_TICK_C00',base%360);put('HUD_TICK_P10',(base+10)%360);put('HUD_TICK_P20',(base+20)%360)
+end
 local function reference_pose()
     reference:update()
     if not reference.valid then return 0,0,0,false,false end
@@ -64,6 +84,8 @@ local function sensed_speed()
     put('HUD_AIRDATA_DEGRADED',health and health~=0 and 1 or 0)
     if flight('EFM_AIRDATA_VALID')~=1 or not envelope.fresh(flight('EFM_AIRDATA_STAMP'),physical.clock)
         or (health~=0 and health~=2 and health~=3) then return end
+    if not mathhud.finite(currentness.world_age)
+        or currentness.world_age+physical.clock-flight('EFM_AIRDATA_STAMP')>.25 then return end
     local cas,tas=flight('EFM_AIRDATA_CAS_MPS'),flight('EFM_AIRDATA_TAS_MPS')
     if not mathhud.finite(cas) or cas<0 or not mathhud.finite(tas) or tas<0 then return end
     return cas,tas
@@ -73,8 +95,10 @@ end
 -- their existing owner/update contract.
 for _,name in ipairs({"HUD_FPM_X_SLOPE","HUD_FPM_Y_SLOPE","HUD_FPM_VALID",
     "HUD_AIRDATA_VALID","HUD_WIND_VALID","HUD_GS_VALID","HUD_ALT_VALID","HUD_LANDING_CONFIG",
-    "HUD_EBRACKET_OFFSET","HUD_EBRACKET_VALID","HUD_NWS_ACTIVE"}) do put(name,0) end
-local peak_g=1
+    "HUD_EBRACKET_OFFSET","HUD_EBRACKET_VALID","HUD_NWS_ACTIVE","HUD_HEADING_DISPLAY_VALID",
+    "HUD_SLIP_VALID","HUD_VS_VALID","HUD_G_MAX_VALID"}) do put(name,0) end
+local peak_g=nil
+local peak_generation=nil
 local previous_cas=nil
 local acceleration=0
 local diagnostic_frames=0
@@ -92,12 +116,14 @@ function SetCommand(command,value)
     end
 end
 function post_initialize()
+    currentness:reset()
     caged=false;put('HUD_FPM_CAGED',0)
     high_fast=false;approach_pressure=false
-    peak_g=1; previous_cas=nil; acceleration=0
+    peak_g=nil;peak_generation=nil; previous_cas=nil; acceleration=0
     put("HUD_FPM_VALID",0); put("HUD_AIRDATA_VALID",0)
     put("HUD_WIND_VALID",0); put("HUD_GS_VALID",0);put("HUD_ALT_VALID",0)
     put('HUD_NWS_ACTIVE',0)
+    put('HUD_HEADING_DISPLAY_VALID',0);put('HUD_SLIP_VALID',0);put('HUD_VS_VALID',0);put('HUD_G_MAX_VALID',0)
 end
 local function fpm(az,el)
     if not az or not el then return end
@@ -149,6 +175,13 @@ function update()
     if not altitude_frame.sources.BARO.valid or flight('EFM_HUD_VALID')~=1 then approach_pressure=false end
     pressure_confirmation()
     local pitch,roll,heading,attitude_valid,heading_valid=reference_pose()
+    local source_current=cockpit_current(Altitude.clock())
+    if peak_generation~=physical.generation then
+        peak_g=nil;peak_generation=physical.generation;put('HUD_G_MAX_VALID',0)
+    end
+    attitude_valid=source_current and attitude_valid
+    heading_valid=source_current and heading_valid
+    heading_display(heading,heading_valid,Altitude.clock())
     put('HUD_REFERENCE_ATTITUDE_VALID',attitude_valid and 1 or 0)
     put('HUD_REFERENCE_HEADING_VALID',heading_valid and 1 or 0)
     -- Selected references preserve the host's roll convention and gain +1.
@@ -167,12 +200,14 @@ function update()
         end
     end
     put("HUD_BANK_RAD",roll)
-    local beta=data.getAngleOfSlide()
-    put("HUD_BANK_SLIP",mathhud.clamp(beta/math.rad(10),-1,1)*0.045)
-    local g=data.getVerticalAcceleration()
-    if mathhud.finite(g) then peak_g=math.max(peak_g,g) end
-    put("HUD_G_MAX",peak_g)
-    local aoa=data.getAngleOfAttack()*180/math.pi
+    local beta=source_current and observed(data.getAngleOfSlide) or nil
+    put('HUD_SLIP_VALID',beta~=nil and 1 or 0)
+    if beta then put("HUD_BANK_SLIP",mathhud.clamp(beta/math.rad(10),-1,1)*0.045)end
+    local g=source_current and observed(data.getVerticalAcceleration) or nil
+    if g then peak_g=peak_g and math.max(peak_g,g) or g;put('HUD_G_MAX_VALID',1)end
+    put("HUD_G_MAX",peak_g or 0)
+    local aoa=source_current and observed(data.getAngleOfAttack) or nil
+    if aoa then aoa=math.deg(aoa)end
     put("HUD_AOA_DEG",mathhud.finite(aoa)and aoa or 0)
     local aoa_valid=mathhud.finite(aoa)
     -- Conservative shared-ADC policy; independent production AoA health is unknown.
@@ -199,14 +234,19 @@ function update()
     if gear_down and now>=next_landing_log and log and log.write then
         next_landing_log=now+1
         log.write('F22_LANDING',log.INFO,string.format('t=%.3f gear_down=1 contact=%.0f contact_native=%s aoa=%.3f bracket=%s offset=%.5f fpm=%.0f loc=%.0f gs=%.0f',
-            now,contact,tostring(own_contact),aoa,tostring(bracket_valid),read('HUD_EBRACKET_OFFSET'),read('HUD_FPM_VALID'),read('HUD_ILS_LOC_VALID'),read('HUD_ILS_GS_VALID')))
+            now,contact,tostring(own_contact),aoa or -100,tostring(bracket_valid),read('HUD_EBRACKET_OFFSET'),read('HUD_FPM_VALID'),read('HUD_ILS_LOC_VALID'),read('HUD_ILS_GS_VALID')))
     end
-    local vs=data.getVerticalVelocity()*196.850394
-    put("HUD_VS_ARC_COUNT",math.floor(mathhud.clamp(math.abs(vs)/38000,0,1)*32+0.5))
-    put("HUD_VS_SIGN",vs>=0 and 1 or -1)
+    local vertical=flight('EFM_HUD_VU')
+    local vertical_valid=source_current and flight('EFM_HUD_KINEMATICS_VALID')==1 and mathhud.finite(vertical)
+    put('HUD_VS_VALID',vertical_valid and 1 or 0)
+    if vertical_valid then
+        local vs=vertical*196.850394
+        put("HUD_VS_ARC_COUNT",math.floor(mathhud.clamp(math.abs(vs)/38000,0,1)*32+0.5))
+        put("HUD_VS_SIGN",vs>=0 and 1 or -1)
+    end
     put("HUD_FPM_VALID",0); put("HUD_GS_VALID",0)
     put("HUD_WIND_VALID",0); put("HUD_AIRDATA_VALID",0)
-    if flight('EFM_HUD_KINEMATICS_VALID')~=1 then previous_cas=nil;return end
+    if not source_current or flight('EFM_HUD_KINEMATICS_VALID')~=1 then previous_cas=nil;return end
     local n,e,u=flight('EFM_HUD_VN'),flight('EFM_HUD_VE'),flight('EFM_HUD_VU')
     if not (mathhud.finite(n) and mathhud.finite(e) and mathhud.finite(u)) then
         previous_cas=nil;return
@@ -218,7 +258,7 @@ function update()
     if diagnostic_frames==50 and log and log.write then
         log.write("F22_HUD_DATA",log.INFO,string.format(
             "pitch_deg=%.3f roll_deg=%.3f heading_deg=%.3f aoa_deg=%.3f vn=%.3f ve=%.3f vu=%.3f fpm_az=%.6f fpm_el=%.6f",
-            pitch*180/math.pi,roll*180/math.pi,heading*180/math.pi,aoa,n,e,u,az or 0,el or 0))
+            pitch*180/math.pi,roll*180/math.pi,heading*180/math.pi,aoa or -100,n,e,u,az or 0,el or 0))
     end
     if attitude_valid and heading_valid then fpm(az,el)end
     record_fpm(pitch,roll,heading,n,e,u,az,el)

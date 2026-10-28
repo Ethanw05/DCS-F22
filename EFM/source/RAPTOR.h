@@ -394,6 +394,7 @@ public:
 private:
     EDPARAM param_api_;
     bool parameters_ready_ = false;
+    double (__cdecl* cockpit_world_clock_)() = nullptr;
     RaptorNavigation::Snapshot navigation_snapshot_;
     RaptorAltitudes::Snapshot altitude_snapshot_;
     struct ParameterHash {

@@ -3,7 +3,7 @@
 local M = {}
 local properties = {'material','init_pos','init_rot','alignment','stringdefs',
     'additive_alpha','collimated','isdraw','use_mipfilter','h_clip_relation',
-    'level','parent_element','isvisible','change_opacity'}
+    'level','parent_element','isvisible','change_opacity','vertices','indices','tex_coords','primitivetype'}
 local function copy(values)
     local out = {}
     for index = 1, #values do out[index] = values[index] end
@@ -46,5 +46,15 @@ function M.add(spec, valid_parameter, kind)
     unavailable.controllers = unavailable_controls
     Add(number)
     Add(unavailable)
+end
+function M.graphic(spec,valid_parameter,kind)
+    local object=element(spec,kind)
+    local parameters=copy(spec.element_params)
+    local index=#parameters
+    parameters[index+1]=valid_parameter
+    local controls=controllers(spec,true)
+    controls[#controls+1]={'parameter_in_range',index,.9,1.1}
+    object.name=spec.name;object.element_params=parameters;object.controllers=controls
+    Add(object)
 end
 return M
