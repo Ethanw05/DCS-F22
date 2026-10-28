@@ -1,0 +1,36 @@
+{
+  "tests_run": 14,
+  "passed": true,
+  "lua": "Lua 5.1 via pinned Lupa 2.6",
+  "native_dcs_qualified": false,
+  "source_sha256": {
+    "Cockpit/Scripts/Systems/Radar_Computer.lua": "0e5e50c84fcb14655efd292dad21097dda810eb01fb5e84386a6134f3cd25cf9",
+    "Cockpit/Scripts/Systems/Radar_System.lua": "d23c38e5d35fea575ad438c53741efc45612b3578096b68b47c103dca57c714a",
+    "Cockpit/Scripts/Systems/Radar_Closure.lua": "ad15e15ff70eed2863c9fd8ab85bb91577ca73b508494c3a1e1365332438ec25",
+    "Cockpit/Scripts/Systems/AG_Radar_Computer.lua": "4e5d1f1cb9cbff9ddd949eb34cdedc8f050b00f4b6bd3bdc1ac164f1c0004b7a",
+    "Cockpit/Scripts/Systems/AG_Radar_System.lua": "daa612f61a3af38e90ab70892b0bc3cbf6bea6114480683a929c9e86f0d42bf2",
+    "Cockpit/Scripts/Systems/Radar_Sensor_Tasking.lua": "a118c7ec08a84ec67c517664749af9c24bd9759007147f48c86dfc9ffe2e232c",
+    "Cockpit/Scripts/Systems/Radar_Telemetry.lua": "990c4bd06ab0a309eb88fc97475c5ed2d1b5d85fcc8fdb12cfa36ec731db18ce",
+    "tests/cases/test_radar_source_contract.py": "528d9d35a8a9447d8e4abcb3f2d0a787578830b996f7519248301e6f21751806",
+    "Cockpit/Scripts/Systems/AESA_Control.lua": "d77605cdd609b5c318ac0244d9b5f79fd5e308cb1f7521c7cb978fdfb2138979",
+    "Cockpit/Scripts/PMFD_CENTER/radar_format.lua": "806087b2dc71112511448377073ccbb0dee93c8835c80dfaec109a7fbff6990a",
+    "Cockpit/Scripts/Systems/Engagement_System.lua": "94a4b11955dd01a268e3e5ca97ffd1b0842e2bd3a17ef542e108eb327207eecd",
+    "Cockpit/Scripts/Systems/Radar_Donor_Cue.lua": "421fa3fedfbb3e7e460c646deab1acd54c6b5946a6815e652868b16d09c1c065"
+  },
+  "uncovered": [
+    "actual native sensing/lifetime/scene API",
+    "native controls migration pending P-INT-008",
+    "DCS installed/loaded image, 2D/VR/multiplayer",
+    "aircraft calibration",
+    "branch coverage not measured"
+  ],
+  "normal": "source reports and routed selection/tactical output pass",
+  "limit": "FOV/age/finite/zero and cursor cadence pass",
+  "failure": "torn/future/stale generation and nonfinite/wrongtype closure pass",
+  "recovery": "qualified source/finite closure restore; cancelled cursor requires new input",
+  "current_main_commit": "a6097c75c94c455cc572847b6ecc560e42fba018",
+  "independent_review": "13 tests and independent actual STT/invalid-clock/retained-source/rollback review passed; no remaining actionable new regression",
+  "radar_behavior_tests": 13,
+  "lua_syntax_tests": 1,
+  "shared_consumers": "applied by Chat2; focused integration commit pending"
+}

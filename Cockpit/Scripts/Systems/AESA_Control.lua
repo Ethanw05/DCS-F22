@@ -65,7 +65,7 @@ function M:read(now, pose, display)
             out[count] = o
         end
     end
-    if sequence ~= get("F22_AESA_SEQUENCE") then
+    if sequence ~= get("F22_AESA_SEQUENCE") or generation ~= get("F22_AESA_GENERATION") then
         for i = 1, #out do self.samples[i].observed = nil; out[i] = nil end
     else
         self.ready = true

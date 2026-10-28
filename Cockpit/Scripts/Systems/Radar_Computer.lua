@@ -105,157 +105,32 @@ function M.new()
 			if t.measurement_source == 2 and not active[t.native_id] then self:forget(id) end
 		end
 	end
-	-- Enclose every designation and missile-support obligation in one achievable
-	-- native scan. This does not invent interleaved AESA beams or observations.
-	function r:scan_plan(required)
-		if not self.power or (self.mode ~= "TWS" and self.mode ~= "RWS") or self.acquire or self.native_mode == 3 then
-			self.scan = nil
-			return
-		end
-		local obligations, seen = {}, {}
-		local function add(t, key, support)
-			if seen[key] then
-				seen[key].support = seen[key].support or support
-				return
-			end
-			if not key then
-				return
-			end
-			local obligation = { track = t, support = support }
-			seen[key] = obligation
-			obligations[#obligations + 1] = obligation
-		end
-		for _, id in ipairs(required or {}) do
-			if finite(id) and id > 0 then
-				add(self:source(id), "s" .. id, true)
-			end
-		end
-		for _, id in pairs({ self.selected, self.secondary }) do
-			local t = self.tracks[id]
-			if t then
-				add(t, t.native_id and "s" .. t.native_id or "f" .. id)
-			end
-		end
-		for id, t in pairs(self.tracks) do
-			if t.designated then
-				add(t, t.native_id and "s" .. t.native_id or "f" .. id)
-			end
-		end
-		-- RWS retains the pilot's ordinary search until a selected/designated
-		-- file or launched-missile obligation actually needs servicing.
-		if self.mode=="RWS" and #obligations==0 then self.scan=nil;return end
-		local limit = rad(60)
-		local minaz, maxaz, minel, maxel, range
-		range = self:range()
-		local maxrange = self.ranges[#self.ranges] * 1852
-		for _, o in ipairs(obligations) do
-			local t = o.track
-			local a, e, r = t and t.current_az, t and t.current_el, t and t.current_range
-			if
-				finite(a)
-				and finite(e)
-				and finite(r)
-				and r >= 40
-				and r <= maxrange
-				and math.abs(a) <= limit
-				and math.abs(e) <= limit
-				and self:age(t) <= self:memory_time()
-			then
-				o.az = a
-				o.el = e
-				o.range = r
-				minaz = math.min(minaz or a, a)
-				maxaz = math.max(maxaz or a, a)
-				minel = math.min(minel or e, e)
-				maxel = math.max(maxel or e, e)
-				range = math.min(maxrange, math.max(range, r * 1.1))
-			end
-		end
-		local margin = rad(3)
-		local function axis(lo, hi, minimum, step, default)
-			local half = minimum
-			if lo then
-				half = math.min(limit, math.max(minimum, math.ceil(((hi - lo) / 2 + margin) / step) * step))
-			end
-			local center = lo and (lo + hi) / 2 + default or default
-			if lo then
-				center = clamp(center, hi - half, lo + half)
-			end
-			return clamp(center, -limit + half, limit - half), half
-		end
-		local a, az = axis(minaz, maxaz, rad(math.min(self.azimuth, 30)), rad(5), 0)
-		-- With no designated/support target, search the pilot's complete
-		-- elevation volume. An unobserved high/low target cannot steer AUTO.
-		local minimum_el = #obligations > 0 and rad(5) or rad(self.vertical_span / 2)
-		local e, el = axis(minel, maxel, minimum_el, rad(2), self.elevation)
-		local previous = self.scan
-		if previous then
-			-- Widen/recenter immediately when an obligation reaches the margin.
-			-- Shrink only after a quiet interval; do not reset the scan every tick.
-			local function retain(center, half, oldcenter, oldhalf, lo, hi)
-				local fits = not lo or (lo >= oldcenter - oldhalf + margin and hi <= oldcenter + oldhalf - margin)
-				if fits then
-					if self.clock - previous.changed < 2 or half > oldhalf * 0.75 then
-						return oldcenter, oldhalf
-					end
-				end
-				return center, half
-			end
-			a, az = retain(a, az, previous.az, previous.half_az, minaz, maxaz)
-			e, el = retain(e, el, previous.el, previous.half_el, minel, maxel)
-		end
-		local changed = not previous
-			or math.abs(a - previous.az) > 1e-6
-			or math.abs(e - previous.el) > 1e-6
-			or math.abs(az - previous.half_az) > 1e-6
-			or math.abs(el - previous.half_el) > 1e-6
+	-- The native owner interleaves priority revisits within the pilot search.
+	-- This describes requests and measured support age, never a second sensor.
+	function r:search_plan(required)
+		if not self.power or (self.mode ~= "TWS" and self.mode ~= "RWS") then return end
 		local plan = {
-			az = a,
-			el = e,
-			half_az = az,
-			half_el = el,
-			range = range,
-			changed = changed and self.clock or previous.changed,
-			obligations = #obligations,
-			uncovered = 0,
-			support_overdue = 0,
-			support_count = 0,
-			revisit_remaining = M.support_seconds,
+			az = 0, el = self.elevation,
+			half_az = rad(self.azimuth), half_el = rad(self.vertical_span / 2),
+			range = self:range(), obligations = 0, support_count = 0,
+			support_overdue = 0, revisit_remaining = M.support_seconds,
 		}
-		for _, o in ipairs(obligations) do
-			if o.support then
+		local seen = {}
+		for i = 1, math.min(8, #(required or {})) do
+			local id = required[i]
+			if finite(id) and id > 0 and not seen[id] then
+				seen[id] = true
+				local track = self:source(id)
 				plan.support_count = plan.support_count + 1
-				local remaining = math.max(0, M.support_seconds - self:age(o.track))
-				plan.revisit_remaining = math.min(plan.revisit_remaining, remaining)
-				if not self:supportable(o.track) then plan.support_overdue = plan.support_overdue + 1 end
-			end
-			if not o.az or math.abs(o.az - a) > az + 1e-6 or math.abs(o.el - e) > el + 1e-6 or o.range > range then
-				plan.uncovered = plan.uncovered + 1
+				plan.revisit_remaining = math.min(plan.revisit_remaining,
+					math.max(0, M.support_seconds - self:age(track)))
+				if not self:supportable(track) then
+					plan.support_overdue = plan.support_overdue + 1
+				end
 			end
 		end
-		self.scan = plan
+		plan.obligations = plan.support_count
 		return plan
-	end
-	function r:set_effective_scan(plan,now)
-		self.rf_scan_windows=self.rf_scan_windows or{}
-		local old=self.effective_scan
-		if old and old.rf_cued then
-			local last=self.rf_scan_windows[#self.rf_scan_windows]
-			if last then last.last=now end
-		end
-		if plan and plan.rf_cued then
-			local last=self.rf_scan_windows[#self.rf_scan_windows]
-			if not old or not old.rf_cued or not last then
-				last={first=now,last=now,range=plan.cue_range or plan.range}
-				self.rf_scan_windows[#self.rf_scan_windows+1]=last
-			end
-			last.range=math.max(last.range,plan.range,plan.cue_range or 0)
-		end
-		while #self.rf_scan_windows>0 and now-self.rf_scan_windows[1].last>6 do
-			table.remove(self.rf_scan_windows,1)
-		end
-		self.effective_scan=plan
-		if self.mode~="RWS"and self.mode~="TWS"then self.rf_scan_windows={}end
 	end
 	function r:geometry(display, pose)
 		for _, t in pairs(self.tracks) do
@@ -308,15 +183,9 @@ function M.new()
 		self.acquire = false
 		self.locked = false
 		self.cursor_follow = false
-		self.scan = nil
-		self.effective_scan = nil
-		self.rf_scan_windows = {}
 		self.acquire_id = nil
 	end
 	function r:command(c)
-		if c == "elevation_up" or c == "elevation_down" or c == "azimuth" or c == "vertical_span" or c == "recenter" then
-			self.scan = nil
-		end
 		if c:find("cursor_", 1, true) == 1 or c == "recenter" then
 			self.cursor_follow = false
 		end
@@ -462,6 +331,9 @@ function M.new()
 		if o.age < 0 or o.age > self:memory_time() or o.range < 40 then
 			return false
 		end
+		if o.measurement_source == 2 and not (finite(o.north) and finite(o.altitude) and finite(o.east)) then
+			return false
+		end
 		-- A retained source was already sensed. Mode/ownship geometry changes
 		-- must not reject a genuine newer observation of that same source.
 		if o.native_id and self:source(o.native_id) then
@@ -470,21 +342,14 @@ function M.new()
 		if self.native_mode == 3 then
 			return math.abs(o.az) <= rad(60) and math.abs(o.el) <= rad(60)
 		end
-		local applied=self.effective_scan or self.scan
-		-- A native observation can arrive after a discovery dwell ended.
-		-- Accept only actual time-stamped world observations from an issued
-		-- RF dwell, not a passive cue promoted to detection.
-		local stamp=o.observed or self.clock-(o.age or 0)
-		if (self.mode=="RWS"or self.mode=="TWS")and o.native_id and finite(o.north)
-			and finite(o.east)and finite(o.altitude)and finite(stamp)
-			and self.clock-stamp>=-.01 and self.clock-stamp<=6 then
-			for _,window in ipairs(self.rf_scan_windows or{})do
-				if stamp>=window.first and stamp<=window.last and o.range<=window.range then return true end
-			end
+		-- A current owned report has already passed native sensing. Its
+		-- original observation remains authoritative after later search changes.
+		if o.measurement_source == 2 then
+			return o.range <= self.ranges[#self.ranges] * 1852
+				and math.abs(o.az) <= rad(60) + 1e-9
+				and math.abs(o.el) <= rad(60) + 1e-9
 		end
-		if o.range > (applied and applied.range or self:range()) then
-			return false
-		end
+		if o.range > self:range() then return false end
 		-- During native acquisition the candidate may move outside the
 		-- original search pattern. Fresh sensor updates must still guide the
 		-- existing acquisition; they are not new STT claims.
@@ -494,12 +359,6 @@ function M.new()
 		local p = self:profile()
 		if p then
 			return math.abs(o.az) <= rad(p.az) and o.el >= rad(p.lo) and o.el <= rad(p.hi)
-		end
-		-- Accept actual detections from the volume commanded on the prior
-		-- native scan, including RF-cued search outside the pilot's old slice.
-		if applied and (self.mode == "TWS" or self.mode == "RWS") then
-			return math.abs(angular(o.az, applied.az)) <= applied.half_az
-				and math.abs(o.el - applied.el) <= applied.half_el
 		end
 		return math.abs(o.az) <= rad(self.azimuth) and math.abs(o.el - self.elevation) <= rad(self.vertical_span / 2)
 	end

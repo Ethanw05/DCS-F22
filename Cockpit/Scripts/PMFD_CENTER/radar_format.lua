@@ -471,13 +471,11 @@ group(
 )
 text("SUPPORT COAST", 0, -0.89, nil, "yellow", "F22_RDR_SUPPORT_COAST", 0.0036)
 
--- Distinguish the pilot's requested volume from TWS's automatic coverage.
-group("F22_RDR_SCAN_SEARCH", { "F22_RADAR_MODE_CODE" }, { { "parameter_in_range", 0, 1.9, 3.1 } })
-for _, spec in ipairs({ { 0, "MAN" }, { 1, "AUTO" } }) do
-	local name = "F22_RDR_SCAN_STATUS_" .. spec[1]
-	group(name, { "F22_RADAR_SCAN_AUTO" }, { { "parameter_in_range", 0, spec[1] - 0.1, spec[1] + 0.1 } }, "F22_RDR_SCAN_SEARCH")
-	text("SCAN " .. spec[2], 0, -0.76, nil, "blue", name, 0.0038)
-end
+-- Search geometry is requested; actual priority service is independent.
+group("F22_RDR_SCAN_SEARCH", { "F22_RADAR_MODE_CODE", "F22_RADAR_SEARCH_REQUEST_VALID" }, {
+    { "parameter_in_range", 0, 1.9, 3.1 }, { "parameter_in_range", 1, .9, 1.1 },
+})
+text("SEARCH", 0, -0.76, nil, "blue", "F22_RDR_SCAN_SEARCH", 0.0038)
 text("AZ %.0f", -0.14, -0.815, "F22_RADAR_SCAN_AZ_DEG", "blue", "F22_RDR_SCAN_SEARCH", 0.0038)
 text("HT %.0f", 0.15, -0.815, "F22_RADAR_SCAN_EL_DEG", "blue", "F22_RDR_SCAN_SEARCH", 0.0038)
 text("EL %+.0f", 0, -0.865, "F22_RADAR_SCAN_CENTER_EL_DEG", "blue", "F22_RDR_SCAN_SEARCH", 0.0038)

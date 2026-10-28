@@ -1,9 +1,9 @@
--- GPL-3.0-or-later. Native-return surface map and pilot designation, no unit search.
+-- GPL-3.0-or-later. Owned image/mover geometry and pilot designation.
 -- Shared display/selection geometry and declared common-backend policies.
 -- These are not recovered APG-77 performance specifications.
 local Modes=dofile(LockOn_Options.script_path .. "Systems/AG_Radar_Modes.lua")
 local M = { cursor_half_width = .025, cursor_half_height = .025,
-    image_seconds = 8, snapshot_seconds = .5, scan_azimuth_limit = math.rad(60), renderer_clearance_m = 30 }
+    snapshot_seconds = .5, scan_azimuth_limit = math.rad(60), renderer_clearance_m = 30 }
 local function finite(v)
 	return type(v) == "number" and v == v and math.abs(v) < 1e8
 end
@@ -34,10 +34,8 @@ function M.new()
 		cursor_fraction = 0.5,
 		slew_x = 0,
 		slew_y = 0,
-		returns = {},
 		sequence = 0,
 		clock = -1,
-		candidate = nil,
 		mode = 1, movers = {},
 	}, { __index = M })
 end
@@ -62,76 +60,6 @@ function M:project(p, pose)
 	local r = -n * math.sin(pose.heading) + e * math.cos(pose.heading)
 	return r / (self.range_nm * 1852) * 1.65, -0.76 + f / (self.range_nm * 1852) * 1.52
 end
-function M:observe(raw, pose, terrain, now)
-	if now < self.clock then
-		self.returns = {}
-		self.candidate = nil
-	end
-	self.clock = now
-	local bins = {}
-	for _, p in ipairs(raw) do
-		if
-			finite(p.north)
-			and finite(p.east)
-			and finite(p.altitude)
-			and finite(p.stamp)
-			and finite(p.rcs)
-			and p.rcs > 0
-			and M.fresh(now, p.stamp, M.image_seconds)
-			and terrain
-			and type(terrain.GetHeight) == "function"
-		then
-			-- NOISE tags both native terrain and jammer records. Require a
-			-- native world point on the actual surface, never infer from IFF.
-			local ok, u = pcall(terrain.GetHeight, p.north, p.east)
-			if ok and finite(u) and math.abs(p.altitude - u) <= 2 then
-				local x, y = self:project(p, pose)
-				if math.abs(x) < 0.83 and y > -0.76 and y < 0.76 then
-					local key = math.floor((x + 0.83) * 36) .. ":" .. math.floor((y + 0.76) * 24)
-					local prior = bins[key]
-					if not prior or prior.stamp < p.stamp then
-						p.x, p.y = x, y
-						bins[key] = p
-					end
-				end
-			end
-		end
-	end
-	self.returns = {}
-	for _, p in pairs(bins) do
-		self.returns[#self.returns + 1] = p
-	end
-	table.sort(self.returns, function(a, b)
-		if a.stamp ~= b.stamp then
-			return a.stamp > b.stamp
-		end
-		if a.north ~= b.north then
-			return a.north < b.north
-		end
-		return a.east < b.east
-	end)
-	self:select(pose, terrain, now)
-end
-function M:select(pose, terrain, now)
-	local cursor = self:point(pose, terrain)
-	self.candidate = nil
-	if cursor then
-		local cx, cy = self:project(cursor, pose)
-		local best = math.huge
-		for _, p in ipairs(self.returns) do
-			local x, y = self:project(p, pose)
-			local dx, dy = (x - cx) / M.cursor_half_width, (y - cy) / M.cursor_half_height
-			local d = dx * dx + dy * dy
-			-- A surface-map pixel represents stationary terrain, not a moving
-			-- target track. Its hit test uses the drawn cursor's exact footprint.
-			if math.abs(dx) <= 1 + 1e-9 and math.abs(dy) <= 1 + 1e-9 and d < best and M.fresh(now, p.stamp, M.image_seconds) then
-				best = d
-				self.candidate = p
-			end
-		end
-	end
-	return self.candidate
-end
 function M:scan_plan(azimuth)
 	local limit = M.scan_azimuth_limit
 	local half = math.min(limit, math.rad(self.width) / 2)
@@ -141,6 +69,10 @@ function M:scan_plan(azimuth)
 		cursor_covered = math.abs(azimuth - center) <= half + 1e-9 }
 end
 function M:slew(dt)
+	if not finite(dt) or dt < 0 or dt > .25 then
+		self.slew_x, self.slew_y = 0, 0
+		return
+	end
 	if self.exp_view then
 	 self.exp_x=clamp((self.exp_x or 0)+self.slew_x*dt*.5,-.8,.8)
 	 self.exp_y=clamp((self.exp_y or 0)+self.slew_y*dt*.5,-.73,.73)

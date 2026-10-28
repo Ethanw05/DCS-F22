@@ -1,0 +1,721 @@
+{
+  "schema_version": 1,
+  "owner": "chat3",
+  "audit_root": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Deep-Audit-2026-10-28-1351",
+  "branch": "main",
+  "head": "7513f931a8bf1016a72e8eb184a9c98074786e81",
+  "dirty_untracked": [
+    "M CMakeLists.txt",
+    " M EFM/CMakeLists.txt",
+    " M docs/CODING_STANDARD.md",
+    " M docs/audit/F22-Fidelity-Audit.html",
+    " M docs/audit/README.md",
+    " M docs/audit/SOURCES.json",
+    " M docs/handoffs/00-shared-instructions.md",
+    " M docs/handoffs/01-flight-and-aircraft.md",
+    " M docs/handoffs/02-navigation-cockpit-integration.md",
+    " M docs/handoffs/03-radar-aesa.md",
+    " M docs/handoffs/04-weapons-defensive-avionics.md",
+    " M docs/handoffs/README.md",
+    " M docs/overhaul/BACKLOG.json",
+    " M docs/overhaul/README.md",
+    " M tools/compose_ew_gauntlet.lua",
+    " M tools/research_sar_point_targets.py",
+    "?? Cockpit.zip",
+    "?? EFM.zip",
+    "?? docs/audit/BASELINE.json",
+    "?? docs/audit/CAPABILITIES.json",
+    "?? docs/audit/CLEANUP.json",
+    "?? docs/audit/EXPANSION-DELTA.json",
+    "?? docs/audit/FAILURES.json",
+    "?? docs/audit/FINDINGS.json",
+    "?? docs/audit/INTERFACES.json",
+    "?? docs/audit/NATIVE-COVERAGE-VALIDATION.json",
+    "?? docs/audit/PRIOR-AUDIT-CROSSWALK.json",
+    "?? docs/audit/REQUIREMENTS.json",
+    "?? docs/audit/REVIEWS.json",
+    "?? docs/audit/SOURCE-DRIFT.json",
+    "?? docs/audit/STANDARDS.json",
+    "?? docs/audit/STATE-MODELS.json",
+    "?? docs/audit/VERIFICATION-SPEC.json",
+    "?? docs/overhaul/chat4-weapons-ew/",
+    "?? docs/overhaul/flight-execution/",
+    "?? docs/overhaul/integration/"
+  ],
+  "files": [
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/radar_palette.lua",
+      "audit_sha256": "6ac7dc4f2d38f4e5c47406da68f6f00fd852ac71aaaafeb69f6963623b74e7be",
+      "current_sha256": "6ac7dc4f2d38f4e5c47406da68f6f00fd852ac71aaaafeb69f6963623b74e7be",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AESA_Control.lua",
+      "audit_sha256": "cce16ba3ec9736706cde98cbb7f6d74a76042b0f8e617508ec364bbb9c07d923",
+      "current_sha256": "cce16ba3ec9736706cde98cbb7f6d74a76042b0f8e617508ec364bbb9c07d923",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Radar_Collection.lua",
+      "audit_sha256": "48f745926962de4f3bc35a9fb8f08e6f102c882b0929ecde0d38cf8d18f27d85",
+      "current_sha256": "48f745926962de4f3bc35a9fb8f08e6f102c882b0929ecde0d38cf8d18f27d85",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Radar_Computer.lua",
+      "audit_sha256": "2177daa3d0b16105646ba778405af55211ab91abbf2bcd8ef5df398ce86a1c0a",
+      "current_sha256": "2177daa3d0b16105646ba778405af55211ab91abbf2bcd8ef5df398ce86a1c0a",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Radar_Modes.lua",
+      "audit_sha256": "470adbbf65f8607fbdfba09e721202b48ea6d482ac039d9d01408929dc8ba20c",
+      "current_sha256": "470adbbf65f8607fbdfba09e721202b48ea6d482ac039d9d01408929dc8ba20c",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Radar_System.lua",
+      "audit_sha256": "c19decf39d36370b1b1d3f6f55e86493770c7373f270912b54f27bc5ae5ce828",
+      "current_sha256": "c19decf39d36370b1b1d3f6f55e86493770c7373f270912b54f27bc5ae5ce828",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Radar_Video/empty.lua",
+      "audit_sha256": "812162608880a843e2adab570c703104c731d05af0ab13fa4420cbeddad1ea59",
+      "current_sha256": "812162608880a843e2adab570c703104c731d05af0ab13fa4420cbeddad1ea59",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Radar_Video/init.lua",
+      "audit_sha256": "77a7f8aeb8766d3b4836c813b052b15732eb1acb8d31bad18a603b6dcf181dee",
+      "current_sha256": "77a7f8aeb8766d3b4836c813b052b15732eb1acb8d31bad18a603b6dcf181dee",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Commands.lua",
+      "audit_sha256": "debcd0c815e1caa04d9be30f6b695a491e7c5821020a064d4db9ea8a3a3fc1df",
+      "current_sha256": "debcd0c815e1caa04d9be30f6b695a491e7c5821020a064d4db9ea8a3a3fc1df",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Computer.lua",
+      "audit_sha256": "5fc47e9123766d8cab8eaba3432c652fac3459d152b1f416a1cda3723d2ceb9f",
+      "current_sha256": "5fc47e9123766d8cab8eaba3432c652fac3459d152b1f416a1cda3723d2ceb9f",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Config.lua",
+      "audit_sha256": "ae5ed261cc9c9f7a427f57b3de2141a51f16277789fb6022da1996369b7c14ea",
+      "current_sha256": "ae5ed261cc9c9f7a427f57b3de2141a51f16277789fb6022da1996369b7c14ea",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Contact_Metadata.lua",
+      "audit_sha256": "91b884161fc0154444dc2f92dabda1b4ebd8b6194ff019481a74709708f6ea76",
+      "current_sha256": "91b884161fc0154444dc2f92dabda1b4ebd8b6194ff019481a74709708f6ea76",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Data_Bridge.lua",
+      "audit_sha256": "2727fbab8539db067797a4daca8d81e469eac1c9a7a0dde9a4b9010e3e3f4756",
+      "current_sha256": "2727fbab8539db067797a4daca8d81e469eac1c9a7a0dde9a4b9010e3e3f4756",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Display.lua",
+      "audit_sha256": "f0e169f75b281bfc56133f6c8e802fe23b54978167d61437c0123815f816058b",
+      "current_sha256": "f0e169f75b281bfc56133f6c8e802fe23b54978167d61437c0123815f816058b",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Donor_Cue.lua",
+      "audit_sha256": "050586e4e6beede444957cb5dbfe25dc17914a25bcca7a7852c6a9e01e96f1c7",
+      "current_sha256": "050586e4e6beede444957cb5dbfe25dc17914a25bcca7a7852c6a9e01e96f1c7",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Donor_Link.lua",
+      "audit_sha256": "e7d4279b7bf91884b82530a48e74ff39acaae827b505203035262455cc3c4bab",
+      "current_sha256": "e7d4279b7bf91884b82530a48e74ff39acaae827b505203035262455cc3c4bab",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Focus.lua",
+      "audit_sha256": "d44448d31d9c981cff6c50a72d5f5576dbbab6ed58a1578091ba1bb00cc94cf5",
+      "current_sha256": "d44448d31d9c981cff6c50a72d5f5576dbbab6ed58a1578091ba1bb00cc94cf5",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_IFF.lua",
+      "audit_sha256": "f1e92c6b8c3940bc05f8481098444b01f21849001910531eb61633a3695c55e7",
+      "current_sha256": "f1e92c6b8c3940bc05f8481098444b01f21849001910531eb61633a3695c55e7",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Launch_Zone.lua",
+      "audit_sha256": "79d9da8ec6fa0ab96d1a1e9ef3becff7e9a192f3d005fc4a2964c2ea8c3f96f1",
+      "current_sha256": "79d9da8ec6fa0ab96d1a1e9ef3becff7e9a192f3d005fc4a2964c2ea8c3f96f1",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Native.lua",
+      "audit_sha256": "e8f8a0b61ff1dcb9d165c44d4d489eb91c2e3f132992adee7cda2b5aa6960cfa",
+      "current_sha256": "e8f8a0b61ff1dcb9d165c44d4d489eb91c2e3f132992adee7cda2b5aa6960cfa",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Resource.lua",
+      "audit_sha256": "54734bc89f8815513fc024c5ff8f0e1b654cf0c96e9d50dda50d4774a451c0ba",
+      "current_sha256": "54734bc89f8815513fc024c5ff8f0e1b654cf0c96e9d50dda50d4774a451c0ba",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_STT.lua",
+      "audit_sha256": "ce651c8fc08a7c8c03d2f844035f0667dd47d5c41408ccadd0caae1f0a1e779e",
+      "current_sha256": "ce651c8fc08a7c8c03d2f844035f0667dd47d5c41408ccadd0caae1f0a1e779e",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Sensor_Tasking.lua",
+      "audit_sha256": "38c3351faca827b6bad3ca3ab088b376a5886ac1a32f8398ee5d7eb355a7fd83",
+      "current_sha256": "38c3351faca827b6bad3ca3ab088b376a5886ac1a32f8398ee5d7eb355a7fd83",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_System.lua",
+      "audit_sha256": "19919b82af741a8f47dc10334cec1b0ce7ac547a16f66872c6d64b9e670b458c",
+      "current_sha256": "19919b82af741a8f47dc10334cec1b0ce7ac547a16f66872c6d64b9e670b458c",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Tactical.lua",
+      "audit_sha256": "32ff9548c40f000d64bc2cb0963228c27fa4f8953a969bce99cd599e9cbc67a1",
+      "current_sha256": "32ff9548c40f000d64bc2cb0963228c27fa4f8953a969bce99cd599e9cbc67a1",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Telemetry.lua",
+      "audit_sha256": "e53cdf10a9a417fb4ee87cdde5c0ed98259735499cab66135bdbe191314fee8d",
+      "current_sha256": "e53cdf10a9a417fb4ee87cdde5c0ed98259735499cab66135bdbe191314fee8d",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Track_Metadata.lua",
+      "audit_sha256": "fb5a20bbe648f190242ce4befc5d0eceb39083e37675229bdbf0b60dfaede2ee",
+      "current_sha256": "fb5a20bbe648f190242ce4befc5d0eceb39083e37675229bdbf0b60dfaede2ee",
+      "matches": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Tactical_Radar_History.lua",
+      "audit_sha256": "831e7bb82a57078578f23a11b9037215ceab3c289dc57236c1aab123a81a370e",
+      "current_sha256": "831e7bb82a57078578f23a11b9037215ceab3c289dc57236c1aab123a81a370e",
+      "matches": true
+    },
+    {
+      "path": "EFM/source/AesaAssociation.h",
+      "audit_sha256": "2a6f1cda3bd8fd9cd5ea6de4188d0cb1ea50aa8fac61f908811acca67ae9959e",
+      "current_sha256": "2a6f1cda3bd8fd9cd5ea6de4188d0cb1ea50aa8fac61f908811acca67ae9959e",
+      "matches": true
+    },
+    {
+      "path": "EFM/source/AesaRadar.cpp",
+      "audit_sha256": "2a15b2d6118d40d6b83a6ac4de72c45cd864266a14139bbeeb45014d4ce8445a",
+      "current_sha256": "2a15b2d6118d40d6b83a6ac4de72c45cd864266a14139bbeeb45014d4ce8445a",
+      "matches": true
+    },
+    {
+      "path": "EFM/source/AesaRadar.h",
+      "audit_sha256": "2f5ff1f49d66241c43a8025f37025dcbec568a1ca4a5dd74288984f5a413327f",
+      "current_sha256": "2f5ff1f49d66241c43a8025f37025dcbec568a1ca4a5dd74288984f5a413327f",
+      "matches": true
+    },
+    {
+      "path": "EFM/source/AesaReceiver.h",
+      "audit_sha256": "a5fbdb7aef2dc5ebc5f5cd2c939385231f7b78afada5796d28db4d121c2b6159",
+      "current_sha256": "a5fbdb7aef2dc5ebc5f5cd2c939385231f7b78afada5796d28db4d121c2b6159",
+      "matches": true
+    },
+    {
+      "path": "EFM/source/AesaTrackFilter.h",
+      "audit_sha256": "6b9c8e7a3ce7147aaad1410074392581a508a3039381ba34c2485a3b7bf59d60",
+      "current_sha256": "6b9c8e7a3ce7147aaad1410074392581a508a3039381ba34c2485a3b7bf59d60",
+      "matches": true
+    },
+    {
+      "path": "EFM/source/GroundMovingTargets.h",
+      "audit_sha256": "9284831c2fffd418dbbe692d877062893aef283467eb92c6fe6883eb059a81ee",
+      "current_sha256": "9284831c2fffd418dbbe692d877062893aef283467eb92c6fe6883eb059a81ee",
+      "matches": true
+    },
+    {
+      "path": "EFM/source/GroundVideoProbe.h",
+      "audit_sha256": "ab86b5993e0ca569d15cf94c4e7d9d7f25a96810ae51e4b0a7ea0c4e7e99a2e1",
+      "current_sha256": "ab86b5993e0ca569d15cf94c4e7d9d7f25a96810ae51e4b0a7ea0c4e7e99a2e1",
+      "matches": true
+    },
+    {
+      "path": "EFM/source/GroundVideoView.h",
+      "audit_sha256": "cbf835ae58c12547adbf6fc67a1f2324572a3db0b544ab34df353d7ca74a84da",
+      "current_sha256": "cbf835ae58c12547adbf6fc67a1f2324572a3db0b544ab34df353d7ca74a84da",
+      "matches": true
+    },
+    {
+      "path": "EFM/source/NativeAesaRadar.cpp",
+      "audit_sha256": "e9577f2b5103833abe4f98e4f217c73778b4be37ba042ee05963310a2566722b",
+      "current_sha256": "e9577f2b5103833abe4f98e4f217c73778b4be37ba042ee05963310a2566722b",
+      "matches": true
+    },
+    {
+      "path": "EFM/source/NativeDatalink.cpp",
+      "audit_sha256": "cfdb4b81794139cc0b5ec983728d9ac7eb0053d6325c8dabd11f8843b333e9d7",
+      "current_sha256": "cfdb4b81794139cc0b5ec983728d9ac7eb0053d6325c8dabd11f8843b333e9d7",
+      "matches": true
+    },
+    {
+      "path": "EFM/source/NativeGroundRadar.cpp",
+      "audit_sha256": "9dcfba46688b317be8648195b1f8df1c7d03e9590d1e676690acc0df1ceb08f6",
+      "current_sha256": "9dcfba46688b317be8648195b1f8df1c7d03e9590d1e676690acc0df1ceb08f6",
+      "matches": true
+    },
+    {
+      "path": "EFM/source/NativeGroundReturns.h",
+      "audit_sha256": "15dfd1e88075fe2362b653288260f7bcac80809b4b51e2831005a59dbb8e7099",
+      "current_sha256": "15dfd1e88075fe2362b653288260f7bcac80809b4b51e2831005a59dbb8e7099",
+      "matches": true
+    },
+    {
+      "path": "EFM/source/NativeGroundSensor.cpp",
+      "audit_sha256": "6593a916ec9e82fdf7439caa189b35a1f3314c3763c4f5a4689208a94daaff6c",
+      "current_sha256": "6593a916ec9e82fdf7439caa189b35a1f3314c3763c4f5a4689208a94daaff6c",
+      "matches": true
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "audit_sha256": "9f9af37e838af27cd95d9b2065b3f40c3facd231f2c3cfc47e9444c3d199a08d",
+      "current_sha256": "9f9af37e838af27cd95d9b2065b3f40c3facd231f2c3cfc47e9444c3d199a08d",
+      "matches": true
+    }
+  ],
+  "assigned_test_inventory": [
+    {
+      "path": "tests/fixtures/aesa-position-run02.csv",
+      "audit_sha256": "90e490aad5fa971094aca089a9fbe5c821d19c036d8424260ed2467447a58d67",
+      "current_sha256": "90e490aad5fa971094aca089a9fbe5c821d19c036d8424260ed2467447a58d67",
+      "matches": true,
+      "disposition": "retain original recording/evidence"
+    },
+    {
+      "path": "tests/fixtures/aesa-position-run02.md",
+      "audit_sha256": "0b78598ea675effa7b938c6e23ac817f9fa48b62a80ebc720a737cc6c62ff990",
+      "current_sha256": "0b78598ea675effa7b938c6e23ac817f9fa48b62a80ebc720a737cc6c62ff990",
+      "matches": true,
+      "disposition": "retain original recording/evidence"
+    },
+    {
+      "path": "tests/fixtures/gun-aesa-player-20261027.csv",
+      "audit_sha256": "9b5d3c2f2327870c57047ee5be85397950194703c2cb72ce4b4ae4fbbb6fec8c",
+      "current_sha256": "9b5d3c2f2327870c57047ee5be85397950194703c2cb72ce4b4ae4fbbb6fec8c",
+      "matches": true,
+      "disposition": "retain original recording/evidence"
+    },
+    {
+      "path": "tests/owned_radar_fixture.lua",
+      "audit_sha256": "a9c355e9f5bb79af1c38d7799fc1a49abf22df4a7ee93687ad8036adb1d38cfa",
+      "current_sha256": "a9c355e9f5bb79af1c38d7799fc1a49abf22df4a7ee93687ad8036adb1d38cfa",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/radar_body_fixture.lua",
+      "audit_sha256": "a27face9b73c10dd74dfe0f6d0211a8cfd4b8ded76233cabe4293f968de05930",
+      "current_sha256": "a27face9b73c10dd74dfe0f6d0211a8cfd4b8ded76233cabe4293f968de05930",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/radar_physical_fixture.lua",
+      "audit_sha256": "8e437805dbfad1cbcf592caca865171b930bc50b4d98aed45da52732c8c0f677",
+      "current_sha256": "8e437805dbfad1cbcf592caca865171b930bc50b4d98aed45da52732c8c0f677",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/radar_test_runtime.py",
+      "audit_sha256": "4bc61fb477c93b1a3ba9ba56a4880cd6dc44104dc5eb7b17048bd99262e3b210",
+      "current_sha256": "4bc61fb477c93b1a3ba9ba56a4880cd6dc44104dc5eb7b17048bd99262e3b210",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/requirements-radar.txt",
+      "audit_sha256": "99cb9765a81dbdc6e2d4d047b82760218c1727894d2b4d17b6f3e27c21d06d79",
+      "current_sha256": "99cb9765a81dbdc6e2d4d047b82760218c1727894d2b4d17b6f3e27c21d06d79",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/stt_snapshot_fixture.lua",
+      "audit_sha256": "2c647baba185b45d2573ec2aa44a780d17b82af09cd6864bae0109496a013e17",
+      "current_sha256": "2c647baba185b45d2573ec2aa44a780d17b82af09cd6864bae0109496a013e17",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/surface_grant_fixture.lua",
+      "audit_sha256": "134c9f1cffe62f1486c206c6d36a4699f490069993791243aec37a021a2316f6",
+      "current_sha256": "134c9f1cffe62f1486c206c6d36a4699f490069993791243aec37a021a2316f6",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_aesa_association.cpp",
+      "audit_sha256": "26657a4877ea006bba8bcae4b2fb6c61f1ecd0b9f059b9d83e796b0a1e93cbf7",
+      "current_sha256": "26657a4877ea006bba8bcae4b2fb6c61f1ecd0b9f059b9d83e796b0a1e93cbf7",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_aesa_interference.cpp",
+      "audit_sha256": "5cd48d7a7f4234fb68770fd310d1a65f4461b34535f3b36a4dc3d8067a58f5cc",
+      "current_sha256": "5cd48d7a7f4234fb68770fd310d1a65f4461b34535f3b36a4dc3d8067a58f5cc",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_aesa_radar.cpp",
+      "audit_sha256": "239b6678ff89c43615a5b3357800acdcf28efd5e7d5e3dfd4707d55d30c808a5",
+      "current_sha256": "239b6678ff89c43615a5b3357800acdcf28efd5e7d5e3dfd4707d55d30c808a5",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_aesa_scheduling.cpp",
+      "audit_sha256": "458a24c908a8a1e96141b6739f81bcced85c9783e34b8f66275786ed8e8294b3",
+      "current_sha256": "458a24c908a8a1e96141b6739f81bcced85c9783e34b8f66275786ed8e8294b3",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_aesa_support_authority.py",
+      "audit_sha256": "9e0f642b9b7620cd3845e7fb7df0a2ea33b057cde1b5277d19b4758231901337",
+      "current_sha256": "9e0f642b9b7620cd3845e7fb7df0a2ea33b057cde1b5277d19b4758231901337",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_aesa_task_contract.py",
+      "audit_sha256": "9ffe1c1e580802cf87fe1f3a7f8e5bfec31346ac96bcf0b8257fa83c2d826f13",
+      "current_sha256": "9ffe1c1e580802cf87fe1f3a7f8e5bfec31346ac96bcf0b8257fa83c2d826f13",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_aesa_track_filter.cpp",
+      "audit_sha256": "a176ffd6af13e5d52b2ee34451ec99e94931606367159fa5ef12d670951459a9",
+      "current_sha256": "a176ffd6af13e5d52b2ee34451ec99e94931606367159fa5ef12d670951459a9",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_ag_radar.py",
+      "audit_sha256": "63bd3bfed377b4ed35c359a4e19064fe1ff1a7fcf964931f7f4296a206676a3c",
+      "current_sha256": "63bd3bfed377b4ed35c359a4e19064fe1ff1a7fcf964931f7f4296a206676a3c",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_cooperative_radar.py",
+      "audit_sha256": "236c6b9381f8dc0e287767ea392831ef68fce08bad6e71a90ccb754efb63c79f",
+      "current_sha256": "236c6b9381f8dc0e287767ea392831ef68fce08bad6e71a90ccb754efb63c79f",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_cooperative_radar_transport.py",
+      "audit_sha256": "d3ffdfbd3481113423f505e59bc5304dbeade05e24aac7bdaaf902d969a9bcf6",
+      "current_sha256": "d3ffdfbd3481113423f505e59bc5304dbeade05e24aac7bdaaf902d969a9bcf6",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_donor_radar_cue.py",
+      "audit_sha256": "6db580a5202d7dcd10f96efc33cff406106e4ef0fb56f39344c9a8357b80473c",
+      "current_sha256": "6db580a5202d7dcd10f96efc33cff406106e4ef0fb56f39344c9a8357b80473c",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_ground_collection.py",
+      "audit_sha256": "80068e353c5802c3cea6beff47bb360d473c595154530e5267292a05822165b8",
+      "current_sha256": "80068e353c5802c3cea6beff47bb360d473c595154530e5267292a05822165b8",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_ground_gmt.py",
+      "audit_sha256": "7e47efc563ad536ffeee89aacef76dcef9bd3c4bbb4ad2b723a4e532c35871fe",
+      "current_sha256": "7e47efc563ad536ffeee89aacef76dcef9bd3c4bbb4ad2b723a4e532c35871fe",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_ground_image_cycle.cpp",
+      "audit_sha256": "78bdf88bed114d02951562f4a4a5e9593b3500650c1bc629ea6f0b752c0028a9",
+      "current_sha256": "78bdf88bed114d02951562f4a4a5e9593b3500650c1bc629ea6f0b752c0028a9",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_ground_map_undesignate.py",
+      "audit_sha256": "e48546dbdf5f13f46fef5bdfe3f23343ca3c5c3314357c62cdf9c3812ef84a6e",
+      "current_sha256": "e48546dbdf5f13f46fef5bdfe3f23343ca3c5c3314357c62cdf9c3812ef84a6e",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_ground_moving_targets.cpp",
+      "audit_sha256": "8273b4ea3889a2db519027b6a4654ad8d66306f0ef9ebd9001d1b6749e9dac7a",
+      "current_sha256": "8273b4ea3889a2db519027b6a4654ad8d66306f0ef9ebd9001d1b6749e9dac7a",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_ground_radar_integrity.py",
+      "audit_sha256": "18462a27824cce0ff0df0d45ecdbfe84c4421868ef6b9d6e44798440fc1f7c08",
+      "current_sha256": "18462a27824cce0ff0df0d45ecdbfe84c4421868ef6b9d6e44798440fc1f7c08",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_ground_radar_interaction.py",
+      "audit_sha256": "c3fb67cc56970377c048f1bf9b1c7eb68199b9cb2c757766dd2d9a22d5bb69c6",
+      "current_sha256": "c3fb67cc56970377c048f1bf9b1c7eb68199b9cb2c757766dd2d9a22d5bb69c6",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_ground_radar_modes.py",
+      "audit_sha256": "3b7ff07fe21676f80f60d9ad1ac907eaf58c00d00c726928bebcbbc4bb9de1dc",
+      "current_sha256": "3b7ff07fe21676f80f60d9ad1ac907eaf58c00d00c726928bebcbbc4bb9de1dc",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_ground_radar_source_type.py",
+      "audit_sha256": "647d64a00118c079d9281271df582c6f95261751a162083a943cdee441d632b6",
+      "current_sha256": "647d64a00118c079d9281271df582c6f95261751a162083a943cdee441d632b6",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_ground_video.py",
+      "audit_sha256": "bd77901d8c1d6533bc1c33ef8a4eb0e65c6a3f3b8635cd667ef2cd3603034e2b",
+      "current_sha256": "bd77901d8c1d6533bc1c33ef8a4eb0e65c6a3f3b8635cd667ef2cd3603034e2b",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_ground_view_continuity.py",
+      "audit_sha256": "ba3ef24e2f2e7ab6cef520dc645d4ca06e9f9052c4f8ffade7ec3cbc0b142e03",
+      "current_sha256": "ba3ef24e2f2e7ab6cef520dc645d4ca06e9f9052c4f8ffade7ec3cbc0b142e03",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_native_aesa.cpp",
+      "audit_sha256": "68f6d5fa6137d9ed6dc9025d9932f1d0729a7e0d3f76583d52f116593fcabb90",
+      "current_sha256": "68f6d5fa6137d9ed6dc9025d9932f1d0729a7e0d3f76583d52f116593fcabb90",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_native_ground_controls.cpp",
+      "audit_sha256": "8402da9d16b79a2756fa301b3e071f7a9a988ea89f1152c5645c7141991de65d",
+      "current_sha256": "8402da9d16b79a2756fa301b3e071f7a9a988ea89f1152c5645c7141991de65d",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_native_ground_publication.cpp",
+      "audit_sha256": "e2f2d271883cf128cbb6a4b255792d2606cd7531e7ba5a45472417a5d822978a",
+      "current_sha256": "e2f2d271883cf128cbb6a4b255792d2606cd7531e7ba5a45472417a5d822978a",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_native_ground_returns.cpp",
+      "audit_sha256": "53b9db8b001d38a3bcc60ef33b59ce8ac2a68e7c7e16539d133c35873042fc60",
+      "current_sha256": "53b9db8b001d38a3bcc60ef33b59ce8ac2a68e7c7e16539d133c35873042fc60",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_owned_aesa_lua.py",
+      "audit_sha256": "87f07729cc44a42b5f5462b3fb5d6da6ecc40149eee2c20426642e9508256b37",
+      "current_sha256": "87f07729cc44a42b5f5462b3fb5d6da6ecc40149eee2c20426642e9508256b37",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_acm_hud_focus.py",
+      "audit_sha256": "1562284e4f9149f48ce612a734fe0f16f55680f7251d267ab93a5d5293b6c1d9",
+      "current_sha256": "1562284e4f9149f48ce612a734fe0f16f55680f7251d267ab93a5d5293b6c1d9",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_acm_transitions.py",
+      "audit_sha256": "53c9682a3917514583aa5df3c2421792ed926dfe77f8c698e5e858795b25fcc1",
+      "current_sha256": "53c9682a3917514583aa5df3c2421792ed926dfe77f8c698e5e858795b25fcc1",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_adapter.py",
+      "audit_sha256": "76009c134f99c0fba5e6e0538f11fc9cec6fb35b92015517988daa2f6b085ff2",
+      "current_sha256": "76009c134f99c0fba5e6e0538f11fc9cec6fb35b92015517988daa2f6b085ff2",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_ag_handoff.py",
+      "audit_sha256": "38ad017a19b2e6731bf5808be9b5469197e7a5ebc9f0ecd8b669463a1d71dad6",
+      "current_sha256": "38ad017a19b2e6731bf5808be9b5469197e7a5ebc9f0ecd8b669463a1d71dad6",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_bridge.py",
+      "audit_sha256": "ec9176cd3ff5dcc65cbf6df5881953bde40d71373202a6464d42432eeef5fb58",
+      "current_sha256": "ec9176cd3ff5dcc65cbf6df5881953bde40d71373202a6464d42432eeef5fb58",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_computer.py",
+      "audit_sha256": "392fefc8c66dd1c43b06e1ec1ff7e6ad29445e02d6e5d0092f0e9cbcec0f519b",
+      "current_sha256": "392fefc8c66dd1c43b06e1ec1ff7e6ad29445e02d6e5d0092f0e9cbcec0f519b",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_declutter.py",
+      "audit_sha256": "68df2c5235d88c25cee7aff33f7980d334d2da1563da2505968613c2d22c7052",
+      "current_sha256": "68df2c5235d88c25cee7aff33f7980d334d2da1563da2505968613c2d22c7052",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_display_palette.py",
+      "audit_sha256": "0e122d90e6a5276123ad0ddd1b05b44b03bbcd6ca57bab5f09adbfbeb0aa5f0d",
+      "current_sha256": "0e122d90e6a5276123ad0ddd1b05b44b03bbcd6ca57bab5f09adbfbeb0aa5f0d",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_integrity.py",
+      "audit_sha256": "26fb8d2498abb035a704ac1022439c2c3b40937994a55f7c82d4e3a9ab9dba30",
+      "current_sha256": "26fb8d2498abb035a704ac1022439c2c3b40937994a55f7c82d4e3a9ab9dba30",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_launch_zone.py",
+      "audit_sha256": "54e50fbbc24222d0845a140c0e51a0d6757d618a52977bd18060e7ca47640883",
+      "current_sha256": "54e50fbbc24222d0845a140c0e51a0d6757d618a52977bd18060e7ca47640883",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_mfd_controls.py",
+      "audit_sha256": "20dff62bf6c11e1e44f5f00cc0ddcce670ed8cbafa8ce59f4c5f9feaf7b44dd0",
+      "current_sha256": "20dff62bf6c11e1e44f5f00cc0ddcce670ed8cbafa8ce59f4c5f9feaf7b44dd0",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_native_units.py",
+      "audit_sha256": "3891f5533fa781934ecd24f3ed126e31eb6e4ea8b7e3e60adc32a3b76e831edf",
+      "current_sha256": "3891f5533fa781934ecd24f3ed126e31eb6e4ea8b7e3e60adc32a3b76e831edf",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_owned_retirement.py",
+      "audit_sha256": "7867893096238021715405e9784d3caf45204352d22cfad9afcbffcfc5536ba3",
+      "current_sha256": "7867893096238021715405e9784d3caf45204352d22cfad9afcbffcfc5536ba3",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_presentation.py",
+      "audit_sha256": "2275f0e381609228da4703c7399630e7fa4189f01de9860be3689a62ce374267",
+      "current_sha256": "2275f0e381609228da4703c7399630e7fa4189f01de9860be3689a62ce374267",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_relocated_focus.py",
+      "audit_sha256": "3acb36ff32d20c6f8066bf1e4ab75f54b2e383335714969c5b2792c4b860f240",
+      "current_sha256": "3acb36ff32d20c6f8066bf1e4ab75f54b2e383335714969c5b2792c4b860f240",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_resource.py",
+      "audit_sha256": "d9dce32ee83f9ccd2b74ee9e473d722100cb7dfcb33e4f683cdadf88e6f95b58",
+      "current_sha256": "d9dce32ee83f9ccd2b74ee9e473d722100cb7dfcb33e4f683cdadf88e6f95b58",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_scan_quality.py",
+      "audit_sha256": "2ace5de529b4c2ebc2f470a294227182f38d957bb2f20abce19e5f3925ec1a0e",
+      "current_sha256": "2ace5de529b4c2ebc2f470a294227182f38d957bb2f20abce19e5f3925ec1a0e",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_scenario_matrix.py",
+      "audit_sha256": "c68bd305c215b7586fef6c926e0ae05b8efc1ed5b4fb1c20bee527f49e4d899d",
+      "current_sha256": "c68bd305c215b7586fef6c926e0ae05b8efc1ed5b4fb1c20bee527f49e4d899d",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_telemetry.py",
+      "audit_sha256": "a3be97f7ee677b92221861b8869bcde9e8ca29e0b7c8341d70696a1fec342234",
+      "current_sha256": "a3be97f7ee677b92221861b8869bcde9e8ca29e0b7c8341d70696a1fec342234",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_tracking_beam.py",
+      "audit_sha256": "b70d0a79061b1e17ebc05d9ef416ea619d16c2efa086d625823377bce1ec873a",
+      "current_sha256": "b70d0a79061b1e17ebc05d9ef416ea619d16c2efa086d625823377bce1ec873a",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_weapon_state.py",
+      "audit_sha256": "18524a66d35746ccdafe6d97c1a11dba8d808330b0a0740d6641ce5f702c3176",
+      "current_sha256": "18524a66d35746ccdafe6d97c1a11dba8d808330b0a0740d6641ce5f702c3176",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "tests/test_radar_world_observations.py",
+      "audit_sha256": "2ca0c0c35c24e2725214fb77947596354541b68413d1e24f8f98ccae2e9e6d0e",
+      "current_sha256": "2ca0c0c35c24e2725214fb77947596354541b68413d1e24f8f98ccae2e9e6d0e",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    },
+    {
+      "path": "EFM/tests/test_native_ground_video.cpp",
+      "audit_sha256": "ba2c987b311c9b5f6e71d9ed00c5356eb724e6943545efef510e36aa3d82ff12",
+      "current_sha256": "ba2c987b311c9b5f6e71d9ed00c5356eb724e6943545efef510e36aa3d82ff12",
+      "matches": true,
+      "disposition": "delete and independently remake during domain implementation after HARNESS_READY; unchanged now"
+    }
+  ]
+}

@@ -1,0 +1,258 @@
+{
+  "status": "preparation only; no implementation/selection/host qualification decision",
+  "profile": "public_f22_manual_recovery@1",
+  "packages": [
+    {
+      "id": "P-RAD-004",
+      "title": "Qualify current native/radar/image/support chain",
+      "requirements": [
+        "R-RAD-004",
+        "R-RAD-005",
+        "R-RAD-006",
+        "R-RAD-007",
+        "R-RAD-010",
+        "R-RAD-014",
+        "R-RAD-016",
+        "R-RAD-017",
+        "R-RAD-018",
+        "D-R-RAD-001",
+        "D-R-RAD-002",
+        "D-R-RAD-003",
+        "D-R-RAD-004",
+        "D-R-WPN-003"
+      ],
+      "findings": [
+        "F-RAD-005",
+        "D-RAD-001",
+        "D-RAD-002",
+        "D-RAD-003",
+        "D-RAD-004",
+        "D-WPN-003"
+      ],
+      "cleanup": [
+        "C-RAD-003",
+        "C-RAD-004",
+        "C-RAD-005"
+      ],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001",
+        "P-RAD-002",
+        "P-RAD-003",
+        "P-INT-003",
+        "P-INT-008",
+        "D-P-RAD-001"
+      ],
+      "acceptance": [
+        "No stale authority past0.5s control/producer lease or0.25s physical stall; epoch/destruction withdraw.",
+        "Caps64tracks/32pending/128candidates/8returns/16LOS remain bounded and overload observable.",
+        "Foreign indicator rejected before typed getter; malformed buffer latched; camera/point/params same frame.",
+        "Actual target-specific missile effects evidenced, not ready flags.",
+        "Predeclare image registration tolerance<=1pixel or justified geometry tolerance; frozen images retain old sample epoch.",
+        "Record p50/p95/p99/max CPU/GPU and allocation costs; budgets based on measured integrated host,not standalone benchmark."
+      ],
+      "test_specification_ids": [
+        "VS-REQ-RAD-004",
+        "VS-REQ-RAD-005",
+        "VS-REQ-RAD-006",
+        "VS-REQ-RAD-007",
+        "VS-REQ-RAD-010",
+        "VS-REQ-RAD-014",
+        "VS-REQ-RAD-016",
+        "VS-REQ-RAD-017",
+        "VS-REQ-RAD-018",
+        "DVS-RAD-001",
+        "DVS-RAD-002",
+        "DVS-RAD-003",
+        "DVS-RAD-004",
+        "DVS-WPN-003"
+      ]
+    },
+    {
+      "id": "P-RAD-005",
+      "title": "Coherent SAR applicability and host feasibility",
+      "requirements": [
+        "R-RAD-008",
+        "R-RAD-013"
+      ],
+      "findings": [
+        "F-RAD-004"
+      ],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-004"
+      ],
+      "acceptance": [
+        "Written go/no-go lists actual usable environment/output contracts,exact profiles,bounds and blockers.",
+        "Point-target CPU reference and independent geometry validate formation; no direct known-target pixel drawing.",
+        "Missing support leaves coherent SAR unavailable while current useful approximation retained."
+      ],
+      "test_specification_ids": [
+        "VS-REQ-RAD-008",
+        "VS-REQ-RAD-013"
+      ]
+    },
+    {
+      "id": "P-RAD-006",
+      "title": "Integrate selected leased SAR collection/formation",
+      "requirements": [
+        "R-RAD-004",
+        "R-RAD-007",
+        "R-RAD-008",
+        "R-RAD-017"
+      ],
+      "findings": [
+        "F-RAD-004"
+      ],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-005"
+      ],
+      "acceptance": [
+        "Independent bandwidth/aperture/motion error/two-target/forward-ambiguity experiments match declared physics.",
+        "Complex GPU-reference SER>=40dB for specified synthetic cases (numerical,not aircraft evidence).",
+        "No generation mixing,display-time RF credit or image-derived fire-control authority.",
+        "Full footprint/VR measured cost meets P-RAD-004/005 budgets; bounded worst batch."
+      ],
+      "test_specification_ids": [
+        "VS-REQ-RAD-004",
+        "VS-REQ-RAD-007",
+        "VS-REQ-RAD-008",
+        "VS-REQ-RAD-017"
+      ]
+    },
+    {
+      "id": "P-RAD-007",
+      "title": "Integrate achieved identification at radar seam",
+      "requirements": [
+        "R-RAD-009",
+        "R-RAD-010",
+        "R-RAD-014"
+      ],
+      "findings": [
+        "F-RAD-006"
+      ],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001",
+        "P-WPN-004"
+      ],
+      "acceptance": [
+        "Request unavailable/rejected visible; no invented friend/hostile.",
+        "No response unknown,old identity not renewed by new geometry.",
+        "Qualified reply correlated with source/request/epoch/time or capability disclosed unavailable.",
+        "Full radar request -> achieved reply or explicit unavailable -> valid identity publication -> pilot indication is qualified with Chat4 signoff. Never reopen a reverse prerequisite requiring P-RAD-007 before the provider decision."
+      ],
+      "test_specification_ids": [
+        "VS-REQ-RAD-009",
+        "VS-REQ-RAD-010",
+        "VS-REQ-RAD-014"
+      ]
+    },
+    {
+      "id": "P-RAD-008",
+      "title": "Bound radar evidence,calibration and selected depth",
+      "requirements": [
+        "R-RAD-012",
+        "R-RAD-013",
+        "R-RAD-017"
+      ],
+      "findings": [
+        "F-RAD-008"
+      ],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-004"
+      ],
+      "acceptance": [
+        "No production range/resolution/waveform claim from constants.",
+        "Independent seed ensembles verify inverse-fourth echo/inverse-square noise trends/uncertainty under declared simplified model.",
+        "Unknown/unsupported profile/ECM/capacity explicit,not healthy zero; runtime impact measured."
+      ],
+      "test_specification_ids": [
+        "VS-REQ-RAD-012",
+        "VS-REQ-RAD-013",
+        "VS-REQ-RAD-017"
+      ]
+    }
+  ],
+  "current_source_files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c082439c6eba2c8350548992ddca23c4722b0bc2c18822ce38bb506ac96592b5"
+    },
+    {
+      "path": "docs/CODING_STANDARD.md",
+      "sha256": "6bd96aed4dd13db3fdb2d1ad16d223ad5a5c8fef52b3f3b208ef8d49c6d80033"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Equipment_Profile.lua",
+      "sha256": "df3054e151939d32caffea7876be84cdaaa6a877a07c250417e828d9a1f610a8"
+    },
+    {
+      "path": "EFM/source/AesaRadar.h",
+      "sha256": "2f5ff1f49d66241c43a8025f37025dcbec568a1ca4a5dd74288984f5a413327f"
+    },
+    {
+      "path": "EFM/source/AesaRadar.cpp",
+      "sha256": "2a15b2d6118d40d6b83a6ac4de72c45cd864266a14139bbeeb45014d4ce8445a"
+    },
+    {
+      "path": "EFM/source/AesaReceiver.h",
+      "sha256": "a5fbdb7aef2dc5ebc5f5cd2c939385231f7b78afada5796d28db4d121c2b6159"
+    },
+    {
+      "path": "EFM/source/AesaTrackFilter.h",
+      "sha256": "6b9c8e7a3ce7147aaad1410074392581a508a3039381ba34c2485a3b7bf59d60"
+    },
+    {
+      "path": "EFM/source/AesaAssociation.h",
+      "sha256": "2a6f1cda3bd8fd9cd5ea6de4188d0cb1ea50aa8fac61f908811acca67ae9959e"
+    },
+    {
+      "path": "EFM/source/NativeAesaRadar.cpp",
+      "sha256": "e9577f2b5103833abe4f98e4f217c73778b4be37ba042ee05963310a2566722b"
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "sha256": "9f9af37e838af27cd95d9b2065b3f40c3facd231f2c3cfc47e9444c3d199a08d"
+    },
+    {
+      "path": "EFM/source/GroundVideoView.h",
+      "sha256": "cbf835ae58c12547adbf6fc67a1f2324572a3db0b544ab34df353d7ca74a84da"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Radar_Collection.lua",
+      "sha256": "48f745926962de4f3bc35a9fb8f08e6f102c882b0929ecde0d38cf8d18f27d85"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_IFF.lua",
+      "sha256": "f1e92c6b8c3940bc05f8481098444b01f21849001910531eb61633a3695c55e7"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Tactical.lua",
+      "sha256": "32ff9548c40f000d64bc2cb0963228c27fa4f8953a969bce99cd599e9cbc67a1"
+    },
+    {
+      "path": "docs/overhaul/SEN-04-SAR-research.md",
+      "sha256": "7d6cb3ffa8408dcd2d7b2fd04891637a162c22394da4a9317a30812176b5a462"
+    },
+    {
+      "path": "docs/overhaul/SEN-04-SAR-optimization-results.json",
+      "sha256": "f9e496487795edf26d1d8e082f33e16b63e4718877122ddeff7ff46abb2da88c"
+    },
+    {
+      "path": "docs/overhaul/SEN-02-interference.md",
+      "sha256": "f57cd65ffd49678a64d2f8f1beafe63fe8ade9b47d605df69793b5d1c19157b9"
+    }
+  ]
+}

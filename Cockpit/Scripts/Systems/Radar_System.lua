@@ -5,6 +5,7 @@ local input_value = dofile(LockOn_Options.script_path .. "Systems/Input_Value.lu
 local radar_focus_policy = dofile(LockOn_Options.script_path .. "Systems/Radar_Focus.lua")
 local resource_policy = dofile(LockOn_Options.script_path .. "Systems/Radar_Resource.lua")
 local commands = dofile(LockOn_Options.script_path .. "Systems/Radar_Commands.lua")
+local closure_math = dofile(LockOn_Options.script_path .. "Systems/Radar_Closure.lua")
 local computer = dofile(LockOn_Options.script_path .. "Systems/Radar_Computer.lua").new()
 local task_library = dofile(LockOn_Options.script_path .. "Systems/Radar_Sensor_Tasking.lua")
 local sensor_tasks = task_library.new()
@@ -98,6 +99,8 @@ local latest_pose = nil
 local publish_sequence = 0
 local last_acquire_request = -100
 local previous_acquire_mode = -1
+local cursor_clock = nil
+local own_velocity = {}
 local ag = nil
 local function bind_slew(value)
 	-- Releases and neutral jitter cannot adopt another display's held axis.
@@ -122,6 +125,7 @@ local function sync_model_clock()
 	end
 	if now < computer.clock - 0.001 then
 		computer:reset()
+		cursor_clock = nil
 		radar_resource:reset(true)
 		aesa:reset()
 		slew_x, slew_y, slew_focus, slew_role = 0, 0, nil, nil
@@ -161,8 +165,6 @@ local function sync_weapon_mode()
 		end
 	end
 	computer.return_mode = next_mode
-	computer.scan, computer.effective_scan = nil, nil
-	computer.rf_scan_windows = {}
 	sensor_tasks:reset()
 	if mode == 7 or old_mode == 7 then
 		slew_x, slew_y = 0, 0
@@ -177,6 +179,15 @@ local function sync_weapon_mode()
 end
 function SetCommand(command, value)
 	local command_time = sync_model_clock()
+	if not command_time then
+		slew_x, slew_y, slew_focus, slew_role = 0, 0, nil, nil
+		cursor_clock = nil
+		if ag then
+			ag:command("axis_x", 0, false)
+			ag:command("axis_y", 0, false)
+		end
+		return
+	end
 	-- Legacy ACM keys also broadcast an SRM role change. That change may
 	-- arrive after this callback; retain its explicit pattern before syncing.
 	if value == 1 and (command == Keys.PlaneModeVS or command == Keys.PlaneModeBore) then
@@ -318,6 +329,7 @@ function SetCommand(command, value)
 	end
 end
 function post_initialize()
+	cursor_clock = nil
 	donor_cue:retire(-100)
 	aesa:reset()
 	slew_x, slew_y, slew_focus, slew_role = 0, 0, nil, nil
@@ -341,6 +353,7 @@ local function native_command(c)
 end
 ag = dofile(LockOn_Options.script_path .. "Systems/AG_Radar_System.lua").new(get, put, native_command)
 local function withdraw_clock()
+    cursor_clock = nil
     donor_cue:retire(-100)
     computer:reset()
     aesa:reset()
@@ -360,7 +373,7 @@ local function withdraw_clock()
         "F22_RADAR_SUPPORT_ENABLED","F22_RADAR_OBSERVATION_BACKEND_READY","F22_RADAR_FC_ENABLE",
         "F22_RADAR_DESIGNATION_VALID","F22_RADAR_SELECTED_VALID","F22_RADAR_SECONDARY_VALID",
         "F22_RADAR_SELECTED_CLOSURE_VALID","F22_RADAR_STT_CLOSURE_VALID","F22_RADAR_COVERAGE_VALID",
-        "F22_RADAR_SCAN_AUTO","F22_RADAR_SCAN_COVERAGE_COMPLETE","F22_RADAR_SECONDARY_SWAP_AVAILABLE",
+        "F22_RADAR_SEARCH_REQUEST_VALID","F22_RADAR_SECONDARY_SWAP_AVAILABLE",
         "F22_RADAR_TRACK_COUNT","F22_RADAR_DRAWN_COUNT","F22_TWS_ACTIVE","F22_TWS_TARGET_ID",
         "F22N_IFF_INTERROGATOR_STATUS","F22_RADAR_IFF_ON","F22_RADAR_IFF_REQUEST","F22_RADAR_IFF_REMAINING"}) do
         put(name,0)
@@ -380,6 +393,12 @@ function update()
 	local model_time = sync_model_clock()
 	if not model_time then withdraw_clock();return end
 	local step = 0
+	local cursor_dt = cursor_clock and model_time - cursor_clock or 0
+	cursor_clock = model_time
+	if not display.finite(cursor_dt) or cursor_dt < 0 or cursor_dt > .25 then
+		cursor_dt = 0
+		slew_x, slew_y, slew_focus, slew_role = 0, 0, nil, nil
+	end
 	-- Radar owns weapon-entry/exit state regardless of the input source.
 	local hud_mode = get("HUD_MODE")
 	sync_weapon_mode()
@@ -415,11 +434,11 @@ function update()
 		slew_x, slew_y = 0, 0
 	end
 	if radar_focus and math.abs(slew_x) > 0.08 then
-		computer.cursor_az = math.max(-math.rad(60), math.min(math.rad(60), computer.cursor_az + slew_x * dt * 0.4))
+		computer.cursor_az = math.max(-math.rad(60), math.min(math.rad(60), computer.cursor_az + slew_x * cursor_dt * 0.4))
 	end
 	if radar_focus and math.abs(slew_y) > 0.08 then
 		computer.cursor_range =
-			math.max(40, math.min(computer:range(), computer.cursor_range + slew_y * dt * computer:range() * 0.4))
+			math.max(40, math.min(computer:range(), computer.cursor_range + slew_y * cursor_dt * computer:range() * 0.4))
 	end
 	local powered = computer.power and get("MAIN_POWER") > 0.5
 	local now_stt = get("F22N_RADAR_MODE") == 3
@@ -449,7 +468,7 @@ function update()
 	-- owned AESA transmitter is independently inhibited.
 	if hud_mode==7 then
 	 if not cursor_authority then ag:command("axis_x",0,powered);ag:command("axis_y",0,powered)end
-	 ag:update(pose,computer.clock,dt,powered,ready)
+	 ag:update(pose,computer.clock,cursor_dt,powered,ready)
 	end
 	local requested_power = powered and ready and not emission_inhibited and (hud_mode~=7 or ag:emitting())
 	put("F22_RADAR_EMISSION_INHIBIT",(emission_inhibited or (hud_mode==7 and not ag:emitting()))and 1 or 0)
@@ -457,9 +476,8 @@ function update()
 	put("F22_RADAR_BACKEND_READY", ready and 1 or 0)
 	put("F22_AG_RADAR_PAGE", hud_mode == 7 and 1 or 0)
 	if hud_mode == 7 then
+		put("F22_RADAR_SEARCH_REQUEST_VALID", 0)
 		donor_cue:retire(computer.clock)
-		computer.effective_scan=nil
-		computer.rf_scan_windows={}
 		sensor_tasks:reset()
 		sensor_tasks:publish(put,computer.clock)
 		local background = aesa:read(computer.clock + step, pose, display)
@@ -526,9 +544,7 @@ function update()
 	end
 	local scan = nil
 	if powered and ready and pose then
-		scan = computer:scan_plan(required)
-	else
-		computer.scan = nil
+		scan = computer:search_plan(required)
 	end
 	local rf_cues={}
 	if powered and ready and pose and get("HUD_MODE")~=7 then
@@ -539,7 +555,6 @@ function update()
 	scan=donor_cue:apply(computer.clock,pose,scan,requested_power and observations_ready and pose~=nil
         and (computer.mode=="RWS" or computer.mode=="TWS") and native_mode~=3 and not computer.acquire,computer)
 	aesa:publish(computer.clock, computer, service_resource, powered and ready, false, scan)
-	computer:set_effective_scan(scan,computer.clock)
 	sensor_tasks:publish(put,computer.clock,scan)
 	if log and log.write then
 		local task=sensor_tasks.status or{}
@@ -555,14 +570,12 @@ function update()
 			last_sensor_task_diagnostic=signature
 		end
 	end
-	put("F22_RADAR_SCAN_AUTO", powered and ready and scan and 1 or 0)
+	put("F22_RADAR_SEARCH_REQUEST_VALID", powered and ready and scan and 1 or 0)
 	put("F22_RADAR_SCAN_OBLIGATIONS", scan and scan.obligations or 0)
-	put("F22_RADAR_SCAN_UNCOVERED", scan and scan.uncovered or 0)
 	put("F22_RADAR_SUPPORT_OVERDUE", scan and scan.support_overdue or 0)
 	put("F22_RADAR_SUPPORT_TASKS", scan and scan.support_count or 0)
 	put("F22_RADAR_REVISIT_REMAINING", scan and scan.support_count > 0 and scan.revisit_remaining or 0)
-	put("F22_RADAR_SUPPORT_DEGRADED", scan and scan.support_count > 0 and (scan.uncovered > 0 or scan.support_overdue > 0) and 1 or 0)
-	put("F22_RADAR_SCAN_COVERAGE_COMPLETE", powered and ready and scan and scan.uncovered == 0 and 1 or 0)
+	put("F22_RADAR_SUPPORT_DEGRADED", scan and scan.support_count > 0 and (scan.support_overdue > 0) and 1 or 0)
 	put("F22_RADAR_SCAN_RANGE_NM", scan and scan.range / 1852 or computer:range() / 1852)
 	local mode = not powered and "OFF"
 		or (not ready or (not observations_ready and native_mode ~= 3)) and "SENSOR N/A"
@@ -601,18 +614,11 @@ function update()
 	local identified_track = stt_observation and computer:source(stt_observation.native_id)
 	local friend = stt_valid and (stt_observation.iff == 1 or identified_track and identified_track.iff == 1)
 	put("F22_RADAR_STT_IFF", friend and 1 or stt_valid and identified_track and identified_track.iff == 0 and 0 or -1)
-	local closure_valid, closure = false, 0
-	if stt_valid and stt_observation.velocity_valid and get("EFM_HUD_VALID") > .5 then
-		local age = math.max(0, computer.clock - stt_observation.observed)
-		local dn = stt_observation.north + stt_observation.vn * age - pose.north
-		local de = stt_observation.east + stt_observation.ve * age - pose.east
-		local du = stt_observation.altitude + stt_observation.vu * age - pose.altitude
-		local vn, ve, vu = get("EFM_HUD_VN"), get("EFM_HUD_VE"), get("EFM_HUD_VU")
-		if display.finite(vn) and display.finite(ve) and display.finite(vu) then
-			closure = ((vn - stt_observation.vn) * dn + (ve - stt_observation.ve) * de + (vu - stt_observation.vu) * du) / sr * 1.943844492
-			closure_valid = display.finite(closure)
-		end
-	end
+	own_velocity.vn, own_velocity.vu, own_velocity.ve =
+		get("EFM_HUD_VN"), get("EFM_HUD_VU"), get("EFM_HUD_VE")
+	local closure = stt_valid and get("EFM_HUD_VALID") == 1
+		and closure_math.relative(stt_observation, pose, own_velocity, computer.clock)
+	local closure_valid = type(closure) == "number"
 	put("F22_RADAR_STT_CLOSURE_VALID", closure_valid and 1 or 0)
 	put("F22_RADAR_STT_CLOSURE_KTS", closure_valid and closure or 0)
 	put("F22_RADAR_STT_VALID", stt_valid and 1 or 0)
@@ -922,50 +928,15 @@ function update()
 	put("F22_RADAR_DESIGNATION_AZ", designation and da or 0)
 	put("F22_RADAR_DESIGNATION_EL", designation and de or 0)
 	put("F22_RADAR_DESIGNATION_AGE", designation_age)
-	put(
-		"F22_RADAR_SELECTED_CLOSURE_VALID",
-		powered
-				and ready
-				and selected
-				and selected.rate
-				and computer:age(selected) <= computer:fresh_time()
-				and native_mode ~= 3
-				and 1
-			or 0
-	)
-	put("F22_RADAR_SELECTED_CLOSURE_KTS", selected and selected.rate and -selected.rate * 1.943844492 or 0)
+	local selected_closure = nil
 	if stt_valid then
-		put("F22_RADAR_SELECTED_CLOSURE_VALID", closure_valid and 1 or 0)
-		put("F22_RADAR_SELECTED_CLOSURE_KTS", closure_valid and closure or 0)
+		selected_closure = closure_valid and closure or nil
+	elseif native_mode ~= 3 and powered and ready and selected and pose and get("EFM_HUD_VALID") == 1
+		and computer:age(selected) <= computer:fresh_time() then
+		selected_closure = closure_math.relative(selected, pose, own_velocity, computer.clock)
 	end
-	-- Relative closure uses fresh owned estimated track velocity and EFM
-	-- ownship velocity, when both records are valid.
-	if
-		selected
-		and selected.north
-		and selected.velocity_valid
-		and pose
-		and powered
-		and ready
-		and computer:age(selected) <= computer:fresh_time()
-		and get("EFM_HUD_VALID") > 0.5
-		and native_mode ~= 3
-	then
-		local age = computer:age(selected)
-		local dn = selected.north + selected.vn * age - pose.north
-		local de = selected.east + selected.ve * age - pose.east
-		local du = selected.altitude + selected.vu * age - pose.altitude
-		local range = math.sqrt(dn * dn + de * de + du * du)
-		if range > 40 then
-			local closure = (
-				(get("EFM_HUD_VN") - selected.vn) * dn
-				+ (get("EFM_HUD_VE") - selected.ve) * de
-				+ (get("EFM_HUD_VU") - selected.vu) * du
-			) / range
-			put("F22_RADAR_SELECTED_CLOSURE_KTS", closure * 1.943844492)
-			put("F22_RADAR_SELECTED_CLOSURE_VALID", 1)
-		end
-	end
+	put("F22_RADAR_SELECTED_CLOSURE_VALID", selected_closure ~= nil and 1 or 0)
+	put("F22_RADAR_SELECTED_CLOSURE_KTS", selected_closure or 0)
 	if telemetry and type(get_model_time) == "function" then
 		local ok, model_time = pcall(get_model_time)
 		if ok then

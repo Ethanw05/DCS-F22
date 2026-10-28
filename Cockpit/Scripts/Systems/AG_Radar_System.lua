@@ -158,7 +158,6 @@ function M:command(name, value, powered, now)
 			self.frozen_pose={};for k,v in pairs(self.pose)do self.frozen_pose[k]=v end
 			self.frozen_view=self.model.exp_view
 		end
-		m.candidate = nil
 		self.put("F22_AG_RADAR_CANDIDATE", 0)
 	end
 	if name == "recenter" then
@@ -184,11 +183,9 @@ function M:command(name, value, powered, now)
 	end
 	if name == "range_up" then
 		m.range_nm = Modes.range_step(m.mode,m.range_nm,1)
-		m.candidate = nil
 	end
 	if name == "range_down" then
 		m.range_nm = Modes.range_step(m.mode,m.range_nm,-1)
-		m.candidate = nil
 	end
 	if name == "azimuth" then
 		local widths=(m.mode==1 or Modes.sea(m.mode))and {120,90,45,20}or {90,45,20}
@@ -198,7 +195,6 @@ function M:command(name, value, powered, now)
 	if name == "recenter" or name == "cursor_left" or name == "cursor_right" or name == "cursor_up" or
 		name == "cursor_down" or name == "range_up" or name == "range_down" or name == "azimuth" then
 		m:slew(0)
-		m.candidate = nil
 		self.put("F22_AG_RADAR_CANDIDATE", 0)
 	end
 	if not powered then
@@ -226,8 +222,7 @@ function M:command(name, value, powered, now)
 		-- Anonymous air-radar NOISE records are not a prerequisite for it.
 		local candidate = self:cursor_point(now)
 		if not candidate then
-			m.candidate = nil
-			self.put("F22_AG_RADAR_CANDIDATE", 0)
+				self.put("F22_AG_RADAR_CANDIDATE", 0)
 			return
 		end
 		if self.controls.pending>0 then
@@ -289,6 +284,9 @@ function M:update(pose, now, dt, powered, ready)
 		self.frozen_pose=nil;self:cancel_preview()
 		self:cancel_track();self.sweep_phase=0;self.sweep_direction=1;self.controls=Modes.new();m.exp_view=nil
 	end
+	-- The retired noise observer used to advance this lifecycle clock. Keep
+	-- rollback cancellation owned by the active ground computer itself.
+	m.clock = now
 	put("F22_AG_RADAR_PAGE", 1)
 	put("F22_AG_RADAR_RANGE_NM", m.range_nm)
 	put("F22_AG_RADAR_WIDTH_DEG", m.width)
@@ -322,36 +320,6 @@ function M:update(pose, now, dt, powered, ready)
 		self.native_command(510)
 	end
 	m:slew(dt)
-	local raw = {}
-	if operating and Model.fresh(now, get("F22_AG_RETURN_TIME"), Model.snapshot_seconds) then
-		for i = 1, math.min(256, get("F22_AG_RETURN_COUNT")) do
-			local p = "F22G_" .. i .. "_"
-			raw[#raw + 1] = {
-				north = get(p .. "N"),
-				altitude = get(p .. "U"),
-				east = get(p .. "E"),
-				stamp = get(p .. "TIME"),
-				rcs = get(p .. "RCS"),
-			}
-		end
-	end
-	if pose then
-		m:observe(raw, map_pose, self.terrain, now)
-	else
-		m.returns = {}
-		m.candidate = nil
-	end
-	for i = 1, 256 do
-		local prefix = "F22_AG_MAP_" .. i .. "_"
-		local r = m.returns[i]
-		put(prefix .. "VALID", r and operating and 1 or 0)
-		if r then
-			put(prefix .. "X", r.x)
-			put(prefix .. "Y", r.y)
-			put(prefix .. "AGE", math.max(0, now - r.stamp))
-		end
-	end
-	put("F22_AG_RADAR_RETURN_COUNT", #m.returns)
 	local image_selectable = (get("F22_AG_VIDEO_SOURCE_PRESENT") < .5 or
 		(get("F22_AG_VIDEO_READY") > .5 and get("F22_AG_VIDEO_GEOMETRY_QUALIFIED") > .5))
 	put("F22_AG_RADAR_CANDIDATE", operating and image_selectable and map_pose and m:point(map_pose,self.terrain) and 1 or 0)

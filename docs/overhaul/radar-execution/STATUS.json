@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "owner": "chat3",
+  "profile": "public_f22_manual_recovery@1",
+  "stage": "SOFTWARE_SLICE_VERIFIED_SHARED_CONSUMERS_APPLIED_AWAITING_COMMIT",
+  "source_commit": "a6097c75c94c455cc572847b6ecc560e42fba018",
+  "shared_status": "../integration/STATUS.json",
+  "proposed_contract": "CONTRACT-PROPOSAL.md",
+  "build_install_runtime": "Lua 5.1 checks only; no DLL build, installation or simulator actions",
+  "test_rebuild": "6 assigned old tests deleted after unchanged-hash check; 13 independent replacements pass",
+  "packages": [
+    {
+      "id": "P-RAD-001",
+      "requirements": [
+        "R-RAD-001",
+        "R-RAD-011",
+        "R-RAD-020"
+      ],
+      "findings": [
+        "F-RAD-001",
+        "F-RAD-007"
+      ],
+      "cleanup": "legacy enclosure/RF-window admission, F22G map reader, old telemetry readers and test-only decoder removed",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "status": "named software chain verified including shared PMFD/Engagement/donor consumers; focused commit and host/install evidence pending",
+      "qualification": "not qualified",
+      "tests": "13 replacement tests pass; independent source review found no remaining new actionable regressions"
+    },
+    {
+      "id": "P-RAD-002",
+      "requirements": [
+        "R-RAD-002",
+        "R-RAD-019"
+      ],
+      "findings": [
+        "F-RAD-002"
+      ],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001"
+      ],
+      "status": "named finite closure/elapsed cursor software chain verified; focused commit and host/install evidence pending",
+      "qualification": "not qualified",
+      "tests": "13 replacement tests pass; independent source review found no remaining new actionable regressions"
+    },
+    {
+      "id": "P-RAD-003",
+      "requirements": [
+        "R-RAD-003",
+        "R-RAD-015"
+      ],
+      "findings": [
+        "F-RAD-003"
+      ],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001"
+      ],
+      "status": "native draft prepared; paired Lua packet/epoch and mark/weapon/navigation schema agreement required before applying",
+      "qualification": "draft-only bounded header/native syntax probes; not production acceptance",
+      "draft": "radar-preparation/surface-association/P-RAD-003-D-P-RAD-001-draft.patch"
+    },
+    {
+      "id": "P-RAD-004",
+      "requirements": [
+        "R-RAD-004",
+        "R-RAD-005",
+        "R-RAD-006",
+        "R-RAD-007",
+        "R-RAD-010",
+        "R-RAD-014",
+        "R-RAD-016",
+        "R-RAD-017",
+        "R-RAD-018",
+        "D-R-RAD-001",
+        "D-R-RAD-002",
+        "D-R-RAD-003",
+        "D-R-RAD-004",
+        "D-R-WPN-003"
+      ],
+      "findings": [
+        "F-RAD-005",
+        "D-RAD-001",
+        "D-RAD-002",
+        "D-RAD-003",
+        "D-RAD-004",
+        "D-WPN-003"
+      ],
+      "cleanup": [
+        "C-RAD-003",
+        "C-RAD-004",
+        "C-RAD-005"
+      ],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001",
+        "P-RAD-002",
+        "P-RAD-003",
+        "P-INT-003",
+        "P-INT-008",
+        "D-P-RAD-001"
+      ],
+      "status": "blocked by P-RAD-003, D-P-RAD-001, P-INT-008 and exclusive actual native/DCS qualification",
+      "qualification": "No current source/build/installed/loaded qualification; no runtime slot granted"
+    },
+    {
+      "id": "P-RAD-005",
+      "requirements": [
+        "R-RAD-008",
+        "R-RAD-013"
+      ],
+      "findings": [
+        "F-RAD-004"
+      ],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-004"
+      ],
+      "status": "dependent on P-RAD-004; proposed coherent SAR enablement no-go until terrain/render/texture/VR budget contracts qualified; preserve selected MAP/DBS",
+      "qualification": "not qualified",
+      "evidence": "FEASIBILITY.md; proposed disposition only, no dependent package closed"
+    },
+    {
+      "id": "P-RAD-006",
+      "requirements": [
+        "R-RAD-004",
+        "R-RAD-007",
+        "R-RAD-008",
+        "R-RAD-017"
+      ],
+      "findings": [
+        "F-RAD-004"
+      ],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-005"
+      ],
+      "status": "dependent on P-RAD-004; proposed coherent SAR enablement no-go until terrain/render/texture/VR budget contracts qualified; preserve selected MAP/DBS",
+      "qualification": "not qualified",
+      "evidence": "FEASIBILITY.md; proposed disposition only, no dependent package closed"
+    },
+    {
+      "id": "P-RAD-007",
+      "requirements": [
+        "R-RAD-009",
+        "R-RAD-010",
+        "R-RAD-014"
+      ],
+      "findings": [
+        "F-RAD-006"
+      ],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001",
+        "P-WPN-004"
+      ],
+      "status": "awaiting Chat4 P-WPN-004 IFF_PROVIDER_READY; no reverse prerequisite or coalition substitute",
+      "qualification": "Request controls are not achieved replies; no backend invented"
+    },
+    {
+      "id": "P-RAD-008",
+      "requirements": [
+        "R-RAD-012",
+        "R-RAD-013",
+        "R-RAD-017"
+      ],
+      "findings": [
+        "F-RAD-008"
+      ],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-004"
+      ],
+      "status": "37-parameter evidence ledger and independent validation design prepared; depends on P-RAD-004 host evidence",
+      "qualification": "No aircraft calibration claim",
+      "evidence": "proposed-parameter-ledger.json"
+    },
+    {
+      "id": "D-P-RAD-001",
+      "requirements": [
+        "D-R-RAD-001",
+        "D-R-RAD-002",
+        "D-R-RAD-003",
+        "D-R-RAD-004",
+        "D-R-WPN-003"
+      ],
+      "findings": [
+        "D-RAD-001",
+        "D-RAD-002",
+        "D-RAD-003",
+        "D-RAD-004",
+        "D-WPN-003"
+      ],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-INT-008"
+      ],
+      "status": "draft prepared; P-INT-008 checked port available but full cutover gate/leased native consumer migration and tactical schema pending",
+      "qualification": "No DCS callback/ABI/effect evidence; ground history/tactical packet chain not integrated",
+      "draft": "radar-preparation/native-admission/native-admission-draft.patch",
+      "draft_checks": "21 finite camera checks and 107 actual packet-reader checks pass; two native files MSVC /W4 /WX syntax pass"
+    }
+  ],
+  "lease": "radar-independent granted in integration/STATUS.json after HARNESS_READY",
+  "integration_requests": [
+    {
+      "action": "apply reviewed SHARED-CONSUMERS.patch under Chat2 PMFD and Chat4 Engagement region review",
+      "reason": "Retire obsolete SCAN_AUTO/UNCOVERED consumers; preserve current styling and target-specific support"
+    },
+    {
+      "action": "review Radar_Donor_Cue.lua fill_plan deletion of obsolete plan.uncovered field",
+      "reason": "Donor region excluded from radar-independent lease; no behavior fallback required"
+    },
+    {
+      "action": "serialize focused radar source/test commit on main after shared consumer review",
+      "reason": "Per Chat2 lease, no concurrent staging/commit by Chat3"
+    }
+  ],
+  "shared_consumers": "applied by Chat2; focused integration commit pending"
+}

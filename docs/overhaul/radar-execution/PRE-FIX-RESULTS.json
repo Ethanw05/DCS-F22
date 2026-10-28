@@ -1,0 +1,86 @@
+{
+  "scope": "actual-owner pre-fix evidence only; host parameter port is synthetic",
+  "sources": {
+    "Cockpit\\Scripts\\Systems\\Radar_Computer.lua": "5fc47e9123766d8cab8eaba3432c652fac3459d152b1f416a1cda3723d2ceb9f",
+    "Cockpit\\Scripts\\Systems\\Radar_System.lua": "19919b82af741a8f47dc10334cec1b0ce7ac547a16f66872c6d64b9e670b458c",
+    "Cockpit\\Scripts\\Systems\\AESA_Control.lua": "cce16ba3ec9736706cde98cbb7f6d74a76042b0f8e617508ec364bbb9c07d923"
+  },
+  "lua": "Lua 5.1",
+  "scan": {
+    "native_command_half_deg": 59.99999999999999,
+    "enclosing_half_deg": 29.999999999999996,
+    "cases": [
+      {
+        "azimuth_deg": 0,
+        "admitted": true,
+        "expected_inside_commanded_search": true
+      },
+      {
+        "azimuth_deg": 30,
+        "admitted": true,
+        "expected_inside_commanded_search": true
+      },
+      {
+        "azimuth_deg": 50,
+        "admitted": false,
+        "expected_inside_commanded_search": true
+      },
+      {
+        "azimuth_deg": -50,
+        "admitted": false,
+        "expected_inside_commanded_search": true
+      },
+      {
+        "azimuth_deg": 55,
+        "admitted": false,
+        "expected_inside_commanded_search": true
+      },
+      {
+        "azimuth_deg": 60,
+        "admitted": false,
+        "expected_inside_commanded_search": true
+      },
+      {
+        "azimuth_deg": 60.0001,
+        "admitted": false,
+        "expected_inside_commanded_search": false
+      }
+    ]
+  },
+  "closure": [
+    {
+      "input": "finite",
+      "valid": 1,
+      "finite": true,
+      "value": 97.1922246
+    },
+    {
+      "input": "finite_zero_component",
+      "valid": 1,
+      "finite": true,
+      "value": -97.1922246
+    },
+    {
+      "input": "nan",
+      "valid": 1,
+      "finite": false,
+      "value": "nan"
+    },
+    {
+      "input": "positive_inf",
+      "valid": 1,
+      "finite": false,
+      "value": "inf"
+    },
+    {
+      "input": "negative_inf",
+      "valid": 1,
+      "finite": false,
+      "value": "-inf"
+    },
+    {
+      "input": "wrong_type",
+      "error": "[string \"<python>\"]:961: attempt to perform arithmetic on a string value\nstack traceback:\n\t[string \"<python>\"]:961: in function <[string \"<python>\"]:379>"
+    }
+  ]
+}

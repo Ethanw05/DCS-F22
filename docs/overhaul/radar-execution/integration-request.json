@@ -1,0 +1,93 @@
+{
+  "owner": "chat3",
+  "status": "requested; no expanded lease assumed",
+  "source_lease": "radar-independent",
+  "shared_status": "../integration/STATUS.json",
+  "requests": [
+    {
+      "id": "radar-first-slice-consumers",
+      "packages": [
+        "P-RAD-001",
+        "P-RAD-002"
+      ],
+      "patch": "SHARED-CONSUMERS.patch",
+      "paths": [
+        "Cockpit/Scripts/PMFD_CENTER/radar_format.lua",
+        "Cockpit/Scripts/Systems/Engagement_System.lua"
+      ],
+      "reason": "Retire obsolete SCAN_AUTO/SCAN_UNCOVERED consumers after native-authoritative report admission. Preserve display geometry/style and target-specific support behavior.",
+      "status": "applied by Chat2 per shared STATUS lease"
+    },
+    {
+      "id": "radar-donor-field-cleanup",
+      "paths": [
+        "Cockpit/Scripts/Systems/Radar_Donor_Cue.lua"
+      ],
+      "change": "fill_plan: replace plan.obligations, plan.uncovered, plan.support_count = 0, 0, 0 with plan.obligations, plan.support_count = 0, 0. No other donor logic.",
+      "reason": "Excluded donor region; obsolete enclosure field is no longer consumed.",
+      "status": "applied by Chat2; reviewed exact one-field cleanup"
+    },
+    {
+      "id": "radar-first-slice-commit",
+      "paths": [
+        "Cockpit/Scripts/Systems/Radar_Computer.lua",
+        "Cockpit/Scripts/Systems/Radar_System.lua",
+        "Cockpit/Scripts/Systems/Radar_Closure.lua",
+        "Cockpit/Scripts/Systems/AG_Radar_Computer.lua",
+        "Cockpit/Scripts/Systems/AG_Radar_System.lua",
+        "Cockpit/Scripts/Systems/Radar_Sensor_Tasking.lua",
+        "Cockpit/Scripts/Systems/Radar_Telemetry.lua",
+        "EFM/source/NativeGroundReturns.h",
+        "tests/cases/test_radar_source_contract.py",
+        "docs/overhaul/radar-execution",
+        "tests/test_radar_computer.py",
+        "tests/test_owned_aesa_lua.py",
+        "tests/test_radar_integrity.py",
+        "tests/test_radar_scan_quality.py",
+        "tests/test_radar_tracking_beam.py",
+        "tests/test_native_ground_returns.cpp",
+        "Cockpit/Scripts/Systems/AESA_Control.lua"
+      ],
+      "reason": "Integrator serializes staging/commit after shared consumer review; Chat3 has not staged or committed.",
+      "verified_source_hashes": {
+        "Cockpit/Scripts/Systems/Radar_Computer.lua": "0e5e50c84fcb14655efd292dad21097dda810eb01fb5e84386a6134f3cd25cf9",
+        "Cockpit/Scripts/Systems/Radar_System.lua": "d23c38e5d35fea575ad438c53741efc45612b3578096b68b47c103dca57c714a",
+        "Cockpit/Scripts/Systems/Radar_Closure.lua": "ad15e15ff70eed2863c9fd8ab85bb91577ca73b508494c3a1e1365332438ec25",
+        "Cockpit/Scripts/Systems/AG_Radar_Computer.lua": "4e5d1f1cb9cbff9ddd949eb34cdedc8f050b00f4b6bd3bdc1ac164f1c0004b7a",
+        "Cockpit/Scripts/Systems/AG_Radar_System.lua": "daa612f61a3af38e90ab70892b0bc3cbf6bea6114480683a929c9e86f0d42bf2",
+        "Cockpit/Scripts/Systems/Radar_Sensor_Tasking.lua": "a118c7ec08a84ec67c517664749af9c24bd9759007147f48c86dfc9ffe2e232c",
+        "Cockpit/Scripts/Systems/Radar_Telemetry.lua": "990c4bd06ab0a309eb88fc97475c5ed2d1b5d85fcc8fdb12cfa36ec731db18ce",
+        "tests/cases/test_radar_source_contract.py": "528d9d35a8a9447d8e4abcb3f2d0a787578830b996f7519248301e6f21751806",
+        "Cockpit/Scripts/Systems/AESA_Control.lua": "d77605cdd609b5c318ac0244d9b5f79fd5e308cb1f7521c7cb978fdfb2138979",
+        "Cockpit/Scripts/PMFD_CENTER/radar_format.lua": "806087b2dc71112511448377073ccbb0dee93c8835c80dfaec109a7fbff6990a",
+        "Cockpit/Scripts/Systems/Engagement_System.lua": "94a4b11955dd01a268e3e5ca97ffd1b0842e2bd3a17ef542e108eb327207eecd",
+        "Cockpit/Scripts/Systems/Radar_Donor_Cue.lua": "421fa3fedfbb3e7e460c646deab1acd54c6b5946a6815e652868b16d09c1c065"
+      },
+      "tests": "13 requirement behavior tests + Lua51 tracked-source syntax test pass",
+      "source_ready_for_integration_review": true
+    },
+    {
+      "id": "radar-native-cutover-scope",
+      "packages": [
+        "D-P-RAD-001"
+      ],
+      "paths": [
+        "EFM/source/NativeAesaRadar.cpp",
+        "EFM/source/GroundVideoView.h",
+        "EFM/source/NativeGroundVideo.cpp",
+        "EFM/source/NativeGroundSensor.cpp",
+        "EFM/source/GroundMovingTargets.h"
+      ],
+      "needed": "Explicit native owning-region migration gate/lease using tested I-INT-003 port. Keep direct bool readers; local camera adapter will use shared bool getParamNumber(handle,value). NativeDatalink/Radar_Tactical/Tactical_Picture need Chat4 schema/region review before complete D package.",
+      "draft_checks": "21 geometry + 107 packet reader checks; surface draft probes prepared",
+      "status": "draft only; no native edit applied"
+    }
+  ],
+  "native_next": {
+    "package": "D-P-RAD-001",
+    "status": "draft only; explicitly waiting P-INT-008 checked-cutover gate",
+    "draft": "C:\\Users\\Ethans Desktop 2.0\\Documents\\ChatGPT\\F22 MOD\\radar-preparation\\native-admission\\native-admission-draft.patch",
+    "checks": "21 camera cases + 107 actual packet reader checks + two /W4 /WX syntax checks on draft; no host qualification"
+  },
+  "runtime_slot": "unclaimed; no install/DCS action"
+}

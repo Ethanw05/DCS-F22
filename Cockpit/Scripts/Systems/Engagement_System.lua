@@ -228,8 +228,7 @@ function update()
         put(p..'TTA_SOURCE',m and m.tta_source or 0);put(p..'TTG_SOURCE',m and m.ttg_source or 0)
         put(p..'TRACK_LOST',support_state==3 and 1 or 0)
     end
-    local uncovered=required_count>0 and get('F22_RADAR_SCAN_UNCOVERED')>0
-    put('F22_FC_SUPPORT_DEGRADED',(degraded_count>0 or lost_count>0 or uncovered) and 1 or 0)
+    put('F22_FC_SUPPORT_DEGRADED',(degraded_count>0 or lost_count>0) and 1 or 0)
     put('F22_FC_SUPPORT_LOST',lost_count>0 and 1 or 0)
     put('F22_FC_SUPPORT_COAST_COUNT',degraded_count);put('F22_FC_SUPPORT_LOST_COUNT',lost_count)
     put('F22_FC_MISSILES',count);put('F22_FC_TIMER_VALID',timer and 1 or 0)

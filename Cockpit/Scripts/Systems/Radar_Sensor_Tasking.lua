@@ -204,7 +204,6 @@ function M.new()
 			-- allowed only with spare revisit budget and full hard coverage.
 			if
 				now >= self.manual_until
-				and base.uncovered == 0
 				and (base.support_count == 0 or base.revisit_remaining >= 4)
 				and (base.support_overdue or 0) == 0
 			then
@@ -305,7 +304,6 @@ function M.new()
 		plan.az, plan.el, plan.half_az, plan.half_el = a, e, ha, he
 		plan.range = computer:range()
 		plan.obligations = 0
-		plan.uncovered = 0
 		plan.support_count = 0
 		plan.support_overdue = 0
 		plan.revisit_remaining = 0

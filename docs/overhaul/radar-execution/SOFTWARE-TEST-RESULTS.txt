@@ -1,0 +1,19 @@
+test_closure_vector_frame_and_near_zero_domain (test_radar_source_contract.RadarSourceContract.test_closure_vector_frame_and_near_zero_domain) ... ok
+test_cursor_pause_jitter_and_loss_require_new_input (test_radar_source_contract.RadarSourceContract.test_cursor_pause_jitter_and_loss_require_new_input) ... ok
+test_cursor_uses_elapsed_clock_and_command_does_not_consume_it (test_radar_source_contract.RadarSourceContract.test_cursor_uses_elapsed_clock_and_command_does_not_consume_it) ... ok
+test_full_system_controls_reports_and_tactical_consumer (test_radar_source_contract.RadarSourceContract.test_full_system_controls_reports_and_tactical_consumer) ... ok
+test_invalid_command_clock_cannot_restore_held_axis_on_recovery (test_radar_source_contract.RadarSourceContract.test_invalid_command_clock_cannot_restore_held_axis_on_recovery) ... ok
+test_invalid_stt_never_falls_back_to_selected_closure (test_radar_source_contract.RadarSourceContract.test_invalid_stt_never_falls_back_to_selected_closure) ... ok
+test_native_snapshot_rejects_future_stale_torn_and_bad_generation (test_radar_source_contract.RadarSourceContract.test_native_snapshot_rejects_future_stale_torn_and_bad_generation) ... ok
+test_report_limits_and_explicit_retained_source_exception (test_radar_source_contract.RadarSourceContract.test_report_limits_and_explicit_retained_source_exception) ... ok
+test_retired_noise_packets_cannot_publish_overlay_or_target (test_radar_source_contract.RadarSourceContract.test_retired_noise_packets_cannot_publish_overlay_or_target) ... ok
+test_search_request_and_owned_admission_agree (test_radar_source_contract.RadarSourceContract.test_search_request_and_owned_admission_agree) ... ok
+test_selected_closure_rejects_each_invalid_component_and_recovers (test_radar_source_contract.RadarSourceContract.test_selected_closure_rejects_each_invalid_component_and_recovers) ... ok
+test_support_depends_on_measured_age_and_association (test_radar_source_contract.RadarSourceContract.test_support_depends_on_measured_age_and_association) ... ok
+test_surface_cursor_has_same_elapsed_policy (test_radar_source_contract.RadarSourceContract.test_surface_cursor_has_same_elapsed_policy) ... ok
+test_tracked_lua_and_replacement_fixtures_compile (test_lua_syntax.LuaSyntax.test_tracked_lua_and_replacement_fixtures_compile) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.578s
+
+OK

@@ -1,0 +1,338 @@
+{
+  "schema_version": 1,
+  "status": "proposed evidence ledger, current values extracted from reviewed source; no calibration performed",
+  "profile": "public_f22_manual_recovery@1",
+  "reference_categories": {
+    "historical_f22": "S-RAD-001 Brower 2001 sections32.2/32.3.2; historical architecture only",
+    "general_engineering": "S-RAD-002 MIT abstract; finite scheduling only, no implementation validation",
+    "general_sar": "S-RAD-003 NASA phase-history overview; no fighter parameters",
+    "host_api": "S-RAD-004 Microsoft D3D11 threading; no private DCS ABI evidence",
+    "implementation": "S-RAD-005/006 plus exact current source hashes; historical runtime records do not qualify current package"
+  },
+  "parameters": [
+    {
+      "name": "dwell_s",
+      "value": 0.02,
+      "units": "s",
+      "path": "EFM/source/AesaRadar.h",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "processing_s",
+      "value": 0.012,
+      "units": "s",
+      "path": "EFM/source/AesaRadar.h",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "beam_half_angle",
+      "value": 3,
+      "units": "deg",
+      "path": "EFM/source/AesaRadar.h",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "reference_range_m",
+      "value": 80000,
+      "units": "m",
+      "path": "EFM/source/AesaRadar.h",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "track_revisit_s",
+      "value": 0.1,
+      "units": "s",
+      "path": "EFM/source/AesaRadar.h",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "track_memory_s",
+      "value": 12,
+      "units": "s",
+      "path": "EFM/source/AesaRadar.h",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "range_error_m",
+      "value": 30,
+      "units": "m",
+      "path": "EFM/source/AesaRadar.h",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "angular_error_rad",
+      "value": 0.08,
+      "units": "deg input converted to rad",
+      "path": "EFM/source/AesaRadar.h",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "minimum_track_dwell_s",
+      "value": 0.004,
+      "units": "s",
+      "path": "EFM/source/AesaRadar.h",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "fire_control_revisit_s",
+      "value": 0.05,
+      "units": "s",
+      "path": "EFM/source/AesaRadar.h",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "gun_revisit_s",
+      "value": 0.025,
+      "units": "s",
+      "path": "EFM/source/AesaRadar.h",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "support_revisit_s",
+      "value": 0.05,
+      "units": "s",
+      "path": "EFM/source/AesaRadar.h",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "maintenance_revisit_s",
+      "value": 0.5,
+      "units": "s",
+      "path": "EFM/source/AesaRadar.h",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "maximum_tracks",
+      "value": 64,
+      "units": "count",
+      "path": "EFM/source/AesaRadar.h",
+      "evidence_class": "software capacity bound",
+      "limit": "measure overload and cost; not aircraft capacity"
+    },
+    {
+      "name": "maximum_candidates",
+      "value": 128,
+      "units": "count",
+      "path": "EFM/source/AesaRadar.h",
+      "evidence_class": "software capacity bound",
+      "limit": "measure overload and cost; not aircraft capacity"
+    },
+    {
+      "name": "maximum_returns_per_dwell",
+      "value": 8,
+      "units": "count",
+      "path": "EFM/source/AesaRadar.h",
+      "evidence_class": "software capacity bound",
+      "limit": "measure overload and cost; not aircraft capacity"
+    },
+    {
+      "name": "maximum_pending",
+      "value": 32,
+      "units": "count",
+      "path": "EFM/source/AesaRadar.h",
+      "evidence_class": "software capacity bound",
+      "limit": "measure overload and cost; not aircraft capacity"
+    },
+    {
+      "name": "maximum_visibility_queries",
+      "value": 16,
+      "units": "count",
+      "path": "EFM/source/AesaRadar.h",
+      "evidence_class": "software capacity bound",
+      "limit": "measure overload and cost; not aircraft capacity"
+    },
+    {
+      "name": "minimum_detection_range",
+      "value": 40,
+      "units": "m",
+      "path": "EFM/source/AesaRadar.cpp",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "physical_field_half_angle",
+      "value": 60,
+      "units": "deg",
+      "path": "EFM/source/AesaRadar.cpp",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "clutter_rate_width",
+      "value": 35,
+      "units": "m/s",
+      "path": "EFM/source/AesaRadar.cpp",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "clutter_signal_factor",
+      "value": 0.15,
+      "units": "ratio",
+      "path": "EFM/source/AesaRadar.cpp",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "minimum_signal",
+      "value": 0.2,
+      "units": "ratio",
+      "path": "EFM/source/AesaRadar.cpp",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "maximum_detection_probability",
+      "value": 0.99,
+      "units": "probability",
+      "path": "EFM/source/AesaRadar.cpp",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "survey_range_m",
+      "value": 300000,
+      "units": "m",
+      "path": "EFM/source/AesaReceiver.h",
+      "evidence_class": "declared game estimate",
+      "limit": "native strength supplies no RF watts or spectrum; active unsupported ECM is unavailable"
+    },
+    {
+      "name": "maximum_sources",
+      "value": 8,
+      "units": "count",
+      "path": "EFM/source/AesaReceiver.h",
+      "evidence_class": "software capacity bound",
+      "limit": "native strength supplies no RF watts or spectrum; active unsupported ECM is unavailable"
+    },
+    {
+      "name": "maximum_visits",
+      "value": 256,
+      "units": "count",
+      "path": "EFM/source/AesaReceiver.h",
+      "evidence_class": "software capacity bound",
+      "limit": "native strength supplies no RF watts or spectrum; active unsupported ECM is unavailable"
+    },
+    {
+      "name": "equivalent_noise_reference",
+      "value": 4,
+      "units": "linear J/N at 80000m strength1",
+      "path": "EFM/source/AesaReceiver.h",
+      "evidence_class": "declared game estimate",
+      "limit": "native strength supplies no RF watts or spectrum; active unsupported ECM is unavailable"
+    },
+    {
+      "name": "sidelobe_floor",
+      "value": 0.0001,
+      "units": "linear receive ratio",
+      "path": "EFM/source/AesaReceiver.h",
+      "evidence_class": "declared game estimate",
+      "limit": "native strength supplies no RF watts or spectrum; active unsupported ECM is unavailable"
+    },
+    {
+      "name": "rear_floor",
+      "value": 1e-06,
+      "units": "linear element ratio",
+      "path": "EFM/source/AesaReceiver.h",
+      "evidence_class": "declared game estimate",
+      "limit": "native strength supplies no RF watts or spectrum; active unsupported ECM is unavailable"
+    },
+    {
+      "name": "minimum_propagation_distance",
+      "value": 40,
+      "units": "m",
+      "path": "EFM/source/AesaReceiver.h",
+      "evidence_class": "declared game estimate",
+      "limit": "native strength supplies no RF watts or spectrum; active unsupported ECM is unavailable"
+    },
+    {
+      "name": "acceleration_spectral_density",
+      "value": 100,
+      "units": "m^2/s^3",
+      "path": "EFM/source/AesaTrackFilter.h",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "maximum_memory_s",
+      "value": 6,
+      "units": "s",
+      "path": "EFM/source/AesaTrackFilter.h",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "association_gate",
+      "value": 36,
+      "units": "normalized innovation squared",
+      "path": "EFM/source/AesaTrackFilter.h",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "maximum_velocity_sigma",
+      "value": 100,
+      "units": "m/s",
+      "path": "EFM/source/AesaTrackFilter.h",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "maximum_target_speed",
+      "value": 1500,
+      "units": "m/s",
+      "path": "EFM/source/AesaTrackFilter.h",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    },
+    {
+      "name": "association_separation",
+      "value": 9,
+      "units": "normalized innovation squared",
+      "path": "EFM/source/AesaAssociation.h",
+      "evidence_class": "declared game estimate",
+      "limit": "not aircraft calibrated"
+    }
+  ],
+  "validation_plan": {
+    "paired_conditions": [
+      "same target geometry/relative motion/RCS/LOS",
+      "same native receiver support and achieved ECM state",
+      "same resource, dwell, integration and clock progression",
+      "matched seed sets independent from reserved validation seeds"
+    ],
+    "model_tests": [
+      "echo signal range ratio follows inverse fourth before clamps/clutter",
+      "cochannel equivalent jammer noise follows inverse square with fixed gain/strength",
+      "off-axis gain and sidelobe/backlobe floors checked independently",
+      "paired clean/jammed measurement uncertainty and missed/coasted timestamp distributions",
+      "rate/range/angle variance versus declared signal and integration",
+      "scene traversal/source/visibility/pending/track exhaustion is observable unavailable/drop, never silent healthyzero"
+    ],
+    "metrics": [
+      "detection proportion plus uncertainty interval across independent seeds",
+      "measurement bias/RMSE versus declared model uncertainty",
+      "association false assignment/ambiguous/coast/false birth rates",
+      "p50/p95/p99/max callback CPU and GPU time, allocation count/bytes",
+      "sensitivity to each estimated coefficient and revisit/cadence"
+    ],
+    "limits": [
+      "do not fit and validate on same recordings or seed ensemble",
+      "numerical convergence and covariance checks cannot authenticate aircraft parameters",
+      "no performance budget passes until measured on actual integrated host and VR workload"
+    ]
+  }
+}

@@ -55,7 +55,7 @@ local function fill_plan(plan, base, computer)
         plan.az, plan.el = 0, computer.elevation
         plan.half_az, plan.half_el = math.rad(computer.azimuth), math.rad(computer.vertical_span/2)
         plan.range = computer:range()
-        plan.obligations, plan.uncovered, plan.support_count = 0, 0, 0
+        plan.obligations, plan.support_count = 0, 0
         plan.support_overdue, plan.revisit_remaining = 0, 0
     end
 end

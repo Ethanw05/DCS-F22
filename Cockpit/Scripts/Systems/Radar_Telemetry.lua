@@ -161,12 +161,10 @@ local avionics_fields = {
 	"F22_RADAR_SELECTED_QUALITY",
 	"F22_RADAR_SELECTED_AGE",
 	"F22_RADAR_SELECTED_SUPPORT_ELIGIBLE",
-	"F22_RADAR_SCAN_AUTO",
+	"F22_RADAR_SEARCH_REQUEST_VALID",
 	"F22_RADAR_SCAN_AZ_DEG",
 	"F22_RADAR_SCAN_EL_DEG",
 	"F22_RADAR_SCAN_OBLIGATIONS",
-	"F22_RADAR_SCAN_UNCOVERED",
-	"F22_RADAR_SCAN_COVERAGE_COMPLETE",
 	"F22_RADAR_SCAN_RANGE_NM",
 	"F22_RADAR_SUPPORT_ENABLED",
 	"F22_TWS_ACTIVE",
@@ -267,7 +265,6 @@ function M.new(get, write, limit)
 		next_time = nil,
 		next_contacts = nil,
 		started = nil,
-		observed = {},
 		emitters = {},
 		missiles = {},
 	}
@@ -319,23 +316,6 @@ function M.new(get, write, limit)
 				end
 			end
 		end
-		if get("F22_RADAR_OBSERVATIONS_READY") > 0.5 then
-			for i = 1, math.min(64, math.max(0, get("F22_RADAR_OBSERVATION_COUNT"))) do
-				local p = string.format("F22O_%02d_", i)
-				local id, age = get(p .. "ID"), get(p .. "AGE")
-				if finite(id) and id > 0 and finite(age) and age >= 0 and age <= 20 then
-					local stamp = t - age
-					if not self.observed[id] or stamp > self.observed[id] + 0.01 then
-						local row = { "v1", "observation", number(t), tostring(i) }
-						for _, key in ipairs({ "ID", "AGE", "NORTH", "ALTITUDE", "EAST", "VN", "VU", "VE", "IFF" }) do
-							row[#row + 1] = number(get(p .. key))
-						end
-						self:emit(table.concat(row, ","))
-						self.observed[id] = stamp
-					end
-				end
-			end
-		end
 		for i = 1, 16 do
 			local p = string.format("RWR_CONTACT_%02d_", i)
 			local id, age, signal = get(p .. "SOURCE"), get(p .. "TIME"), get(p .. "SIGNAL")
@@ -368,11 +348,6 @@ function M.new(get, write, limit)
 				end
 			end
 		end
-		for id, stamp in pairs(self.observed) do
-			if t - stamp > 20 then
-				self.observed[id] = nil
-			end
-		end
 		for id, old in pairs(self.emitters) do
 			if t - old.stamp > 12 then
 				self.emitters[id] = nil
@@ -397,7 +372,6 @@ function M.new(get, write, limit)
 			self.started = t
 			self.next_time = t
 			self.next_contacts = t
-			self.observed = {}
 			self.emitters = {}
 			self.missiles = {}
 		end
@@ -426,17 +400,7 @@ function M.new(get, write, limit)
 			for _, key in ipairs(service_fields) do service[#service + 1] = number(get(key)) end
 			self:emit(table.concat(service, ","))
 			self:observations(t)
-			for i = 1, 64 do
-				local p = string.format("F22N_RADAR_CONTACT_%02d_", i)
-				local range, age = get(p .. "RANGE"), get(p .. "TIME")
-				if finite(range) and range > 0 and finite(age) and age >= 0 and age <= 10 then
-					local c = { "v1", "contact", number(t), tostring(i) }
-					for _, key in ipairs({ "TIME", "RANGE", "AZIMUTH", "ELEVATION", "VX", "VY", "VZ", "FRIENDLY" }) do
-						c[#c + 1] = number(get(p .. key))
-					end
-					self:emit(table.concat(c, ","))
-				end
-			end
+
 		end
 	end
 	return r

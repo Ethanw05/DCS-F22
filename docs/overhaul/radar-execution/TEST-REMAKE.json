@@ -1,0 +1,43 @@
+{
+  "owner": "chat3",
+  "source": "independent R-RAD-001/002/011/019, VS-005/006; actual owner and common host ports",
+  "retired": [
+    {
+      "path": "tests/test_radar_computer.py",
+      "prior_sha256": "392fefc8c66dd1c43b06e1ec1ff7e6ad29445e02d6e5d0092f0e9cbcec0f519b",
+      "replacement": "tests/cases/test_radar_source_contract.py",
+      "status": "deleted_and_independently_remade"
+    },
+    {
+      "path": "tests/test_owned_aesa_lua.py",
+      "prior_sha256": "87f07729cc44a42b5f5462b3fb5d6da6ecc40149eee2c20426642e9508256b37",
+      "replacement": "tests/cases/test_radar_source_contract.py",
+      "status": "deleted_and_independently_remade"
+    },
+    {
+      "path": "tests/test_radar_integrity.py",
+      "prior_sha256": "26fb8d2498abb035a704ac1022439c2c3b40937994a55f7c82d4e3a9ab9dba30",
+      "replacement": "tests/cases/test_radar_source_contract.py",
+      "status": "deleted_and_independently_remade"
+    },
+    {
+      "path": "tests/test_radar_scan_quality.py",
+      "prior_sha256": "2ace5de529b4c2ebc2f470a294227182f38d957bb2f20abce19e5f3925ec1a0e",
+      "replacement": "tests/cases/test_radar_source_contract.py",
+      "status": "deleted_and_independently_remade"
+    },
+    {
+      "path": "tests/test_radar_tracking_beam.py",
+      "prior_sha256": "b70d0a79061b1e17ebc05d9ef416ea619d16c2efa086d625823377bce1ec873a",
+      "replacement": "tests/cases/test_radar_source_contract.py",
+      "status": "deleted_and_independently_remade"
+    },
+    {
+      "path": "tests/test_native_ground_returns.cpp",
+      "prior_sha256": "53b9db8b001d38a3bcc60ef33b59ce8ac2a68e7c7e16539d133c35873042fc60",
+      "replacement": "tests/cases/test_radar_source_contract.py",
+      "status": "deleted_and_independently_remade"
+    }
+  ],
+  "remaining": "Other assigned artifacts remain pending their actual package chain; quarantined from acceptance runner. Original recordings/evidence preserved."
+}
