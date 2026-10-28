@@ -69,3 +69,30 @@ assert(g('F22_TAWS_THREAT')==1 and g('F22_PILOT_AUDIO_PLAYING')==0 and cuts==1)
 p('MAIN_POWER',0);update();assert(g('F22_TAWS_THREAT')==0 and g('F22_TAWS_CUE_VALID')==0)
 ''')
 print('Terrain owner: real roll onset, live PULL/roll changes without cuts, full engine tail, latest-only handoff, cleared/stale sensing and explicit mute/power PASS')
+
+lua=runtime()
+lua.execute(r'''
+local now=10
+function get_model_time()return now end
+function get_base_data()return setmetatable({getSelfCoordinates=function()return 0,70,0 end,
+ getRoll=function()return 0 end,getHeading=function()return 0 end,
+ getIndicatedAirSpeed=function()return 200 end,getVerticalAcceleration=function()return 1 end},
+ {__index=function()return function()return 0 end end})end
+package.preload.terrain=function()return{GetHeight=function()return 0 end}end
+local function get(k)return get_param_handle(k):get()end
+local function put(k,v)get_param_handle(k):set(v)end
+dofile(SCRIPT_ROOT..'Systems/Pilot_Warning_System.lua')
+local physical=dofile(SCRIPT_ROOT..'../../tests/warning_physical_fixture.lua')()
+update=physical:wrap(update);post_initialize()
+put('MAIN_POWER',1);put('EFM_HUD_VALID',1);put('EFM_HUD_VN',200);put('EFM_HUD_VU',-30)
+update();assert(get('F22_TAWS_READY')==1 and get('F22_TAWS_ESCAPE_VALID')==1)
+put('EFM_FCS_DAMAGED',1);now=10.05;update()
+assert(get('F22_TAWS_ESCAPE_VALID')==0,'terrain owner lost the qualified degraded-FCS capability input')
+put('EFM_FCS_INTEGRITY_VALID',0);put('F22_ALT_RADAR_VALID',1);put('F22_ALT_RADAR_FT',100);put('F22_ALT_RADAR_FLOOR',500)
+now=10.1;update()
+assert(get('F22_TAWS_READY')==0 and get('F22_ALT_ALERT_SOURCE')=='RADAR LOW',
+ 'unknown control health used a healthy recovery or hid independent altitude warnings')
+put('EFM_FCS_INTEGRITY_VALID',1);put('EFM_FCS_DAMAGED',0);now=10.15;update()
+assert(get('F22_TAWS_READY')==1 and get('F22_TAWS_ESCAPE_VALID')==1,'qualified controls failed to restore terrain prediction')
+''')
+print('Actual terrain owner: current degraded/unknown/restored FCS health with independent altitude warnings PASS')

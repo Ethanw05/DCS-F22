@@ -144,6 +144,7 @@ local function simulate(s, height, option, trace)
 end
 local function valid(s, height)
     if type(height) ~= "function" then return false, 1 end
+    if s.fcs_valid~=true or type(s.fcs_fault)~='boolean' then return false, 4 end
     for _, k in ipairs({"n", "u", "e", "vn", "vu", "ve", "roll", "heading", "cas", "nz"}) do
         if not finite(s[k]) then return false, 2 end
     end

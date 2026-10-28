@@ -7,3 +7,10 @@ Altitude_Alerts owns three bounded records with unique finite tickets. Actual vo
 Manual recovery intent is separate from steering source. Valid received ILS can support the same stable landing exemption with TACAN or WPT steering. Visual intent is explicit. Achieved configuration, valid measured CAS, go-around and received component health qualify the context. The existing terrain solver still rejects the exemption for unstable flight, rising terrain or obstruction; this remains advisory and commands no maneuver. Thresholds are mod policies, not production Raptor protection values.
 
 Actual module/UFC/alert/audio owner tests cover repeat/disable/reset, minima/baro separation, deferred-ticket identity, source loss, event expiry/capacity, gear transit, stale-owner rejection and power restoration. The real WAV replay/priority/expiry and terrain-query regressions pass. DCS approach, obstruction, audio mix and optical checks remain unperformed in this checkout.
+
+Terrain recovery capability consumes qualified FCS health from the same physical
+condition catalogue as warning speech. Declared degraded controls retain the
+existing estimated 1.5G/30-degree-per-second recovery limits; unknown control
+health withdraws terrain prediction (reason4) while independent altitude warnings
+continue. The actual warning-owner regression covers healthy, degraded, unknown
+and restored controls, including refresh inside the terrain cache interval.

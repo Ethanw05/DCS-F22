@@ -7,7 +7,7 @@ local function state()
  local conditions={};for i=1,8 do conditions[i]={valid=true,active=false}end
  return {now=10,powered=true,valid=true,ground=false,airborne=true,gear=false,n=0,u=1000,e=0,
   vn=200,vu=0,ve=0,roll=0,heading=0,cas=200,nz=1,baro=4000,radar=700,baro_floor=0,radar_floor=500,
-  baro_valid=true,radar_valid=true,conditions=conditions}
+  baro_valid=true,radar_valid=true,conditions=conditions,fcs_valid=true,fcs_fault=false}
 end
 local function confirmed(policy,s,height)
  local result=policy:update(s,height)

@@ -359,6 +359,8 @@ local function qualify_flight(state)
     state.cas=air and v.EFM_AIRDATA_CAS_MPS or nil
     state.vn,state.ve,state.vu=v.EFM_HUD_VN,v.EFM_HUD_VE,v.EFM_HUD_VU
     state.wn,state.we,state.wu=v.EFM_HUD_WN,v.EFM_HUD_WE,v.EFM_HUD_WU
+    -- Recovery capability uses the same qualified condition catalogue as speech.
+    state.fcs_valid,state.fcs_fault=conditions[1].valid,conditions[1].active
 end
 local function publish_faults(priority)
     local faults = receiver.faults

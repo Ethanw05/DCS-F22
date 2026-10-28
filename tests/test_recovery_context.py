@@ -11,7 +11,7 @@ local R=dofile(SCRIPT_ROOT..'Systems/Recovery_Context.lua')
 local E=dofile(SCRIPT_ROOT..'Systems/Terrain_Escape.lua')
 local function get(k)return get_param_handle(k):get()end
 local function put(k,v)get_param_handle(k):set(v)end
-local s={now=0,powered=true,valid=true,ground=false,gear=true,gear_down=true,gear_up=false,
+local s={now=0,powered=true,valid=true,ground=false,gear=true,gear_down=true,gear_up=false,fcs_valid=true,fcs_fault=false,
  n=0,u=80,e=0,vn=140,vu=-8,ve=0,cas=140,nz=1,heading=0,roll=0}
 local flat=function()return 0 end
 put('HUD_ILS_LOC_VALID',1);put('HUD_ILS_GS_VALID',1)

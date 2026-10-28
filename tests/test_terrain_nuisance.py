@@ -10,7 +10,7 @@ LockOn_Options={script_path=ROOT}
 local E=dofile(ROOT..'Systems/Terrain_Escape.lua')
 local flat=function()return 0 end
 local function state()
- return {now=0,n=0,u=2000,e=0,vn=200,vu=0,ve=0,cas=200,nz=1,heading=0,roll=0}
+ return {now=0,n=0,u=2000,e=0,vn=200,vu=0,ve=0,cas=200,nz=1,heading=0,roll=0,fcs_valid=true,fcs_fault=false}
 end
 -- A high-altitude tactical maneuver is not a reason to command recovery.
 -- Exercise transient roll direction, inverted banks and actual pulling loads.
