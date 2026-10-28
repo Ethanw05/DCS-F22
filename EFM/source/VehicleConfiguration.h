@@ -2,12 +2,14 @@
 
 #include "VehicleSystems.h"
 #include "VehiclePower.h"
+#include "LandingGear.h"
 
 namespace RaptorVehicle {
 enum class FlightConfiguration { Cruise = 0, PowerApproach = 1, Refuel = 2 };
 enum class GearRejection { None = 0, WeightOnWheels, Overspeed, NoSupply, AlternateLatched, InvalidAirData };
 
 struct Configuration {
+    LandingGear gear;
     FlightConfiguration mode = FlightConfiguration::Cruise;
     GearRejection gear_rejection = GearRejection::None;
     double hook_position = 0.0;
@@ -49,6 +51,9 @@ struct Configuration {
     }
     void update(double dt, double gear_position, bool left_running, bool right_running,
                 double authority, double stamp_s) {
+        if (!within(dt, 0.0, 1.0) || dt == 0.0 ||
+            !within(gear_position, 0.0, 1.0) || !within(authority, 0.0, 1.0) ||
+            !within(stamp_s, 0.0, 1e9)) return;
         refuel_door = slew(refuel_door, refuel_request ? 1.0 : 0.0, 0.5 * authority, dt);
         hook_position = slew(hook_position, hook_request ? 1.0 : 0.0, 0.4, dt);
         // Declared simulation policy uses achieved door, never request alone.
@@ -56,7 +61,8 @@ struct Configuration {
             (gear_position > 0.5 ? FlightConfiguration::PowerApproach : FlightConfiguration::Cruise);
         single_engine_approach = mode == FlightConfiguration::PowerApproach &&
             (left_running != right_running);
-        refuel_transfer = stamp_s - last_transfer_s < 0.5;
+        const double transfer_age_s = stamp_s - last_transfer_s;
+        refuel_transfer = within(transfer_age_s, 0.0, 0.5) && transfer_age_s < 0.5;
     }
     double steering_authority(double speed_mps, double hydraulic) const {
         if (!steering_selected) return 0.0;

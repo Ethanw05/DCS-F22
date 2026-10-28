@@ -130,13 +130,13 @@ N_GEAR.input						= {0,1}
 N_GEAR.output						= {0,1}
 
 R_GEAR							    = CreateGauge("parameter")
-R_GEAR.parameter_name				= "N_GEAR_LIGHT"
+R_GEAR.parameter_name				= "R_GEAR_LIGHT"
 R_GEAR.arg_number					= 725
 R_GEAR.input						= {0,1}
 R_GEAR.output						= {0,1}
 
 L_GEAR							    = CreateGauge("parameter")
-L_GEAR.parameter_name				= "N_GEAR_LIGHT"
+L_GEAR.parameter_name				= "L_GEAR_LIGHT"
 L_GEAR.arg_number					= 724
 L_GEAR.input						= {0,1}
 L_GEAR.output						= {0,1}

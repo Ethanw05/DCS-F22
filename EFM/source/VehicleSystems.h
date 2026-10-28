@@ -117,6 +117,7 @@ struct Hydraulics {
     void update(double left_spool, double right_spool, double left_health,
                 double right_health, bool left_failed, bool right_failed,
                 double brake_demand, double speed_mps, double dt) {
+        if (!within(dt, 0.0, 1.0) || dt == 0.0) return;
         const double left_source = std::max(unit((left_spool - .2) / .4) * left_capacity * unit(left_health),
                                             apu_source ? 0.65 : 0.0);
         const double right_source = std::max(unit((right_spool - .2) / .4) * right_capacity * unit(right_health),

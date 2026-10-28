@@ -1,0 +1,22 @@
+{
+  "head": "5cca15d56d5016a5b6f20aae7b79eb462ef10a33",
+  "branch": "main",
+  "dirty_state": " M Cockpit/Scripts/MFD_COMMON/adi_page.lua\n M Cockpit/Scripts/Systems/Altitude_System.lua\n M Cockpit/Scripts/Systems/Avionics.lua\n M Cockpit/Scripts/Systems/HUD_Flight_Data.lua\n M Cockpit/Scripts/Systems/ICP_Flight_Pages.lua\n M Cockpit/Scripts/Systems/Pilot_Warning_System.lua\n M Cockpit/Scripts/Systems/Weapon_System.lua\n M Cockpit/Scripts/UFD_LEFT/base_page.lua\n M Cockpit/Scripts/UFD_RIGHT/base_page.lua\n M EFM/source/GroundVideoView.h\n M EFM/source/NativeAesaRadar.cpp\n M EFM/source/NativeGroundVideo.cpp\n M EFM/source/NativeGunSight.cpp\n M EFM/source/RAPTOR.cpp\n M EFM/source/RAPTOR.h\n M UnitPayloads/F-22A.lua\n M docs/overhaul/chat4-weapons-ew/README.md\n M docs/overhaul/chat4-weapons-ew/commit-request.json\n M docs/overhaul/chat4-weapons-ew/integration-request.json\n M docs/overhaul/chat4-weapons-ew/lua-checks.json\n M docs/overhaul/chat4-weapons-ew/package-status.json\n M docs/overhaul/chat4-weapons-ew/release-after.txt\n M docs/overhaul/chat4-weapons-ew/test-remakes.json\n M docs/overhaul/integration/STATUS.json\n M tests/CMakeLists.txt\n M tests/cases/test_weapon_release.py\n M tests/probes/known_failures.py\n D tests/test_store_registration.py\n M tools/compose_ew_gauntlet.lua\n M tools/research_sar_point_targets.py\n?? Cockpit.zip\n?? Cockpit/Scripts/Systems/Altitude_Snapshot.lua\n?? EFM.zip\n?? EFM/source/AltitudeSnapshot.h\n?? docs/overhaul/chat4-weapons-ew/gun-clock-before.txt\n?? docs/overhaul/chat4-weapons-ew/legacy-failure-dispositions.json\n?? docs/overhaul/chat4-weapons-ew/lua-results.json\n?? docs/overhaul/chat4-weapons-ew/lua-tests.txt\n?? docs/overhaul/chat4-weapons-ew/native-clock-evidence.json\n?? docs/overhaul/chat4-weapons-ew/release-mode-before.txt\n?? docs/overhaul/integration/ALTITUDE-CONTRACT.md\n?? docs/overhaul/integration/LINK-VALIDATION.json\n?? docs/overhaul/integration/REQUEST-chat4.json\n?? docs/overhaul/radar-execution/native/\n?? tests/cases/test_altitude_admission.py\n?? tests/cases/test_altitude_owners.py\n?? tests/cases/test_radar_capability_policy.py\n?? tests/cases/test_store_profile.py\n?? tests/native/altitude_snapshot.cpp\n?? tests/native/weapons.cmake\n?? tests/native/weapons_ground_clock.cpp\n?? tests/navigation_ports.py\n",
+  "hashes": {
+    "EFM/source/VehiclePower.h": "ef1292c3ef18a38be37fcaf4ebdffea52168b6418c6f81a1117e1c4dae36f9f3",
+    "EFM/source/FuelSystem.h": "987075faaa08ab614f9b8d8822873335822ee53aeb519ce861ddfb7646260363",
+    "EFM/source/VehicleLedger.h": "73c35700b94708ebad99d7e7e528ecb8825d7258b46a21fd0dd3653f3ac5f5f2",
+    "EFM/source/VehicleSystems.h": "125e7013dd89bc5682af4648671e30a99bb7c37e6f96a937f89399c7fd2fb603",
+    "EFM/source/EngineStart.h": "d4a29d662a84b570ee6c19a1278f13ca7fda4f31423ac9e0e87a5b372cd2ec6b",
+    "EFM/source/EngineController.h": "313d7225efd32a26fb7eeee0f83c5cbe0e1ed05a6e6869254a3812899c58c49a",
+    "EFM/source/VehicleConfiguration.h": "46f5e49291994de6a102b9eae36b7867e49df79a5759f16e067666429fed121b",
+    "EFM/source/VehicleEnvironment.h": "5a4c9268f3877f11e8c4d85a037c4e691719114583334abff9769ea9faec1b14",
+    "EFM/source/VehicleContext.h": "af3c93936969e01a2623ed8d6991dd0c8ab6664a598f4d3d21a29e4cee738d71",
+    "EFM/source/VehicleIntegration.h": "c1b4b3fd1da133d66d6caaacbaa2907f1483fbbd9dc8e9933d5f201733ed9e6c",
+    "EFM/source/VehicleSignals.h": "04ecfdfeefce37ebdddd24fe3e6b91151058d6109c37ecb0c9c07738478ab8d3",
+    "EFM/source/RAPTOR.cpp": "271d4002b75cfbd2b013b4e5adb90641dc59c3fbfeda869c167a8be2c95202db",
+    "EFM/source/RAPTOR.h": "6577bf579c166db3835979794237ecae04134e5f623a1b4226f5362ea285e477",
+    "Cockpit/Scripts/mainpanel_init.lua": "670e4ac9739fa4160f480f287b4abba0b1287cfc72329733499abc78ed954bf1"
+  },
+  "scope": "Resumed flight work; preserve concurrent native/nav/radar/weapon edits"
+}

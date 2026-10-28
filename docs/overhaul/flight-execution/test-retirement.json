@@ -13,5 +13,118 @@
     "replacement": "tests/native/flight_world.cpp",
     "status": "deleted_and_independently_remade",
     "source": "early-acceptance.md and local SDK ABI; no legacy assertions read/copied"
+  },
+  "tests/test_cni_power.cpp": {
+    "status": "deleted_and_independently_remade",
+    "retired_sha256": "e194112b203bb66be7a51e8982ecd99bc3ba54bf6662aaab3260c3ce5c7b5664",
+    "replacements": [
+      "tests/native/flight_cni.cpp"
+    ],
+    "source": "remaining-acceptance.md; independently specified conservation, source admission, state transitions and actual SDK/Lua contracts. No old assertion or fixture imported."
+  },
+  "tests/test_engine_indications.py": {
+    "status": "deleted_and_independently_remade",
+    "retired_sha256": "43c96175039d9f910b70a31c3afcb019b409bdeb124481365503053f8b5097b5",
+    "replacements": [
+      "tests/cases/test_flight_owners.py"
+    ],
+    "source": "remaining-acceptance.md; independently specified conservation, source admission, state transitions and actual SDK/Lua contracts. No old assertion or fixture imported."
+  },
+  "tests/test_engine_start.cpp": {
+    "status": "deleted_and_independently_remade",
+    "retired_sha256": "811311d5704e64e83f705b1a3e9e28799591080c31ef775539b3d284ac78cf66",
+    "replacements": [
+      "tests/native/flight_engines.cpp"
+    ],
+    "source": "remaining-acceptance.md; independently specified conservation, source admission, state transitions and actual SDK/Lua contracts. No old assertion or fixture imported."
+  },
+  "tests/test_engine_status.py": {
+    "status": "deleted_and_independently_remade",
+    "retired_sha256": "d758e0eddbdaf898a92f594e454efa250fce5a36d885f5da17761323ad91f7d6",
+    "replacements": [
+      "tests/cases/test_flight_owners.py",
+      "tests/native/flight_callbacks.cpp"
+    ],
+    "source": "remaining-acceptance.md; independently specified conservation, source admission, state transitions and actual SDK/Lua contracts. No old assertion or fixture imported."
+  },
+  "tests/test_high_alpha.cpp": {
+    "status": "deleted_and_independently_remade",
+    "retired_sha256": "0c6333643ee2f23765c35d72cf90724df896a0144a017998683ad3d4416664ec",
+    "replacements": [
+      "tests/native/flight_physics.cpp"
+    ],
+    "source": "remaining-acceptance.md; independently specified conservation, source admission, state transitions and actual SDK/Lua contracts. No old assertion or fixture imported."
+  },
+  "tests/test_overhaul_vehicle_indications.py": {
+    "status": "deleted_and_independently_remade",
+    "retired_sha256": "35838597d4eb5220b1e6e8145f0a9e2ed8ac5d6d8946f4fea247439a364f153f",
+    "replacements": [
+      "tests/cases/test_flight_owners.py",
+      "tests/native/flight_callbacks.cpp"
+    ],
+    "source": "remaining-acceptance.md; independently specified conservation, source admission, state transitions and actual SDK/Lua contracts. No old assertion or fixture imported."
+  },
+  "tests/test_trim_control.cpp": {
+    "status": "deleted_and_independently_remade",
+    "retired_sha256": "86c1999f22ef48d3569b642a1fa4b1fb646873473c555dd7ebc237a2d4c63e69",
+    "replacements": [
+      "tests/native/flight_engines.cpp"
+    ],
+    "source": "remaining-acceptance.md; independently specified conservation, source admission, state transitions and actual SDK/Lua contracts. No old assertion or fixture imported."
+  },
+  "tests/test_trim_telemetry.py": {
+    "status": "deleted_and_independently_remade",
+    "retired_sha256": "a874f7b749d50651893c24cb99b73242ae3f5197d7614e1457e8fb8231db7cba",
+    "replacements": [
+      "tests/native/flight_callbacks.cpp"
+    ],
+    "source": "remaining-acceptance.md; independently specified conservation, source admission, state transitions and actual SDK/Lua contracts. No old assertion or fixture imported."
+  },
+  "tests/test_vehicle_contract.cpp": {
+    "status": "deleted_and_independently_remade",
+    "retired_sha256": "ca3557d5274aeb59fa5f7e8cfacec6ed50d305881a60a33b5e24bac2e469b3d6",
+    "replacements": [
+      "tests/native/flight_resources.cpp",
+      "tests/native/flight_callbacks.cpp",
+      "tests/cases/test_flight_field_validity.py"
+    ],
+    "source": "remaining-acceptance.md; independently specified conservation, source admission, state transitions and actual SDK/Lua contracts. No old assertion or fixture imported."
+  },
+  "tests/test_vehicle_electrical.py": {
+    "status": "deleted_and_independently_remade",
+    "retired_sha256": "9aea793663ba49660ea47f144153b52166aa4c14019fb377f7306b6cf2b1bbab",
+    "replacements": [
+      "tests/native/flight_resources.cpp",
+      "tests/cases/test_flight_owners.py"
+    ],
+    "source": "remaining-acceptance.md; independently specified conservation, source admission, state transitions and actual SDK/Lua contracts. No old assertion or fixture imported."
+  },
+  "tests/test_vehicle_overhaul.cpp": {
+    "status": "deleted_and_independently_remade",
+    "retired_sha256": "49a2970b81596115616d04c7afbbf04d3979c679d0c31ebe17f988e8d8335024",
+    "replacements": [
+      "tests/native/flight_callbacks.cpp",
+      "tests/native/flight_engines.cpp"
+    ],
+    "source": "remaining-acceptance.md; independently specified conservation, source admission, state transitions and actual SDK/Lua contracts. No old assertion or fixture imported."
+  },
+  "tests/test_vehicle_power_owner.py": {
+    "status": "deleted_and_independently_remade",
+    "retired_sha256": "5233886e2f9164a66d4246d90cbfb7f06add9372f3a49d094b870042fb4eadb7",
+    "replacements": [
+      "tests/cases/test_flight_owners.py",
+      "tests/native/flight_resources.cpp"
+    ],
+    "source": "remaining-acceptance.md; independently specified conservation, source admission, state transitions and actual SDK/Lua contracts. No old assertion or fixture imported."
+  },
+  "tests/test_vehicle_systems.cpp": {
+    "status": "deleted_and_independently_remade",
+    "retired_sha256": "205a35c1a41e08c68774bd0f689f8b852713251ce50db31fd5417112b5271fe3",
+    "replacements": [
+      "tests/native/flight_resources.cpp",
+      "tests/native/flight_engines.cpp",
+      "tests/native/flight_physics.cpp"
+    ],
+    "source": "remaining-acceptance.md; independently specified conservation, source admission, state transitions and actual SDK/Lua contracts. No old assertion or fixture imported."
   }
 }

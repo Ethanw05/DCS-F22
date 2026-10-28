@@ -32,14 +32,22 @@ struct GroundContact {
         return wheel.stamp_s >= 0.0 && now_s >= wheel.stamp_s &&
             now_s - wheel.stamp_s <= maximum_age_s;
     }
-    void update(double gear_position, double clearance_m, bool surface_valid, double now_s) {
+    void update(const std::array<double, 3>& gear_positions, double clearance_m,
+                bool surface_valid, double now_s) {
         valid = loaded = false;
-        if (!within(gear_position, 0.0, 1.0) || !within(now_s, 0.0, 1e9)) return;
-        if (gear_position <= 0.5 || (surface_valid && clearance_m > maximum_reach_m)) {
+        if (!within(now_s, 0.0, 1e9)) return;
+        bool extended = false;
+        for (const auto position : gear_positions) {
+            if (!within(position, 0.0, 1.0)) return;
+            extended = extended || position > .5;
+        }
+        if (!extended || (surface_valid && clearance_m > maximum_reach_m)) {
             valid = true;
             return;
         }
-        for (const auto& wheel : wheels) {
+        for (std::size_t index = 0; index < wheels.size(); ++index) {
+            if (gear_positions[index] <= .5) continue;
+            const auto& wheel = wheels[index];
             if (!fresh(wheel, now_s)) continue;
             valid = true;
             loaded = loaded || wheel.reaction_n > minimum_load_n;

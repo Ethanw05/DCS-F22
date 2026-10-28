@@ -3,7 +3,7 @@
 #include <cmath>
 
 // Numerical regularization ONLY. This is not a CFD or wind-tunnel-derived
-// F-22 production coefficient model. See resources/research/HIGH_ALPHA_CONTINUITY.md.
+// F-22 production coefficient model. See docs/resources/research/HIGH_ALPHA_CONTINUITY.md.
 namespace RaptorAero
 {
     inline double SmoothUnit(double t)

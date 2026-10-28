@@ -128,7 +128,7 @@ namespace RAPTOR {
     int flap_override = -1; // -1 automatic, 0 up, 1 down (estimated mod override)
     double airbrake_pos = 0, flaps_pos = 0, slats_pos = 0;
     bool gear_switch = false;
-    double gear_pos = 0;
+    double gear_pos = 0; // Derived mean achieved leg travel for aerodynamics; never integrated here.
     double wheel_brake = 0; // common legacy command
     double left_brake_request = 0, right_brake_request = 0;
     double left_brake_achieved = 0, right_brake_achieved = 0;
@@ -190,7 +190,6 @@ namespace RAPTOR {
     double max_available_left_thrust = 0, max_available_right_thrust = 0;
     double max_dry_left_thrust = 0, max_dry_right_thrust = 0;
 
-    double g_assist_pos = 0;
     double g_limit_positive = 9.0; // Official USAF +9 g public limit
     double g_limit_negative = -4.0;
 
@@ -202,18 +201,6 @@ namespace RAPTOR {
     enum EngineState { OFF, STARTING, RUNNING, SHUTDOWN };
     EngineState left_engine_state = OFF;
     EngineState right_engine_state = OFF;
-    double left_engine_start_timer = 0.0;
-    double right_engine_start_timer = 0.0;
-
-    const double engine_start_time = 44.0;
-    const double starter_phase_duration = 11.0;
-    const double ignition_phase_duration = 18.0;
-    const double spool_up_phase_duration = 15.0;
-    const double starter_rpm = 0.2;
-    const double ignition_rpm = 0.4;
-    const double starter_rate = starter_rpm / starter_phase_duration;
-    const double ignition_rate = (ignition_rpm - starter_rpm) / ignition_phase_duration;
-    const double spool_up_rate = (idle_rpm - ignition_rpm) / spool_up_phase_duration;
     double left_engine_phase = 0.0;
     double right_engine_phase = 0.0;
 
@@ -408,7 +395,6 @@ private:
     std::unordered_map<std::string, void*> param_handles_;
     std::unordered_map<int, float> draw_args_;
 
-    void updateGearLights(double dt);
     void updateTaxiLandingLights(double dt);
     void updateAARLight(double dt);
     void updateFormationLights(double dt);

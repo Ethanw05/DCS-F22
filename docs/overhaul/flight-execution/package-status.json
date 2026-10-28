@@ -5,7 +5,7 @@
   "packages": [
     {
       "id": "P-FLT-001",
-      "status": "provider_and_HUD_software_verified_native_consumers_open",
+      "status": "software_verified_native_consumers_migrated",
       "requirements": [
         "R-FLT-001",
         "R-FLT-013"
@@ -21,17 +21,21 @@
         "P-INT-002"
       ],
       "blockers": [
-        "Chat4 checked full-group admission for NativeGunSight three wind paths, NativeAGWeapons wind and NativeSidewinder TAS/cache; see native-consumer-review.md",
-        "Installation/runtime identity and DCS/2D/VR/MP qualification unperformed; exclusive runtime slot not granted"
+        "Actual DCS sensor/read scheduling and installed/loaded identity remain unobserved."
       ],
       "commits": {
         "flight_validity_and_yaw": "a21145f7d03a7edbc111e9407138a198217b34c3",
         "unused_helpers": "db8df9b2da87850baf82148cc28f8bf790ba7c58"
-      }
+      },
+      "verified_outcomes": [
+        "Original atmosphere provenance gates environment/ADC/standby/wind; independent kinematics and finite backup retained.",
+        "32 actual-DLL invalid-input cases; HUD owner failure/recovery; Chat4 checked native full-flight consumer changes now present."
+      ],
+      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
     },
     {
       "id": "P-FLT-002",
-      "status": "prepared_waiting_actual_prerequisite",
+      "status": "software_verified_explicit_source_dispositions",
       "requirements": [
         "R-FLT-004",
         "R-FLT-006",
@@ -49,13 +53,18 @@
         "P-FLT-001"
       ],
       "blockers": [
-        "P-FLT-001 complete software consumer chain",
-        "Mission/essential/utility consumer budget agreement and finite SES normalized-versus-kg/J definition; no new production capacity/topology assumed"
-      ]
+        "SES kg/J and aircraft load budgets remain estimates. Separate emergency EW generator unavailable/no-go until load/energy/topology applicability is established."
+      ],
+      "verified_outcomes": [
+        "Finite/atomic normalized SES debit; invalid time cannot recharge supplies.",
+        "20000 independent fuel/mass/first-moment events and full64ledger refusal/recovery.",
+        "Essential/mission/utility and battery aggregate budgets retained; gear/refuel utilities consume existing System2 mapping."
+      ],
+      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
     },
     {
       "id": "P-FLT-003",
-      "status": "waiting_actual_prerequisite",
+      "status": "software_verified_source_limited_profile",
       "requirements": [
         "R-FLT-008",
         "D-R-FLT-004"
@@ -70,13 +79,17 @@
         "P-FLT-002"
       ],
       "blockers": [
-        "P-FLT-002",
-        "Nozzle fueldraulic/supply and fire/relight evidence policy remains explicitly estimated/unresolved; no false F119 schedule claim"
-      ]
+        "F119 start/relight/fuel/nozzle production schedules unavailable; actual host engine/fire response unqualified."
+      ],
+      "verified_outcomes": [
+        "Manual/auto start, feed loss/restart consent, degraded/unavailable control, no-light/purge/reset verified on owning controller.",
+        "Duplicate start timers/rates retired; engine deck and hydraulic nozzle mapping retained as declared estimates."
+      ],
+      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
     },
     {
       "id": "P-FLT-004",
-      "status": "waiting_actual_prerequisites",
+      "status": "software_verified_source_limited_profile",
       "requirements": [
         "R-FLT-009",
         "D-R-INT-001",
@@ -97,14 +110,19 @@
         "D-P-FLT-001"
       ],
       "blockers": [
-        "P-FLT-002 and P-FLT-003",
-        "Integrator-owned admitted native AFCS mode/axis policy; D-P-FLT-001 software reset supplied",
-        "Approach/refuel/single-engine law/calibration source limits remain explicit"
-      ]
+        "No independently calibrated approach/refuel/single-engine gain schedule. Actual airborne handling and native AFCS integration need host qualification."
+      ],
+      "verified_outcomes": [
+        "Pitch-priority allocation, finite achieved surfaces/trim, air-data reversion and fresh-generation reset retained.",
+        "AFCS physical eligibility additionally requires valid force/mass and actuator supply; native mode/axis policy remains Chat2.",
+        "Cruise/achieved-gear approach/achieved-door refuel profile retained; single-engine approach uses baseline estimated law.",
+        "Write-only g_assist, unused locals and duplicate outer pitch local retired without gain changes."
+      ],
+      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
     },
     {
       "id": "P-FLT-005",
-      "status": "contract_prepared_waiting_actual_prerequisite",
+      "status": "software_verified_host_effects_unqualified",
       "requirements": [
         "R-FLT-002",
         "R-FLT-011"
@@ -119,13 +137,18 @@
         "P-FLT-002"
       ],
       "blockers": [
-        "P-FLT-002",
-        "gear-contract.md: per-leg producer + mainpanel cutover; structural8/15/16 versus suspension83/84/85host mapping/locks/arrestment not observed"
-      ]
+        "Native structural/suspension damage relationship, wheel units/slip/deceleration and arresting cable effects not observed. Door measurement explicitly invalid; host-effects-qualified0."
+      ],
+      "verified_outcomes": [
+        "One per-leg achieved owner drives travel/locks,3drawargs,9SDKgearvalues and correct N/L/R lamps.",
+        "6 structural/suspension damage tests isolate the appropriate leg; pressure loss retains achieved locks.",
+        "Fresh deployed-wheel contact and stale brake/heat/repair checks pass."
+      ],
+      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
     },
     {
       "id": "P-FLT-006",
-      "status": "waiting_actual_prerequisites_and_native_contract",
+      "status": "software_verified_effects_explicitly_unavailable",
       "requirements": [
         "R-FLT-003",
         "R-FLT-005",
@@ -146,14 +169,18 @@
         "P-FLT-003"
       ],
       "blockers": [
-        "P-FLT-001/002/003",
-        "SDK oxygen pressure/physiology and native canopy/seal/escape unqualified; preserve fixed SDK baseline until probe",
-        "End-of-step versus preceding-interval oxygen output semantics unresolved; thermal fuel inlet enthalpy omitted, no energy-closure claim"
-      ]
+        "Native physiology/canopy/seal/escape effect flags remain0; SDK oxygen baseline preserved. Thermal fuel inlet/advective enthalpy omitted: no full energy-closure claim."
+      ],
+      "verified_outcomes": [
+        "Oxygen uses instantaneous endpoint semantics; exact reserve exhaustion clears backup-active.",
+        "Independent reserve survives invalid environment; qualified canopy required for cabin-valid.",
+        "600s thermal refinement plus source-loss/empty-fuel sensitivity tested."
+      ],
+      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
     },
     {
       "id": "P-FLT-007",
-      "status": "waiting_actual_prerequisites",
+      "status": "software_verified_host_damage_mapping_open",
       "requirements": [
         "R-FLT-012"
       ],
@@ -168,13 +195,18 @@
         "P-FLT-006"
       ],
       "blockers": [
-        "P-FLT-003/004/005/006",
-        "All registered damage/fault-to-native/physical/feedback outcomes require rebuilt cases and supported-host evidence; repair must retain fuel/heat/no-start boundaries"
-      ]
+        "Not every visual/native damage cell has authenticated physical consequences; native cell meanings and fire extinction remain unqualified."
+      ],
+      "verified_outcomes": [
+        "33 registered planned-fault routes and repair clearing exercised through actual DLL.",
+        "Owner cases exercise engine/source/start failures and repair retaining fuel,SES,oxygen,disc heat and no start consent.",
+        "Per-leg damage repair/lock/lamp publication is single-owner."
+      ],
+      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
     },
     {
       "id": "P-FLT-008",
-      "status": "provenance_preparation_only",
+      "status": "numerically_verified_aircraft_validation_not_assessable",
       "requirements": [
         "R-FLT-010",
         "R-FLT-015",
@@ -193,14 +225,17 @@
         "P-FLT-005"
       ],
       "blockers": [
-        "P-FLT-003/004/005",
-        "Native gravity/specific-force/inertia/store-drag/ground-effect ownership unqualified; no duplicate contribution",
-        "Matched independent holdout flight data unavailable: aircraft performance not assessable from imposed-motion grids"
-      ]
+        "No independent matched holdout flight dataset: supercruise/climb/range/high-alpha aircraft validation not assessable. Native gravity/specific-force/inertia/store-drag/ground-effect ownership unqualified; no duplicate forces added."
+      ],
+      "verified_outcomes": [
+        "Air-data identities, high-alpha continuity, pitch allocation,matched airborne wind translation and invalid mass refusal pass.",
+        "Six-family physical provenance/sensitivity matrix retained; dated high-alpha correction appended preserving original measurements."
+      ],
+      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
     },
     {
       "id": "P-FLT-009",
-      "status": "waiting_actual_prerequisites",
+      "status": "software_verified_host_contact_and_emitters_unqualified",
       "requirements": [
         "R-FLT-004",
         "R-FLT-014"
@@ -219,13 +254,19 @@
         "P-INT-008"
       ],
       "blockers": [
-        "P-FLT-002/005 and actual P-INT-008adapter cutover",
-        "Door/ready/contact/disconnect/native-emitter effects require integrator adapters and host observation; generic transfer is not tanker contact"
-      ]
+        "Actual native155 echo/order,tanker contact/fuel transfer and emitter/light effects unobserved. Readiness/dispatch is never reported as contact."
+      ],
+      "verified_outcomes": [
+        "Actual Electrical input handles10015momentary,10016toggle and decoded clickable; matching release/switch takeover/generation reset verified.",
+        "Reentrant clickable animation no longer steals held-button ownership. Request is distinct from achieved travel/ready/transfer/contact.",
+        "SDK tanker eligibility requires current valid airborne physics,essentialpower,achieveddoor,capacity and no disconnect. Invalid disconnect read stops refueling.",
+        "Existing checked native lighting consumers retained; audio recordings/wrappers preserved pending actual host reachability."
+      ],
+      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
     },
     {
       "id": "P-FLT-010",
-      "status": "waiting_actual_prerequisites_and_runtime_slot",
+      "status": "offline_domain_verification_complete_runtime_qualification_open",
       "requirements": [
         "R-FLT-001",
         "R-FLT-002",
@@ -254,14 +295,17 @@
         "P-INT-003"
       ],
       "blockers": [
-        "P-FLT-007/008/009",
-        "Remaining13of16assigned legacy artifact remakes pending owning domain prerequisite work",
-        "No exclusive runtime slot/loaded identity or actual DCS/2D/VR/MP evidence yet"
-      ]
+        "No exclusive runtime/install lease yet. Actual DCS normal/failure sorties,2D/VR,multiplayer and loaded DLL/hooks identity unobserved."
+      ],
+      "verified_outcomes": [
+        "All16assigned legacy artifacts deleted and independently remade. Five native suites and15Lua cases pass.",
+        "Fresh cold/hot/air-hot with/without release and histories,trim,draw-only/invaliddt/bounded10s callback verified."
+      ],
+      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
     },
     {
       "id": "D-P-FLT-001",
-      "status": "software_verified_qualification_open",
+      "status": "software_verified_host_reslot_order_unqualified",
       "requirements": [
         "D-R-INT-001"
       ],
@@ -274,19 +318,23 @@
         "P-INT-002"
       ],
       "blockers": [
-        "Actual DCS multi-slot/re-slot callback ordering remains unobserved;54actual-DLL equivalence comparisons and no-advance/large-dt checks pass"
+        "Actual DCS re-slot callback scheduling unobserved."
       ],
-      "commit": "a21145f7d03a7edbc111e9407138a198217b34c3"
+      "commit": "a21145f7d03a7edbc111e9407138a198217b34c3",
+      "verified_outcomes": [
+        "One common generation reset clears yaw/pitch/roll transient filters.54actual-DLL same-fresh-input comparisons and no-advance/large-dt checks pass."
+      ],
+      "commit_reference": "physical implementation commit recorded in commit-request.json after serialized commit"
     }
   ],
   "source_commit": {
     "flight_validity_and_yaw": "a21145f7d03a7edbc111e9407138a198217b34c3",
     "unused_helpers": "db8df9b2da87850baf82148cc28f8bf790ba7c58"
   },
-  "tests": "3of16assignedlegacy artifacts independently remade;32atmosphere cases,54history/spawn comparisons,zero/invalid/10sbounded-dt and draw-only cases,3Lua HUD cases passed",
-  "evidence": "early-evidence.json",
+  "tests": "All16assigned legacy artifacts independently remade;5native suites +15Lua cases pass.",
+  "evidence": "final-evidence.json",
   "installed": false,
   "runtime_qualified": false,
-  "status": "assigned_work_incomplete_external_dependency_gates_open",
-  "current_dependency_check": "All three native weapon consumer files still lack EFM_HUD_VALID admission; shared integration runtime slot remains unclaimed. Early RAPTOR/HUD lease is integrated/released. No dependent physical cutover is claimed."
+  "status": "domain_software_verified_with_precise_host_and_calibration_limits",
+  "current_dependency_check": "Independent physical prerequisites implemented or explicitly dispositioned; no blanket wait on other domains. Refuel adapter/SDK applied under granted flight-refuel-production lease."
 }

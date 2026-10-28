@@ -1,0 +1,20 @@
+{
+  "runtime": "Lupa2.6 Lua5.1",
+  "results": [
+    {
+      "path": "Cockpit/Scripts/Systems/Vehicle_Service_Adapter.lua",
+      "sha256": "c26cb6115e4a70952970633b9528102ecbf5a9d88acbe51b58a6a62cd2c7d802",
+      "passed": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Electrical_System.lua",
+      "sha256": "70002659181d658902e5bd91fa2441aaee4f31ece44a4732aeac5b1afc9b3c3f",
+      "passed": true
+    },
+    {
+      "path": "Cockpit/Scripts/mainpanel_init.lua",
+      "sha256": "ad1f27674eb2a4d600d2f7e15b21286a084010560b5ed2261a34fc767d776b5b",
+      "passed": true
+    }
+  ]
+}

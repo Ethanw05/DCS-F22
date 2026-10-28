@@ -1,0 +1,867 @@
+{
+  "tool": "lizard",
+  "production_functions": [
+    {
+      "path": "EFM/source/LandingGear.h",
+      "function": "RaptorVehicle::GearLeg::down_locked",
+      "line": 13,
+      "nloc": 1,
+      "complexity": 3
+    },
+    {
+      "path": "EFM/source/LandingGear.h",
+      "function": "RaptorVehicle::GearLeg::up_locked",
+      "line": 14,
+      "nloc": 1,
+      "complexity": 3
+    },
+    {
+      "path": "EFM/source/LandingGear.h",
+      "function": "RaptorVehicle::LandingGear::reset",
+      "line": 18,
+      "nloc": 3,
+      "complexity": 3
+    },
+    {
+      "path": "EFM/source/LandingGear.h",
+      "function": "RaptorVehicle::LandingGear::update",
+      "line": 21,
+      "nloc": 10,
+      "complexity": 10
+    },
+    {
+      "path": "EFM/source/LandingGear.h",
+      "function": "RaptorVehicle::LandingGear::positions",
+      "line": 31,
+      "nloc": 3,
+      "complexity": 1
+    },
+    {
+      "path": "EFM/source/LandingGear.h",
+      "function": "RaptorVehicle::LandingGear::aerodynamic_fraction",
+      "line": 34,
+      "nloc": 3,
+      "complexity": 1
+    },
+    {
+      "path": "EFM/source/LandingGear.h",
+      "function": "RaptorVehicle::LandingGear::down_locked",
+      "line": 37,
+      "nloc": 3,
+      "complexity": 3
+    },
+    {
+      "path": "EFM/source/LandingGear.h",
+      "function": "RaptorVehicle::LandingGear::up_locked",
+      "line": 40,
+      "nloc": 3,
+      "complexity": 3
+    },
+    {
+      "path": "EFM/source/LandingGear.h",
+      "function": "RaptorVehicle::LandingGear::unsafe",
+      "line": 43,
+      "nloc": 1,
+      "complexity": 2
+    },
+    {
+      "path": "EFM/source/LandingGear.h",
+      "function": "RaptorVehicle::LandingGear::demand",
+      "line": 44,
+      "nloc": 7,
+      "complexity": 6
+    },
+    {
+      "path": "EFM/source/GroundContact.h",
+      "function": "RaptorVehicle::GroundContact::sample",
+      "line": 22,
+      "nloc": 9,
+      "complexity": 5
+    },
+    {
+      "path": "EFM/source/GroundContact.h",
+      "function": "RaptorVehicle::GroundContact::fresh",
+      "line": 31,
+      "nloc": 4,
+      "complexity": 3
+    },
+    {
+      "path": "EFM/source/GroundContact.h",
+      "function": "RaptorVehicle::GroundContact::update",
+      "line": 35,
+      "nloc": 21,
+      "complexity": 12
+    },
+    {
+      "path": "EFM/source/VehiclePower.h",
+      "function": "RaptorVehicle::StoredEnergy::consume",
+      "line": 27,
+      "nloc": 8,
+      "complexity": 7
+    },
+    {
+      "path": "EFM/source/VehiclePower.h",
+      "function": "RaptorVehicle::StoredEnergy::recharge",
+      "line": 35,
+      "nloc": 5,
+      "complexity": 5
+    },
+    {
+      "path": "EFM/source/VehiclePower.h",
+      "function": "RaptorVehicle::StoredEnergy::service",
+      "line": 40,
+      "nloc": 1,
+      "complexity": 1
+    },
+    {
+      "path": "EFM/source/VehiclePower.h",
+      "function": "RaptorVehicle::Power::reset",
+      "line": 63,
+      "nloc": 6,
+      "complexity": 2
+    },
+    {
+      "path": "EFM/source/VehiclePower.h",
+      "function": "RaptorVehicle::Power::generator",
+      "line": 69,
+      "nloc": 4,
+      "complexity": 6
+    },
+    {
+      "path": "EFM/source/VehiclePower.h",
+      "function": "RaptorVehicle::Power::electrical_start_available",
+      "line": 73,
+      "nloc": 3,
+      "complexity": 4
+    },
+    {
+      "path": "EFM/source/VehiclePower.h",
+      "function": "RaptorVehicle::Power::apu_interrupted",
+      "line": 76,
+      "nloc": 3,
+      "complexity": 4
+    },
+    {
+      "path": "EFM/source/VehiclePower.h",
+      "function": "RaptorVehicle::Power::arm_apu_start",
+      "line": 79,
+      "nloc": 8,
+      "complexity": 9
+    },
+    {
+      "path": "EFM/source/VehiclePower.h",
+      "function": "RaptorVehicle::Power::apu_can_run",
+      "line": 87,
+      "nloc": 4,
+      "complexity": 6
+    },
+    {
+      "path": "EFM/source/VehiclePower.h",
+      "function": "RaptorVehicle::Power::update_apu_outputs",
+      "line": 91,
+      "nloc": 8,
+      "complexity": 6
+    },
+    {
+      "path": "EFM/source/VehiclePower.h",
+      "function": "RaptorVehicle::Power::advance_apu",
+      "line": 100,
+      "nloc": 14,
+      "complexity": 5
+    },
+    {
+      "path": "EFM/source/VehiclePower.h",
+      "function": "RaptorVehicle::Power::update_generators",
+      "line": 114,
+      "nloc": 7,
+      "complexity": 4
+    },
+    {
+      "path": "EFM/source/VehiclePower.h",
+      "function": "RaptorVehicle::Power::update_terminals",
+      "line": 121,
+      "nloc": 5,
+      "complexity": 7
+    },
+    {
+      "path": "EFM/source/VehiclePower.h",
+      "function": "RaptorVehicle::Power::advance_battery",
+      "line": 126,
+      "nloc": 9,
+      "complexity": 5
+    },
+    {
+      "path": "EFM/source/VehiclePower.h",
+      "function": "RaptorVehicle::Power::advance_autooff",
+      "line": 135,
+      "nloc": 10,
+      "complexity": 8
+    },
+    {
+      "path": "EFM/source/VehiclePower.h",
+      "function": "RaptorVehicle::Power::recharge_ses",
+      "line": 145,
+      "nloc": 6,
+      "complexity": 7
+    },
+    {
+      "path": "EFM/source/VehiclePower.h",
+      "function": "RaptorVehicle::Power::update",
+      "line": 151,
+      "nloc": 10,
+      "complexity": 5
+    },
+    {
+      "path": "EFM/source/VehicleEnvironment.h",
+      "function": "RaptorVehicle::Environment::reset",
+      "line": 53,
+      "nloc": 6,
+      "complexity": 2
+    },
+    {
+      "path": "EFM/source/VehicleEnvironment.h",
+      "function": "RaptorVehicle::Environment::update_cooling",
+      "line": 59,
+      "nloc": 15,
+      "complexity": 6
+    },
+    {
+      "path": "EFM/source/VehicleEnvironment.h",
+      "function": "RaptorVehicle::Environment::valid_air_inputs",
+      "line": 75,
+      "nloc": 4,
+      "complexity": 3
+    },
+    {
+      "path": "EFM/source/VehicleEnvironment.h",
+      "function": "RaptorVehicle::Environment::valid_inputs",
+      "line": 79,
+      "nloc": 6,
+      "complexity": 5
+    },
+    {
+      "path": "EFM/source/VehicleEnvironment.h",
+      "function": "RaptorVehicle::Environment::source_available",
+      "line": 85,
+      "nloc": 4,
+      "complexity": 6
+    },
+    {
+      "path": "EFM/source/VehicleEnvironment.h",
+      "function": "RaptorVehicle::Environment::update_cabin",
+      "line": 89,
+      "nloc": 7,
+      "complexity": 5
+    },
+    {
+      "path": "EFM/source/VehicleEnvironment.h",
+      "function": "RaptorVehicle::Environment::backup_requested",
+      "line": 98,
+      "nloc": 3,
+      "complexity": 4
+    },
+    {
+      "path": "EFM/source/VehicleEnvironment.h",
+      "function": "RaptorVehicle::Environment::update_oxygen",
+      "line": 101,
+      "nloc": 8,
+      "complexity": 8
+    },
+    {
+      "path": "EFM/source/VehicleEnvironment.h",
+      "function": "RaptorVehicle::Environment::update_fog",
+      "line": 115,
+      "nloc": 6,
+      "complexity": 7
+    },
+    {
+      "path": "EFM/source/VehicleEnvironment.h",
+      "function": "RaptorVehicle::Environment::update",
+      "line": 121,
+      "nloc": 11,
+      "complexity": 6
+    },
+    {
+      "path": "EFM/source/VehicleEnvironment.h",
+      "function": "RaptorVehicle::Environment::service_oxygen",
+      "line": 133,
+      "nloc": 1,
+      "complexity": 1
+    },
+    {
+      "path": "EFM/source/VehicleConfiguration.h",
+      "function": "RaptorVehicle::Configuration::request_gear",
+      "line": 27,
+      "nloc": 11,
+      "complexity": 10
+    },
+    {
+      "path": "EFM/source/VehicleConfiguration.h",
+      "function": "RaptorVehicle::Configuration::extend_alternate",
+      "line": 38,
+      "nloc": 10,
+      "complexity": 3
+    },
+    {
+      "path": "EFM/source/VehicleConfiguration.h",
+      "function": "RaptorVehicle::Configuration::request_hook",
+      "line": 48,
+      "nloc": 4,
+      "complexity": 3
+    },
+    {
+      "path": "EFM/source/VehicleConfiguration.h",
+      "function": "RaptorVehicle::Configuration::update",
+      "line": 52,
+      "nloc": 14,
+      "complexity": 12
+    },
+    {
+      "path": "EFM/source/VehicleConfiguration.h",
+      "function": "RaptorVehicle::Configuration::steering_authority",
+      "line": 67,
+      "nloc": 4,
+      "complexity": 2
+    },
+    {
+      "path": "EFM/source/VehicleConfiguration.h",
+      "function": "RaptorVehicle::Configuration::cruise_brake_mix",
+      "line": 72,
+      "nloc": 3,
+      "complexity": 2
+    },
+    {
+      "path": "EFM/source/VehicleConfiguration.h",
+      "function": "RaptorVehicle::Configuration::allocate",
+      "line": 75,
+      "nloc": 7,
+      "complexity": 1
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::radians",
+      "line": 11,
+      "nloc": 1,
+      "complexity": 1
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::degrees",
+      "line": 12,
+      "nloc": 1,
+      "complexity": 1
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::finite",
+      "line": 18,
+      "nloc": 3,
+      "complexity": 2
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::within",
+      "line": 22,
+      "nloc": 3,
+      "complexity": 3
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::bounded_three",
+      "line": 25,
+      "nloc": 4,
+      "complexity": 3
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::unit",
+      "line": 29,
+      "nloc": 1,
+      "complexity": 1
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::slew",
+      "line": 30,
+      "nloc": 5,
+      "complexity": 1
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::lag",
+      "line": 35,
+      "nloc": 3,
+      "complexity": 1
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::nozzle",
+      "line": 42,
+      "nloc": 9,
+      "complexity": 3
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::Engine::heat_target",
+      "line": 54,
+      "nloc": 4,
+      "complexity": 2
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::Engine::fan_target",
+      "line": 60,
+      "nloc": 4,
+      "complexity": 2
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::Engine::reset",
+      "line": 64,
+      "nloc": 7,
+      "complexity": 3
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::Engine::nozzle_target",
+      "line": 71,
+      "nloc": 5,
+      "complexity": 3
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::Engine::update",
+      "line": 76,
+      "nloc": 14,
+      "complexity": 6
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::Engine::raw_fan_rpm",
+      "line": 92,
+      "nloc": 1,
+      "complexity": 1
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::Engine::raw_core_rpm",
+      "line": 93,
+      "nloc": 1,
+      "complexity": 1
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::Hydraulics::reset",
+      "line": 103,
+      "nloc": 6,
+      "complexity": 3
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::Hydraulics::advance",
+      "line": 109,
+      "nloc": 6,
+      "complexity": 4
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::Hydraulics::update",
+      "line": 117,
+      "nloc": 21,
+      "complexity": 10
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::Hydraulics::advance_loaded",
+      "line": 144,
+      "nloc": 7,
+      "complexity": 4
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::Hydraulics::left",
+      "line": 151,
+      "nloc": 1,
+      "complexity": 1
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::Hydraulics::right",
+      "line": 152,
+      "nloc": 1,
+      "complexity": 1
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::Hydraulics::shared",
+      "line": 154,
+      "nloc": 1,
+      "complexity": 1
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::Hydraulics::brakes",
+      "line": 155,
+      "nloc": 1,
+      "complexity": 1
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::installed_thrust",
+      "line": 161,
+      "nloc": 5,
+      "complexity": 1
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::relative_thrust",
+      "line": 166,
+      "nloc": 3,
+      "complexity": 2
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "function": "RaptorVehicle::normalized_brake",
+      "line": 169,
+      "nloc": 1,
+      "complexity": 1
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_on",
+      "line": 8,
+      "nloc": 4,
+      "complexity": 2
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_fault",
+      "line": 13,
+      "nloc": 4,
+      "complexity": 2
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_feed",
+      "line": 18,
+      "nloc": 4,
+      "complexity": 2
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_force_valid",
+      "line": 23,
+      "nloc": 3,
+      "complexity": 3
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_capture_wing_reference",
+      "line": 27,
+      "nloc": 6,
+      "complexity": 3
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_engine_failures",
+      "line": 37,
+      "nloc": 20,
+      "complexity": 4
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_engine_inputs",
+      "line": 58,
+      "nloc": 15,
+      "complexity": 6
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_start_engine",
+      "line": 74,
+      "nloc": 8,
+      "complexity": 4
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_stop_engine",
+      "line": 83,
+      "nloc": 6,
+      "complexity": 3
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_advance_engine",
+      "line": 90,
+      "nloc": 33,
+      "complexity": 9
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_sample_power",
+      "line": 124,
+      "nloc": 27,
+      "complexity": 11
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_sample_utility_demand",
+      "line": 154,
+      "nloc": 30,
+      "complexity": 13
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_sample_hydraulic_sources",
+      "line": 185,
+      "nloc": 23,
+      "complexity": 13
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_qualify_fuel_delivery",
+      "line": 211,
+      "nloc": 15,
+      "complexity": 5
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_reconcile_external_tanks",
+      "line": 227,
+      "nloc": 28,
+      "complexity": 9
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_tank_refill_allowed",
+      "line": 259,
+      "nloc": 12,
+      "complexity": 9
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_refuel_space",
+      "line": 272,
+      "nloc": 7,
+      "complexity": 5
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_transfer_fuel",
+      "line": 280,
+      "nloc": 25,
+      "complexity": 8
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_sample_air",
+      "line": 306,
+      "nloc": 22,
+      "complexity": 11
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_sample_environment",
+      "line": 331,
+      "nloc": 35,
+      "complexity": 10
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_configuration_command",
+      "line": 368,
+      "nloc": 7,
+      "complexity": 5
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_engine_command",
+      "line": 376,
+      "nloc": 14,
+      "complexity": 7
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_fire_command",
+      "line": 391,
+      "nloc": 10,
+      "complexity": 8
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_service_command",
+      "line": 403,
+      "nloc": 14,
+      "complexity": 8
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_maintenance_command",
+      "line": 419,
+      "nloc": 4,
+      "complexity": 3
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_parameter_command",
+      "line": 424,
+      "nloc": 13,
+      "complexity": 6
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_command",
+      "line": 438,
+      "nloc": 9,
+      "complexity": 8
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_utility_supply",
+      "line": 448,
+      "nloc": 5,
+      "complexity": 5
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_update_configuration",
+      "line": 457,
+      "nloc": 8,
+      "complexity": 2
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_status",
+      "line": 467,
+      "nloc": 3,
+      "complexity": 1
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_main_source",
+      "line": 471,
+      "nloc": 7,
+      "complexity": 7
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_publish_power",
+      "line": 479,
+      "nloc": 25,
+      "complexity": 5
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_publish_air",
+      "line": 505,
+      "nloc": 12,
+      "complexity": 2
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_publish_environment",
+      "line": 518,
+      "nloc": 21,
+      "complexity": 2
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_publish_configuration",
+      "line": 540,
+      "nloc": 46,
+      "complexity": 4
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_publish_fuel",
+      "line": 587,
+      "nloc": 26,
+      "complexity": 4
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_publish_services",
+      "line": 614,
+      "nloc": 32,
+      "complexity": 13
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_publish_left_engine_controls",
+      "line": 647,
+      "nloc": 17,
+      "complexity": 2
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_publish_right_engine_controls",
+      "line": 665,
+      "nloc": 17,
+      "complexity": 2
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_publish_engine_controls",
+      "line": 683,
+      "nloc": 5,
+      "complexity": 1
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_initialize_gear",
+      "line": 689,
+      "nloc": 8,
+      "complexity": 1
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_update_gear",
+      "line": 698,
+      "nloc": 9,
+      "complexity": 2
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_publish_gear",
+      "line": 710,
+      "nloc": 25,
+      "complexity": 9
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_gear_parameter",
+      "line": 736,
+      "nloc": 18,
+      "complexity": 6
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_publish",
+      "line": 755,
+      "nloc": 18,
+      "complexity": 2
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_publish_mass",
+      "line": 774,
+      "nloc": 12,
+      "complexity": 2
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_update_brake_energy",
+      "line": 787,
+      "nloc": 18,
+      "complexity": 2
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "function": "vehicle_repair_injected_faults",
+      "line": 806,
+      "nloc": 3,
+      "complexity": 2
+    }
+  ],
+  "over_15": []
+}

@@ -25,13 +25,15 @@ struct StoredEnergy {
     double air = 1.0;
     double start_fuel = 1.0;
     bool consume(double air_units, double fuel_units) {
-        if (air_units < 0.0 || fuel_units < 0.0 ||
+        if (!within(air, 0.0, 1.0) || !within(start_fuel, 0.0, 1.0) ||
+            !within(air_units, 0.0, 1.0) || !within(fuel_units, 0.0, 1.0) ||
             air < air_units || start_fuel < fuel_units) return false;
         air -= air_units;
         start_fuel -= fuel_units;
         return true;
     }
     void recharge(double dt, bool compressor_available, bool fuel_available) {
+        if (!within(dt, 0.0, 1.0) || dt == 0.0) return;
         if (compressor_available) air = slew(air, 1.0, 1.0 / 180.0, dt);
         if (fuel_available) start_fuel = slew(start_fuel, 1.0, 1.0 / 120.0, dt);
     }
@@ -148,6 +150,7 @@ struct Power {
     }
     void update(double dt, double left_core, double right_core, bool ground,
                 bool fuel_available, const PowerFaults& faults, StoredEnergy& ses) {
+        if (!within(dt, 0.0, 1.0) || dt == 0.0) return;
         update_generators(left_core, right_core, ground, faults);
         advance_apu(dt, ground, fuel_available, faults, ses);
         main = main || (apu_running && ground);

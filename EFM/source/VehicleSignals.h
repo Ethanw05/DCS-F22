@@ -64,7 +64,16 @@ enum class Signal : std::size_t {
     GroundClearance, SurfaceValid, WheelZeroCompression, WheelOneCompression,
     WheelTwoCompression, WheelZeroReaction, WheelOneReaction, WheelTwoReaction,
     WheelZeroAge, WheelOneAge, WheelTwoAge, Invulnerable, DamageCallbacks,
-    LastDamageCell, LastDamageIntegrity, Destroyed, Count
+    LastDamageCell, LastDamageIntegrity, Destroyed,
+    GearSchema, GearHostEffectsQualified, GearNoseValid, GearNosePosition,
+    GearNoseDoorValid, GearNoseDoorPosition, GearNoseIntegrity, GearNoseUpLocked,
+    GearNoseDownLocked, GearLeftValid, GearLeftPosition, GearLeftDoorValid,
+    GearLeftDoorPosition, GearLeftIntegrity, GearLeftUpLocked, GearLeftDownLocked,
+    GearRightValid, GearRightPosition, GearRightDoorValid, GearRightDoorPosition,
+    GearRightIntegrity, GearRightUpLocked, GearRightDownLocked, GearNoseLamp,
+    GearLeftLamp, GearRightLamp, CabinValid, OxygenEffectQualified,
+    CanopyEffectQualified,
+    Count
 };
 
 inline constexpr std::array<const char*, static_cast<std::size_t>(Signal::Count)> signal_names = {
@@ -135,7 +144,17 @@ inline constexpr std::array<const char*, static_cast<std::size_t>(Signal::Count)
     "EFM_WHEEL_0_REACTION_N", "EFM_WHEEL_1_REACTION_N", "EFM_WHEEL_2_REACTION_N",
     "EFM_WHEEL_0_FEEDBACK_AGE_S", "EFM_WHEEL_1_FEEDBACK_AGE_S", "EFM_WHEEL_2_FEEDBACK_AGE_S",
     "EFM_INVULNERABLE", "EFM_DAMAGE_CALLBACKS", "EFM_LAST_DAMAGE_CELL",
-    "EFM_LAST_DAMAGE_INTEGRITY", "EFM_DESTROYED"
+    "EFM_LAST_DAMAGE_INTEGRITY", "EFM_DESTROYED",
+    "EFM_GEAR_SCHEMA", "EFM_GEAR_HOST_EFFECTS_QUALIFIED", "EFM_GEAR_NOSE_VALID",
+    "EFM_GEAR_NOSE_POSITION", "EFM_GEAR_NOSE_DOOR_VALID", "EFM_GEAR_NOSE_DOOR_POSITION",
+    "EFM_GEAR_NOSE_INTEGRITY", "EFM_GEAR_NOSE_UP_LOCKED", "EFM_GEAR_NOSE_DOWN_LOCKED",
+    "EFM_GEAR_LEFT_VALID", "EFM_GEAR_LEFT_POSITION", "EFM_GEAR_LEFT_DOOR_VALID",
+    "EFM_GEAR_LEFT_DOOR_POSITION", "EFM_GEAR_LEFT_INTEGRITY", "EFM_GEAR_LEFT_UP_LOCKED",
+    "EFM_GEAR_LEFT_DOWN_LOCKED", "EFM_GEAR_RIGHT_VALID", "EFM_GEAR_RIGHT_POSITION",
+    "EFM_GEAR_RIGHT_DOOR_VALID", "EFM_GEAR_RIGHT_DOOR_POSITION", "EFM_GEAR_RIGHT_INTEGRITY",
+    "EFM_GEAR_RIGHT_UP_LOCKED", "EFM_GEAR_RIGHT_DOWN_LOCKED", "N_GEAR_LIGHT",
+    "L_GEAR_LIGHT", "R_GEAR_LIGHT", "EFM_CABIN_VALID",
+    "EFM_OXYGEN_EFFECT_QUALIFIED", "EFM_CANOPY_EFFECT_QUALIFIED"
 };
 static_assert([] {
     for (const auto* name : signal_names) if (name == nullptr) return false;

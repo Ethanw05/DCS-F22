@@ -15,3 +15,8 @@ Extracted a pure C++ `RaptorAero::VortexLiftCorrection(alpha_degrees)` into `EFM
 `tests/test_high_alpha.cpp` exercises the **same function used by `RAPTOR.cpp`**, sweep −180° to +180° at 0.01° resolution, symmetry and bounds, peak and endpoint values, small perturbations across 15°,20°,60°,65°. Windows CI now runs `ctest --test-dir out/build/x64-release -C Release --output-on-failure` after EFM build, independent of DCS runtime.
 
 **Limits**: `drag_direction` still has an unrelated discontinuity at ±100° angle of attack; body-axis/relative-flow derivation is not verified, so it is not altered on an unsupported guess. Other stabilizer moment terms remain artificial and uncalibrated. Need DCS force telemetry, high-alpha recovery and full flight-envelope validation before judging handling improvements.
+
+
+## Current-code correction — 28 October 2026
+
+The earlier Limits paragraph is historical. Current RAPTOR.cpp applies drag opposite the actual body-relative airflow and no longer uses a scalar drag_direction flip at plus/minus100degrees. The rebuilt actual-DLL airborne wind-translation case verifies matched force/moment invariance; the high-alpha suite verifies endpoint continuity only. Neither establishes aircraft handling, gravity convention, native ground effect/store drag/inertia ownership or a calibrated flight envelope. Original research and measurements above are retained unchanged.

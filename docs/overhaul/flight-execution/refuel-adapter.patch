@@ -1,0 +1,88 @@
+--- a/Cockpit/Scripts/Systems/Electrical_System.lua
++++ b/Cockpit/Scripts/Systems/Electrical_System.lua
+@@ -24,6 +24,8 @@
+
+ local update_time_step = 0.01
+ make_default_activity(update_time_step)
++local service = dofile(LockOn_Options.script_path.."Systems/Vehicle_Service_Adapter.lua").new()
++local decode = dofile(LockOn_Options.script_path.."Systems/Input_Value.lua")
+
+ -- Parameters
+ local parameters = {
+@@ -69,9 +71,17 @@
+ local light_state       = 0
+ local form_knob         = 0
+ local aar_knob          = 0
++local aar_syncing       = false
++
++local function sync_aar_switch()
++    aar_syncing = true
++    dev:performClickableAction(AAR_SWITCH, aar_state, false)
++    aar_syncing = false
++end
+
+ ------------------------------------------------------------------FUNCTION-POST-INIT---------------------------------------------------------------------------------------------------
+ function post_initialize()
++    service:select(0)
+     aar_state        = 0
+     light_state      = 0
+     form_knob        = 0.5
+@@ -81,17 +91,27 @@
+     parameters.FORM_KNOB:set(form_knob)
+     parameters.AAR_KNOB:set(aar_knob)
+     parameters.AAR_READY:set(0)
+-    dev:performClickableAction(AAR_SWITCH, aar_state, false)
++    sync_aar_switch()
+     dev:performClickableAction(AAR_LIGHT, aar_knob, false)
+     dev:performClickableAction(FORM_LIGHT, form_knob, false)
+ end
+
+ ------------------------------------------------------------------FUNCTION-SETCOMMAND---------------------------------------------------------------------------------------------------
+ function SetCommand(command, value)
++    if type(value) ~= "number" or value ~= value or math.abs(value) == math.huge then return end
++    if command == AAR_SWITCH and aar_syncing then return end
+     -- AAR Switch
+     if command == AAR_SWITCH or command == 10015 or command == 10016 then
+-        local next_state = 1 - aar_state
+-        if command == AAR_SWITCH then next_state = value >= 0.5 and 1 or 0 end
++        if command == AAR_SWITCH then
++            local selected = decode(value, devices.ELECTRICAL_SYSTEM)
++            if selected ~= 0 and selected ~= 1 then return end
++            service:select(selected)
++        elseif command == 10015 then
++            service:momentary(value)
++        elseif value == 1 then
++            service:select(1 - aar_state)
++        end
++        local next_state = service.selected
+         if next_state ~= aar_state then
+             aar_state = next_state
+             dispatch_action(nil, PlaneAirRefuel)
+@@ -99,7 +119,7 @@
+         -- Updating the switch invokes SetCommand again in DCS. Only keyboard
+         -- commands need to synchronize the clickable animation.
+         if command ~= AAR_SWITCH then
+-            dev:performClickableAction(AAR_SWITCH, aar_state, false)
++            sync_aar_switch()
+         end
+         parameters.AAR:set(aar_state)
+     end
+@@ -146,12 +166,17 @@
+
+ ------------------------------------------------------------------FUNCTION-UPDATE---------------------------------------------------------------------------------------------------
+ function update()
++    service:update()
++    if aar_state ~= service.selected then
++        aar_state = service.selected
++        sync_aar_switch()
++    end
+     parameters.AAR:set(aar_state)
+     parameters.TAXI_SWITCH:set(get_cockpit_draw_argument_value(709))
+     parameters.NAV_LIGHT_SWITCH:set(get_cockpit_draw_argument_value(715))
+     parameters.FORM_KNOB:set(get_cockpit_draw_argument_value(714))
+     parameters.AAR_KNOB:set(get_cockpit_draw_argument_value(713))
+-    parameters.AAR_READY:set(get_aircraft_draw_argument_value(22))
++    parameters.AAR_READY:set(service.ready)
+ end
+
+ need_to_be_closed = false

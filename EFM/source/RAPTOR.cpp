@@ -88,7 +88,8 @@ static RaptorAP::Frame ap_frame() {
     f.powered=RAPTOR::left_engine_state==RAPTOR::RUNNING||RAPTOR::right_engine_state==RAPTOR::RUNNING;
     f.healthy=!RAPTOR::is_destroyed&&RAPTOR::tail_integrity>.5&&RAPTOR::left_wing_integrity>.5&&RAPTOR::right_wing_integrity>.5;
     f.healthy = f.healthy && vehicle.air_sensor.measured.valid &&
-        vehicle.air_sensor.health == RaptorAirData::Health::Healthy;
+        vehicle.air_sensor.health == RaptorAirData::Health::Healthy &&
+        vehicle_force_valid() && actuator_available > 0.0;
     cockpit_manager.navigationFrame(f);
     return f;
 }
@@ -307,9 +308,8 @@ static void simulate_vehicle_step(double dt) {
     RAPTOR::manual_trim_applied=trim_control.pitch_busy();
 
 
-    RAPTOR::gear_pos = limit(actuator_timed(RAPTOR::gear_pos, RAPTOR::gear_switch, -0.25, 0.25,
-        dt * (vehicle.configuration.alternate_gear ? 1.0 : vehicle_utility_supply())), 0, 1);
-    vehicle.ground_contact.update(RAPTOR::gear_pos, RAPTOR::altitude_AGL,
+    vehicle_update_gear(dt);
+    vehicle.ground_contact.update(vehicle.configuration.gear.positions(), RAPTOR::altitude_AGL,
         vehicle.surface_valid && vehicle.atmosphere_valid, vehicle.time_s);
     // Keep the prior internal interlock on unknown near-ground feedback;
     // consumers see GROUND_VALID=0, never a fabricated contact measurement.
@@ -362,13 +362,6 @@ static void simulate_vehicle_step(double dt) {
         0.3 * vehicle.configuration.cruise_brake_mix(RAPTOR::airbrake_pos));
     RAPTOR::flaps_pos = limit(actuator_timed(RAPTOR::flaps_pos, flap_target,
         -1.0, .8333333333, dt * actuator_available), 0, 1);
-
-    if (RAPTOR::g >= 6) {
-        RAPTOR::g_assist_pos = limit(actuator_timed(RAPTOR::g_assist_pos, 1.0, -1.3333333333, 1.1666666667, dt), 0.0, 1.0);
-    }
-    else {
-        RAPTOR::g_assist_pos = limit(actuator_timed(RAPTOR::g_assist_pos, 0.0, -1.1666666667, 1.0, dt), 0.0, 1.0);
-    }
 
     double CyAlpha_ = lerp(FM_DATA::mach_table.data(), FM_DATA::Cya, FM_DATA::mach_table.size(), RAPTOR::mach);
     double CyMax_ = lerp(FM_DATA::mach_table.data(), FM_DATA::CyMax, FM_DATA::mach_table.size(), RAPTOR::mach);
@@ -435,10 +428,8 @@ static void simulate_vehicle_step(double dt) {
     add_local_force(tail_force, RAPTOR::tail_pos);
 
     ap_output=autopilot.update(ap_frame(),dt);
-    const double fbw_scale = 1.0;
     const double max_rate = 40.0;
     double beta_gain = (vehicle.control_air.mach > 0.9) ? std::clamp(0.1 * (vehicle.control_air.mach - 0.9) / 0.3, 0.0, 0.1) : 0.0;
-    double pitch_cmd_source = RAPTOR::pitch_analog ? RAPTOR::pitch_input : RAPTOR::smoothed_pitch_discrete;
     double roll_cmd_source = RAPTOR::roll_analog ? RAPTOR::roll_input : RAPTOR::smoothed_roll_discrete;
     double yaw_cmd_source = RAPTOR::yaw_analog ? RAPTOR::yaw_input : RAPTOR::smoothed_yaw_discrete;
 
@@ -464,7 +455,6 @@ static void simulate_vehicle_step(double dt) {
 
         double pitch_sensitivity = 1.0;
         double tv_sensitivity = 1.2;
-        double max_deflection_rate = 2.27;
 
         if (vehicle.control_air.mach >= 0.67) {
             double mach_diff = vehicle.control_air.mach - 0.67;
@@ -1141,9 +1131,9 @@ void ed_fm_set_fc3_cockpit_draw_args_v2(float* data, size_t size) {
 void ed_fm_set_draw_args_v2(float* data, size_t size) {
     // Highest aircraft draw-argument index used here is 623; reject short buffers.
     if (data == nullptr || size <= 623) return;
-    data[0] = (float)limit(RAPTOR::gear_pos, 0, 1);
-    data[3] = (float)limit(RAPTOR::gear_pos, 0, 1);
-    data[5] = (float)limit(RAPTOR::gear_pos, 0, 1);
+    data[0] = static_cast<float>(vehicle.configuration.gear.legs[0].position);
+    data[3] = static_cast<float>(vehicle.configuration.gear.legs[2].position);
+    data[5] = static_cast<float>(vehicle.configuration.gear.legs[1].position);
     data[15] = (float)limit(RAPTOR::right_elevon_angle / -RAPTOR::rad(18.0), -1.0, 1.0);
     data[16] = (float)limit(RAPTOR::left_elevon_angle / -RAPTOR::rad(18.0), -1.0, 1.0);
     // Fixed physical scale: schedule changes cannot teleport the drawing.
@@ -1274,6 +1264,8 @@ void ed_fm_configure(const char* cfg_path) {
 
 double ed_fm_get_param(unsigned index) {
     if (!vehicle.alive) return 0.0;
+    double gear_value = 0.0;
+    if (vehicle_gear_parameter(index, gear_value)) return gear_value;
     switch (index) {
     case ED_FM_SUSPENSION_0_WHEEL_YAW: {
         if (!RAPTOR::on_ground || RAPTOR::gear_pos < 0.99) return 0.0;
@@ -1292,16 +1284,13 @@ double ed_fm_get_param(unsigned index) {
     case ED_FM_FC3_THROTTLE_RIGHT: return RAPTOR::right_throttle_output;
     case ED_FM_FUEL_INTERNAL_FUEL: return RAPTOR::internal_fuel;
     case ED_FM_FUEL_TOTAL_FUEL: return RAPTOR::total_fuel;
-    case ED_FM_OXYGEN_SUPPLY: return 101000.0; // retain ABI baseline pending host response test
+    case ED_FM_OXYGEN_SUPPLY: return RaptorVehicle::oxygen_sdk_baseline_pa;
     case ED_FM_COCKPIT_PRESSURIZATION_OVER_EXTERNAL:
-        return vehicle_on(VehicleSignal::CanopyValid) && vehicle.environment.valid ?
+        return vehicle.environment.cabin_valid ?
             vehicle.environment.cabin_overpressure_pa : 0.0;
+    case ED_FM_FC3_AR_DOOR_PROBE_HANDLE_POS: return vehicle.configuration.refuel_request ? 1.0 : 0.0;
     case ED_FM_INTERRUPT_REFUEL: return vehicle.configuration.refuel_disconnect ? 1.0 : 0.0;
     case ED_FM_FLOW_VELOCITY: return 10.0;
-
-    case ED_FM_SUSPENSION_0_GEAR_POST_STATE:
-    case ED_FM_SUSPENSION_1_GEAR_POST_STATE:
-    case ED_FM_SUSPENSION_2_GEAR_POST_STATE: return RAPTOR::gear_pos;
 
     case ED_FM_ENGINE_0_RPM: return vehicle.power.apu_spool * 50000.0; // estimated shaft-speed anchor
     case ED_FM_ENGINE_0_RELATED_RPM: return vehicle.power.apu_spool;
@@ -1342,13 +1331,11 @@ double ed_fm_get_param(unsigned index) {
     case ED_FM_STICK_FORCE_FACTOR_PITCH: return 1.0;
     case ED_FM_STICK_FORCE_CENTRAL_ROLL: return 0.0;
     case ED_FM_STICK_FORCE_FACTOR_ROLL: return 1.0;
-    case ED_FM_CAN_ACCEPT_FUEL_FROM_TANKER: {
-        double space = std::max(0.0, RAPTOR::max_internal_fuel - RAPTOR::internal_fuel);
-        for (const auto& [station, quantity] : RAPTOR::external_fuel_stations)
-            if (vehicle_tank_refill_allowed(station))
-                space += std::max(0.0, RaptorVehicle::external_tank_capacity_kg - quantity);
-        return space > .01 ? 1.0 : 0.0;
-    }
+    case ED_FM_CAN_ACCEPT_FUEL_FROM_TANKER:
+        return vehicle_force_valid() && vehicle.ground_contact.valid &&
+            !RAPTOR::on_ground && vehicle.power.essential &&
+            vehicle.configuration.refuel_door >= .99 && !vehicle.configuration.refuel_disconnect &&
+            vehicle_refuel_space() ? 1.0 : 0.0;
     }
     return 0;
 }
@@ -1481,8 +1468,7 @@ void ed_fm_cold_start() {
     reset_fm_state();
     RAPTOR::on_ground = true;
     RAPTOR::sim_initialised = false;
-    RAPTOR::gear_switch = true;
-    RAPTOR::gear_pos = 1;
+    vehicle_initialize_gear(true);
     RAPTOR::airbrake_switch = false;
     RAPTOR::left_engine_switch = false;
     RAPTOR::right_engine_switch = false;
@@ -1492,7 +1478,6 @@ void ed_fm_cold_start() {
     RAPTOR::left_throttle_output = RAPTOR::right_throttle_output = 0.0;
     RAPTOR::left_engine_power_readout = RAPTOR::right_engine_power_readout = 0.0;
     RAPTOR::left_ab_timer = RAPTOR::right_ab_timer = 0.0;
-    RAPTOR::left_engine_start_timer = RAPTOR::right_engine_start_timer = 0.0;
     RAPTOR::left_engine_phase = 0.0;
     RAPTOR::right_engine_phase = 0.0;
     RAPTOR::total_fuel = RAPTOR::internal_fuel + RAPTOR::external_fuel;
@@ -1509,8 +1494,7 @@ void ed_fm_hot_start() {
     vehicle.reset(true);
     reset_fm_state();
     RAPTOR::on_ground = true;
-    RAPTOR::gear_switch = true;
-    RAPTOR::gear_pos = 1;
+    vehicle_initialize_gear(true);
     RAPTOR::flaps_pos = 0;
     RAPTOR::airbrake_switch = false;
     RAPTOR::left_engine_switch = RAPTOR::right_engine_switch = true;
@@ -1522,7 +1506,6 @@ void ed_fm_hot_start() {
     RAPTOR::left_engine_phase = 0.0;
     RAPTOR::right_engine_phase = 0.0;
     RAPTOR::left_ab_timer = RAPTOR::right_ab_timer = 0.0;
-    RAPTOR::left_engine_start_timer = RAPTOR::right_engine_start_timer = 0.0;
     RAPTOR::total_fuel = RAPTOR::internal_fuel + RAPTOR::external_fuel;
     RAPTOR::left_engine_integrity = RAPTOR::right_engine_integrity = 1.0;
     RAPTOR::velocity_world = Vec3(0, 0, 0);
@@ -1543,8 +1526,7 @@ void ed_fm_hot_start_in_air() {
     vehicle.reset(true, 0.70);
     reset_fm_state();
     RAPTOR::on_ground = false;
-    RAPTOR::gear_switch = false;
-    RAPTOR::gear_pos = 0;
+    vehicle_initialize_gear(false);
     RAPTOR::flaps_pos = 0;
     RAPTOR::airbrake_switch = false;
     RAPTOR::left_engine_switch = RAPTOR::right_engine_switch = true;
@@ -1554,7 +1536,6 @@ void ed_fm_hot_start_in_air() {
     RAPTOR::right_throttle_input = RAPTOR::right_throttle_output = 0.70;
     RAPTOR::left_engine_power_readout = RAPTOR::right_engine_power_readout = 0.70;
     RAPTOR::left_ab_timer = RAPTOR::right_ab_timer = 0.0;
-    RAPTOR::left_engine_start_timer = RAPTOR::right_engine_start_timer = 0.0;
     RAPTOR::left_engine_phase = 0.0;
     RAPTOR::right_engine_phase = 0.0;
     RAPTOR::total_fuel = RAPTOR::internal_fuel + RAPTOR::external_fuel;
@@ -1770,6 +1751,10 @@ void CockpitManager::invalidatePhysical() {
         VehicleSignal::ApuAir, VehicleSignal::MissionPowerAvailable,
         VehicleSignal::UtilityAvailable, VehicleSignal::ConditionedAir,
         VehicleSignal::Obogs, VehicleSignal::OxygenBackup,
+        VehicleSignal::GearSchema, VehicleSignal::GearNoseValid,
+        VehicleSignal::GearLeftValid, VehicleSignal::GearRightValid,
+        VehicleSignal::GearNoseLamp, VehicleSignal::GearLeftLamp, VehicleSignal::GearRightLamp,
+        VehicleSignal::CabinValid,
         VehicleSignal::FormationIntensity, VehicleSignal::RefuelIntensity};
     for (const auto signal : signals) vehicle_bus.write(signal, 0.0);
     constexpr const char* legacy[] = {
@@ -1929,7 +1914,6 @@ void CockpitManager::update(double dt) {
     // EFM is the authoritative source; no fabricated 'full internal' subtraction.
     param_api_.setParamNumber(param_handles_["EFM_INTERNAL_FUEL_KG"], RAPTOR::internal_fuel);
     param_api_.setParamNumber(param_handles_["EFM_EXTERNAL_FUEL_KG"], RAPTOR::external_fuel);
-    updateGearLights(dt);
     updateTaxiLandingLights(dt);
     updateAARLight(dt);
     updateFormationLights(dt);
@@ -1983,21 +1967,6 @@ double CockpitManager::getParameter(const std::string& name, double fallback_val
         return fallback_value;
     }
     return result;
-}
-
-void CockpitManager::updateGearLights(double dt) {
-    double battery_power = getParameter("BATTERY_POWER");
-    double nose_gear = RAPTOR::gear_pos;
-    double right_gear = RAPTOR::gear_pos;
-    double left_gear = RAPTOR::gear_pos;
-
-    double nose_gear_light = (nose_gear >= 1.0 && battery_power >= 1.0) ? 1.0 : 0.0;
-    double right_gear_light = (right_gear >= 1.0 && battery_power >= 1.0) ? 1.0 : 0.0;
-    double left_gear_light = (left_gear >= 1.0 && battery_power >= 1.0) ? 1.0 : 0.0;
-
-    param_api_.setParamNumber(param_handles_["N_GEAR_LIGHT"], nose_gear_light);
-    param_api_.setParamNumber(param_handles_["R_GEAR_LIGHT"], right_gear_light);
-    param_api_.setParamNumber(param_handles_["L_GEAR_LIGHT"], left_gear_light);
 }
 
 void CockpitManager::commitGuidanceEntry(double sequence) {
@@ -2079,7 +2048,6 @@ void CockpitManager::updateNavAntiCollisionLights(double dt) {
     }
     RAPTOR::nav_white_timer = flash_timer;
     RAPTOR::anti_collision_timer = flash_timer;
-    float flash_on = (flash_timer > 0.25) ? 1.0f : 0.0f;
 
     RAPTOR::nav_white = false;
     RAPTOR::anti_collision = false;

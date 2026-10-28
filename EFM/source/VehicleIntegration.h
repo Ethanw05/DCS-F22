@@ -193,7 +193,7 @@ void vehicle_sample_hydraulic_sources() {
     hydraulics.apu_source = vehicle.power.apu_hydraulics;
     // Provider demand is normalized 0..1; stale/missing demand adapter does not
     // invent bay/gun activity. Local moving gear/surfaces add bounded demand.
-    const double local_load = (std::abs(RAPTOR::gear_pos - (RAPTOR::gear_switch ? 1.0 : 0.0)) > 0.01 ? 0.2 : 0.0);
+    const double local_load = vehicle.configuration.gear.demand(RAPTOR::gear_switch);
     hydraulics.left_load = local_load;
     hydraulics.right_load = local_load;
     const bool maintenance = vehicle.configuration.hydraulic_maintenance_transfer &&
@@ -267,6 +267,14 @@ bool vehicle_tank_refill_allowed(int station) {
         vehicle.utility_demand.inventory_stamp_s <= callback->second) return false;
     return position->second.z < -0.1 ? vehicle.utility_demand.left_tank :
         position->second.z > 0.1 && vehicle.utility_demand.right_tank;
+}
+
+bool vehicle_refuel_space() {
+    if (vehicle.fuel.internal_kg() < RaptorVehicle::FuelSystem::capacity_kg) return true;
+    for (const auto& [station, quantity] : RAPTOR::external_fuel_stations)
+        if (vehicle_tank_refill_allowed(station) &&
+            quantity < RaptorVehicle::external_tank_capacity_kg) return true;
+    return false;
 }
 
 void vehicle_transfer_fuel(double dt) {
@@ -345,7 +353,8 @@ void vehicle_sample_environment(double dt) {
     input.defog_selected = vehicle_on(VehicleSignal::DefogRequest);
     input.backup_manual = vehicle_on(VehicleSignal::BackupManual);
     input.modern_abos = !vehicle_on(VehicleSignal::HistoricalOxygen);
-    if (vehicle_on(VehicleSignal::CanopyValid)) {
+    input.canopy_valid = vehicle_bus.read(VehicleSignal::CanopyValid) == 1.0;
+    if (input.canopy_valid) {
         input.canopy_position = vehicle_bus.read(VehicleSignal::CanopyPosition);
         input.canopy_locked = vehicle_on(VehicleSignal::CanopyLocked);
     } else {
@@ -436,15 +445,6 @@ bool vehicle_command(int command, float value) {
     return true;
 }
 
-void vehicle_update_configuration(double dt) {
-    auto& config = vehicle.configuration;
-    config.refuel_request = vehicle_on(VehicleSignal::RefuelDoorRequest);
-    config.refuel_disconnect = vehicle_on(VehicleSignal::RefuelDisconnectRequest);
-    if (!RAPTOR::on_ground) config.hydraulic_maintenance_transfer = false;
-    config.update(dt, RAPTOR::gear_pos, vehicle.left_engine.burning,
-        vehicle.right_engine.burning, actuator_available, vehicle.time_s);
-}
-
 double vehicle_utility_supply() {
     // Right logical circuit represents System 2 as a declared mapping estimate.
     // The source establishes normal utilities vs ground maintenance transfer,
@@ -452,6 +452,16 @@ double vehicle_utility_supply() {
     if (!vehicle.power.essential || RAPTOR::is_destroyed) return 0.0;
     return vehicle.configuration.hydraulic_maintenance_transfer && RAPTOR::on_ground ?
         hydraulics.shared() : hydraulics.right();
+}
+
+void vehicle_update_configuration(double dt) {
+    auto& config = vehicle.configuration;
+    config.refuel_request = vehicle_bus.read(VehicleSignal::RefuelDoorRequest) == 1.0;
+    // Missing or malformed disconnect consent must stop native refueling.
+    config.refuel_disconnect = vehicle_bus.read(VehicleSignal::RefuelDisconnectRequest) != 0.0;
+    if (!RAPTOR::on_ground) config.hydraulic_maintenance_transfer = false;
+    config.update(dt, RAPTOR::gear_pos, vehicle.left_engine.burning,
+        vehicle.right_engine.burning, vehicle_utility_supply(), vehicle.time_s);
 }
 
 double vehicle_status(bool available) {
@@ -511,6 +521,9 @@ void vehicle_publish_environment() {
         {VehicleSignal::CabinPressure, environment.cabin_absolute_pa},
         {VehicleSignal::CabinOverpressure, environment.cabin_overpressure_pa},
         {VehicleSignal::EnvironmentValid, vehicle_status(environment.valid)},
+        {VehicleSignal::CabinValid, vehicle_status(environment.cabin_valid)},
+        {VehicleSignal::OxygenEffectQualified, vehicle_status(RaptorVehicle::oxygen_effect_qualified)},
+        {VehicleSignal::CanopyEffectQualified, vehicle_status(RaptorVehicle::canopy_effect_qualified)},
         {VehicleSignal::EquipmentTemperature, environment.equipment_c},
         {VehicleSignal::CoolantTemperature, environment.coolant_c},
         {VehicleSignal::FuelTemperature, environment.fuel_sink_c},
@@ -530,8 +543,6 @@ void vehicle_publish_configuration() {
     const auto age = [](const RaptorVehicle::GroundContact::Wheel& wheel) {
         return wheel.stamp_s < 0.0 ? -1.0 : vehicle.time_s - wheel.stamp_s;
     };
-    const bool gear_damaged = RAPTOR::element_integrity[8] <= 0.5 ||
-        RAPTOR::element_integrity[15] <= 0.5 || RAPTOR::element_integrity[16] <= 0.5;
     const std::pair<VehicleSignal, double> values[] = {
         {VehicleSignal::GroundClearance, RAPTOR::altitude_AGL},
         {VehicleSignal::SurfaceValid, vehicle_status(vehicle.surface_valid)},
@@ -556,10 +567,9 @@ void vehicle_publish_configuration() {
         {VehicleSignal::AirDataReversion, vehicle_status(vehicle.air_data_reversion)},
         {VehicleSignal::ControlScheduleMach, vehicle.control_air.mach},
         {VehicleSignal::ControlScheduleEas, vehicle.control_air.eas_mps},
-        {VehicleSignal::GearUnsafe, vehicle_status(gear_damaged ||
-            (RAPTOR::gear_pos > 0.001 && RAPTOR::gear_pos < 0.999))},
-        {VehicleSignal::GearDownLocked, vehicle_status(!gear_damaged && RAPTOR::gear_pos >= 0.999)},
-        {VehicleSignal::GearUpLocked, vehicle_status(RAPTOR::gear_pos <= 0.001)},
+        {VehicleSignal::GearUnsafe, vehicle_status(config.gear.unsafe())},
+        {VehicleSignal::GearDownLocked, vehicle_status(config.gear.down_locked())},
+        {VehicleSignal::GearUpLocked, vehicle_status(config.gear.up_locked())},
         {VehicleSignal::AlternateGear, vehicle_status(config.alternate_gear)},
         {VehicleSignal::HookPosition, config.hook_position},
         {VehicleSignal::SteeringSelected, vehicle_status(config.steering_selected)},
@@ -676,11 +686,78 @@ void vehicle_publish_engine_controls() {
     vehicle_bus.write(VehicleSignal::EngineControlSchema, 1.0);
 }
 
+void vehicle_initialize_gear(bool down) {
+    vehicle.configuration.gear.reset(down);
+    RAPTOR::gear_switch = down;
+    RAPTOR::gear_pos = vehicle.configuration.gear.aerodynamic_fraction();
+    vehicle_bus.write(VehicleSignal::GearNoseLamp, 0.0);
+    vehicle_bus.write(VehicleSignal::GearLeftLamp, 0.0);
+    vehicle_bus.write(VehicleSignal::GearRightLamp, 0.0);
+}
+
+void vehicle_update_gear(double dt) {
+    // Both families are registered for the corresponding leg. The native
+    // strut/structural relationship is unqualified; no extra force is added.
+    const std::array<double, 3> health = {
+        std::min(RAPTOR::element_integrity[8], RAPTOR::element_integrity[83]),
+        std::min(RAPTOR::element_integrity[15], RAPTOR::element_integrity[84]),
+        std::min(RAPTOR::element_integrity[16], RAPTOR::element_integrity[85])};
+    vehicle.configuration.gear.update(dt, RAPTOR::gear_switch,
+        vehicle.configuration.alternate_gear ? 1.0 : vehicle_utility_supply(), health);
+    RAPTOR::gear_pos = vehicle.configuration.gear.aerodynamic_fraction();
+}
+
+void vehicle_publish_gear() {
+    constexpr VehicleSignal fields[3][7] = {
+        {VehicleSignal::GearNoseValid, VehicleSignal::GearNosePosition,
+         VehicleSignal::GearNoseDoorValid, VehicleSignal::GearNoseDoorPosition,
+         VehicleSignal::GearNoseIntegrity, VehicleSignal::GearNoseUpLocked, VehicleSignal::GearNoseDownLocked},
+        {VehicleSignal::GearLeftValid, VehicleSignal::GearLeftPosition,
+         VehicleSignal::GearLeftDoorValid, VehicleSignal::GearLeftDoorPosition,
+         VehicleSignal::GearLeftIntegrity, VehicleSignal::GearLeftUpLocked, VehicleSignal::GearLeftDownLocked},
+        {VehicleSignal::GearRightValid, VehicleSignal::GearRightPosition,
+         VehicleSignal::GearRightDoorValid, VehicleSignal::GearRightDoorPosition,
+         VehicleSignal::GearRightIntegrity, VehicleSignal::GearRightUpLocked, VehicleSignal::GearRightDownLocked}};
+    constexpr VehicleSignal lamps[] = {VehicleSignal::GearNoseLamp,
+        VehicleSignal::GearLeftLamp, VehicleSignal::GearRightLamp};
+    const bool alive = vehicle.alive && !RAPTOR::is_destroyed;
+    vehicle_bus.write(VehicleSignal::GearSchema, 1.0);
+    vehicle_bus.write(VehicleSignal::GearHostEffectsQualified, 0.0);
+    for (std::size_t index = 0; index < 3; ++index) {
+        const auto& leg = vehicle.configuration.gear.legs[index];
+        const double values[] = {vehicle_status(alive && leg.valid), leg.position,
+            0.0, 0.0, leg.integrity, vehicle_status(alive && leg.up_locked()),
+            vehicle_status(alive && leg.down_locked())};
+        for (std::size_t field = 0; field < 7; ++field) vehicle_bus.write(fields[index][field], values[field]);
+        vehicle_bus.write(lamps[index], vehicle_status(alive && vehicle.power.essential && leg.down_locked()));
+    }
+}
+
+bool vehicle_gear_parameter(unsigned index, double& value) {
+    constexpr unsigned parameters[3][3] = {
+        {ED_FM_SUSPENSION_0_GEAR_POST_STATE, ED_FM_SUSPENSION_1_GEAR_POST_STATE,
+         ED_FM_SUSPENSION_2_GEAR_POST_STATE},
+        {ED_FM_SUSPENSION_0_UP_LOCK, ED_FM_SUSPENSION_1_UP_LOCK, ED_FM_SUSPENSION_2_UP_LOCK},
+        {ED_FM_SUSPENSION_0_DOWN_LOCK, ED_FM_SUSPENSION_1_DOWN_LOCK, ED_FM_SUSPENSION_2_DOWN_LOCK}};
+    for (std::size_t kind = 0; kind < 3; ++kind) {
+        for (std::size_t leg = 0; leg < 3; ++leg) {
+            if (parameters[kind][leg] != index) continue;
+            const auto& state = vehicle.configuration.gear.legs[leg];
+            if (kind == 0) value = state.position;
+            else if (kind == 1) value = vehicle_status(state.up_locked());
+            else value = vehicle_status(state.down_locked());
+            return true;
+        }
+    }
+    return false;
+}
+
 void vehicle_publish() {
     vehicle_publish_power();
     vehicle_publish_air();
     vehicle_publish_environment();
     vehicle_publish_configuration();
+    vehicle_publish_gear();
     vehicle_publish_fuel();
     vehicle_publish_services();
     vehicle_publish_engine_controls();

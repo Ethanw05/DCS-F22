@@ -3,6 +3,11 @@
 #include "VehicleSystems.h"
 
 namespace RaptorVehicle {
+// The SDK unit is known, but its physiology response is not qualified. Keep
+// the prior host baseline and publish effect qualification separately.
+inline constexpr double oxygen_sdk_baseline_pa = 101000.0;
+inline constexpr bool oxygen_effect_qualified = false;
+inline constexpr bool canopy_effect_qualified = false;
 struct EnvironmentInputs {
     double ambient_pa = 101325.0;
     double ambient_k = 288.15;
@@ -10,6 +15,7 @@ struct EnvironmentInputs {
     double internal_fuel_kg = 0.0;
     double canopy_position = 0.0; // native host position, not another actuator
     bool canopy_locked = true;
+    bool canopy_valid = false;
     bool atmosphere_valid = false; // original host provenance, not fallback range
     bool kinematics_valid = false;
     bool powered = false;
@@ -41,6 +47,7 @@ struct Environment {
     bool backup = false;
     bool thermal_fault = false;
     bool valid = false;
+    bool cabin_valid = false;
     bool primary_seen = false;
 
     void reset(bool hot) {
@@ -88,14 +95,19 @@ struct Environment {
         cabin_overpressure_pa = lag(cabin_overpressure_pa, target_pa, sealed ? 8.0 : 1.0, dt);
         cabin_absolute_pa = input.ambient_pa + cabin_overpressure_pa;
     }
+    bool backup_requested(const EnvironmentInputs& input) const {
+        return input.backup_manual || (!obogs && input.modern_abos && primary_seen);
+    }
     void update_oxygen(const EnvironmentInputs& input, double dt) {
         obogs = conditioned_air && !input.oxygen_failed;
         primary_seen = primary_seen || obogs;
         // A manual backup selection overrides primary delivery. Availability of
         // OBOGS remains a separate state; exhausted backup can revert to it.
-        backup = backup_reserve > 0.0 && (input.backup_manual ||
-            (!obogs && input.modern_abos && primary_seen));
-        if (backup) backup_reserve = std::max(0.0, backup_reserve - dt / 600.0);
+        const bool use_backup = backup_reserve > 0.0 && backup_requested(input);
+        if (use_backup) backup_reserve = std::max(0.0, backup_reserve - dt / 600.0);
+        // Publications describe the instantaneous endpoint, not the preceding
+        // interval. An exhausted reserve cannot remain active for another step.
+        backup = use_backup && backup_reserve > 0.0;
         // Preserve the healthy SDK pressure baseline pending an actual host test.
         // The reserve duration is an estimate, not an ABOS hardware capacity.
         oxygen_delivery_pa = obogs || backup ? 101000.0 : 0.0;
@@ -107,8 +119,9 @@ struct Environment {
         fog = lag(fog, fog_target, fog_target > fog ? 180.0 : 30.0, dt);
     }
     void update(const EnvironmentInputs& input, double dt) {
-        if (!within(dt, 0.0, 1.0)) return;
+        if (!within(dt, 0.0, 1.0) || dt == 0.0) return;
         valid = valid_inputs(input);
+        cabin_valid = valid && input.canopy_valid;
         conditioned_air = valid_air_inputs(input) && source_available(input);
         // Independent stored oxygen must survive invalid cabin/thermal inputs.
         update_oxygen(input, dt);

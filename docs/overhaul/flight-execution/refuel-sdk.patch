@@ -1,0 +1,29 @@
+--- a/EFM/source/RAPTOR.cpp
++++ b/EFM/source/RAPTOR.cpp
+@@ -1296,6 +1296,7 @@
+     case ED_FM_COCKPIT_PRESSURIZATION_OVER_EXTERNAL:
+         return vehicle_on(VehicleSignal::CanopyValid) && vehicle.environment.valid ?
+             vehicle.environment.cabin_overpressure_pa : 0.0;
++    case ED_FM_FC3_AR_DOOR_PROBE_HANDLE_POS: return vehicle.configuration.refuel_request ? 1.0 : 0.0;
+     case ED_FM_INTERRUPT_REFUEL: return vehicle.configuration.refuel_disconnect ? 1.0 : 0.0;
+     case ED_FM_FLOW_VELOCITY: return 10.0;
+
+@@ -1342,13 +1343,11 @@
+     case ED_FM_STICK_FORCE_FACTOR_PITCH: return 1.0;
+     case ED_FM_STICK_FORCE_CENTRAL_ROLL: return 0.0;
+     case ED_FM_STICK_FORCE_FACTOR_ROLL: return 1.0;
+-    case ED_FM_CAN_ACCEPT_FUEL_FROM_TANKER: {
+-        double space = std::max(0.0, RAPTOR::max_internal_fuel - RAPTOR::internal_fuel);
+-        for (const auto& [station, quantity] : RAPTOR::external_fuel_stations)
+-            if (vehicle_tank_refill_allowed(station))
+-                space += std::max(0.0, RaptorVehicle::external_tank_capacity_kg - quantity);
+-        return space > .01 ? 1.0 : 0.0;
+-    }
++    case ED_FM_CAN_ACCEPT_FUEL_FROM_TANKER:
++        return vehicle_force_valid() && vehicle.ground_contact.valid &&
++            !RAPTOR::on_ground && vehicle.power.essential &&
++            vehicle.configuration.refuel_door >= .99 && !vehicle.configuration.refuel_disconnect &&
++            vehicle_refuel_space() ? 1.0 : 0.0;
+     }
+     return 0;
+ }

@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "producer": "Configuration::gear; one EFM simulation owner",
+  "clock": "I-FLT-001 physical generation/stamp; spawn-relative seconds",
+  "legs": [
+    "NOSE",
+    "LEFT",
+    "RIGHT"
+  ],
+  "fields": {
+    "EFM_GEAR_NOSE_VALID": "numeric0/1",
+    "EFM_GEAR_NOSE_POSITION": "0..1 normalized",
+    "EFM_GEAR_NOSE_DOOR_VALID": "numeric0/1",
+    "EFM_GEAR_NOSE_DOOR_POSITION": "0..1 normalized",
+    "EFM_GEAR_NOSE_INTEGRITY": "0..1 normalized",
+    "EFM_GEAR_NOSE_UP_LOCKED": "numeric0/1",
+    "EFM_GEAR_NOSE_DOWN_LOCKED": "numeric0/1",
+    "EFM_GEAR_LEFT_VALID": "numeric0/1",
+    "EFM_GEAR_LEFT_POSITION": "0..1 normalized",
+    "EFM_GEAR_LEFT_DOOR_VALID": "numeric0/1",
+    "EFM_GEAR_LEFT_DOOR_POSITION": "0..1 normalized",
+    "EFM_GEAR_LEFT_INTEGRITY": "0..1 normalized",
+    "EFM_GEAR_LEFT_UP_LOCKED": "numeric0/1",
+    "EFM_GEAR_LEFT_DOWN_LOCKED": "numeric0/1",
+    "EFM_GEAR_RIGHT_VALID": "numeric0/1",
+    "EFM_GEAR_RIGHT_POSITION": "0..1 normalized",
+    "EFM_GEAR_RIGHT_DOOR_VALID": "numeric0/1",
+    "EFM_GEAR_RIGHT_DOOR_POSITION": "0..1 normalized",
+    "EFM_GEAR_RIGHT_INTEGRITY": "0..1 normalized",
+    "EFM_GEAR_RIGHT_UP_LOCKED": "numeric0/1",
+    "EFM_GEAR_RIGHT_DOWN_LOCKED": "numeric0/1"
+  },
+  "door_source": "Unavailable:DOOR_VALID=0; no fabricated measurement",
+  "host_effects_qualified": false,
+  "aggregate": "RAPTOR gear_pos becomes derived mean travel for aerodynamic/configuration callers; never integrated independently",
+  "damage": "Per-leg minimum structural8/15/16 and suspension83/84/85; native mapping explicitly unqualified",
+  "source_loss": "Hold achieved travel/locks; insufficient pressure prevents movement",
+  "consumers": "Per-leg SDK post/lock, draw args, lamp producer/mainpanel; aggregate HUD/AFCS uses conjunction of achieved locks"
+}
