@@ -158,13 +158,10 @@ function M:observe_movers(raw, pose, now)
 			and finite(p.vn) and finite(p.vu) and finite(p.ve) and M.fresh(now,p.stamp,6) then
 			p.age=math.max(0,now-p.stamp)
 			p.display={north=p.north,east=p.east,altitude=p.altitude}
-			-- 49F190/49F890 cache bearing and horizontal range at observation.
-			-- Search history does not extrapolate or slide with ownship motion.
-			if finite(p.az) and finite(p.range) and not self.exp_view then
-				local fraction=p.range/(self.range_nm*1852)
-				p.x=math.sin(p.az)*fraction*1.65;p.y=-.76+math.cos(p.az)*fraction*1.52
-				p.out_of_range=fraction>=1
-			else p.x,p.y=self:project(p.display,pose) end
+			-- Register the measured coordinate to the displayed image's pose.
+			-- Keep its observation time and position; search history is not a
+			-- new measurement or an extrapolated moving-target track.
+			p.x,p.y=self:project(p.display,pose)
 			p.speed=math.sqrt(p.vn*p.vn+p.ve*p.ve)*1.943844492440605
 			p.heading=math.atan2(p.ve,p.vn)
 			if not p.out_of_range and math.abs(p.x)<.825 and p.y>-.76 and p.y<.76 then self.movers[#self.movers+1]=p end
@@ -178,9 +175,9 @@ function M:mover_under_cursor(pose,now)
 	local cx,cy=self:project(p,pose)
 	local best,chosen=math.huge,nil
 	for _,r in ipairs(self.movers) do
-		local dx,dy=(r.x-cx)/.04,(r.y-cy)/.035
+		local dx,dy=(r.x-cx)/.055,(r.y-cy)/.045
 		local d=dx*dx+dy*dy
-		if math.abs(dx)<=1 and math.abs(dy)<=1 and d<best and M.fresh(now,r.stamp,2) then best,chosen=d,r end
+		if math.abs(dx)<=1 and math.abs(dy)<=1 and d<best and M.fresh(now,r.stamp,6) then best,chosen=d,r end
 	end
 	return chosen
 end

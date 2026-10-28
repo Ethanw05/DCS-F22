@@ -97,6 +97,7 @@ int main() {
     View patch=v;patch.expansion=level;patch.center_m=15000;patch.span_m=2000;
     patch.stabilized=true;patch.patch_n=15000;patch.patch_e=4000;patch.patch_u=100;
     for(double north:{0.,500.,1000.}) {
+      patch.fast=false;
       patch_aircraft.north=north;
       const auto a=antenna(patch,patch_aircraft,5);
       assert(valid(a,5));const auto lens=projection(prepare(a,5));
@@ -107,7 +108,8 @@ int main() {
       assert(std::abs(a.east+a.center_m*std::sin(bearing)-patch.patch_e)<.001);
       const auto par=parameters(a,false,true);
       assert(std::strcmp(par[7].text,level==1?"EXP_F16":level==2?"DBS1_F16":"DBS2_F16")==0);
-      patch.fast=true;assert(parameters(patch,false,false)[2].number==.5f);
+      assert(par[2].number==2.f);
+      patch.fast=true;assert(parameters(patch,false,false)[2].number==1.f);
     }
   }
   v.mode=1;v.range_nm=20;

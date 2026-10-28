@@ -217,7 +217,11 @@ inline std::array<Param,18> parameters(const View &v, bool erase, bool preset) {
   std::array<Param,18> p{};
   p[0].number = static_cast<float>(v.scan_direction);
   p[1].number = static_cast<float>(v.scan_fraction);
-  p[2].number = v.fast&&v.expansion>0?.5f:1.f; // Azimuth blur multiplier; real beam blur is in the core preset.
+  // enlight::AGRadar::blurPass multiplies preset resolution by Param2, then
+  // scales the DBS blur angle by min(19/resolution,1). This controls resolving
+  // detail, not texture size. The factor2 is a mod estimate, not APG-77 data.
+  const float detail = v.expansion>0 ? 2.f : 1.f;
+  p[2].number = detail*(v.fast&&v.expansion>0?.5f:1.f);
   p[3].number = .5f;
   p[4].number = static_cast<float>(v.gain);
   p[6].bits = erase ? 1 : 0;

@@ -213,7 +213,7 @@ for i=1,60 do
 end
 local unqualified = gate("F22_AG_RDR_MAP_UNAVAILABLE", "F22_AG_VIDEO_GEOMETRY_QUALIFIED", 0, map_mode)
 status("VIDEO",unqualified)
-group("F22_AG_GMT_MODE",{"F22_AG_MODE"},{{"parameter_in_range",0,1.9,5.1}},live)
+group("F22_AG_GMT_MODE",{"F22_AG_MODE"},{{"parameter_in_range",0,.9,5.1}},live)
 local gmt="F22_AG_GMT_MODE"
 
 
@@ -223,12 +223,12 @@ for i=1,64 do
 	group(name,{p.."X",p.."Y",p.."VALID",p.."ALPHA"},{{"move_left_right_using_parameter",0,1},
 		{"move_up_down_using_parameter",1,1},{"parameter_in_range",2,.9,1.1},{"opacity_using_parameter",3}},gmt)
 	local brick=CreateElement("ceMeshPoly");brick.material=colors.green;brick.primitivetype="triangles"
-	brick.vertices={{-.012*content_x,-.005*content_y},{.012*content_x,-.005*content_y},{.012*content_x,.005*content_y},{-.012*content_x,.005*content_y}}
+	brick.vertices={{-.024*content_x,-.010*content_y},{.024*content_x,-.010*content_y},{.024*content_x,.010*content_y},{-.024*content_x,.010*content_y}}
 	brick.indices={0,1,2,0,2,3};add(brick,name)
 end
 group("F22_AG_GMT_SELECTED",{"F22_AG_TRACK_X","F22_AG_TRACK_Y","F22_AG_TRACK_VALID"},
 	{{"move_left_right_using_parameter",0,1},{"move_up_down_using_parameter",1,1},{"parameter_in_range",2,.9,1.1}},live)
-for i=1,4 do local y=2*(i-2.5)/840*1.52;line(-15/840*1.65,y,15/840*1.65,y,"white","F22_AG_GMT_SELECTED")end
+for i=1,4 do local y=4*(i-2.5)/840*1.52;line(-22/840*1.65,y,22/840*1.65,y,"white","F22_AG_GMT_SELECTED")end
 group("F22_AG_GMT_MOTION",{"F22_AG_TRACK_MOTION_VALID"},{{"parameter_in_range",0,.5,1.5}},"F22_AG_GMT_SELECTED")
 group("F22_AG_GMT_VECTOR",{"F22_AG_TRACK_VECTOR_ROT"},{{"rotate_using_parameter",0,1}},"F22_AG_GMT_MOTION")
 line(0,0,0,20/840*1.52,"white","F22_AG_GMT_VECTOR")
@@ -243,10 +243,10 @@ group("F22_AG_RDR_TARGET", { "F22_AG_MAP_TARGET_X", "F22_AG_MAP_TARGET_Y", "F22_
 	{ "parameter_in_range", 2, 0.9, 1.1 },
 }, live)
 local target = "F22_AG_RDR_TARGET"
-line(-.04,0,-.012,0,"white",target)
-line(.012,0,.04,0,"white",target)
-line(0,-.04,0,-.012,"white",target)
-line(0,.012,0,.04,"white",target)
+line(-.055,0,-.018,0,"white",target)
+line(.018,0,.055,0,"white",target)
+line(0,-.055,0,-.018,"white",target)
+line(0,.018,0,.055,"white",target)
 -- Same lower-corner tactical-area cut as Hornet RDR_AG.lua (43px/218px
 -- on an840px plot), adapted to this display's physical aspect ratio.
 for _,sign in ipairs({-1,1})do

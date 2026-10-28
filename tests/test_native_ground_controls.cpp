@@ -12,7 +12,7 @@ bool read(const void*h,double&v,bool){v=static_cast<const Entry*>(h)->value;retu
 double clock_now(){return now;}
 void* no_aircraft(){return nullptr;}
 struct NativeObject {void **table;};
-void *la_table[41]{},*own_table[2]{},*land_table[14]{};
+void *la_table[41]{},*own_table[39]{},*land_table[14]{};
 NativeObject la{la_table},own{own_table},land{land_table};void *land_pointer=&land;
 void *with_aircraft(){return &la;}
 void *get_own(void*){return &own;}
@@ -50,21 +50,22 @@ int scenarios(){
  // Holding the pixels must not prevent the production sampler from running.
  now+=.1;update(p);sample_test();CHECK(last_query==now);
  values["F22_AG_MODE"].value=1;now+=.1;update(p);
- CHECK(!controls.active&&!controls.search);
+ CHECK(controls.active&&controls.search&&controls.map);
  values["F22_AG_RADAR_RANGE_NM"].value=40;update(p);
  AesaRadar::Pose map_pose;map_pose.position.u=3000;
  const auto map_request=pointing(now,map_pose);
  CHECK(map_request.valid&&!map_request.point&&map_request.range_m==40*1852);
 
  values["F22_AG_TRACK_REQUEST_ACTIVE"].value=1;now+=.1;update(p);
- CHECK(controls.active&&!controls.search&&controls.request);
+ CHECK(controls.active&&controls.search&&controls.request);
  sample_test();CHECK(last_query==now);
  values["F22_AG_SILENT"].value=1;now+=.1;update(p);CHECK(!controls.active);
  values["F22_AG_ACTIVE"].value=1;now+=.1;update(p);CHECK(controls.active);
  values["F22_AG_MODE"].value=4;now+=.1;update(p);CHECK(controls.sea&&controls.search);
  values["F22_AG_MODE"].value=6;values["F22_AG_TRACK_REQUEST_ACTIVE"].value=0;now+=.1;update(p);CHECK(!controls.search&&!controls.active);
  la_table[40]=reinterpret_cast<void*>(&get_own);land_table[13]=reinterpret_cast<void*>(&ray);
- api.aircraft=&with_aircraft;api.position=&basis;api.point=&point;api.velocity=&velocity;api.land=&land_pointer;
+ own_table[38]=reinterpret_cast<void*>(&velocity);
+ api.aircraft=&with_aircraft;api.position=&basis;api.point=&point;api.land=&land_pointer;
  values["F22_AG_MODE"].value=7;values["F22_AG_RADAR_RANGE_NM"].value=5;
  now+=.1;update(p);sample_test();update(p);
  CHECK(values["F22_AG_AGR_VALID"].value==0);
@@ -104,6 +105,10 @@ int scenarios(){
  requested=pointing(now,aircraft_pose);
  CHECK(requested.point&&requested.routine);
  CHECK(std::abs(requested.direction.n/requested.direction.u+10.02)<1e-8);
+ retained.filter_valid=false;retained.velocity_valid=false;retained.stamp=now-.8;
+ output.contacts.clear();output.contacts.push(retained);
+ requested=pointing(now,aircraft_pose);
+ CHECK(requested.point&&requested.routine); // Confirm the first hit before the full raster returns.
  controls=previous_controls;
 
  // A malformed/old/off-direction grant cannot manufacture a fresh range look.

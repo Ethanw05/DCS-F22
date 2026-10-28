@@ -84,6 +84,31 @@ function M:cursor_point(now)
 		return self.model:point(self.pose,self.terrain)
 	end
 end
+function M:begin_track(candidate, now)
+	local expected = self.preview_kind == "acquire_begin" or self.preview_kind == "designate_begin"
+	if self.controls.silent or self.get("F22_AG_GMT_READY") < .5 or
+		(self.preview_kind and not expected) then return end
+	local hit = self.model:mover_under_cursor(self.pose, now)
+	if hit then candidate = hit.display end
+	self:cancel_preview()
+	self:hold_image(false)
+	-- Acquisition is a coordinate cue, never a truth-ID selection. The native
+	-- sensor must illuminate and measure an object before declaring a track.
+	-- Keep the expanded patch while the native acquisition completes.
+	self:cancel_track()
+	if self.get("F22_AG_DESIGNATION_VALID") > .5 then
+		self.model.sequence = self.model.sequence + 1
+		self.put("F22_AG_DESIGNATION_VALID", 0)
+		self.put("F22_AG_DESIGNATION_SEQUENCE", self.model.sequence)
+	end
+	self.track_requested = true
+	self.track_requested_at = now
+	self.put("F22_AG_TRACK_REQUEST_NORTH", candidate.north)
+	self.put("F22_AG_TRACK_REQUEST_ALTITUDE", candidate.altitude)
+	self.put("F22_AG_TRACK_REQUEST_EAST", candidate.east)
+	self.put("F22_AG_TRACK_REQUEST_ACTIVE", 1)
+	self.put("F22_AG_TRACK_REQUEST_SEQUENCE", self.track_sequence)
+end
 function M:command(name, value, powered, now)
 	local m = self.model
 	if not Model.finite(value) then return end
@@ -197,23 +222,6 @@ function M:command(name, value, powered, now)
 			local ok, value = pcall(get_model_time)
 			if ok then now = value end
 		end
-		if name=="acquire" then
-			local candidate=not self.controls.silent and not Modes.ranging(m.mode) and self.get("F22_AG_GMT_READY")>.5 and self:cursor_point(now) or nil
-			if self.preview_kind and self.preview_kind~="acquire_begin" then candidate=nil end
-			self:cancel_preview()
-			if not candidate then return end
-			self.controls.expansion=0;self.controls.pending=0;m.exp_view=nil;self:hold_image(false)
-			-- The Hornet searches around the requested ground coordinate;
-			-- acquisition can find a stopped vehicle without a search brick.
-			self:cancel_track();self.track_requested=true
-			self.put("F22_AG_TRACK_REQUEST_NORTH",candidate.north)
-			self.put("F22_AG_TRACK_REQUEST_ALTITUDE",candidate.altitude)
-			self.put("F22_AG_TRACK_REQUEST_EAST",candidate.east)
-			self.put("F22_AG_TRACK_REQUEST_ACTIVE",1)
-			self.put("F22_AG_TRACK_REQUEST_SEQUENCE",self.track_sequence)
-			self:cancel_preview()
-			return
-		end
 		-- MAP designation is a georeferenced terrain coordinate under the TDC.
 		-- Anonymous air-radar NOISE records are not a prerequisite for it.
 		local candidate = self:cursor_point(now)
@@ -224,6 +232,10 @@ function M:command(name, value, powered, now)
 		end
 		if self.controls.pending>0 then
 			self:select_expansion(candidate);return
+		end
+		if name == "acquire" or Modes.search(m.mode) then
+			self:begin_track(candidate, now)
+			return
 		end
 		self:cancel_track();if m.mode==3 then m.mode=2 elseif m.mode==5 then m.mode=4 end
 		if self.controls.expansion==0 then
@@ -358,13 +370,14 @@ function M:update(pose, now, dt, powered, ready)
 	local selected
 	for i=1,64 do
 		local r=m.movers[i];local prefix="F22_AG_GMT_DISPLAY_"..i.."_"
-		put(prefix.."VALID",r and Modes.search(m.mode) and operating and 1 or 0)
+		put(prefix.."VALID",r and (m.mode==1 or Modes.search(m.mode)) and operating and 1 or 0)
 		if r then
-			put(prefix.."X",r.x);put(prefix.."Y",r.y);put(prefix.."ALPHA",1)
+			put(prefix.."X",r.x);put(prefix.."Y",r.y);put(prefix.."ALPHA",1-.6*r.age/6)
 		end
 	end
 	local owned=self.track_requested and get("F22_AG_NATIVE_TRACK_REQUEST_SEQUENCE")==self.track_sequence
-	local acquiring=operating and owned and get("F22_AG_NATIVE_TRACK_ACQUIRING")>.5
+	local pending=self.track_requested and not self.selected_id and Model.fresh(now,self.track_requested_at,1)
+	local acquiring=operating and (pending or (owned and get("F22_AG_NATIVE_TRACK_ACQUIRING")>.5))
 	put("F22_AG_TRACK_ACQUIRING",acquiring and 1 or 0)
 	if operating and owned and get("F22_AG_NATIVE_TRACK_VALID")>.5 and map_pose then
 		selected = native_track(get, now)
@@ -403,7 +416,7 @@ function M:update(pose, now, dt, powered, ready)
 	elseif self.selected_id and not acquiring then
 		self:cancel_track();if m.mode==3 then m.mode=2 elseif m.mode==5 then m.mode=4 end
 		put("F22_AG_DESIGNATION_VALID",0);m.sequence=m.sequence+1;put("F22_AG_DESIGNATION_SEQUENCE",m.sequence)
-	elseif owned and not acquiring then
+	elseif self.track_requested and not acquiring then
 		self:cancel_track()
 	end
 	if Modes.search(m.mode)then put("F22_AG_RADAR_CANDIDATE",operating and map_pose and 1 or 0)end
@@ -506,7 +519,7 @@ function M:update(pose, now, dt, powered, ready)
 		self.next_diagnostic = now + 1
 		local row = {string.format("t=%.3f operating=%d range=%.0f width=%.0f gain=%.3f erase=%.0f", now, operating and 1 or 0, m.range_nm, m.width, self.video_gain, self.video_erase)}
 		for _,name in ipairs({"RADAR_NATIVE_READY","RADAR_NATIVE_REASON","VIDEO_READY","VIDEO_REASON","VIDEO_ENABLE",
-			"EXPANSION","VIDEO_FOV_DEG","VIDEO_CENTER_M","VIDEO_SPAN_M","VIDEO_QUALIFIED",
+			"EXPANSION","FAST","VIDEO_FOV_DEG","VIDEO_CENTER_M","VIDEO_SPAN_M","VIDEO_QUALIFIED",
 			"VIDEO_FROZEN","DESIGNATION_VALID","DESIGNATION_SEQUENCE","RADAR_CANDIDATE","TRACK_REQUEST_ACTIVE","TRACK_REQUEST_SEQUENCE",
 			"VIDEO_TIME","VIDEO_NORTH","VIDEO_ALTITUDE","VIDEO_EAST","VIDEO_HEADING","VIDEO_SCAN_DIRECTION","VIDEO_SCAN_FRACTION",
 			"VIDEO_PROBE_FORWARD_M","VIDEO_PROBE_RIGHT_M","VIDEO_PROBE_UP_M","VIDEO_PROBE_EPOCH","VIDEO_RENDER_NORTH","VIDEO_RENDER_ALTITUDE","VIDEO_RENDER_EAST","VIDEO_RENDER_HEADING","VIDEO_MOTION_AGE_MS",
@@ -519,6 +532,7 @@ function M:update(pose, now, dt, powered, ready)
 			"VIDEO_GPU_R_NONZERO","VIDEO_GPU_G_NONZERO","VIDEO_GPU_B_NONZERO","VIDEO_GPU_R_MEAN","VIDEO_GPU_G_MEAN","VIDEO_GPU_B_MEAN",
 			"MODE","GMT_READY","GMT_REASON","GMT_COUNT","GMT_QUERY_COUNT","GMT_CANDIDATES","GMT_GROUND_CANDIDATES",
 			"GMT_TERRAIN_REJECTS","GMT_OBJECT_REJECTS","GMT_SPEED_REJECTS","GMT_RCS_REJECTS","GMT_TRUNCATED","GMT_LAST_TIME","GMT_ACTIVITY_DT",
+			"GMT_MOTION_UNAVAILABLE","GMT_SLOW_REJECTS","GMT_FAST_REJECTS",
 			"NATIVE_TRACK_VALID","NATIVE_TRACK_ID","NATIVE_TRACK_TYPE","NATIVE_TRACK_ACQUIRING","NATIVE_TRACK_MEMORY","NATIVE_TRACK_TIME","TRACK_VALID","TRACK_ID",
 			"NATIVE_TRACK_REQUEST_SEQUENCE","CURSOR_PREVIEW","VIDEO_HOLD","FIXED_TRACK"}) do
 			row[#row+1] = name .. "=" .. tostring(get("F22_AG_" .. name))
@@ -691,7 +705,7 @@ function M:publish_controls(operating,view,hold)
  put('F22_AG_BEAM_AVAILABLE',operating and not hold and not Modes.ranging(m.mode)and c.expansion<3 and 1 or 0)
  put('F22_AG_CURSOR_SHOW',not Modes.ranging(m.mode)and 1 or 0)
  put('F22_AG_PLOT_SHOW',m.mode~=7 and 1 or 0)
- put('F22_AG_EXP1_AVAILABLE',(m.mode==1 or c.expansion>0)and operating and not hold and 1 or 0)
+ put('F22_AG_EXP1_AVAILABLE',(m.mode==1 or Modes.search(m.mode) or c.expansion>0)and operating and not hold and 1 or 0)
  local p=c.pending>0 and self:cursor_point(self.update_time)
  local v=p and Modes.exp_geometry(self.live_pose or self.pose,p,c.pending)
  put('F22_AG_CORRAL_SHOW',v and 1 or 0)

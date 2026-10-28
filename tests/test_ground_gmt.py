@@ -19,11 +19,14 @@ for k,x in pairs({ID=123,N=18550,U=50,E=0,VN=8,VU=0,VE=0,TIME=10,AZ=0,RANGE=1852
 s:update(pose,10,1/60,true,true)
 assert(get('F22_AG_MODE')==2 and get('F22_AG_GMT_DISPLAY_1_VALID')==1)
 assert(get('F22_AG_RADAR_CANDIDATE')==1)
-s:command('acquire',1,true,10)
+s:command('designate',1,true,10)
 assert(get('F22_AG_MODE')==2,'mode publishes on update only')
 assert(s.model.mode==2 and get('F22_AG_TRACK_REQUEST_ACTIVE')==1)
 assert(get('F22_AG_TRACK_REQUEST_NORTH')==18550 and get('F22_AG_TRACK_REQUEST_EAST')==0)
 assert(get('F22_AG_TRACK_REQUEST_ID')==0,'TDC acquisition must not require a search ID')
+s:update(pose,10.02,1/60,true,true)
+assert(get('F22_AG_TRACK_REQUEST_ACTIVE')==1 and get('F22_AG_TRACK_ACQUIRING')==1,
+ 'native acknowledgement latency canceled ordinary GMT designation')
 for k,x in pairs({VALID=1,ID=123,TYPE=2,N=18550,U=50,E=0,VN=8,VU=0,VE=0,VELOCITY_VALID=1,TIME=10.1})do put('F22_AG_NATIVE_TRACK_'..k,x)end
 put('F22_AG_NATIVE_TRACK_REQUEST_SEQUENCE',get('F22_AG_TRACK_REQUEST_SEQUENCE'))
 s:update(pose,10.1,1/60,true,true)
@@ -57,6 +60,28 @@ s:command('tws',1,true,17.4);assert(not s.interleave,'mode entry did not clear i
 s:update(pose,17.4,1/60,true,true);assert(get('F22_AG_VIDEO_ENABLE')==1)
 assert(s.pose.north==30 and s.pose.east==0,'GMT without imagery retained an old MAP reference')
 s:update(pose,17.5,1/60,false,true);assert(get('F22_AG_GMT_DISPLAY_1_VALID')==0)
+-- A stale historical AZ/range must not pin a contact to ownship's nose.
+s:update(pose,20,1/60,true,true)
+put('F22_AG_GMT_1_TIME',20)
+local moved={north=500,altitude=3000,east=400,heading=.1,pitch=0,roll=0}
+s:update(moved,20.1,1/60,true,true)
+local x,y=s.model:project({north=18550,altitude=50,east=0},s.pose)
+assert(math.abs(get('F22_AG_GMT_DISPLAY_1_X')-x)<1e-9)
+assert(math.abs(get('F22_AG_GMT_DISPLAY_1_Y')-y)<1e-9)
+-- Expansion-corral designation selects the image, then TDC release acquires
+-- without dropping the expanded view or prematurely declaring a track.
+s:command('undesignate',1,true,20.1)
+s:command('exp3',1,true,20.1)
+assert(s.controls.pending==3)
+s:command('designate',1,true,20.1)
+s:update(moved,20.12,1/60,true,true)
+assert(s.controls.expansion==3 and not s.track_requested)
+s:command('designate_begin',1,true,20.12)
+s:command('designate_end',1,true,20.12)
+assert(s.controls.expansion==3 and s.track_requested and get('F22_AG_TRACK_REQUEST_ACTIVE')==1)
+assert(get('F22_AG_TRACK_VALID')==0,'coordinate request fabricated a native track')
+s:update(moved,21.3,1/60,true,true)
+assert(not s.track_requested,'missing native acknowledgement retained acquisition forever')
 ''')
 ui=ns['runtime']();ui.execute("dofile(SCRIPT_ROOT..'PMFD_CENTER/ag_radar_format.lua')('PMFD_RDR_PAGE','TEST_AG_')")
 els=ui.globals().elements

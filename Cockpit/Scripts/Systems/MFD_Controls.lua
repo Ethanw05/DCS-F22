@@ -88,32 +88,38 @@ function M.for_page(page,view,get)
    if get('F22_AG_ACTIVE_AVAILABLE')>.5 then radar(8,'ACTIVE',10639)end
    radar(9,'FRZ',10623);c[9].selected=get('F22_AG_VIDEO_FROZEN')>.5
    radar(10,'RSET',10645)
+   local mode,expansion=get('F22_AG_MODE'),get('F22_AG_EXPANSION')
+   radar(1,'MAP',10601);c[1].selected=mode==1
+   radar(2,'GMT',10602);c[2].selected=mode==2 or mode==3
+   c[3]=row('EXP1','none');c[4]=row('EXP2','none');c[5]=row('EXP3','none')
+   if get('F22_AG_EXP1_AVAILABLE')>.5 then radar(3,'EXP1',10646);c[3].selected=expansion==1 end
+   if get('F22_AG_OPTIONS_AVAILABLE')>.5 then
+    radar(4,'EXP2',10647);c[4].selected=expansion==2
+    radar(5,'EXP3',10648);c[5].selected=expansion==3
+   end
+   for b=3,5 do c[b].selected=expansion==b-2 end
    if view==3 then
+    c[1].home=true;c[2].home=true
     c[12]=row('RTN','view',0)
-    for b,spec in ipairs({{'MAP',10601},{'GMT',10602},{'SEA',10649},{'TA',10650},{'AGR',10651}})do radar(b,spec[1],spec[2]);c[b].home=true end
-   else
-    if get('F22_AG_EXPANSION')>0 then radar(1,'MAP',10601)
-    else c[1]=row(({'MAP','GMT','GMTT','SEA','SEAT','TA','AGR'})[get('F22_AG_MODE')]or'MODE','view',3)end
-    if get('F22_AG_INTL_AVAILABLE')>.5 then radar(2,'INTL',10619)
-    elseif get('F22_AG_EXP1_AVAILABLE')>.5 then radar(2,'EXP1',10646)end
-    if get('F22_AG_OPTIONS_AVAILABLE')>.5 then radar(3,'EXP2',10647);radar(4,'EXP3',10648)end
-    for button,level in pairs({[2]=1,[3]=2,[4]=3})do
-     if c[button]and c[button].label=='EXP'..level then c[button].selected=get('F22_AG_EXPANSION')==level end
+    for i,spec in ipairs({{'SEA',10649},{'TA',10650},{'AGR',10651}})do
+     radar(i+7,spec[1],spec[2]);c[i+7].home=true
     end
-    if get('F22_AG_BEAM_AVAILABLE')>.5 then radar(5,get('F22_AG_VIDEO_FAN')>.5 and'FAN'or'PEN',10644)end
+   else
+    if get('F22_AG_BEAM_AVAILABLE')>.5 and get('F22_AG_ACTIVE_AVAILABLE')<.5 then
+     radar(8,get('F22_AG_VIDEO_FAN')>.5 and'FAN'or'PEN',10644)
+    end
+    if get('F22_AG_FAST_AVAILABLE')>.5 then
+     radar(19,'FAST',10643);c[19].selected=get('F22_AG_FAST')>.5
+    elseif get('F22_AG_INTL_AVAILABLE')>.5 then radar(19,'INTL',10619)end
     if view==2 then
      c[12]=row('RTN','view',0);radar(18,'GAIN+',10641);radar(17,'GAIN-',10642);radar(16,'DCLTR',10652)
     else
-     c[11]=row('DATA','view',2);radar(18,'EL UP',10614);radar(17,'EL DN',10615)
-     if get('F22_AG_FAST_AVAILABLE')>.5 then
-      radar(19,'FAST',10643);c[19].selected=get('F22_AG_FAST')>.5
-     elseif get('F22_AG_INTL_AVAILABLE')>.5 and get('F22_AG_EXP1_AVAILABLE')>.5 then
-      radar(19,'EXP1',10646)
-     end
+     c[11]=row('DATA','view',2);c[12]=row('MODES','view',3)
+     radar(18,'EL UP',10614);radar(17,'EL DN',10615)
     end
    end
   elseif ag then
-   radar(1,'MAP',10601);radar(2,'GMT',10602);radar(3,'DESIG',10606);radar(4,'CLEAR',10609);radar(5,'INTL',10619)
+   radar(1,'MAP',10601);radar(2,'GMT',10602);radar(3,'EXP1',10646);radar(4,'EXP2',10647);radar(5,'EXP3',10648)
    radar(19,'FRZ',10623);radar(18,'GAIN+',10614);radar(17,'GAIN-',10615)
   elseif view==1 then
    c[12]=row('RTN','view',0)

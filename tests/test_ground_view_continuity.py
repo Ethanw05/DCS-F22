@@ -62,8 +62,17 @@ local C=dofile(SCRIPT_ROOT..'Systems/MFD_Controls.lua')
 local P=dofile(SCRIPT_ROOT..'Systems/Display_Routing.lua').pages
 local keys=C.for_page(P.tsd,0,get)
 assert(keys[19].label=='FAST'and keys[19].selected)
-assert(keys[3].label=='EXP2'and keys[3].selected)
+assert(keys[4].label=='EXP2'and keys[4].selected)
 assert(keys[1].label=='MAP'and keys[1].command==10601)
 put('F22_AG_FAST',0);assert(not C.for_page(P.tsd,0,get)[19].selected)
+put('F22_AG_EXPANSION',0);put('F22_AG_FAST_AVAILABLE',0);put('F22_AG_INTL_AVAILABLE',1)
+keys=C.for_page(P.tsd,0,get)
+assert(keys[2].label=='GMT'and keys[19].label=='INTL')
+for _,view in ipairs({0,2,3})do
+ for i,spec in ipairs({{'MAP',10601},{'GMT',10602},{'EXP1',10646},{'EXP2',10647},{'EXP3',10648}})do
+  local key=C.for_page(P.tsd,view,get)[i]
+  assert(key.label==spec[1]and key.command==spec[2],'top row changed or required a submenu')
+ end
+end
 ''')
 print('Ground owner: EXP1/2/1/3/MAP retains designation, GMT/MAP retains native target authority, clear/loss withdraw, FAST/EXP selected boxes and direct MAP key PASS')

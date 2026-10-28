@@ -49,7 +49,7 @@ struct Api {
   using Camera=void*(__fastcall*)(void*,int);
   using Clip=const void*(__fastcall*)(const void*);
   using Intersect=const char*(__fastcall*)(const Scene&,const Vec&,const Vec&,Vec&,double&,Vec&);
-  Clock clock{};Aircraft aircraft{};Point point{};Velocity velocity{};Type type{};Dead dead{};Flag flag{};Position position{};Intersect intersect{};Camera camera{};Clip clip{};
+  Clock clock{};Aircraft aircraft{};Point point{};Type type{};Dead dead{};Flag flag{};Position position{};Intersect intersect{};Camera camera{};Clip clip{};
   void **manager{},**land{};
   std::atomic<bool> ready{};int reason=1;
   void initialize() {
@@ -63,7 +63,6 @@ struct Api {
     clock=reinterpret_cast<Clock>(GetProcAddress(world,"?GetModelTime@wTime@@SANXZ"));
     aircraft=reinterpret_cast<Aircraft>(GetProcAddress(common,"?c_LA@cockpit@@YAPEAVIwoLA@@XZ"));
     point=reinterpret_cast<Point>(GetProcAddress(general,"?GetPoint@MovingObject@@UEAA?AVVec3d@osg@@XZ"));
-    velocity=reinterpret_cast<Velocity>(GetProcAddress(general,"?VectorVelocity@MovingObject@@UEBAAEBVVec3f@osg@@XZ"));
     type=reinterpret_cast<Type>(GetProcAddress(general,"?Type@MovingObject@@QEBAAEBVwsType@@XZ"));
     dead=reinterpret_cast<Dead>(GetProcAddress(general,"?IsDead@MovingObject@@UEBA_NXZ"));
     flag=reinterpret_cast<Flag>(GetProcAddress(general,"?IsFlag@MovingObject@@QEBA?B_NH@Z"));
@@ -73,17 +72,18 @@ struct Api {
     manager=reinterpret_cast<void**>(GetProcAddress(objects,"?instance@viObjectManager@@2PEAV1@EA"));
     land=reinterpret_cast<void**>(GetProcAddress(general,"?globalLand@@3PEAVwTerrain@@EA"));
     intersect=reinterpret_cast<Intersect>(GetProcAddress(objects,"?intersectSegment@@YAPEBDAEBVISceneObject@@AEBVVec3d@osg@@1AEAV23@AEAN2@Z"));
-    const bool ok=clock&&aircraft&&point&&velocity&&type&&dead&&flag&&position&&manager&&land&&intersect&&camera&&clip;
+    const bool ok=clock&&aircraft&&point&&type&&dead&&flag&&position&&manager&&land&&intersect&&camera&&clip;
     reason=ok?0:3;ready.store(ok,std::memory_order_release);
   }
 } api;
 struct Controls {
-  bool active{},array_active{},search{},request{},sea{},ranging{},fan{},illuminated{};
+  bool active{},array_active{},search{},request{},sea{},ranging{},fan{},illuminated{},map{};
   double resource{},elevation{},stamp=-100,range{},az{},request_sequence{};
   Vec request_point{};
 };
 struct Output {
-  bool ready{};int reason=4;double stamp{};unsigned queries{},candidates{},terrain_rejects{},object_rejects{},speed_rejects{},ground_candidates{},truncated{};
+  bool ready{},map{},sea{};int reason=4;double stamp{};unsigned queries{},candidates{},terrain_rejects{},object_rejects{},speed_rejects{},ground_candidates{},truncated{};
+  unsigned motion_unavailable{},slow_rejects{},fast_rejects{};
   Vec origin{};double heading{},az{},dt{},aspect{};Contacts contacts;
   bool agr_valid{};double agr_range{},agr_rate{},agr_stamp=-100;Vec agr_point{};
   Contact selected{};bool acquiring{},memory{},fixed{};unsigned rcs_rejects{},selected_type{};double request_sequence=-1;
@@ -113,6 +113,15 @@ void *moving(Scene &s) {
   auto cast=method<Registered>(r,7);return cast?cast(r):nullptr;
 }
 unsigned id(Scene&s){using ID=unsigned(__fastcall*)(void*);auto f=method<ID>(&s,1);return f?f(&s):0;}
+bool motion(void *unit, Vec& result) {
+  // MovingObject's exported base getter does not dispatch derived vehicles.
+  // The shared scene contract and Hornet GMT predicate call virtual slot38.
+  const auto get_velocity = method<Api::Velocity>(unit,38);
+  const auto value = get_velocity ? get_velocity(unit) : nullptr;
+  if (!readable(reinterpret_cast<std::uintptr_t>(value),sizeof(VecF))) return false;
+  result = {value->n,value->u,value->e};
+  return std::isfinite(length(result)) && length(result)<=1500;
+}
 bool terrain_visible(const Vec&from,const Vec&to) {
   // FA18C 4A12B0 -> globalLand virtual+104: intersect a normalized ray,
   // then require the terrain hit within 500m on EACH axis of the target.
@@ -206,7 +215,7 @@ bool aim_at(AesaRadar::SurfaceRequest& request,Vec target,const AesaRadar::Pose&
 void routine_request(AesaRadar::SurfaceRequest& request,const Output& observed,double now,const AesaRadar::Pose& pose) {
   const Contact* oldest=nullptr;
   for(const auto& contact:observed.contacts)
-    if(contact.filter_valid&&now-contact.stamp>=1.5&&now-contact.stamp<=30
+    if(contact.id&&now-contact.stamp>=.75&&now-contact.stamp<=30
        &&(!oldest||contact.stamp<oldest->stamp))oldest=&contact;
   if(oldest&&aim_at(request,predicted_point(*oldest,now),pose))request.routine=true;
 }
@@ -257,8 +266,15 @@ void sample(void *owned_radar, const ArrayService& service) {
   const double now=api.clock();
   c.illuminated=valid_job(service,now);c.az=service.azimuth;c.resource=service.resource;c.active=c.active&&service.active;
   stats.ready=true;stats.reason=0;stats.stamp=now;
-  // FRZ holds the video, not the transmitter or ground sensor. MAP can
-  // request the same native acquisition/FTT path without enabling GMT search.
+  if(stats.map!=c.map||stats.sea!=c.sea) {
+    // Search returns belong to their detection mode. A MAP stationary hit
+    // cannot become a GMT mover merely by changing the page. Keep acquired
+    // track measurements and their filter across that same view change.
+    tracks.clear();measurements.discard_search();stats.contacts.clear();
+  }
+  stats.map=c.map;stats.sea=c.sea;
+  // FRZ holds pixels, not the transmitter. MAP uses the same beam-gated
+  // surface returns without GMT's moving-speed rejection.
   if(!std::isfinite(now)||!c.active||now-c.stamp<-.05||now-c.stamp>.5) {
     if(!c.active){range_pending={};range_report={};measurements.clear();tracks.clear();selected={};acquiring=false;fixed=false;}stats.agr_valid=false;stats.contacts.clear();stats.selected={};stats.fixed=false;
     std::lock_guard<std::mutex>lock(state_mutex);if(epoch.load()==generation)output=stats;return;
@@ -291,10 +307,8 @@ void sample(void *owned_radar, const ArrayService& service) {
   const auto basis=own?api.position(own):nullptr;
   if(!own||!readable(reinterpret_cast<std::uintptr_t>(basis),64))return;
   Vec origin{};api.point(own,&origin);
-  const auto own_speed=api.velocity(own);
-  if(!own_speed)return;
-  const Vec own_velocity{own_speed->n,own_speed->u,own_speed->e};
-  if(!std::isfinite(length(own_velocity)))return;
+  Vec own_velocity{};
+  if(!motion(own,own_velocity))return;
   const double heading=std::atan2(basis[2],basis[0]);
   if(c.ranging) {
     // Native beam/terrain measurement. This is independent of the bomb
@@ -311,8 +325,7 @@ void sample(void *owned_radar, const ArrayService& service) {
         // Bounded game-estimate range error and finite processing; no exact
         // terrain-ray distance is published as a radar measurement.
         RangeReport measured{now,now+.06/std::clamp(c.resource,.1,1.),distance+3*std::sin(now*11.2),0,true};
-        if(const auto velocity=api.velocity(own))
-          measured.rate=-(velocity->n*direction.n+velocity->u*direction.u+velocity->e*direction.e)+.4*std::sin(now*7.3);
+        measured.rate=-(own_velocity.n*direction.n+own_velocity.u*direction.u+own_velocity.e*direction.e)+.4*std::sin(now*7.3);
         for(auto& report:range_pending)if(!report.valid){report=measured;break;}
       }
     }
@@ -365,10 +378,15 @@ void sample(void *owned_radar, const ArrayService& service) {
     const auto type=api.type(unit);if(!type)return 0;
     if(acquiring||tracking){if(type[0]<1||type[0]>3||tracking&&object_id!=selected.id)return 0;}
     else if(c.sea?(type[0]!=3):(type[0]<1||type[0]>2||!api.flag(unit,32)))return 0;
+    if(c.map&&!acquiring&&!tracking&&type[0]!=2)return 0;
     ++stats.ground_candidates;
-    const auto speed=api.velocity(unit);if(!speed)return 0;
-    const Vec velocity{speed->n,speed->u,speed->e};
-    if(!acquiring&&!tracking&&!GroundMovingTargets::moving(velocity)){++stats.speed_rejects;return 0;}
+    Vec velocity{};
+    if(!motion(unit,velocity)){++stats.motion_unavailable;return 0;}
+    if(!c.map&&!acquiring&&!tracking&&!GroundMovingTargets::moving(velocity)){
+      ++stats.speed_rejects;
+      if(length(velocity)*knot<8)++stats.slow_rejects;else ++stats.fast_rejects;
+      return 0;
+    }
     Vec point{};api.point(unit,&point);
     const auto relative=point-origin;
     if(!in_job(origin,point,*state->beam))return 0;
@@ -403,7 +421,7 @@ void sample(void *owned_radar, const ArrayService& service) {
 void update(EDPARAM &p) {
   api.initialize();const double now=api.ready?api.clock():-1;
   Controls c;const int mode=static_cast<int>(get(p,"F22_AG_MODE"));
-  c.search=mode==2||mode==3||mode==4||mode==5;c.sea=mode==4||mode==5;c.ranging=mode==7;
+  c.map=mode==1;c.search=c.map||mode==2||mode==3||mode==4||mode==5;c.sea=mode==4||mode==5;c.ranging=mode==7;
   c.elevation=get(p,"F22_AG_VIDEO_ANTENNA_DEG")*pi/180;c.fan=get(p,"F22_AG_VIDEO_FAN")>.5;
   c.resource=get(p,"F22_AESA_CONTROL_RESOURCE");
   c.request=get(p,"F22_AG_TRACK_REQUEST_ACTIVE")>.5;
@@ -419,10 +437,13 @@ void update(EDPARAM &p) {
   put(p,"F22_AG_AGR_RANGE_FT",result.agr_range*3.280839895);put(p,"F22_AG_AGR_VELOCITY_KT",result.agr_rate*1.94384449);
   put(p,"F22_AG_AGR_TIME",result.agr_stamp);
   put(p,"F22_AG_GMT_READY",fresh?1:0);put(p,"F22_AG_GMT_REASON",fresh?0:api.reason?api.reason:4);
-  put(p,"F22_AG_GMT_LAST_TIME",result.stamp);put(p,"F22_AG_GMT_COUNT",fresh&&c.active?static_cast<double>(result.contacts.size()):0);
+  const bool search_current=result.map==c.map&&result.sea==c.sea;
+  put(p,"F22_AG_GMT_LAST_TIME",result.stamp);put(p,"F22_AG_GMT_COUNT",fresh&&c.active&&search_current?static_cast<double>(result.contacts.size()):0);
   put(p,"F22_AG_GMT_QUERY_COUNT",result.queries);put(p,"F22_AG_GMT_CANDIDATES",result.candidates);
   put(p,"F22_AG_GMT_GROUND_CANDIDATES",result.ground_candidates);put(p,"F22_AG_GMT_TRUNCATED",result.truncated);
   put(p,"F22_AG_GMT_TERRAIN_REJECTS",result.terrain_rejects);put(p,"F22_AG_GMT_OBJECT_REJECTS",result.object_rejects);put(p,"F22_AG_GMT_SPEED_REJECTS",result.speed_rejects);
+  put(p,"F22_AG_GMT_MOTION_UNAVAILABLE",result.motion_unavailable);
+  put(p,"F22_AG_GMT_SLOW_REJECTS",result.slow_rejects);put(p,"F22_AG_GMT_FAST_REJECTS",result.fast_rejects);
   put(p,"F22_AG_GMT_RCS_REJECTS",result.rcs_rejects);put(p,"F22_AG_GMT_ACTIVITY_DT",result.dt);
   const auto&t=result.selected;const bool tracked=fresh&&c.active&&(t.id||result.fixed);
   put(p,"F22_AG_NATIVE_TRACK_VALID",tracked?1:0);put(p,"F22_AG_NATIVE_TRACK_ID",tracked?t.id:0);

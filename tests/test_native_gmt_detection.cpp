@@ -118,11 +118,12 @@ void setup() {
   manager_methods[24] = reinterpret_cast<void *>(&segment);
   land_methods[13] = reinterpret_cast<void *>(&ray);
   target_methods[59] = reinterpret_cast<void *>(&get_response);
+  own_methods[38] = reinterpret_cast<void *>(&velocity);
+  target_methods[38] = reinterpret_cast<void *>(&velocity);
   response_methods[6] = reinterpret_cast<void *>(&rcs);
   api.clock = time_now;
   api.aircraft = aircraft_object;
   api.point = position;
-  api.velocity = velocity;
   api.type = kind;
   api.dead = dead;
   api.flag = flag;
@@ -190,7 +191,7 @@ void rejection_and_track() {
   speed = {0, 0, 0};
   for (unsigned i = 0; i < 5; ++i)
     step();
-  CHECK(output.contacts.empty() && output.speed_rejects > 0);
+  CHECK(output.contacts.empty() && output.speed_rejects > 0 && output.slow_rejects > 0);
   speed = {10, 0, 0};
   for (unsigned i = 0; i < 5; ++i)
     step(true, false);
@@ -206,7 +207,7 @@ void rejection_and_track() {
   for (unsigned i = 0; i < 10; ++i)
     step();
   CHECK(output.selected.id == 42 && output.selected.velocity_valid && output.selected_type == 2);
-  controls.search = false; // MAP keeps the same acquisition request and sensor owner.
+  controls.search = false; // A selected target survives withdrawal of search service.
   for (unsigned i = 0; i < 5; ++i)
     step();
   CHECK(output.selected.id == 42 && now - output.selected.stamp < .3);
@@ -219,11 +220,38 @@ void rejection_and_track() {
   step();
   CHECK(output.contacts.empty() && !output.selected.id);
 }
+void map_returns_and_virtual_motion() {
+  setup();
+  controls.map = true;
+  speed = {};
+  for (unsigned i = 0; i < 8; ++i)
+    step();
+  CHECK(output.contacts.size() == 1); // MAP can mark a measured stationary vehicle.
+  CHECK(output.contacts[0].stamp <= now && output.speed_rejects == 0);
+  const auto stamp = output.contacts[0].stamp;
+  terrain_clear = false;
+  for (unsigned i = 0; i < 8; ++i)
+    step();
+  CHECK(output.contacts[0].stamp <= stamp + .1 && output.terrain_rejects > 0);
+  controls.map = false;
+  step(false);
+  CHECK(output.contacts.empty()); // Stationary MAP hits never become GMT movers.
+  terrain_clear = true;
+  for (unsigned i = 0; i < 8; ++i)
+    step();
+  CHECK(output.contacts.empty() && output.speed_rejects > 0);
+  setup();
+  target_methods[38] = nullptr;
+  for (unsigned i = 0; i < 8; ++i)
+    step();
+  CHECK(output.contacts.empty() && output.motion_unavailable > 0); // Missing dispatch is unavailable, not healthy zero speed.
+}
 } // namespace
 int main() {
   try {
     detection_and_memory();
     rejection_and_track();
+    map_returns_and_virtual_motion();
     std::cout << "Actual GMT: scene detection, finite processing, measured motion, completed-grant gating, "
                  "coast/expiry, terrain/speed/cone/presence rejection, MAP handoff and acquired stopping target PASS\n";
     return 0;

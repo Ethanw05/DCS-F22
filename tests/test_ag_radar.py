@@ -70,9 +70,9 @@ end
 get_param_handle('MAIN_POWER'):set(1);get_param_handle('HUD_MODE'):set(7)
 get_param_handle('F22_AG_GAIN_INDEX'):set(1);get_param_handle('F22_AG_RANGE_AVAILABLE'):set(1)
 get_param_handle('F22_AG_OPTIONS_AVAILABLE'):set(1);get_param_handle('F22_AG_EXP1_AVAILABLE'):set(1)
-for _,row in ipairs({{10131,10601},{10132,10646},{10133,10647},
- {device_commands.Button_1,10601},{device_commands.Button_2,10646},{device_commands.Button_3,10647}})do
- if row[2]==10601 then SetCommand(row[1],1);SetCommand(row[1],0)end -- open mode choices
+for _,row in ipairs({{10131,10601},{10132,10602},{10133,10646},{10134,10647},{10135,10648},
+ {device_commands.Button_1,10601},{device_commands.Button_2,10602},{device_commands.Button_3,10646},
+ {device_commands.Button_4,10647},{device_commands.Button_5,10648}})do
  actions={};SetCommand(row[1],1);SetCommand(row[1],0)
  assert(actions[1][1]==10742 and actions[1][2]==2,'A/G bezel did not select primary focus')
  assert(#actions==3 and actions[2][1]==row[2] and actions[2][2]==1 and actions[3][1]==row[2]

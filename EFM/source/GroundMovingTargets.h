@@ -114,6 +114,9 @@ private:
         return s;
     }
 public:
+    void discard_search() noexcept {
+        for (auto& report : pending_) if (!report.tracking) report = {};
+    }
     void clear() noexcept {
         pending_ = {};
         for(auto& f:filters_){f.id=0;f.time=-100;f.value.reset();}

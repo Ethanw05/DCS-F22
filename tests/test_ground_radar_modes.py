@@ -157,7 +157,7 @@ dofile(SCRIPT_ROOT..'Systems/PMFD_System.lua');post_initialize()
 local function p(n,v)get_param_handle(n):set(v)end
 p('MAIN_POWER',1);p('HUD_MODE',7);p('F22_AG_GAIN_INDEX',1);p('F22_AG_OPTIONS_AVAILABLE',1);p('F22_AG_EXP1_AVAILABLE',1);p('F22_AG_RANGE_AVAILABLE',1)
 local function key(c)SetCommand(c,1);SetCommand(c,0)end
-key(10132);assert(events[#events][2]==10646,'EXP1 key did not reach the radar owner')
+key(10133);assert(events[#events][2]==10646,'EXP1 key did not reach the radar owner')
 key(10141);key(10148);assert(events[#events][2]==10641,'DATA GN+ drove antenna input')
 key(10142);key(10148);assert(events[#events][2]==10614,'main EL+ drove gain')
 p('F22_AG_OPTIONS_AVAILABLE',0);p('F22_AG_EXP1_AVAILABLE',0);local n=#events;SetCommand(10133,1)

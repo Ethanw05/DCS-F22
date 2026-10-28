@@ -1742,6 +1742,8 @@ Tentative, established, selected, acquired, coasting and expired targets remain 
 
 MAP/GMT/SEA/TA/AGR, EXP, HOLD/SIL and designation expose their actual sensing, geometry, age and fixed-point/object-track meaning.
 
+GMT TDC acquisition, virtual scene motion, larger registered MAP/GMT marks and EXP3 resolving detail: [implementation and validation boundary](SEN-04-ground-acquisition-detail.md).
+
 - Retain source-referenced designation and distinct EXP1 snowplow versus EXP2/3 ground stabilization. Propagate native fixed/object result type so failed mover acquisition cannot masquerade as confirmed GMTT.
 - Publish HOLD, transmitter inhibit, one active scan, reset and preview cancellation as separate state transitions; specify persistence across range/mode/master-mode changes.
 - Characterize the renderer and latest EXP3 clearance geometry before selecting a SAR approximation. Add collecting/usable/held/degraded and image age if adopting a collection model; a preset alone does not prove SAR.
