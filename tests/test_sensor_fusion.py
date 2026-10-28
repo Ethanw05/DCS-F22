@@ -136,13 +136,18 @@ put('MAIN_POWER',1)
 for i,code in ipairs({1,0}) do
  local p=string.format('F22_IDENT_%02d_',i)
  for k,v in pairs({VALID=1,SOURCE=100+i,CLASS=code,AGE=0}) do put(p..k,v) end
+ local tactical=string.format('F22_RADAR_TACTICAL_%02d_',i)
+ for k,v in pairs({VALID=1,SOURCE=400+i,AGE=0,AZ=-i*.1,EL=0,RANGE=10000,
+  QUALITY=2,FRIENDLY=code==1 and 1 or 0,HOSTILE=code==0 and 1 or 0,IDENTITY_KNOWN=1,IDENTITY_TIME=0})do put(tactical..k,v)end
  local q=string.format('RWR_CONTACT_%02d_',i)
  for k,v in pairs({SOURCE=100+i,TIME=0,AZIMUTH=i*.1,SIGNAL=1,UNIT_TYPE=i==1 and 'FA-18C_hornet' or 'MiG-29S'}) do put(q..k,v) end
 end
+put('F22_RADAR_TACTICAL_SEQUENCE',1);put('F22_RADAR_TACTICAL_TIME',0)
 dofile(SCRIPT_ROOT..'Systems/RWR_System.lua');post_initialize();update()
-assert(get('F22_EW_01_AFFILIATION')==1 and get('F22_EW_02_AFFILIATION')==0,'EW discarded qualified simulator hostile ID')
+assert(get('F22_EW_01_AFFILIATION')==-1 and get('F22_EW_02_AFFILIATION')==-1,'equal numeric IDs classified RF data')
+assert(get('F22_TACTICAL_01_AFFILIATION')==1 and get('F22_TACTICAL_02_AFFILIATION')==0,'qualified geometry lost identity evidence')
 put('F22_IDENT_01_VALID',0);put('F22_IDENT_02_VALID',0);update()
-assert(get('F22_EW_01_AFFILIATION')==1,'turning radar off erased recent friendly identity')
+assert(get('F22_TACTICAL_01_AFFILIATION')==1,'retired identity endpoints changed current fusion')
 dofile(SCRIPT_ROOT..'Systems/Radar_Data_Bridge.lua');post_initialize()
 for k,v in pairs({MAIN_POWER=1,RADAR_PWR=1,F22_RADAR_BACKEND_READY=1,HUD_MODE=2,F22N_RADAR_MODE=3,
 F22N_RADAR_STT_RANGE=5000,F22N_RADAR_STT_AZIMUTH=0,F22N_RADAR_STT_ELEVATION=0,F22N_RADAR_STT_FRIENDLY=1}) do put(k,v) end

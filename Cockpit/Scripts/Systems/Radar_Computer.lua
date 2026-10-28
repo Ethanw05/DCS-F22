@@ -3,7 +3,7 @@
 -- RWS/TWS/VACQ/BORE are simulation workflows, not claimed classified F-22 logic.
 local M = { fresh_seconds = 6, support_seconds = 6, maximum_tracks = 64, maximum_hits = 255 }
 -- Keep this numerical owner independent of host globals/file loading.
-local metadata_fields = {"filter_valid","position_sigma_m","velocity_sigma_mps","range_sigma_m",
+local metadata_fields = {"association_valid","filter_valid","position_sigma_m","velocity_sigma_mps","range_sigma_m",
     "angle_sigma_rad","raw_north","raw_altitude","raw_east","measured_range","measured_azimuth",
     "measured_elevation","range_rate","rate_sigma_mps"}
 local function copy_metadata(target, observation)
@@ -78,7 +78,7 @@ function M.new()
 	end
 	function r:supportable(t)
 		return t and finite(t.native_id) and t.native_id > 0 and t.hits >= 2 and self:age(t) <= M.support_seconds
-			and (t.measurement_source ~= 2 or t.velocity_valid == true)
+			and (t.measurement_source ~= 2 or t.velocity_valid == true and t.association_valid == true)
 			or false
 	end
 	function r:source(id)
@@ -583,6 +583,8 @@ function M.new()
 				t.current_range = o.range
 				t.current_az = o.az
 				t.current_el = o.el
+                t.association_valid = o.association_valid
+                if o.measurement_source==2 and not o.association_valid then t.velocity_valid=false end
 				local stamp = o.observed or self.clock - o.age
 				if stamp > t.observed + 0.01 and stamp <= self.clock + 0.001 then
 					local delta = stamp - t.observed

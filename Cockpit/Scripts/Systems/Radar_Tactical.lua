@@ -35,6 +35,8 @@ function M.publish(computer, put, ready, stt)
 		local quality = t and (t.hits and computer:quality(t) or 2) or 0
 		put(p .. "VALID", t and 1 or 0)
 		put(p .. "SOURCE", t and t.native_id or 0)
+        put(p.."ASSOCIATION_VALID",t and t.association_valid and 1 or 0)
+        put(p.."VELOCITY_VALID",t and t.velocity_valid and t.association_valid and 1 or 0)
 		put(p .. "MEASUREMENT_SOURCE", t and (t.measurement_source or 1) or 0)
 		local cached = M.metadata[i]
 		local source, time = t and t.native_id or 0, t and t.observed or 0
@@ -54,6 +56,11 @@ function M.publish(computer, put, ready, stt)
 		put(p..'N',world and t.north or 0);put(p..'U',world and t.altitude or 0);put(p..'E',world and t.east or 0)
 		put(p..'VN',world and t.vn or 0);put(p..'VU',world and t.vu or 0);put(p..'VE',world and t.ve or 0)
 		put(p .. "QUALITY", quality)
+        local identity_time=t and t.ident_time
+        local identity_known=type(identity_time)=='number' and identity_time==identity_time
+            and identity_time>=0 and identity_time<=computer.clock
+        put(p..'IDENTITY_KNOWN',identity_known and 1 or 0)
+        put(p..'IDENTITY_TIME',identity_known and identity_time or -100)
 		put(p .. "FRIENDLY", t and t.iff == 1 and 1 or 0)
 		put(p .. "HOSTILE", t and t.iff == 0 and 1 or 0)
 		put(p .. "SELECTED", t and (t.id == computer.selected or t.stt) and 1 or 0)

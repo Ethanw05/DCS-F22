@@ -17,7 +17,7 @@ void native_text(StringView &v,const std::string &s){
 int unpack_text(void *p){native_text(*static_cast<StringView*>(p),"0,"+fighter_body);return 1;}
 int extension_of(const StringView&,StringView&v){native_text(v,fighter_body);return extension_kind;}
 void extract_fighter(const StringView&,void*p){++fighter_extract_calls;decode_source=800;decode(p);}
-void *find_peer(unsigned id){return id==200?peer_object.data():nullptr;}
+void *find_peer(unsigned id){return id==200||id==201?peer_object.data():nullptr;}
 int side(const void *p){return enemy&&p==peer_object.data()?2:1;}
 const unsigned char *type_of(const void *p){return p==peer_object.data()?peer_type:self_type;}
 void *group_of(void*){return self_object.data();}
@@ -46,25 +46,30 @@ int main(){
   api.free_text=unpack_text;api.extension=extension_of;api.fighter_track=extract_fighter;
   owner=self_object.data();own_id=100;constructed=true;
   deliver("F22IFDL1;500,20,10000,3000,2000,100,0,20,-1,0;");
-  assert(reports.size()==1&&reports.at(500).link==1&&reports.at(500).reporter==200);
-  assert(reports.at(500).observation_known&&reports.at(500).received==20);
+  assert(reports.size()==1&&reports.at({1,200,500}).link==1&&reports.at({1,200,500}).reporter==200);
+  assert(reports.at({1,200,500}).observation_known&&reports.at({1,200,500}).received==20);
   assert(native_parse_calls==0&&world_position_reads==0);
+  deliver("F22IFDL1;500,20,20000,3000,2000,100,0,20,-1,0;",201);
+  assert(reports.at({1,200,500}).position.n==10000 && reports.at({1,201,500}).position.n==20000);
+  deliver("F22IFDL1;100,20,10000,3000,2000,100,0,20,-1,0;");
+  assert(reports.contains({1,200,100})); // A remote radar track number may equal our host ID.
+
   deliver("F22IFDL1;200,20,10000,3000,2000,100,0,20,1,1;");
-  assert(reports.at(200).flight&&reports.at(200).affiliation==1);
-  deliver("F22IFDL1;600,20,10000,3000,2000,0,0,0,1,1;");assert(!reports.contains(600));
-  deliver("F22IFDL1;600,21,10000,3000,2000,0,0,0,-1,0;");assert(!reports.contains(600));
-  deliver("F22IFDL1;600,-10,10000,3000,2000,0,0,0,-1,0;");assert(!reports.contains(600));
-  deliver("F22IFDL1;600,20,10000,3000,2000,1600,0,0,-1,0;");assert(!reports.contains(600));
-  enemy=true;deliver("F22IFDL1;600,20,10000,3000,2000,0,0,0,-1,0;");assert(!reports.contains(600));enemy=false;
-  peer_type[3]=5;deliver("F22IFDL1;600,20,10000,3000,2000,0,0,0,-1,0;");assert(!reports.contains(600));peer_type[3]=77;
+  assert(reports.at({1,200,200}).flight&&reports.at({1,200,200}).affiliation==1);
+  deliver("F22IFDL1;600,20,10000,3000,2000,0,0,0,1,1;");assert(!reports.contains({1,200,600}));
+  deliver("F22IFDL1;600,21,10000,3000,2000,0,0,0,-1,0;");assert(!reports.contains({1,200,600}));
+  deliver("F22IFDL1;600,-10,10000,3000,2000,0,0,0,-1,0;");assert(!reports.contains({1,200,600}));
+  deliver("F22IFDL1;600,20,10000,3000,2000,1600,0,0,-1,0;");assert(!reports.contains({1,200,600}));
+  enemy=true;deliver("F22IFDL1;600,20,10000,3000,2000,0,0,0,-1,0;");assert(!reports.contains({1,200,600}));enemy=false;
+  peer_type[3]=5;deliver("F22IFDL1;600,20,10000,3000,2000,0,0,0,-1,0;");assert(!reports.contains({1,200,600}));peer_type[3]=77;
   test_time=21;peer_type[3]=5;deliver("native TADIL-J air track");
-  auto &r=reports.at(500);assert(r.link==2&&r.position.n==1000&&r.position.u==3048&&r.position.e==2000);
+  auto &r=reports.at({2,200,500});assert(r.link==2&&r.position.n==1000&&r.position.u==3048&&r.position.e==2000);
   assert(!r.observation_known&&r.received==21);
   assert(std::abs(r.velocity.e-154.3333333333)<.00001&&r.affiliation==-1);
   assert(world_position_reads==0&&native_parse_calls==1);
-  message_kind=16;deliver("native TADIL-J air PPLI");assert(reports.at(200).ppli&&reports.at(200).affiliation==1);
+  message_kind=16;deliver("native TADIL-J air PPLI");assert(reports.at({2,200,200}).ppli&&reports.at({2,200,200}).affiliation==1);
   message_kind=91;deliver("native fighter donation");
-  assert(reports.at(800).link==2&&!reports.at(800).ppli&&fighter_extract_calls==1);
+  assert(reports.at({2,200,800}).link==2&&!reports.at({2,200,800}).ppli&&fighter_extract_calls==1);
   extension_kind=1;deliver("unrelated native free text");assert(fighter_extract_calls==1);extension_kind=0;
   const auto valid_body=fighter_body;
   for(const auto &bad:{"10000,1,2,90,300,800", "10000,1,2,90,300,800,32767,7,48,75,4093 trailing",
@@ -73,9 +78,9 @@ int main(){
   }
   fighter_body=valid_body;assert(world_position_reads==0);
   decode_source=200;message_kind=23;deliver("native friendly participant surveillance");
-  assert(!reports.at(200).ppli&&reports.at(200).affiliation==1&&"PPLI identity lost on surveillance update");
+  assert(!reports.at({2,200,200}).ppli&&reports.at({2,200,200}).affiliation==1&&"PPLI identity lost on surveillance update");
   // Ownship, unknown senders and unrecognized native message types stay absent.
-  decode_source=100;message_kind=23;deliver("native TADIL-J own track");assert(!reports.contains(100));
+  decode_source=100;message_kind=23;deliver("native TADIL-J own track");assert(!reports.contains({2,200,100}));
   deliver("native TADIL-J missing sender",999);assert(world_position_reads==0);
   message_kind=99;auto before=reports.size();deliver("native TADIL-J non-track");assert(reports.size()==before);
   // Consume and free one real-layout native std::list node, including its
@@ -87,7 +92,7 @@ int main(){
   const std::string payload="F22IFDL1;700,21,10000,3000,2000,0,0,0,-1,0;";
   auto buffer=static_cast<char*>(std::malloc(payload.size()+1));std::memcpy(buffer,payload.c_str(),payload.size()+1);
   StringView text{};text.pointer=buffer;text.size=payload.size();text.capacity=payload.size();std::memcpy(node+136,&text,32);
-  queue_fixture={head,1};drain();assert(queue_fixture.count==0&&reports.contains(700));
+  queue_fixture={head,1};drain();assert(queue_fixture.count==0&&reports.contains({1,200,700}));
   void *next{};std::memcpy(&next,head,8);assert(next==head);std::free(head);
   constructed=false;owner=nullptr;reports.clear();
   std::puts("Native datalink: J3.2/J2.2 and native fighter extension decode, strict malformed-envelope rejection, owned strings/queue, peer filtering and no target-truth reads PASS");

@@ -92,18 +92,26 @@ void scenarios() {
     CHECK(pointer == &responder);
     for (int i=0;i<30;++i) {
         now=10+i*.021; values["F22_AESA_CONTROL_TIME"]=now;
+        if (values["F22A_01_VALID"]==1) {
+            const auto track=values["F22A_01_ID"];
+            values["F22_AESA_CONTROL_TARGET"]=track;
+            values["F22_AESA_CONTROL_FC_TARGET"]=track;
+            values["F22_AESA_PRIORITY_01"]=track;
+        }
         update(parameters_api);
         AllocationProbe::enabled=true;driver_update(&driver);AllocationProbe::enabled=false;
         update(parameters_api);
     }
     CHECK(AllocationProbe::count==0);
     CHECK(updates==30 && queries>0 && emitting && values["F22_AESA_COUNT"]==1);
-    CHECK(values["F22A_01_ID"]==42 && values["F22A_01_HITS"]>=2);
+    const auto track=static_cast<unsigned>(values["F22A_01_ID"]);
+    CHECK(track>0 && track!=42 && values["F22A_01_HITS"]>=3);
+    CHECK(host_for_track(track)==42 && track_for_host(42)==track);
     CHECK(values["F22A_01_FILTER_VALID"]==1 && values["F22A_01_COV_00"]>0 && values["F22A_01_COV_55"]>0);
     CHECK(values["F22A_01_OWN_VN"]==250 && values["F22A_01_FORWARD_N"]==1);
     CHECK(std::abs(values["F22A_01_RANGE_RATE"])<3*values["F22A_01_RATE_SIGMA_MPS"]);
     CHECK(values["F22_AESA_GENERATION"]>0);
-    CHECK(values["F22_AESA_FC_TARGET"]==42 && values["F22_AESA_FC_REVISIT_S"]==.025);
+    CHECK(values["F22_AESA_FC_TARGET"]==track && values["F22_AESA_FC_REVISIT_S"]==.025);
     CHECK(values["F22_AESA_FC_LAST_LOOK"]>10 && values["F22_AESA_PROCESSING_S"]==.012);
     values["F22_AESA_CONTROL_GUN_TRACK"]=2;
     CHECK(!parameters.controls(parameters_api,now).controls.enabled);
@@ -114,8 +122,22 @@ void scenarios() {
     auto table = *static_cast<void***>(pointer);
     CHECK(reinterpret_cast<Target>(table[2])(pointer)==42);
     CHECK(reinterpret_cast<Tracking>(table[1])(pointer,42,9001));
-    CHECK(values["F22_RADAR_WEAPON_TARGET_ID"]==42);
+    CHECK(values["F22_RADAR_WEAPON_TARGET_ID"]==track);
     CHECK(values["F22_TWS_GUIDANCE_BACKEND_READY"]==1);
+    const auto saved=snapshot.measurements[0];
+    snapshot.measurements[0].association_valid=false;
+    update(parameters_api);
+    CHECK(values["F22A_01_TIME"]==saved.time && values["F22A_01_VELOCITY_VALID"]==0);
+    CHECK(values["F22A_01_ASSOCIATION_VALID"]==0 && !responder.tracking(42,9001));
+    CHECK(!host_for_track(track) && !track_for_host(42));
+    snapshot.measurements[0]=saved;
+    snapshot.measurements[1]=saved;snapshot.measurements[1].id=track+100;
+    snapshot.bindings[1]=snapshot.bindings[0];snapshot.bindings[1].track=track+100;
+    CHECK(!host_for_track(track) && !track_for_host(42));
+    snapshot.measurements[1]={};snapshot.bindings[1]={};
+    update(parameters_api);
+    CHECK(values["F22A_01_VELOCITY_VALID"]==1 && responder.target()==42);
+
     const auto dwells = values["F22_AESA_DWELLS"];
     driver_update(&driver); update(parameters_api); CHECK(values["F22_AESA_DWELLS"]==dwells);
     now+=.6; driver_update(&driver); update(parameters_api);

@@ -53,7 +53,9 @@ function M:read(now, pose, display)
             o.native_id, o.observed, o.age = id, time, math.max(0,now-time)
             o.north, o.altitude, o.east = n, u, e
             o.vn, o.vu, o.ve = get(p.."VN"), get(p.."VU"), get(p.."VE")
-            o.velocity_valid = get(p.."VELOCITY_VALID") == 1 and finite(o.vn) and finite(o.vu) and finite(o.ve)
+            o.association_valid = get(p.."ASSOCIATION_VALID") == 1
+            o.velocity_valid = get(p.."VELOCITY_VALID") == 1 and o.association_valid
+                and finite(o.vn) and finite(o.vu) and finite(o.ve)
             o.velocity_valid = o.velocity_valid and o.filter_valid and finite(o.velocity_sigma_mps)
                 and o.velocity_sigma_mps > 0 and o.velocity_sigma_mps <= 100
             o.measurement_source, o.iff = 2, -1
@@ -81,7 +83,7 @@ function M:state(now, computer, observations)
             and finite(o.range_sigma_m) and o.range_sigma_m > 0 then
             self.locked, self.acquiring = o.native_id, nil
         end
-        if self.locked == o.native_id and o.age <= .5 then lock = o end
+        if self.locked == o.native_id and o.age <= .5 and o.association_valid then lock = o end
     end
     if not computer.power or not self.emitting then self.locked, self.acquiring, lock = nil,nil,nil end
     if self.locked and not lock then self.locked = nil end

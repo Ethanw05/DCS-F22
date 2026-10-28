@@ -143,3 +143,7 @@ fixed storage; further ground refactoring must preserve the qualified ABI.
 
 The offboard cue consumer now has explicit source/epoch/intent validation and
 finite native cue-area search; see [the donor cue contract](SEN-02-donor-cue.md).
+
+Owned measurement association and tactical source namespace migration are
+covered in [SEN-02-association](SEN-02-association.md); simulator IDs no longer
+select air-track associations or establish cross-sensor identity matches.

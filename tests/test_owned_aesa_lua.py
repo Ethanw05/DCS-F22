@@ -18,7 +18,7 @@ function report(stamp,hits)
  p('F22_AESA_READY',1);p('F22_AESA_SEQUENCE',4);p('F22_AESA_TIME',now)
  p('F22_AESA_GENERATION',1)
  for k,v in pairs({VALID=1,ID=42,TIME=stamp,N=10000,U=0,E=0,VN=-200,VU=0,VE=0,
- VELOCITY_VALID=1,HITS=hits,RANGE_SIGMA_M=30,ANGLE_SIGMA_RAD=.001,
+ ASSOCIATION_VALID=1,VELOCITY_VALID=1,HITS=hits,RANGE_SIGMA_M=30,ANGLE_SIGMA_RAD=.001,
  FILTER_VALID=1,POSITION_SIGMA_M=20,VELOCITY_SIGMA_MPS=10})do p('F22A_01_'..k,v)end
 end
 now=10.1;report(now,1);update()
@@ -40,7 +40,7 @@ assert(g('F22_STT_PN')==10000 and g('F22_STT_VN')==-200)
 assert(#actions==0)
 -- Other reports keep updating while the selected source has a priority lock.
 for k,v in pairs({VALID=1,ID=84,TIME=now,N=12000,U=0,E=100,VN=-180,VU=0,VE=0,
- VELOCITY_VALID=1,HITS=2,RANGE_SIGMA_M=30,ANGLE_SIGMA_RAD=.001,
+ ASSOCIATION_VALID=1,VELOCITY_VALID=1,HITS=2,RANGE_SIGMA_M=30,ANGLE_SIGMA_RAD=.001,
  FILTER_VALID=1,POSITION_SIGMA_M=20,VELOCITY_SIGMA_MPS=10})do p('F22A_02_'..k,v)end
 now=10.5;report(now,4);p('F22A_02_TIME',now);update()
 now=10.6;report(now,5);p('F22A_02_TIME',now);update()

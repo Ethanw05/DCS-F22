@@ -26,7 +26,7 @@ function f.measure(id,n,u,e,vn,vu,ve)
  f.hits[id]=(f.hits[id]or 0)+1
  local p=string.format('F22A_%02d_',slot)
  for k,v in pairs({VALID=1,ID=id,TIME=f.now,N=n or 10000,U=u or 3000,E=e or 0,
-  VN=vn or 0,VU=vu or 0,VE=ve or 0,VELOCITY_VALID=1,HITS=f.hits[id],
+  VN=vn or 0,VU=vu or 0,VE=ve or 0,ASSOCIATION_VALID=1,VELOCITY_VALID=1,HITS=f.hits[id],
   RANGE_SIGMA_M=30,ANGLE_SIGMA_RAD=.001,FILTER_VALID=1,POSITION_SIGMA_M=20,VELOCITY_SIGMA_MPS=10})do f.put(p..k,v)end
 end
 function f.lock(id)

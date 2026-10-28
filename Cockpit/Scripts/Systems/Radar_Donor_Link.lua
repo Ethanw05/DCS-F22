@@ -57,6 +57,7 @@ function M.new(get, put)
         self.counter = self.counter % 7999999 + 1
         self.started, self.request_source = now, self.donor.source
         self.request_epoch = self.donor.epoch
+        self.request_reporter,self.request_link = self.donor.reporter,self.donor.link
         return true
     end
     function state:publish(now, active)
@@ -81,6 +82,7 @@ function M.new(get, put)
     function state:intent_valid(now)
         local donor = self.donor
         return donor ~= nil and donor.source == self.request_source and donor.epoch == self.request_epoch
+            and donor.reporter == self.request_reporter and donor.link == self.request_link
             and M.fresh(now, self.started, M.lifetime)
     end
     function state:update(now, donor, powered)

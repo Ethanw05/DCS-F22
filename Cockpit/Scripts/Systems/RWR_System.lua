@@ -46,7 +46,6 @@ local function retain_identity(source, evidence)
     identity_memory[source]=evidence
     return true
 end
-local identity_sequence = nil
 local native_power = nil
 local inspection_held = {}
 for _, id in ipairs({ 10900, 10901, 10902, 10903, 10904, 10905, 10906, 10907, 10908, 10915, 10916, 10917, 10918 }) do
@@ -98,7 +97,6 @@ function post_initialize()
 	audio = audio_library.new()
 	identity_memory = {}
     identity_count = 0
-	identity_sequence = nil
 	clock = 0
 	native_power = nil
 	last_diagnostic = nil
@@ -114,7 +112,6 @@ function post_initialize()
 end
 function update()
 	local step = 0.05
-	local rewound = false
 	if type(get_model_time) == "function" then
 		local ok, now = pcall(get_model_time)
 		if ok and type(now) == "number" and now == now and now >= 0 and now < 1e12 then
@@ -123,11 +120,9 @@ function update()
 				audio = audio_library.new()
 				identity_memory = {}
                 identity_count = 0
-				identity_sequence = nil
 				native_power = nil
 				last_diagnostic = nil
 				step = 0
-				rewound = true
 			else
 				step = now - clock
 			end
@@ -179,25 +174,8 @@ function update()
 	end
 	receiver:update(observations, ready and powered)
 	bearings:update(clock, bearing_library.frame(sensors), receiver.contacts, ready and powered)
-	-- Radar publishes this sequence last. Consume each complete identity
-	-- snapshot once; frozen producer parameters cannot renew a 30-second ID.
-	local sequence = get("F22_TWS_PUBLISH_SEQUENCE")
-	if rewound then
-		identity_sequence = sequence
-	end
-	if sequence ~= identity_sequence then
-		for i = 1, 64 do
-			local p = string.format("F22_IDENT_%02d_", i)
-			local source, age, class = get(p .. "SOURCE"), get(p .. "AGE"), get(p .. "CLASS")
-			-- This is the radar's qualified classification snapshot, not a raw
-			-- missing-IFF reply. Preserve both known friend and known hostile.
-			if get(p .. "VALID") > 0.5 and source > 0 and age >= 0 and age <= 30 and (class == 1 or class == 0) then
-				local retained=retain_identity(source,{class=class,time=clock-age,expires=clock+30-age})
-                if not retained then put('F22_IFF_MEMORY_OVERFLOW',1)end
-			end
-		end
-		identity_sequence = sequence
-	end
+    -- Radar track numbers and RF source numbers are separate namespaces.
+    -- Radar/donor identification belongs to geometry-qualified tactical fusion.
 	for source, id in pairs(identity_memory) do
 		if id.expires <= clock then
 			identity_memory[source] = nil

@@ -1,6 +1,7 @@
 -- GPL-3.0-or-later. Source-aware tactical picture, separate from fire control.
--- Exact simulator source identity is association plumbing, not combat ID.
+-- Sensor-scoped identities correlate through measured geometry, never equal host IDs.
 local M = { limits = { radar = 20, rf = 12, mws = 3, datalink = 75 }, bits = { radar = 1, rf = 2, mws = 4, datalink = 8 } }
+local Association = dofile(LockOn_Options.script_path .. "Systems/Tactical_Association.lua")
 local Threat = dofile(LockOn_Options.script_path .. "Systems/Tactical_Threat.lua")
 local Geolocation = dofile(LockOn_Options.script_path .. "Systems/EW_Geolocation.lua")
 local Identification = dofile(LockOn_Options.script_path .. 'Systems/Identification_State.lua')
@@ -13,8 +14,9 @@ local function source(x)
 	return finite(x) and x >= 1 and x < 4294967296 and x % 1 == 0
 end
 function M.new()
-	local s = { batches = {}, contacts = {}, sequence = 0 }
+	local s = { batches = {}, contacts = {}, sequence = 0, association = Association.new() }
 	function s:reset()
+        self.association:reset()
 		self.batches = {}
 		self.contacts = {}
 		self.clock = nil
@@ -65,6 +67,7 @@ function M.new()
 							hostile = o.hostile == true,
 							label = o.label,
 							selected = o.selected == true,
+                            identity_known = o.identity_known,
                             identity_time = finite(o.identity_time) and o.identity_time or nil,
                             hostile_time = finite(o.hostile_time) and o.hostile_time or nil,
 							range = sensor == "radar" and finite(o.range) and o.range >= 40 and o.range or nil,
@@ -79,7 +82,7 @@ function M.new()
 							estimated = o.estimated == true,
 							uncertainty = finite(o.uncertainty) and o.uncertainty >= 0 and o.uncertainty or nil,
 						}
-						if sensor == 'datalink' then
+						if sensor == 'datalink' or sensor == 'radar' then
 							for _,k in ipairs({'n','u','e','vn','vu','ve','link','reporter','flight','ppli',
                                 'received','observation_known','observation_time','epoch'}) do c[k]=o[k] end
 						end
@@ -99,17 +102,20 @@ function M.new()
 								end
 							end
 						end
-						if not accepted[c.source] or accepted[c.source].time < c.time then
-							accepted[c.source] = c
+						local identity = sensor=='datalink' and (tostring(c.link)..':'..tostring(c.reporter)..':'..c.source) or c.source
+                        if not accepted[identity] or accepted[identity].time < c.time then
+                            accepted[identity] = c
 						end
 					end
 				end
 				self.batches[sensor] = { sequence = batch.sequence, time = batch.time, contacts = accepted }
 			end
 		end
+        self.association:associate(self.batches,now,M.limits)
 		local joined = {}
 		for sensor, batch in pairs(self.batches) do
-			for id, o in pairs(batch.contacts) do
+			for _, o in pairs(batch.contacts) do
+                local id=o.picture_source
 				local age = math.max(0, now - o.time)
 				if age <= M.limits[sensor] then
 					local t = joined[id]

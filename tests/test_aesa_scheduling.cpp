@@ -59,7 +59,7 @@ void engagement(double callback, bool gun, bool jitter = false) {
             world.objects[0].velocity.e = 40 * std::cos(now * .5);
         }
         if (now >= .3) {
-            c.priority_ids[0] = 42; c.fire_control_id = 42; c.gun_tracking = gun;
+            c.priority_ids[0] = radar.measurements()[0].id; c.fire_control_id = c.priority_ids[0]; c.gun_tracking = gun;
             c.half_azimuth = 60 * degree; c.half_elevation = 10 * degree;
         }
         const auto beam = radar.status().beam;
@@ -95,8 +95,8 @@ void saturated() {
     }
     for (const auto& t : radar.measurements()) if (t.valid) CHECK(t.velocity_valid);
     c.azimuth = 0; c.half_azimuth = 60 * degree; c.half_elevation = 10 * degree;
-    c.fire_control_id = 42; c.gun_tracking = true;
-    c.priority_ids = {42, 51, 43, 44, 45, 46, 47, 48, 49, 50};
+    c.fire_control_id = radar.measurements()[0].id; c.gun_tracking = true;
+    for (std::size_t i=0;i<10;++i) c.priority_ids[i] = radar.measurements()[i].id;
     std::array<double, 10> last{}, gap{};
     std::array<unsigned, 10> count{};
     double search_time = 0, track_time = 0;
@@ -107,7 +107,7 @@ void saturated() {
         if (i < 240 || radar.status().dwells == dwells) continue;
         if (!beam.priority) { search_time += now - beam.started; continue; }
         track_time += now - beam.started;
-        const auto index = beam.task_source - 42;
+        const auto index = beam.task_source - radar.measurements()[0].id;
         CHECK(index < count.size());
         if (count[index]++) gap[index] = std::max(gap[index], now - last[index]);
         last[index] = now;
@@ -125,7 +125,7 @@ void degraded() {
     Scene world; world.objects[0].position = {800, 3000, 0};
     Pose pose{}; pose.position.u = 3000;
     Controls c{}; c.enabled = true; c.half_azimuth = degree; c.half_elevation = degree;
-    c.fire_control_id = 42; c.gun_tracking = true; c.priority_ids[0] = 42;
+    c.fire_control_id = 1; c.gun_tracking = true; c.priority_ids[0] = 1;
     for (unsigned i = 0; i < 480; ++i) radar.update(i / 240.0, c, pose, world);
     world.blocked = true;
     // Previously sensed returns may finish processing after visibility is lost.
@@ -180,7 +180,7 @@ void cued_search() {
     }
     CHECK(cued > 10 && background >= 3*cued-1);
     CHECK(right-left > 5*degree && high-low > 5*degree);
-    CHECK(radar.measurements()[0].valid && radar.measurements()[0].id == 42);
+    CHECK(radar.measurements()[0].valid && radar.measurements()[0].id > 0 && radar.measurements()[0].id != 42);
     CHECK(radar.status().cue_request == 22 && radar.status().cue_time > 0);
     // A malformed cue cannot replace or disable ordinary search.
     c.cue_half_azimuth = std::numeric_limits<double>::quiet_NaN();

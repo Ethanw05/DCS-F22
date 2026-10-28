@@ -32,7 +32,7 @@ int scenarios() {
     CHECK(radar.update(.079, c, pose, world)); CHECK(!radar.measurements()[0].valid);
     CHECK(radar.update(.08, c, pose, world));
     const auto first = radar.measurements()[0];
-    CHECK(first.valid && first.id == 42 && first.time == .02);
+    CHECK(first.valid && first.id != 42 && first.id > 0 && first.time == .02);
     CHECK(length(first.position - world.objects[0].position) > .001);
     CHECK(first.range_sigma_m > 0 && first.angle_sigma_rad > 0 && !first.velocity_valid);
     const auto queries = world.queries;
@@ -71,7 +71,7 @@ int scenarios() {
     CHECK(lo < -50 * degree && hi > 50 * degree);
     CHECK(coverage.status().search_dwells >= 290);
     // A selected track gets finite revisits while discovery continues.
-    c.half_azimuth = degree; c.half_elevation = degree; c.priority_ids[0] = 42;
+    c.half_azimuth = degree; c.half_elevation = degree; c.priority_ids[0] = 1;
     static Model tracking;
     for (int i = 0; i < 150; ++i) {
         if (i == 10) c.half_azimuth = 60 * degree;
@@ -105,7 +105,8 @@ int scenarios() {
     static Model store(Policy{.005,.001});
     for(int i=0;i<100;++i)store.update(i*.006,c,pose,world);
     count=0;for(const auto& t:store.measurements())if(t.valid)++count;
-    CHECK(count==maximum_tracks);
+    CHECK(count>0 && count<maximum_tracks);
+    CHECK(store.status().association_ambiguous>0); // Identical reports cannot produce64 perfectly separate targets.
     // Invalid policy values cannot create division-by-zero or an unbounded grid.
     static Model bad_policy(Policy{0,0,0});
     CHECK(bad_policy.update(0,c,pose,world)&&bad_policy.status().beam.completes>0);

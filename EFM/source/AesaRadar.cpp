@@ -1,5 +1,6 @@
 // GPL-3.0-or-later. Finite electronic beam service and measured radar reports.
 #include "AesaRadar.h"
+#include "AesaAssociation.h"
 #include <algorithm>
 #include <cmath>
 
@@ -101,6 +102,9 @@ void Model::reset(std::uint64_t generation) noexcept {
     for(auto& track:tracks_) track={};
     for(auto& pending:pending_) pending={};
     for(auto& filter:filters_) filter.reset();
+    bindings_.fill({});
+    // Track numbers never reuse a retired number during this model lifetime.
+    // A generation reset retires all public consumers separately.
     last_priority_look_.fill(-100);
     cue_cell_ = 0; cue_turn_ = 0;
     status_ = {}; previous_ = {};
@@ -125,7 +129,10 @@ Measurement* Model::find(std::uint32_t id) noexcept {
 void Model::age(double now) noexcept {
     status_.tracks = 0;
     for (auto& t : tracks_) {
-        if (t.valid && now - t.time > policy_.track_memory_s) t = {};
+        if (t.valid && now - t.time > policy_.track_memory_s) {
+            bindings_[static_cast<std::size_t>(&t-tracks_.data())] = {};
+            t = {};
+        }
         if (t.valid) ++status_.tracks;
     }
 }
@@ -151,18 +158,87 @@ bool Model::assimilate(Pending& pending, Measurement& target) noexcept {
     target = value;
     return true;
 }
-void Model::release(double now) noexcept {
-    status_.pending = 0;
-    for (auto& p : pending_) {
-        if (!p.occupied) continue;
-        if (p.release > now) { ++status_.pending; continue; }
-        auto* target = find(p.value.id);
-        if (!target) for (auto& t : tracks_) if (!t.valid) { target = &t; break; }
-        if (target && p.value.time > target->time) (void)assimilate(p, *target);
-        else if (!target) ++status_.queue_drops;
-        p.occupied = false;
+void Model::withdraw(std::size_t index) noexcept {
+    tracks_[index].association_valid = false;
+    bindings_[index].qualified = false;
+    bindings_[index].hits = 0;
+}
+void Model::commit(Pending& report, std::size_t index) noexcept {
+    auto& track = tracks_[index];
+    const auto id = track.valid ? track.id : next_track_;
+    if (!track.valid) {
+        if (next_track_ >= 16000000) { ++status_.association_dropped; return; }
+        ++next_track_;
+    }
+    report.value.id = id;
+    report.value.association_valid = true;
+    if (!assimilate(report,track)) { withdraw(index); ++status_.association_dropped; return; }
+    auto& binding = bindings_[index];
+    if (binding.track != id || binding.host != report.host) binding = {id,report.host,0,false};
+    binding.hits = std::min(255u,binding.hits+1);
+    binding.qualified = binding.host != 0 && binding.hits >= 3 && track.velocity_valid;
+}
+void Model::associate(std::span<Pending*> reports) noexcept {
+    AesaAssociation::Assignment match{};
+    std::array<bool,maximum_tracks> assigned{};
+    for (std::size_t row=0;row<reports.size();++row)
+        for (std::size_t column=0;column<tracks_.size();++column)
+            if (tracks_[column].valid)
+                match.offer(row,column,filters_[column].association_score(reports[row]->sample));
+    for (std::size_t row=0;row<reports.size();++row) {
+        const auto selected = match.selected(row);
+        if (selected == AesaAssociation::none) continue;
+        assigned[selected] = true;
+        commit(*reports[row],selected);
+    }
+    for (std::size_t column=0;column<tracks_.size();++column)
+        if (!assigned[column] && match.tracks[column].index != AesaAssociation::none) withdraw(column);
+    for (std::size_t row=0;row<reports.size();++row) {
+        if (match.selected(row) != AesaAssociation::none) continue;
+        if (match.reports[row].index != AesaAssociation::none) { ++status_.association_ambiguous; continue; }
+        birth(*reports[row]);
     }
 }
+void Model::birth(Pending& report) noexcept {
+    bool overlap = false;
+    for (std::size_t column=0;column<tracks_.size();++column)
+        if (tracks_[column].valid && tracks_[column].time == report.sample.time
+            && filters_[column].association_score(report.sample) <= AesaAssociation::gate) {
+            overlap = true;
+            withdraw(column);
+        }
+    if (overlap) { ++status_.association_ambiguous; return; }
+    std::size_t free = 0;
+    while (free<tracks_.size() && tracks_[free].valid) ++free;
+    if (free<tracks_.size()) commit(report,free);
+    else ++status_.queue_drops;
+}
+Model::Pending* Model::next_report(double now) noexcept {
+    Pending* first = nullptr;
+    for (auto& p : pending_)
+        if (p.occupied && p.release <= now && (!first || p.value.time < first->value.time)) first = &p;
+    return first;
+}
+std::size_t Model::batch_reports(Pending& first, double now, std::span<Pending*> reports) noexcept {
+    std::size_t count = 0;
+    for (auto& p : pending_)
+        if (p.occupied && p.value.time == first.value.time && p.release <= now && count<reports.size())
+            reports[count++] = &p;
+    return count;
+}
+void Model::release(double now) noexcept {
+    for (std::size_t batch=0;batch<maximum_pending;++batch) {
+        auto* first = next_report(now);
+        if (!first) break;
+        std::array<Pending*,maximum_returns_per_dwell> reports{};
+        const auto count = batch_reports(*first,now,reports);
+        associate(std::span<Pending*>(reports.data(),count));
+        for (std::size_t row=0;row<count;++row) reports[row]->occupied = false;
+    }
+    status_.pending = 0;
+    for (const auto& p : pending_) if (p.occupied) ++status_.pending;
+}
+
 void Model::start_surface(double now, const Controls& c, const Pose& pose) noexcept {
     const double half = std::isfinite(c.surface_half_azimuth)
         ? std::clamp(c.surface_half_azimuth, degree, 60 * degree) : 45 * degree;
@@ -261,7 +337,8 @@ void Model::queue(double now, const Pose& pose, const Truth& truth, double signa
     const double coherence_ratio = policy_.dwell_s / status_.beam.integration_s;
     const double sigma_rate = std::max(.25, coherence_ratio / quality);
     const double range_rate=dot(truth.velocity-pose.velocity,delta)/range+error(sigma_rate);
-    slot->value={truth.id,1,measured,{},now,sigma_r,sigma_a,true,false};
+    slot->value={0,1,measured,{},now,sigma_r,sigma_a,true,false};
+    slot->host = truth.id;
     slot->value.measured_range=measured_range;slot->value.measured_azimuth=measured_az;
     slot->value.measured_elevation=measured_el;slot->value.measured_range_rate=range_rate;
     slot->value.rate_sigma_mps=sigma_rate;

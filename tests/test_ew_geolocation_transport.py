@@ -44,7 +44,7 @@ assert(get('F22_TACTICAL_01_RANGE_VALID')==0 and get('F22_TACTICAL_01_MEASURED_R
 assert(get('F22_DEFENSIVE_GEO_VALID')==1 and get('F22_DEFENSIVE_RANGE_VALID')==0)
 assert(get('F22_DEFENSIVE_GEO_RADIUS_NM')>0 and get('F22_DEFENSIVE_GEO_STATUS')==4)
 assert(get('F22_DEF_OV_01_GEO')==1 and get('F22_DEF_OV_01_RANGED')==0,'overview lost estimated provenance')
-assert(get('F22_TSD_GEO_COUNT')==1 and get('F22_TSD_GEO_01_SOURCE')==72)
+assert(get('F22_TSD_GEO_COUNT')==1 and get('F22_TSD_GEO_01_SOURCE')==get('F22_TACTICAL_01_SOURCE'))
 assert(get('F22_TSD_GEO_01_AFFILIATION')==-1,'ground taxonomy implied hostility')
 assert(get('F22_TSD_BEARING_01_VALID')==0,'on-map estimate has duplicate bearing symbol')
 assert(get('F22_TSD_GEO_01_H_VALID')==1 and get('F22_TSD_GEO_01_V_VALID')==1)

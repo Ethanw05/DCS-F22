@@ -8,4 +8,7 @@ void reset() noexcept;
 void damage(int cell, double integrity) noexcept;
 void repair() noexcept;
 void sample(void* owned_radar) noexcept;
+// Host IDs stay private to the native weapon boundary; zero means unqualified.
+unsigned host_for_track(unsigned track) noexcept;
+unsigned track_for_host(unsigned host) noexcept;
 }

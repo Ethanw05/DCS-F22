@@ -562,24 +562,6 @@ function update()
 	put("F22_RADAR_SUPPORT_DEGRADED", scan and scan.support_count > 0 and (scan.uncovered > 0 or scan.support_overdue > 0) and 1 or 0)
 	put("F22_RADAR_SCAN_COVERAGE_COMPLETE", powered and ready and scan and scan.uncovered == 0 and 1 or 0)
 	put("F22_RADAR_SCAN_RANGE_NM", scan and scan.range / 1852 or computer:range() / 1852)
-	local identities = {}
-	for _, t in pairs(computer.tracks) do
-		if t.native_id and t.ident_time then
-			identities[#identities + 1] = t
-		end
-	end
-	table.sort(identities, function(a, b)
-		return a.native_id < b.native_id
-	end)
-	for i = 1, 64 do
-		local p = string.format("F22_IDENT_%02d_", i)
-		local t = identities[i]
-		local age = t and math.max(0, computer.clock - t.ident_time) or 999
-		put(p .. "VALID", t and age <= 30 and 1 or 0)
-		put(p .. "SOURCE", t and t.native_id or 0)
-		put(p .. "CLASS", t and t.ident_class or -1)
-		put(p .. "AGE", age)
-	end
 	local mode = not powered and "OFF"
 		or (not ready or (not observations_ready and native_mode ~= 3)) and "SENSOR N/A"
 		or native_mode == 3 and not stt_observation and "SENSOR N/A"

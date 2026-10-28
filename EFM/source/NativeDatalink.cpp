@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <tuple>
 
 namespace NativeDatalink { namespace {
 struct Vec { double n{},u{},e{}; };
@@ -53,7 +54,9 @@ struct Report {
 // The common AI terminal can space surveillance reports about a minute apart.
 // Retain bounded SA memory; the original observation time is never renewed.
 double lifetime(const Report &q) {return q.ppli?26.:75.;}
-std::map<unsigned,Report> reports;
+using ReportKey = std::tuple<int,unsigned,unsigned>;
+ReportKey report_key(const Report& report) { return {report.link,report.reporter,report.source}; }
+std::map<ReportKey,Report> reports;
 std::map<unsigned,Report> participants;
 std::map<std::string,void*> handles;
 double get(EDPARAM &p,const std::string &n) {auto &h=handles[n];if(!h)h=p.getParamHandle(n.c_str());return p.getParamNumber(h);}
@@ -159,18 +162,30 @@ double previous=-1,last_send=-1;unsigned long long sequence{},epoch{1},received{
 unsigned last_sender{};int last_kind{-1};
 int published_rx=-1,published_tx=-1;
 
-void accept(Report q,double now) {
-  if(!q.source||q.source==own_id||!q.reporter||!finite(q.time)||q.time<0||now-q.time<-.05||now-q.time>lifetime(q)||
-     !valid(q.position)||!valid(q.velocity)||std::hypot(q.velocity.n,q.velocity.u,q.velocity.e)>1500)return;
-  auto i=reports.find(q.source);
-  if(i!=reports.end()&&(i->second.time>q.time||(i->second.time==q.time&&i->second.link<q.link)))return;
-  if(i==reports.end()&&reports.size()>=64)return;
-  q.received=now;
+bool report_clock(const Report& q,double now) {
+  return finite(now)&&finite(q.time)&&q.time>=0&&now-q.time>=-.05&&now-q.time<=lifetime(q);
+}
+bool report_identity(const Report& q) {
+  return q.source&&q.reporter&&!((q.ppli||q.link==2)&&q.source==own_id);
+}
+bool report_kinematics(const Report& q) {
+  return valid(q.position)&&valid(q.velocity)&&std::hypot(q.velocity.n,q.velocity.u,q.velocity.e)<=1500;
+}
+void participant_identity(Report& q,double now) {
   if(q.ppli) {
     if(participants.contains(q.source)||participants.size()<64)participants[q.source]=q;
+  } else if(auto p=participants.find(q.link==2?q.source:0);p!=participants.end()&&now-p->second.time<=26) {
+    q.affiliation=1;
   }
-  else if(auto p=participants.find(q.source);p!=participants.end()&&now-p->second.time<=26)q.affiliation=1;
-  reports[q.source]=q;
+}
+void accept(Report q,double now) {
+  if(!report_identity(q)||!report_clock(q,now)||!report_kinematics(q))return;
+  auto i=reports.find(report_key(q));
+  if(i!=reports.end()&&i->second.time>q.time)return;
+  if(i==reports.end()&&reports.size()>=64)return;
+  q.received=now;
+  participant_identity(q,now);
+  reports[report_key(q)]=q;
 }
 bool unpack_fighter_track(void *decoded) {
   // Native packFighterToFighterAirTrack uses free text (kind 91),

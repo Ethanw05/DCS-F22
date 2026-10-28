@@ -33,18 +33,18 @@ end
 tick()
 assert(v('F22_TACTICAL_01_RF_DIRECTION_VALID')==1)
 assert(v('F22_TACTICAL_01_RF_GENERAL')==1 and v('F22_TACTICAL_01_RANGE_VALID')==0)
-assert(v('F22_RADAR_RF_CUE_ACTIVE')==1 and v('F22_RADAR_RF_CUE_SOURCE')==71)
+assert(v('F22_RADAR_RF_CUE_ACTIVE')==1 and v('F22_RADAR_RF_CUE_SOURCE')==v('F22_TACTICAL_01_SOURCE'))
 assert(math.abs(-v('F22_AESA_CONTROL_CUE_AZ')+math.rad(35))<1e-8,'native scanner azimuth reflection missing')
 assert(math.abs(v('F22_AESA_CONTROL_CUE_EL')-math.rad(25))<1e-8)
 assert(v('F22_RADAR_DRAWN_COUNT')==0 and v('F22_RADAR_STT_VALID')==0,'passive cue fabricated detection/lock')
 -- Same measured RF reception, but ownship turns. Search follows the fixed
 -- world direction instead of freezing the old body bearing.
 heading=math.rad(30)
--- A newer optical direction for the same source must not replace RF task LOS.
+-- A different optical bearing stays separate despite a coincident source number.
 p('F22_MWS_PUBLISH_SEQUENCE',1);p('F22_MWS_PUBLISH_TIME',now+.05)
 for k,x in pairs({VALID=1,SOURCE=71,AGE=0,AZ=-.5,EL=-.2})do p('F22_MWS_01_'..k,x)end
 tick()
-assert(v('F22_TACTICAL_01_DIRECTION_SOURCE')==4)
+assert(v('F22_TACTICAL_COUNT')==2 and v('F22_TACTICAL_01_DIRECTION_SOURCE')==4)
 assert(math.abs(-v('F22_AESA_CONTROL_CUE_AZ')+math.rad(5))<1e-8)
 -- A genuine new radar observation in the cued volume must not be rejected
 -- merely because it is above the pilot's former +/-10-degree search slice.

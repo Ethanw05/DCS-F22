@@ -85,13 +85,13 @@ put('MAIN_POWER',0);update()
 assert(not native.power and val('F22_RWR_COUNT')==0 and val('F22_RWR_AUDIO_LOOP')==0)
 put('MAIN_POWER',1);contact(0,0,1)
 for k,v in pairs({VALID=1,SOURCE=123,CLASS=1,AGE=0})do put('F22_IDENT_01_'..k,v)end
-put('F22_TWS_PUBLISH_SEQUENCE',10);update();assert(val('F22_EW_01_AFFILIATION')==1)
+put('F22_TWS_PUBLISH_SEQUENCE',10);update();assert(val('F22_EW_01_AFFILIATION')==0,'retired friend endpoint overrode recent hostile-act evidence')
 -- Frozen radar identity parameters cannot renew their age indefinitely.
 now=now+31;update();assert(val('F22_EW_01_AFFILIATION')==-1)
 put('F22_TWS_PUBLISH_SEQUENCE',11);put('F22_IDENT_01_AGE',31);update()
 assert(val('F22_EW_01_AFFILIATION')==-1)
 put('F22_TWS_PUBLISH_SEQUENCE',12);put('F22_IDENT_01_AGE',0);update()
-assert(val('F22_EW_01_AFFILIATION')==1)
+assert(val('F22_EW_01_AFFILIATION')==-1)
 -- Model time pause cannot manufacture repeated RF pings.
 local event_count=starts['Aircrafts/F-22A/RWR/ping'] or 0
 for i=1,100 do update()end
@@ -99,6 +99,6 @@ assert((starts['Aircrafts/F-22A/RWR/ping'] or 0)==event_count)
 -- Rewind discards cached identity even if the producer has not reset yet.
 now=0;update();assert(val('F22_EW_01_AFFILIATION')==-1)
 put('F22_TWS_PUBLISH_SEQUENCE',1);put('F22_IDENT_01_CLASS',0);update()
-assert(val('F22_EW_01_AFFILIATION')==0,'qualified simulator hostile classification was discarded')
+assert(val('F22_EW_01_AFFILIATION')==-1,'retired numeric identity endpoint classified an RF report')
 ''')
 print('Actual RWR owner: 1,944 bearing/elevation/severity cases, radar-off, API outage, mute/power, identity freeze/expiry, pause and rewind PASS')

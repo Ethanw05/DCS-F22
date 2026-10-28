@@ -17,8 +17,9 @@ local h={F22_RADAR_RANGE_NM=40}
 local function get(k)return h[k]or 0 end
 local function put(k,v)h[k]=v end
 local overview=Overview.new(get,put,sensors)
+local source_aliases={}
 local function row(source)
- for i=1,16 do local p=string.format('F22_DEF_OV_%02d_',i);if get(p..'VALID')==1 and get(p..'SOURCE')==source then return p end end
+ for i=1,16 do local p=string.format('F22_DEF_OV_%02d_',i);if get(p..'VALID')==1 and get(p..'SOURCE')==(source_aliases[source] or source) then return p end end
 end
 local function count_matches()
  local n=0;for i=1,16 do n=n+get(string.format('F22_DEF_OV_%02d_VALID',i))end
@@ -41,21 +42,27 @@ store:update(100,{
   {source=50,age=0,az=.8,el=0},
  }},
 },true)
-overview:update(100,store.contacts,true,false,40);count_matches()
+for _,track in ipairs(store.contacts)do
+ for sensor,o in pairs(track.observations)do
+  if sensor=='radar' or not source_aliases[o.source]then source_aliases[o.source]=track.source end
+ end
+end
+overview:update(100,store.contacts,true,false,source_aliases[40]);count_matches()
 local passive=assert(row(10));assert(get(passive..'RANGED')==0 and math.abs(math.sqrt(get(passive..'X')^2+get(passive..'Y')^2)-Overview.radius)<1e-9,string.format('passive range/radius invalid: ranged=%g radius=%g',get(passive..'RANGED'),math.sqrt(get(passive..'X')^2+get(passive..'Y')^2)))
 local radar=assert(row(20));assert(get(radar..'RANGED')==1 and math.abs(get(radar..'Y')-Overview.radius*.5)<1e-9)
-assert(get(radar..'AFFILIATION')==1 and get(radar..'ALERT')==0 and get(radar..'COAST')==1,'fresh radar renewed an expired RF launch warning')
+assert(get(radar..'AFFILIATION')==1 and get(radar..'ALERT')==0 and get(radar..'COAST')==0,'fresh radar renewed an expired RF launch warning')
 local optical=assert(row(30));assert(get(optical..'OPTICAL')==1 and get(optical..'ALERT')==0 and get(optical..'COAST')==1,'fresh radar renewed an expired optical warning')
 assert(get(assert(row(40))..'ALERT')==1 and get(assert(row(50))..'ALERT')==1)
-assert(get('F22_DEF_OV_01_SOURCE')==40 and get('F22_DEF_OV_01_SELECTED')==1)
+assert(get('F22_DEF_OV_01_SOURCE')==source_aliases[40] and get('F22_DEF_OV_01_SELECTED')==1)
 assert(get(assert(row(60))..'OFFSCALE')==1,'offscale radar range was not bounded to the outer ring')
 h.F22_RADAR_RANGE_NM=0;overview:update(100,store.contacts,true,false,nil)
 assert(get('F22_DEF_OV_RANGE_VALID')==0 and get(assert(row(20))..'RANGED')==0,'unknown scope scale still implied a measured plotted range')
 h.F22_RADAR_RANGE_NM=40
-overview:update(100,store.contacts,true,true,40);count_matches()
+overview:update(100,store.contacts,true,true,source_aliases[40]);count_matches()
 assert(row(10)and row(40)and row(50)and not row(20)and not row(30)and not row(60),'THRT filter renewed or invented warning evidence')
 -- Fresh RF must not renew radar range beyond its own six-second validity.
 local expired=Tracks.new();expired:update(100,{radar={sequence=1,time=100,contacts={{source=70,age=6.1,az=.1,el=0,range=10*1852}}},rf={sequence=1,time=100,contacts={{source=70,age=0,az=.1,el=0,signal=1}}}},true)
+for _,t in ipairs(expired.contacts)do if t.observations.rf then source_aliases[70]=t.source end end
 overview:update(100,expired.contacts,true,false,nil)
 assert(get(assert(row(70))..'RANGED')==0)
 -- Tilted ownship must retain a level heading-up display of the same world ray.
