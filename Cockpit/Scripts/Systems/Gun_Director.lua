@@ -3,6 +3,7 @@
 -- Mod adapter policy: keep actual observation age within the owned STT envelope.
 local M = { maximum_measurement_age = .5 }
 local Motion = dofile(LockOn_Options.script_path .. "Systems/Gun_Motion.lua")
+local Stabilizer = dofile(LockOn_Options.script_path .. "Systems/Gun_Cue_Stabilizer.lua")
 local Frames = dofile(LockOn_Options.script_path .. "Systems/Gun_Frames.lua")
 local function finite(v)
     return type(v) == "number" and v == v and math.abs(v) < 1e9
@@ -65,7 +66,7 @@ end
 function M.new(sensors, get, put, dispatch, display, device_id)
     local axes = { "N", "U", "E" }
     local self =
-        { stable = 0, acc = { 0, 0, 0 }, motion = Motion.new(), history = {}, sequence = 0 }
+        { stable = 0, acc = { 0, 0, 0 }, motion = Motion.new(), sight = Stabilizer.new(), history = {}, sequence = 0 }
     -- Complete render-plane schema before native HUD elements bind. Keep
     -- existing angular telemetry and native solver buffers unchanged.
     for _,name in ipairs({"LOW","HIGH","LEFT","RIGHT"}) do
@@ -88,6 +89,8 @@ function M.new(sensors, get, put, dispatch, display, device_id)
         for index = #self.history, 1, -1 do self.history[index] = nil end
         self.senttime = nil
         self.motion:reset()
+        self.sight:reset()
+        self.display_aim = nil
         put("F22_GUN_REQUEST_VALID", 0)
         put("F22_GUN_DIRECTOR_VALID", 0)
         put("F22_GUN_MNV_SHOW", 0)
@@ -215,6 +218,7 @@ function M.new(sensors, get, put, dispatch, display, device_id)
             self.pending = nil
             self.solution = nil
             self.motion:reset()
+            self.sight:reset()
             self.motion:update(stamp, velocity, sigma)
             return
         end
@@ -320,7 +324,10 @@ function M.new(sensors, get, put, dispatch, display, device_id)
         end
         local bore = Frames.world(frame, solution.bore)
         local los = solution.los
-        local p = M.pipper(solution.aim, bore, los)
+        local aim = self.sight:primary(now, solution.aim, los)
+        if not aim then return end
+        self.display_aim = aim
+        local p = M.pipper(aim, bore, los)
         if not p then
             return
         end
@@ -339,7 +346,8 @@ function M.new(sensors, get, put, dispatch, display, device_id)
         put("F22_GUN_DIRECTOR_AZ", pa)
         put("F22_GUN_DIRECTOR_EL", projected)
         if solution.cues and now-solution.cues.time<=.2 then
-            local points=M.project_maneuver(solution.cues,solution.aim,bore,los,frame)
+            local cues = self.sight:maneuver(now, solution.cues)
+            local points=cues and M.project_maneuver(cues,aim,bore,los,frame)
             if points then
                 for name,point in pairs(points) do
                     put("F22_GUN_MNV_"..name.."_AZ",point[1]);put("F22_GUN_MNV_"..name.."_EL",point[2])

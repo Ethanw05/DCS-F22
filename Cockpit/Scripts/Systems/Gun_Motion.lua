@@ -36,7 +36,7 @@ local function append(self, time, velocity, speed, sigma)
     for axis = 1, 3 do value.v[axis] = velocity[axis] end
     self.count = self.count + 1
     -- Retain the report bracketing the window, including two slower reports.
-    while self.count > 2 and time - slot(self, 1).time >= M.window do
+    while self.count > 2 and time - slot(self, 1).time >= self.window do
         self.first = self.first % M.capacity + 1
         self.count = self.count - 1
     end
@@ -131,9 +131,9 @@ local function acceleration(self, mean_speed, tangent)
     rotation(self)
     for axis = 1, 3 do
         self.omega[axis] = self.observer:update(axis, self.raw_omega[axis], self.variance[axis],
-            self.sample_time, self.t, M.window)
+            self.sample_time, self.t, self.window)
     end
-    self.tangent = self.observer:update(4, tangent, self.speed_error, self.sample_time, self.t, M.window)
+    self.tangent = self.observer:update(4, tangent, self.speed_error, self.sample_time, self.t, self.window)
     self.warmed = true
     local speed = current_velocity(self, mean_speed)
     local w, a, velocity = self.omega, self.a, self.velocity
@@ -148,7 +148,7 @@ end
 
 function M.new()
     local state = {observer = Observer.new(), error = {0,0,0}, variance = {0,0,0}, samples = {},
-        first = 1, count = 0, tangent = 0, warmed = false, mean = {0,0,0}, slope = {0,0,0},
+        first = 1, count = 0, tangent = 0, warmed = false, window = M.window, mean = {0,0,0}, slope = {0,0,0},
         raw_omega = {0,0,0}, omega = {0,0,0}, a = {0,0,0}, velocity = {0,0,0}, turn = {0,0,0}}
     for index = 1, M.capacity do state.samples[index] = {time = 0, speed = 0, sigma = 0, v = {0,0,0}} end
     function state:reset()
@@ -167,6 +167,9 @@ function M.new()
         local dt = self.t and time - self.t or 0
         if dt <= 0 or dt > M.maximum_interval then self:reset() end
         self.t = time
+        -- Endpoint derivative fit: use a shorter history when velocity is
+        -- precise. This bias/variance policy is a mod estimate, not radar data.
+        self.window = math.max(.06, math.min(M.window, M.window*((sigma or 0)/2.34)^.4))
         append(self, time, velocity, speed, sigma)
         if self.count < 2 then return end
         local tangent = fit(self, time)

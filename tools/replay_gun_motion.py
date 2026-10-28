@@ -21,9 +21,18 @@ FIXTURE = ROOT/'tests/fixtures/gun-aesa-player-20261027.csv'
 BASELINE = '9fa5fc210d1b67352a7f1e590fffcdf5539b5275'
 
 
-def replay(source=None, native=None):
+def replay(source=None, native=None, revision=None):
     lua = LuaRuntime(unpack_returned_tuples=True)
     lua.globals().LockOn_Options = lua.table_from({'script_path': (ROOT/'Cockpit/Scripts').as_posix()+'/'})
+    if revision:
+        paths = ['Gun_Motion.lua']
+        source = subprocess.check_output(['git','show',revision+':Cockpit/Scripts/Systems/Gun_Motion.lua'], cwd=ROOT).decode()
+        for helper in ('Gun_Maneuver_Observer', 'Gun_Target_Estimator'):
+            if helper in source:
+                paths.append(helper+'.lua')
+        bundle = {name: subprocess.check_output(['git','show',revision+':Cockpit/Scripts/Systems/'+name], cwd=ROOT).decode() for name in paths}
+        lua.globals().snapshot_sources = lua.table_from(bundle)
+        lua.execute("local original=dofile;function dofile(path) local name=path:match('([^/]+)$');return snapshot_sources[name] and assert(loadstring(snapshot_sources[name]))() or original(path) end")
     module = lua.execute(source) if source else lua.eval('dofile')(
         (ROOT/'Cockpit/Scripts/Systems/Gun_Motion.lua').as_posix())
     state = module.new()

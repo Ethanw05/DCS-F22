@@ -32,7 +32,7 @@ def source(revision, path):
     if revision == 'candidate':
         if CANDIDATE:
             return source(CANDIDATE, path)
-        return (ROOT/path).read_bytes() if path.rsplit('/',1)[-1] in ('Gun_Motion.lua','Gun_Maneuver_Observer.lua','Gun_Director.lua','Gun_Frames.lua','NativeGunSight.cpp') else source(CURRENT, path)
+        return (ROOT/path).read_bytes() if path.rsplit('/',1)[-1] in ('Gun_Motion.lua','Gun_Maneuver_Observer.lua','Gun_Cue_Stabilizer.lua','Gun_Director.lua','Gun_Frames.lua','NativeGunSight.cpp') else source(CURRENT, path)
     return subprocess.check_output(['git', 'show', f'{revision}:{path}'], cwd=ROOT)
 
 
@@ -143,6 +143,9 @@ OUTPUTS = ['F22_GUN_RESPONSE_SEQUENCE', 'F22_GUN_SOLUTION_VALID',
 OUTPUTS += ['F22_GUN_RESULT_SCHEMA']
 for prefix in ('CURRENT_', 'CURRENT_V', 'CURRENT_A'):
     OUTPUTS += ['F22_GUN_'+prefix+axis for axis in AXES]
+OUTPUTS += ['F22_GUN_MNV_VALID', 'F22_GUN_MNV_ID', 'F22_GUN_MNV_TIME']
+for name in ('BASE','LOW','HIGH','LEFT','RIGHT'):
+    OUTPUTS += ['F22_GUN_MNV_'+name+'_'+axis for axis in AXES]
 for name in ('AIM', 'BORE'):
     OUTPUTS += ['F22_GUN_'+name+'_'+axis for axis in AXES]
 
@@ -156,6 +159,10 @@ class Pipeline:
         names = ['Gun_Motion', 'Gun_Frames', 'Radar_Display']
         if 'Gun_Maneuver_Observer' in source(revision, scripts+'Gun_Motion.lua').decode():
             names.append('Gun_Maneuver_Observer')
+        if 'Gun_Target_Estimator' in source(revision, scripts+'Gun_Motion.lua').decode():
+            names.append('Gun_Target_Estimator')
+        if 'Gun_Cue_Stabilizer' in source(revision, scripts+'Gun_Director.lua').decode():
+            names.append('Gun_Cue_Stabilizer')
         modules = self.lua.table_from({name: source(revision, scripts+name+'.lua').decode() for name in names})
         self.lua.globals().modules = modules
         self.lua.execute('''
@@ -181,6 +188,15 @@ class Pipeline:
         self.module = module
         self.g.director_module = module
         self.lua.execute("local frames=dofile('Gun_Frames.lua')\nfunction ideal_pipper(aim,target)\n local frame=frames.from_pose(pose)\n local bore=frames.world(frame,{1,0,0})\n local los={target[1]-pose.north,target[2]-pose.altitude,target[3]-pose.east}\n local p=director_module.pipper(aim,bore,los)\n local body=frames.body(frame,p)\n return math.atan2(body[3],body[1]),math.atan2(body[2],body[1])\nend")
+        self.lua.execute("""
+        local frames=dofile('Gun_Frames.lua')
+        function oracle_cues(aim,target,base,low,high,left,right)
+          local frame=frames.from_pose(pose)
+          local bore=frames.world(frame,{1,0,0})
+          local los={target[1]-pose.north,target[2]-pose.altitude,target[3]-pose.east}
+          return director_module.project_maneuver({base=base,LOW=low,HIGH=high,LEFT=left,RIGHT=right},aim,bore,los,frame)
+        end
+        """)
         self.shots = []
         self.requests = 0
 
@@ -265,6 +281,8 @@ def run_case(hosts, scenario, distance, noise, cadence, duration, correlation=0.
     rho = math.exp(-cadence/correlation) if correlation else 0.
     innovation = math.sqrt(1-rho*rho)
     errors = {label: [] for label in pipelines}
+    maneuver_errors = {label: [] for label in pipelines}
+    presented_misses = {label: [] for label in pipelines}
     samples = {label: 0 for label in pipelines}
     available = {label: 0 for label in pipelines}
     measured, velocity, stamp = None, None, None
@@ -289,11 +307,25 @@ def run_case(hosts, scenario, distance, noise, cadence, duration, correlation=0.
             samples[label] += 1
             if result is not None:
                 available[label] += 1
+                presented = pipeline.director.display_aim or pipeline.director.solution.aim
+                tof = pipeline.host.get('F22_GUN_TOF')
+                true_now = truth.at(now)
+                bullet = pipeline.host.bullet([presented[i] for i in (1,2,3)],true_now[4],tof)
+                muzzle = hosts['oracle'].vector('F22_GUN_MUZZLE_')
+                presented_misses[label].append(math.dist([p+d for p,d in zip(muzzle,bullet)],truth.at(now+tof)[0]))
                 # Remove known-state lead/ownship motion before scoring jitter.
                 target, _, actual_a, _, _, _ = truth.at(now)
                 az, el = pipeline.g.ideal_pipper(pipeline.lua.table_from(ideal),
                                                  pipeline.lua.table_from(target))
                 errors[label].append((now, result[0]-az, result[1]-el))
+                if pipeline.values['F22_GUN_MNV_SHOW'] == 1 and hosts['oracle'].get('F22_GUN_MNV_VALID') == 1:
+                    vectors = [pipeline.lua.table_from(hosts['oracle'].vector('F22_GUN_MNV_'+name+'_')) for name in ('BASE','LOW','HIGH','LEFT','RIGHT')]
+                    points = pipeline.g.oracle_cues(pipeline.lua.table_from(ideal),pipeline.lua.table_from(target),*vectors)
+                    if points is not None:
+                        error = []
+                        for name in ('LOW','HIGH','LEFT','RIGHT'):
+                            error.extend([pipeline.values['F22_GUN_MNV_'+name+'_AZ']-points[name][1],pipeline.values['F22_GUN_MNV_'+name+'_EL']-points[name][2]])
+                        maneuver_errors[label].append((now,error))
                 if scenario == 'onset' and noise == 0 and now >= 3 and lag[label] is None:
                     a = pipeline.director.motion.a
                     if a is not None:
@@ -306,25 +338,32 @@ def run_case(hosts, scenario, distance, noise, cadence, duration, correlation=0.
         misses = sorted(x['miss_m'] for x in shots)
         steps = [math.hypot(b[1]-a[1], b[2]-a[2])*1000
                  for a, b in zip(errors[label], errors[label][1:]) if b[0]-a[0] < DT*1.1]
+        maneuver_steps = [math.sqrt(sum((y-x)**2 for x,y in zip(a[1],b[1]))/4)*1000 for a,b in zip(maneuver_errors[label],maneuver_errors[label][1:]) if b[0]-a[0]<DT*1.1]
         result.append({'scenario': scenario, 'range_m': distance, 'velocity_noise_mps': noise,
                        'cadence_s': cadence, 'build': label, 'shots': len(shots),
                        'noise_correlation_s': correlation,
                        'miss_rms_m': rms(misses),
+                       'presented_aim_miss_rms_m': rms(presented_misses[label]),
                        'miss_p95_m': misses[int(.95*(len(misses)-1))] if misses else None,
                        'cue_step_rms_mrad': rms(steps),
+                       'maneuver_cue_step_rms_mrad': rms(maneuver_steps),
                        'onset_response_90_ms': lag[label],
                        'available_pct': 100*available[label]/samples[label]})
     return result
 
 
 def main():
-    global CURRENT, CANDIDATE
+    global CURRENT, CANDIDATE, DT
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--output', type=Path, required=True)
     ap.add_argument('--quick', action='store_true')
+    ap.add_argument('--aiming-hz', type=float, default=50, help='aiming callback frequency; installed device uses120Hz')
     ap.add_argument('--reference', default=CURRENT, help='previous gun revision to compare with the candidate')
     ap.add_argument('--candidate', help='pin the candidate to an immutable commit instead of working files')
     args = ap.parse_args()
+    if not 10 <= args.aiming_hz <= 240:
+        ap.error('--aiming-hz must be between10 and240')
+    DT = 1/args.aiming_hz
     CURRENT, CANDIDATE = args.reference, args.candidate
     source.cache_clear()
     output = args.output.resolve()
@@ -362,7 +401,7 @@ def main():
     with (output/'comparison.csv').open('w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=list(rows[0]))
         writer.writeheader();writer.writerows(rows)
-    provenance = {'old_revision': OLD, 'current_revision': CURRENT, 'candidate_revision': CANDIDATE,
+    provenance = {'old_revision': OLD, 'current_revision': CURRENT, 'candidate_revision': CANDIDATE, 'aiming_hz': args.aiming_hz,
                   'scope': 'Actual Lua director/motion and native gun adapter; paired identical synthetic measurements',
                   'limits': 'DCS native radar unavailable offline; declared white/AR1-correlated noise; synthetic RK4 projectile; no dispersion/pilot/hit validation',
                   'harness_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
@@ -373,6 +412,10 @@ def main():
                   'candidate_native_sha256': hashlib.sha256(source('candidate','EFM/source/NativeGunSight.cpp')).hexdigest(),
                   'candidate_frames_sha256': hashlib.sha256(source('candidate','Cockpit/Scripts/Systems/Gun_Frames.lua')).hexdigest(),
                   'duration_s': time.monotonic()-began, 'rows': rows}
+    if 'Gun_Target_Estimator' in source('candidate','Cockpit/Scripts/Systems/Gun_Motion.lua').decode():
+        provenance['candidate_estimator_sha256'] = hashlib.sha256(source('candidate','Cockpit/Scripts/Systems/Gun_Target_Estimator.lua')).hexdigest()
+    if 'Gun_Cue_Stabilizer' in source('candidate','Cockpit/Scripts/Systems/Gun_Director.lua').decode():
+        provenance['candidate_stabilizer_sha256'] = hashlib.sha256(source('candidate','Cockpit/Scripts/Systems/Gun_Cue_Stabilizer.lua')).hexdigest()
     (output/'comparison.json').write_text(json.dumps(provenance, indent=2)+'\n')
     for noise in noises:
         for label in ('old', 'current', 'candidate'):
