@@ -21,6 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 AXES = ('N', 'U', 'E')
 OLD = 'b2650c945dbec6bd355f43d0c3695abbb9b6ab6e'
 CURRENT = '75ee2ba'
+CANDIDATE = None
 DT = .02
 TRUTH_DT = .002
 WIND = (12., 0., 15.)
@@ -29,6 +30,8 @@ WIND = (12., 0., 15.)
 @lru_cache(maxsize=128)
 def source(revision, path):
     if revision == 'candidate':
+        if CANDIDATE:
+            return source(CANDIDATE, path)
         return (ROOT/path).read_bytes() if path.rsplit('/',1)[-1] in ('Gun_Motion.lua','Gun_Maneuver_Observer.lua','Gun_Director.lua','Gun_Frames.lua','NativeGunSight.cpp') else source(CURRENT, path)
     return subprocess.check_output(['git', 'show', f'{revision}:{path}'], cwd=ROOT)
 
@@ -315,10 +318,15 @@ def run_case(hosts, scenario, distance, noise, cadence, duration, correlation=0.
 
 
 def main():
+    global CURRENT, CANDIDATE
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--output', type=Path, required=True)
     ap.add_argument('--quick', action='store_true')
+    ap.add_argument('--reference', default=CURRENT, help='previous gun revision to compare with the candidate')
+    ap.add_argument('--candidate', help='pin the candidate to an immutable commit instead of working files')
     args = ap.parse_args()
+    CURRENT, CANDIDATE = args.reference, args.candidate
+    source.cache_clear()
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     began = time.monotonic()
@@ -354,7 +362,7 @@ def main():
     with (output/'comparison.csv').open('w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=list(rows[0]))
         writer.writeheader();writer.writerows(rows)
-    provenance = {'old_revision': OLD, 'current_revision': CURRENT,
+    provenance = {'old_revision': OLD, 'current_revision': CURRENT, 'candidate_revision': CANDIDATE,
                   'scope': 'Actual Lua director/motion and native gun adapter; paired identical synthetic measurements',
                   'limits': 'DCS native radar unavailable offline; declared white/AR1-correlated noise; synthetic RK4 projectile; no dispersion/pilot/hit validation',
                   'harness_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
