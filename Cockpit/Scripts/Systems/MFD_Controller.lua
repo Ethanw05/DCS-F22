@@ -48,9 +48,10 @@ function M.new(param,send,ground_override)
    return
   end
   if self.held[key]or not self.powered then return end
-  self.held[key]=true;send('COMBAT_SYSTEM',10742,({3,4,5,2})[panel])
+  self.held[key]=true
   local p=self.panels[panel];local a=control(panel,b)
   if not a or a.condition and get(a.condition)<.5 then return end
+  send('COMBAT_SYSTEM',10742,({3,4,5,2})[panel])
   if log and log.write then
    log.write('F22_MFD_INPUT',log.INFO,'panel='..R.panels[panel]..' format='..R.names[p.page]..' view='..p.view..' button='..b..' label='..tostring(a.label or a.parameter or '')..' command='..tostring(a.command or a.action or a.page or a.view or ''))
   end

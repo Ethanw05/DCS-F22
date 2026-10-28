@@ -58,7 +58,7 @@ assert(get('F22_RMFD_FORMAT')==8,'obsolete ENG shortcut is active')
 key(3,13);key(3,4);events={}
 edge(3,1,true);key(3,13);put('MAIN_POWER',0);tick();edge(3,1,false)
 local downs,ups=0,0
-for _,e in ipairs(events)do if e.d==devices.EW_SYSTEM and e.c==10910 then if e.v==1 then downs=downs+1 else ups=ups+1 end end end
+for _,e in ipairs(events)do if e.d==devices.EW_SYSTEM and e.c==11105 then if e.v==1 then downs=downs+1 else ups=ups+1 end end end
 assert(downs==1 and ups==1,'EW release lost or duplicated after page/power transition')
 -- AA radar has exactly one pair of range buttons; moved radar is fully routed.
 put('MAIN_POWER',1);put('HUD_MODE',2);tick()

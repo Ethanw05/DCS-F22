@@ -25,16 +25,16 @@ local routing=dofile(SCRIPT_ROOT..'Systems/Display_Routing.lua')
 local controller=dofile(SCRIPT_ROOT..'Systems/MFD_Controller.lua').new(get_param_handle,
  function(owner,command,value)events[#events+1]={owner=owner,command=command,value=value}end,function()end)
 put('HUD_MODE',7);put('F22_SOI',3);controller:update(true);controller:select(1,routing.pages.def)
-controller:button(1,6,true)
+controller:button(1,18,true)
 local command=events[#events].command
 assert(events[#events].owner=='RWR_SYSTEM'and events[#events].value==1)
 controller:select(1,routing.pages.nav)
 assert(events[#events].command==command and events[#events].value==0,'page loss did not release original owner')
-local count=#events;controller:button(1,6,true);assert(#events==count,'held edge re-fired after page loss')
-controller:button(1,6,false);controller:select(1,routing.pages.def);controller:button(1,6,true)
+local count=#events;controller:button(1,18,true);assert(#events==count,'held edge re-fired after page loss')
+controller:button(1,18,false);controller:select(1,routing.pages.def);controller:button(1,18,true)
 put('F22_SOI',4);controller:update(true)
 assert(events[#events].command==command and events[#events].value==0,'focus loss did not release original owner')
-controller:button(1,6,false);controller:button(1,6,true);controller:update(false)
+controller:button(1,18,false);controller:button(1,18,true);controller:update(false)
 assert(events[#events].command==command and events[#events].value==0,'power loss did not release original owner')
 local actions={}
 function dispatch_action(device,command,value)actions[#actions+1]={device,command,value}end

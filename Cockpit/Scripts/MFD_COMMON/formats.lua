@@ -13,6 +13,6 @@ return function(panel)
  end
  load('PMFD_CENTER/radar_format.lua',R.flag(panel,R.pages.tsd),prefix..'AA_')
  load('PMFD_CENTER/ag_radar_format.lua',R.flag(panel,R.pages.tsd),prefix..'AG_')
- load('MFD_RIGHT/defensive_overview.lua',R.flag(panel,R.pages.def),prefix..'DEF_OV_')
+ load('MFD_RIGHT/defensive_overview.lua',R.flag(panel,R.pages.def),prefix..'DEF_OV_','F22_DEF_DETAIL_'..panel)
  load('MFD_COMMON/bezel.lua',panel)
 end

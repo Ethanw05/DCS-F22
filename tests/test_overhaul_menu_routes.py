@@ -31,14 +31,14 @@ for panel,name in ipairs(names)do
  key(panel,12);assert(get('F22_'..name..'_FORMAT')==8,'RTN lost retained page')
  for _,transition in ipairs({'page','power'})do
   key(panel,13);key(panel,4);events={}
-  local before=get('F22_CM_PROGRAM_SELECTED')
+  local before=get('F22_CM_NORMAL_BANK')
   edge(panel,1,true);edge(panel,1,true)
-  assert(get('F22_CM_PROGRAM_SELECTED')==before%3+1,'repeat down bypassed owner latch')
+  assert(get('F22_CM_NORMAL_BANK')==before%3+1,'repeat down bypassed owner latch')
   if transition=='page'then key(panel,13)else put('MAIN_POWER',0);tick()end
   edge(panel,1,false);edge(panel,1,false)
   local down,up=0,0
   for _,e in ipairs(events)do
-   if e[1]==devices.EW_SYSTEM and e[2]==10910 then
+   if e[1]==devices.EW_SYSTEM and e[2]==11105 then
     if e[3]==1 then down=down+1 elseif e[3]==0 then up=up+1 end
    end
   end
@@ -46,7 +46,7 @@ for panel,name in ipairs(names)do
   put('MAIN_POWER',1);tick()
   if get('F22_'..name..'_FORMAT')~=0 then key(panel,13)end
   key(panel,4);key(panel,1)
-  assert(get('F22_CM_PROGRAM_SELECTED')==(before%3+1)%3+1,'owner stayed latched after transition')
+  assert(get('F22_CM_NORMAL_BANK')==(before%3+1)%3+1,'owner stayed latched after transition')
   key(panel,13);key(panel,6)
  end
 end
