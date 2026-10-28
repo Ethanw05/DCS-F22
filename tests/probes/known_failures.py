@@ -21,7 +21,10 @@ def stopped_altitude():
     h.load('Systems/HUD_Flight_Data.lua')
     h.seed(physical(10))
     h.seed({'F22_ALT_SELECTION': 0, 'F22_ALT_BARO_VALID': 1,
-            'F22_ALT_BARO_FT': 3000, 'F22_ALT_BARO_STAMP': 10})
+            'F22_ALT_BARO_FT': 3000, 'F22_ALT_BARO_STAMP': 10,
+            'F22_ALT_SNAPSHOT_SCHEMA':1,'F22_ALT_SNAPSHOT_SEQUENCE':2,
+            'F22_ALT_SNAPSHOT_GENERATION':1,'F22_ALT_SNAPSHOT_CLOCK_KIND':2,
+            'F22_ALT_SNAPSHOT_TIME':10,'F22_ALT_SNAPSHOT_SELECTION':0})
     h.state.time = 10
     h.update()
     initial = h.get('HUD_ALT_VALID')

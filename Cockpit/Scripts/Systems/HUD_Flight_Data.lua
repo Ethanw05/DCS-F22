@@ -24,6 +24,8 @@ local physical=envelope.new(read,{
     'EFM_AIRDATA_TAS_MPS','EFM_AIRDATA_HEALTH',
 })
 local reference=dofile(LockOn_Options.script_path..'Systems/Gins_References.lua').reader(read,'HUD')
+local Altitude=dofile(LockOn_Options.script_path..'Systems/Altitude_Snapshot.lua')
+local altitude_frame=Altitude.new(read)
 local function reference_pose()
     reference:update()
     if not reference.valid then return 0,0,0,false,false end
@@ -117,14 +119,9 @@ local function fpm(az,el)
 end
 local function altitude()
     put('HUD_ALT_VALID',0)
-    local selected=read('F22_ALT_SELECTION')
-    local key,source='BARO','BARO'
-    if selected==1 then
-        if read('F22_ALT_RADAR_VALID')==1 then key,source='RADAR','RDR' else source='BARO FB'end
-    elseif selected==2 then key,source='STANDBY','STBY'end
+    local value,source,valid=altitude_frame:selected()
     put('HUD_ALT_SOURCE_TEXT',source)
-    local value=read('F22_ALT_'..key..'_FT')
-    if read('F22_ALT_'..key..'_VALID')==1 and mathhud.finite(value)then
+    if valid then
         put('HUD_ALT_FT',value);put('HUD_ALT_POINTER',-(value%1000)*2*math.pi/1000)
         put('HUD_ALT_VALID',1)
     end
@@ -136,19 +133,20 @@ local function pressure_confirmation()
     put('HUD_QNH_VISIBLE',(timed or approach_pressure)and 1 or 0)
 end
 local function approach_pressure_context(cas)
-    if read('F22_ALT_BARO_VALID')~=1 then approach_pressure=false;return end
-    local baro=read('F22_ALT_BARO_FT')
+    if not altitude_frame.sources.BARO.valid then approach_pressure=false;return end
+    local baro=altitude_frame.sources.BARO.value
     if not mathhud.finite(baro)then approach_pressure=false;return end
     if baro>=10000 and cas>=300 then high_fast=true;approach_pressure=false
     elseif high_fast and baro<10000 and cas<300 then approach_pressure=true end
 end
 function update()
     physical:update()
+    altitude_frame:update(physical.generation,physical.valid,Altitude.clock())
     put('HUD_AIRDATA_DEGRADED',0)
     put('HUD_WIND_ARROW_VALID',0)
     put('HUD_FPM_COMPUTED_VALID',0);put('HUD_FPM_OFFGLASS',0);put('HUD_FPM_GHOST_VALID',0)
     altitude()
-    if read('F22_ALT_BARO_VALID')~=1 or flight('EFM_HUD_VALID')~=1 then approach_pressure=false end
+    if not altitude_frame.sources.BARO.valid or flight('EFM_HUD_VALID')~=1 then approach_pressure=false end
     pressure_confirmation()
     local pitch,roll,heading,attitude_valid,heading_valid=reference_pose()
     put('HUD_REFERENCE_ATTITUDE_VALID',attitude_valid and 1 or 0)

@@ -501,7 +501,7 @@ BAROALT.isdraw				= true
 BAROALT.use_mipfilter		= true
 BAROALT.h_clip_relation		= h_clip_relations.COMPARE
 BAROALT.level				= 11
-BAROALT.element_params		= {"MFD_OPACITY","BAROALT",page_parameter,"F22_ALT_BARO_VALID"}
+BAROALT.element_params		= {"MFD_OPACITY","BAROALT",page_parameter,"F22_SIDE_BARO_VALID"}
 BAROALT.formats				= {"%.0f"} --{"%.0f"}
 BAROALT.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,.9,1.1}}
 vertices(BAROALT,2.5)
@@ -519,9 +519,10 @@ FPM.isdraw				= true
 FPM.use_mipfilter		= true
 FPM.h_clip_relation		= h_clip_relations.COMPARE
 FPM.level				= 11
-FPM.element_params		= {"MFD_OPACITY","vv",page_parameter}
+FPM.element_params		= {"MFD_OPACITY","VV",page_parameter,"F22_SIDE_VS_VALID"}
 FPM.formats				= {"%.0f"} --{"%.0f"}
-FPM.controllers			= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1}}
+FPM.controllers = {{"opacity_using_parameter",0},{"text_using_parameter",1,0},
+    {"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,0.9,1.1}}
 vertices(FPM,2.5)
 Add(FPM)
 ----------------------------------------------------------------------------------------------------------------------------------------------

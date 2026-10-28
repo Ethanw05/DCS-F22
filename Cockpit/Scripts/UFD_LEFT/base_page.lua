@@ -1027,7 +1027,7 @@ BARO.isdraw				= true
 BARO.use_mipfilter		= true
 BARO.h_clip_relation	= h_clip_relations.COMPARE
 BARO.level				= 6
-BARO.element_params		= {"UFD_OPACITY","BAROALT","L_ADI_OPACITY","F22_ALT_BARO_VALID"}
+BARO.element_params		= {"UFD_OPACITY","BAROALT","L_ADI_OPACITY","F22_SIDE_BARO_VALID"}
 BARO.formats			= {"%05.0f"}
 BARO.controllers		= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,.9,1.1}}
 Add(BARO)

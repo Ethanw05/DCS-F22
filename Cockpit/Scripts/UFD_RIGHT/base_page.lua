@@ -1028,7 +1028,7 @@ BARO.isdraw				= true
 BARO.use_mipfilter		= true
 BARO.h_clip_relation	= h_clip_relations.COMPARE
 BARO.level				= 6
-BARO.element_params		= {"UFD_OPACITY","BAROALT","R_ADI_OPACITY","F22_ALT_BARO_VALID"}
+BARO.element_params		= {"UFD_OPACITY","BAROALT","R_ADI_OPACITY","F22_SIDE_BARO_VALID"}
 BARO.formats			= {"%05.0f"}
 BARO.controllers		= {{"opacity_using_parameter",0},{"text_using_parameter",1,0},{"parameter_in_range",2,0.9,1.1},{"parameter_in_range",3,.9,1.1}}
 Add(BARO)
@@ -1191,7 +1191,7 @@ FUELLINEMASK.isvisible 				= true
 FUELLINEMASK.init_pos 				= {43, -77, 0} --maybe its x,y,z z being depth.. again who the fuck knows?
 --FUELLINE.init_rot 			= {0, 0, 0}
 FUELLINEMASK.element_params 		= {"FUELL","R_ADI_OPACITY"} --HOPE THIS WORKS G_OP_BACK
---FUELLINE.element_params 		= {"UFD_OPACITY","L_ADI_OPACITY","F22_ALT_BARO_VALID"} --HOPE THIS WORKS G_OP_BACK
+--FUELLINE.element_params 		= {"UFD_OPACITY","L_ADI_OPACITY","F22_SIDE_BARO_VALID"} --HOPE THIS WORKS G_OP_BACK
 FUELLINEMASK.controllers			= 	{
 								   			{"move_up_down_using_parameter",0,0.00081,0}, --{"move_up_down_using_parameter",0,0.00052,0},
 								   			{"parameter_in_range",1,0.9,1.1}

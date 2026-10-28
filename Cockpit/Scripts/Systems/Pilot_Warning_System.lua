@@ -93,6 +93,8 @@ local physical=Envelope.new(get,{'MAIN_POWER','EFM_HUD_VALID','EFM_GROUND_VALID'
  'EFM_GEAR_DOWN_LOCKED','EFM_GEAR_UP_LOCKED','EFM_GEAR_UNSAFE','EFM_AIRDATA_VALID',
  'EFM_AIRDATA_STAMP','EFM_AIRDATA_CAS_MPS','EFM_AIRDATA_HEALTH',
  'EFM_HUD_VN','EFM_HUD_VE','EFM_HUD_VU','EFM_HUD_WN','EFM_HUD_WE','EFM_HUD_WU'})
+local Altitude=dofile(LockOn_Options.script_path..'Systems/Altitude_Snapshot.lua')
+local altitude_frame=Altitude.new(get)
 local clock = 0
 local was_powered = false
 local muted = false
@@ -174,6 +176,7 @@ local warning_entry=dofile(LockOn_Options.script_path..'Systems/Entry_Transactio
 dev:listen_command(11800)
 local function disable_low()
     physical:update()
+    altitude_frame:update(physical.generation,physical.valid,Altitude.clock())
     local powered=physical.valid and physical.values.MAIN_POWER==1
     local now=type(get_model_time)=='function'and get_model_time()or clock
     if not powered or not Envelope.finite(now)or now<clock or now-clock>.25 then return false end
@@ -193,6 +196,7 @@ function SetCommand(c, v)
 	local old = held[c]
 	held[c] = down
     physical:update()
+    altitude_frame:update(physical.generation,physical.valid,Altitude.clock())
 	if not down or old or not physical.valid or physical.values.MAIN_POWER~=1 then
 		return
 	end
@@ -414,6 +418,7 @@ function update()
 	clock = now
 	references.update()
     physical:update()
+    altitude_frame:update(physical.generation,physical.valid,Altitude.clock())
     local powered=physical.valid and physical.values.MAIN_POWER==1
 	if not powered then
 		if was_powered then reset(true) end
@@ -456,13 +461,13 @@ function update()
 		nz = nz_ok and nz or nil,
 		heading = heading_ok and heading or nil,
 		roll_rate = roll_rate,
-		baro = get("F22_ALT_BARO_FT"),
-		baro_valid = get("F22_ALT_BARO_VALID") > 0.5,
+		baro = altitude_frame.sources.BARO.value,
+		baro_valid = altitude_frame.sources.BARO.valid,
 		baro_floor = get("F22_ALT_BARO_FLOOR"),
         minima_floor = get('F22_ALT_MINIMA_FT'),
         minima_source = get('F22_ALT_MINIMA_SOURCE'),
-		radar = get("F22_ALT_RADAR_FT"),
-		radar_valid = get("F22_ALT_RADAR_VALID") > 0.5,
+		radar = altitude_frame.sources.RADAR.value,
+		radar_valid = altitude_frame.sources.RADAR.valid,
 		radar_floor = get("F22_ALT_RADAR_FLOOR"),
 		missile_warning = get("F22_MWS_ALERT") > 0.5 or get("F22_RWR_ALERT") >= 3,
 		audio_busy = playing ~= nil or muted or volume <= 0.01 or not audio_ok or not host,

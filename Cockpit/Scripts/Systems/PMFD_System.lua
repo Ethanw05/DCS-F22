@@ -34,7 +34,6 @@ local parameters = {
     PMFD_SYS_PAGE           = get_param_handle("PMFD_SYS_PAGE"),
     PMFD_SFM_PAGE           = get_param_handle("PMFD_SFM_PAGE"),
     PMFD_CONFIG_PAGE        = get_param_handle("PMFD_CONFIG_PAGE"),
-    PMFD_BLANK_PAGE         = get_param_handle("PMFD_BLANK_PAGE"),
     PMFD_MASK               = get_param_handle("PMFD_MASK"),
 
     APU_POWER			    = get_param_handle("APU_POWER"),
@@ -316,14 +315,6 @@ function update()
     -- else
     --     pmfd_current_page = (pmfd_current_page)    
     -- end
-
-    if parameters.APU_RPM_STATE:get() >= 2 and parameters.MAIN_POWER:get() == 0 then
-		parameters.PMFD_BLANK_PAGE:set(1)      
-	elseif parameters.APU_RPM_STATE:get() >= 2 and parameters.MAIN_POWER:get() == 1 then
-		parameters.PMFD_BLANK_PAGE:set(0)   
-	elseif parameters.MAIN_POWER:get() == 0 then
-		parameters.PMFD_BLANK_PAGE:set(0)
-	end
 
 --END PMFD UPDATE
 

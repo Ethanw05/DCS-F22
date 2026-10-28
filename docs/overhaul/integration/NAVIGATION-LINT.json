@@ -1,0 +1,88 @@
+{
+  "tool": "Luacheck1.2.0 / Lua5.1 Lupa2.6",
+  "tool_commit": "cc089e3f65acdd1ef8716cc73a3eca24a6b845e4",
+  "baseline_head": "5cca15d56d5016a5b6f20aae7b79eb462ef10a33",
+  "config": "tools/lint_navigation_lua.py HOST; std lua51; max line120",
+  "files": [
+    {
+      "path": "Cockpit/Scripts/Systems/Altitude_Snapshot.lua",
+      "new": [],
+      "retained": 0,
+      "sha256": "1475c8cd540d8625b4569443c88db760992eed3fa454def810ca7363b6ee8352"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Altitude_System.lua",
+      "new": [],
+      "retained": 0,
+      "sha256": "dcbac0ed13d9705d6b865016e0992c7ff2d47717636ff02995fc75889e8b451e"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Avionics.lua",
+      "new": [],
+      "retained": 50,
+      "sha256": "b41bf56af4a96183423d6685c63f1310b63be6537daaf19df6b1a07880807745"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/HUD_Flight_Data.lua",
+      "new": [],
+      "retained": 4,
+      "sha256": "59aeae9543c4c2c1d2855397f25506f17789bd503fbe96e2b861bff2a9ffad95"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Pilot_Warning_System.lua",
+      "new": [],
+      "retained": 1,
+      "sha256": "b73c122e70d7141d680d37e38fbbfe9264fc31c8141c5decc80c6508ab6d6c8e"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/ICP_Flight_Pages.lua",
+      "new": [],
+      "retained": 18,
+      "sha256": "8cd6ef28f40db8a262d9611a48d701e65ba9a22f3cb5d80314ba0b2ba39d508d"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/MFD_Controller.lua",
+      "new": [],
+      "retained": 0,
+      "sha256": "aaf9f0a14d9d28f68cd871c38e93ef3af85c65bf3181d65b30371013cdf042dc"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/MFD_System.lua",
+      "new": [],
+      "retained": 17,
+      "sha256": "4d1edd7914d0560f1322dabfb445d3f71d269aad598ff694c9fa633a08c4a5c1"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/PMFD_System.lua",
+      "new": [],
+      "retained": 52,
+      "sha256": "341b1c84e1f2628d2b384edd074ab91d80234e682b55e447ab780ed0a2e45c33"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/adi_page.lua",
+      "new": [],
+      "retained": 387,
+      "sha256": "3a200099aa6618f29aa871415f953132d4b8c1c3d2da372fea2b202500f7568d"
+    },
+    {
+      "path": "Cockpit/Scripts/UFD_LEFT/base_page.lua",
+      "new": [],
+      "retained": 1012,
+      "sha256": "f269a23af40f94232ae5bec88c4d2432d9188dbf880aa62e0089a23d47f3f690"
+    },
+    {
+      "path": "Cockpit/Scripts/UFD_RIGHT/base_page.lua",
+      "new": [],
+      "retained": 1047,
+      "sha256": "5f2329bf6bb86916cd8c18293928e412764c3fc1778718000123c675128e4841"
+    },
+    {
+      "path": "Cockpit/Scripts/clickabledata.lua",
+      "new": [],
+      "retained": 676,
+      "sha256": "cdc1b085e17159d4e0ec41fa54b8cf6dec91ea9ce46d59cb5f6feafa6abc4495"
+    }
+  ],
+  "result": "pass",
+  "allowlist_note": "Added the host-required elements clickable declaration table to canonical HOST allowlist; no general warning suppression."
+}

@@ -94,21 +94,26 @@ function M.new(param,send,ground_override)
   self:publish()
  end
  function s:publish()
+  put('F22_MFD_LIMITED_SUPPLY',self.limited and 1 or 0)
   local any_stores=false;local ground_data=false
   for i,name in ipairs(R.panels)do
    local p=self.panels[i]
+   local presented=self.powered and p.page or self.limited and i==1 and R.pages.eng or -1
+   put('F22_'..name..'_PRESENTED_FORMAT',presented)
+   put(name..'_BLANK_PAGE',self.limited and i~=1 and 1 or 0)
    put('F22_'..name..'_FORMAT',p.page);put('F22_'..name..'_VIEW',p.view)
    put(name=='PMFD'and'F22_PMFD_PAGE'or name..'_PAGE',name=='PMFD'and p.page or R.legacy[p.page])
    put(name..'_HSI_PAGE_DATA',p.page==R.pages.nav and p.view or 0)
    put('F22_SMS_UI_PAGE_'..name,p.page==R.pages.stores and p.view or 0)
    put('F22_DEF_DETAIL_'..name,p.page==R.pages.def and p.view or 0)
    put(name..'_MASK',self.powered and p.page==R.pages.tsd and 1 or 0)
-   for page in pairs(R.suffix)do put(R.flag(name,page),self.powered and p.page==page and 1 or 0)end
+   for page in pairs(R.suffix)do put(R.flag(name,page),presented==page and 1 or 0)end
    if self.powered and p.page==R.pages.stores then any_stores=true end
    if self.powered and p.page==R.pages.tsd and get('HUD_MODE')==7 and p.view==2 then ground_data=true end
    local controls=C.for_page(p.page,p.view,get)
    for b=1,20 do
     local a=controls[b];local label=a and(a.label or(a.parameter and get(a.parameter)))or''
+    if not self.powered then label=''end
     if a and a.condition and get(a.condition)<.5 then label=''end
     label=type(label)=='string'and label or''
     put('F22_MFD_'..name..'_KEY_'..b,label)
@@ -132,7 +137,7 @@ function M.new(param,send,ground_override)
   end
   for _,k in ipairs({'LMFD_SMS_PAGE','PMFD_MAP_PAGE','PMFD_SYS_PAGE','PMFD_CONFIG_PAGE','PMFD_SFM_PAGE'})do put(k,0)end
  end
- function s:update(powered)
+ function s:update(powered,limited)
   if self.powered and not powered then
    for key,owner in pairs(self.forwarded)do send(owner.device,owner.command,0);self.forwarded[key]=nil end
    self.held={}
@@ -151,7 +156,7 @@ function M.new(param,send,ground_override)
    end
    self.role=role
   end
-  self.powered=powered;self:publish()
+  self.powered=powered==true;self.limited=limited==true and not self.powered;self:publish()
  end
  return s
 end

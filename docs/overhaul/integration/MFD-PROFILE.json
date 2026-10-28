@@ -1,0 +1,23 @@
+{
+  "samples": 500,
+  "requested_period_seconds": 0.006,
+  "scope": "Isolated Lua5.1/Lupa2.6 host port; Python bridge overhead included. No DCS/native/render/VR or real-time budget qualification.",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "callback_ms": {
+    "p50": 0.21255000000000002,
+    "p95": 0.2989,
+    "p99": 0.3644,
+    "maximum": 0.4302
+  },
+  "heap_kib": {
+    "before": 365.623046875,
+    "after_500_gc_stopped": 57999.1826171875,
+    "delta_per_callback": 115.267119140625,
+    "after_collection": 365.623046875
+  },
+  "decision": "Measured existing per-publish descriptor allocation; no optimization or new aircraft/runtime budget asserted.",
+  "source_sha256": {
+    "Cockpit/Scripts/Systems/MFD_System.lua": "4d1edd7914d0560f1322dabfb445d3f71d269aad598ff694c9fa633a08c4a5c1",
+    "Cockpit/Scripts/Systems/MFD_Controller.lua": "aaf9f0a14d9d28f68cd871c38e93ef3af85c65bf3181d65b30371013cdf042dc"
+  }
+}

@@ -76,6 +76,21 @@ local PlaneModeBVR,PlaneModeVS,PlaneModeBore,PlaneModeFI0,PlaneRadarOnOff=Keys.P
 local ui=dofile(LockOn_Options.script_path..'Systems/MFD_Controller.lua').new(get_param_handle,
  function(owner,command,value)dispatch_action(devices[owner],command,value)end,
  function()if sensor_data.getWOW_NoseLandingGear()==1 then ground_oride_state=1-ground_oride_state end end)
+local supply_handles={}
+local function supply_value(key)
+ if not supply_handles[key]then supply_handles[key]=get_param_handle(key)end
+ return supply_handles[key]:get()
+end
+local Supply=dofile(LockOn_Options.script_path..'Systems/Physical_Snapshot.lua')
+local display_supply=Supply.new(supply_value,{'MAIN_POWER','BATTERY_POWER','APU_RPM_STATE'})
+local function update_display_supply()
+ display_supply:update()
+ local v=display_supply.values
+ local main=display_supply.valid and v.MAIN_POWER==1
+ local limited=display_supply.valid and v.MAIN_POWER==0 and v.BATTERY_POWER==1
+  and Supply.finite(v.APU_RPM_STATE)and v.APU_RPM_STATE>=2
+ ui:update(main,limited)
+end
 for c=10000,10005 do dev:listen_command(c)end
 for _,base in ipairs({10060,10090,10110})do for b=1,20 do dev:listen_command(base+b)end end
 for c=10820,10825 do dev:listen_command(c)end
@@ -107,7 +122,7 @@ function post_initialize()
 end
 function SetCommand(command,value)
  local down=decode(value,devices.MFD_SYSTEM)>0
- ui:update(parameters.MAIN_POWER:get()>.5)
+ update_display_supply()
  if command>=11201 and command<=11220 then ui:button(4,command-11200,down);return end
  if command==11221 then if down then ui:select(4,routing.pages.menu)end;return end
  if command==11222 then return end
@@ -190,11 +205,16 @@ function SetCommand(command,value)
 
 end
 function update()
- local now=type(get_model_time)=='function'and get_model_time()or 0
+ update_display_supply()
+ local now
+ if type(get_model_time)=='function'then
+  local ok,value=pcall(get_model_time)
+  if ok and Supply.finite(value)then now=value end
+ end
  local stamp=get_param_handle('F22_DEF_OV_TIME'):get()
- local fresh=parameters.MAIN_POWER:get()>.5 and get_param_handle('F22_DEF_OV_VALID'):get()>.5 and now>=stamp and now-stamp<=.25
+ local fresh=ui.powered and Supply.finite(now)and Supply.finite(stamp)
+  and get_param_handle('F22_DEF_OV_VALID'):get()==1 and now>=stamp and now-stamp<=.25
  get_param_handle('F22_DEF_OV_CURRENT'):set(fresh and 1 or 0)
- ui:update(parameters.MAIN_POWER:get()>.5)
     local cabin_pressure = get_cockpit_draw_argument_value(114)
     parameters.GROUND_ORIDE:set(ground_oride_state)
     parameters.BAY_STATION:set(bay_select)

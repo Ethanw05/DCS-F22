@@ -21,6 +21,8 @@ for _,k in ipairs({'MAIN_POWER','EFM_HUD_VALID','F22_ALTIMETER_NATIVE_READY','F2
  'F22_ALT_DISPLAY_TEXT','F22_ALT_BARO_VALID','F22_ALT_RADAR_VALID','F22_ALT_BARO_FT','F22_ALT_RADAR_FT'})do h(k)end
 put('F22_ALT_DISPLAY_TEXT','BARO 29.92 INHG')
 local adopted=false
+local sequence=0
+local Altitude=dofile(LockOn_Options.script_path..'Systems/Altitude_Snapshot.lua')
 local previous_pressure_text
 local function finite(v)return type(v)=='number'and v==v and math.abs(v)<1e8 end
 local function publish()
@@ -39,6 +41,8 @@ local function publish()
  put('F22_RECOVERY_INTENT',settings.recovery)
 end
 function post_initialize()
+ sequence=0;put('F22_ALT_SNAPSHOT_SEQUENCE',0)
+ put('F22_ALT_STANDBY_VALID',0)
  put('F22_ENTRY_ALT_ACTIVE',0)
  settings=dofile(LockOn_Options.script_path..'Systems/Altitude_Settings.lua').new();adopted=false
  previous_pressure_text=nil
@@ -82,39 +86,77 @@ function SetCommand(command,value)
  apply_command(requested,wanted)
  transaction:finish(value,math.abs(get(key)-wanted)<.02,get(key))
 end
+local function fresh(stamp, now)
+ return finite(stamp) and stamp>=0 and now-stamp>=-.01 and now-stamp<=.2
+end
+local function flag(value)return value and 1 or 0 end
+local function stamp_value(value)return finite(value)and value or -1 end
+local function measured_height(value)
+ return finite(value)and value>=-3000 and value<=32000
+end
+local function source_reason(powered,ready,measured)
+ if not powered then return 1 end
+ if not ready then return 2 end
+ if not measured then return 3 end
+ return 0
+end
+local function adopt_pressure(native)
+ if not native or adopted then return end
+ local q=get('F22_ALT_ACTUAL_PRESSURE_MMHG')
+ if finite(q)and q>=650 and q<=820 then settings.qnh=q;settings.saved_qnh=q;adopted=true end
+end
+local function primary(now, powered)
+ local stamp=get('F22_ALTIMETER_RESULT_TIME')
+ local metres=get('F22_ALT_NATIVE_BARO_M')
+ local native=get('F22_ALTIMETER_NATIVE_READY')==1 and get('F22_ALTIMETER_NATIVE_VALID')==1
+  and fresh(stamp,now)
+ adopt_pressure(native)
+ local measured=native and measured_height(metres)
+ put('F22_ALT_BARO_VALID',flag(powered and measured))
+ put('F22_ALT_BARO_STAMP',stamp_value(stamp))
+ put('F22_ALT_BARO_REASON',source_reason(powered,native,measured))
+ if measured then put('F22_ALT_BARO_FT',metres*3.280839895)end
+end
+local function standby(now)
+ local metres=get('F22_ALT_STANDBY_NATIVE_M')
+ local stamp=get('F22_ALT_STANDBY_NATIVE_STAMP')
+ local valid=get('F22_ALT_STANDBY_NATIVE_VALID')==1 and fresh(stamp,now)
+  and measured_height(metres)
+ local powered=power(true)
+ put('F22_ALT_STANDBY_VALID',flag(powered and valid))
+ put('F22_ALT_STANDBY_REASON',source_reason(powered,valid,valid))
+ put('F22_ALT_STANDBY_STAMP',stamp_value(stamp))
+ if valid then put('F22_ALT_STANDBY_FT',metres*3.280839895)end
+end
+local function radar(now, powered)
+ local ok,metres=pcall(base.getRadarAltitude)
+ local valid=powered and physical.values.EFM_HUD_VALID==1 and ok
+  and finite(metres)and metres>=0 and metres<20000
+ put('F22_ALT_RADAR_VALID',flag(valid))
+ put('F22_ALT_RADAR_REASON',source_reason(powered,ok,valid))
+ if valid then put('F22_ALT_RADAR_FT',metres*3.280839895);put('F22_ALT_RADAR_STAMP',now)end
+end
 function update()
  physical:update()
- local now=type(get_model_time)=='function'and get_model_time()or 0
- local age=now-get('F22_ALTIMETER_RESULT_TIME')
- local native=get('F22_ALTIMETER_NATIVE_READY')>.5 and get('F22_ALTIMETER_NATIVE_VALID')>.5 and age>=-.01 and age<=.2
- if native and not adopted then
-  local q=get('F22_ALT_ACTUAL_PRESSURE_MMHG')
-  if finite(q)and q>=650 and q<=820 then settings.qnh=q;settings.saved_qnh=q;adopted=true end
+ local now=Altitude.clock()
+ if sequence>=16777214 then sequence=0 end
+ put('F22_ALT_SNAPSHOT_SEQUENCE',sequence+1)
+ put('F22_ALT_SNAPSHOT_SCHEMA',1);put('F22_ALT_SNAPSHOT_CLOCK_KIND',2)
+ put('F22_ALT_SNAPSHOT_GENERATION',physical.valid and physical.generation or 0)
+ put('F22_ALT_SNAPSHOT_TIME',now or -1)
+ put('F22_ALT_SNAPSHOT_SELECTION',settings.display)
+ if now then
+  local powered=power(false)
+  primary(now,powered);standby(now);radar(now,powered)
+  put('F22_ALT_PRESSURE_REQUEST_TIME',now)
+  put('F22_ALT_PRESSURE_REQUEST_VALID',flag(powered and adopted))
+  if not powered then put('F22_ENTRY_ALT_ACTIVE',0)end
+ else
+  for _,key in ipairs({'BARO','STANDBY','RADAR'})do put('F22_ALT_'..key..'_VALID',0)end
+  put('F22_ALT_PRESSURE_REQUEST_VALID',0);put('F22_ENTRY_ALT_ACTIVE',0)
  end
- local powered=power(false)
- put('F22_ALT_PRESSURE_REQUEST_TIME',now);put('F22_ALT_PRESSURE_REQUEST_VALID',powered and adopted and 1 or 0);publish()
- if not powered then put('F22_ENTRY_ALT_ACTIVE',0)end
- local baro=get('F22_ALT_NATIVE_BARO_M')*3.280839895
- put('F22_ALT_BARO_VALID',powered and native and finite(baro)and 1 or 0)
- put('F22_ALT_BARO_STAMP',get('F22_ALTIMETER_RESULT_TIME'))
- put('F22_ALT_BARO_REASON',not powered and 1 or not native and 2 or not finite(baro)and 3 or 0)
- if native and finite(baro)then put('F22_ALT_BARO_FT',baro)end
- local standby=get('F22_ALT_STANDBY_NATIVE_M')*3.280839895
- local standby_age=now-get('F22_ALT_STANDBY_NATIVE_STAMP')
- local standby_valid=get('F22_ALT_STANDBY_NATIVE_VALID')==1 and standby_age>=-.01 and standby_age<=.2
-  and finite(standby)
- -- The generic standby pressure sensor is independent of primary ADC failure.
- -- A display still needs usable DC; no specific F-22 pneumatic control is claimed.
- local standby_power=power(true)
- put('F22_ALT_STANDBY_VALID',standby_power and standby_valid and 1 or 0)
- put('F22_ALT_STANDBY_REASON',not standby_power and 1 or not standby_valid and 2 or 0)
- put('F22_ALT_STANDBY_STAMP',get('F22_ALT_STANDBY_NATIVE_STAMP'))
- if standby_valid then put('F22_ALT_STANDBY_FT',standby)end
- local ok,radar=pcall(base.getRadarAltitude)
- local valid=powered and physical.values.EFM_HUD_VALID==1 and ok and finite(radar)and radar>=0 and radar<20000
- put('F22_ALT_RADAR_VALID',valid and 1 or 0)
- put('F22_ALT_RADAR_REASON',not powered and 1 or not ok and 2 or not valid and 3 or 0)
- if valid then put('F22_ALT_RADAR_FT',radar*3.280839895);put('F22_ALT_RADAR_STAMP',now)end
+ publish()
+ sequence=sequence+2;put('F22_ALT_SNAPSHOT_SEQUENCE',sequence)
 end
 make_default_activity(.05)
 need_to_be_closed=false

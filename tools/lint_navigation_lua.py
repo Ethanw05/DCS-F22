@@ -19,7 +19,7 @@ HOST = ["LockOn_Options", "GetSelf", "get_base_data", "get_param_handle", "make_
         "set_cockpit_draw_argument_value", "set_aircraft_draw_argument_value",
         "create_sound_host", "get_aircraft_property", "print_message_to_user",
         "SetScale", "FOV", "GetAspect", "GetScale", "MakeMaterial", "MakeFont", "CreateElement", "Add",
-        "h_clip_relations"]
+        "h_clip_relations", "elements"]  # DCS clickable declaration table.
 
 
 def main():

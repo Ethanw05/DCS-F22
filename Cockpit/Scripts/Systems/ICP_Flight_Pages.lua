@@ -3,6 +3,9 @@ local M={}
 local function finite(v)return type(v)=='number'and v==v and math.abs(v)<1e9 end
 function M.new(get,put,send,c)
  local s={menu=0,field=0,buffer='',status='',editing=false}
+ local physical=dofile(LockOn_Options.script_path..'Systems/Physical_Snapshot.lua').new(get,{})
+ local Altitude=dofile(LockOn_Options.script_path..'Systems/Altitude_Snapshot.lua')
+ local altitude=Altitude.new(get)
  for _,key in ipairs({'ICP_FLIGHT_TITLE','ICP_FLIGHT_ENTRY','ICP_FLIGHT_STATUS',
   'ICP_FLIGHT_ROW_1','ICP_FLIGHT_ROW_2','ICP_FLIGHT_ROW_3','ICP_FLIGHT_ROW_4','ICP_FLIGHT_ROW_5'})do put(key,'')end
  put('ICP_FLIGHT_MENU',0);put('ICP_FLIGHT_FIELD',0)
@@ -98,6 +101,7 @@ function M.new(get,put,send,c)
   return true
  end
  function s:update()
+  physical:update();altitude:update(physical.generation,physical.valid,Altitude.clock())
   if get('MAIN_POWER')<.5 then self:close()end
   put('ICP_FLIGHT_MENU',self.menu);put('ICP_FLIGHT_FIELD',self.editing and 1 or 0)
   local titles={'AP1/3 MODES','AP2/3 TARGETS','AP3/3 MORE','ALT1/2 SETTINGS','ALT2/2 STATUS'}
@@ -116,8 +120,8 @@ function M.new(get,put,send,c)
   elseif self.menu==3 then rows={mark('RALT HOLD',active and get('F22_AP_PITCH_MODE')==3),mark('VS HOLD',active and get('F22_AP_PITCH_MODE')==4),
    mark('AT CAS',get('F22_AP_AT')>.5 and get('F22_AP_MACH_HOLD')<.5),mark('AT MACH',get('F22_AP_AT')>.5 and get('F22_AP_MACH_HOLD')>.5),string.format('RALT %.0f FT',get('F22_AP_RALT'))}
   elseif self.menu==4 then rows=settings
-  elseif self.menu==5 then rows={get('F22_ALT_BARO_VALID')>.5 and string.format('BARO %.0f FT',get('F22_ALT_BARO_FT'))or'BARO NO DATA',
-   get('F22_ALT_RADAR_VALID')>.5 and string.format('RADAR %.0f FT',get('F22_ALT_RADAR_FT'))or'RADAR NO DATA',get('F22_PILOT_AUDIO_MUTED')>.5 and'VOICE OFF'or'VOICE ON','VOICE TEST','ACK'}end
+  elseif self.menu==5 then rows={altitude.sources.BARO.valid and string.format('BARO %.0f FT',altitude.sources.BARO.value)or'BARO NO DATA',
+   altitude.sources.RADAR.valid and string.format('RADAR %.0f FT',altitude.sources.RADAR.value)or'RADAR NO DATA',get('F22_PILOT_AUDIO_MUTED')>.5 and'VOICE OFF'or'VOICE ON','VOICE TEST','ACK'}end
   if self.editing then
    local saved=self.menu==2 and targets[self.field]or self.menu==4 and settings[self.field]or string.format('RALT %.0f FT',get('F22_AP_RALT'))
    local label=self.menu==2 and ({'HDG','ALT','VS','CAS','MACH'})[self.field]or self.menu==4 and ({'BARO','MSL','AGL'})[self.field]or'RALT'

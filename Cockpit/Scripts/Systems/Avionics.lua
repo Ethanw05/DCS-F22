@@ -33,6 +33,15 @@ end
 local attitude_references=dofile(LockOn_Options.script_path..'Systems/Attitude_References.lua').new(
  function(key)return reference_handle(key):get()end,
  function(key,value)reference_handle(key):set(value)end)
+local function altitude_read(key)return reference_handle(key):get()end
+local altitude_physical=dofile(LockOn_Options.script_path..'Systems/Physical_Snapshot.lua').new(altitude_read,
+ {'EFM_HUD_KINEMATICS_VALID','EFM_HUD_VU'})
+local Altitude=dofile(LockOn_Options.script_path..'Systems/Altitude_Snapshot.lua')
+local altitude_frame=Altitude.new(altitude_read)
+local baro_current=get_param_handle('F22_SIDE_BARO_VALID')
+local vertical_speed_current=get_param_handle('F22_SIDE_VS_VALID')
+baro_current:set(0)
+vertical_speed_current:set(0)
 
 dofile(LockOn_Options.script_path.."devices.lua")
 dofile(LockOn_Options.script_path.."command_defs.lua")
@@ -101,7 +110,6 @@ local parameters =
 	L_HYD_COLOR			 = get_param_handle("L_HYD_COLOR"),
 	R_HYD_COLOR			 = get_param_handle("R_HYD_COLOR"),
 
-	LMFD_ENG_PAGE        = get_param_handle("LMFD_ENG_PAGE"),
 	LMFD_MENU_PAGE       = get_param_handle("LMFD_MENU_PAGE"),
 	LMFD_FCS_PAGE        = get_param_handle("LMFD_FCS_PAGE"),
 	LMFD_FUEL_PAGE       = get_param_handle("LMFD_FUEL_PAGE"),
@@ -114,8 +122,6 @@ local parameters =
 	LMFD_MASK            = get_param_handle("LMFD_MASK"),
 	RMFD_MASK            = get_param_handle("RMFD_MASK"),
 	PMFD_MASK            = get_param_handle("PMFD_MASK"),
-	RMFD_BLANK_PAGE  	 = get_param_handle("RMFD_BLANK_PAGE"),
-	CMFD_BLANK_PAGE      = get_param_handle("CMFD_BLANK_PAGE"),
 	DAY_NIGHT	         = get_param_handle("DAY_NIGHT"),
 	MACH	         	 = get_param_handle("MACH"),
 	PITCHRATE	         = get_param_handle("PITCHRATE"),
@@ -149,6 +155,8 @@ local day_night_switch = device_commands.Button_8  -- Track mouse clicks
 local right_UFD_swap   = device_commands.Button_9  -- Track mouse clicks
 local left_UFD_swap    = device_commands.Button_10 -- Track mouse clicks
 local eject_handle     = device_commands.Button_11 -- Track mouse clicks
+local swap_held={}
+local decode_swap=dofile(LockOn_Options.script_path.."Systems/Input_Value.lua")
 
 dev:listen_command(UFD_KNOB_mouse)
 dev:listen_command(MFD_KNOB_mouse)
@@ -164,6 +172,7 @@ dev:listen_command(10018)--DAY NIGHT T
 dev:listen_command(10027)--swap bind ufd
 
 function post_initialize()
+	swap_held={}
 	mfd_brightness_knob = 1
 	ufd_brightness_knob = 1
 	--print_message_to_user("AVIONICS SYSTEM POST INIT")
@@ -185,10 +194,16 @@ function post_initialize()
 		--print_message_to_user("HOT START")
 	end
 end
-local swap_held={}
-local decode_swap=dofile(LockOn_Options.script_path.."Systems/Input_Value.lua")
 local R_UFD_ADI = 1 
 local R_UFD_WAR = 0
+local function day_night_input(command,value)
+    if command~=day_night_switch and command~=10017 and command~=10018 then return end
+    if type(value)~='number' or value~=value or math.abs(value)==math.huge then return end
+    local position=decode_swap(value,devices.AVIONICS)
+    if command==10018 then
+        if position>.5 and position<=1 then day_night=1-day_night end
+    elseif position==0 or position==1 then day_night=position end
+end
 function SetCommand(command,value)
 	if command == MFD_KNOB_mouse then
 		mfd_brightness_knob = math.max(0, math.min(1, value))
@@ -200,15 +215,9 @@ function SetCommand(command,value)
 		dispatch_action(nil,83)
 		print_message_to_user("EJECT!!!")
 	end
-	-- Day/Night switch
-	if (command == day_night_switch or command == 10017 or command == 10018) and day_night == 0 then
-		day_night = 1
-		--print_message_to_user("NIGHT MODE")
-	elseif (command == day_night_switch or command == 10017 or command == 10018) and day_night == 1 then 
-		day_night = 0
-		--print_message_to_user("DAY MODE")
-	end
+    day_night_input(command,value)
     if command==left_UFD_swap or command==right_UFD_swap or command==10027 or command==10910 then
+        if type(value)~='number' or value~=value or math.abs(value)==math.huge then return end
         local down=decode_swap(value,devices.AVIONICS)>.5
         local old=swap_held[command];swap_held[command]=down
         if down and not old then
@@ -220,6 +229,14 @@ end
 
 function update()
     engine_indications:update()
+    altitude_physical:update()
+    altitude_frame:update(altitude_physical.generation,altitude_physical.valid,Altitude.clock())
+    baro_current:set(altitude_frame.sources.BARO.valid and 1 or 0)
+    local vertical_speed=altitude_physical.values.EFM_HUD_VU
+    local vertical_valid=altitude_physical.valid and altitude_physical.values.EFM_HUD_KINEMATICS_VALID==1
+        and type(vertical_speed)=='number' and vertical_speed==vertical_speed and math.abs(vertical_speed)<math.huge
+    vertical_speed_current:set(vertical_valid and 1 or 0)
+    if vertical_valid then parameters.VV:set(vertical_speed*196.850394)end
 	startup_diagnostic_ticks = startup_diagnostic_ticks + 1
 	--print_message_to_user(parameters.FLAPS_DOWN:get())
 
@@ -266,7 +283,6 @@ function update()
 	parameters.PITCHRATE    :set(sensor_data.getRateOfPitch()/math.pi*180)-- Testing
 	parameters.YAWRATE      :set(sensor_data.getRateOfYaw()/math.pi*180)-- Testing
 	parameters.AOA			:set(sensor_data.getAngleOfAttack()/math.pi*180)
-	parameters.VV			:set(sensor_data.getVerticalVelocity()* 196.85)
     -- Independent experimental HUD data model. Airspeed/altitude and attitude
     -- are sensor-derived. C-130-style heading tape is a deliberately hybrid choice.
     local pitch = sensor_data.getPitch()
@@ -276,7 +292,6 @@ function update()
         heading=(heading-math.deg(get_param_handle('F22_MAG_DECL'):get()))%360
     end
     local ias = math.max(0, sensor_data.getIndicatedAirSpeed() * 1.943844492)
-    local alt_ft = math.max(0, get_param_handle('F22_ALT_BARO_VALID'):get()>.5 and get_param_handle('F22_ALT_BARO_FT'):get() or sensor_data.getBarometricAltitude()*3.280839895)
     local tas = math.max(1.0, sensor_data.getTrueAirSpeed())
     local climb = sensor_data.getVerticalVelocity()
     local flight_path = math.atan(climb / tas)
@@ -301,7 +316,7 @@ function update()
 	parameters.NAV:set(hdg_int)
 	--parameters.NAV			:set((359 - sensor_data.getHeading() * 180/math.pi))
 	parameters.RADALT       :set(sensor_data.getRadarAltitude() * 3.280839895 ) -- Working, don't change
-	if get_param_handle('F22_ALT_BARO_VALID'):get()>.5 then parameters.BARO:set(get_param_handle('F22_ALT_BARO_FT'):get())end	
+	if altitude_frame.sources.BARO.valid then parameters.BARO:set(altitude_frame.sources.BARO.value)end
 	parameters.FUELL        :set(sensor_data.getTotalFuelWeight() * 0.01 ) -- Working, don't change: 0.36622 
 	parameters.FUEL         :set(sensor_data.getTotalFuelWeight() * 2.20462 ) -- Working, don't change: 0.36622
 	parameters.FUELT        :set(fuel_external_kg * 2.20462262) -- Working, don't change: 0.36622 **25725 - 17500 = 8225**
@@ -320,20 +335,6 @@ function update()
 	parameters.OIL_LIGHT    :set(OIL_ARG)
 	parameters.HYD_LIGHT    :set(HYD_ARG)
 	parameters.DAY_NIGHT    :set(day_night)
-
-	if parameters.APU_RPM_STATE:get() >= 2 and parameters.MAIN_POWER:get() == 0 then
-		parameters.LMFD_ENG_PAGE:set(1)      
-		parameters.RMFD_BLANK_PAGE:set(1)     
-		parameters.CMFD_BLANK_PAGE:set(1)
-	elseif parameters.APU_RPM_STATE:get() >= 2 and parameters.MAIN_POWER:get() == 1 then
-		parameters.LMFD_ENG_PAGE:set(0)      
-		parameters.RMFD_BLANK_PAGE:set(0)     
-		parameters.CMFD_BLANK_PAGE:set(0)
-	elseif parameters.MAIN_POWER:get() == 0 then
-		parameters.LMFD_ENG_PAGE:set(0)     
-		parameters.RMFD_BLANK_PAGE:set(0)     
-		parameters.CMFD_BLANK_PAGE:set(0)
-	end
 
     -- Physical alert data and presentation are distinct. MIL-HDBK-87213
     -- guidance distinguishes legibility/brightness from warning content.

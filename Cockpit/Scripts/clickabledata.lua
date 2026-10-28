@@ -525,6 +525,9 @@ end
 
 -- Shared MFD routing debounces held keys, so every physical bezel button
 -- must deliver its mouse release as well as its press.
+for _,name in ipairs({"L_SMFD_1_PNT","R_SMFD_1_PNT"})do
+ elements[name].use_release_message={true}
+end
 for _,stem in ipairs({"L_MFD_","R_MFD_","B_MFD_","PMFD_"})do
  for button=1,20 do
   elements[stem..button.."_PNT"].use_release_message={true}
