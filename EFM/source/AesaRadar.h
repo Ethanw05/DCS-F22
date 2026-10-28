@@ -88,6 +88,7 @@ struct Policy {
     double range_error_m = 30, angular_error_rad = .08 * degree;
     double minimum_track_dwell_s = .004, fire_control_revisit_s = .05;
     double gun_revisit_s = .025, support_revisit_s = .05;
+    double maintenance_revisit_s = .5; // Unselected confirmed files; game estimate.
 };
 struct Measurement {
     std::uint32_t id{}, hits{};
@@ -168,6 +169,7 @@ private:
     void start_surface(double, const Controls&, const Pose&) noexcept;
     double revisit(std::uint32_t id, std::size_t priority, const Controls&) const noexcept;
     double track_dwell(const Measurement&, const Pose&) const noexcept;
+    Task maintenance_task(double, const Controls&, const Pose&) noexcept;
     Task priority_task(double now, const Controls&, const Pose&) noexcept;
     bool search_angles(const Controls&, double& azimuth, double& elevation) noexcept;
     void start(double now, const Controls&, const Pose&) noexcept;

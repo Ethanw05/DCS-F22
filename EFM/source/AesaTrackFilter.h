@@ -13,6 +13,7 @@ using Matrix = std::array<std::array<double, 6>, 6>;
 // Continuous white acceleration intensity, m^2/s^3. Unlike per-sample noise,
 // this process model has the same uncertainty growth at different revisits.
 inline constexpr double acceleration_spectral_density = 100; // Game estimate.
+inline constexpr double maximum_memory_s = 6;
 inline constexpr double pi = 3.14159265358979323846;
 inline double dot(Vector a, Vector b) noexcept {
     double result = 0;
@@ -187,7 +188,7 @@ public:
         const double unavailable = std::numeric_limits<double>::infinity();
         if (!state_.valid || !valid_sample(s)) return unavailable;
         const double dt = s.time-state_.time;
-        if (dt < 0 || dt > 6) return unavailable;
+        if (dt < 0 || dt > maximum_memory_s) return unavailable;
         auto predicted = predict(dt);
         double score = 0;
         return update(predicted,s,score) && usable(predicted) && std::isfinite(score) ? score : unavailable;
@@ -195,7 +196,7 @@ public:
     bool observe(const Sample& s) noexcept {
         if (!valid_sample(s)) return false;
         const double dt=s.time-state_.time;
-        if (!state_.valid || dt>6 || dt<0) {initialize(s);return true;}
+        if (!state_.valid || dt>maximum_memory_s || dt<0) {initialize(s);return true;}
         if (dt<=0) return false;
         auto p=predict(dt);double score=0;
         if (!update(p,s,score) || !usable(p)) return false;

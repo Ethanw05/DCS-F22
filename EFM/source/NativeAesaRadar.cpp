@@ -198,6 +198,11 @@ Box bounds(const Pose& pose, const Beam& beam) noexcept {
 class Provider final : public Environment {
     void* own_{};
     bool airborne(void* unit) const noexcept {
+        // Shared scene searches include dormant late-activation units. The
+        // matched DCS detection path requires MovingObject's presence flag32
+        // before using position/velocity. Spawn definitions are not aircraft
+        // currently present in the simulated world.
+        if (!api.flag || !api.flag(unit, 32)) return false;
         const auto type=api.type(unit);
         return readable(type,2) && type[0]==1 && (type[1]==1 || type[1]==2);
     }
@@ -242,9 +247,7 @@ class Provider final : public Environment {
         }
         void* unit = moving(scene);
         if (!unit || unit == own_ || api.dead(unit)) return 0;
-        const auto type = api.type(unit);
-        if (!readable(type, 2)) { query.known = false; return 1; }
-        if (type[0] != 1 || (type[1] != 1 && type[1] != 2)) return 0;
+        if (!airborne(unit)) return 0;
         Vector position{}; api.point(unit, &position);
         if (!finite(position)) { query.known = false; return 1; }
         if (length(position-query.pose->position) > AesaReceiver::survey_range_m) return 0;

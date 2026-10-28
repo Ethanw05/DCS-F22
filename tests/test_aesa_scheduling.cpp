@@ -251,11 +251,56 @@ void surface_beams() {
     CHECK(radar.status().surface_discovery_sequence==search);
     CHECK(std::abs(radar.status().surface_discovery_work-search/308.0)<1e-9);
 }
+void unselected_search_tracks(double callback) {
+    static Model radar;radar.reset();Scene world;world.count=2;
+    const std::array<Vector,2> start{{{-279000,3048,631000},{-272000,4877,635000}}};
+    const std::array<Vector,2> velocity{{{-106,0,169},{-156,0,126}}};
+    Pose pose{};pose.velocity={-122,13,174};
+    Controls c{};c.enabled=true;c.range_m=160*1852;
+    std::array<std::uint32_t,2> ids{};unsigned largest=0;double largest_age=0;
+    for (unsigned tick=0;tick<static_cast<unsigned>(70/callback);++tick) {
+        const double now=tick*callback,heading=2.18+.08*std::sin(now*.1);
+        pose.position=Vector{-222204,1362,563240}+pose.velocity*now;
+        pose.forward={std::cos(heading),0,std::sin(heading)};
+        pose.right={-std::sin(heading),0,std::cos(heading)};
+        for (std::size_t i=0;i<2;++i) {
+            world.objects[i].position=start[i]+velocity[i]*now;world.objects[i].velocity=velocity[i];
+        }
+        CHECK(radar.update(now,c,pose,world));
+        unsigned count=0;
+        for (const auto& track:radar.measurements()) {
+            if (!track.valid) continue;
+            ++count;
+            if (now<15) continue;
+            CHECK(track.velocity_valid && track.association_valid);
+            largest_age=std::max(largest_age,now-track.time);
+        }
+        largest=std::max(largest,count);
+        if (now>15) CHECK(count==2);
+        if (tick==static_cast<unsigned>(15/callback)) {
+            ids={radar.measurements()[0].id,radar.measurements()[1].id};
+        }
+    }
+    // These far, off-axis 1m2 targets have weak returns. A missed detection
+    // does not refresh age; IDs must still survive the measured miss runs.
+    CHECK(largest==2 && largest_age<4);
+    CHECK(radar.measurements()[0].id==ids[0] && radar.measurements()[1].id==ids[1]);
+    CHECK(radar.measurements()[0].hits>20 && radar.measurements()[1].hits>20);
+    CHECK(radar.status().track_dwells>100 && radar.status().search_dwells>500);
+    // After actual detection loss, retire at the estimator's memory limit.
+    world.blocked=true;
+    for (unsigned tick=0;tick<static_cast<unsigned>(7/callback);++tick)
+        CHECK(radar.update(70+tick*callback,c,pose,world));
+    CHECK(radar.status().tracks==0);
+    std::cout<<"Unselected two-aircraft search callback="<<callback<<" max_files="<<largest
+        <<" max_age="<<largest_age<<" stable_ids="<<ids[0]<<','<<ids[1]<<'\n';
+}
 }
 int main() {
     try {
         engagement(1.0 / 240, true); engagement(1.0 / 60, true); engagement(1.0 / 240, false);
         engagement(1.0 / 240, true, true); saturated(); degraded(); cued_search(); surface_beams();
+        unselected_search_tracks(1.0/240);unselected_search_tracks(.02);
         return 0;
     } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
 }

@@ -8,6 +8,7 @@ for name,wanted in pairs({['MiG-29S']='29',['FA-18C_hornet']='18',['F-22A']='22'
 end
 assert(labels.label('Buk 9S18M1',2)=='SAM' and labels.label_code('SAM')==106)
 assert(labels.label('A',2)=='AAA' and labels.label_code('AAA')==107)
+assert(labels.label('1L13 EWR',0)=='EWR' and labels.label('S',0)=='EWR' and labels.label_code('EWR')==105)
 assert(labels.label('unrecognized',1)=='U')
 -- Native metadata is copied by the actual radar metadata owner, not an ID
 -- lookup in a receiver cache. Geometry and type identification are separate.

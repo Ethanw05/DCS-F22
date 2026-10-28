@@ -464,7 +464,7 @@ function update()
 		sensor_tasks:publish(put,computer.clock)
 		local background = aesa:read(computer.clock + step, pose, display)
 		if aesa.generation_changed then computer:reset();aesa.locked,aesa.acquiring=nil,nil end
-		computer:update(step, background, 1)
+		computer:update(step, background, 1, aesa.ready)
 		aesa:publish(computer.clock, computer, service_resource, powered and ready, true, nil)
 		put("F22_RADAR_SUPPORT_ENABLED", requested_power and aesa.ready and 1 or 0)
 		put("F22_TWS_ACTIVE",0);put("F22_TWS_TARGET_ID",0)
@@ -497,7 +497,7 @@ function update()
 		if observations[i].native_id == aesa.locked then stt_observation = observations[i]; break end
 	end
 	if powered and ready then
-		computer:update(step, observations, native_mode)
+		computer:update(step, observations, native_mode, observations_ready)
 	else
 		computer:reset()
 		computer.clock = computer.clock + step

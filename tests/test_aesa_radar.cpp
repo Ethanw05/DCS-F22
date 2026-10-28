@@ -46,13 +46,15 @@ int scenarios() {
     CHECK(std::abs(radar.status().beam.azimuth - 55 * degree) < 1e-9);
     CHECK(radar.measurements()[0].time <= .081);
     for (int i = 1; i <= 30; ++i) radar.update(.081 + i * .02, c, pose, world);
-    CHECK(radar.measurements()[0].time <= .081);
-    // No off-beam observation is created even though the provider contains it.
+    // Search pointing changes do not cancel interleaved maintenance of an
+    // already detected unselected file. Only real targeted looks refresh it.
+    CHECK(radar.measurements()[0].time > .081 && radar.status().track_dwells > 0);
+    // Off-target search beams still cannot detect that aircraft.
     CHECK(radar.status().detections < radar.status().dwells);
     c.azimuth = 0; world.blocked = true;
     for (int i = 1; i <= 30; ++i) radar.update(.7 + i * .02, c, pose, world);
     CHECK(radar.status().terrain_blocked > 0);
-    CHECK(radar.measurements()[0].time <= .081);
+    CHECK(radar.measurements()[0].time < .7); // Includes queued pre-block reports.
     c.resource = 0; CHECK(!radar.update(1.4, c, pose, world));
     CHECK(!radar.measurements()[0].valid);
     c.resource = .25; world.blocked = false;
