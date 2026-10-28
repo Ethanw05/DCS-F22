@@ -20,7 +20,7 @@ local physical=envelope.new(read,{
     'MAIN_POWER',
     'EFM_HUD_VALID','EFM_HUD_VN','EFM_HUD_VE','EFM_HUD_VU','EFM_HUD_WN','EFM_HUD_WE',
     'EFM_GROUND_VALID','EFM_WEIGHT_ON_WHEELS','EFM_GEAR_DOWN_LOCKED','EFM_GEAR_UP_LOCKED',
-    'EFM_GEAR_UNSAFE','EFM_AIRDATA_VALID','EFM_AIRDATA_STAMP','EFM_AIRDATA_CAS_MPS',
+    'EFM_GEAR_UNSAFE','EFM_NWS_SELECTED','EFM_AIRDATA_VALID','EFM_AIRDATA_STAMP','EFM_AIRDATA_CAS_MPS',
     'EFM_AIRDATA_TAS_MPS','EFM_AIRDATA_HEALTH',
 })
 local reference=dofile(LockOn_Options.script_path..'Systems/Gins_References.lua').reader(read,'HUD')
@@ -71,7 +71,7 @@ end
 -- their existing owner/update contract.
 for _,name in ipairs({"HUD_FPM_X_SLOPE","HUD_FPM_Y_SLOPE","HUD_FPM_VALID",
     "HUD_AIRDATA_VALID","HUD_WIND_VALID","HUD_GS_VALID","HUD_ALT_VALID","HUD_LANDING_CONFIG",
-    "HUD_EBRACKET_OFFSET","HUD_EBRACKET_VALID"}) do put(name,0) end
+    "HUD_EBRACKET_OFFSET","HUD_EBRACKET_VALID","HUD_NWS_ACTIVE"}) do put(name,0) end
 local peak_g=1
 local previous_cas=nil
 local acceleration=0
@@ -95,6 +95,7 @@ function post_initialize()
     peak_g=1; previous_cas=nil; acceleration=0
     put("HUD_FPM_VALID",0); put("HUD_AIRDATA_VALID",0)
     put("HUD_WIND_VALID",0); put("HUD_GS_VALID",0);put("HUD_ALT_VALID",0)
+    put('HUD_NWS_ACTIVE',0)
 end
 local function fpm(az,el)
     if not az or not el then return end
@@ -184,6 +185,9 @@ function update()
     local own_contact=flight('EFM_GROUND_VALID')==1 and envelope.boolean(contact)
     local gear_down=down==1 and up==0 and unsafe==0 and own_contact
     put("HUD_LANDING_CONFIG",gear_down and 1 or 0)
+    -- Pilot-requested selection cue, not a claim of measured actuator authority.
+    put('HUD_NWS_ACTIVE',gear_down and contact==1 and flight('EFM_NWS_SELECTED')==1
+        and flight('MAIN_POWER')==1 and 1 or 0)
     -- Hornet presentation, this aircraft's existing 12-degree approach target.
     -- AOA error moves the complete bracket relative to the velocity vector.
     local bracket_valid=gear_down and contact==0 and aoa_valid

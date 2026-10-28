@@ -318,6 +318,9 @@ line(-.025,.683,.025,.683,.003,'HUD_SELECTED_HEADING_BUG')
 line(.025,.683,.025,.665,.003,'HUD_SELECTED_HEADING_BUG')
 label(.105,.74,'HUD_HEADING_REFERENCE','%s',.016,'HUD_HEADING')
 label(-.72,-.45,'F22_AP_STATUS_TEXT','%s',.018,nil,'LeftCenter')
+-- Separate line below the AP status, clear of the left flight-data block.
+group('HUD_NWS_STATUS',-.62,-.51,{'HUD_NWS_ACTIVE'},{{'parameter_in_range',0,.9,1.1}})
+static(0,0,'NWS',.021,'HUD_NWS_STATUS')
 
 dofile(LockOn_Options.script_path..'HUD/navigation.lua')({group=group,line=line,layout_scale=layout_scale})
 

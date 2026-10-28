@@ -51,6 +51,17 @@ function M.new(emit)
 		end
 		self.soi = soi
 	end
+	function s:missile_step(long, c)
+		if c.ground then
+			emit('nws')
+		elseif long then
+			emit('station_step')
+		else
+			emit('undesignate')
+			-- Navigation also clears its shared ground mark through the mark owner.
+			emit('nav_undesignate')
+		end
+	end
 	function s:act(n, long, c)
 		if n == "scs_depress" then
 			local action = display.action(self.soi, display.page(c, self.soi), self.mode, c)
@@ -129,13 +140,7 @@ function M.new(emit)
 		elseif n == "coverage" then
 			emit(long and "vertical_span" or "azimuth")
 		elseif n == "missile_step" then
-			if c.ground then
-				emit("nws")
-			elseif long then
-				emit("station_step")
-			else
-				emit("undesignate")
-			end
+			self:missile_step(long, c)
 		elseif n == "paddle" then
 			emit("autopilot_off")
 		elseif n == "dogfight" then
@@ -184,6 +189,13 @@ function M.new(emit)
 		end
 	end
 	local delayed = { tms_right = true, tms_left = true, coverage = true, missile_step = true }
+	local function defer_input(n, mode, c)
+		if n == 'missile_step' then return not c.ground end
+		return delayed[n] and not (n == 'tms_right' and (mode == 5 or mode == 3))
+	end
+	local function same_context(n, held, c)
+		return n ~= 'missile_step' or held.context.ground == c.ground
+	end
 	function s:input(n, v, c)
 		local held = self.held[n]
 		if (n=="tdc" or n=="scs_depress" or n=="dms_down") and
@@ -207,7 +219,7 @@ function M.new(emit)
 				return
 			end
 			self.held[n] = { start = self.clock, done = false, context = c }
-			self.held[n].delayed = delayed[n] and not (n == "tms_right" and (self.mode == 5 or self.mode == 3))
+			self.held[n].delayed = defer_input(n, self.mode, c)
 			if not self.held[n].delayed then
 				self:act(n, false, c)
 			end
@@ -215,7 +227,9 @@ function M.new(emit)
 			local h = self.held[n]
 			self.held[n] = nil
 			if h and h.delayed and not h.done then
-				self:act(n, false, c)
+				if same_context(n, h, c) then
+					self:act(n, false, c)
+				end
 			end
 		end
 	end
@@ -227,7 +241,9 @@ function M.new(emit)
 			local threshold = n == "tms_right" and 1 or 0.5
 			if h.delayed and not h.done and self.clock - h.start >= threshold then
 				h.done = true
-				self:act(n, true, c)
+				if same_context(n, h, c) then
+					self:act(n, true, c)
+				end
 			end
 		end
 	end

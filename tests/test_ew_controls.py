@@ -43,6 +43,7 @@ post_initialize();update();assert(not ecm and get_param_handle('F22_ECM_REQUESTE
 ''')
 
 for kind in ('keyboard','joystick'):
+    lua.globals().folder=(ROOT/f'Input/F-22A/{kind}').as_posix()+'/'
     source=(ROOT/f'Input/F-22A/{kind}/default.lua').read_text()
     binding_code=source.split('-- Preserve the base command names/default key combinations, but own routing.',1)[1].rsplit('return res',1)[0]
     lua.execute('''

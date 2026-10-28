@@ -19,7 +19,7 @@ s:input('tms_right',1,c);assert(events[#events][1]=='wide')
 s:update(2,c);s:input('tms_right',0,c)
 assert(events[#events][1]=='wide','ACM held right must select wide')
 s:input('missile_step',1,c);s:input('missile_step',0,c)
-assert(events[#events][1]=='undesignate')
+assert(events[#events-1][1]=='undesignate' and events[#events][1]=='nav_undesignate')
 -- Changing weapons is never a radar mode/lock command when already locked.
 for _,n in ipairs({'srm','mrm','gun','weapon_select'}) do
  events={};s:input(n,1,c);s:input(n,0,c)

@@ -20,6 +20,19 @@ end
 local function put(n, v)
 	h(n):set(v)
 end
+local physical = dofile(LockOn_Options.script_path .. 'Systems/Physical_Snapshot.lua')
+local steering = physical.new(get, {
+	'EFM_NWS_SELECTED', 'EFM_GROUND_VALID', 'EFM_WEIGHT_ON_WHEELS',
+})
+local function toggle_steering()
+	steering:update()
+	local state = steering.values
+	if steering.valid and state.EFM_GROUND_VALID == 1 and state.EFM_WEIGHT_ON_WHEELS == 1
+		and physical.boolean(state.EFM_NWS_SELECTED) then
+		-- The EFM owns steering authority; the inherited FC3 562 command does not.
+		dispatch_action(nil, 11701, 1 - state.EFM_NWS_SELECTED)
+	end
+end
 local by_id = {}
 dev:listen_command(10742) -- internal bezel-focus notification
 for n, id in pairs(commands) do
@@ -56,6 +69,9 @@ local function emit(n, v)
 		send(devices.RWR_SYSTEM, 10902)
 	elseif n == "nav_zoom" then
 		send(devices.NAV_SYSTEM, navigation.range_in)
+	elseif n == 'nav_undesignate' then
+		send(devices.NAV_SYSTEM, navigation.undesignate, 1)
+		send(devices.NAV_SYSTEM, navigation.undesignate, 0)
 	elseif n == "trigger_first" then
 		send(devices.WEAPON_SYSTEM, 10801, v)
 	elseif n == "trigger_second" then
@@ -75,7 +91,7 @@ local function emit(n, v)
 	elseif n == "nav_cage" then
 		send(devices.HUD_FLIGHT_DATA, 11840)
 	elseif n == "nws" then
-		dispatch_action(nil, 562, 1)
+		toggle_steering()
 	elseif n == "autopilot_off" then
 		dispatch_action(nil, 408, 1)
 	elseif n == "defense_program" then

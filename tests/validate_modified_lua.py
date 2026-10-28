@@ -81,7 +81,8 @@ def main() -> None:
     extra+=list(Path('Cockpit/Scripts/Systems').glob('Combat_*.lua'))+[Path('Cockpit/Scripts/Systems/Weapon_Native.lua'),Path('Cockpit/Scripts/Systems/Input_Value.lua'),Path('Cockpit/Scripts/Systems/PMFD_System.lua')]
     extra += [Path('Cockpit/Scripts/PMFD_CENTER/radar_format.lua'),
         Path('Cockpit/Scripts/PMFD_CENTER/tactical_overlay.lua'),
-        Path('Input/F-22A/joystick/default.lua'),Path('Input/F-22A/keyboard/default.lua')]
+        Path('Input/F-22A/joystick/default.lua'),Path('Input/F-22A/keyboard/default.lua'),
+        Path('Input/F-22A/control_cleanup.lua')]
     for filename in dict.fromkeys(SCRIPTS+extra):
         source = filename.read_text(encoding="utf-8-sig")
         # luaparser 3.3 emits its whole AST; retain only useful test output.

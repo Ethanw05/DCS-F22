@@ -693,4 +693,6 @@ join(res.keyCommands,{
   name=_('Stores - Simulation Mode'),category=_('F-22 Weapons')},
 })
 
+-- Keep keyboard shortcuts on their single current control entry.
+dofile(folder..'../control_cleanup.lua')(res,getfenv(1),true)
 return res

@@ -79,6 +79,7 @@ assert(#routed==0,'unpowered MFD changed radar settings')
 for kind in ('joystick', 'keyboard'):
     lua = runtime()
     lua.globals().INPUT_PROFILE = (ROOT / f'Input/F-22A/{kind}/default.lua').as_posix()
+    lua.globals().folder = (ROOT / f'Input/F-22A/{kind}').as_posix() + '/'
     lua.execute('''
     function _(s) return s end
     iCommandPlaneTrimUp=95;iCommandPlaneTrimDown=96;iCommandPlaneTrimLeft=93;iCommandPlaneTrimRight=94
