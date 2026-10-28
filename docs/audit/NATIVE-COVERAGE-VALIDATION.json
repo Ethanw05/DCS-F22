@@ -1,0 +1,19 @@
+{
+  "schema_version": "2.0",
+  "result": "pass",
+  "errors": [],
+  "counts": {
+    "native_files": 66,
+    "files_with_function_or_lambda_bodies": 53,
+    "zero_body_headers_reviewed_as_declarations": 13,
+    "lexical_function_reviews": 722,
+    "AST_entry_reviews": 752,
+    "AST_function_definitions": 731,
+    "lambdas": 21,
+    "parser_errors_manually_reconciled": 13,
+    "findings": 48,
+    "requirements": 87,
+    "packages": 46
+  },
+  "limits": "Checks coverage/evidence structure, current source identities and dependency links; not correctness of every review claim, exhaustive compiler/branch proof, actual DCS schedule/effect or aircraft fidelity."
+}

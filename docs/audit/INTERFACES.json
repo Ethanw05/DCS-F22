@@ -1,0 +1,639 @@
+{
+  "schema_version": "1.0",
+  "records": [
+    {
+      "id": "I-INT-003",
+      "producer": "EDPARAM and native cockpit exports",
+      "consumers": "All EDPARAM callers in EFM/source and wrapper dependency closure",
+      "type_units_frame": "bool success + opaque borrowed parameter handle + typed numeric/string value; units owned by individual field",
+      "clock_sample_generation": "No sample clock built into raw API; caller must bind field schema, observationtime and context epoch",
+      "validity": "Conversion success, supported API readiness and current handle/context independently required;0valid when success",
+      "bounds": "Per-field finite/type/domain checks; strings bounded by buffer size",
+      "thread_update_order": "DCS callback/context guarantees not yet established; no assumption VirtualQueryreadability proves ownership",
+      "lifecycle": "Current wrapper caches pointers at construction; replacement must define reset/reacquisition and drain ordering",
+      "verification": "Static source read; host lifetime unqualified",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\assurance\\lead.json"
+    },
+    {
+      "id": "I-FLT-001",
+      "name": "Achieved physical snapshot",
+      "producer": "ed_fm_simulate/CockpitManager.update/vehicle_publish",
+      "consumers": [
+        "Physical_Snapshot",
+        "Engine_Data",
+        "CniPower",
+        "Weapon_Physical_State"
+      ],
+      "units_type_frame": "Numeric0/1 flags; SI and explicitly named psi/deg; independent subdomain schemas",
+      "clock_sample_generation": "Spawn-relative PHYSICAL_STAMP/CLOCK_KIND1/current generation compared to F22_AP_CLOCK",
+      "validity": "Read validity/owner/epoch before+after payload; .25s age/.05s future; original source validity independent",
+      "bounds": "Lua<=64fields/native fixed signal array",
+      "thread_update_order": "Simulation producer clearsVALID then commits last; parameterAPI concurrency not qualified",
+      "lifecycle": "Release invalidates, spawn changes generation; no fallback physical owner",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "liveness_qualification": "Producer-relative coherence/age is not independent host liveness proof. Characterize physical clock versus Lua/model time under pause, active pause, stalled callbacks and restart at P-INT-005; do not blanket invalidate legitimate paused state or invent a cross-clock subtraction."
+    },
+    {
+      "id": "I-FLT-002",
+      "name": "Power/utility/tank requests",
+      "producer": "Vehicle_Power_Adapter/Vehicle_Stores_Adapter",
+      "consumers": [
+        "vehicle_sample_power",
+        "vehicle_sample_utility_demand"
+      ],
+      "units_type_frame": "Switch0/1; normalized0..1 demand; tank carriage count distinct from kilograms",
+      "clock_sample_generation": "Stable sequence, current utility generation/schema; utility age.25/future.05; inventory age.5s",
+      "validity": "ClearVALID/payload/sequence/commitVALID; consumer rereads sequence; stale utility withdraws0",
+      "bounds": "Power sequence1..16777215; utility1..uint32;4doors",
+      "thread_update_order": "Cockpit parameter transport to simulation; no atomic hostAPI guarantee",
+      "lifecycle": "New generation/service resets baselines; complete power selections persist until replaced",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json"
+    },
+    {
+      "id": "I-FLT-003",
+      "name": "DCS mass/fuel/suspension",
+      "producer": "DCS callbacks/ed_fm_change_mass",
+      "consumers": [
+        "FuelSystem",
+        "MassLedger",
+        "GroundContact",
+        "BrakeEnergy",
+        "DCS dynamics"
+      ],
+      "units_type_frame": "kg positive removes; m local positions; delta inertia currently0; contact magnitude; wheel speed unconverted diagnostic",
+      "clock_sample_generation": "Feedback stamped EFM time; wheel freshness<=.1s; tank observation newer than absolute callback",
+      "validity": "Finite bounded input; absolute loadout ownership distinct from ledger debit",
+      "bounds": "64ledger,16stations,3wheels",
+      "thread_update_order": "Host ordering/ABI/loadout mass semantics unqualified",
+      "lifecycle": "Release clears ledger; repair does not refill/cool/restart",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json"
+    },
+    {
+      "id": "I-NAV-001",
+      "name": "Selected altitude",
+      "producer": "Altitude_System/native altimetry",
+      "consumers": [
+        "HUD",
+        "MFD/UFD",
+        "warning",
+        "AFCS radar-height adapter"
+      ],
+      "type_units_frame": "FinitefeetMSL BARO/STBY, feetAGL RDR; validity0/1",
+      "clock_sample_generation": "World/model-time stamps, not spawn-relativeAPclock. No coherent altitude generation currently.",
+      "validity_bounds": "0.2s inside owner; consumer expiry missing",
+      "thread_update_order": "Native->Lua owner->display across callbacks; require coherent snapshot",
+      "lifecycle": "stall/power/context/reset withdrawal and explicit RDR fallback",
+      "requirement_ids": [
+        "R-NAV-001"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json"
+    },
+    {
+      "id": "I-NAV-002",
+      "name": "Per-panel format/input",
+      "producer": "MFD_Controller",
+      "consumers": [
+        "Four display formats",
+        "focus routing",
+        "UFCcontext"
+      ],
+      "type_units_frame": "4panels/20keys/page enum/view; original forwarded device+command",
+      "clock_sample_generation": "Command edges/requested6ms; callback order unqualified",
+      "validity_bounds": "Powered flags; release admitted after loss",
+      "thread_update_order": "Avionics currently competes on LMFD_ENG_PAGE",
+      "lifecycle": "Page/focus/power/mode change releases original owner once",
+      "requirement_ids": [
+        "R-NAV-002",
+        "R-NAV-011"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json"
+    },
+    {
+      "id": "I-NAV-003",
+      "name": "Dual selected GINS pose",
+      "producer": "Flight_Guidance/Gins_References",
+      "consumers": [
+        "Navigation_System",
+        "HUD_Flight_Data",
+        "Attitude_References"
+      ],
+      "type_units_frame": "Radians pitch/roll/heading, role source1/2, componentflags0/1",
+      "clock_sample_generation": "Spawn-relativeF22_AP_CLOCK schema1/sequence1..16777215/STAMP",
+      "validity_bounds": "0.25s age/+0.05s future; angles finite and poweredoff health forbidden",
+      "thread_update_order": "VALID0,payload,sequence,VALID1; reader before/after",
+      "lifecycle": "Ground alignment/movement/outage/rewind; separate estimate coast",
+      "requirement_ids": [
+        "R-NAV-007"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json"
+    },
+    {
+      "id": "I-NAV-004",
+      "name": "Numeric request mailbox",
+      "producer": "UFC_Controller/Entry_Transaction",
+      "consumers": [
+        "NAV",
+        "GUIDANCE/nativeAFCS",
+        "ALT",
+        "STORES",
+        "WARN"
+      ],
+      "type_units_frame": "Integer sequence/command; owner-specific finite value; RESULT1/2",
+      "clock_sample_generation": "Requestsequence1..16777215; local1s timeout incrementsfixed.006/callback",
+      "validity_bounds": "ACTIVE1/currentrequest/notalreadyACK; achievedreadbackrequired",
+      "thread_update_order": "ACTIVE0,payload,request,ACTIVE1; resultthenACK_REQUESTlast",
+      "lifecycle": "Page/power/profilecancelACTIVE0; no replay",
+      "requirement_ids": [
+        "R-NAV-007",
+        "R-NAV-011"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json"
+    },
+    {
+      "id": "I-NAV-005",
+      "name": "Voice lease/occurrence",
+      "producer": "Pilot_Warning_System",
+      "consumers": [
+        "MWS/RWR/IRaudiogates",
+        "HUD/UFDwarnings"
+      ],
+      "type_units_frame": "Priority0/1/3, model-time deadline, occurrence ticket",
+      "clock_sample_generation": "Actual recording length after confirmed playback",
+      "validity_bounds": "Maximum4s lease; normalize numeric0; play call alone not delivered",
+      "thread_update_order": "Confirmed soundstatus then policy.played(originalticket)",
+      "lifecycle": "Power/mute/rewind releases lease; undelivered retry bounded",
+      "requirement_ids": [
+        "R-NAV-009"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json"
+    },
+    {
+      "id": "I-NAV-006",
+      "name": "Pilot-set native bingo cause to cockpit attention",
+      "producer": "chat1 VehicleIntegration/VehicleSignals;11714 current input",
+      "consumers": [
+        "chat2 Pilot_Warnings/Fault_Registry",
+        "chat2 Avionics/side displays/audio"
+      ],
+      "type_units_frame": "F22_BINGO_KG_REQUEST finite0..12000kg threshold; EFM_FUEL_BINGO boolean; fuel comparison native total_fuel kg",
+      "clock_sample_generation": "Existing publish function exposes cause but no dedicated field schema/stamp/coherent generation. Agree world/model time producer frame and bounded consumer age; do not borrow unrelated readiness.",
+      "validity_bounds": "Require finite current total-fuel and setting identity; zero disables pilot bingo; source unavailable != cleared fault. Hysteresis/occurrence policy explicit.",
+      "thread_update_order": "Native fuel ledger -> qualified cause publication -> Lua alert registry -> lamps and voice lease",
+      "lifecycle": "Respawn/reset/rearm/refuel/threshold changes and clock rollback re-evaluate current cause; no stale replay",
+      "requirement_ids": [
+        "R-NAV-009",
+        "R-NAV-010"
+      ],
+      "implementation_owner": "chat1 producer / chat2 consumer",
+      "cross_chat_dependencies": [
+        "P-NAV-005 depends on qualified chat1 fuel snapshot"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\residue\\lane.json"
+    },
+    {
+      "id": "I-RAD-001",
+      "name": "Owned air measurement",
+      "producer": "AesaRadar model -> NativeAesaRadar Parameters",
+      "consumers": [
+        "AESA_Control",
+        "Radar_Computer",
+        "tactical/engagement/datalink/gun"
+      ],
+      "type_units_frame": "owned uint token,N/U/E m,VN/VU/VE m/s,range/angles/rate and sigmas,21covariance terms [N,U,E,VN,VU,VE]",
+      "clock": "absolute World/model seconds; producer heartbeat separate observation TIME",
+      "generation": "F22_AESA_GENERATION,odd/even sequence",
+      "validity": "ready/current<=0.5s,finite report; association/velocity withdraw without changing sample",
+      "bounds": "64tracks,32pending,8reports/dwell,native memory6s",
+      "thread_order": "avLua callback -> locked snapshot -> EFM parameter publication -> Lua sequence recheck",
+      "lifecycle": "epoch retires authority; legacy Lua enclosure violates admission",
+      "requirements": [
+        "R-RAD-001",
+        "R-RAD-003",
+        "R-RAD-006"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json"
+    },
+    {
+      "id": "I-RAD-002",
+      "name": "Completed surface RF job",
+      "producer": "AesaRadar::observe(surface)",
+      "consumers": [
+        "NativeGroundSensor",
+        "AG_Radar_Collection",
+        "NativeGroundVideo"
+      ],
+      "type_units_frame": "immutable world unit beam,cone rad,range m,start/completion s; search cells,cumulative normalized work",
+      "clock": "completed RF only; no display-tick credit",
+      "generation": "native epoch/coherent publication",
+      "validity": "active grant/resource0.1..1,completion age<=0.25s,actual cone;pointed/routine0imagery credit",
+      "bounds": "finite grid<=8192;2surface/1air job;malformed delta<=128volumes",
+      "thread_order": "freeze completed beam before next job;ground consumes same immutable grant",
+      "lifecycle": "new epoch adopts counters without replay,FRZ/SIL/ACTIVE distinct",
+      "requirements": [
+        "R-RAD-004",
+        "R-RAD-007",
+        "R-RAD-008"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json"
+    },
+    {
+      "id": "I-RAD-003",
+      "name": "Ground request/measurement/image reference",
+      "producer": "AG intent -> NativeGroundSensor/NativeGroundVideo",
+      "consumers": [
+        "AG_Radar_System",
+        "ground display",
+        "weapon coordinate handoff"
+      ],
+      "type_units_frame": "N/U/E coordinate cue/request seq;measured token/type/stamp/motion validity;schema2 captured image pose/range/EXP/epoch",
+      "clock": "measurement/receipt/image epochs distinct;prediction never new report",
+      "generation": "request_sequence/view epoch;not yet uniform native generation across all ground fields",
+      "validity": "matched pending request,finite measured age<=5.25s,current ready,image schema identity",
+      "bounds": "64tracks/32pending,selected~5s,SA30s,drawnsearch6s",
+      "thread_order": "queued Lua request -> native sample/publication -> Lua -> pilot",
+      "lifecycle": "clear/power/epoch/rewind cancel;ground host-ID association to migrate",
+      "requirements": [
+        "R-RAD-003",
+        "R-RAD-007",
+        "R-RAD-015"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "prior_record_retained": "Original fields remain source-context evidence; current_status/planned_repair below qualify them and take precedence over an unqualified reading.",
+      "current_status": "Ordinary current request/image-reference chain is active; Lua native_track rejects future reports and Lua rollback clears request/designation. Native pending/selected/range/acquisition history does not retire completely on a local rewind without global reset (D-RAD-003).",
+      "planned_repair": "I-DEEP-003 retires native histories coherently while preserving the existing Lua guards, normal delayed RF work and explicitly retained imagery policy. Actual DCS rollback/global reset ordering remains to be established."
+    },
+    {
+      "id": "I-RAD-004",
+      "name": "Donor search cue",
+      "producer": "Radar_Donor_Link deliberate input",
+      "consumers": [
+        "Radar_Donor_Cue",
+        "AESA_Control",
+        "AesaRadar"
+      ],
+      "type_units_frame": "schema1 odd/even,nonce/source/receiver epoch,sample/receipt/known flag,N/U/E and velocity",
+      "clock": "0.25s lease,4s intent,13s max sample/receipt;unknown epoch not extrapolated",
+      "generation": "receiver/physical/request identity",
+      "validity": "current mission supply and consent;fresh complete packet",
+      "bounds": "margin<=20deg,range<=160NM,1in4discovery cue jobs",
+      "thread_order": "selection->acceptednonce->completed lookcookie->SEARCH,notcontact",
+      "lifecycle": "power/mode/selection/epoch retires,OFF/ON no replay",
+      "requirements": [
+        "R-RAD-014"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json"
+    },
+    {
+      "id": "I-RAD-005",
+      "name": "Private binding and gun motion boundary",
+      "producer": "measured model binding -> NativeAesaRadar translate/gun_motion",
+      "consumers": [
+        "NativeSidewinder effects",
+        "NativeGunSight"
+      ],
+      "type_units_frame": "owned track token versus private host ID;gun returns direct scene position/velocity/load-derived acceleration as separate source",
+      "clock": "binding measured age<=6s;gun<=0.5s andlookup<=0.01s",
+      "generation": "snapshot epoch must match request",
+      "validity": "3consistentreports,maturevelocity,uniquehost,currentbridge;gun focus/role",
+      "bounds": "64bindings",
+      "thread_order": "snapshot read lock;actual callback phase/lifetime unqualified",
+      "lifecycle": "ambiguous/stale/duplicate withdraw;never label gun truth a radar measurement",
+      "open_decision": "Declared simulator-assisted source2 gun policy is resolved and retained. Actual supported native identity/lifetime, bore/shell geometry and gun effects remain qualification questions, not an unresolved policy verdict.",
+      "requirements": [
+        "R-RAD-006",
+        "R-RAD-018"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "prior_record_retained": "Original fields remain source-context evidence; current_status/planned_repair below qualify them and take precedence over an unqualified reading.",
+      "initial_open_decision": "Weapons lane traces direct gun-motion policy/consumer before verdict.",
+      "current_status": "Retain explicitly selected source2 analogue; direct native scene motion is not measured radar data or a covert diagnostic leak."
+    },
+    {
+      "id": "I-WPN-001",
+      "field_event": "Physical supply/achieved bay envelope",
+      "producer": "chat1 physical state; current Weapon_System achieved door adapter",
+      "consumers": [
+        "Weapon_System",
+        "Gun_System",
+        "Engagement_System",
+        "AG_Ballistic_Computer",
+        "Vehicle_Stores_Adapter"
+      ],
+      "units_type_frame": "boolean electrical/mission, normalized utility0..1 and door travel0..1, integral generation",
+      "clock_sample_generation": "EFM_POWER_OWNER/PHYSICAL_VALID/GENERATION/STAMP/CLOCK_KIND1 with F22_AP_CLOCK,<=0.25s/+0.05s",
+      "validity_bounds": "Read commit markers before/after payload; ownership latched, no raw fallback after owner. Ballistic forecast violates consumer consistency F002.",
+      "thread_order_lifecycle": "One physical owner, generation replacement cancels consent/seeker/cache; actual callback order and variable dt qualification needed.",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json"
+    },
+    {
+      "id": "I-WPN-002",
+      "field_event": "A/G request -> armed native launch -> station reconciliation",
+      "producer": "Weapon_System/AG_Stores request and NativeSidewinder payload callback",
+      "consumers": [
+        "AG_Stores acknowledge",
+        "Engagement_System"
+      ],
+      "units_type_frame": "station0..10,store key/generation,type4,positive native weapon ID,monotonic launch sequence,mode7,world seconds",
+      "clock_sample_generation": "Captured request baseline/time and original native event time;<=0.8s ACK with0.02s tolerance",
+      "validity_bounds": "Matching native armed launch only; jettison/count decrease not ACK;16record ring; delayed count station quarantine",
+      "thread_order_lifecycle": "Rearm/SAFE/mode/power/page cancellation; pending native loss crash F001; payload callback retirement unresolved.",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json"
+    },
+    {
+      "id": "I-WPN-003",
+      "field_event": "IR coherent feedback/exposure",
+      "producer": "SMS achieved selected bay exposure; typed native seeker",
+      "consumers": [
+        "IR_Feedback",
+        "IR_Seeker",
+        "IR_Audio",
+        "HUD",
+        "Engagement_System"
+      ],
+      "units_type_frame": "station0..10,instance<=16777215,World beam unit vector,available/lock0/1,strength0..2",
+      "clock_sample_generation": "Schema1 OWNER/VALID/odd-even SEQUENCE/World TIME/STATION/GENERATION;<=0.1s,+0.05future",
+      "validity_bounds": "No raw fallback, stale/torn/wrong station/generation withdraws; lock and beam geometry distinct",
+      "thread_order_lifecycle": "FeedbackGuard drains native update at release; late update rejected until start_feedback. Exposure timestamp own contract and same-store replacement token invalidate.",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json"
+    },
+    {
+      "id": "I-WPN-004",
+      "field_event": "CM abstract event/consent/native effect",
+      "producer": "missing production abstract warning-event bridge; existing neutral11110 stimulus",
+      "consumers": [
+        "EW_Dispenser",
+        "DEF controls/status"
+      ],
+      "units_type_frame": "event identity,time,generation and saved bank selection contract must be defined; cartridges integer counts",
+      "clock_sample_generation": "Current World time; missing clock currently falsely qualified F006",
+      "validity_bounds": "One SEMI event, explicit AUTO authorization,<=onecycle/callback,exact count delta<=0.8s; no production source F003",
+      "thread_order_lifecycle": "STOP/revoke/mode/power/generation cancel; immutable program, unresolved barrier until native effect reconciliation/refill.",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json"
+    },
+    {
+      "id": "I-WPN-005",
+      "field_event": "Radar association to source2 native gun motion",
+      "producer": "owned AESA fresh unique binding/resource/generation (chat3); NativeAesaRadar synchronous native motion adapter",
+      "consumers": [
+        "NativeGunSight",
+        "Gun_Director",
+        "Gun_System"
+      ],
+      "units_type_frame": "world N/U/E metres,m/s,m/s2; intentionally simulator-assisted weapon source2, never measured radar",
+      "clock_sample_generation": "Radar association<=0.5s; sampled native PVA<=0.01s;queue<=0.15s,result<=0.1s;schema2 matching track/generation/token/time",
+      "validity_bounds": "No arbitrary world search, only qualified selected host binding; actual shell/muzzle/bore and bounded numerical residual0.25m",
+      "thread_order_lifecycle": "Reset/generation/lock loss withdraws; same-epoch aim/LOS and current attitude120Hz retained, no restored derivative filter.",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json"
+    },
+    {
+      "id": "I-WPN-006",
+      "field_event": "Native datalink reports and fusion picture",
+      "producer": "owned wRadio terminal and source-qualified radar/RF/MWS batches",
+      "consumers": [
+        "Datalink_Tracks",
+        "Tactical_Tracks",
+        "Tactical_Picture",
+        "Donor_Selection",
+        "TSD/DEF"
+      ],
+      "units_type_frame": "world metres/m/s;source+reporter+link+epoch;receipt vs known/unknown original sample",
+      "clock_sample_generation": "Schema2;whole snapshot native sequence/epoch;Lua receipt<=1.5s,source lifetime PPLI26/target75,prediction13",
+      "validity_bounds": "<=64reports;unknown original sample holds position/no extrapolation;source masks/local identity ages,no weapon authority",
+      "thread_order_lifecycle": "Power/rewind/epoch clears selection/memory; actual native queue/register/destruction and2client donor behavior qualify separately.",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "prior_record_retained": "Original fields remain source-context evidence; current_status/planned_repair below qualify them and take precedence over an unqualified reading.",
+      "current_status": "Kinematic original/receipt/unknown sample handling is implemented; own report/wire has no independent identity-time/known fields. D-WPN-001 confirms geometry time is substituted as identity time downstream under nonzero affiliation input.",
+      "planned_repair": "D-P-WPN-001 provides I-DEEP-002 identity-specific transport. Do not describe that planned wire behavior as current. Local/foreign TADIL and own versioned packets keep separate provenance.",
+      "implementation_vs_verification": "Actual native + Lua bounded identity path reproduced; real native radio/peer clock/MP behavior remains unqualified."
+    },
+    {
+      "id": "I-WPN-007",
+      "field_event": "Identity and own responder",
+      "producer": "RWR game metadata,source-specific radar/donor evidence; simulated own responder",
+      "consumers": [
+        "fusion/DEF identity inspection",
+        "pilot palette/protection"
+      ],
+      "units_type_frame": "unknown-1,hostile0,friendly1,flight3; conflict and friendly protection independent",
+      "clock_sample_generation": "Original source identity/hostile/receipt time independent of bearing publication; unknown AGE_KNOWN0",
+      "validity_bounds": "No reply never hostile; current AESA iff=-1; Radar_IFF.reply lacks production source. HOST_READY0 for own simulated replies.",
+      "thread_order_lifecycle": "Epoch/power/physical-generation invalidation; no replayed interrogation; selected CNI surviving supply remains cross-lane decision.",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "planned_provider_owner": "Chat4 P-WPN-004: actual achieved IFF backend/transponder/fusion feasibility and explicit no-go decision",
+      "planned_consumer_owner": "Chat3 P-RAD-007: radar interrogation routing, correlated reply/unknown admission and pilot indication",
+      "planned_contract_extension": {
+        "status": "planned; absent current independent reply producer",
+        "fields": [
+          "request identity and original source epoch",
+          "provider status unavailable/pending/rejected/no_reply/reply",
+          "finite original observation and receipt times with explicit clock",
+          "reply identity plus source/provenance, validity and finite bounded history"
+        ],
+        "authority": "A request or dispatch never establishes identity; no reply remains unknown. A host no-go publishes unavailable, not synthetic reply.",
+        "lifecycle": "One declared request owner; finite timeout/history capacities established by probe; generation/power/reset/destruction cancel outstanding authority; delayed reply cannot revive stale identity or consent."
+      },
+      "prior_record_retained": "Original fields remain source-context evidence; current_status/planned_repair below qualify them and take precedence over an unqualified reading.",
+      "current_status": "Local source-specific identity and own simulated responder are represented; baseline owned AESA identity is unknown and achieved reply provider is unavailable. Own wire currently loses identity age/known state (D-WPN-001), so local independent identity semantics do not prove end-to-end transport.",
+      "planned_repair": "I-DEEP-002 must preserve identity provenance before P-WPN-004 expands actual IFF/donor operation. Chat4 IFF_PROVIDER_READY remains actual qualified reply backend or explicit tested unavailable/no-go, then Chat3 P-RAD-007 integrates radar request/indication."
+    },
+    {
+      "id": "I-WPN-008",
+      "field_event": "Warning audio priority and ECM own effect",
+      "producer": "MWS confirmed playback/pilot warning leases; native ECM own-effect publisher",
+      "consumers": [
+        "RWR audio",
+        "IR audio",
+        "EW status"
+      ],
+      "units_type_frame": "audio priority+absolute World AUDIO_UNTIL;ECM requested,enabled,valid,active0/1",
+      "clock_sample_generation": "MWS lease0.15s;ECM even AESA sequence+generation/time<=0.25s",
+      "validity_bounds": "Frozen lease expires; enabled is not transmitting/effectiveness; own simulator effect not RF watts/other receiver outcome",
+      "thread_order_lifecycle": "Power/mute/coast/invalid sensor drops appropriate loop; playback request ownership and actual audible delivery distinct.",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json"
+    },
+    {
+      "id": "I-NAV-007",
+      "name": "Advisory terrain recovery frame",
+      "producer": "chat1 qualified EFM physical/airdata/FCS fields and DCS terrain bridge; chat2 owner samples host world pose",
+      "consumers": [
+        "chat2 Terrain_Escape",
+        "chat2 Pilot_Warnings",
+        "chat2 Terrain_Recovery_Cue/HUD"
+      ],
+      "type_units_frame": "WorldN/U/E meters,wind andvelocityN/U/E m/s;truecwheading/rightbank radians,CASm/s,nzG. Terrain height worldMSL meters; trace exact N/U/E endpoints returns boolean.",
+      "clock_sample_generation": "Owner world/model clock with current physical snapshot; .2s solve cache, .25s cue lease. Wind/horizontal velocity/direction changes do not force early refresh; current approximation must be explicit.",
+      "validity_bounds": "Source per-field currentness + finite bounds CAS35..1000,nz-4..12; terrain callback pcall finite; shared12000query budget; invalid callback/exhaustion withdraw. Power and confirmed ground handled before solve.",
+      "thread_update_order": "Qualified frame -> bounded solver/cache -> live onset/bank director -> warning policy/audio lease and independent current HUD cue",
+      "lifecycle": "Power/reset/clockrollback invalid frame reset director/cache; no stale flight-command replay because no flight commands exist",
+      "requirement_ids": [
+        "R-NAV-016"
+      ],
+      "implementation_owner": "chat2 advisory; chat1 sensor/FCS contract",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\residue\\lane.json"
+    },
+    {
+      "id": "I-HOOK-001",
+      "producer": "DCS onSimulationStart/Frame/Stop and mission filename/modeltime",
+      "consumers": "Installed callback local states",
+      "units": "model seconds; render frame counters separate",
+      "validity": "Missionbasename selection only in4actuatinghooks; recorder additionally actualLoGetSelfData.Name and instrumentation",
+      "authority": "Source/file presence not loaded identity; callbacks multiplex/order and frame delivery underpause require host qualification",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\assurance\\installed-hooks\\lane.json"
+    },
+    {
+      "id": "I-HOOK-002",
+      "producer": "Local external control file / mission userflag5102",
+      "consumers": "NativePreview/Dogfight/EWtrial actuators",
+      "units": "line command strings; numeric flag nonce; encoded device-specific values",
+      "validity": "Conditional missiongate; no global or continuous control reads performed during audit",
+      "authority": "May change pause/camera/radar/weapon/ECM or run known testmission truth/place/destroy/eval; strictly diagnostic and not production sensor authority",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\assurance\\installed-hooks\\lane.json"
+    },
+    {
+      "id": "I-HOOK-003",
+      "producer": "Export-context fixed parameter reads and ownship observations",
+      "consumers": "Trim CSV/test logs/screenshots",
+      "units": "Explicit EFM units+EXPORT IASmps/altm/pitchbankrad; modeltime versus EFMspawnclock independent",
+      "validity": "Recorder rowcount/numeric/instrumentation guard, no proven coherent epoch snapshot",
+      "authority": "Diagnostic truth/evidence, never production measurement or F22 calibration proof",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\assurance\\installed-hooks\\lane.json"
+    },
+    {
+      "id": "I-DEEP-001",
+      "name": "Protected AESA control packet and original producer lease",
+      "provider_owner": "Chat3 D-P-RAD-001, with Chat2 shared registration/clock integration",
+      "producer": "Cockpit/Scripts/Systems/AESA_Control.lua current odd/even publisher",
+      "consumers": [
+        "NativeAesaRadar::Parameters::controls",
+        "owned sensor sample/model",
+        "NativeAesaRadar::bridge_ready and qualified downstream support"
+      ],
+      "current_status": "Current Lua producer marks odd then commits even correctly. Native reader copies REQUEST/TIME before its first sequence and can mix packets under the specified schedule (D-RAD-002). It validates producer age but stores Request.stamp=copy now, extending cached source eligibility before revalidation (D-RAD-004).",
+      "current_fields": [
+        "F22_AESA_REQUEST",
+        "F22_AESA_CONTROL_TIME",
+        "F22_AESA_CONTROL_SEQUENCE",
+        "CONTROL_EMIT/RESOURCE/SURFACE/AZ/EL/HALF_AZ/HALF_EL/RANGE",
+        "CUE_VALID/AZ/EL/HALF_AZ/HALF_EL/REQUEST/RANGE",
+        "TARGET/FC_TARGET/GUN_TRACK and bounded priority fields"
+      ],
+      "units_type_frame": "Finite numeric flags/IDs, world/radar angles radians, ranges metres; source observation and copy/receipt times are separate World-clock values.",
+      "clock_sample_generation": "Current declared source lease .5s. Planned: copy never renews original source time; any independent receipt/liveness lease is separately named and bounded. Preserve valid zero timestamps and supported pause policy.",
+      "planned_repair": "Read exact finite even sequence before every protected field including REQUEST and TIME, convert each with returned status, then reread the same sequence/epoch before accepting immutable Request. Preserve validated producer stamp; do not replace it with receipt. No change to already-correct bool read or Lua producer required by default.",
+      "planned_state_machine": "unavailable -> producer-writing -> complete committed source -> reader copy -> accepted same-source observation; writing/changed/expired/reset withdraws consent. An old enable cannot qualify new disabled geometry.",
+      "validity_bounds": "Complete old packet, complete new packet or unavailable only; exact status/sequence/finite/source-age admission. The exact producer10/copy10.49/query10.8 case expires from producer10.",
+      "thread_order_lifecycle": "Tests model possible interleaving/copy stall, not observed DCS concurrency. A normal timely controls read at10.8 disables the expired source; extension needs a query/sample before revalidation. Qualify/enforce real callback scheduling and reset/epoch ownership.",
+      "current_protection": "Existing finite/status checks and source-time check on each normal copy remain; they must not be weakened. No RF/weapon effect or live frequency demonstrated.",
+      "requirements": [
+        "D-R-RAD-002",
+        "D-R-RAD-004"
+      ],
+      "provider_package": "D-P-RAD-001",
+      "implementation_status": "repair planned; current exact defects retained above",
+      "verification_status": "Actual-source adversarial/clock cases independently reproduced; supported-host schedule/effects unqualified"
+    },
+    {
+      "id": "I-DEEP-002",
+      "name": "Independent identity evidence through own IFDL wire and consumers",
+      "provider_owner": "Chat4 D-P-WPN-001; Chat3 source-publication region review",
+      "producer": "Radar_Tactical local identity fields -> NativeDatalink own Report/wire/receive",
+      "consumers": [
+        "NativeDatalink numeric publication",
+        "Datalink_Tracks",
+        "Tactical_Tracks",
+        "Identification_State",
+        "pilot identity age/conflict/protection qualifiers"
+      ],
+      "current_status": "Local Radar_Tactical publishes IDENTITY_KNOWN/TIME separately, but current own native transmitter/Report/wire/receiver omit identity-specific time/known and carry geometry age plus affiliation. Real Lua consumer chain can label that affiliation as known at newer geometry time. Baseline achieved owned IFF is unavailable/unknown, so nonzero affiliation is conditional.",
+      "current_protection": "Unknown-affiliation control produces no hostile identity evidence. Offboard reports have no weapon authority; existing source/reporter/link/epoch, friendly-protection and conflict semantics remain.",
+      "planned_fields": [
+        "Versioned identity known/status",
+        "Original source identity time OR qualified identity age plus explicit source-clock mapping",
+        "Identity source epoch/provenance independent of geometry observation/receipt",
+        "Explicit unknown/unsupported identity state"
+      ],
+      "units_type_frame": "Identity enum/known/status and source identity; time/age seconds with declared clock mapping. No assumption that source and receiver clocks share origin or transport delay is zero.",
+      "clock_sample_generation": "Unknown stays unknown; fresh geometry or receipt cannot renew original identity. Delay, peer offset, source epoch, contradictory/repeated reports and missing schema are independent cases.",
+      "planned_repair": "Migrate own sender, report/wire/version, receive publication and all Lua/pilot qualifiers together. Preserve independently valid geometry; reject/withdraw unsupported own packet versions or explicitly qualify unknown identity age without a new unchecked compatibility authority.",
+      "thread_order_lifecycle": "Consume complete I-DEEP-005 source snapshots. Current unknown interface and independently modeled known evidence permit transport migration before actual IFF backend activation; no reverse dependency on P-WPN-004 provider-ready.",
+      "requirements": [
+        "D-R-WPN-001"
+      ],
+      "provider_package": "D-P-WPN-001",
+      "implementation_status": "identity-specific wire fields and end-to-end transport repair planned, not currently present",
+      "verification_status": "Actual source/native/Lua path and independent cases reproduced; true native radio/two-participant clock/MP effects unqualified"
+    },
+    {
+      "id": "I-DEEP-003",
+      "name": "Ground acquisition source-clock and native history retirement",
+      "provider_owner": "Chat3 D-P-RAD-001",
+      "producer": "NativeGroundSensor sample/update; Measurements pending, selected/type/acquisition/range state and Tracks",
+      "consumers": [
+        "AG_Radar_System native_track",
+        "AG_Radar_System request/designation logic",
+        "native beam/acquisition and retained image-reference policy"
+      ],
+      "current_status": "Tracks cache resets on clock rewind, but other pending/selected/range/acquisition histories can remain; native update publishes VALID1/TIME100 atnow10 without global reset.",
+      "current_protection": "Actual Lua native_track rejects future sample; normal Lua rollback cancels request/designation. No immediate stale pilot/weapon admission was proved. A separately retained native request can still use old selected point under the explicit fixture.",
+      "units_type_frame": "Original measurement position/type/time, request/source epoch, bounded pending/range/filter histories; no receipt-time relabeling.",
+      "planned_repair": "One source-clock/epoch transition retires all pending, selected, acquisition, range and filter timing coherently. Publish unavailable/reason until fresh current observation/consent; retained pixels may remain explicitly retained under current image policy.",
+      "clock_sample_generation": "100->10 is a discontinuity; monotone pause is not reset and creates no new RF credit. Ordinary delayed observation keeps its original time and releases once.",
+      "requirements": [
+        "D-R-RAD-003"
+      ],
+      "provider_package": "D-P-RAD-001",
+      "implementation_status": "native retirement repair planned; current Lua protection retained",
+      "verification_status": "Actual provider and rejecting Lua cases reproduced; supported DCS rollback/global reset guarantee unqualified"
+    },
+    {
+      "id": "I-DEEP-004",
+      "name": "Fresh-generation pilot input filter state",
+      "provider_owner": "Chat1 D-P-FLT-001 with Chat2 serialized RAPTOR integration",
+      "producer": "RAPTOR reset_fm_state + one simulate_vehicle_step input smoother",
+      "consumers": [
+        "current yaw control mixing/achieved rudder",
+        "public draw args17/18",
+        "pilot current-generation input behavior"
+      ],
+      "current_status": "Common reset clears raw inputs and pitch/roll smoothers, but omits smoothed_yaw_discrete. Old released left/right history changes a fresh identical keyboard request; analogzero control remains neutral.",
+      "units_type_frame": "Normalized keyboard/axis input and bounded smoother state; achieved rudder radians with existing gain/slew. Vehicle generation and spawn clock are explicit lifecycle, not aircraft calibration.",
+      "planned_repair": "Reset the one transient yaw smoother with the existing pitch/roll reset. Classify any other retained history explicitly; preserve matching release, opposite request and joystick precedence.",
+      "clock_sample_generation": "Cold/hot/air-hot/release/re-slot creates current input context; no old transient contribution or restored consent. Same input/time/imposed motion must match across prior histories.",
+      "requirements": [
+        "D-R-INT-001"
+      ],
+      "provider_package": "D-P-FLT-001",
+      "implementation_status": "yaw-reset fix planned, not implemented",
+      "verification_status": "Actual callbacks independently reproduced with explicit keyrelease and opposite histories; real DCS re-slot callback sequence and handling unqualified"
+    },
+    {
+      "id": "I-DEEP-005",
+      "name": "Completed radar tactical tuple for native donor transmission",
+      "provider_owner": "Chat3 D-P-RAD-001; Chat4 native transmitter region owner/collaborator",
+      "producer": "Radar_Tactical.publish fixed64-slot local snapshot",
+      "consumers": [
+        "NativeDatalink::transmit",
+        "other typed radar/tactical consumers migrated explicitly"
+      ],
+      "current_status": "Current producer writes source/geometry/identity slots then increments F22_RADAR_TACTICAL_SEQUENCE only at completion; no in-progress marker. Native before/after old-sequence equality can authenticate partial old/new tuple under a deliberate preemption.",
+      "current_fields": [
+        "F22_RADAR_TACTICAL_SEQUENCE",
+        "F22_RADAR_TACTICAL_TIME",
+        "64slots VALID/SOURCE/ASSOCIATION_VALID/VELOCITY_VALID/MEASUREMENT_SOURCE",
+        "N/U/E,VN/VU/VE,geometry ages,quality,identity known/time,friend/hostile andselection"
+      ],
+      "units_type_frame": "World N/U/E metres and m/s, source IDs/provenance, per-field validity and source clocks/epochs; bounded64slot shape retained.",
+      "planned_repair": "One completed/in-progress transaction or immutable fixed-slot publication protects every native-consumed tuple field. Reader validates matching epoch/commit around all fields. Version/migrate all readers together; no old unchanged commit can authenticate a partial new source/position.",
+      "clock_sample_generation": "Source observation time remains independent of packet receipt; I-DEEP-002 separately repairs identity wire time/known. Preserve same-source repeated geometry without new identity authority.",
+      "thread_order_lifecycle": "Preemption model is not observed host concurrency. Measure/enforce supported Lua/native callback order; new source or epoch retires old partial packets without synthetic continuity.",
+      "current_protection": "Normal complete committed tuples are correct; existing geometry validation and no offboard weapon authority remain.",
+      "requirements": [
+        "D-R-WPN-003"
+      ],
+      "provider_package": "D-P-RAD-001",
+      "implementation_status": "transaction repair planned, not current producer behavior",
+      "verification_status": "Actual writer/native transmitter interleavings independently reproduced; true host scheduling/native radio effects unqualified"
+    }
+  ],
+  "deepening_reconciliation": "Current implemented defect/protection, planned fields/repair and actual verification limits are distinct on I-DEEP001..005. Inherited I-WPN006/007 and I-RAD003/005 explicitly qualified."
+}

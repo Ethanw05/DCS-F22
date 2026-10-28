@@ -1,0 +1,125 @@
+{
+  "installed_changes": false,
+  "files": [
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22TrimTelemetry.lua",
+      "baseline_sha256": "9af5efbdd7381a1543938d96a8f5870390b1c51b30f37568cf2e1d4ac6eae2ea",
+      "current_sha256": "9af5efbdd7381a1543938d96a8f5870390b1c51b30f37568cf2e1d4ac6eae2ea",
+      "matches": true,
+      "counterpart": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tools\\diagnostics\\F22TrimTelemetry.lua",
+      "owner": "chat2",
+      "disposition": "preserve passive recorder and all recorded data",
+      "activation": "mission filename can activate setup/pause/camera even absent control file",
+      "replacement_protocol": "tools/diagnostics/BoundedDriver.lua",
+      "loaded": "unmeasured"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22NativePreview.lua",
+      "baseline_sha256": "275da49485131451c5ffcbd0296f9d8d7cfdd075084b543fa4207321476686d6",
+      "current_sha256": "275da49485131451c5ffcbd0296f9d8d7cfdd075084b543fa4207321476686d6",
+      "matches": true,
+      "counterpart": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tools\\F22NativePreview.lua",
+      "owner": "chat2",
+      "disposition": "pending actual driver deletion/remake at P-INT-007/005 after bounded protocol host qualification",
+      "activation": "mission filename can activate setup/pause/camera even absent control file",
+      "replacement_protocol": "tools/diagnostics/BoundedDriver.lua",
+      "loaded": "unmeasured"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22GroundRegressionHook.lua",
+      "baseline_sha256": "d02d9fc4ce43ce93ade228255667c8f5214165ce71a9601b7f4960e64b356cea",
+      "current_sha256": "d02d9fc4ce43ce93ade228255667c8f5214165ce71a9601b7f4960e64b356cea",
+      "matches": true,
+      "counterpart": null,
+      "owner": "chat2",
+      "disposition": "pending actual driver deletion/remake at P-INT-007/005 after bounded protocol host qualification",
+      "activation": "mission filename can activate setup/pause/camera even absent control file",
+      "replacement_protocol": "tools/diagnostics/BoundedDriver.lua",
+      "loaded": "unmeasured"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22EWTrialHook.lua",
+      "baseline_sha256": "d14bb2fe7a8e76ad3e386e4381a27a907eaa54397f184838900e4acd276203b5",
+      "current_sha256": "d14bb2fe7a8e76ad3e386e4381a27a907eaa54397f184838900e4acd276203b5",
+      "matches": true,
+      "counterpart": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tools\\diagnostics\\F22EWTrialHook.lua",
+      "owner": "chat2",
+      "disposition": "pending actual driver deletion/remake at P-INT-007/005 after bounded protocol host qualification",
+      "activation": "mission filename can activate setup/pause/camera even absent control file",
+      "replacement_protocol": "tools/diagnostics/BoundedDriver.lua",
+      "loaded": "unmeasured"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22DogfightValidation.lua",
+      "baseline_sha256": "72e4f90ef029c95227d2a20c3487e5a0d3727a21c51120ce0e270865b617af2e",
+      "current_sha256": "72e4f90ef029c95227d2a20c3487e5a0d3727a21c51120ce0e270865b617af2e",
+      "matches": true,
+      "counterpart": null,
+      "owner": "chat2",
+      "disposition": "pending actual driver deletion/remake at P-INT-007/005 after bounded protocol host qualification",
+      "activation": "mission filename can activate setup/pause/camera even absent control file",
+      "replacement_protocol": "tools/diagnostics/BoundedDriver.lua",
+      "loaded": "unmeasured"
+    }
+  ],
+  "referenced_paths": [
+    {
+      "id": "native_control",
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Documents\\Codex\\2026-10-24\\o\\work\\f22-native-control.txt",
+      "exists": false,
+      "bytes": null,
+      "condition": "Read/clear only if matching mission active; contents intentionally not read"
+    },
+    {
+      "id": "native_declared_mission_unused",
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Documents\\Codex\\2026-10-24\\o\\outputs\\HUD-Previews\\F22-HUD-Native-Validation.miz",
+      "exists": false,
+      "bytes": null,
+      "condition": "Unused local mission variable; actual activation is basename suffix, so missing exact path does not prove inert"
+    },
+    {
+      "id": "dogfight_control",
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Documents\\Codex\\2026-10-24\\o\\work\\f22-dogfight-control.txt",
+      "exists": false,
+      "bytes": null,
+      "condition": "Read/clear on matching mission every10frames; contents intentionally not read"
+    },
+    {
+      "id": "dogfight_eval",
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Documents\\Codex\\2026-10-24\\o\\work\\f22-matrix-eval.lua",
+      "exists": false,
+      "bytes": null,
+      "condition": "dofile only on matching mission explicit eval control; absent file does not remove other hook actions"
+    },
+    {
+      "id": "ground_mission",
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Missions\\F22-Ground-Regression.miz",
+      "exists": true,
+      "bytes": 6397,
+      "condition": "Exactbasename active gate"
+    },
+    {
+      "id": "dogfight_mission",
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Documents\\Codex\\2026-10-24\\o\\outputs\\Radar-Controls\\F22-Dogfight-Validation.miz",
+      "exists": true,
+      "bytes": 7554,
+      "condition": "Known matching basename file; never launched"
+    },
+    {
+      "id": "fusion_mission",
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Documents\\Codex\\2026-10-24\\o\\outputs\\Radar-Controls\\F22-Sensor-Fusion-Validation.miz",
+      "exists": true,
+      "bytes": 7947,
+      "condition": "Known matching basename file; never launched"
+    },
+    {
+      "id": "ew_duel_known_location",
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Missions\\F22-EW-Duel.miz",
+      "exists": false,
+      "bytes": null,
+      "condition": "Gate searches basename in anypath, absence here does not prove no reachable mission"
+    }
+  ],
+  "control_file_contents_read": false,
+  "qualification": "Dry-run common protocol only; actual installed callback registration/order/pause/native effects unqualified"
+}

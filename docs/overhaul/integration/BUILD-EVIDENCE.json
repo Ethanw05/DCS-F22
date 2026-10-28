@@ -1,0 +1,15 @@
+{
+  "build_dir": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat2-20261028",
+  "configuration": "Release",
+  "generator": "Visual Studio 18 2026 x64",
+  "compiler": "MSVC 19.51.36252.0 / MSVC toolset 14.51.36231",
+  "cxx_standard": 23,
+  "build_result": "success",
+  "source_dll_before": "c50b245ffd2c069cce105397294f9d2e17f37e5b8d5834933b4e87a309af43a5",
+  "source_dll_after": "c50b245ffd2c069cce105397294f9d2e17f37e5b8d5834933b4e87a309af43a5",
+  "source_dll_unchanged": true,
+  "output_dll_sha256": "09262567ae295459266874a140fd35079faa33b4d07c12d1b721939d1d175cfe",
+  "warnings": "Existing DLL warnings captured in external build-release.log; replacement fixture /W4 /WX /analyze clean.",
+  "installed": false,
+  "loaded": "unmeasured"
+}

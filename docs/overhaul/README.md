@@ -1,3324 +1,972 @@
-# F-22 Mod Overhaul Plan
-
-A system-by-system guide to the changes needed for a faithful F-22 simulation. Follow documented F-22 behavior where available; use an explicitly chosen aircraft analogue or estimate where details remain unknown. The [audit](../audit/F22-Fidelity-Audit.html) contains the underlying comparisons.
-
-The user's current implementation requirement is to remove obsolete production
-paths, duplicate simulation owners and compatibility workarounds by migrating
-their callers to the shared current contracts. Trace callers before deletion,
-preserve saved controls/HUD/recordings through the migration, and verify complete
-workflows. Historical evidence and useful regression fixtures remain evidence;
-the actual DCS Lua 5.1 and supported native ABI remain host requirements.
-
-## Fix first
-
-| Change | Work item |
-| --- | --- |
-| Separate the light-command IDs from the AFCS command range; verify light inputs cannot change autopilot state. | [UI-01](#pkg-ui-01) |
-| Allow radar cursor control on every display that can host the radar, while retaining the intended global ACM commands. | [UI-01](#pkg-ui-01) |
-| Fix heading-entry units and request-correlated acknowledgement, including same-ID waypoint edits and stores entries. | [UI-02](#pkg-ui-02) |
-| Separate the countermeasure bank being edited from the bank executed by normal dispense; complete MAN/SEMI/AUTO behavior. | [SEN-08](#pkg-sen-08) |
-| Keep release consent, station generation and actual launch/inventory outcomes consistent through rearm, target changes and cancellation. | [SEN-09](#pkg-sen-09) |
-| Expire warning-audio authority consistently so a stale warning owner cannot indefinitely suppress seeker tones. | [ALR-02](#pkg-alr-02) |
-
-## Aircraft configuration
-
-| Area | Recommended choice |
-| --- | --- |
-| Base aircraft | A public-evidence F-22 capability profile with a declared equipment/weapon list. Select later automatic backup oxygen for ordinary operation; make the earlier manual system a historical option. |
-| Approach cues | Retain the historically supported 12° normal reference. Treat the 11.5/12.5° fast/slow thresholds, exact glyph geometry and production scheduling as estimates until better evidence exists. |
-| AFCS | Use a coherent Hornet-derived relief/coupled-steering workflow. Keep ordinary autopilot disconnect distinct from optional temporary override/recapture and from the chosen autothrottle takeover policy. |
-| Countermeasures | Use the existing Hornet-like chaff/flare/repeat/interval schema, with separate editing, selected normal-dispense and direct-access programs. Add the documented F-22 manual, semiautomatic and automatic roles. |
-| Radar | Model finite sensing/task service and honest observation age. Label APG-77 schedules, detection performance and degradation parameters as estimates where public evidence does not establish them. |
-| Displays | Retain flexible layouts, duplicate formats and the preferred HUD styling. Correct authority, validity, alignment and readability problems. |
-| Additional equipment | Put LITENING/Sniper-inspired targeting, HMD, IRDS/IRST and unsupported weapon families behind explicit equipment options. Each needs a complete sensor/control/display/effect chain. |
-| Landing automation | Manual field recovery is core. Treat autoland and a selected automatic-GCAS implementation as separate capabilities with their own evidence and host-support requirements. Carrier ACLS is not a baseline F-22 requirement. |
-
-## Implementation order
-
-| Stage | Deliver |
-| --- | --- |
-| 1. Shared groundwork | Select equipment, settle units and state ownership, define power/repair/rearm/reset behavior, and prove required native interfaces. |
-| 2. Aircraft and indications | Fuel/mass, engines, power/SES, hydraulics, FCS, air data and performance; correct the immediate input/entry/alert issues. |
-| 3. Navigation and recovery | GINS, altimetry, TACAN/ILS, HUD/on-speed cues, route handling, AFCS and manual recovery. |
-| 4. Mission systems | Radar, fusion, IFF/datalink/CNI, EW and countermeasure control. |
-| 5. Weapons | Target/program handoff, station readiness, release acknowledgement, bays, seekers, gun and missile-support indications. |
-| 6. Selected additions | Complete only the optional equipment chosen for the release profile. |
-| 7. Integration | Run the affected normal, limit, failure and recovery cases, then the combined mission. |
-
-Independent work can proceed in parallel. Each item’s expandable details list its actual prerequisites. Early transaction fixes in SEN-09 can start before the complete sensor chain is ready.
-
-## Shared groundwork
-
-<a id="pkg-arc-01"></a>
-
-<a id="pkg-arc-02"></a>
-<a id="case-ax02"></a>
-<a id="record-p14"></a>
-
-<a id="pkg-arc-03"></a>
-<a id="record-c05"></a>
-<a id="record-c09"></a>
-
-<a id="pkg-veh-01"></a>
-<a id="record-uv36"></a>
-
-<a id="pkg-nav-wp01"></a>
-
-<a id="pkg-sen-01"></a>
-<a id="case-ae17"></a>
-<a id="record-sc01"></a>
-<a id="record-sc35"></a>
-
-- Apply the [project Lua/C++ coding standard](../CODING_STANDARD.md) throughout the overhaul. Use the [implementation chat prompts](../handoffs/README.md) for ownership and starting instructions; radar has its own dedicated chat.
-- Use one equipment definition across registration, stores, sensors, cockpit pages and mission defaults. Distinguish installed hardware, development announcements and deliberately simulated additions.
-- Give each physical quantity one owner. Separate requested state, achieved state, valid measurement and presentation; declare units, reference frame, sample time and reset behavior.
-- Separate physics truth from measured air data and navigation estimates. Keep planned intelligence distinct from live observations, identity evidence and weapon-support authority.
-- Correlate commands with accepted results and committed values. A previous equal value or a successful dispatch call cannot acknowledge a new transaction.
-- Define cold/hot/air start, page/power changes, pause, repair, rearm, refueling and mission restart once. Clear transient locks and consent; reload preplanned data only through the declared validated-data path.
-- Prove native interface support before building dependent controls. Identify the source, DLL, assets and installed bindings used; preserve user bindings, HUD styling and recordings during migration.
-- Move physical ownership gradually behind compatible adapters. Avoid two fuel, power, hydraulic or actuator integrators running at once.
-
-Detailed tasks and source anchors for ARC-01, ARC-02, ARC-03, VEH-01, NAV-WP01, SEN-01 are retained in the [backlog](BACKLOG.json).
-
-## Flight model and aircraft systems
-
-Physical implementation and remaining qualification are tracked in the
-[vehicle package notes](vehicle-implementation.json), with the provider and
-lifecycle contract in [vehicle-state-contract.md](../vehicle-state-contract.md).
-Implemented source behavior, estimated calibration and actual DCS qualification
-remain separate statuses.
-
-<a id="pkg-veh-02"></a>
-<a id="case-pf20"></a>
-<a id="case-vg02"></a>
-<a id="case-vg03"></a>
-<a id="case-vg08"></a>
-<a id="case-vg11"></a>
-<a id="case-vt01"></a>
-<a id="record-uv08"></a>
-
-### VEH-02 — Unify air-data semantics, sensor health and physical coordinates
-
-True atmosphere and motion drive physics; a separately valid sensor frame drives HUD/FCS/AFCS schedules. CAS, EAS, TAS, Mach and signed normal load have explicit meanings.
+> Adopted execution baseline: expanded 46-package audit of 28 October 2026. Current implementation and gates: [integration status](integration/STATUS.json). Historical claims retain all 566 dispositions in [the crosswalk](../audit/PRIOR-AUDIT-CROSSWALK.json).
 
-- Implement a single SI calculation layer that exposes CAS/EAS/TAS/Mach/static/impact pressure and validity; migrate each threshold explicitly instead of changing every EAS gate to CAS by search/replace.
-- Instrument level, banked, inverted and ballistic host callbacks to resolve whether body ay includes gravity. Set one documented signed-Nz convention for limiter and presentation; do not subtract/add 1 merely from a generic sensor article.
-- Keep body and world wind transforms consistent; run airborne uniform wind/ground-velocity translation invariance at fixed achieved configuration with ground logic disabled.
-- Introduce sensor channel states for invalid, frozen and biased inputs without changing true airflow. Feed measured health to selected control reversion and indicate which datum is degraded.
-- Characterize native probe heat, ice/rain and weather interfaces. Implement a named estimated heater/test and sensor-degradation abstraction only for effects not already provided; separate sensor freezing from actual ice lift/drag effects.
+# Expanded F-22 implementation plan
 
-**Keep:** World/body air-relative velocity subtraction; Compressible HUD/AFCS CAS calculation; Separate ground-speed data for ground operations.
+**All 46 packages are planned.** This successor retains43 earlier packages and adds3 focused native/input/provenance packages from8 new findings. Current implemented behavior, offline probe evidence and unqualified actual host/aircraft behavior remain separate.
 
-<details>
-<summary>Files, dependencies and references</summary>
+Repository `C:\Users\Ethans Desktop 2.0\Desktop\DCS MODDING\DCS-F22`, primary checkout `main`, captured HEAD `7513f931a8bf1016a72e8eb184a9c98074786e81` with its recorded dirty/untracked files. [BASELINE.json](<C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Audit/Deep-Audit-2026-10-28-1351/BASELINE.json>) and [SOURCE-DRIFT.json](<C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Audit/Deep-Audit-2026-10-28-1351/SOURCE-DRIFT.json>) pin per-file hashes; this is a non-atomic review baseline. All 5,515 captured source files and the earlier package's257 manifest entries match the final reconciliation. Source/installed/load/build identities remain separate; sampled DLL/default-input/hook comparisons are in [FINAL-PRESERVATION.json](<C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Audit/Deep-Audit-2026-10-28-1351/FINAL-PRESERVATION.json>).
 
-- `EFM/source/RAPTOR.cpp` — replace duplicated IAS aliases with named quantities
-- `EFM/source/Autopilot.h` — consume shared air-data frame
-- `Cockpit/Scripts/Systems/HUD_FlightMath.lua` — align formula contract
-- `Cockpit/Scripts/Systems/HUD_Flight_Data.lua` — consume valid measured values
-- `EFM/source/AirData.h` — proposed shared calculation/state
-- `tests/test_airdata_contract.cpp` — proposed analytic and failure fixtures
+## Execution sequence and ownership
 
-**Depends on:** [VEH-01](#pkg-veh-01).
+Work in the primary checkout on`main`, re-read current AGENTS/coding rules and recheck affected hashes. Chat 2 is the single contended-file integrator. Separate chats share one filesystem: serialize shared edits/tests/commits and stage only intended work. Preserve saved bindings, HUD styling, recorded audio and unrelated changes. There is no audit-tag reset, worktree, backup mod tree or incidental deployment/DCS termination.
 
-**Audit findings:** [PF20](../audit/F22-Fidelity-Audit.html#auth-pf20), [VG02](../audit/F22-Fidelity-Audit.html#auth-vg02), [VG03](../audit/F22-Fidelity-Audit.html#auth-vg03), [VG08](../audit/F22-Fidelity-Audit.html#auth-vg08), [VG11](../audit/F22-Fidelity-Audit.html#auth-vg11), [VT01](../audit/F22-Fidelity-Audit.html#auth-vt01).
+P-INT-002 closes at **HARNESS_READY**, with independently specified common ports/runner, harmless self-checks, explicit known pre-fix failures and complete replacement-owner allocation. Existing tests are **deleted and remade during actual execution** in accountable batches. Domain full-chain replacements and every old-test/research disposition close in P-INT-006; the initial harness does not wait for completed domain fixes.
 
-**Supporting records:** UV08.
-
-**References:**
-
-- [NASA Glenn, Relative Velocity](https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/relative-velocity/)
-- [SBG Systems accelerometer reference](https://support.sbg-systems.com/sc/kb/latest/inertial-measurements-units/accelerometers)
-- [SFTE Flight Test Handbook, Pitot Statics](https://society-of-flight-test-engineers.github.io/quarto-handbook/04-pitot-statics.html)
-- [Chuck’s DCS F-16CM guide, 17 April 2025](https://chucksguides.com/aircraft/dcs/f-16cm/)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide, internally 24 March 2024](https://www.digitalcombatsimulator.com/en/downloads/documentation/)
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Analytic pitot samples from subsonic through supersonic conditions agree across HUD, AFCS and code; declared configuration gates use the same named quantity. |
-| Limit | Invalid pressure, speed-of-sound and nonfinite data invalidate the relevant channel; wind-translation invariance applies only airborne at fixed configuration. |
-| Failure | Frozen probe/sensor data changes indications/control availability while force generation continues to use true air state; no double icing effect. |
-| Recovery | Heater/source restoration changes sensor state using labelled estimated recovery, with stable transfer to normal control and no hidden trim impulse. |
-
-</details>
-
-<a id="pkg-veh-03"></a>
-<a id="case-av08"></a>
-<a id="case-av12"></a>
-<a id="case-av20"></a>
-<a id="case-av21"></a>
-<a id="case-av22"></a>
-<a id="case-av23"></a>
-<a id="case-av35"></a>
-<a id="case-vg01"></a>
-<a id="record-v11"></a>
-<a id="record-v12"></a>
-<a id="record-v13"></a>
-<a id="record-uv02"></a>
-<a id="record-uv09"></a>
-<a id="record-uv14"></a>
-<a id="record-uv15"></a>
-<a id="record-uv16"></a>
-<a id="record-uv17"></a>
-
-### VEH-03 — Build the fuel supply and mass transaction model
-
-Fuel is conserved by location and supply path. Installed tanks survive empty contents, combustion and auxiliaries draw finite fuel, and refuel/rearm transactions update mass once.
+| New package | Accountable | Delivered behavior and downstream gate |
+| --- | --- | --- |
+| D-P-FLT-001 |Chat 1 |Fresh-generation keyboard filter state; precedes deeper P-FLT-004 FCS work. |
+| D-P-RAD-001 |Chat 3 with Chat 4 consumer-region review |Finite camera admission, complete packet capture, preserved source lease and coherent ground reset; precedes P-RAD-004 integrated native qualification and donor migration. |
+| D-P-WPN-001 |Chat 4 |Independent identity provenance through own wire/native/Lua/pilot qualifiers; precedes P-WPN-004 IFF/donor expansion. |
 
-- Keep authoritative total fuel while adding tank identity separately from quantity; distinguish an empty attached tank from an explicitly removed station using observed inventory evidence.
-- Represent the documented feed/transfer roles with configurable cell groups, pressure/transfer paths, usable quantity, pump health, engine/APU/SES draw and rejected overflow. Do not adopt the inconsistent rescue-table capacities.
-- Stage topology numerics: first preserve aggregate capacity and total ledger; then allocate group capacities/locations from public geometry or explicitly estimated configuration. Record unresolved splits instead of claiming recovered production values.
-- Separate fuel requested, fuel delivered, main-burner flow and augmentation flow; charge fuel for burning start phases and APU/SES operation, and distinguish indicated flow from total mass burn.
-- Add pilot-set bingo and feed-specific low-supply states with warning-owner handoff; exact F-22 thresholds remain configuration decisions, not Hornet values.
-- Make burn/refill positions follow fixed configured cell geometry; verify DCS mass/CG/inertia callback behavior before emitting additional MOI contributions. Remove CG-following aerodynamic reference points in the performance package only after its moment-arm check.
-- After hydraulic and bleed providers exist, connect boost/pressurization availability to delivery. Prevent total external quantity from directly feeding an isolated engine.
+Chat 1 owns physical resources/forces/achieved actuators. Chat 2 owns navigation/cockpit/CNI/alerts, shared native parameter contract and integration. Chat 3 owns radar observations/ground/video admission and radar controls. Chat 4 owns stores/effects, defensive avionics, identity/fusion and native IFF reply-backend feasibility. Chat 4 P-WPN-004 **IFF_PROVIDER_READY** supplies a qualified reply backend or explicit tested unavailable/no-go to Chat 3 P-RAD-007; no reverse prerequisite. Physical P-FLT-002 supplies qualified utility/achieved-door state before P-WPN-002 prediction migration. Native-read P-INT-008 gates affected nav/entry/refuel/lighting adapters; independent direct atmosphere fixes remain separate.
 
-**Keep:** 8,200 kg internal simulation capacity consistent with rounded public figure; Bounded per-station external amounts and host-reported station IDs; Incremental refuel quantities and mass-change queue.
-
-<details>
-<summary>Files, dependencies and references</summary>
+A source-admission package closes its named complete software behavior and accurately records host qualification limits; it never grants a broader DCS/GPU/MP capability label. P-RAD-004 and P-INT-005/006 compose actual supported-host effects and mission qualification. Failed/unknown host feasibility requires a precise unavailable/no-go decision, not fabricated completion or another compatibility owner.
 
-- `EFM/source/RAPTOR.cpp` — extract burn/refuel/host callbacks into one ledger
-- `EFM/source/RAPTOR.h` — replace lump-only runtime state with configured roles
-- `VLO Fuel Tank.lua` — retain installed tank definition and capacity provenance
-- `Cockpit/Scripts/Systems/Avionics.lua` — consume owned fuel/advisory values
-- `Cockpit/Scripts/Systems/MFD_System.lua` — consume group/feed/flow states
-- `EFM/source/FuelSystem.h` — proposed model
-- `tests/test_fuel_transactions.cpp` — proposed conservation tests
+## Dependency order
 
-**Depends on:** [VEH-01](#pkg-veh-01), [VEH-02](#pkg-veh-02).
-
-**Audit findings:** [AV08](../audit/F22-Fidelity-Audit.html#auth-av08), [AV12](../audit/F22-Fidelity-Audit.html#auth-av12), [AV20](../audit/F22-Fidelity-Audit.html#auth-av20), [AV21](../audit/F22-Fidelity-Audit.html#auth-av21), [AV22](../audit/F22-Fidelity-Audit.html#auth-av22), [AV23](../audit/F22-Fidelity-Audit.html#auth-av23), [AV35](../audit/F22-Fidelity-Audit.html#auth-av35), [VG01](../audit/F22-Fidelity-Audit.html#auth-vg01).
-
-**Supporting records:** V11, V12, V13, UV02, UV09, UV14, UV15, UV16, UV17.
-
-**References:**
-
-- [Eaton F/A-22 capabilities brochure, April 2014](https://www.eaton.com/content/dam/eaton/markets/aerospace/Lockheed-Martin-Boeing-FA22-Raptor-capabilities-brochure.pdf)
-- [USAF T.O. 00-105E-9, F-22 section, 1 February 2006](https://www.0x4d.net/files/AF1/R11%20Segment%2012.pdf)
-- [USAF F-22 Raptor fact sheet](https://www.af.mil/About-Us/Fact-Sheets/Display/Article/104506/f-22-raptor/About-Us/f-22-raptor/)
-- [NASA, William H. Phillips, Journey in Aeronautical Research, 2005](https://www.nasa.gov/wp-content/uploads/2023/04/sp-4540.pdf)
-- [Chuck’s DCS F-16CM guide, 17 April 2025](https://chucksguides.com/aircraft/dcs/f-16cm/)
-- [Chuck’s DCS F/A-18C guide, 25 April 2025](https://chucksguides.com/aircraft/dcs/fa-18c/)
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | For start/run/APU/refuel scenarios, initial quantity + accepted additions - actual delivered consumption - explicit losses equals final quantity and queued host mass transactions. |
-| Limit | Full/empty/partial tanks, asymmetric depletion, overfill and near-unusable fuel never create negative mass or fill removed stations. |
-| Failure | Transfer/pressure/pump failure can starve a feed path with fuel still elsewhere; loss is indicated distinctly from total low/bingo. |
-| Recovery | Restored transfer refills the correct feed path; refuel does not start an engine or repair a leak; empty attached tanks can be refilled after host identity is verified. |
-
-</details>
-
-<a id="pkg-veh-04"></a>
-<a id="case-av02"></a>
-<a id="case-av06"></a>
-<a id="case-av14"></a>
-<a id="case-av15"></a>
-<a id="case-av31"></a>
-<a id="case-vt05"></a>
-<a id="record-v14"></a>
-<a id="record-v15"></a>
-<a id="record-uv01"></a>
-<a id="record-uv03"></a>
-<a id="record-uv04"></a>
-<a id="record-uv05"></a>
-<a id="record-uv06"></a>
-
-### VEH-04 — Make battery, generator, APU and SES supplies functional
-
-Battery/charger, engine generators, GPU, APU services and SES are distinct finite sources. The documented ground APU roles can supply declared consumers with engines stopped.
-
-- Create a bus/load table for flight-control, essential indication, start controls, lights, fuel transfer and ECS consumers; assign only documented or explicitly estimated connections. Retain legacy MAIN_POWER/BATTERY_POWER outputs as derived compatibility values.
-- Migrate battery/SOC and generator availability to the EFM physical owner in one cutover; Lua publishes requests and consumes availability, so cockpit update frequency cannot drain a second battery.
-- Give APU ground electrical, hydraulic and conditioned-air service outputs distinct capacity/eligibility states. Keep a limited ground-service assumption, not full aircraft generator equivalence.
-- Add finite SES air/fuel availability, recharge/servicing requests and declared dependencies for APU start, doors and alternate gear. Use normalized quantities until capacities are sourced; no Hornet hydraulic accumulator transplant.
-- Choose an explicit estimated automatic APU shutdown policy and make its conditions match the comment/UI. Initial compatibility policy requires both generators and both engines continuously qualified for 60 seconds; mark this timer as a DCS-derived estimate, not F-22 documentation.
-- Add abort/fault/reset/restart behavior, load shedding and source-transfer consequences. Keep cold-soak readiness a configurable estimate pending evidence; do not impose a universal preheat time.
-
-**Keep:** Finite battery reserve and generator hysteresis; Requested switch state already differs from measured availability; Hot-start native power toggle fix.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/Engine_System.lua` — retain input/sound/cart adapter; migrate supply integration once
-- `Cockpit/Scripts/Systems/Electrical_Computer.lua` — retain compatibility wrapper then retire duplicate physical integration
-- `EFM/source/RAPTOR.cpp` — consume/publish one physical power snapshot
-- `EFM/source/PowerSystem.h` — proposed model
-- `EFM/source/AuxiliaryPower.h` — proposed SES/APU model
-- `tests/test_vehicle_electrical.py` — retain adapter regression
-- `tests/test_power_sources.cpp` — proposed physical tests
-
-**Depends on:** [VEH-01](#pkg-veh-01), [VEH-03](#pkg-veh-03).
-
-- Integration: CNI-01 and other consumers supply declared instance/load requirements; this is a load-table completion gate, not a reverse hard dependency for basic power integration.
-
-**Audit findings:** [AV02](../audit/F22-Fidelity-Audit.html#auth-av02), [AV06](../audit/F22-Fidelity-Audit.html#auth-av06), [AV14](../audit/F22-Fidelity-Audit.html#auth-av14), [AV15](../audit/F22-Fidelity-Audit.html#auth-av15), [AV31](../audit/F22-Fidelity-Audit.html#auth-av31), [VT05](../audit/F22-Fidelity-Audit.html#auth-vt05).
-
-**Supporting records:** V14, V15, UV01, UV03, UV04, UV05, UV06.
-
-**References:**
-
-- [Eaton F/A-22 capabilities brochure, April 2014](https://www.eaton.com/content/dam/eaton/markets/aerospace/Lockheed-Martin-Boeing-FA22-Raptor-capabilities-brochure.pdf)
-- [USAF T.O. 00-105E-9, F-22 section, 1 February 2006](https://www.0x4d.net/files/AF1/R11%20Segment%2012.pdf)
-- [USAF Scientific Advisory Board, Aircraft Oxygen Generation, SAB-TR-11-04, 1 February 2012](https://www.airandspaceforces.com/PDF/DocumentFile/Documents/2012/AFSAB_Oxygen_020112.pdf)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide, internally 24 March 2024](https://www.digitalcombatsimulator.com/en/downloads/documentation/)
-- [USAF FY2009 MILCON shelter justification](https://www.saffm.hq.af.mil/Portals/84/documents/FY09/AFD-080204-065.pdf?ver=2016-08-22-141510-773)
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Engines off/APU ready can power each declared ground consumer; GPU, generator and battery transitions publish availability and loads coherently. |
-| Limit | Finite SOC/SES resources deplete under demand and recharge only from declared sources; threshold hysteresis prevents chatter. |
-| Failure | Battery, generator, APU and source-transfer faults remove the intended consumers while alternate declared supplies survive; one generator cannot qualify a both-generator timer. |
-| Recovery | Restoring GPU or servicing reserves permits valid restart; power restoration alone does not erase mechanical damage or reset every display mode. |
-
-</details>
-
-<a id="pkg-veh-05"></a>
-<a id="case-av16"></a>
-<a id="case-av17"></a>
-<a id="case-av18"></a>
-<a id="case-av19"></a>
-<a id="case-av30"></a>
-<a id="case-av32"></a>
-<a id="case-av37"></a>
-<a id="case-pf22"></a>
-<a id="record-v08"></a>
-<a id="record-v09"></a>
-<a id="record-v10"></a>
-<a id="record-uv10"></a>
-<a id="record-uv11"></a>
-<a id="record-uv12"></a>
-<a id="record-uv13"></a>
-<a id="record-uv30"></a>
+P-INT-001 â†’ P-INT-003 â†’ P-INT-004 â†’ P-INT-002 â†’ P-INT-007 â†’ P-INT-008 â†’ P-RAD-001 â†’ P-WPN-001 â†’ P-WPN-003 â†’ P-WPN-006 â†’ P-WPN-007 â†’ P-WPN-009 â†’ P-FLT-001 â†’ D-P-FLT-001 â†’ P-RAD-002 â†’ P-RAD-003 â†’ P-FLT-002 â†’ P-NAV-001 â†’ D-P-RAD-001 â†’ P-RAD-004 â†’ P-FLT-003 â†’ P-FLT-005 â†’ P-NAV-002 â†’ P-NAV-003 â†’ P-NAV-005 â†’ P-NAV-006 â†’ P-WPN-002 â†’ D-P-WPN-001 â†’ P-WPN-004 â†’ P-RAD-005 â†’ P-RAD-008 â†’ P-FLT-004 â†’ P-FLT-006 â†’ P-FLT-009 â†’ P-NAV-004 â†’ P-NAV-007 â†’ P-NAV-008 â†’ P-WPN-005 â†’ P-RAD-007 â†’ P-RAD-006 â†’ P-FLT-007 â†’ P-FLT-008 â†’ P-WPN-008 â†’ P-FLT-010 â†’ P-INT-005 â†’ P-INT-006
 
-### VEH-05 — Replace timer-only engine operation with causal engine states
+Every package is assigned once; P-INT-006 requires all other 45 package completion/dispositions. Optional selected-off/no-go decisions are required; optional hardware activation is not automatic.
 
-Each engine separates shaft motion, starter source, fuel/ignition, combustion, augmentation, lubrication, control health and fire isolation; indications reflect the achieved physical state.
+## Package instructions
 
-- Define OFF, CRANKING, LIGHTING, ACCELERATING, RUNNING, SHUTTING_DOWN and WINDMILLING states with source prerequisites; all keyboard/click/automatic requests enter the same authoritative guards.
-- Separate start source from fuel introduction; use public F-22 evidence where available and a clearly documented DCS-analogue pilot sequence where unknown. Do not assert a Viper cranking RPM is F119 data.
-- Charge ignition/start and AB fuel from actual combustion state; synchronize augmentation fuel, lightoff, thrust and nozzle state, while distinguishing total burn from selected instrument flow.
-- Add air-driven rotor/windmill behavior and source-assisted restart with a tunable admissible envelope; do not implement identical 44-second ground and airborne starts as the final model.
-- Keep finite lags as initial estimates, then link oil/temperature rise, delay/hysteresis, dry/hung/hot start and flameout outcomes. Add FADEC availability/diagnostic states with intentional recovery paths.
-- Implement documented engine fire selection isolation of fuel/electric/ventilation/air, followed by separate ready/discharge inventory. Keep detector, isolation command and extinguishing result distinct; do not let a warning argument cause a fire.
-- Resolve the nozzle actuator supply as an explicit decision using Eaton fueldraulics and further public evidence; preserve independent achieved TVC but do not claim the current aircraft-hydraulic side map is authenticated.
+### P-INT-001 â€” Adopt fresh baseline, selected profile and shared contracts
 
-**Keep:** Independent left/right spool, temperature, oil and nozzle states; Physical engine/core exports and Engine_Data fallback; No combustion thrust after cutoff.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `EFM/source/RAPTOR.cpp` — extract two duplicated engine state machines
-- `EFM/source/VehicleSystems.h` — retain lag helpers and instrument state until replaced
-- `Cockpit/Scripts/Systems/Engine_Data.lua` — add per-value validity and quantity semantics
-- `Cockpit/Scripts/Systems/Engine_System.lua` — map start/cutoff commands to requests
-- `Cockpit/Scripts/Systems/MFD_System.lua` — consume warning/limit states instead of display-local thresholds
-- `EFM/source/EngineModel.h` — proposed two-instance model
-- `EFM/source/EngineProtection.h` — proposed bounded simulation protection
-
-**Depends on:** [VEH-01](#pkg-veh-01), [VEH-02](#pkg-veh-02), [VEH-03](#pkg-veh-03), [VEH-04](#pkg-veh-04).
-
-**Audit findings:** [AV16](../audit/F22-Fidelity-Audit.html#auth-av16), [AV17](../audit/F22-Fidelity-Audit.html#auth-av17), [AV18](../audit/F22-Fidelity-Audit.html#auth-av18), [AV19](../audit/F22-Fidelity-Audit.html#auth-av19), [AV30](../audit/F22-Fidelity-Audit.html#auth-av30), [AV32](../audit/F22-Fidelity-Audit.html#auth-av32), [AV37](../audit/F22-Fidelity-Audit.html#auth-av37), [PF22](../audit/F22-Fidelity-Audit.html#auth-pf22).
-
-**Supporting records:** V08, V09, V10, UV10, UV11, UV12, UV13, UV30.
-
-**References:**
-
-- [Pratt & Whitney F119](https://www.rtx.com/prattwhitney/products/military-engines/f119)
-- [Eaton F/A-22 capabilities brochure, April 2014](https://www.eaton.com/content/dam/eaton/markets/aerospace/Lockheed-Martin-Boeing-FA22-Raptor-capabilities-brochure.pdf)
-- [USAF T.O. 00-105E-9, F-22 section, 1 February 2006](https://www.0x4d.net/files/AF1/R11%20Segment%2012.pdf)
-- [Chuck’s DCS F-16CM guide, 17 April 2025](https://chucksguides.com/aircraft/dcs/f-16cm/)
-- [Chuck’s DCS F/A-18C guide, 25 April 2025](https://chucksguides.com/aircraft/dcs/fa-18c/)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide, internally 24 March 2024](https://www.digitalcombatsimulator.com/en/downloads/documentation/)
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Cold start, cutoff, restart and independent throttle commands produce coherent core/fan/temperature/oil/fuel/nozzle indications and conserved fuel. |
-| Limit | Throttle step and AB transitions have finite response; temperature/oil limits use labelled parameters and no false precision from F404/F110 decks. |
-| Failure | No starter/ignition/fuel/source prevents the relevant transition; dry crank, hung start, AB failure and one-engine loss are distinguishable, with no thrust from a failed combustion path. |
-| Recovery | Cutoff/abort allows the configured cooling/purge/restart path; fire discharge is finite and not replenished by a caution reset; repair does not automatically start the engine. |
-
-</details>
-
-<a id="pkg-veh-06"></a>
-<a id="case-av03"></a>
-<a id="case-av04"></a>
-<a id="case-av05"></a>
-<a id="record-v16"></a>
-<a id="record-uv18"></a>
-
-### VEH-06 — Model hydraulic sources, consumer segregation and stored fluid
-
-Pump source status, circuit pressure/flow availability, routed consumer supply and accumulator energy are distinct; loss of one source has the correct declared survival behavior.
-
-- Represent four main pump source statuses and an APU pump source, while retaining two logical independent system inventories. Separate pump rating/regulation from downstream pressure indication; do not change 3,950 psi solely to match a 4,100 psi component rating.
-- Create a documented consumer routing table: normal utility/maintenance-switch distinction, rudder shuttle and other proved paths; mark incomplete mapping as simulation assumption rather than inferring a full schematic.
-- Add bounded flow demand/pressure recovery or equivalent reduced-order capacity so simultaneous actuation and pump loss differ from static no-load pressure.
-- Give reserve states pressure/fluid-volume roles and intentional leakage/recharge. Add the documented emergency tow-brake supply as a ground-service path, without forcing it to be the normal parking-brake architecture.
-- Route each actuator’s command, power, available pressure, achieved position and fault separately. Couple fuel boost, gear and bay-door demand through interfaces owned by their respective packages.
-- Use the nozzle-source decision from VEH-05 before changing TVC supply; retain a labelled temporary mapping if evidence remains incomplete.
-
-**Keep:** Two achieved pressure indications already share EFM ownership with actuator authority; Rudder survives a healthy alternate source in the existing abstraction; Separate nozzle achieved states.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `EFM/source/VehicleSystems.h` — extract Hydraulics into proposed HydraulicSystem.h
-- `EFM/source/RAPTOR.cpp` — replace blanket shared availability at named consumers
-- `Cockpit/Scripts/Systems/MFD_System.lua` — keep achieved indication consumption
-- `EFM/source/HydraulicSystem.h` — proposed circuit/pump/consumer model
-- `tests/test_vehicle_systems.cpp` — extend failure/demand cases
-
-**Depends on:** [VEH-01](#pkg-veh-01), [VEH-04](#pkg-veh-04), [VEH-05](#pkg-veh-05).
-
-**Audit findings:** [AV03](../audit/F22-Fidelity-Audit.html#auth-av03), [AV04](../audit/F22-Fidelity-Audit.html#auth-av04), [AV05](../audit/F22-Fidelity-Audit.html#auth-av05).
-
-**Supporting records:** V16, UV18.
-
-**References:**
-
-- [Eaton F/A-22 capabilities brochure, April 2014](https://www.eaton.com/content/dam/eaton/markets/aerospace/Lockheed-Martin-Boeing-FA22-Raptor-capabilities-brochure.pdf)
-- [USAF T.O. 00-105E-9, F-22 section, 1 February 2006](https://www.0x4d.net/files/AF1/R11%20Segment%2012.pdf)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide, internally 24 March 2024](https://www.digitalcombatsimulator.com/en/downloads/documentation/)
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | No-load indication, pump availability and achieved actuator rates remain coherent; rudder retains the documented alternative-system survival behavior. |
-| Limit | Simultaneous consumers and partial pump loss change capacity/rate without an instantaneous arbitrary all-consumer failure. |
-| Failure | A circuit leak, pump depressurization, bus loss and actuator jam are distinct; a low-pressure warning is never fed back as a failed pump. |
-| Recovery | Leak isolation or restored pumps recharge only healthy circuits/reserves; held or jammed surfaces recover according to the declared fault model. |
-
-</details>
-
-<a id="pkg-veh-07"></a>
-<a id="case-av01"></a>
-<a id="case-av27"></a>
-<a id="case-av28"></a>
-<a id="case-pf12"></a>
-<a id="case-pf15"></a>
-<a id="case-pf16"></a>
-<a id="case-pf21"></a>
-<a id="case-vg04"></a>
-<a id="case-vg05"></a>
-<a id="case-vg12"></a>
-<a id="record-v01"></a>
-<a id="record-v02"></a>
-<a id="record-v03"></a>
-<a id="record-v04"></a>
-<a id="record-uv27"></a>
-<a id="record-uv28"></a>
-<a id="record-uv29"></a>
-
-### VEH-07 — Make FCS configuration and achieved surface mixing explicit
-
-Pilot intent, control mode, rate/load/AoA protection, allocation, power/supply and achieved surfaces form one chain; cruise, approach/refuel and engine-out configuration can differ.
-
-- Define explicit CRUISE, POWER_APPROACH and REFUEL modes with source-tagged entry/exit logic; keep eligibility, mode and failed-system reversion distinct from AP engagement.
-- Replace common speed-brake proxy commands with a mix that connects selected configuration to individual achieved surfaces and drag. Use the historical F-22 mix as the public best-known reference, with production applicability explicitly limited.
-- Add an explicit single-engine approach configuration and cue reference shared by FCS/HUD/ATC consumers. Historical numerical choices remain profile parameters, not a claim of today’s automatic selection logic.
-- Replace independent collective/differential clipping with an intentional bounded allocation policy. Initial estimate prioritizes pitch stabilization/protection, then pilot roll within residual authority; record tradeoff and test sign reversal/saturation.
-- Implement a labelled rate/load/AoA command abstraction and configuration/weight-aware bounds without copying Hornet G numbers; do not claim the proprietary F-22 law has been recovered.
-- Separate manual trim inhibit from AP disconnect, FCS resettable faults from structural loss, and any pilot override from equipment failure. Preserve existing trim rates until handling calibration supports a change.
-- Coordinate approach law, E-bracket reference and optional ATC authority with navigation lane; manual approach is required, automatic landing is not assumed from analogue systems.
-
-**Keep:** Pitch-only TVC and 20-degree physical bound; Elapsed-time held trim with release handoff; Achieved surface positions drive forces and drawings.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `EFM/source/RAPTOR.cpp` — extract FCS laws and allocation from simulate
-- `EFM/source/TrimControl.h` — retain controller; add inhibit contract
-- `EFM/source/Autopilot.h` — preserve AFCS separation; coordinate with navigation owner
-- `Cockpit/Scripts/Systems/HUD_Flight_Data.lua` — consume selected approach reference
-- `EFM/source/FlightControls.h` — proposed mode/law controller
-- `EFM/source/ControlAllocation.h` — proposed achieved effector allocation
-
-**Depends on:** [VEH-01](#pkg-veh-01), [VEH-02](#pkg-veh-02), [VEH-05](#pkg-veh-05), [VEH-06](#pkg-veh-06).
-
-**Audit findings:** [AV01](../audit/F22-Fidelity-Audit.html#auth-av01), [AV27](../audit/F22-Fidelity-Audit.html#auth-av27), [AV28](../audit/F22-Fidelity-Audit.html#auth-av28), [PF12](../audit/F22-Fidelity-Audit.html#auth-pf12), [PF15](../audit/F22-Fidelity-Audit.html#auth-pf15), [PF16](../audit/F22-Fidelity-Audit.html#auth-pf16), [PF21](../audit/F22-Fidelity-Audit.html#auth-pf21), [VG04](../audit/F22-Fidelity-Audit.html#auth-vg04), [VG05](../audit/F22-Fidelity-Audit.html#auth-vg05), [VG12](../audit/F22-Fidelity-Audit.html#auth-vg12).
-
-**Supporting records:** V01, V02, V03, V04, UV27, UV28, UV29.
-
-**References:**
-
-- [Pratt & Whitney F119](https://www.rtx.com/prattwhitney/products/military-engines/f119)
-- [Rainey and Kohn, F-22 flight-test program update, 1998](https://man.fas.org/dod-101/sys/ac/docs/f-22-emd-paper.htm)
-- [Chuck’s DCS F-16CM guide, 17 April 2025](https://chucksguides.com/aircraft/dcs/f-16cm/)
-- [Chuck’s DCS F/A-18C guide, 25 April 2025](https://chucksguides.com/aircraft/dcs/fa-18c/)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide, internally 24 March 2024](https://www.digitalcombatsimulator.com/en/downloads/documentation/)
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Transitions between declared modes preserve trim and achieved position continuity; selected approach reference agrees across all cues. |
-| Limit | Combined pitch/roll at saturation, high AoA and rapid configuration changes respect physical actuator bounds and an explicit priority policy. |
-| Failure | Engine/source loss changes only the supported mode/authority; invalid air data chooses a declared degraded response, not true-state replacement. |
-| Recovery | Trim release, resettable FCS reset and recovered supply restore the right functions without healing a jam or structural damage. |
-
-</details>
-
-<a id="pkg-veh-08"></a>
-<a id="case-av13"></a>
-<a id="case-pf01"></a>
-<a id="case-pf02"></a>
-<a id="case-pf03"></a>
-<a id="case-pf04"></a>
-<a id="case-pf05"></a>
-<a id="case-pf06"></a>
-<a id="case-pf07"></a>
-<a id="case-pf08"></a>
-<a id="case-pf09"></a>
-<a id="case-pf10"></a>
-<a id="case-pf11"></a>
-<a id="case-pf13"></a>
-<a id="case-pf14"></a>
-<a id="case-pf17"></a>
-<a id="case-pf19"></a>
-<a id="record-v05"></a>
-<a id="record-v06"></a>
-<a id="record-v07"></a>
-<a id="record-v20"></a>
-
-### VEH-08 — Calibrate one coherent flight-performance model
-
-Lift, drag, moments, thrust, mass and fuel burn explain performance together over declared conditions. Public F-22 bounds and physical consistency are separate from unknown numerical curves.
-
-**Current issue ([PF07](../audit/F22-Fidelity-Audit.html#auth-pf07)):** The wing-force component is automatically recentered with mass CG instead of retaining an airframe-fixed reference. Other engine/tail force arms still provide some CG response; this is not a claim that all CG effects are absent.
-
-- Publish the calibration grid and source tiers before tuning: mass/CG/loadout, altitude, temperature, Mach, AoA, configuration, throttle and engine health. Preserve old archived flights only with their original build/configuration labels.
-- Remove unexplained high-Mach zero entries as accidental interpolation targets only after declaring a valid modeled envelope and a bounded nonzero extrapolation/decay policy. Do not replace them with invented F119 production thrust values.
-- Fit dry/AB installed thrust, acceleration, sustained climb, transonic drag, steady level flight and fuel burn jointly. Public thrust class and dry supersonic capability supply loose bounds, not a unique performance deck.
-- Use fixed airframe aerodynamic reference locations and explicit AoA/configuration-dependent center-of-pressure shifts; compare CG shifts at fixed force state. Verify host inertia response before adding point-mass inertia.
-- Calibrate lift/drag across approach weight, maneuver load and configuration; retain useful AoA drag until data show how to replace it. External-store/open-bay drag must be host-qualified to avoid double counting.
-- Validate high-alpha/post-stall force continuity, damping, sideslip/roll-yaw response, departure resistance and recovery qualitatively; numerical handling curves remain estimates where public data do not resolve them.
-- Characterize host ground effect and wheel load. If absent, add one bounded height-dependent reduced-order term and calibrate flare/touchdown interaction; no duplicate ground effect.
-- Report instantaneous versus sustained turn, transient versus sustained supersonic flight, and available versus commanded G distinctly. Do not turn unmeasured curves into a blanket inaccurate-FM verdict.
-
-**Keep:** Existing continuous high-alpha correction is useful numerical regularization; Smooth airspeed-based installed-thrust blend avoids WOW force jump; AoA-dependent drag already creates lifting energy cost.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `EFM/source/RAPTOR.h` — version coefficient and thrust tables with provenance
-- `EFM/source/RAPTOR.cpp` — extract force/moment and installed-thrust calculation
-- `EFM/source/HighAlpha.h` — retain continuity; calibrate effect separately
-- `EFM/source/Aerodynamics.h` — proposed coefficient evaluation
-- `EFM/source/PropulsionDeck.h` — proposed calibrated installed-force model
-- `tests/test_performance_relations.cpp` — proposed physical-relationship tests
-
-**Depends on:** [VEH-02](#pkg-veh-02), [VEH-03](#pkg-veh-03), [VEH-05](#pkg-veh-05), [VEH-07](#pkg-veh-07).
-
-**Audit findings:** [AV13](../audit/F22-Fidelity-Audit.html#auth-av13), [PF01](../audit/F22-Fidelity-Audit.html#auth-pf01), [PF02](../audit/F22-Fidelity-Audit.html#auth-pf02), [PF03](../audit/F22-Fidelity-Audit.html#auth-pf03), [PF04](../audit/F22-Fidelity-Audit.html#auth-pf04), [PF05](../audit/F22-Fidelity-Audit.html#auth-pf05), [PF06](../audit/F22-Fidelity-Audit.html#auth-pf06), [PF07](../audit/F22-Fidelity-Audit.html#auth-pf07), [PF08](../audit/F22-Fidelity-Audit.html#auth-pf08), [PF09](../audit/F22-Fidelity-Audit.html#auth-pf09), [PF10](../audit/F22-Fidelity-Audit.html#auth-pf10), [PF11](../audit/F22-Fidelity-Audit.html#auth-pf11), [PF13](../audit/F22-Fidelity-Audit.html#auth-pf13), [PF14](../audit/F22-Fidelity-Audit.html#auth-pf14), [PF17](../audit/F22-Fidelity-Audit.html#auth-pf17), [PF19](../audit/F22-Fidelity-Audit.html#auth-pf19).
-
-**Supporting records:** V05, V06, V07, V20.
-
-**References:**
-
-- [Pratt & Whitney F119](https://www.rtx.com/prattwhitney/products/military-engines/f119)
-- [USAF F-22 Raptor fact sheet](https://www.af.mil/About-Us/Fact-Sheets/Display/Article/104506/f-22-raptor/About-Us/f-22-raptor/)
-- [USAF supercruise announcement, 21 July 1999](https://man.fas.org/dod-101/sys/ac/docs/n19990721_991378.htm)
-- [Lee and Peron, F-22 high-AoA testing, May 2000](https://sfte-ec.org/sfteecold/data/Abstract/A2000-II-02.pdf)
-- [NASA Glenn, Relative Velocity](https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/relative-velocity/)
-- [NASA, William H. Phillips, Journey in Aeronautical Research, 2005](https://www.nasa.gov/wp-content/uploads/2023/04/sp-4540.pdf)
-- [FAA Pilot’s Handbook, chapter 5](https://www.faa.gov/sites/faa.gov/files/regulations_policies/handbooks_manuals/aviation/phak/07_phak_ch5.pdf)
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | At fixed configuration/AoA, more mass requires higher dynamic pressure for equilibrium; energy rate agrees with net force/power and consumed fuel. |
-| Limit | Table boundaries, Mach transitions, near-zero/backward relative velocity and high-alpha endpoints remain finite and continuous inside the declared numerical envelope. |
-| Failure | One-engine thrust/TVC asymmetry, damaged surfaces and changed mass alter the appropriate forces/moments without a hidden compensating assist. |
-| Recovery | Recovery to ordinary flight from saturated/high-alpha/engine-out conditions is stable within declared simulation conditions; unsupported real-aircraft envelope claims remain ungraded. |
-
-</details>
-
-<a id="pkg-veh-09"></a>
-<a id="case-av07"></a>
-<a id="case-av25"></a>
-<a id="case-av26"></a>
-<a id="case-av33"></a>
-<a id="record-uv21"></a>
-<a id="record-uv22"></a>
-<a id="record-uv23"></a>
-
-### VEH-09 — Complete gear, steering and arresting-gear physical workflows
-
-Gear requests, doors, struts, locks, WOW, steering and pneumatic emergency/recovery hardware have coherent commanded and achieved states.
-
-- Capture model/EDM door and leg motion against the existing scalar first. Add separate physical phases/locks/asymmetric states only where required; do not assume missing door variables prove wrong visual motion.
-- Make toggle, explicit up and explicit down use one request guard with WOW and declared speed-limit semantics. Replace the hidden minimum-speed asymmetry with an explicit estimated policy plus rejection reason.
-- Introduce normal and SES-air alternate extension, resource use and unsafe/locked indication. Do not import Hornet rotate/pull controls or assume pneumatic supply excludes gravity/aerodynamic assistance.
-- Add explicit steering selection/status and a continuous estimated speed/pressure authority schedule. Keep pedal yaw and steering demands separate across liftoff/touchdown.
-- Implement the documented pneumatically commanded arresting-gear extend/retract workflow, supply limitation and cockpit state. Qualify DCS ground-cable interaction before claiming arrestment performance.
-
-**Keep:** Native suspension compression preferred over altitude fallback; Unbraked nosewheel and independent main-wheel exports; Existing animation mapping can be retained if EDM phases already sequence correctly.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `EFM/source/RAPTOR.cpp` — replace common gear/steering guards with named state machine
-- `FM/config.lua` — retain host contact model; calibrate ground properties
-- `Cockpit/Scripts/Systems/Engine_System.lua` — gear input adapter
-- `Cockpit/Scripts/Systems/Avionics.lua` — consume gear/steering status
-- `EFM/source/LandingGear.h` — proposed independent lock/sequence model
-- `EFM/source/GroundControl.h` — proposed steering/hook state
-
-**Depends on:** [VEH-01](#pkg-veh-01), [VEH-02](#pkg-veh-02), [VEH-04](#pkg-veh-04), [VEH-06](#pkg-veh-06).
-
-**Audit findings:** [AV07](../audit/F22-Fidelity-Audit.html#auth-av07), [AV25](../audit/F22-Fidelity-Audit.html#auth-av25), [AV26](../audit/F22-Fidelity-Audit.html#auth-av26), [AV33](../audit/F22-Fidelity-Audit.html#auth-av33).
-
-**Supporting records:** UV21, UV22, UV23.
-
-**References:**
-
-- [Eaton F/A-22 capabilities brochure, April 2014](https://www.eaton.com/content/dam/eaton/markets/aerospace/Lockheed-Martin-Boeing-FA22-Raptor-capabilities-brochure.pdf)
-- [USAF T.O. 00-105E-9, F-22 section, 1 February 2006](https://www.0x4d.net/files/AF1/R11%20Segment%2012.pdf)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide, internally 24 March 2024](https://www.digitalcombatsimulator.com/en/downloads/documentation/)
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Normal gear transit, down/up lock indication, taxi steering and commanded hook motion follow achieved states and supply. |
-| Limit | Low-speed requests, WOW bounce, partial gear transit and speed-gate boundaries behave consistently across bindings without gear/steering jumps. |
-| Failure | One leg/door jam, SES loss, hydraulic failure and sensor failure produce distinct unsafe states; no aggregate scalar falsely reports all locked. |
-| Recovery | Alternate extension or restored healthy source reaches the defined lock path; retraction after emergency action follows a documented simulation policy. |
-
-</details>
-
-<a id="pkg-veh-10"></a>
-<a id="case-av09"></a>
-<a id="case-av24"></a>
-<a id="case-av34"></a>
-<a id="case-pf18"></a>
-<a id="case-vg07"></a>
-<a id="case-vg09"></a>
-<a id="record-v17"></a>
-<a id="record-uv19"></a>
-<a id="record-uv20"></a>
-<a id="record-uv24"></a>
-<a id="record-uv25"></a>
-<a id="record-uv26"></a>
-
-### VEH-10 — Replace brake assistance with a declared brake/thermal chain
-
-Pedal demand commands a declared deceleration response through one brake authority; wheel slip, reference motion, supply, brake energy and tire condition remain distinct.
-
-- Characterize host wheel speed/anti-skid, touchdown spin-up protection, friction, brake torque and tire thermal/failure behavior with controlled runway tests; choose either native wheel limiting or custom wheel limiting, never both independently.
-- Add a reduced-order deceleration demand controller with separate left/right inputs, measured/navigation reference health and wheel-slip limiting through the supported interface. Treat historical delta-deceleration intent as guidance, not the old deadband defect.
-- Replace the +0.60 aerodynamic drag step with physically attributed wheel torque and actual commanded surface drag. Keep baseline stop capability until replacement traces justify the cutover.
-- Separate fluid consumed by applications/leakage from energy dissipated at the wheels. Accumulator display must correspond to a defined stored-pressure state.
-- Implement parking set/release/pressure-qualified status and emergency mode as declared simulation choices. Do not copy an unresolved Viper RPM release threshold or Hornet anti-skid thresholds as F-22 facts.
-- Add finite per-wheel thermal energy, cooling/heat soak, fade and tire consequence only for portions not already host-owned. Use estimated parameters, no rescue waiting time as a real thermal coefficient.
-
-**Keep:** Proportional left/right demands and no nose brake; Enabled native anti-skid may already provide valuable wheel-level control; Finite reserve behavior is a starting point.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `EFM/source/RAPTOR.cpp` — remove unexplained drag assistance after equivalent braking is validated
-- `EFM/source/VehicleSystems.h` — separate hydraulic reserve from brake heating
-- `Cockpit/Scripts/Systems/Engine_System.lua` — make parking commands idempotent and mode-aware
-- `FM/config.lua` — qualify host brake/rolling/contact values
-- `EFM/source/BrakeSystem.h` — proposed controller/reserve/thermal model
-- `tests/test_brake_system.cpp` — proposed controller and energy fixtures
-
-**Depends on:** [VEH-02](#pkg-veh-02), [VEH-05](#pkg-veh-05), [VEH-06](#pkg-veh-06), [VEH-09](#pkg-veh-09).
-
-**Audit findings:** [AV09](../audit/F22-Fidelity-Audit.html#auth-av09), [AV24](../audit/F22-Fidelity-Audit.html#auth-av24), [AV34](../audit/F22-Fidelity-Audit.html#auth-av34), [PF18](../audit/F22-Fidelity-Audit.html#auth-pf18), [VG07](../audit/F22-Fidelity-Audit.html#auth-vg07), [VG09](../audit/F22-Fidelity-Audit.html#auth-vg09).
-
-**Supporting records:** V17, UV19, UV20, UV24, UV25, UV26.
-
-**References:**
-
-- [Eaton F/A-22 capabilities brochure, April 2014](https://www.eaton.com/content/dam/eaton/markets/aerospace/Lockheed-Martin-Boeing-FA22-Raptor-capabilities-brochure.pdf)
-- [Rainey and Kohn, F-22 flight-test program update, 1998](https://man.fas.org/dod-101/sys/ac/docs/f-22-emd-paper.htm)
-- [USAF T.O. 00-105E-9, F-22 section, 1 February 2006](https://www.0x4d.net/files/AF1/R11%20Segment%2012.pdf)
-- [USAF F-22 cold-weather brake test, 29 November 2007](https://www.af.mil/News/Article-Display/Article/125003/f-22-endures-3-week-cold-weather-test-at-eielson/)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide, internally 24 March 2024](https://www.digitalcombatsimulator.com/en/downloads/documentation/)
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
+Accountable **chat2**; status **planned**; prerequisites: none.
 
-| Condition | Required result |
-| --- | --- |
-| Normal | Declared dry-runway runs show coherent pedal demand, achieved torque, wheel loading, deceleration and dissipated energy; asymmetric braking produces corresponding yaw. |
-| Limit | Wet/low-friction, crosswind, bounce and repeated-stop scenarios have bounded slip and heat; brake hold at rest does not consume energy as if rolling. |
-| Failure | Reference/supply loss, one brake failure, hot fade and tire damage are distinguishable; no discontinuous aerodynamic deceleration replaces failed brakes. |
-| Recovery | Pressure recharge and cooling recover their own capacities on their own timescales; parking release does not erase brake heat and repair does not refill every resource implicitly. |
+Scope: policy/profile/contracts, not simulation rewrite. Exclusions: No aircraft edits during this audit.; No optional capability activation without separate applicable profile/host decision..
 
-</details>
+Requirements: R-INT-001, R-INT-007. Findings: retention/qualification. Cleanup: caller migration assessed within tasks.
 
-<a id="pkg-veh-11"></a>
-<a id="case-av36"></a>
-<a id="case-vg10"></a>
-<a id="case-vt02"></a>
-<a id="case-vt04"></a>
-<a id="record-p17"></a>
-<a id="record-v19"></a>
-<a id="record-uv31"></a>
+1. Recheck branch, HEAD, status and all affected hashes against BASELINE and SOURCE-DRIFT; audit deltas before edits.
+2. Create approved per-capability table of implementation, selection, evidence, calibration, installed identity and runtime qualification.
+3. Agree provider/consumer fields, clocks, validity, generation and cancellation before either side changes. Assign physical owner chat1; nav/cockpit integrator chat2; radar chat3; weapons/fusion chat4.
 
-### VEH-11 — Add reduced-order ECS, equipment cooling, cabin pressure and defog
+Acceptance: Every selected capability has exactly one owner and explicit missing/host-limited dispositions.; Unsupported profile/ABI withdraws affected capabilities without healthy defaults.; No historical tag reset, new worktree or unrelated staging.; .
 
-Conditioned-air supply, coolant/fuel heat removal, cabin pressure and visibility follow causal sources and loads; engine EGT alone cannot represent them.
+Contracts provided: . Consumed: . Current versus planned status is explicit in INTERFACES.json.
 
-- Model left/right engine bleed and ground APU conditioned-air availability, shutoff/isolation and ram fallback with explicit power and flight-condition dependencies.
-- Use a small thermal network for equipment heat, fuel heat sink, coolant and refrigerated/ram-air removal. Publish equipment thermal health to electrical/avionics owners; do not recreate rejected EMD branch-control defects.
-- Add cabin absolute pressure from ambient plus seal/valve/source-dependent increment; define leakage/decompression and pressure-altitude indication. Do not treat the SAB upstream pressure as cabin or SDK oxygen pressure.
-- Add interior canopy fog/defog airflow as a separate effect from external rain removal and tint. Determine native rendering first, and label estimated moisture/thermal response.
-- Expose intentional controls and source-loss indications through actual cockpit commands; exact modern F-22 switch layout, regulation schedule and trip temperatures remain configuration evidence decisions.
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: 2-4 focused sessions; host qualification uncertain. Completion: focused commits integrated on main; new requirement-test results and untested limits; source/build/package manifest; updated package status. Verification cases: VS-009, VS-REQ-INT-007.
 
-**Keep:** Ambient engine-temperature dependence remains useful for the engine model; SDK provides a separate cabin-pressure increment export; Existing tint/visor controls remain cosmetics.
+### P-INT-003 â€” Make build/package provenance and qualification explicit
 
-<details>
-<summary>Files, dependencies and references</summary>
+Accountable **chat2**; status **planned**; prerequisites: P-INT-001.
 
-- `EFM/source/RAPTOR.cpp` — add cabin additional-pressure output and source snapshot
-- `Cockpit/Scripts/Systems/MFD_System.lua` — replace cabin argument copy with owned valid pressure indication
-- `Cockpit/Scripts/Systems/Avionics.lua` — consume cooling/cabin alerts through warning owner
-- `EFM/source/EnvironmentalSystem.h` — proposed reduced-order air/thermal model
-- `Cockpit/Scripts/Systems/Canopy_Effects.lua` — proposed effect adapter only if host replacement is needed
+Scope: build output, package manifests, default controls and loaded identity. Exclusions: No aircraft edits during this audit.; No optional capability activation without separate applicable profile/host decision..
 
-**Depends on:** [VEH-01](#pkg-veh-01), [VEH-03](#pkg-veh-03), [VEH-04](#pkg-veh-04), [VEH-05](#pkg-veh-05).
+Requirements: R-HOOK-001, R-INT-003, R-INT-005. Findings: F-INT-001, F-INT-002, F-HOOK-001. Cleanup: C-HOOK-001.
 
-**Audit findings:** [AV36](../audit/F22-Fidelity-Audit.html#auth-av36), [VG10](../audit/F22-Fidelity-Audit.html#auth-vg10), [VT02](../audit/F22-Fidelity-Audit.html#auth-vt02), [VT04](../audit/F22-Fidelity-Audit.html#auth-vt04).
+1. Change hard-coded DLL output policy before implementation builds so chosen build path cannot silently replace source bin. Build/install remain explicit separate actions.
+2. Capture current source-to-installed input differences and preserve saved-user diffs; decide whether default differences are deliberate.
+3. Generate source/toolchain/configuration/dependency/build manifest and package hashes; qualify the actual loaded binary, not just a same-named DLL.
+4. Install finished slices into normal mod only under later execution authorization/current project policy; never kill DCS or overwrite user assets incidentally.
+5. Include all 5installedhooks hashes/counterparts, mission/control/eval paths, source-drift and active/passive authority in runtime qualification manifest; hook identities separate from aircraft DLL hash
+6. Capture actual loaded hook/callback identities during later authorized qualification
 
-**Supporting records:** P17, V19, UV31.
+Acceptance: External build output contains only intended artifacts; production source bin untouched by test build.; DLL/assets/defaults are attributable to source build; DCS module-path/build identity captured after current DLL timestamp.; Bindings/HUD/audio retained and imported actions verified.; .
 
-**References:**
+Contracts provided: . Consumed: . Current versus planned status is explicit in INTERFACES.json.
 
-- [Eaton F/A-22 capabilities brochure, April 2014](https://www.eaton.com/content/dam/eaton/markets/aerospace/Lockheed-Martin-Boeing-FA22-Raptor-capabilities-brochure.pdf)
-- [Rainey and Kohn, F-22 flight-test program update, 1998](https://man.fas.org/dod-101/sys/ac/docs/f-22-emd-paper.htm)
-- [USAF Scientific Advisory Board, Aircraft Oxygen Generation, SAB-TR-11-04, 1 February 2012](https://www.airandspaceforces.com/PDF/DocumentFile/Documents/2012/AFSAB_Oxygen_020112.pdf)
-- [Chuck’s DCS F-16CM guide, 17 April 2025](https://chucksguides.com/aircraft/dcs/f-16cm/)
-- [Chuck’s DCS F/A-18C guide, 25 April 2025](https://chucksguides.com/aircraft/dcs/fa-18c/)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide, internally 24 March 2024](https://www.digitalcombatsimulator.com/en/downloads/documentation/)
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: 2-4 focused sessions; host qualification uncertain. Completion: focused commits integrated on main; new requirement-test results and untested limits; source/build/package manifest; updated package status. Verification cases: VS-004, VS-REQ-HOOK-001, VS-REQ-INT-003.
 
-</details>
+### P-INT-004 â€” Adopt new audit and retire obsolete handoff authority
 
-<details>
-<summary>Completion checks</summary>
+Accountable **chat2**; status **planned**; prerequisites: P-INT-001.
 
-| Condition | Required result |
-| --- | --- |
-| Normal | Ground APU and engine bleed can support declared cabin/cooling functions; cabin indication agrees with ambient plus the exported increment. |
-| Limit | High load, low airflow, hot/cold atmosphere and low fuel change heat-rejection margin without instantly failing unrelated devices. |
-| Failure | Bleed shutoff/leak, cooling loss and canopy leak yield different cabin/thermal/visibility consequences; faults do not create historical workaround requirements. |
-| Recovery | Restored source or ram airflow improves the corresponding state over labelled estimated time; warm equipment and fog do not reset merely by clearing a caution. |
+Scope: canonical documentation adoption only. Exclusions: No aircraft edits during this audit.; No optional capability activation without separate applicable profile/host decision..
 
-</details>
+Requirements: R-INT-007. Findings: retention/qualification. Cleanup: C-INT-001.
 
-<a id="pkg-veh-12"></a>
-<a id="case-av10"></a>
-<a id="case-av11"></a>
-<a id="record-v18"></a>
-<a id="record-uv32"></a>
-<a id="record-uv33"></a>
+1. Update docs/audit entry/companions from new audit with old claim dispositions retained.
+2. Update docs/overhaul entry/BACKLOG from new DAG and accurately distinguish planned vs existing implemented behavior.
+3. Replace docs/handoffs README/shared/fourprompts from this new run, resolving absolute paths and IDs; remove obsolete worktree/tag instructions.
+4. Do not duplicate old full research/source catalogue; retain original lineage and access scopes.
 
-### VEH-12 — Implement source-dependent oxygen and era-aware automatic backup
+Acceptance: Canonical links resolve new baseline and actual assigned packages.; All 566historical records retain fresh disposition and old reference; no historical finding silently dropped.; Four handoffs each standalone and every package has exactly one accountable chat.; .
 
-Primary oxygen availability depends on conditioned supply and cabin environment; modern automatic backup is a separate finite source. Export unit semantics and host effects remain explicitly qualified.
+Contracts provided: . Consumed: . Current versus planned status is explicit in INTERFACES.json.
 
-- Represent conditioned-air input health, OBOGS production availability, selected backup source, reserve quantity and delivery pressure separately from concentration. Avoid an arbitrary fraction in the pressure API.
-- Implement automatic backup transfer for the modern public-source simulation profile; keep the pre-ABOS 2012 report as architecture context, not the default failure procedure.
-- Expose reserve servicing/depletion and restoration as separate states. Select any unsourced capacity only in the explicit simulation calibration register; do not reuse the old EOS duration as ABOS capacity.
-- Perform a controlled host export test to determine accepted pressure-reference/response behavior before changing the 101,000 Pa healthy baseline. SDK alone does not identify mask partial pressure or the clinical effect.
-- Default to source/reserve indications and aircraft-system consequences; no claimed human incapacitation timing is required for fidelity completion.
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: 2-4 focused sessions; host qualification uncertain. Completion: focused commits integrated on main; new requirement-test results and untested limits; source/build/package manifest; updated package status. Verification cases: VS-REQ-INT-007.
 
-**Keep:** SDK establishes oxygen pressure in Pa; Separate cabin pressure convention is already explicit; 2013 ABOS behavior supersedes the old absence-of-backup premise.
+### P-INT-002 â€” Delete and rebuild common test harness; allocate domain remakes
 
-<details>
-<summary>Files, dependencies and references</summary>
+Accountable **chat2**; status **planned**; prerequisites: P-INT-001, P-INT-003.
 
-- `EFM/source/RAPTOR.cpp` — replace constant oxygen export after convention qualification
-- `EFM/include/FM/wHumanCustomPhysicsAPI.h` — read-only API contract
-- `EFM/source/LifeSupport.h` — proposed source/reserve/controller model
-- `Cockpit/Scripts/Systems/Pilot_Warning_System.lua` — handoff source/fault status; coordinate warning owner
+Scope: Execution-time common runner/fixture/host-contract remake and exact domain test replacement allocation. Domain replacements and actual hook/aircraft qualifications close in their own packages and P-INT-006.. Exclusions: No aircraft edits during this audit.; No optional capability activation without separate applicable profile/host decision..
 
-**Depends on:** [VEH-01](#pkg-veh-01), [VEH-04](#pkg-veh-04), [VEH-11](#pkg-veh-11).
+Requirements: R-HOOK-003, R-HOOK-004, R-INT-002. Findings: F-HOOK-002. Cleanup: C-HOOK-001, C-HOOK-002.
 
-**Audit findings:** [AV10](../audit/F22-Fidelity-Audit.html#auth-av10), [AV11](../audit/F22-Fidelity-Audit.html#auth-av11).
+1. Re-inventory the 243 captured test-directory artifacts plus later additions by hash; assign every old test/fixture/runner to one replacement owner; distinguish preserved original research evidence.
+2. Derive independent common numerical/state expectations and actual host return/type/clock/lifecycle contracts before using any old assertion.
+3. During execution delete/remake the common fixture/runner layer; serialize old namespace consumers while each domain deletes/remakes its own assigned tests. No parallel legacy acceptance authority.
+4. Self-test the new harness with independent finite/type/time/generation/capacity/native-status fixtures and representative actual-owner audit reproductions. Record known pre-fix failures explicitly; domain remedies need not pass for harness readiness.
+5. Publish per-domain replacement ports, ownership and remaining old-test inventory to P-INT-006. Final reconciliation of all old tests is P-INT-006, not an initial prerequisite to domain implementation.
+6. Remake source-controlled bounded diagnostic driver protocols and dry-run host fixtures; prepare exact installed hook retirement manifest. Actual installed hook replacement and callback/DCS qualification belong to P-INT-005/007 and final P-INT-006 under execution authorization.
+7. Retain user CSV/log/image/mission recordings and original source measurements as evidence; do not preserve old test assertions as acceptance.
 
-**Supporting records:** V18, UV32, UV33.
+Acceptance: The new common runner/fixtures execute harmlessly from explicit external build output; missing exports, failed reads, nil/wrong types, stale/generation and bounded capacity are represented from real host contracts.; Every captured old test artifact has one replacement owner and an execution disposition; domain remakes may be pending. Common legacy infrastructure is deleted/remade during execution.; Independent harness self-checks pass; representative known aircraft failures are reproducible and recorded as expected pre-fix failures, not silently passed or prerequisites requiring completed remedies.; Domain ports and hook dry-run protocols are ready. A package status of harness_ready grants no aircraft, actual hook, DCS, or final test-retirement qualification.; .
 
-**References:**
+Contracts provided: . Consumed: . Current versus planned status is explicit in INTERFACES.json.
 
-- [USAF Scientific Advisory Board, Aircraft Oxygen Generation, SAB-TR-11-04, 1 February 2012](https://www.airandspaceforces.com/PDF/DocumentFile/Documents/2012/AFSAB_Oxygen_020112.pdf)
-- [Edwards Airmen vital to Raptor’s return, 17 April 2013](https://www.edwards.af.mil/News/Article/394043/edwards-airmen-vital-to-raptors-return/)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide, internally 24 March 2024](https://www.digitalcombatsimulator.com/en/downloads/documentation/)
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: 2-4 focused sessions; host qualification uncertain. Completion: focused common-harness commit on main; new actual-host fixture contract and self-check results; explicit expected pre-fix failure log; exact old-test/research classification and replacement owner map; domain port/hook dry-run specification and P-INT-006 handoff. Verification cases: VS-REQ-HOOK-003, VS-REQ-HOOK-004, VS-REQ-INT-002.
 
-</details>
+### P-INT-007 â€” Migrate shared loader/control cleanup without breaking saved use
 
-<details>
-<summary>Completion checks</summary>
+Accountable **chat2**; status **planned**; prerequisites: P-INT-001, P-INT-002.
 
-| Condition | Required result |
-| --- | --- |
-| Normal | Healthy primary supply and declared backup transitions publish coherent source state and valid pressure-unit data. |
-| Limit | Low reserve and marginal/invalid conditioned supply use bounded estimates and do not become pressure/fraction unit confusion. |
-| Failure | Primary interruption transfers automatically in the selected modern profile; independent backup failure remains visible. |
-| Recovery | Primary recovery, reserve exhaustion and ground servicing follow the declared source-priority and inventory policy without magic refill. |
+Scope: shared load paths/default controls and residual duplicate publications; domain algorithms remain with their owners. Exclusions: No aircraft edits during this audit.; No optional capability activation without separate applicable profile/host decision..
 
-</details>
+Requirements: R-HOOK-002, R-HOOK-004, R-INT-005, R-INT-006. Findings: F-HOOK-001. Cleanup: C-INT-002, C-HOOK-001, C-HOOK-002.
 
-<a id="pkg-veh-13"></a>
-<a id="case-vt03"></a>
-<a id="record-p31"></a>
-<a id="record-p32"></a>
+1. Resolve each CLEANUP record through registrations, dynamic loaders, host callbacks, exports, profiles and actual consumers.
+2. Migrate obsolete owners/callers then delete obsolete production paths; preserve healthy degraded modes and selected-off supported data.
+3. Review current control_cleanup aliases as retained saved-control boundaries; no removal from no-simple-caller evidence alone.
+4. Remove stale canonical guidance only after adoption map and new paths are installed; no production or test deletion during this audit.
+5. Migrate exact managed diagnostic loader/control path after replacement; classify passive recorder separately; preserve all user recordings and requiredmission callbacks
 
-### VEH-13 — Qualify canopy motion, locking and native escape integration
+Acceptance: Exactly one active owner per migrated field; no new default compatibility wrapper.; Saved controls and held/release cancellation pass rebuilt host-contract and DCS import cases.; Retained host-invoked/diagnostic/evidence materials have explicit reason and retirement gate.; .
 
-Canopy command, position, hold, secondary lock, power availability and warning/seal status form an intentional chain.
+Contracts provided: . Consumed: . Current versus planned status is explicit in INTERFACES.json.
 
-- Observe inherited keyboard/click canopy motion, intermediate hold, power-off behavior, warning/lock and host damage effects before declaring functionality missing.
-- Choose a native adapter if required position/hold/lock states are available; otherwise implement one owned state model and disable the competing native writer.
-- Connect up/hold/down and secondary lock to physical permission, and publish position/seal/lock separately to ECS and warning owners.
-- Provide a bounded ground no-power/manual servicing abstraction if native support permits. Do not add rescue tooling or canopy-jettison engineering detail to normal pilot flows.
-- Trace ejection-handle click/bind/press/release/repeat through the existing native action 83 and the actual host result/event into seat/canopy presentation, aircraft control ownership and teardown. Verify asset references before claiming they work. Add an edge/sequence adapter only if measured callback semantics require it; no unsupported real F-22 envelope, interlock or seat engineering is specified.
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: 2-4 focused sessions; host qualification uncertain. Completion: focused commits integrated on main; new requirement-test results and untested limits; source/build/package manifest; updated package status. Verification cases: VS-004, VS-REQ-HOOK-002, VS-REQ-HOOK-004, VS-REQ-INT-006.
 
-**Keep:** Inherited host canopy controls may already work; Existing external canopy animation and warning argument can be adapted.
+### P-INT-008 â€” Qualify and migrate shared native parameter read/readiness contract
 
-<details>
-<summary>Files, dependencies and references</summary>
+Accountable **chat2**; status **planned**; prerequisites: P-INT-001, P-INT-002.
 
-- `Input/F-22A/keyboard/default.lua` — retain native control until measured
-- `Cockpit/Scripts/clickabledata.lua` — add/verify actual canopy controls
-- `Cockpit/Scripts/mainpanel_init.lua` — preserve animation contract
-- `Cockpit/Scripts/Systems/Avionics.lua` — replace inferred warning with achieved/lock state if needed
-- `EFM/source/CanopySystem.h` — proposed only if native model cannot expose required states
+Scope: Two shared runtime parameter wrapper headers and affected actual caller regions; no SDK ABI change. Exclusions: No mass rewrite of externally supplied SDK declarations; No blanket zero-value rejection.
 
-**Depends on:** [VEH-01](#pkg-veh-01), [VEH-04](#pkg-veh-04).
+Requirements: R-INT-008. Findings: F-INT-003. Cleanup: caller migration assessed within tasks.
 
-**Audit findings:** [VT03](../audit/F22-Fidelity-Audit.html#auth-vt03).
+1. Agree checked resolve/read return domains with all four owners before caller changes.
+2. During execution delete/remake old native host mocks/tests independently; inject missingexports, conversionfalse, validzero and lifecycle epoch changes through actual wrapper.
+3. Migrate producers/consumers to retain per-read validity; remove unchecked obsolete contract once callers moved.
+4. Prove readiness/handle invalidation on restart/teardown and no exceptions escape host callbacks under tested guards.
 
-**Supporting records:** P31, P32.
+Acceptance: normal: Typed success/validzero preserved; limit: No unsupported/nonfinite value admitted to affected fields; failure: Absent module/export/failedread yields unavailable without unchecked call; recovery: Only current qualified context/epoch restores authority; .
 
-**References:**
+Contracts provided: I-INT-003. Consumed: native DCS parameter API. Current versus planned status is explicit in INTERFACES.json.
 
-- [USAF T.O. 00-105E-9, F-22 section, 1 February 2006](https://www.0x4d.net/files/AF1/R11%20Segment%2012.pdf)
-- [Chuck’s DCS F/A-18C guide, 25 April 2025](https://chucksguides.com/aircraft/dcs/fa-18c/)
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: 2-4focused sessions plus unmeasured host lifetime; caller breadth uncertain. Completion: all caller references migrated; new tests detect pre-fix failure; matched source/build results; focused main commits and open host limits. Verification cases: VS-001.
 
-</details>
+### P-RAD-001 â€” Remove obsolete enclosing scan and retired measurement paths
 
-<details>
-<summary>Completion checks</summary>
+Accountable **chat3**; status **planned**; prerequisites: P-INT-001, P-INT-002.
 
-| Condition | Required result |
-| --- | --- |
-| Normal | Open, hold, close and lock produce consistent physical motion/indication; hold retains intermediate position. |
-| Limit | Command reversals, partial travel and missing electrical supply are bounded and have clear state. |
-| Failure | Secondary lock inhibits the documented normal actuation paths; canopy/lock sensor failures are not confused with actual position.; Native escape integration deliberately handles the measured host action sequence; release/repeated callback delivery cannot create an unintended local activation. |
-| Recovery | Unlock or restored power permits appropriate motion; cabin seal status changes from achieved closure, not solely the switch request.; After a host escape/aircraft lifecycle transition, subsequent mission initialization clears the appropriate control/native references without inventing an airborne recovery path. |
+Scope: Radar_Computer scan_plan/inside/update; Radar_System scan/support fields; AESA_Control publish; PMFD radar_format scan status via chat2; Engagement uncovered consumer via chat4. Exclusions: No audit implementation/install; No invented F22 parameters; No duplicate simulation owner.
 
-</details>
+Requirements: R-RAD-001, R-RAD-011, R-RAD-020. Findings: F-RAD-001, F-RAD-007. Cleanup: C-RAD-001, C-RAD-002.
 
-<a id="pkg-veh-14"></a>
-<a id="case-av29"></a>
-<a id="case-vg06"></a>
-<a id="record-p16"></a>
-<a id="record-uv07"></a>
-<a id="record-uv34"></a>
-<a id="record-uv35"></a>
+1. Before edits recheck main HEAD/status/hashes; serialize contended edits/tests/commits via chat2.
+2. Delete and remake assigned existing tests from independent requirements/host contracts, not old answers.
+3. Agree actual task/report interface before edits.
+4. Make C++ sensed source 2 reports authoritative; retain finite/age/generation and cue provenance.
+5. Migrate scan/support warnings to completed task/deadline/age, retire second enclosure.
+6. Prove then remove F22G/noise decoder/overlay and obsolete fixtures.
 
-### VEH-14 — Connect damage, equipment faults, reset and repair
+Acceptance: Current source 2 hits at 0deg and50deg both admitted when actual search half60deg.; Stale/torn/out-of-physical-FOV/ambiguous sources remain invalid.; No support degradation solely from an enclosure C++ never used.; No old production noise caller after migration; saved IDs unchanged.; .
 
-Registered structural/equipment failures affect the corresponding owned capability; reset, servicing and repair restore only the appropriate states.
+Contracts provided: . Consumed: . Current versus planned status is explicit in INTERFACES.json.
 
-- Create a cell-to-capability and mission-failure table with one explicit fault producer per supported battery/generator/APU/hydraulic/engine/air-data/cooling input.
-- Wire registered aileron/elevator damage to the matching owned force/effectiveness and achieved state. Keep aerodynamic, actuator jam and electrical failure as distinguishable abstractions. Trace command -> achieved angle -> external argument -> FCS page -> force under saturation, pressure loss and damage; the cockpit page does not authenticate the surface schedule by itself.
-- Replace precedence-dependent left/right destruction logic with an explicit symmetric or deliberately documented rule. Do not infer that every destroyed visual part means total-aircraft force zero.
-- Implement separate resettable FCS faults, repairable equipment faults, persistent resource depletion and structural damage; a caution acknowledgment never repairs any of them.
-- Extend repair/rearm/respawn coverage to new model states and exported validity; preserve fuel, brake heat or reserve according to the documented servicing action, not a generic reset-all call.
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: medium / moderate uncertainty. Completion: Requirement links/new test results/uncovered decisions; Focused main commit plus source/build/package hashes; Actual runtime qualification or precise remaining limits. Verification cases: VS-005, VS-REQ-RAD-011, VS-REQ-RAD-020.
 
-**Keep:** Derived integrities, destruction flags and queued damage are already repaired; Native damage cells and engine integrity paths exist.
+### P-WPN-001 â€” Close release/station failure transactions
 
-<details>
-<summary>Files, dependencies and references</summary>
+Accountable **chat4**; status **planned**; prerequisites: P-INT-001, P-INT-002.
 
-- `EFM/source/RAPTOR.cpp` — map registered effector damage to achieved force/authority
-- `F-22A.lua` — review cell/function map and mission failures
-- `Cockpit/Scripts/Systems/MFD_System.lua` — keep FCS reset separate from mechanical repair
-- `EFM/source/VehicleFaults.h` — proposed health/failure mapping
-- `tests/test_vehicle_damage.cpp` — proposed asymmetric and repair scenarios
+Scope: Weapon_System/AG_Stores/capability ingress/native launch record. Exclusions: No production implementation/deletion/install in this audit.; No undocumented aircraft performance, RF/guidance recipes or optional activation by flag alone..
 
-**Depends on:** [VEH-01](#pkg-veh-01), [VEH-03](#pkg-veh-03), [VEH-04](#pkg-veh-04), [VEH-05](#pkg-veh-05), [VEH-06](#pkg-veh-06), [VEH-07](#pkg-veh-07), [VEH-09](#pkg-veh-09), [VEH-10](#pkg-veh-10), [VEH-11](#pkg-veh-11), [VEH-12](#pkg-veh-12), [VEH-13](#pkg-veh-13).
+Requirements: R-WPN-001. Findings: F-WPN-001, F-WPN-005. Cleanup: caller migration assessed within tasks.
 
-**Audit findings:** [AV29](../audit/F22-Fidelity-Audit.html#auth-av29), [VG06](../audit/F22-Fidelity-Audit.html#auth-vg06).
+1. Reproduce F001 independently in remade harness, define absent/throwing backend transition before selection/ACK.
+2. Withdraw authority, retain unresolved effect, normalize all station payload shapes once and keep remaining stations alive.
+3. Prove rearm/jettison/cancel/count/native launch causality through real owner/publication.
 
-**Supporting records:** P16, UV07, UV34, UV35.
+Acceptance: No Lua exception on device loss pending; no launch replay after recovery.; Wrong-type station is unavailable, not fatal; real valid host shapes unchanged.; Only matching armed native launch completes, delayed count cannot ACK next request.; .
 
-**References:**
+Contracts provided: . Consumed: qualified physical snapshot; radar qualified association/support and source 2 gun motion; shared input/entry/audio leases. Current versus planned status is explicit in INTERFACES.json.
 
-- [Pratt & Whitney F119](https://www.rtx.com/prattwhitney/products/military-engines/f119)
-- [USAF T.O. 00-105E-9, F-22 section, 1 February 2006](https://www.0x4d.net/files/AF1/R11%20Segment%2012.pdf)
-- [Chuck’s DCS F/A-18C guide, 25 April 2025](https://chucksguides.com/aircraft/dcs/fa-18c/)
+Edit boundary: Weapons/EW Lua and named native closure; native radar provider chat3, bay/utility physical authority chat1, shared MFD/UFC/audio dispatch integrator chat2. Serialize shared NativeSidewinder/RAPTOR regions.. Effort/uncertainty: 1-3 focused implementation sessions each; native/runtime and optional-host feasibility uncertain. Completion: focused main commits and drift manifest; independently remade tests/fixtures result ledger; actual native/DCS effect qualification where required; retained behavior and unresolved limits. Verification cases: VS-007.
 
-</details>
+### P-WPN-003 â€” Finish CM event-to-effect and clock readiness
 
-<details>
-<summary>Completion checks</summary>
+Accountable **chat4**; status **planned**; prerequisites: P-INT-001, P-INT-002.
 
-| Condition | Required result |
-| --- | --- |
-| Normal | Healthy start and no-damage behavior are unchanged by the mapping; each supported declared failure has a producing event and visible consequence. |
-| Limit | Left/right mirrored damage and combined partial failures give explainable symmetric outcomes or explicit documented asymmetry. |
-| Failure | Destroyed effector cannot keep full owned aerodynamic authority; loss of a producer cannot masquerade as a healthy zero or resettable transient. |
-| Recovery | Repair restores the supported damaged functions without automatic engine start; FCS reset cannot heal structure; rearm/refuel preserve unrelated failures. |
+Scope: EW source event interface, consent engine and DEF status. Exclusions: No production implementation/deletion/install in this audit.; No undocumented aircraft performance, RF/guidance recipes or optional activation by flag alone..
 
-</details>
+Requirements: R-WPN-003. Findings: F-WPN-003, F-WPN-006. Cleanup: caller migration assessed within tasks.
 
-## Navigation, landing and flight guidance
+1. Resolve declared abstract game warning event/selection policy without real response recipes.
+2. Connect qualified event IDs/time/generation to SEMI/AUTO, or show unavailable until source present.
+3. Remove false missing-clock readiness and qualify MAN/direct timing/cancellation/depletion/readback.
 
-<a id="pkg-nav-wp02"></a>
-<a id="case-an01"></a>
-<a id="case-an02"></a>
-<a id="case-an12"></a>
-<a id="case-an13"></a>
-<a id="case-ng03"></a>
-<a id="case-ng04"></a>
-<a id="record-n01"></a>
-<a id="record-n02"></a>
-<a id="record-n03"></a>
-<a id="record-n04"></a>
-<a id="record-n05"></a>
-<a id="record-n06"></a>
-<a id="record-n07"></a>
-<a id="record-n08"></a>
-<a id="record-h10"></a>
-<a id="record-nav-24"></a>
-<a id="record-nav-25"></a>
-<a id="record-nav-26"></a>
-<a id="record-nav-27"></a>
+Acceptance: Normal warning/event chain demonstrably reaches observed native cartridge count effect.; One-event SEMI and explicit AUTO authorization cannot replay stale/duplicate events.; No AUTO_AVAILABLE without event source/qualified clock; draft/direct behavior retained.; .
 
-### NAV-WP02 — Build independent GINS references, alignment and degraded navigation
+Contracts provided: . Consumed: qualified physical snapshot; radar qualified association/support and source 2 gun motion; shared input/entry/audio leases. Current versus planned status is explicit in INTERFACES.json.
 
-The pilot can select and identify two independent references, observe alignment/aiding quality, retain valid manual radio navigation through position loss and recover a declared source without truth impersonating a failed sensor.
+Edit boundary: Weapons/EW Lua and named native closure; native radar provider chat3, bay/utility physical authority chat1, shared MFD/UFC/audio dispatch integrator chat2. Serialize shared NativeSidewinder/RAPTOR regions.. Effort/uncertainty: 1-3 focused implementation sessions each; native/runtime and optional-host feasibility uncertain. Completion: focused main commits and drift manifest; independently remade tests/fixtures result ledger; actual native/DCS effect qualification where required; retained behavior and unresolved limits. Verification cases: VS-008.
 
-- Replace the single readiness flag with per-channel power, alignment, attitude, heading and position health. Share healthy simulator inputs while allowing independent declared failures; provide independent HUD/SFG source selection.
-- Implement normal and retained-heading alignment, movement rejection, progress/quality and a separate accelerated profile. Name provisional 8-minute/90-second timings as Hornet-derived estimates.
-- Separate aiding availability and valid observations from the pilot enable setting. Define loss, coast, unavailable velocity, reacquisition, correction and long-outage states.
-- Keep estimated solution error separate from uncertainty. Use declared deterministic simulation bias/fault fixtures, preserve bounded correction and make no production drift-rate claim.
-- Show navigation quality and age of the last positive-position check. Crosschecks can establish position without editing an INS filter; the dated 90-minute operating rule must not become an automatic navigation disconnect.
-- Preserve independent manual ILS/TACAN where their own heading, receiver and power inputs remain valid. Position-dependent consumers use the selected valid estimate rather than hidden truth.
-- Optional: add one chosen alternate POS or FIX/ACAL workflow after independent observations exist. Freeze, inspect, accept and reject affect the intended estimate, never QNH or stored waypoint elevation.
+### P-WPN-006 â€” Retain and qualify highrate source 2 gun/native lifetime
 
-**Keep:** Retain bounded aiding correction and rejection of simulator truth-position jumps while coasting.; Preserve manual received radio guidance through IRS readiness loss..
+Accountable **chat4**; status **planned**; prerequisites: P-INT-001, P-INT-002.
 
-<details>
-<summary>Files, dependencies and references</summary>
+Scope: Gun director/trajectory solver; full native payload/passive lifecycle closure. Exclusions: No production implementation/deletion/install in this audit.; No undocumented aircraft performance, RF/guidance recipes or optional activation by flag alone..
 
-- `Cockpit/Scripts/Systems/INS_Model.lua`
-- `Cockpit/Scripts/Systems/Navigation_System.lua`
-- `Cockpit/Scripts/Systems/Flight_Guidance.lua`
-- `Cockpit/Scripts/Systems/Nav_Guidance.lua`
-- `Cockpit/Scripts/Systems/UFC_Controller.lua`
-- `Proposed: independent navigation/reference state owner`
-- `Root-owned UFD/SFG/attitude displays`
+Requirements: R-WPN-006, R-WPN-008, D-R-WPN-002. Findings: F-WPN-007, D-WPN-002. Cleanup: caller migration assessed within tasks.
 
-**Depends on:** [NAV-WP01](#pkg-nav-wp01), [VEH-02](#pkg-veh-02), [VEH-04](#pkg-veh-04).
+1. Freeze intentional source 2 analogue separate from measured radar and diagnostic missile truth.
+2. Remake independent packet/kinematic/forward-projectile oracles preserving120Hz current attitude and same-epoch directions.
+3. Establish payload/native callback thread/retirement contracts and prove blocked/late callback reset paths; add coherent snapshot generation where necessary.
+4. Qualify actual native gun pose/shell/host burst behavior without claiming production accuracy.
+5. Apply D-R-WPN-002 finite clock/age admission to actual native ground solver and preserve existing Lua rejection; broaden relevant native clock/result publication review without duplicating F-INT-003.
 
-**Audit findings:** [AN01](../audit/F22-Fidelity-Audit.html#auth-an01), [AN02](../audit/F22-Fidelity-Audit.html#auth-an02), [AN12](../audit/F22-Fidelity-Audit.html#auth-an12), [AN13](../audit/F22-Fidelity-Audit.html#auth-an13), [NG03](../audit/F22-Fidelity-Audit.html#auth-ng03), [NG04](../audit/F22-Fidelity-Audit.html#auth-ng04).
+Acceptance: No blind removal/damping of requested highrate primary aim.; Fresh qualified association/generation/resource gates source 2; same-epoch packet correction and current frame maintained.; No escaped native callback exception, stale lifetime use or late callback authority under declared tested host contract.; NaN clock cannot yield native VALID1 or nonfinite valid timestamp; finite restoration passes independent shell-contract cases.
 
-**Supporting records:** N01, N02, N03, N04, N05, N06, N07, N08, H10, NAV-24, NAV-25, NAV-26, NAV-27.
+Contracts provided: . Consumed: qualified physical snapshot; radar qualified association/support and source 2 gun motion; shared input/entry/audio leases. Current versus planned status is explicit in INTERFACES.json.
 
-**References:**
+Edit boundary: Weapons/EW Lua and named native closure; native radar provider chat3, bay/utility physical authority chat1, shared MFD/UFC/audio dispatch integrator chat2. Serialize shared NativeSidewinder/RAPTOR regions.. Effort/uncertainty: 1-3 focused implementation sessions each; native/runtime and optional-host feasibility uncertain. Completion: focused main commits and drift manifest; independently remade tests/fixtures result ledger; actual native/DCS effect qualification where required; retained behavior and unresolved limits. Verification cases: VS-REQ-WPN-006, VS-REQ-WPN-008, DVS-WPN-002.
 
-- [AFMAN 11-2F-22A Volume 3, Operations Procedures](https://static.e-publishing.af.mil/production/1/af_a3/publication/afman11-2f-22av3/afman11-2f-22av3.pdf) — p26 §4.1.3; p36 §7.9.1.1–.2
-- [Brower, F-22 Avionics, The Avionics Handbook, chapter 32](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf) — p10 §32.3.6; p11 §32.4
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf) — pp116–118
-- [Chuck’s DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf) — p85
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — pp751–753, 760–761
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Normal alignment follows the selected timer. Retained heading is available only after a previous full alignment with no movement.; HUD and SFG can use opposite references; bias in one produces a detectable disagreement.; Removing aiding causes declared coasting; enabling a setting does not itself produce HIGH quality. |
-| Limit | Movement rejects the stored-heading shortcut. Short and long outages follow the retention policy.; Airborne recovery follows declared aiding/health conditions; the existing 30-second convenience is confined to the assisted profile.; Large aiding corrections have an explicit correction/coupling state and do not silently jump a coupled route. |
-| Failure | Fail one GINS, then GNSS, then both position channels. Independent attitude/radio functions remain only where their own health permits.; Loss of coasting velocity invalidates position. A growing uncertainty budget alone does not count as demonstrated position drift. |
-| Recovery | Select the healthy reference and restore the failed one through the declared alignment policy.; Reacquire aiding with visible correction/quality progress; AP requires pilot reselection after loss.; Optional FIX/ACAL rejection preserves state; acceptance updates only the selected datum. |
-
-</details>
+### P-WPN-007 â€” Resolve equipment/legacy store and AI registration applicability
 
-<a id="pkg-nav-wp03"></a>
-<a id="case-an08"></a>
-<a id="case-an09"></a>
-<a id="case-ng07"></a>
-<a id="case-ng08"></a>
-<a id="case-nt01"></a>
-<a id="case-nt02"></a>
-<a id="record-l31"></a>
-<a id="record-nav-03"></a>
-<a id="record-nav-04"></a>
-
-### NAV-WP03 — Unify pressure/radar/standby altitude and preserve independent validity
+Accountable **chat4**; status **planned**; prerequisites: P-INT-001, P-INT-002.
 
-Pressure altitude, QNH/STD, radar height, selected HUD altitude and standby reversion remain consistent under weather and component failures. Healthy barometric altitude can remain visible after CAS calculation fails.
-
-- Preserve pressure-height calculation and saved QNH/STD behavior. Move healthy HUD barometric publication outside the CAS-success branch under the selected component-validity policy; shared ADC/static faults still invalidate their explicitly affected outputs.
-- Give primary pressure, standby pressure and radar measurement separate health, time and reason fields. Add a generic independent standby recovery path without inventing a F-22 pneumatic lever.
-- Declare measurement/sanity, display, warning-entry and AFCS envelopes separately. Keep the current 20 km check only as an explicit numerical policy, not a verified 65,000 ft equipment capability. Do not impose a generic 5,000 ft display cutoff.
-- Default to BARO and provide explicit RDR selection with labelled barometric fallback. Any flashing fallback symbol is a chosen Hornet-derived convention.
-- Supply fresh radar measurement and validity to NAV-WP07. Geometric AGL remains a separate physics/terrain quantity and cannot impersonate a healthy receiver.
-- Add active HUD pressure confirmation. If adopting the Hornet interaction, use its 5-second confirmation and stated approach redisplay conditions while retaining existing UFD visibility.
-- Preserve normal weather-related pressure/geometric disagreement. Do not adjust QNH to force truth agreement or infer automatic cold compensation. Decide signed minima separately from signed waypoint elevation.
-
-**Keep:** Retain pressure physics, the second atmospheric layer, freshness checks, saved QNH/STD and unit conversion.; Retain NT01’s pressure/geometric distinction and separate warning settings..
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `EFM/source/NativeAltimetry.cpp`
-- `EFM/source/NativeAltimetry.h`
-- `Cockpit/Scripts/Systems/Altitude_Settings.lua`
-- `Cockpit/Scripts/Systems/Altitude_System.lua`
-- `Cockpit/Scripts/Systems/HUD_Flight_Data.lua`
-- `Cockpit/Scripts/HUD/page.lua`
-- `Cockpit/Scripts/Systems/UFC_Controller.lua`
-- `EFM/source/RAPTOR.cpp`
-- `Proposed: standby air-data state adapter`
-
-**Depends on:** [NAV-WP01](#pkg-nav-wp01), [VEH-02](#pkg-veh-02), [VEH-04](#pkg-veh-04).
+Scope: Equipment capability table, legacy bomb alias, optional registration/preset/host scope. Exclusions: No production implementation/deletion/install in this audit.; No undocumented aircraft performance, RF/guidance recipes or optional activation by flag alone..
 
-**Audit findings:** [AN08](../audit/F22-Fidelity-Audit.html#auth-an08), [AN09](../audit/F22-Fidelity-Audit.html#auth-an09), [NG07](../audit/F22-Fidelity-Audit.html#auth-ng07), [NG08](../audit/F22-Fidelity-Audit.html#auth-ng08), [NT01](../audit/F22-Fidelity-Audit.html#auth-nt01), [NT02](../audit/F22-Fidelity-Audit.html#auth-nt02).
-
-**Supporting records:** L31, NAV-03, NAV-04.
+Requirements: R-REG-001, R-REG-002, R-WPN-007. Findings: F-WPN-004, F-REG-001. Cleanup: C-WPN-003, C-WPN-006.
 
-**References:**
-
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf) — pp48–49, 54, 64, 78
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — p54
-- [FAA Pilot’s Handbook of Aeronautical Knowledge, chapter 8, Flight Instruments](https://www.faa.gov/sites/faa.gov/files/regulations_policies/handbooks_manuals/aviation/phak/10_phak_ch8.pdf) — Chapter 8, pitot/static and pressure-altimeter paragraphs
-- [FAA AIP, Cold Temperature Barometric Altimeter Errors](https://www.faa.gov/air_traffic/publications/atpubs/aip_html/chap7_section_3.html) — Chapter 7 §3, temperature/error paragraphs
-- [AFTC, Combined Altitude Radar Altimeter Begins Testing](https://www.aftc.af.mil/News/On-This-Day-in-Test-History/Article-Display-Test-History/Article/2490213/march-2-1983-combined-altitude-radar-altimeter-begins-testing/) — Complete historical capability paragraphs
-- [Extant Aerospace AN/APN-232 Combined Altitude Radar Altimeter](https://extantaerospace.com/products/nav/alt_radar.html) — Complete product description and platform list
-- [AFMAN 11-2F-22A Volume 3, Operations Procedures](https://static.e-publishing.af.mil/production/1/af_a3/publication/afman11-2f-22av3/afman11-2f-22av3.pdf) — p36 §7.9.1.1
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Change QNH through inHg/hPa entry; HUD, UFD and BALT use the same pressure indication. STD returns to saved QNH.; Invalid CAS with healthy baro leaves altitude valid; invalid baro with healthy CAS blanks only the affected altitude path.; RDR failure produces the selected BARO fallback and label without changing pressure or silently engaging another AP mode. |
-| Limit | Check below-sea-level pressure altitude, pressure-entry limits, the second pressure layer and nonstandard temperature.; A healthy radar measurement above 5,000 ft does not become invalid solely because RALT targets stop there; an explicit Hornet instrument profile may use a different display limit.; Pressure confirmation uses model time and handles time reset. |
-| Failure | Age pressure/radar publications and fail pressure, standby and supply inputs independently.; A standby path sharing the same failed input cannot claim independent health.; Invalid radar input prevents or ends RALT through its own mode contract, with no geometric fallback. |
-| Recovery | Fresh source data restores indication without reengaging AP.; Power and STD/QNH round trips follow declared persistence rules. Preserve the last fresh healthy publication while solving the next sample. |
-
-</details>
-
-<a id="pkg-nav-wp04"></a>
-<a id="case-an04"></a>
-<a id="case-an05"></a>
-<a id="case-an06"></a>
-<a id="case-an07"></a>
-<a id="case-ng10"></a>
-<a id="record-l01"></a>
-<a id="record-l02"></a>
-<a id="record-l03"></a>
-<a id="record-l04"></a>
-<a id="record-l05"></a>
-<a id="record-l06"></a>
-<a id="record-l07"></a>
-<a id="record-l08"></a>
-<a id="record-l10"></a>
-<a id="record-l11"></a>
-<a id="record-l12"></a>
-<a id="record-l13"></a>
-<a id="record-h01"></a>
-<a id="record-h02"></a>
-<a id="record-h03"></a>
-<a id="record-h04"></a>
-<a id="record-h08"></a>
-<a id="record-h09"></a>
-
-### NAV-WP04 — Complete calibrated flight/landing HUD and contextual cage behavior
-
-FPM, AoA landing cues, reference labels and cage/off-glass behavior have explicit meanings. Qualify installed angular geometry while separating the historical F-22 reference center from estimated band widths.
-
-**Current issue ([AN04](../audit/F22-Fidelity-Audit.html#auth-an04)):** The fixed mod center agrees with that historical normal reference. It does not implement the source-described condition-dependent reference, and its optical geometry/band remain unverified.
-
-- Retain the ground-velocity FPM and separate attitude, nose and heading references. Separate computed validity from drawing visibility; publish a declared off-glass state rather than silently converting clipping into sensor failure.
-- Route NAV cage to FPM/ghost presentation and weapon cage to the seeker. A single press must not command both contexts.
-- Retain the 12-degree normal center. Label 11.5/12.5-degree flag edges as estimates. Keep reference selection, glyph geometry and indexer bands separate; an optional EMD alternate reference requires explicit profile/configuration selection.
-- Use actual down-and-locked, WOW, AoA health and power from the agreed configuration contract. Finite AoA alone is not proof of a healthy ADC.
-- Measure FPM, E-bracket, ladder and ILS cue angles against known rays in 2D and VR. Preserve the planar/polar projection distinction; project tolerances are QA criteria rather than F-22 optical specifications.
-- Declare landing declutter and master-mode retention. Hide drawings without stopping healthy sources. Label wind numbers TRUE and preserve wind-from numbers versus flow-arrow meaning.
-
-**Keep:** Preserve ground-flight-path projection, the independent producer and correct planar/polar conversion.; Retain the complete visible E-bracket and historical 12-degree reference anchor..
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/HUD_Flight_Data.lua`
-- `Cockpit/Scripts/Systems/HUD_FlightMath.lua`
-- `Cockpit/Scripts/Systems/HUD_Projection.lua`
-- `Cockpit/Scripts/HUD/landing.lua`
-- `Cockpit/Scripts/HUD/page.lua`
-- `Cockpit/Scripts/HUD/navigation.lua`
-- `Cockpit/Scripts/HUD/layout.lua`
-- `Cockpit/Scripts/HUD/optics.lua`
-- `Cockpit/Scripts/HUD/glass.lua`
-- `Cockpit/Scripts/Systems/Combat_Logic.lua`
-- `Cockpit/Scripts/Systems/Combat_System.lua`
-- `Cockpit/Scripts/device_init.lua`
-
-**Depends on:** [NAV-WP01](#pkg-nav-wp01), [NAV-WP02](#pkg-nav-wp02), [NAV-WP03](#pkg-nav-wp03), [NAV-WP05](#pkg-nav-wp05), [VEH-07](#pkg-veh-07).
-
-**Audit findings:** [AN04](../audit/F22-Fidelity-Audit.html#auth-an04), [AN05](../audit/F22-Fidelity-Audit.html#auth-an05), [AN06](../audit/F22-Fidelity-Audit.html#auth-an06), [AN07](../audit/F22-Fidelity-Audit.html#auth-an07), [NG10](../audit/F22-Fidelity-Audit.html#auth-ng10).
-
-**Supporting records:** L01, L02, L03, L04, L05, L06, L07, L08, L10, L11, L12, L13, H01, H02, H03, H04, H08, H09.
-
-**References:**
-
-- [Rainey and Kohn, F-22 Flight Test Program Update](https://man.fas.org/dod-101/sys/ac/docs/f-22-emd-paper.htm) — Full selected single-engine test paragraphs, lines27–29
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf) — pp44–45, 77–78
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — p41; pp770–773
-- [AFMAN 11-2F-22A Volume 3, Operations Procedures](https://static.e-publishing.af.mil/production/1/af_a3/publication/afman11-2f-22av3/afman11-2f-22av3.pdf) — p36 §7.9.1.1
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | At the chosen AoA center the bracket remains visible and aligned to FPM; equal positive/negative error gives the correct direction.; Crosswind separates flight path from nose. Cage shows a true ghost without changing the aircraft state.; Known wind direction produces consistent numbers and flow arrow. |
-| Limit | Cross angular/glass limits without false healthy centered cues or source-health flicker.; Exercise gear transit, WOW bounce, invalid AoA and retained A/G mode during landing.; Measure angular alignment across head translation, aspect ratios and both VR eyes against declared tolerances. |
-| Failure | Fail AoA only: landing AoA cues invalidate while healthy attitude and altitude remain.; Fail the HUD: remaining healthy SFG/reference presentation follows the root display plan. |
-| Recovery | Restored flight data brings cues back under their validity rules without changing the selected reference or automatically changing weapon mode.; Context changes do not replay a held cage command into a different system. |
-
-</details>
-
-<a id="pkg-nav-wp05"></a>
-<a id="case-an03"></a>
-<a id="case-an27"></a>
-<a id="case-ng01"></a>
-<a id="case-ng02"></a>
-<a id="record-l14"></a>
-<a id="record-l15"></a>
-<a id="record-l16"></a>
-<a id="record-l17"></a>
-<a id="record-l18"></a>
-<a id="record-l19"></a>
-<a id="record-l20"></a>
-<a id="record-n15"></a>
-<a id="record-n16"></a>
-<a id="record-n17"></a>
-<a id="record-nav-06"></a>
-<a id="record-nav-07"></a>
-<a id="record-nav-08"></a>
-<a id="record-nav-09"></a>
-<a id="record-nav-10"></a>
-
-### NAV-WP05 — Qualify manual ILS/TACAN and make component/datum behavior consistent
-
-Manual runway ILS and TACAN remain usable through unrelated position/display loss. Component validity, mode effects, datum, scale and identification agree across formats, with host signal behavior established before broader claims.
-
-- Retain independent LOC/GS flags and publication before the missing-ownship return. Preserve explicit native power/version failure invalidity; identify which heading functions actually require position/reference data.
-- Make REC, T/R and A/A bearing/range consequences consistent. Retain range-only DME without inventing bearing, and do not synthesize DME in REC. Verify host behavior before duplicating a receiver model.
-- Use a named Hornet-derived angular TACAN CDI with 4-degree inner and 8-degree outer references. Keep waypoint NM cross-track separate and labelled.
-- Add station course-reference metadata distinct from ownship magnetic variation. For the chosen Hornet convention, unknown station metadata produces labelled magnetic-course fallback. Display-reference changes preserve the physical course.
-- Trace host ILS/TACAN ident and marker audio. Expose supported monitor/volume/status or explicit unavailability; missing adapter fields alone do not prove there is no sound.
-- Qualify LOC/GS sign, sensitivity and independent validity using controlled offsets, LOC-only and station-loss cases. Publish a frontcourse/backcourse support policy. Raw deviations are not a command-steering law.
-- Use actual transmissions/component flags for signal health, rather than station geometry as proof of reception. Keep carrier ICLS/ACLS separate.
-
-**Keep:** Retain the narrow manual ILS match, independent receiver flags and explicit native availability.; Retain legal tuning, mode controls and landing cue acquisition independent from route steering..
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `EFM/source/NativeNavigation.cpp`
-- `EFM/source/NativeNavigation.h`
-- `Cockpit/Scripts/Systems/TACAN_Native.lua`
-- `Cockpit/Scripts/Systems/Navigation_Power.lua`
-- `Cockpit/Scripts/Systems/Flight_Guidance.lua`
-- `Cockpit/Scripts/Systems/Nav_Guidance.lua`
-- `Cockpit/Scripts/Systems/Navigation_System.lua`
-- `Cockpit/Scripts/Systems/Nav_Display_Controls.lua`
-- `Cockpit/Scripts/Systems/UFC_Controller.lua`
-- `Cockpit/Scripts/HUD/navigation.lua`
-- `Proposed: station metadata/ident monitor adapter`
-
-**Depends on:** [NAV-WP01](#pkg-nav-wp01), [NAV-WP02](#pkg-nav-wp02), [VEH-04](#pkg-veh-04).
-
-**Audit findings:** [AN03](../audit/F22-Fidelity-Audit.html#auth-an03), [AN27](../audit/F22-Fidelity-Audit.html#auth-an27), [NG01](../audit/F22-Fidelity-Audit.html#auth-ng01), [NG02](../audit/F22-Fidelity-Audit.html#auth-ng02).
-
-**Supporting records:** L14, L15, L16, L17, L18, L19, L20, N15, N16, N17, NAV-06, NAV-07, NAV-08, NAV-09, NAV-10.
-
-**References:**
-
-- [AFMAN 11-2F-22A Volume 3, Operations Procedures](https://static.e-publishing.af.mil/production/1/af_a3/publication/afman11-2f-22av3/afman11-2f-22av3.pdf) — p14 §3.8.4; p26 §4.1
-- [Brower, F-22 Avionics, The Avionics Handbook, chapter 32](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf) — p11 §32.4
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — pp770–772
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf) — pp48, 138, 140
-- [Chuck’s DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf) — p700
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Legal tuning updates the receiver owner and every readback once.; Healthy LOC/GS remains manually usable with IRS not ready or ownship position unavailable.; Range-only TACAN shows DME in main NAV and DATA, without invented bearing/AP track.; Known station course references agree at nonzero variation. |
-| Limit | Exercise LOC-only, GS-only, front/rear quadrants, zero DME and unknown station metadata.; Equal angular errors at different ranges produce the same TACAN CDI response; waypoint NM scaling remains separate.; Qualify all five exposed TACAN modes and paired air-to-air operation in the host; successful setMode calls alone do not prove behavior. |
-| Failure | Lose receiver power, adapter binding or one received component. Drawing, audio and coupling follow the affected component without hiding unrelated healthy data.; Lose magnetic conversion data; DME/ILS remain where independent while true-bearing conversion is unavailable. |
-| Recovery | Restore or retune the station: valid components reacquire without AP engagement or INS rewriting.; Restoring position during manual ILS does not trigger automatic coupling. |
-
-</details>
-
-<a id="pkg-nav-wp06"></a>
-<a id="case-an21"></a>
-<a id="case-an28"></a>
-<a id="case-an29"></a>
-<a id="record-n09"></a>
-<a id="record-n10"></a>
-<a id="record-n11"></a>
-<a id="record-n12"></a>
-<a id="record-n13"></a>
-<a id="record-n14"></a>
-<a id="record-n18"></a>
-<a id="record-n19"></a>
-<a id="record-n20"></a>
-<a id="record-nav-05"></a>
-<a id="record-nav-19"></a>
-<a id="record-nav-20"></a>
-<a id="record-nav-21"></a>
-<a id="record-nav-22"></a>
-<a id="record-nav-23"></a>
-
-### NAV-WP06 — Implement coherent route sequencing, mark storage and arrival timing
-
-Route, direct, course, overfly, mark, timing and weapon designation remain distinct pilot intents. Mark creation preserves the active leg, and destination events drive deliberate AFCS transitions.
-
-- Retain route capacity, import, undo and explicit MSL/AGL conversion. Qualify the first-point-origin assumption against mission routes, empty/single-point data and unresolved terrain elevation.
-- Add explicit route/direct/course/arrived/AUTO/OVERFLY state. Predict turns only in the chosen fly-by mode; preserve one-point-per-update protection.
-- Send explicit destination-passage events to AFCS: direct/final arrival holds current heading, selected course continues outbound, AUTO chooses the next leg and OVERFLY delays the outbound turn.
-- Add an independent cyclic mark bank, provisionally nine slots as a named Hornet analogue. Capture ownship or valid designation only after acceptance, without selecting the mark or creating direct-to as a side effect.
-- Keep mark storage, weapon designation and timing destination separate. Retain coordinate-snapshot acknowledgement for weapon designation; coordinate complete waypoint/heading accepted-value feedback with root.
-- Add desired Zulu arrival, timing destination and required ground speed using a declared remaining-route distance model. Keep direct TTG labelled separately; past/unachievable arrival requests show status.
-- Support signed waypoint elevation through the active transaction where needed. Publish units/datum and actual accepted values. Offset/VIP/VRP are separate optional choices.
-
-**Keep:** Retain route import, capacity, undo, sanitized names and AGL terrain conversion.; Preserve the designation request/acknowledgement chain and honestly labelled direct TTG..
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/Nav_Computer.lua`
-- `Cockpit/Scripts/Systems/Navigation_System.lua`
-- `Cockpit/Scripts/Systems/Nav_Entry.lua`
-- `Cockpit/Scripts/Systems/Nav_Guidance.lua`
-- `Cockpit/Scripts/Systems/Nav_Display.lua`
-- `Cockpit/Scripts/Systems/Nav_Display_Controls.lua`
-- `Cockpit/Scripts/Systems/UFC_Controller.lua`
-- `Cockpit/Scripts/Systems/ICP_System.lua`
-- `Cockpit/Scripts/Systems/AG_Mark_System.lua`
-
-**Depends on:** [NAV-WP01](#pkg-nav-wp01), [NAV-WP02](#pkg-nav-wp02).
-
-**Audit findings:** [AN21](../audit/F22-Fidelity-Audit.html#auth-an21), [AN28](../audit/F22-Fidelity-Audit.html#auth-an28), [AN29](../audit/F22-Fidelity-Audit.html#auth-an29).
-
-**Supporting records:** N09, N10, N11, N12, N13, N14, N18, N19, N20, NAV-05, NAV-19, NAV-20, NAV-21, NAV-22, NAV-23.
-
-**References:**
-
-- [AFMAN 11-2F-22A Volume 3, Operations Procedures](https://static.e-publishing.af.mil/production/1/af_a3/publication/afman11-2f-22av3/afman11-2f-22av3.pdf) — p26 §4.1.3–.4
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf) — pp140, 147–148
-- [Chuck’s DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf) — pp675–676, 691–693
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — p672; pp760–761
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Create a mark during AUTO/CPL; route and selection stay unchanged until explicit selection.; The tenth mark overwrites the first slot under the chosen cyclic policy and reports actual acceptance.; Direct, selected-course and AUTO passage produce their different outcomes.; TOT destination can differ from weapon TGT without changing designation. |
-| Limit | Exercise empty/full routes, co-located points, sharp turns, very low speed, passed-fix corridor boundaries and negative elevation.; Same-ID coordinate edits require accepted-value acknowledgement; rejection retains the draft and prior route.; Midnight, expired and unachievable arrival requests produce explicit timing status. |
-| Failure | Position loss stops estimate-dependent sequencing; simulator truth must not continue the failed solution.; Missing terrain conversion leaves unresolved AGL/MSL status rather than a false zero.; Failed mark/point commit cannot announce MARK STORED or retask the route. |
-| Recovery | Restored position retains route/marks under a declared resumption policy and cannot sequence uncontrolled points at once.; Undo restores the accepted prior path. Power, reload and new-slot storage follow the published policy. |
-
-</details>
-
-<a id="pkg-nav-wp07"></a>
-<a id="case-an14"></a>
-<a id="case-an15"></a>
-<a id="case-an16"></a>
-<a id="case-an17"></a>
-<a id="case-an18"></a>
-<a id="case-an19"></a>
-<a id="case-an20"></a>
-<a id="case-an22"></a>
-<a id="case-an23"></a>
-<a id="case-ng05"></a>
-<a id="case-ng09"></a>
-<a id="record-l28"></a>
-<a id="record-l32"></a>
-<a id="record-l33"></a>
-<a id="record-nav-02"></a>
-<a id="record-nav-11"></a>
-<a id="record-nav-12"></a>
-<a id="record-nav-13"></a>
-<a id="record-nav-14"></a>
-<a id="record-nav-15"></a>
-<a id="record-nav-16"></a>
-<a id="record-nav-17"></a>
-
-### NAV-WP07 — Refactor AFCS into independent axes with consistent capture and pilot takeover
-
-HSEL/CPL can command roll with manual pitch. BALT captures indicated pressure altitude once and RALT uses healthy receiver height. Permanent disconnect, temporary CPL override and optional recapture have distinct authority and annunciation.
-
-- Refactor active/axis state so vertical OFF does not forbid lateral AP. HSEL/CPL preserve vertical selection or manual pitch rather than implicitly engaging BALT.
-- Capture BALT/RALT at one data owner using indicated pressure altitude or valid radar height. Remove geometric UFC capture and unit mismatch; keyboard and physical controls use the same accepted snapshot.
-- Retain current-attitude capture and separate heading/ground-track feedback. Ordinary paddle permanently disconnects AP. Retain current AP/A-T OFF as an explicit mod takeover policy, without claiming the cited Hornet documentation proves the A/T part.
-- Implement temporary CPL lateral stick override and declared resumption on release. Vertical behavior follows its independent mode. Do not add Viper ATT recapture to the selected core.
-- NAV freshness/geometry loss decouples lateral control and retains a healthy independent vertical mode under the declared policy. Latch uncommanded loss until acknowledgement; pilot OFF is different. Pressure/radar failures affect modes using those quantities.
-- Consume explicit route-arrival events. Retain 30-degree NAV bank; add 60-degree TAC only as a selected, qualified option.
-- Apply consistent entry and update rules for stick neutrality, held trim, power, configuration and envelope. Ineligible selection reports rejection rather than unexplained immediate dropout.
-- Show limiting or insufficient authority for unreachable targets. Define measured capture/steady-response criteria against the mod flight model before tuning; do not claim production F-22 gains.
-
-**Keep:** Retain ATTH capture, heading/track separation, fresh NAV gating and bounded-output intent.; Preserve post-adoption native barometric failure protection.; Credit the existing permanent ordinary paddle path instead of calling it wrong solely because Viper behavior differs..
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `EFM/source/Autopilot.h`
-- `EFM/source/RAPTOR.cpp`
-- `Cockpit/Scripts/Systems/Flight_Guidance.lua`
-- `Cockpit/Scripts/Systems/UFC_Controller.lua`
-- `Cockpit/Scripts/Systems/Combat_Logic.lua`
-- `Cockpit/Scripts/Systems/Combat_System.lua`
-- `Cockpit/Scripts/Systems/Nav_Guidance.lua`
-- `Input keyboard/joystick AP/paddle bindings`
-- `tests/test_autopilot.cpp`
-
-**Depends on:** [NAV-WP01](#pkg-nav-wp01), [NAV-WP02](#pkg-nav-wp02), [NAV-WP03](#pkg-nav-wp03), [NAV-WP05](#pkg-nav-wp05), [NAV-WP06](#pkg-nav-wp06), [VEH-07](#pkg-veh-07), [UI-02](#pkg-ui-02).
-
-**Audit findings:** [AN14](../audit/F22-Fidelity-Audit.html#auth-an14), [AN15](../audit/F22-Fidelity-Audit.html#auth-an15), [AN16](../audit/F22-Fidelity-Audit.html#auth-an16), [AN17](../audit/F22-Fidelity-Audit.html#auth-an17), [AN18](../audit/F22-Fidelity-Audit.html#auth-an18), [AN19](../audit/F22-Fidelity-Audit.html#auth-an19), [AN20](../audit/F22-Fidelity-Audit.html#auth-an20), [AN22](../audit/F22-Fidelity-Audit.html#auth-an22), [AN23](../audit/F22-Fidelity-Audit.html#auth-an23), [NG05](../audit/F22-Fidelity-Audit.html#auth-ng05), [NG09](../audit/F22-Fidelity-Audit.html#auth-ng09).
-
-**Supporting records:** L28, L32, L33, NAV-02, NAV-11, NAV-12, NAV-13, NAV-14, NAV-15, NAV-16, NAV-17.
-
-**References:**
-
-- [AFMAN 11-2F-22A Volume 3, Operations Procedures](https://static.e-publishing.af.mil/production/1/af_a3/publication/afman11-2f-22av3/afman11-2f-22av3.pdf) — p36 §7.9.1.2
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf) — pp47–48, 147–148
-- [Chuck’s DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf) — p659
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — pp669–672
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Select CPL/HSEL from AP OFF with manual pitch, then select BALT and observe independent axes.; Changed QNH produces identical indicated-altitude capture through UFC and keyboard, without a climb to geometric height.; Ordinary paddle disconnects permanently; CPL stick input temporarily overrides under the declared policy.; Heading hold maintains heading in wind, while route coupling maintains ground course with crab. |
-| Limit | Exercise north crossing, high vertical speed, stick/trim held at selection, power/configuration limits, stale time and preset boundaries.; A numerically valid but unreachable target shows limiting without runaway accumulation or false capture.; Receiver height outside the RALT operating envelope rejects/ends RALT without declaring the whole radar measurement failed. |
-| Failure | NAV loss decouples roll and latches its reason while healthy BALT remains.; Invalid pressure inhibits BALT; unrelated CAS failure cannot manufacture a barometric fault.; Loss of achieved control power/integrity ends unavailable AP authority and identifies remaining pilot control. |
-| Recovery | Restoring a source does not autoengage AP. Acknowledgement clears annunciation rather than engaging a mode.; Temporary CPL release resumes according to its contract; optional recapture does not change ordinary paddle behavior.; Restore trim/control supply without releasing hidden accumulated AP commands. |
-
-</details>
-
-<a id="pkg-nav-wp08"></a>
-<a id="case-an24"></a>
-<a id="case-an25"></a>
-<a id="case-ng06"></a>
-<a id="record-l21"></a>
-<a id="record-l26"></a>
-<a id="record-l27"></a>
-<a id="record-nav-18"></a>
-
-### NAV-WP08 — Complete honest cruise A/T feedback; isolate optional approach AoA assistance
-
-CAS/Mach cruise assistance clearly distinguishes selected target, engagement, limiting, failed selection and disengagement. Optional approach AoA control has its own validity/configuration chain.
-
-- Keep explicit CAS and Mach labels and throttle-only operation. Stepping one quantity must not silently alter the other stored target.
-- Separate failed engagement and automatic loss from pilot OFF. Use the chosen Hornet-derived 10-second indication, distinct from the CPL loss latch.
-- Define joystick-axis takeover, throttle split, configuration, power and air-data loss as game input states. Do not equate normalized axis delta with a real force or actuator-angle threshold.
-- Show actual thrust/output authority and unreachable-speed limiting. Agree idle/MIL/AB interfaces with the engine owner before changing normalized output bounds.
-- Optional: specify approach AoA control with valid AoA, achieved landing configuration, WOW, engine/control availability, pilot override and exit states. Do not transplant the Hornet 27-degree flap gate literally.
-- Keep approach ATC, flight director, automatic ILS, AGCAS and flare/rollout separate. AoA throttle control cannot announce autoland.
-
-**Keep:** Retain separate bounded A/T output, throttle-only assistance, preset state and pilot takeover.; Current gear-down-ineligible CAS/Mach hold is not represented as existing approach AoA ATC..
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `EFM/source/Autopilot.h`
-- `EFM/source/RAPTOR.cpp`
-- `Cockpit/Scripts/Systems/Flight_Guidance.lua`
-- `Cockpit/Scripts/Systems/UFC_Controller.lua`
-- `Cockpit/Scripts/Systems/HUD_Flight_Data.lua`
-- `Cockpit/Scripts/HUD/page.lua`
-- `Input throttle/A-T bindings`
-
-**Depends on:** [NAV-WP01](#pkg-nav-wp01), [NAV-WP03](#pkg-nav-wp03), [NAV-WP04](#pkg-nav-wp04), [NAV-WP07](#pkg-nav-wp07), [VEH-05](#pkg-veh-05).
-
-**Audit findings:** [AN24](../audit/F22-Fidelity-Audit.html#auth-an24), [AN25](../audit/F22-Fidelity-Audit.html#auth-an25), [NG06](../audit/F22-Fidelity-Audit.html#auth-ng06).
-
-**Supporting records:** L21, L26, L27, NAV-18.
-
-**References:**
-
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf) — p76 complete approach/cruise paragraphs
-- [Chuck’s DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf) — p665
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — pp669–672, 770–773
-- [AFMAN 11-2F-22A Volume 3, Operations Procedures](https://static.e-publishing.af.mil/production/1/af_a3/publication/afman11-2f-22av3/afman11-2f-22av3.pdf) — p26 §4.1
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | CAS/Mach assistance works with pitch AP OFF and displays the controlled quantity and independent target memory.; Pilot OFF is normal; failed selection or automatic loss produces the chosen timed feedback.; Manual throttle takeover ends assistance without an axis fight. |
-| Limit | Switch quantities with existing presets, encounter output limits and change vertical mode or engine spool state.; Exercise configuration/WOW changes and axis jitter around the declared takeover threshold.; Optional AoA assistance is measured across declared masses/configurations without a donor-gain or production-fit claim. |
-| Failure | Invalid airspeed or engine/control availability ends the affected assistance with a reason, while independent healthy AP/radio functions remain.; Rejected engagement preserves accepted targets and unrelated AP axes. |
-| Recovery | Restored data/configuration requires pilot reengagement; target persistence follows the declared policy.; Optional approach exit/go-around restores manual authority without unsolicited resume. |
-
-</details>
-
-<a id="pkg-nav-wp09"></a>
-<a id="case-an10"></a>
-<a id="case-an11"></a>
-<a id="record-l29"></a>
-<a id="record-l30"></a>
-<a id="record-nav-01"></a>
-<a id="record-nav-28"></a>
-
-### NAV-WP09 — Separate minima, low-level repeats and advisory terrain recovery
-
-Repeated gear-up radar-low warning and gear-down one-shot minima have separate reset/rearm rules. Advisory terrain context is independent from hidden steering-source choice and automatic control authority.
-
-- Replace the shared floor queue with separate radar-low repeat, gear-down minima and declared barometric-floor states. Match the selected reset/disable distinction; any 100 ft hysteresis remains a mod value.
-- Coordinate event acknowledgement with root. Playing one ALTITUDE clip cannot acknowledge a persistent low warning; one acknowledgement must not erase unrelated terrain/FCS/caution state.
-- Create explicit approach/recovery context from pilot intent, achieved configuration, received signal and flight state. Remove the accidental need to select ILS steering when valid ILS is already displayed under another source.
-- Review the current flat/stable landing exemption as a mod policy. Invalid signals, obstacles, rising terrain, unstable flight and go-around must not stay blanket-inhibited.
-- Keep threat, cue direction, unavailable/no-escape and automatic authority separate. Preserve query bounds and fresh cues; a predicted recovery is not a guarantee of safety.
-- Give missing terrain, pressure and radar data explicit mode-dependent indications. Root owns priority/muting/general alert policy; civil FAA examples remain optional design guidance.
-
-**Keep:** Retain separate pressure/radar inputs, confirmed-playback commitment and priority interlocks.; Preserve live cue rotation, bounded queries and the explicit advisory-only terrain boundary..
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/Pilot_Warnings.lua`
-- `Cockpit/Scripts/Systems/Pilot_Warning_System.lua`
-- `Cockpit/Scripts/Systems/Terrain_Escape.lua`
-- `Cockpit/Scripts/Systems/Terrain_Director.lua`
-- `Cockpit/Scripts/Systems/Terrain_Recovery_Cue.lua`
-- `Cockpit/Scripts/Systems/Altitude_System.lua`
-- `Cockpit/Scripts/HUD/pilot_warnings.lua`
-- `Root-owned alert/audio arbiter`
-
-**Depends on:** [NAV-WP01](#pkg-nav-wp01), [NAV-WP03](#pkg-nav-wp03), [NAV-WP04](#pkg-nav-wp04), [NAV-WP05](#pkg-nav-wp05), [ALR-01](#pkg-alr-01), [ALR-02](#pkg-alr-02).
-
-**Audit findings:** [AN10](../audit/F22-Fidelity-Audit.html#auth-an10), [AN11](../audit/F22-Fidelity-Audit.html#auth-an11).
-
-**Supporting records:** L29, L30, NAV-01, NAV-28.
-
-**References:**
-
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf) — p70 complete radar-low warning paragraphs
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — pp155–157
-- [AFMAN 11-2F-22A Volume 3, Operations Procedures](https://static.e-publishing.af.mil/production/1/af_a3/publication/afman11-2f-22av3/afman11-2f-22av3.pdf) — p8 §2.4.2.3; p18 §3.15.3
-- [Brower, F-22 Avionics, The Avionics Handbook, chapter 32](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf) — p11 §32.4
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Gear-up low radar height repeats until the selected reset/disable action. Gear-down crossing produces a separate one-shot event.; With unchanged received approach geometry, switching WYPT/TCN/ILS steering does not unexpectedly toggle the landing exemption.; Cue state updates while speech finishes, without obsolete roll commands replaying after the threat clears. |
-| Limit | Exercise threshold oscillation, changes while below the setting, zero-disabled settings, gear transition and acknowledgement.; Rising terrain, obstacles, LOC-only reception, unstable approach and go-around do not gain an unqualified safe exemption.; Stale or over-budget terrain results show unavailable rather than clear. |
-| Failure | Fail radar and pressure independently; selected warnings use their own healthy sources.; Lose terrain access or prediction inputs: the advisory shows unavailable and issues no flight-control command. |
-| Recovery | Restore source validity under the declared crossing/rearm policy without replaying a stale event.; Go-around/approach exit clears the landing exemption as specified, without waiting for a source-selection change. |
-
-</details>
-
-<a id="pkg-nav-wp10"></a>
-<a id="case-an26"></a>
-<a id="record-l09"></a>
-<a id="record-l22"></a>
-<a id="record-l34"></a>
-<a id="record-l35"></a>
-<a id="record-l36"></a>
-<a id="record-l37"></a>
-<a id="record-l38"></a>
-<a id="record-l39"></a>
-<a id="record-l40"></a>
-<a id="record-nav-29"></a>
-
-### NAV-WP10 — Complete manual recovery, go-around and emergency landing interfaces
-
-Complete supported manual field recovery under healthy/degraded navigation, including go-around, reconfiguration and vehicle emergency interfaces, without implying carrier capability or automatic landing.
-
-- Define pilot-observable approach, recovery, go-around and touchdown state using achieved gear/lock, WOW, power, AoA, airspeed and receiver inputs. Keep procedure choice separate from automatic flight mode.
-- Build controlled manual straight-in, overhead, ILS/LOC-only, TACAN and missed-approach scenarios from public/simulated capabilities. Declare unsupported procedures instead of inventing production F-22 techniques.
-- Preserve complete dated Category E/conditional D criteria, separate CAS/TAS values and the hot/high caveat in training/reference material. The GINS terminal-use rule is not an automatic geofence or mode-deletion command.
-- Qualify go-around reconfiguration: pilot thrust/pitch/gear actions change landing cues, exemptions, minima and assistance states according to the selected profile. Received ILS remains received data; no automatic TOGA is claimed.
-- Handoff L34/L35 to vehicle AV09/PF18/AV34 work. Agree wheel-slip/navigation-deceleration inputs, achieved brake state and host anti-skid behavior. Evaluate the current drag-assist step before altering it; an enable flag alone cannot prove stopping accuracy.
-- Handoff L36 to vehicle AV26/AV33 work. Public SES gear extension and pneumatic arresting gear require bounded game actions, finite energy and achieved locked/unsafe/hook feedback. Exact production controls, pressures and timing remain unknown.
-- Make gear-command, position, downlock, WOW and approach thresholds intentional for each consumer. Do not replace them with one unqualified landing boolean.
-- Coordinate brake, steering, SES and hook failure missions through the parent. This plan claims no observed host stopping or cable behavior.
-
-**Keep:** Retain manual received ILS, gear/WOW cue gating, separate CAS/TAS and advisory-only terrain behavior.; Credit existing achieved brake outputs and native anti-skid publication until host behavior is qualified..
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/Nav_Guidance.lua`
-- `Cockpit/Scripts/Systems/HUD_Flight_Data.lua`
-- `Cockpit/Scripts/Systems/Flight_Guidance.lua`
-- `Cockpit/Scripts/Systems/Pilot_Warning_System.lua`
-- `EFM/source/RAPTOR.cpp`
-- `EFM/source/VehicleSystems.h`
-- `Vehicle-owned gear/SES/hook/braking model and controls`
-- `docs/HUD_AND_SYSTEMS_TEST_PLAN.md`
-- `Training/reference material and controlled recovery missions`
-
-**Depends on:** [NAV-WP04](#pkg-nav-wp04), [NAV-WP05](#pkg-nav-wp05), [NAV-WP07](#pkg-nav-wp07), [NAV-WP08](#pkg-nav-wp08), [NAV-WP09](#pkg-nav-wp09), [VEH-09](#pkg-veh-09), [VEH-10](#pkg-veh-10).
-
-**Audit findings:** [AN26](../audit/F22-Fidelity-Audit.html#auth-an26).
-
-**Supporting records:** L09, L22, L34, L35, L36, L37, L38, L39, L40, NAV-29.
-
-**References:**
-
-- [AFMAN 11-2F-22A Volume 3, Operations Procedures](https://static.e-publishing.af.mil/production/1/af_a3/publication/afman11-2f-22av3/afman11-2f-22av3.pdf) — p26 §4.1; abnormal recovery context
-- [T.O. 00-105E-9, historical F-22A rescue section](https://www.0x4d.net/files/AF1/R11%20Segment%2012.pdf) — Printed F-22A pp7, 10
-- [USAF, F-22 endures 3-week cold-weather test at Eielson](https://www.af.mil/News/Article-Display/Article/125003/f-22-endures-3-week-cold-weather-test-at-eielson/) — Complete wheel-slip/navigation-deceleration paragraph
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — pp770–773
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf) — pp48, 57
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Fly manual ILS with TCN steering retained and with IRS position unavailable; healthy cues remain and control stays manual.; Go around, reconfigure and reapproach without stuck minima, exemptions or hidden assistance.; Record normal rollout with declared mass/surface and achieved vehicle states. |
-| Limit | Hot/high tests show distinct CAS/TAS and preserve full dated conditional criteria.; Crosswind, low friction, LOC-only and unavailable terrain have declared support limits.; Gear transit, WOW bounce and emergency extension cannot display down-and-locked early. |
-| Failure | Engine/FCS or normal-extension failure uses the declared manual recovery/emergency chain, without automatic selection of 1998 test laws.; Lose primary navigation/display and verify independent remaining references.; Hook/brake unavailability is distinct from healthy ILS; host cable limits are documented. |
-| Recovery | A new approach after go-around requires pilot intent and valid configuration; genuine minima events rearm.; SES depletion, repair and replenishment use the vehicle policy without infinite reserve or unsolicited reset. |
-
-</details>
-
-## Radar, fusion, electronic warfare and countermeasures
-
-<a id="pkg-sen-02"></a>
-<a id="case-as01"></a>
-<a id="case-as02"></a>
-<a id="case-as06"></a>
-<a id="case-ae02"></a>
-<a id="case-ae03"></a>
-<a id="case-ae04"></a>
-<a id="case-ae05"></a>
-<a id="case-ae06"></a>
-<a id="case-ae07"></a>
-<a id="case-ae08"></a>
-<a id="case-ae10"></a>
-<a id="case-ae01"></a>
-<a id="case-ae09"></a>
-<a id="case-ae12"></a>
-<a id="record-r01"></a>
-<a id="record-r02"></a>
-<a id="record-r03"></a>
-<a id="record-r04"></a>
-<a id="record-r12"></a>
-<a id="record-r13"></a>
-<a id="record-r14"></a>
-<a id="record-r15"></a>
-<a id="record-sc03"></a>
-
-### SEN-02 — Represent finite AESA-like sensing service and degraded availability
-
-Search coverage, selected-file service, passive cue requests, support load and degradation have visible finite update consequences without inventing measurements.
-
-**Current issue ([AE01](../audit/F22-Fidelity-Audit.html#auth-ae01)):** A 2 s game scheduling phase is not an antenna-steering specification. Instantaneous Lua parameter changes also do not prove instantaneous detections. The previous audit had no explicit distinction.
-
-- Separate electronic point-command response from measured detection, revisit and processing delay; do not force mechanical sweep traverse as an AESA identity feature.
-- Define requested/achieved coverage and a finite game service budget for surveillance, selected/support tracks and cue dwells. Show restricted coverage when obligations cannot all be served.
-- Document a mode-compatibility table for A/A search, STT and surface imaging. Either provide supported finite background service or explicitly indicate the retained native exclusive-mode restriction.
-- Make manual centering, automatic centering, bias, preemption and recovery after target loss explicit; track memory is not proof of current sensor service.
-- Connect normal/degraded/unavailable states to the declared damage/supply/cooling model. Characterize off-axis effects and LPI-like host observability before choosing qualitative game estimates.
-
-**Keep:** Native cached samples and ages; Bounded RF cue dwell and manual authority; Real multi-ID support adapter.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/Radar_System.lua`
-- `Cockpit/Scripts/Systems/Radar_Computer.lua`
-- `Cockpit/Scripts/Systems/Radar_Sensor_Tasking.lua`
-- `Cockpit/Scripts/Systems/Radar_Native.lua`
-- `EFM/source/NativeSidewinder.cpp`
-- Proposed: `Cockpit/Scripts/Systems/Radar_Service_State.lua`
-
-**Depends on:** [SEN-01](#pkg-sen-01), [VEH-04](#pkg-veh-04), [VEH-11](#pkg-veh-11).
-
-**Audit findings:** [AS01](../audit/F22-Fidelity-Audit.html#auth-as01), [AS02](../audit/F22-Fidelity-Audit.html#auth-as02), [AS06](../audit/F22-Fidelity-Audit.html#auth-as06), [AE02](../audit/F22-Fidelity-Audit.html#auth-ae02), [AE03](../audit/F22-Fidelity-Audit.html#auth-ae03), [AE04](../audit/F22-Fidelity-Audit.html#auth-ae04), [AE05](../audit/F22-Fidelity-Audit.html#auth-ae05), [AE06](../audit/F22-Fidelity-Audit.html#auth-ae06), [AE07](../audit/F22-Fidelity-Audit.html#auth-ae07), [AE08](../audit/F22-Fidelity-Audit.html#auth-ae08), [AE10](../audit/F22-Fidelity-Audit.html#auth-ae10), [AE01](../audit/F22-Fidelity-Audit.html#auth-ae01), [AE09](../audit/F22-Fidelity-Audit.html#auth-ae09), [AE12](../audit/F22-Fidelity-Audit.html#auth-ae12).
-
-**Supporting records:** R01, R02, R03, R04, R12, R13, R14, R15, SC03.
-
-**References:**
-
-- [Ronald W. Brower, Lockheed F-22 Raptor, The Avionics Handbook chapter 32](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf) — p 8 section 32.3.2; p 11 recovery
-- [NOAA NSSL, Research Tools: Phased Array Radar](https://www.nssl.noaa.gov/tools/radar/par/) — Electronic Steering/Rapid Scanning
-- [Raytheon AN/APG-79 AESA Radar](https://www.rtx.com/raytheon/what-we-do/air/apg79aesa) — Multimode AESA overview
-- [Chuck's DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — pp 187-190
-- [Chuck's DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf) — pp 208-214
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Wider search or added service obligations produce the declared slower/restricted observation update while sensor ages remain honest.; Urgent selected/support service and manual input visibly affect remaining search coverage. |
-| Limit | No number of designated files grants unlimited simultaneous beams; zoom and displayed range do not create contacts.; A/G INTL is not labeled A/A-plus-A/G concurrency without an active surviving A/A service. |
-| Failure | Supply/cooling/resource faults cause the declared degraded availability; partial damage need not always equal total loss. |
-| Recovery | Clearing load/fault restores service through the declared state transition without renewing old sample times. |
-
-</details>
-
-<a id="pkg-sen-03"></a>
-<a id="case-as03"></a>
-<a id="case-as05"></a>
-<a id="case-as07"></a>
-<a id="case-as04"></a>
-<a id="case-as08"></a>
-<a id="case-as09"></a>
-<a id="case-ae13"></a>
-<a id="record-r05"></a>
-<a id="record-r06"></a>
-<a id="record-r07"></a>
-<a id="record-r08"></a>
-<a id="record-r09"></a>
-<a id="record-r10"></a>
-<a id="record-r11"></a>
-<a id="record-sc04"></a>
-<a id="record-sc05"></a>
-<a id="record-sc06"></a>
-
-### SEN-03 — Complete track, acquisition and pilot selection behavior
-
-Tentative, established, selected, acquired, coasting and expired targets remain distinct; primary/secondary and ACM controls have stable, explainable outcomes.
-
-- Choose and document track promotion/missed-revisit rules; replace cumulative-hit-only maturity with the selected observable model while preserving actual sample timestamps.
-- Separate displayed memory, eligible acquisition candidate and weapon-support authority. Publish age/quality consistently to scope, HUD and tactical join.
-- Define ranked initial selection, stable cycle order, primary/secondary swap and return after loss; preserve actual native acquisition confirmation and timeout.
-- Choose explicit ACM patterns. Retain useful current estimates under F-22-inspired names or adopt a named Hornet preset; resolve reference edition conflicts before claiming geometry parity.
-- Keep target-centered expansion distinct from simple display zoom. Integrate all controls through the actually focused radar format, preserving weapon-global ACM commands.
-
-**Keep:** Deduplication by native source and observation time; Native acquisition confirmation; Primary/secondary storage; Press/preview/release expansion behavior.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/Radar_Computer.lua`
-- `Cockpit/Scripts/Systems/Radar_System.lua`
-- `Cockpit/Scripts/Systems/Radar_Display.lua`
-- `Cockpit/Scripts/Systems/Radar_STT.lua`
-- `Cockpit/Scripts/Systems/Combat_Logic.lua`
-- `Cockpit/Scripts/Systems/Sensor_Control.lua`
-
-**Depends on:** [SEN-01](#pkg-sen-01), [SEN-02](#pkg-sen-02), [UI-01](#pkg-ui-01).
-
-**Audit findings:** [AS03](../audit/F22-Fidelity-Audit.html#auth-as03), [AS05](../audit/F22-Fidelity-Audit.html#auth-as05), [AS07](../audit/F22-Fidelity-Audit.html#auth-as07), [AS04](../audit/F22-Fidelity-Audit.html#auth-as04), [AS08](../audit/F22-Fidelity-Audit.html#auth-as08), [AS09](../audit/F22-Fidelity-Audit.html#auth-as09), [AE13](../audit/F22-Fidelity-Audit.html#auth-ae13).
-
-**Supporting records:** R05, R06, R07, R08, R09, R10, R11, SC04, SC05, SC06.
-
-**References:**
-
-- [Chuck's DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — pp 187-190
-- [Chuck's DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf) — pp 208-220
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf) — pp 171-176
-- [Ronald W. Brower, Lockheed F-22 Raptor, The Avionics Handbook chapter 32](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf) — p 8 multimode tracking role
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | A new return matures only from genuinely newer eligible observations; selected/secondary swap preserves identity.; Acquisition timeout and STT loss return to the declared saved mode. |
-| Limit | Missed revisit differs from being outside searched coverage; a retained stale symbol is not a fresh hard lock.; Relocating the radar format does not change sensor controls or expansion commit semantics. |
-| Failure | Lost/expired selected source clears or downgrades the correct state, without selecting an unrelated slot. |
-| Recovery | Fresh reacquisition requires actual sensor evidence and restores the declared state, not cached identity alone. |
-
-</details>
-
-<a id="pkg-sen-04"></a>
-<a id="case-as14"></a>
-<a id="case-as16"></a>
-<a id="case-as17"></a>
-<a id="case-as18"></a>
-<a id="case-sg03"></a>
-<a id="case-as13"></a>
-<a id="case-ae15"></a>
-<a id="case-ae16"></a>
-<a id="case-as15"></a>
-<a id="record-p22"></a>
-<a id="record-p23"></a>
-<a id="record-p24"></a>
-<a id="record-g01"></a>
-<a id="record-g02"></a>
-<a id="record-g03"></a>
-<a id="record-g04"></a>
-<a id="record-g05"></a>
-<a id="record-g06"></a>
-<a id="record-g07"></a>
-<a id="record-g08"></a>
-<a id="record-g09"></a>
-<a id="record-g10"></a>
-<a id="record-g11"></a>
-<a id="record-g12"></a>
-<a id="record-g13"></a>
-<a id="record-g14"></a>
-<a id="record-g15"></a>
-<a id="record-g16"></a>
-<a id="record-g17"></a>
-<a id="record-g18"></a>
-<a id="record-g19"></a>
-<a id="record-sc23"></a>
-<a id="record-sc24"></a>
-<a id="record-sc25"></a>
-<a id="record-sc26"></a>
-<a id="record-g20"></a>
-
-### SEN-04 — Surface radar, stabilized imagery and truthful ground designation
-
-MAP/GMT/SEA/TA/AGR, EXP, HOLD/SIL and designation expose their actual sensing, geometry, age and fixed-point/object-track meaning.
-
-GMT TDC acquisition, virtual scene motion, larger registered MAP/GMT marks and EXP3 resolving detail: [implementation and validation boundary](SEN-04-ground-acquisition-detail.md).
-
-SAR follow-up: [image-formation/GPU proofs, Hex-Rays findings and integration gates](SEN-04-SAR-research.md).
-
-- Retain source-referenced designation and distinct EXP1 snowplow versus EXP2/3 ground stabilization. Propagate native fixed/object result type so failed mover acquisition cannot masquerade as confirmed GMTT.
-- Publish HOLD, transmitter inhibit, one active scan, reset and preview cancellation as separate state transitions; specify persistence across range/mode/master-mode changes.
-- Characterize the renderer and latest EXP3 clearance geometry before selecting a SAR approximation. Add collecting/usable/held/degraded and image age if adopting a collection model; a preset alone does not prove SAR.
-- Define moving/stopped target eligibility, acquisition failure, LOS memory and out-of-FOV return independently. Keep selected analogues and provisional memory values explicit.
-- Differentiate FAST image quality/update, gain and PEN/FAN controls from true resolution. Keep TA as advisory sensing and AGR as qualified range, not an automatic avoidance controller.
-
-**Keep:** Schema2 mode/range/epoch designation gate; Commit-on-release preview; Native LOS/object acquisition; Renderer-only EXP3 origin fix.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/AG_Radar_System.lua`
-- `Cockpit/Scripts/Systems/AG_Radar_Modes.lua`
-- `Cockpit/Scripts/Systems/AG_Radar_Computer.lua`
-- `Cockpit/Scripts/Systems/AG_Mark_System.lua`
-- `Cockpit/Scripts/Systems/MFD_Controls.lua`
-- `EFM/source/NativeGroundSensor.cpp`
-- `EFM/source/NativeGroundVideo.cpp`
-- `EFM/source/GroundVideoView.h`
-
-**Depends on:** [SEN-01](#pkg-sen-01), [SEN-02](#pkg-sen-02), [SEN-03](#pkg-sen-03), [VEH-02](#pkg-veh-02).
-
-**Audit findings:** [AS14](../audit/F22-Fidelity-Audit.html#auth-as14), [AS16](../audit/F22-Fidelity-Audit.html#auth-as16), [AS17](../audit/F22-Fidelity-Audit.html#auth-as17), [AS18](../audit/F22-Fidelity-Audit.html#auth-as18), [SG03](../audit/F22-Fidelity-Audit.html#auth-sg03), [AS13](../audit/F22-Fidelity-Audit.html#auth-as13), [AE15](../audit/F22-Fidelity-Audit.html#auth-ae15), [AE16](../audit/F22-Fidelity-Audit.html#auth-ae16), [AS15](../audit/F22-Fidelity-Audit.html#auth-as15).
-
-**Supporting records:** P22, P23, P24, G01, G02, G03, G04, G05, G06, G07, G08, G09, G10, G11, G12, G13, G14, G15, G16, G17, G18, G19, SC23, SC24, SC25, SC26, G20.
-
-**References:**
-
-- [Northrop Grumman F-22 SAR demonstration release](https://investor.northropgrumman.com/news-releases/news-release-details/northrop-grumman-completes-successful-demonstration-new) — 2008 SAR demonstration
-- [NASA, Get to Know SAR - Overview](https://science.nasa.gov/mission/nisar/get-to-know-sar/) — Moving aperture/image formation
-- [Chuck's DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf) — pp 237-254
-- [Chuck's DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — pp 221,237,243
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Designating an on-screen patch produces coordinates from that exact mode/range/epoch and the indicated fixed/object source.; EXP modes retain their distinct stabilization; one active scan while silent returns to silence. |
-| Limit | Frozen/stale/incompatible video cannot authorize a new coordinate from an unrelated scene.; Moving-target acquisition on empty terrain yields disclosed fixed hold/failure, never invented target motion. |
-| Failure | Terrain masking, collection interruption and out-of-view loss show the declared degraded/memory state. |
-| Recovery | Reset or reacquisition restores only the documented state; image preview cancellation does not fire or retarget a store. |
-
-</details>
-
-<a id="pkg-sen-05"></a>
-<a id="case-as10"></a>
-<a id="case-as11"></a>
-<a id="case-as12"></a>
-<a id="case-st01"></a>
-<a id="record-r16"></a>
-<a id="record-r17"></a>
-<a id="record-r18"></a>
-<a id="record-r19"></a>
-<a id="record-d10"></a>
-<a id="record-d11"></a>
-<a id="record-sc07"></a>
-<a id="record-sc08"></a>
-
-### SEN-05 — Identification evidence and ownship transponder role
-
-No reply, simulator-assisted classification, prior identity, donor evidence and contradictory identity remain distinguishable; ownship responding is independent from asking about contacts.
-
-- Retain bare-STT nonresponse as no new hostile evidence. Mark complete native class values as simulator-assisted unless a declared game authentication/recognition event supplies the evidence.
-- Add ambiguous/conflict presentation and evidence inspection with per-source age; maintain a separate friendly-protection policy instead of hiding contradictory evidence.
-- Implement an abstract ownship responder state, incoming-reply indication and optional emergency-identification control through qualified host capabilities or explicitly labeled game events.
-- Keep interrogation AUTO/SCAN/LOS requests separate from transponder state, PPLI and radar power; define surviving CNI behavior through the common supply/resource contract.
-- Treat NCTR/Mode5 menus or detailed key controls as selected abstraction/research, with no real cryptography or copied Hornet recognition limits claimed as F-22 data.
-
-**Keep:** Bare no-reply semantics; Timestamp-bounded scan/LOS acceptance; Continuous-track identity retention explicitly distinguished from new evidence.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/Radar_IFF.lua`
-- `Cockpit/Scripts/Systems/Radar_System.lua`
-- `Cockpit/Scripts/Systems/Tactical_Identity.lua`
-- `Cockpit/Scripts/Systems/Tactical_Tracks.lua`
-- `Cockpit/Scripts/Systems/UFC_Controller.lua`
-- `Cockpit/Scripts/Systems/ICP_System.lua`
-- Proposed: `Cockpit/Scripts/Systems/Identification_State.lua`
-
-**Depends on:** [SEN-01](#pkg-sen-01).
-
-**Audit findings:** [AS10](../audit/F22-Fidelity-Audit.html#auth-as10), [AS11](../audit/F22-Fidelity-Audit.html#auth-as11), [AS12](../audit/F22-Fidelity-Audit.html#auth-as12), [ST01](../audit/F22-Fidelity-Audit.html#auth-st01).
-
-**Supporting records:** R16, R17, R18, R19, D10, D11, SC07, SC08.
-
-**References:**
-
-- [Ronald W. Brower, Lockheed F-22 Raptor, The Avionics Handbook chapter 32](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf) — pp 8-9 CNI
-- [Chuck's DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — pp 639-646
-- [Chuck's DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf) — pp 636-645
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf) — pp 62-63 and165
-- [USAF FY2026 Aircraft Procurement Volume II, F-22 modification summary](https://www.saffm.hq.af.mil/Portals/84/documents/FY26/FY26%20Air%20Force%20Aircraft%20Procurement%20Vol%20II.pdf) — Mode5 modification listing
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Positive native friendly identity is distinct from no-positive reply; retained earlier classification is visibly identity memory.; Independent ownship responder availability/replies can be observed without issuing a contact interrogation. |
-| Limit | No reply alone does not declare hostile; conflicting qualified sources become visibly ambiguous.; PPLI transmission is not displayed as proof of a transponder reply. |
-| Failure | Expired identity and failed responder capability yield unknown/unavailable rather than invented authentication. |
-| Recovery | Supply/resource restoration follows the declared identification state and does not replay old requests. |
-
-</details>
-
-<a id="pkg-sen-06"></a>
-<a id="case-as25"></a>
-<a id="case-as26"></a>
-<a id="case-as27"></a>
-<a id="case-ae14"></a>
-<a id="case-sg06"></a>
-<a id="record-r20"></a>
-<a id="record-d01"></a>
-<a id="record-d02"></a>
-<a id="record-d03"></a>
-<a id="record-d04"></a>
-<a id="record-d05"></a>
-<a id="record-d06"></a>
-<a id="record-d07"></a>
-<a id="record-d08"></a>
-<a id="record-d09"></a>
-<a id="record-d12"></a>
-<a id="record-d13"></a>
-<a id="record-d14"></a>
-<a id="record-d15"></a>
-<a id="record-sc02"></a>
-<a id="record-sc09"></a>
-<a id="record-sc10"></a>
-<a id="record-sc11"></a>
-<a id="record-sc12"></a>
-<a id="record-sc13"></a>
-
-### SEN-06 — Source-qualified fusion, datalink memory and donor-track interaction
-
-Every displayed position/direction/identity has a source and age; an offboard target can be inspected and followed without silently becoming a local radar measurement or weapon authority.
-
-- Carry receipt time and known/unknown observation time separately. Preserve source-local ages and distinguish measured, extrapolated and held states on TSD and DEF.
-- Add a persistent awareness-only donor selection with source/age inspection, accept/reject and handoff request to actual local acquisition.
-- Preserve ordinary Link 16 receive and declared custom peer exchange; version any optional external transmission extension separately.
-- Keep participant/PPLI, target reports, exact-ID association and display capacity distinct. Publish overflow/filter behavior without discarding hidden sensing merely because a view is cluttered.
-- Define reset/epoch, disconnect and source-conflict behavior. Never fill missing received target coordinates through world-object lookup or silently grant remote fire-control authority.
-
-**Keep:** Message-derived target coordinates; Ordinary receive-only external link; Custom peer message subset; Source-local fields and age; No remote-track relay in local radar broadcast.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/Datalink_Tracks.lua`
-- `Cockpit/Scripts/Systems/Tactical_Tracks.lua`
-- `Cockpit/Scripts/Systems/Tactical_Situation.lua`
-- `Cockpit/Scripts/Systems/Tactical_Picture.lua`
-- `Cockpit/Scripts/Systems/Defensive_Overview.lua`
-- `Cockpit/Scripts/Systems/EW_Defensive.lua`
-- `EFM/source/NativeDatalink.cpp`
-
-**Depends on:** [SEN-01](#pkg-sen-01), [SEN-05](#pkg-sen-05), [VEH-02](#pkg-veh-02).
-
-**Audit findings:** [AS25](../audit/F22-Fidelity-Audit.html#auth-as25), [AS26](../audit/F22-Fidelity-Audit.html#auth-as26), [AS27](../audit/F22-Fidelity-Audit.html#auth-as27), [AE14](../audit/F22-Fidelity-Audit.html#auth-ae14), [SG06](../audit/F22-Fidelity-Audit.html#auth-sg06).
-
-**Supporting records:** R20, D01, D02, D03, D04, D05, D06, D07, D08, D09, D12, D13, D14, D15, SC02, SC09, SC10, SC11, SC12, SC13.
-
-**References:**
-
-- [Ronald W. Brower, Lockheed F-22 Raptor, The Avionics Handbook chapter 32](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf) — pp 8-9 CNI roles
-- [Chuck's DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — pp 603-607
-- [Chuck's DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf) — pp 636-637
-- [Matt Wagner/Eagle Dynamics Viper Primary Datalink Track tutorial](https://www.youtube.com/watch?v=qCEFHf01FvI) — Primary datalink track tutorial caption 12-30 s
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Donor-only target can be selected, inspected, followed and handed to local search; local acquisition still requires actual observations.; TSD and DEF consistently show coasting/held data and original versus receive-time provenance. |
-| Limit | An old report newly received is not labeled a fresh observation when its observation time is unknown.; 64 received inputs, 16 DEF objects and filtered display count are separate capacity contracts. |
-| Failure | Link loss and invalid/unsupported snapshots age or clear only their own evidence without granting live track authority. |
-| Recovery | Reconnection/epoch change begins a new source lifecycle with no stale source selection or duplicated retransmission loop. |
-
-</details>
-
-<a id="pkg-sen-07"></a>
-<a id="case-as19"></a>
-<a id="case-as20"></a>
-<a id="case-as23"></a>
-<a id="case-as24"></a>
-<a id="case-ae11"></a>
-<a id="record-e01"></a>
-<a id="record-e02"></a>
-<a id="record-e03"></a>
-<a id="record-e04"></a>
-<a id="record-e05"></a>
-<a id="record-e06"></a>
-<a id="record-e07"></a>
-<a id="record-e12"></a>
-<a id="record-e13"></a>
-<a id="record-e14"></a>
-<a id="record-e15"></a>
-<a id="record-sc14"></a>
-<a id="record-sc15"></a>
-<a id="record-sc16"></a>
-<a id="record-e10"></a>
-<a id="record-e11"></a>
-<a id="record-sc22"></a>
-
-### SEN-07 — Integrated passive warning with explicit optional jammer state
-
-RF and passive IR warnings identify their source, uncertainty, fresh/coast state and escalation; optional jammer request is not confused with proven instantaneous radiation.
-
-- Retain independently powered passive sensing while the radar is silent. Keep measured bearing/proximity, estimated stationary-ground location and optical warning roles separate.
-- Characterize aperture masking and add declared detection/declaration/track/loss degradation without claiming calibrated ALR-94/AAR-56 performance or turning every warning into an aircraft IRST track.
-- Provide distinct custom new-emitter/class/escalation audio and source-age inspection; respect the shared warning-priority contract and keep history advancing while muted.
-- For optional active ECM, expose requested, host-enabled, qualified transmitting/unknown, pending and failed states. Do not copy Hornet radar blanking or pod-mode hardware as an F-22 fact.
-- Keep EW location/radar cueing source-qualified; do not implement actual emitter-location, threat-library or countermeasure-effectiveness algorithms.
-
-**Keep:** No coalition inferred from emitter-name mapping; RF direction qualification; MWS independent source; Audio history maintained while muted; Separate jammer request/readback/pending.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/RWR_System.lua`
-- `Cockpit/Scripts/Systems/RWR_Native.lua`
-- `Cockpit/Scripts/Systems/RWR_Computer.lua`
-- `Cockpit/Scripts/Systems/RWR_Audio.lua`
-- `Cockpit/Scripts/Systems/RWR_Bearings.lua`
-- `Cockpit/Scripts/Systems/EW_Geolocation.lua`
-- `Cockpit/Scripts/Systems/MWS_System.lua`
-- `Cockpit/Scripts/Systems/MWS_Native.lua`
-- `Cockpit/Scripts/Systems/EW_System.lua`
-- `EFM/source/NativeMWS.cpp`
-
-**Depends on:** [SEN-01](#pkg-sen-01), [SEN-05](#pkg-sen-05), [SEN-06](#pkg-sen-06).
-
-**Audit findings:** [AS19](../audit/F22-Fidelity-Audit.html#auth-as19), [AS20](../audit/F22-Fidelity-Audit.html#auth-as20), [AS23](../audit/F22-Fidelity-Audit.html#auth-as23), [AS24](../audit/F22-Fidelity-Audit.html#auth-as24), [AE11](../audit/F22-Fidelity-Audit.html#auth-ae11).
-
-**Supporting records:** E01, E02, E03, E04, E05, E06, E07, E12, E13, E14, E15, SC14, SC15, SC16, E10, E11, SC22.
-
-**References:**
-
-- [Ronald W. Brower, Lockheed F-22 Raptor, The Avionics Handbook chapter 32](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf) — pp 9-10 EW roles
-- [BAE Systems AN/ALR-94 F-22 Electronic Warfare System](https://www.baesystems.com/en-us/product/an-alr-94) — Warning/location and targeting support
-- [Chuck's DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — pp 575-599
-- [Chuck's DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf) — pp 600-616
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Fresh RF and optical warnings feed the common mission picture with distinct meanings and source-local age.; Radar silence leaves qualified passive warnings available. |
-| Limit | A coasting optical warning is not a fresh inbound declaration; RF intensity is not exact range.; Generic ECM status is host enabled unless instantaneous transmission semantics are qualified. |
-| Failure | Masked/lost apertures and receiver failures produce visible limited/unavailable coverage under the selected game model. |
-| Recovery | Recovery produces current warnings without replaying a mute backlog or refreshing old observations. |
-
-</details>
-
-<a id="pkg-sen-08"></a>
-<a id="case-as21"></a>
-<a id="case-as22"></a>
-<a id="case-cp02"></a>
-<a id="case-cp03"></a>
-<a id="case-cp04"></a>
-<a id="case-cp05"></a>
-<a id="case-cp06"></a>
-<a id="case-cp07"></a>
-<a id="case-cp08"></a>
-<a id="case-cp09"></a>
-<a id="case-cp10"></a>
-<a id="case-cp11"></a>
-<a id="case-cp01"></a>
-<a id="record-e08"></a>
-<a id="record-e09"></a>
-<a id="record-sc17"></a>
-<a id="record-sc18"></a>
-<a id="record-sc19"></a>
-<a id="record-sc20"></a>
-<a id="record-sc21"></a>
-
-### SEN-08 — Complete the declared countermeasure control lifecycle
-
-MAN/SEMI/AUTO, consent, selected/direct-access programs, editing, readiness and inventory have complete visible and recoverable game-state behavior.
-
-**Current issue ([CP03](../audit/F22-Fidelity-Audit.html#auth-cp03)):** Changing the visible PROG selection changes which bank is edited, but not what the normal up action runs. Bank count itself has no verified F-22 specification.
-
-- Adopt the existing flat Hornet-like CHAF/FLAR/INT/cycles schema as the initial substitute. Name total cycles explicitly; keep three extensible banks as a mod estimate. Independent Viper BQ/BI/SQ/SI is an optional schema extension, not a universal requirement.
-- Implement draft/edit/validate/SAVE/cancel and separate edit selection, normal-dispense bank and direct-access bank. Committed running sequences retain an immutable snapshot.
-- Add OFF/STBY/ready/self-test/failure state separate from inventory/API validity. Choose the supply for direct emergency/bypass separately; do not claim independence without a distinct path.
-- Implement the publicly documented MAN/SEMI/AUTO roles using neutral scripted game events and user programs. Expose awaiting consent, authorized, executing and revoked; no operational threat-to-program selection recipe is specified.
-- Define retrigger/stop/power interruption/partial exhaustion semantics and requested/started/completed/empty/low feedback. Separate refill, preset persistence and new mission reset.
-
-**Keep:** Actual host chaff/flare counts; Bounded editable quantities; Committed run snapshot; Main-power interruption clears running bursts.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/EW_Programs.lua`
-- `Cockpit/Scripts/Systems/EW_System.lua`
-- `Cockpit/Scripts/Systems/Combat_System.lua`
-- `Cockpit/Scripts/Systems/Combat_Logic.lua`
-- `Cockpit/Scripts/Systems/EW_Indicator.lua`
-- `Cockpit/Scripts/Systems/MFD_Controls.lua`
-- Proposed: `Cockpit/Scripts/Systems/Countermeasure_State.lua`
-
-**Depends on:** [SEN-01](#pkg-sen-01), [SEN-07](#pkg-sen-07), [ALR-02](#pkg-alr-02).
-
-**Audit findings:** [AS21](../audit/F22-Fidelity-Audit.html#auth-as21), [AS22](../audit/F22-Fidelity-Audit.html#auth-as22), [CP02](../audit/F22-Fidelity-Audit.html#auth-cp02), [CP03](../audit/F22-Fidelity-Audit.html#auth-cp03), [CP04](../audit/F22-Fidelity-Audit.html#auth-cp04), [CP05](../audit/F22-Fidelity-Audit.html#auth-cp05), [CP06](../audit/F22-Fidelity-Audit.html#auth-cp06), [CP07](../audit/F22-Fidelity-Audit.html#auth-cp07), [CP08](../audit/F22-Fidelity-Audit.html#auth-cp08), [CP09](../audit/F22-Fidelity-Audit.html#auth-cp09), [CP10](../audit/F22-Fidelity-Audit.html#auth-cp10), [CP11](../audit/F22-Fidelity-Audit.html#auth-cp11), [CP01](../audit/F22-Fidelity-Audit.html#auth-cp01).
-
-**Supporting records:** E08, E09, SC17, SC18, SC19, SC20, SC21.
-
-**References:**
-
-- [Ronald W. Brower, Lockheed F-22 Raptor, The Avionics Handbook chapter 32](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf) — p 9 automatic/semiautomatic/manual sentence
-- [Chuck's DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf) — pp 610-612
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf) — pp 408-410
-- [Chuck's DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — pp 586-587,591-592
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Committed selected-bank and named direct-access actions execute the indicated program and report which one actually runs.; SEMI waits for the declared pilot consent; AUTO follows its visible authorized state on a neutral test event. |
-| Limit | Invalid draft cannot replace a committed bank; edits do not mutate the current run.; One exhausted category cannot produce a falsely completed mixed program; cycles include the first event exactly as labeled. |
-| Failure | Power loss, stop or readiness failure cancels according to policy; revoke gates future automatic starts without an unstated resume. |
-| Recovery | Refill/power restoration does not resume an interrupted sequence. Saved settings and replenished inventory recover independently. |
-
-</details>
-
-## Weapons and fire control
-
-<a id="pkg-sen-09"></a>
-<a id="case-as30"></a>
-<a id="case-as31"></a>
-<a id="case-as32"></a>
-<a id="case-as33"></a>
-<a id="case-as34"></a>
-<a id="case-as35"></a>
-<a id="case-sg04"></a>
-<a id="record-p25"></a>
-<a id="record-p26"></a>
-<a id="record-p27"></a>
-<a id="record-p28"></a>
-<a id="record-w01"></a>
-<a id="record-w02"></a>
-<a id="record-w10"></a>
-<a id="record-w14"></a>
-<a id="record-w15"></a>
-<a id="record-w16"></a>
-<a id="record-w17"></a>
-<a id="record-w18"></a>
-<a id="record-w19"></a>
-<a id="record-w20"></a>
-<a id="record-sc27"></a>
-<a id="record-sc28"></a>
-<a id="record-sc29"></a>
-<a id="record-sc32"></a>
-<a id="record-sc33"></a>
-<a id="record-sc34"></a>
-
-### SEN-09 — Stores, target missions and release transactions
-
-A station has explicit inventory, generation, power/init, mission, supported settings and release state; consent is tied to the mission actually assigned and does not survive jettison or replacement.
-
-**Current issue ([SG04](../audit/F22-Fidelity-Audit.html#auth-sg04)):** Station assignments genuinely exist. Release-consent invalidation is broader than the assignment provenance: a radar mover or unrelated HUD target can cancel a captured-station program. No source justifies treating those targets as the same mission object.
-
-- Add per-station initialization/health and explicit PP-like captured mission versus live TOO assignment, coordinate/elevation inspection and named mission slots. Preserve source/sequence qualification through the transfer.
-- Bind consent invalidation to the assigned mission/station rather than an unrelated global live target sequence; retain deliberate cancel/reconsent when the assigned data actually changes.
-- Transfer only supported per-store fuze/settings through qualified host interfaces and show unsupported controls honestly. Add a distinct SIM training state that preserves actual stores.
-- Cancel pending program/held consent before jettison and prevent jettison/service count changes from acknowledging delivered shots. Keep matching native evidence and delayed-inventory quarantine.
-- Separate structural repair, same-type replacement/rearm and full mission teardown. Preserve mission profiles deliberately, invalidate instance readiness/lock/consent on a qualified replacement, and retain existing full native reset.
-- Keep estimated LAR/release advice visibly qualified. Use supported host data and a declared cue contract, without developing a real guided-weapon release or trajectory algorithm.
-
-**Keep:** Explicit capability allowlist; Captured per-station targets; Native shot identities and cache sequence checks; Station quarantine; Achieved bay/hydraulic release interlock; Full teardown resets native support/seeker history.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/Weapon_System.lua`
-- `Cockpit/Scripts/Systems/AG_Stores.lua`
-- `Cockpit/Scripts/Systems/Store_Capabilities.lua`
-- `Cockpit/Scripts/Systems/AG_Delivery.lua`
-- `Cockpit/Scripts/Systems/AG_Ballistic_Computer.lua`
-- `Cockpit/Scripts/Systems/AG_Mark_System.lua`
-- `EFM/source/NativeAGWeapons.cpp`
-- `EFM/source/NativeSidewinder.cpp`
-- `EFM/source/RAPTOR.cpp`
-- Proposed: `Cockpit/Scripts/Systems/Store_Lifecycle.lua`
-
-**Depends on:** [SEN-01](#pkg-sen-01), [SEN-04](#pkg-sen-04), [SEN-06](#pkg-sen-06).
-
-**Audit findings:** [AS30](../audit/F22-Fidelity-Audit.html#auth-as30), [AS31](../audit/F22-Fidelity-Audit.html#auth-as31), [AS32](../audit/F22-Fidelity-Audit.html#auth-as32), [AS33](../audit/F22-Fidelity-Audit.html#auth-as33), [AS34](../audit/F22-Fidelity-Audit.html#auth-as34), [AS35](../audit/F22-Fidelity-Audit.html#auth-as35), [SG04](../audit/F22-Fidelity-Audit.html#auth-sg04).
-
-**Supporting records:** P25, P26, P27, P28, W01, W02, W10, W14, W15, W16, W17, W18, W19, W20, SC27, SC28, SC29, SC32, SC33, SC34.
-
-**References:**
-
-- [Ronald W. Brower, Lockheed F-22 Raptor, The Avionics Handbook chapter 32](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf) — p 10 SMS
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf) — pp 330-334
-- [Chuck's DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — pp 571-573
-- [Chuck's DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf) — Stores and GPS-weapon chapters
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Captured station mission stays stable while an unrelated live sensor mark moves; TOO follows its declared update/reconsent policy.; Actual release acknowledgment advances the intended program once and only once. |
-| Limit | SAFE/SIM/WoW/configuration blockers revoke release authority; SIM preserves stores.; Jettison/service inventory decrease cannot advance a pending delivery or grant a remaining store fresh consent.; Same-type replacement without a sampled zero is not silently assumed to be the same weapon instance. |
-| Failure | Failed transfer/alignment/partial jettison leaves accurate status and cancelled stale consent; uncertain inventory remains quarantined. |
-| Recovery | Repair, reload and mission restart follow separate declared policies; no delayed acknowledgment authorizes the next transaction. |
-
-</details>
-
-<a id="pkg-sen-10"></a>
-<a id="case-as28"></a>
-<a id="case-as29"></a>
-<a id="case-sg01"></a>
-<a id="case-sg02"></a>
-<a id="case-sg12"></a>
-<a id="record-w05"></a>
-<a id="record-w06"></a>
-<a id="record-sc30"></a>
-<a id="record-sc31"></a>
-
-### SEN-10 — Internal-bay IR weapon readiness and cueing
-
-Radar cue, launcher exposure, native seeker search/acquisition, range-qualified advice and launch consent remain separate states for each selected installation.
-
-- Retain native power/init and real acquisition, including radar-independent IR employment. Show seeker lock even when radar-derived range/SHOOT advice is unavailable.
-- Tie optical sensing availability to the declared achieved exposure/launcher state or visibly document the retained compatibility approximation; a stored cue can remain while acquisition is unavailable.
-- Define cage/uncage/re-slave and radar-retarget behavior without clearing an already autonomous seeker merely to copy the new radar target.
-- Keep the held-release station-change guard and add qualified store-generation resets. Model cooling/resource state only for the applicable selected installation.
-- Research host support for a distinct optional Block II LOAL workflow. If supported, plan cue-before-launch and postlaunch unknown/acquiring/qualified status as abstract host-driven states; do not invent range, seeker or guidance logic to bypass an unavailable API.
-
-**Keep:** Native rather than fabricated IR lock; Radar-off launch capability; World-beam projection; Autonomous acquired head retained; Held-release reconstruction guard.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/Weapon_System.lua`
-- `Cockpit/Scripts/Systems/IR_Seeker.lua`
-- `Cockpit/Scripts/Systems/IR_Audio.lua`
-- `EFM/source/NativeSidewinder.cpp`
-
-**Depends on:** [SEN-01](#pkg-sen-01), [SEN-03](#pkg-sen-03), [SEN-09](#pkg-sen-09), [ALR-02](#pkg-alr-02).
-
-**Audit findings:** [AS28](../audit/F22-Fidelity-Audit.html#auth-as28), [AS29](../audit/F22-Fidelity-Audit.html#auth-as29), [SG01](../audit/F22-Fidelity-Audit.html#auth-sg01), [SG02](../audit/F22-Fidelity-Audit.html#auth-sg02), [SG12](../audit/F22-Fidelity-Audit.html#auth-sg12).
-
-**Supporting records:** W05, W06, SC30, SC31.
-
-**References:**
-
-- [Ronald W. Brower, Lockheed F-22 Raptor, The Avionics Handbook chapter 32](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf) — p 10 SMS
-- [Chuck's DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — pp 538-540
-- [Chuck's DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf) — pp 580-586
-- [Raytheon AIM-9X Sidewinder product description](https://www.rtx.com/en/raytheon/what-we-do/sea/aim-9x-sidewinder-missile) — Block II/Multiple platforms
-- [NAVAIR AIM-9X Block II full-rate production milestone](https://www.navair.navy.mil/node/22731) — Block II milestone
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | An exposed, powered native IR seeker acquires without own radar; actual seeker state and any independent range-qualified advice are distinct.; An acquired autonomous seeker remains sourced separately when radar selection changes. |
-| Limit | Station/type change with release held cannot create a new firing press.; Unavailable/covered seeker does not claim acquisition from the existence of a cue; unknown range does not become in-range advice. |
-| Failure | Power, exposure, lock or store-instance loss removes the correct permission/state without a queued unintended release. |
-| Recovery | Recage/reload/restored supply reconstructs only the intended native lifecycle and requires deliberate fresh consent. |
-
-</details>
-
-<a id="pkg-sen-11"></a>
-<a id="case-sg05"></a>
-<a id="case-sg08"></a>
-<a id="case-sg09"></a>
-<a id="case-sg10"></a>
-<a id="case-sg11"></a>
-<a id="case-sg07"></a>
-<a id="record-w07"></a>
-<a id="record-w08"></a>
-<a id="record-w09"></a>
-<a id="record-w11"></a>
-<a id="record-w12"></a>
-<a id="record-w13"></a>
-
-### SEN-11 — Truthful engagement support, missile feedback and gun presentation
-
-Cue labels accurately distinguish current support authority, retained target memory, estimated timing and qualified feedback; gun references survive a lock-without-valid-solution handover.
-
-- Derive support indication from the active custom/native support owner through A/A-to-A/G changes, accounting explicitly for any qualified native fallback.
-- Separate cockpit estimates/qualified telemetry from diagnostic own-missile world truth. An acquired-ever latch cannot be labeled current continuous seeker lock.
-- Define whether SHOOT is anticipatory kinematic advice or immediate release eligibility; display persistent configuration/WoW/actuator blockers separately without unnecessarily requiring already-open doors for anticipatory advice.
-- Keep stale/invalid gun lead hidden, but preserve a declared noncomputed reference in lock-present/solution-absent states. Add disclosed fixed span or deliberate pilot span entry for the funnel.
-- Decide optional no-track MRM VISUAL/BORE employment through the native weapon service. Do not fabricate a local target or treat a donor-only awareness track as weapon authority.
-
-**Keep:** Actual multi-target support identity; Native gun computation and real ammunition count; Separate dynamic and nominal envelope provenance; Estimated numeric timer marking.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/Engagement_System.lua`
-- `Cockpit/Scripts/Systems/Weapon_Engagement.lua`
-- `Cockpit/Scripts/Systems/Gun_Director.lua`
-- `Cockpit/Scripts/Systems/Gun_Funnel.lua`
-- `Cockpit/Scripts/Systems/Gun_Funnel_Presentation.lua`
-- `Cockpit/Scripts/HUD/engagement.lua`
-- `EFM/source/NativeSidewinder.cpp`
-- `EFM/source/NativeGunSight.cpp`
-- `EFM/source/NativeSTTMotion.h`
-
-**Depends on:** [SEN-02](#pkg-sen-02), [SEN-03](#pkg-sen-03), [SEN-09](#pkg-sen-09), [SEN-10](#pkg-sen-10).
-
-**Audit findings:** [SG05](../audit/F22-Fidelity-Audit.html#auth-sg05), [SG08](../audit/F22-Fidelity-Audit.html#auth-sg08), [SG09](../audit/F22-Fidelity-Audit.html#auth-sg09), [SG10](../audit/F22-Fidelity-Audit.html#auth-sg10), [SG11](../audit/F22-Fidelity-Audit.html#auth-sg11), [SG07](../audit/F22-Fidelity-Audit.html#auth-sg07).
-
-**Supporting records:** W07, W08, W09, W11, W12, W13.
-
-**References:**
-
-- [Ronald W. Brower, Lockheed F-22 Raptor, The Avionics Handbook chapter 32](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf) — pp 10-11 SMS/attack display
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf) — pp 288,292-295
-- [Chuck's DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf) — pp 576-598
-- [Chuck's DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — pp 528-536,553
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Support status changes with actual surviving service, not only a remembered target; estimated timer and qualified feedback labels have explicit provenance.; Gun hard-lock/no-solution transition preserves the chosen noncomputed reference and never displays invalid lead as current. |
-| Limit | Lost seeker feedback is unknown/current-lost, not automatically inferred from an acquired-ever latch.; Radar-off/no-track modes do not bypass arming, configuration or supported-native launch constraints. |
-| Failure | Stale motion cache, lost support and missing weapon feedback produce declared degraded/unknown cues. |
-| Recovery | Fresh qualified data restores the correct cue without rewriting old sample timestamps or implying a confirmed hit. |
-
-</details>
-
-## Cockpit, communications and alerts
-
-<a id="pkg-ui-01"></a>
-<a id="case-ax11"></a>
-<a id="record-p02"></a>
-<a id="record-p04"></a>
-
-### UI-01 — Unify focus and held-input routing on every display
-
-Any relocated sensor format receives page-dependent HOTAS control only when focused, while intentional weapon-global/HUD ACM actions remain global.
-
-**Current issue ([AX11](../audit/F22-Fidelity-Audit.html#auth-ax11)):** The common display/focus owner permits radar on SOI 2/3/4/5, while both A-G axis dispatch and A-A cursor update still accept only 0/2. Moving radar to a side/center display can leave a valid designation action but suppress analog slew. This is a complete-path discrepancy, not a claim that real F-22 HOTAS labels equal Viper labels.
-
-- Allocate command namespaces before extending controls. The captured keyboard light options10505–10512 are global and overlap an earlier EFM10500–10525 AFCS handler. Migrate the advertised light bindings/dispatch with compatibility notes and negative tests proving lights cannot engage/adjust AFCS. No saved profile activation or prior flight cause is inferred.
-- Replace final-owner SOI0/2 gates for page cursor axes with the common focused-format authority predicate; cover A-A and A-G paths separately.
-- Keep global GUN/SRM TMS/ACM exceptions explicit in the command table. Separate preview/corral from actual designation and execute only the intended transition.
-- Audit mouse, keyboard, joystick and axis event semantics as press/release, impulse or continuous. Preserve existing missing-release fixes and avoid synthesizing endless down commands.
-- Qualify the physical bezel labels, selected boxes and action ownership from the same control definition; log command/focus/target changes only when useful.
-
-**Keep:** Current shared bezel/controller and original-owner release routing; Weapon-global ACM exception.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/MFD_Controller.lua`
-- `Cockpit/Scripts/Systems/Sensor_Control.lua`
-- `Cockpit/Scripts/Systems/Radar_System.lua`
-- `Cockpit/Scripts/Systems/Combat_Logic.lua`
-- `Cockpit/Scripts/clickabledata.lua`
-- `Input/F-22A/joystick/default.lua`
-- `Input/F-22A/keyboard/default.lua`
-- `EFM/source/Autopilot.h`
-- `EFM/source/RAPTOR.cpp`
-
-**Depends on:** [ARC-02](#pkg-arc-02), [ARC-03](#pkg-arc-03).
-
-**Audit findings:** [AX11](../audit/F22-Fidelity-Audit.html#auth-ax11).
-
-**Supporting records:** P02, P04.
-
-**References:**
-
-- [Ronald W. Brower (USAF), Lockheed F-22 Raptor, The Avionics Handbook](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf)
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf)
-- [Chuck’s DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf)
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Move radar to LMFD, RMFD, CMFD and PMFD, focus it, slew and designate in both roles. |
-| Limit | Focus a passive page while slew is held; the invisible radar stops responding without blocking deliberate global ACM commands. Exercise every advertised light command and assert AFCS state remains unchanged. |
-| Failure | Power/focus/page loss releases the original owner and cannot latch cursor, designate or trigger. |
-| Recovery | Reopen the format and deliberately press again; no old press or preview is committed. |
-
-</details>
-
-<a id="pkg-ui-02"></a>
-<a id="case-ax12"></a>
-<a id="case-ax13"></a>
-<a id="record-p19"></a>
-<a id="record-p20"></a>
-<a id="record-p21"></a>
-
-### UI-02 — Make numeric transactions acknowledge the committed setting
-
-Every edit has a truthful draft, validation result, correlated commit and achieved readback in matching units.
-
-**Current issue ([AX12](../audit/F22-Fidelity-Audit.html#auth-ax12)):** Explicit draft/commit/error concepts correspond; key choreography is a custom policy, not a documented F-22 defect. The heading readback unit error is a separate confirmed implementation inconsistency: a successfully applied nonzero target can falsely time out.
-
-- Correct heading readback conversion: F22_AP_HEADING is already degrees in the captured publication. Preserve circular heading comparison and magnetic/true reference handling.
-- Replace waypoint-ID-only acceptance with a request/commit sequence and accepted id/lat/lon/elevation values; never mark a dropped same-ID edit ENTERED.
-- Apply the sequence/status contract to stores, TACAN, ILS, course, altimeter and radio edits. Distinguish local validation error, owner rejection, pending, timeout and completion.
-- Retain same-option numeric submission as the declared mod policy; document clear-all, delete-digit, cancel and backout consistently. Hornet CLR second-press behavior is an optional substitute, not established F-22 hardware behavior.
-- Keep the ENTRY_FIELD-zero stores completion check and repeated-button/digit release fixes. Cancel drafts on authority/profile/station/power changes.
-
-**Keep:** Single draft owner; Stores completion waits for ENTRY_FIELD zero; Repeated input release improvements.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/UFC_Controller.lua`
-- `Cockpit/Scripts/Systems/ICP_System.lua`
-- `Cockpit/Scripts/Systems/Nav_Entry.lua`
-- `Cockpit/Scripts/Systems/AG_Stores.lua`
-- `EFM/source/RAPTOR.cpp`
-
-**Depends on:** [ARC-02](#pkg-arc-02), [ARC-03](#pkg-arc-03).
-
-**Audit findings:** [AX12](../audit/F22-Fidelity-Audit.html#auth-ax12), [AX13](../audit/F22-Fidelity-Audit.html#auth-ax13).
-
-**Supporting records:** P19, P20, P21.
-
-**References:**
-
-- [Ronald W. Brower (USAF), Lockheed F-22 Raptor, The Avionics Handbook](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf)
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf)
-- [Chuck’s DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf)
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Submit 0, 1, 90, 123 and 359 degree headings; each valid achieved setting acknowledges correctly. Commit a same-ID waypoint coordinate change and a stores quantity change. |
-| Limit | Enter the already-current value and confirm only after this request finishes; reject out-of-range and malformed values without changing the achieved state. |
-| Failure | Drop/delay/reorder a response or cancel while pending; no false ENTERED and no orphaned late application. |
-| Recovery | A fresh request after restoration succeeds and displays only its own status. |
-
-</details>
-
-<a id="pkg-ui-03"></a>
-<a id="case-ax01"></a>
-<a id="case-ax09"></a>
-<a id="case-ax10"></a>
-<a id="case-ax14"></a>
-<a id="record-p01"></a>
-<a id="record-p03"></a>
-<a id="record-p05"></a>
-<a id="record-p09"></a>
-<a id="record-p10"></a>
-<a id="record-p11"></a>
-<a id="record-p12"></a>
-<a id="record-p15"></a>
-<a id="record-p18"></a>
-
-### UI-03 — Preserve flexible layouts and qualify actual presentation
-
-Offensive, defensive, tactical-navigation and vehicle/stores tasks remain available on surviving powered displays with coherent shared/local state.
-
-- Retain duplicate formats and persistent pilot layouts by default. Record startup layout as a mod choice; publish optional task presets rather than asserting historical role descriptions mandate a boot layout.
-- Define local range/declutter/inspection/cursor behavior versus shared target and sensor modes; changing one panel cannot secretly retune or re-task another sensor.
-- Retain existing physical brightness control grouping; calibrate video/symbol gain separately if supported. Treat night factor0.18 and color thresholds as estimates.
-- Make all readouts consume validity and actual units; show unavailable rather than a misleading zero. Check clipped labels, overlap, selected boxes, font contrast and every supported cockpit resolution.
-- Trace every referenced cockpit/external draw argument into the actual EDM/material/controller chain before claiming that an indication or projector is absent. Keep fault state independent of brightness.
-
-**Keep:** Shared format library; Independent panel selection; Separate warning content and presentation gain.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/Display_Routing.lua`
-- `Cockpit/Scripts/Systems/MFD_Controller.lua`
-- `Cockpit/Scripts/MFD_COMMON/formats.lua`
-- `Cockpit/Scripts/Systems/Avionics.lua`
-- `Cockpit/Scripts/UFD_LEFT/base_page.lua`
-
-**Depends on:** [ARC-01](#pkg-arc-01), [ARC-02](#pkg-arc-02), [UI-01](#pkg-ui-01), [VEH-04](#pkg-veh-04).
-
-- Integration: VEH-14/07: achieved/damaged/saturated FCS effectors. VEH-11: pressure/reference/validity. NAV-WP04: shared HUD cue geometry.
-
-**Audit findings:** [AX01](../audit/F22-Fidelity-Audit.html#auth-ax01), [AX09](../audit/F22-Fidelity-Audit.html#auth-ax09), [AX10](../audit/F22-Fidelity-Audit.html#auth-ax10), [AX14](../audit/F22-Fidelity-Audit.html#auth-ax14).
-
-**Supporting records:** P01, P03, P05, P09, P10, P11, P12, P15, P18.
-
-**References:**
-
-- [Ronald W. Brower (USAF), Lockheed F-22 Raptor, The Avionics Handbook](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf)
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf)
-- [Chuck’s DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf)
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Duplicate a sensor task, move vehicle status, swap tertiary displays and recover a needed task on a surviving screen. |
-| Limit | At minimum/maximum brightness and day/night mode, fault state remains intact and local view changes follow policy. |
-| Failure | Screen/power loss removes presentation availability without erasing independent physical state. |
-| Recovery | Restored display uses the declared memory policy and fresh producer validity, without held commands. |
-
-</details>
-
-<a id="pkg-ui-04"></a>
-<a id="case-ax16"></a>
-<a id="case-cg08"></a>
-<a id="record-p07"></a>
-<a id="record-p08"></a>
-
-### UI-04 — Add useful checklist and fault-reference navigation
-
-Pilot references match the aircraft actually simulated and distinguish sensed live values from manually completed procedure items.
-
-- Replace the single cold-start texture with normal start/taxi/takeoff/recovery/shutdown reference pages and source-bound abnormal references for modeled failures.
-- Associate a stable fault id with a reference page and return path; retain all active fault identities even if one urgent message has attention.
-- Show achieved weight, trim, fuel, supply and configuration values only where trustworthy. Do not import Hornet trim values or claim automatic completion of unsensed items.
-- Mark estimated/simulated procedures and unavailable information in the reference content. Keep mission debug telemetry out of operational reference flows.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/MFD_COMMON/checklist_page.lua`
-- `Cockpit/Scripts/Systems/MFD_Controls.lua`
-- `Cockpit/Scripts/Systems/UFC_Controller.lua`
-- `Cockpit/Scripts/Systems/Pilot_Warnings.lua`
-
-**Depends on:** [ARC-01](#pkg-arc-01), [ARC-02](#pkg-arc-02), [ALR-01](#pkg-alr-01).
-
-- Integration: VEH-04/07/09/11/12/14: procedures reflect actual physical systems and the selected modern oxygen fit.
-
-**Audit findings:** [AX16](../audit/F22-Fidelity-Audit.html#auth-ax16), [CG08](../audit/F22-Fidelity-Audit.html#auth-cg08).
-
-**Supporting records:** P07, P08.
-
-**References:**
-
-- [Ronald W. Brower (USAF), Lockheed F-22 Raptor, The Avionics Handbook](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf)
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf)
-- [Chuck’s DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf)
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Open takeoff and landing references and a selected active fault’s related page with a clear return path. |
-| Limit | Missing weight/trim/source displays unavailable and cannot mark an item complete. |
-| Failure | A higher-priority event gains attention without destroying the pilot’s selected reference or active fault list. |
-| Recovery | After a fault clears, recall shows the defined history status without pretending the checklist repaired hardware. |
-
-</details>
-
-<a id="pkg-cni-01"></a>
-<a id="case-ax04"></a>
-<a id="record-c01"></a>
-<a id="record-c02"></a>
-<a id="record-c03"></a>
-
-### CNI-01 — Prove and connect clear-voice radio backend
-
-Pilot selected radio, achieved tuning, receiving, transmitting and audio are connected to a qualified supported DCS voice backend.
-
-**Current issue ([AX04](../audit/F22-Fidelity-Audit.html#auth-ax04)):** The active cockpit lacks a modeled tuning/channel/audio workflow for the published voice function. DCS communication-menu access is present; this does not prove that host ATC, menus or external radio integrations cannot communicate.
-
-- Perform a bounded backend feasibility spike before building more radio UI. The captured registration has no complete active voice-radio path; NativeDatalink is a different role and is not proof of voice support.
-- Declare supported simulator build, radio instance count, bands/spacing/modulation, tune/readback API, receive/audio path and PTT capabilities. Use public supported interfaces first; isolate any version-sensitive adapter.
-- Implement separate radio power/availability, requested/achieved frequency, selected transmit radio, receiving and PTT states. COMMS MENU opens a menu; it is never the achieved transmit signal.
-- Connect explicit COM1/COM2 command bindings and confirm delivery with a controlled sender/receiver scenario. If a second receiver cannot work, show unavailable and keep the capability gap open.
-- Gate backend callbacks by lifecycle epoch and physical availability; do not report successful tuning when the backend failed.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/device_init.lua`
-- `Cockpit/Scripts/Systems/UFC_Controller.lua`
-- `comm.lua`
-- `Input/F-22A/joystick/default.lua`
-- `EFM/source/NativeDatalink.cpp`
-
-**Depends on:** [ARC-01](#pkg-arc-01), [ARC-02](#pkg-arc-02), [ARC-03](#pkg-arc-03).
-
-**Audit findings:** [AX04](../audit/F22-Fidelity-Audit.html#auth-ax04).
-
-**Supporting records:** C01, C02, C03.
-
-**References:**
-
-- [Ronald W. Brower (USAF), Lockheed F-22 Raptor, The Avionics Handbook](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf)
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf)
-- [Chuck’s DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf)
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Tune a compatible sender, receive intelligible audio, select the intended transmitter and verify the counterpart receives only during deliberate PTT. |
-| Limit | Reject unsupported bands/spacing and prove radio-menu opening alone does not key the transmitter. |
-| Failure | Remove power or backend support; indications become unavailable and PTT releases. |
-| Recovery | Restore, retune if the chosen memory policy requires it, and deliberately transmit without old queued PTT. |
-
-</details>
-
-<a id="pkg-cni-02"></a>
-<a id="case-ax06"></a>
-<a id="case-ax07"></a>
-<a id="case-ax08"></a>
-<a id="record-c04"></a>
-<a id="record-x20"></a>
-
-### CNI-02 — Complete independent radio audio, preset and guard workflows
-
-Inspect, edit, confirm and tune are separate; audio/guard selection is truthful for each supported receiver.
-
-- Implement selected radio, inspected preset, edited preset and tuned channel as separate states. Adopt20 presets as an explicit interim simulation choice if backend supports it, not a documented F-22 count.
-- Use independently selected receiver volume/squelch and transmit source; browsing a preset does not retune until deliberate confirmation.
-- Implement main/guard monitoring only to the extent the backend actually receives both. Monitoring guard must not silently replace the main working frequency.
-- Document mode-dependent AM/FM/band and guard availability from the declared adapter capability. Keep unavailable controls disabled with an understandable reason.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/UFC_Controller.lua`
-- `Cockpit/Scripts/Systems/ICP_System.lua`
-- `comm.lua`
-
-**Depends on:** [CNI-01](#pkg-cni-01), [UI-02](#pkg-ui-02).
-
-**Audit findings:** [AX06](../audit/F22-Fidelity-Audit.html#auth-ax06), [AX07](../audit/F22-Fidelity-Audit.html#auth-ax07), [AX08](../audit/F22-Fidelity-Audit.html#auth-ax08).
-
-**Supporting records:** C04, X20.
-
-**References:**
-
-- [Ronald W. Brower (USAF), Lockheed F-22 Raptor, The Avionics Handbook](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf)
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf)
-- [Chuck’s DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf)
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Inspect presetB while tunedA, confirmB, mute receiver1 while receiver2 remains audible, and monitor guard without losing the working channel. |
-| Limit | Empty/unsupported preset or modulation cannot replace a valid achieved setting. |
-| Failure | Delayed tune acknowledgement retains the truthful old tuned value while the new request is pending. |
-| Recovery | Cancel/retry and restore one receiver without changing the surviving receiver or replaying transmit intent. |
-
-</details>
-
-<a id="pkg-cni-03"></a>
-<a id="case-ax03"></a>
-<a id="case-ax05"></a>
-
-### CNI-03 — Model graceful emergency CNI availability and logical compatibility
-
-Supported powered resource failures degrade lower-priority functions while retaining a declared emergency voice/navigation/identification set where feasible.
-
-- Consume VEH-04 physical supply availability and VEH-11 cooling health; own only CNI resource allocation/recovery. Electrical_Computer.lua remains a temporary compatibility adapter, never a second SOC/voltage/generator/thermal integrator.
-- Map selected essential/emergency navigation consumer feeds through the supported native bus bridge. NativeNavigation.cpp263,267–270 currently connects ILS DC/AC then drives both native generator enables from MAIN_POWER; preserve actual generator state, consumer availability and bridge enable as different quantities.
-- Connect a small explicit resource/consumer availability table to physical feeds and cooling. Model declared spare capacity and function priority rather than every historical SEM-E component.
-- Keep UHF voice, TACAN, ILS and identification return-to-base roles eligible for recovery on surviving powered resources; never create electrical power through software reconfiguration.
-- Separate logical clear/secure/net/time/key-available compatibility from actual waveform or cryptographic implementation. Label the game abstraction and backend limits.
-- Do not advertise Hornet CPHR/TOD N/I pages as implemented reference behavior or reproduce sensitive real military keying/hopping procedures.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/Electrical_Computer.lua`
-- `Cockpit/Scripts/Systems/Navigation_Power.lua`
-- `EFM/source/NativeNavigation.cpp`
-- `Cockpit/Scripts/Systems/UFC_Controller.lua`
-
-**Depends on:** [ARC-01](#pkg-arc-01), [ARC-02](#pkg-arc-02), [CNI-01](#pkg-cni-01), [VEH-04](#pkg-veh-04), [VEH-11](#pkg-veh-11).
-
-**Audit findings:** [AX03](../audit/F22-Fidelity-Audit.html#auth-ax03), [AX05](../audit/F22-Fidelity-Audit.html#auth-ax05).
-
-**References:**
-
-- [Ronald W. Brower (USAF), Lockheed F-22 Raptor, The Avionics Handbook](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf)
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf)
-- [Chuck’s DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf)
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Healthy resources support the declared functions; compatible logical voice settings work through supported backend. |
-| Limit | Exhaust spare capacity and explicitly drop lower-priority capabilities; show incompatibility when a required logical prerequisite is missing. |
-| Failure | Lose one declared resource with a surviving powered substitute; recover only supported emergency functions. Complete power loss remains complete loss. |
-| Recovery | Restore resource/compatibility deliberately without replaying a prior PTT or hiding degraded status before recovery completes. |
-
-</details>
-
-<a id="pkg-alr-01"></a>
-<a id="case-cg02"></a>
-<a id="case-cg03"></a>
-<a id="case-cg04"></a>
-<a id="case-cg09"></a>
-<a id="case-cg10"></a>
-<a id="record-p13"></a>
-
-### ALR-01 — Own fault identity, occurrence and master attention separately
-
-Acknowledgement affects attention, not the underlying condition; new fault occurrences remain identifiable while older conditions persist.
-
-**Current issue ([CG04](../audit/F22-Fidelity-Audit.html#auth-cg04)):** Fault identity and occurrence are lost before acknowledgement logic. This is more specific than a generic caution feature inventory: the interface cannot distinguish a fresh cause from the previously acknowledged cause.
-
-- Replace aggregate-only caution acknowledgement with condition id, active/inactive, occurrence sequence, priority, onset, acknowledgement and recall state.
-- Give master attention one owner and leave individual fault indications active until their physical cause clears. Avoid competing draw-argument and forced-boolean owners.
-- Maintain an active list/recall/hidden-count contract even when terrain or another event wins the single forward message. Deduplicate repeat messages without losing distinct new causes.
-- Separate equipment validity from terrain/navigation validity. Define supported ground/phase inhibitions per alert family; actual F-22 inhibit matrix remains unknown.
-- Carry physical supply isolation into dependent loss-of-function alerts even if the original overtemperature clears. Integrate with vehicle-owned bleed/oxygen/cooling states.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/Pilot_Warnings.lua`
-- `Cockpit/Scripts/Systems/Pilot_Warning_System.lua`
-- `Cockpit/Scripts/Systems/Avionics.lua`
-- `Cockpit/Scripts/UFD_LEFT/base_page.lua`
-
-**Depends on:** [ARC-02](#pkg-arc-02), [ARC-03](#pkg-arc-03), [VEH-01](#pkg-veh-01).
-
-- Integration: VEH-04/05/06/11/12/14: provider-owned condition identity, validity, isolation and recovery; framework can be implemented earlier.
-
-**Audit findings:** [CG02](../audit/F22-Fidelity-Audit.html#auth-cg02), [CG03](../audit/F22-Fidelity-Audit.html#auth-cg03), [CG04](../audit/F22-Fidelity-Audit.html#auth-cg04), [CG09](../audit/F22-Fidelity-Audit.html#auth-cg09), [CG10](../audit/F22-Fidelity-Audit.html#auth-cg10).
-
-**Supporting records:** P13.
-
-**References:**
-
-- [Ronald W. Brower (USAF), Lockheed F-22 Raptor, The Avionics Handbook](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf)
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf)
-- [Chuck’s DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf)
-
-</details>
-
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | Acknowledge generator faultA; its individual condition remains. Add hydraulic faultB whileA persists and request new attention according to the adopted policy. |
-| Limit | Invalid navigation suppresses unavailable terrain guidance without automatically hiding a valid equipment condition. |
-| Failure | Several active conditions retain identities when one urgent event owns attention; missing producer validity is shown explicitly. |
-| Recovery | Clear each physical cause independently; a recurrence receives a new occurrence rather than inheriting old acknowledgement. |
-
-</details>
-
-<a id="pkg-alr-02"></a>
-<a id="case-cg05"></a>
-<a id="case-cg06"></a>
-
-### ALR-02 — Qualify voice arbitration, priority and retained mute policy
-
-Attention priority, actual playback, muting and audio-test status are separate, bounded states.
-
-- Specify a provisional mod latency budget for urgent warnings across an occupied voice slot; implement preemption or bounded completion based on measured clip lengths and adopted policy, without claiming recovered F-22 timing.
-- Retain confirmed-playback accounting and bounded leases. Mark speech delivered only when actual playback is confirmed; prevent failed/stale audio sources from blocking all later alerts.
-- Make the IR seeker audio consumer honor expiring MWS/pilot-audio authority rather than raw priority alone. Normalize native boolean and numeric0/1 is_playing returns in IR_Audio consistently with Warning_Audio_Gate; qualify actual host return forms and audible recovery in a controlled trial.
-- Preserve the deliberate global pilot-voice inhibit option: Viper documents all-voice mute. Consider a retained forward-field mute reminder as an optional usability policy, not a mandatory real F-22 feature.
-- Define arbitration with RWR/MWS tones, radio/intercom and test speech. Real urgent conditions cancel tests; do not queue obsolete terrain commands after the threat changes.
-- Calibrate volume/mute independently of HUD text and fault state. Keep voice-test naming scoped to recordings, distinct from lamp/equipment BIT.
-
-**Keep:** Confirmed actual playback; Finite audio lease; Live event cancels voice test.
-
-<details>
-<summary>Files, dependencies and references</summary>
-
-- `Cockpit/Scripts/Systems/Pilot_Warning_System.lua`
-- `Cockpit/Scripts/Systems/Warning_Audio_Gate.lua`
-- `Cockpit/Scripts/Systems/RWR_System.lua`
-- `Cockpit/Scripts/Systems/MWS_System.lua`
-- `Cockpit/Scripts/Systems/Weapon_System.lua`
-- `Cockpit/Scripts/Systems/IR_Audio.lua`
-- `Cockpit/Scripts/Systems/UFC_Controller.lua`
-
-**Depends on:** [ALR-01](#pkg-alr-01), [ARC-03](#pkg-arc-03).
-
-- Integration: VEH-04: chosen alert/audio consumer feed. CNI-01/02: radio/intercom arbitration. SEN-07/08/10: warning, CM and seeker tone consumers.
-
-**Audit findings:** [CG05](../audit/F22-Fidelity-Audit.html#auth-cg05), [CG06](../audit/F22-Fidelity-Audit.html#auth-cg06).
-
-**References:**
-
-- [Ronald W. Brower (USAF), Lockheed F-22 Raptor, The Avionics Handbook](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf)
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf)
-- [Chuck’s DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf)
+1. Adopt registration-review results and distinguish player selected capability from AI native sensor/CM/pylons.
+2. Withdraw unsupported legacy JDAM operational label and migrate presets/callers to stock qualified store; preserve explicit mission alias disposition.
+3. Decide each optional pod/IRDS/HMD/additional weapon separately; require full video/LOS/pose/native-effect feasibility before activation.
+4. Annotate or segregate unselected experimental presets; do not silently remove saved missions.
+5. Correct preset14 unregistered old IRST_SENSOR_Pod on stations4/8 under registration reviewer migration; valid F22_IRST is station6. Preserve compatibility decision and profile separation.
+6. Repair supplied preset14 exact-ID/station mismatch while preserving user missions
+7. Catalog all selected-off experimental presets and label availability; preserve Store_Capabilities additional_weapons gates
+8. Separate legacyJDAM compatibility from actual supported delivery and native4level class
+9. Treat custom missile/IRST performance, multi-stage fuel/scheme precedence and warhead helpers as declared estimates pending host/native validation
 
-</details>
+Acceptance: Every advertised player store has actual native type and complete supported delivery.; Selected-off optional equipment cannot provide player release authority; AI/MP consequences documented.; HMD/pod/IRDS missing backend remains explicit optional host/evidence blocker.; All 24presets satisfy actual declared station/CLSID/forbidden constraints; Actual native inventory type matches capability/handoff expectations; Optional absent/selectedoff equipment never receives fabricated usable state.
 
-<details>
-<summary>Completion checks</summary>
-
-| Condition | Required result |
-| --- | --- |
-| Normal | An urgent active event obtains its declared audio/visual response while ordinary speech or test occupies the slot. |
-| Limit | All-voice inhibit behaves consistently; audio display reports retained state and zero volume does not erase active alerts. |
-| Failure | Missing clip, failed host status or an endlessly true playing flag cannot create a permanent mute. |
-| Recovery | Restore audio and announce only still-relevant events under the repetition policy; no replay of expired commands. |
+Contracts provided: . Consumed: qualified physical snapshot; radar qualified association/support and source 2 gun motion; shared input/entry/audio leases. Current versus planned status is explicit in INTERFACES.json.
 
-</details>
+Edit boundary: Weapons/EW Lua and named native closure; native radar provider chat3, bay/utility physical authority chat1, shared MFD/UFC/audio dispatch integrator chat2. Serialize shared NativeSidewinder/RAPTOR regions.. Effort/uncertainty: 1-3 focused implementation sessions each; native/runtime and optional-host feasibility uncertain. Completion: focused main commits and drift manifest; independently remade tests/fixtures result ledger; actual native/DCS effect qualification where required; retained behavior and unresolved limits. Verification cases: VS-009, VS-REQ-REG-001, VS-REQ-REG-002.
 
-<a id="pkg-alr-03"></a>
-<a id="case-cg01"></a>
-<a id="case-cg07"></a>
-<a id="record-c07"></a>
+### P-WPN-009 â€” Qualify residual host effects, registration and source limits
 
-### ALR-03 — Add source-bound limits, BIT distinctions and fault history
+Accountable **chat4**; status **planned**; prerequisites: P-INT-001, P-INT-002.
 
-Modeled limit attention and diagnostic functions are explicit about what is sensed, tested and still uncertain.
+Scope: Actual host failure/effect/registration and native callback/provider qualification; source/evidence decisions. Completed presentation, registration and RWR/Tactical Lua review is baseline evidence, not deferred mandatory audit work.. Exclusions: No production implementation/deletion/install in this audit.; No undocumented aircraft performance, RF/guidance recipes or optional activation by flag alone..
 
-- Create a profile/limit table for approaching CAS/Mach/configuration exceedance cues using sourced limits or labeled estimates; keep cue threshold, dynamic flight limit, damage and aircraft registration limits distinct.
-- Expose separate voice-playback test, annunciator/display test, sensor/owner BIT result and fault history. A successful clip sequence cannot certify equipment sensing.
-- Only add test injections through an explicit diagnostic interface; never mutate real physical failure state merely to draw a test lamp.
-- Tie supported failure references to UI-04. Preserve general design claims as such until public F-22 alert behavior establishes a specific target.
+Requirements: R-REG-003, R-WPN-004, R-WPN-007, R-WPN-008, R-WPN-009. Findings: retention/qualification. Cleanup: caller migration assessed within tasks.
 
-<details>
-<summary>Files, dependencies and references</summary>
+1. Use the completed registration/defensive display/RWR/Tactical_Situation AST review records in COVERAGE and reviews/assurance plus lead display reviews. Recheck only execution-time source drift and touched/new functions; do not repeat or relabel already completed audit coverage as unfinished.
+2. Qualify named native default/callback/SDK provider paths with matched host build, status/lifetime/thread and actual effect evidence. If native layout or callback assumptions change, use compiler-aware inventory to supplement the lexical inventory; no claim of exhaustive existing native body or ABI correctness.
+3. Execute specifically deferred host/evidence probes from the fresh historical crosswalk and linked requirements. Preserve the existing fresh dispositions and source-access limits; hash equality is identity evidence, not effect/fidelity confirmation.
+4. Adopt completed independent registration and defensive display evidence with canonical audit updates; preserve original per-function review and actual native/2D/VR limits.
+5. Assign and qualify the actual host or physical owner/effect for each of the eleven legacy failure IDs with Chat 1 physical and Chat 2 integration review; retain host names until actual applicability is resolved.
+6. Qualify actual CM charge accounting, gun host identity/geometry and inherited AI sensor metadata separately from owned pilot services.
 
-- `Cockpit/Scripts/Systems/Pilot_Warnings.lua`
-- `Cockpit/Scripts/Systems/Pilot_Warning_System.lua`
-- `Cockpit/Scripts/Systems/HUD_Flight_Data.lua`
-- `Cockpit/Scripts/Systems/UFC_Controller.lua`
+Acceptance: Completed mandatory current Lua review remains traceable; every touched/new function has substantive updated records and explicit native/runtime limits. Parsing alone does not confer review credit.; Every deferred host/evidence probe has an actual demonstrated result or a precise host/evidence/no-go disposition. No unknown source parameter is promoted to aircraft fact.; Actual failure IDs, host registrations, CM accounting and native callback effects are qualified or explicitly limited; no silent capability deletion.; Each advertised fault has valid source->actual effect->pilot feedback/recovery evidence or explicit unsupported decision; No real-aircraft identity/performance inferred from inherited host sensor strings.
 
-**Depends on:** [ARC-01](#pkg-arc-01), [ARC-02](#pkg-arc-02), [ALR-01](#pkg-alr-01), [ALR-02](#pkg-alr-02).
+Contracts provided: . Consumed: qualified physical snapshot; radar qualified association/support and source 2 gun motion; shared input/entry/audio leases. Current versus planned status is explicit in INTERFACES.json.
 
-- Integration: VEH-02/07/09: measured air-data health and achieved FCS/gear configuration before configuration-bound limit-cue completion.
+Edit boundary: Weapons/EW Lua and named native closure; native radar provider chat3, bay/utility physical authority chat1, shared MFD/UFC/audio dispatch integrator chat2. Serialize shared NativeSidewinder/RAPTOR regions.. Effort/uncertainty: 1-3 focused implementation sessions each; native/runtime and optional-host feasibility uncertain. Completion: focused main commits and drift manifest; independently remade tests/fixtures result ledger; actual native/DCS effect qualification where required; retained behavior and unresolved limits. Verification cases: VS-009, VS-REQ-REG-003, VS-REQ-WPN-004, VS-REQ-WPN-008, VS-REQ-WPN-009.
 
-**Audit findings:** [CG01](../audit/F22-Fidelity-Audit.html#auth-cg01), [CG07](../audit/F22-Fidelity-Audit.html#auth-cg07).
+### P-FLT-001 â€” Repair field-group validity and lifecycle
 
-**Supporting records:** C07.
+Accountable **chat1**; status **planned**; prerequisites: P-INT-001, P-INT-002.
 
-**References:**
+Scope: Input provenance and validity; Lifecycle/input. Exclusions: Undisclosed production parameters; incidental install or simulator takeover; radar/fusion native internals.
 
-- [Ronald W. Brower (USAF), Lockheed F-22 Raptor, The Avionics Handbook](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf)
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf)
-- [Chuck’s DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf)
+Requirements: R-FLT-001, R-FLT-013. Findings: F-FLT-001. Cleanup: C-FLT-001.
 
-</details>
+1. Direct atmosphere/physical callback validity fixes can proceed independently of P-INT-008. Keep the VS-001 failed-read subcase under P-INT-008 separate; do not treat a shared verification specification as a blanket provider dependency.
+2. Carry host-source validity through environmental/HUD groups, preserve independent sources
+3. Audit/reset retained input filters including currently unreset smoothed_yaw_discrete with independent restart sequence
+4. Retire proven unused numerical helpers after call/export gate
+5. Use independent standby-pressure challenge: ADC-only fault must preserve independently valid standby; shared pressure invalidity must not publish a fabricated sea-level valid standby. Retain independent valid kinematics and backup oxygen.
 
-<details>
-<summary>Completion checks</summary>
+Acceptance: normal: Complete request->owner->achieved effect->valid publication->pilot feedback; healthy behavior retained; limit: Finite domains; zero/invalid dt no advance;<=1s/50substeps; no resource creation; atomic ledger; failure: Reject stale/torn/missing/wronggeneration/wrongtype; withdraw affected source; recovery: Qualified source restoration without stale action replay or unrelated resource repair; Currentpressure itselfNaN is separately tested from a sensor-health failure; restore requires qualified actual pressure, not fallback101325 Pa..
 
-| Condition | Required result |
-| --- | --- |
-| Normal | A controlled approach to a selected limit produces the declared cue; independent BIT functions report their actual tested scope. |
-| Limit | Invalid air data cannot manufacture a precise overspeed result; boundary hysteresis avoids chatter. |
-| Failure | Inject a supported failure, observe sensing/attention/history separately, and verify the playback test cannot mask it. |
-| Recovery | Clear the cause and inspect historical versus active state; a new occurrence is separately recorded. |
+Contracts provided: I-FLT-001; I-FLT-002; I-FLT-003. Consumed: Admitted navigation AFCS; Weapon achieved doors/native carriage. Current versus planned status is explicit in INTERFACES.json.
 
-</details>
+Edit boundary: Chat 1 physical modules and physical RAPTOR callback regions; chat2 single integrator serializes shared RAPTOR/Signals/Engine_System/Electrical_System/mainpanel changes; do not stage another chat work. Effort/uncertainty: Medium-large; host/calibration high uncertainty until probes. Completion: commit/hash IDs; new independent requirement-test traceability; actual logs/uncovered decisions; loaded/native identity and calibration limits. Verification cases: VS-001, VS-REQ-FLT-013.
 
-<a id="pkg-aux-01"></a>
-<a id="case-ax18"></a>
-<a id="record-p29"></a>
+### D-P-FLT-001 â€” Reset all transient input filters at aircraft generation boundaries
 
-### AUX-01 — Connect boom-receptacle refueling states and host fuel transfer
+Accountable **chat1**; status **planned**; prerequisites: P-INT-001, P-INT-002.
 
-Requested door, achieved readiness, contact, transfer and disconnect are independently traced through owned and host state.
+Scope: Legacy RAPTOR yaw/pitch/roll smoother lifecycle and current input/achieved rudder consumers. Exclusions: No aircraft/test/install edits during this audit; no unselected equipment activation or undisclosed aircraft parameter promise..
 
-**Current issue ([AX18](../audit/F22-Fidelity-Audit.html#auth-ax18)):** Own request, external argument 22 and a separate cockpit lamp exist, but the argument meanings and host contact/disconnect mapping are not established. The source trace cannot certify a separate indication sequence, and it does not establish that native fuel transfer is absent.
+Requirements: D-R-INT-001. Findings: D-INT-001. Cleanup: caller migration assessed within tasks.
 
-- Build an argument/EDM/host mapping for request, achieved door, lamp, contact and transfer. Existing external22 and cockpit0 have different consumers; verify their meanings before renaming them.
-- Adopt a boom-receptacle analogue for pilot-ready/contact/disconnect workflow and connect only supported host events. Do not substitute Hornet probe hardware.
-- Use VEH-03 as the sole fuel/tank/mass owner, VEH-04 for consumer supply, and VEH-07 for the selected achieved refueling configuration/control-law contract. Add a VEH-06 actuator interface only if the source-limited route selected requires it; do not infer production mode entry from door-request alone.
-- Tie actual fuel increase to EFM internal/external mass and feed/transfer policy. A door or READY lamp alone cannot prove contact, and unmapped display arguments cannot prove host transfer absent.
-- Specify disconnect input role and readiness after separation; preserve independent door actuation/physical supply constraints.
+1. Reset smoothed_yaw_discrete with the existing pitch/roll filters in the one common generation reset. Classify every other persistent control history explicitly.
+2. Preserve matching keyboard release, opposite request, joystick precedence, saved command IDs and current physical yaw gain.
+3. Delete/remake assigned old reset/input tests during execution from independent same-generation equivalence expectations, including actual release-before-reset controls.
+4. Qualify cold/hot/air-hot/release/re-slot callback order; no old command/filter state may grant new-generation authority.
 
-**Keep:** Existing incremental-kg host refuel callback, internal-then-external fill and queued mass-change accounting in RAPTOR.cpp1583–1619; qualify contact/door gating before adding a duplicate host interlock.
+Acceptance: Same fresh input/time/motion gives the same achieved rudder after priorleft, priorright, neutral and explicit release histories.; Analogzero and matching/opposing release precedence remain correct; power/sensor/repair paths do not auto-reengage guidance.; No aircraft yaw gain or actual re-slot guarantee claimed from a fixture.; .
 
-<details>
-<summary>Files, dependencies and references</summary>
+Contracts provided: I-DEEP-004. Consumed: I-FLT-001. Current versus planned status is explicit in INTERFACES.json.
 
-- `Cockpit/Scripts/Systems/Electrical_System.lua`
-- `Cockpit/Scripts/Systems/Avionics.lua`
-- `EFM/source/RAPTOR.cpp`
-- `F-22A.lua`
+Edit boundary: Named source/consumer regions only; Chat 2 serializes shared files, tests and commits on main with domain region owner.. Effort/uncertainty: 1-3 focused implementation sessions plus applicable supported-host qualification; scheduling/ABI evidence may remain a precise limitation.. Completion: Focused main commit and source/build/installed manifest; Independently rebuilt normal/limit/failure/recovery evidence and caller migration; Explicit native/DCS scope and remaining limitation; no synthetic schedule presented as observed host behavior. Verification cases: DVS-INT-001.
 
-**Depends on:** [ARC-02](#pkg-arc-02), [ARC-03](#pkg-arc-03), [VEH-03](#pkg-veh-03), [VEH-04](#pkg-veh-04).
+### P-RAD-002 â€” Finite scalar and explicit cursor cadence contracts
 
-- Integration: VEH-07: achieved refueling configuration/control law. VEH-06 is conditional on the selected actuator supply route.
+Accountable **chat3**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-RAD-001.
 
-**Audit findings:** [AX18](../audit/F22-Fidelity-Audit.html#auth-ax18).
+Scope: Radar_System closure/cursor; Radar_Data_Bridge consumer; AG_Radar_Computer slew. Exclusions: No audit implementation/install; No invented F22 parameters; No duplicate simulation owner.
 
-**Supporting records:** P29.
+Requirements: R-RAD-002, R-RAD-019. Findings: F-RAD-002. Cleanup: caller migration assessed within tasks.
 
-**References:**
+1. Before edits recheck main HEAD/status/hashes; serialize contended edits/tests/commits via chat2.
+2. Delete and remake assigned existing tests from independent requirements/host contracts, not old answers.
+3. Validate every input/result before valid closure publication; preserve healthy geometry.
+4. Unify STT/selected finite/age policy.
+5. Choose full/active-pause input-time policy and bounded actual dt consistent with host callbacks.
 
-- [Ronald W. Brower (USAF), Lockheed F-22 Raptor, The Avionics Handbook](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf)
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf)
-- [Chuck’s DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf)
+Acceptance: NaN/inf/nil/wrong type -> closure valid0; true zero stays0 valid1.; Fresh valid recovery has no stale poison.; 30/60/240Hz, jitter same elapsed policy time -> cursor within 1e-6rad absent clipping.; Power/page/focus/clock loss cancels axes; no delayed motion.; .
 
-</details>
+Contracts provided: . Consumed: . Current versus planned status is explicit in INTERFACES.json.
 
-<details>
-<summary>Completion checks</summary>
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: small-medium / low uncertainty. Completion: Requirement links/new test results/uncovered decisions; Focused main commit plus source/build/package hashes; Actual runtime qualification or precise remaining limits. Verification cases: VS-006, VS-REQ-RAD-019.
 
-| Condition | Required result |
-| --- | --- |
-| Normal | Open receptacle, obtain host contact, record actual fuel/mass increase and deliberately disconnect with coherent indications. |
-| Limit | Open door without contact; READY does not imply transfer. Check full-fuel saturation and selected tank configuration. |
-| Failure | Lose contact or required supply; transfer/contact indication changes independently of requested door. |
-| Recovery | Reacquire contact and reconcile actual mass without double-counting a host fuel callback. |
+### P-RAD-003 â€” Measured surface association and request handoff
 
-</details>
+Accountable **chat3**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-RAD-001.
 
-<a id="pkg-aux-02"></a>
-<a id="case-ax19"></a>
-<a id="record-p30"></a>
+Scope: GroundMovingTargets Measurements/Tracks; NativeGroundSensor reports/selected; AG_Radar_System native_track/update; target handoff consumers via chat4. Exclusions: No audit implementation/install; No invented F22 parameters; No duplicate simulation owner.
 
-### AUX-02 — Preserve continuous lighting commands through actual emitters
+Requirements: R-RAD-003, R-RAD-015. Findings: F-RAD-003. Cleanup: caller migration assessed within tasks.
 
-Continuous formation/refueling light settings survive the complete command-to-draw-to-material chain where the model supports dimming.
+1. Before edits recheck main HEAD/status/hashes; serialize contended edits/tests/commits via chat2.
+2. Delete and remake assigned existing tests from independent requirements/host contracts, not old answers.
+3. Separate noisy samples, measured association and private host binding.
+4. Introduce owned tokens/covariance innovation/ambiguity policy; fixed terrain FTT distinct.
+5. Publish coherent source/time/generation/uncertainty, migrate all consumers once.
+6. Reset pending reports on power/epoch/clock; preserve request correlation and original coordinate epoch.
 
-**Current issue ([AX19](../audit/F22-Fidelity-Audit.html#auth-ax19)):** EFM formation/AAR exports are Boolean for every nonzero knob setting, so this owned state path loses relative dimming. Actual emitted luminosity and projector behavior require the EDM/host path; empty lights_data collections do not alone prove whether every modeled lamp illuminates the environment.
+Acceptance: Host-ID permutation alone does not renumber measured tracks.; Close/crossing/ambiguous returns coast without perfect identity; impossible jump cannot drag track.; FTT kind3 disclosed, no GMTT zero-speed masquerade.; Lost/duplicate/reordered ack, change pending, repair/power/rewind -> no stale revival.; .
 
-- Replace owned nonzero-to-Boolean reduction for formation/AAR brightness with normalized intensity exports, subject to physical supply and declared lamp modes.
-- Trace EDM materials, connectors and native light-controller fields separately; determine whether each consumes enable, intensity or both before changing it.
-- Verify landing/taxi/position/anti-collision versus formation/refueling controls at night and day. Add missing assets only where the supported light is actually absent.
-- Keep true lamp state, pilot brightness preference and presentation gain distinct. Publish emitter/consumer ids and demand to VEH-04, which owns supply/load accounting. Calibrate visually as an estimate unless authoritative photometry exists.
+Contracts provided: . Consumed: . Current versus planned status is explicit in INTERFACES.json.
 
-<details>
-<summary>Files, dependencies and references</summary>
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: large / moderate uncertainty. Completion: Requirement links/new test results/uncovered decisions; Focused main commit plus source/build/package hashes; Actual runtime qualification or precise remaining limits. Verification cases: VS-REQ-RAD-003, VS-REQ-RAD-015.
 
-- `Cockpit/Scripts/Systems/Electrical_System.lua`
-- `Cockpit/Scripts/Systems/Avionics.lua`
-- `EFM/source/RAPTOR.cpp`
-- `F-22A.lua`
+### P-FLT-002 â€” Complete finite supply/fuel/hydraulic providers
 
-**Depends on:** [ARC-02](#pkg-arc-02), [UI-03](#pkg-ui-03), [VEH-04](#pkg-veh-04).
+Accountable **chat1**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-FLT-001.
 
-**Audit findings:** [AX19](../audit/F22-Fidelity-Audit.html#auth-ax19).
+Scope: Fuel/feed/refueling/mass; Power/APU/SES; Hydraulics/utility demand. Exclusions: Undisclosed production parameters; incidental install or simulator takeover; radar/fusion native internals.
 
-**Supporting records:** P30.
+Requirements: R-FLT-004, R-FLT-006, R-FLT-007, D-R-FLT-002, D-R-FLT-003. Findings: F-FLT-006. Cleanup: caller migration assessed within tasks.
 
-**References:**
+1. Reconcile consumer load/energy and normalized SES/startfuel recharge mass boundary
+2. Specify mission/essential/utility feeds with chat2/chat4
+3. Resolve dated hydraulic EW emergency generator applicability before selected addition
+4. Complete servicing/tank observation generation handshake and utility pressure/demand routing
+5. Rebuild finite fuel/mass/firstmoment property and64 slot refusal tests from independent inventory equations; retain successful current atomic behavior.
+6. Make SES normalizedreserve versus kg/J boundary explicit; harden variablepublic requests or retain documented finite helper precondition; no inferred masscreation claim.
 
-- [Ronald W. Brower (USAF), Lockheed F-22 Raptor, The Avionics Handbook](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf)
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf)
-- [Chuck’s DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf)
+Acceptance: normal: Complete request->owner->achieved effect->valid publication->pilot feedback; healthy behavior retained; limit: Finite domains; zero/invalid dt no advance;<=1s/50substeps; no resource creation; atomic ledger; failure: Reject stale/torn/missing/wronggeneration/wrongtype; withdraw affected source; recovery: Qualified source restoration without stale action replay or unrelated resource repair; 20,000-event sequences and capacity failure preserve resources/moments; actualDCSmass/CG/inertia qualification remains separate..
 
-</details>
+Contracts provided: I-FLT-001; I-FLT-002; I-FLT-003. Consumed: Admitted navigation AFCS; Weapon achieved doors/native carriage. Current versus planned status is explicit in INTERFACES.json.
 
-<details>
-<summary>Completion checks</summary>
+Edit boundary: Chat 1 physical modules and physical RAPTOR callback regions; chat2 single integrator serializes shared RAPTOR/Signals/Engine_System/Electrical_System/mainpanel changes; do not stage another chat work. Effort/uncertainty: Medium-large; host/calibration high uncertainty until probes. Completion: commit/hash IDs; new independent requirement-test traceability; actual logs/uncovered decisions; loaded/native identity and calibration limits. Verification cases: VS-REQ-FLT-004, VS-REQ-FLT-006, VS-REQ-FLT-007, DVS-FLT-002, DVS-FLT-003.
 
-| Condition | Required result |
-| --- | --- |
-| Normal | Sweep knob0,0.25,0.5,1 and measure monotonic owned exports plus actual visible intensity for supported emitters. |
-| Limit | Enable-only host lamps remain explicitly binary; zero intensity never clears an unrelated fault. |
-| Failure | Remove supply; actual emission stops while the documented preference memory is retained. |
-| Recovery | Restore supply and check achieved state, without a discontinuous nonzero-to-full-bright step. |
+### P-NAV-001 â€” Qualify cockpit measurements and selected-reference interfaces
 
-</details>
+Accountable **chat2**; status **planned**; prerequisites: P-FLT-001, P-INT-001, P-INT-002, P-INT-008.
 
-## Optional equipment and added capabilities
+Scope: HUD/ADI altitude/VS, GINS/AFCS contracts; no flight controller retuning. Exclusions: No production calibration from tests; No unsupported host feature promised.
 
-A targeting pod, embedded passive-IR system and helmet display serve different roles. The following work defines complete selectable additions; their presence on a comparator aircraft does not establish F-22 installation.
+Requirements: R-NAV-001, R-NAV-003, R-NAV-007, R-NAV-013. Findings: F-NAV-001, F-NAV-003, F-NAV-006, F-NAV-010. Cleanup: caller migration assessed within tasks.
 
-<a id="pkg-sen-12"></a>
-<a id="record-x01"></a>
-<a id="record-x02"></a>
-<a id="record-x03"></a>
-<a id="record-x04"></a>
-<a id="record-x05"></a>
-<a id="record-x06"></a>
-<a id="record-x07"></a>
-<a id="record-x08"></a>
-<a id="record-x09"></a>
+1. Before changing or qualifying RAPTOR getParameter consumers, require P-INT-008 checked native-read contract: navigationFrame/entry guidance and refuel/lighting adapters must preserve conversion status. Already safe direct bool-checked readers and independent physical callback work remain separate.
+2. During actual execution delete/retire existing tests in this scope and remake them from requirements, independent expectations and actual host contracts. Historical tests are diagnostic only. No test deletion during audit.
+3. First: reproduce stale altitude probe; define source/schema/generation/clock/age contract and enumerate all consumers.
+4. Agree AFCS heading/attitude mapping with chat1; serialize RAPTOR navigationFrame edits.
+5. Migrate HUD/ADI/warning readers and vv/VV alias; preserve explicit RDR fallback/STBY independence.
 
-### SEN-12 — Optional complete optical targeting, laser and video chain
+Acceptance: normal: Selected valid behavior complete through feedback; limit: Explicit finite bounds and age/clock rules; failure: Missing/stale/wrong-type/torn/native failed calls withdraw only affected capability; recovery: Fresh current source/request; no pre-failure replay; .
 
-If adopted, a mounted and powered optical sensor supplies usable TV/IR imagery, pointing/tracking, source-qualified designation, supported laser functions and a declared video/data path end to end.
+Contracts provided: . Consumed: . Current versus planned status is explicit in INTERFACES.json.
 
-- Select an explicitly optional LITENING-inspired initial profile. Keep Sniper as a distinct later equipment variant rather than claiming the same menus, sensors or advanced NTP features.
-- First prove a supported host EO/IR image source, LOS and masking path. Build power/STBY/init/ready/fault, TV/IR polarity, FOV versus digital zoom, gain/level, gimbal/airframe limits, image age/freeze and failed-render indication.
-- Implement selectable snowplow/velocity/waypoint/radar slaving, ground-stabilized area versus object point track, inertial/coast fallback, reject/return and focused-display HOTAS authority. A track attempts acquisition; it does not guarantee it.
-- Transfer a deliberate optical designation through the existing sole ground-target owner with source, observation time, coordinate datum/elevation, quality and an acknowledgment. Preserve independent PP missions and show range-source validity.
-- Add a separate game laser owner for safe/armed/ranging/designating/marker states, designator versus LSS code, manual/automatic or buddy-lase selection, training state and masked/no-return/interrupted behavior. Only apply supported host laser effects; the IR marker is not a designator.
-- Connect supported coordinate/laser-guided stores through SMS settings and achieved mission-data state. If the host cannot supply a weapon effect, retain sensor-only capability with a visible limitation; no decorative laser-ready label.
-- Plan optional video/record metadata and a separately qualified receiver/datalink path. Picture-in-picture or multi-track requires real independent sources and capacity; do not treat them as a single zoomed screenshot or import NTP features into an older pod.
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: Medium to high; native runtime feasibility and optics uncertain. Completion: Focused main commit; Requirement/function/test trace; Caller and obsolete-owner removal proof; Runtime qualification or explicit blocker. Verification cases: VS-003, VS-004, VS-REQ-NAV-007, VS-REQ-NAV-013.
 
-**Keep:** Sole AG_Mark designation owner; Per-station captured missions; Common format focus model; Source and sequence validation.
+### D-P-RAD-001 â€” Repair native finite geometry, packet admission, source leases and ground epochs
 
-<details>
-<summary>Files, dependencies and references</summary>
+Accountable **chat3**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-INT-008.
 
-- `IRST Pod.lua`
-- `Cockpit/Scripts/device_init.lua`
-- `Cockpit/Scripts/Systems/AG_Mark_System.lua`
-- `Cockpit/Scripts/Systems/Sensor_Control.lua`
-- `Cockpit/Scripts/Systems/MFD_Controls.lua`
-- `Cockpit/Scripts/Systems/UFC_Controller.lua`
-- `Cockpit/Scripts/Systems/Store_Capabilities.lua`
-- `Cockpit/Scripts/Systems/Weapon_System.lua`
-- Proposed: `Cockpit/Scripts/Systems/EOIR_System.lua`
-- Proposed: `Cockpit/Scripts/Systems/EOIR_Controls.lua`
-- Proposed: `Cockpit/Scripts/Systems/Laser_State.lua`
-- Proposed: `Cockpit/Scripts/Systems/Target_Observation.lua`
-- Proposed: `Cockpit/Scripts/Systems/EOIR_Video/init.lua`
+Scope: GroundVideoView/NativeGroundVideo frame admission; NativeAesaRadar Parameters.controls plus current AESA_Control publisher integration by chat2; NativeGroundSensor pending/selected/range/filter epoch and current Lua consumer guards; Radar_Tactical producer and NativeDatalink local snapshot admission with Chat 4 consumer-region review. Exclusions: No aircraft/test/install edits during this audit; no unselected equipment activation or undisclosed aircraft parameter promise..
 
-**Depends on:** [SEN-01](#pkg-sen-01), [SEN-05](#pkg-sen-05), [SEN-06](#pkg-sen-06), [SEN-09](#pkg-sen-09), [UI-01](#pkg-ui-01), [UI-03](#pkg-ui-03).
+Requirements: D-R-RAD-001, D-R-RAD-002, D-R-RAD-003, D-R-RAD-004, D-R-WPN-003. Findings: D-RAD-001, D-RAD-002, D-RAD-003, D-RAD-004, D-WPN-003. Cleanup: caller migration assessed within tasks.
 
-**Supporting records:** X01, X02, X03, X04, X05, X06, X07, X08, X09.
+1. Agree finite typed video frame admission, include scan_center/antenna_elevation and every used geometry term; validate derived matrix/projection before host copy. Reject malformed raw mode/expansion before floating-to-integer cast. Keep current captured image/epoch policy when a new frame is invalid; publish accurate unavailable reason.
+2. Read finite/even sequence first, copy every control and priority field with status, then reread same sequence/epoch before committing Request. Alternatively publish immutable joined snapshot under a characterized host contract. Preserve producer observation stamp separately from receipt and revoke disabled packets coherently.
+3. Give ground acquisition, queues, filter, range and selected state one explicit source-clock/epoch transition; clear or retire all together on rollback/large discontinuity. Propagate reset reason/generation across sampler, native publication, image-reference policy and Lua request/selection consumers. Require fresh consent/current report rather than old delayed outcome.
+4. Preserve validated producer stamp in cached Request, retain separate receipt time only for explicit independent liveness, and enforce both source/context age at sensor/model/bridge admission. Preserve pause/clock policy and actual finite stamps; do not subtract unrelated clocks.
+5. Preserve the existing correct AESA_Control odd/even producer and bool-checked numeric reader. Move every protected reader field inside the before/after validation interval.
+6. Give Radar_Tactical/native transmitter one completed or explicitly in-progress packet contract; migrate every consumer under one schema. No old sequence may authenticate partially written source/position/identity.
+7. Use actual writer/reader adversarial field-boundary tests independently, then measure/enforce supported callback scheduling. A modeled interleaving is not an observed DCS race.
 
-**References:**
+Acceptance: NaN/+inf/-inf/wrong-type failure at actual parameter adapter and header cannot produce accepted nonfinite native matrix/projection.; Zero geometry remains accepted and finite; independent units/sign/layout reference unchanged.; Frozen/retained frame and reset/epoch/owner/fault latch transitions remain correct.; Independent actual writer/reader adversarial schedules at every read/write boundary yield complete old/new request or unavailable, never mixed enable/time/geometry.; Odd, changed, stale/future/wrong-type/failed-conversion sequence withdraws; zero enable and zero valid values remain legitimate.; If supported DCS guarantees serialization, document exact callback/thread evidence and still retain correct packet admission.; Rollback at queue/processing/acquisition/selected/ranging phases retires old pending/private histories or publishes explicit unavailable.; Actual Lua future sample remains rejected; explicit subsequent new request/current epoch restores only new target; no replay from old queue when numerical time catches up.; Normal .06/resource delayed report releases once with original stamp; monotone pause does not manufacture reset or new RF credit.; Producer10/copy 10.49/later10.8 is unavailable even if request receipt was recent.; Current source and receipt within leases admit; zero timestamps and same-clock no-work calls remain valid under explicit policy.; Actual host copier/driver phase characterization documents reachability; a serialized guarantee must be evidenced rather than inferred.; Tactical source 88/newposition cannot be sent with priorposition under unchanged old sequence; completeold, completenew or unavailable only.; Producer clock10/copy 10.49/current10.8 cannot acquire another source lease merely by being copied.; Keep current Lua future/stale sample rejection and rollback request cancellation; provider defect does not prove immediate pilot/weapon admission.; .
 
-- [USAF LITENING Advanced Targeting fact sheet](https://www.af.mil/About-Us/Fact-Sheets/Display/Article/104571/litening-advance-targeting/) — Features/platforms
-- [Northrop Grumman LITENING Advanced Targeting Pod](https://www.northropgrumman.com/what-we-do/mission-solutions/electro-optical-and-infrared-sensors-eo-ir/litening-advanced-targeting-pod) — Leading Technology
-- [Air Combat Command Sniper Pod fact sheet](https://www.acc.af.mil/Portals/92/Docs/Fact%20Sheets%20-%202020%20Update/Facts%20Sheets%20-%202023%20Update/SNIPER%20POD_FEB%202023.pdf) — Mission/Features/platforms
-- [Lockheed Martin Sniper ATP and Networked Targeting Pod](https://lockheedmartin.com/en-us/products/sniper.html) — ATP versus NTP
-- [Chuck's DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — pp 249-277
-- [Chuck's DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf) — pp 262-288
+Contracts provided: I-DEEP-001; I-DEEP-003; I-DEEP-005. Consumed: I-RAD-001; I-RAD-003. Current versus planned status is explicit in INTERFACES.json.
 
-</details>
+Edit boundary: Named source/consumer regions only; Chat 2 serializes shared files, tests and commits on main with domain region owner.. Effort/uncertainty: 1-3 focused implementation sessions plus applicable supported-host qualification; scheduling/ABI evidence may remain a precise limitation.. Completion: Focused main commit and source/build/installed manifest; Independently rebuilt normal/limit/failure/recovery evidence and caller migration; Explicit native/DCS scope and remaining limitation; no synthetic schedule presented as observed host behavior. Verification cases: DVS-RAD-001, DVS-RAD-002, DVS-RAD-003, DVS-RAD-004, DVS-WPN-003.
 
-<details>
-<summary>Completion checks</summary>
+### P-RAD-004 â€” Qualify current native/radar/image/support chain
 
-| Condition | Required result |
-| --- | --- |
-| Normal | Mount/power/init produces actual imagery; slew/area/point/reject transitions have visible results and acknowledged optical designation reaches the intended station mission.; A supported self/buddy laser game scenario produces the declared designator/range/LSS-LST states and corresponding host store effect. |
-| Limit | Blocked/gimbal-limited/cloud-obscured scene cannot remain an unqualified fresh visual lock; image freeze is not live sensing.; FOV change and digital zoom are separate; marker, ranging, designating and laser spot search are distinct.; A mismatched/missing laser or video source does not grant a successful track, precise range or weapon readiness. |
-| Failure | Pod removal, power loss, invalid image/LOS or lost point track preserves/clears the declared area/inertial state with honest age and cancels incompatible laser/weapon consent. |
-| Recovery | Recovered image/supply requires the selected initialization and explicit reacquisition/reconsent; a frozen frame never becomes a new target by restoration alone. |
+Accountable **chat3**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-RAD-001, P-RAD-002, P-RAD-003, P-INT-003, P-INT-008, D-P-RAD-001.
 
-</details>
+Scope: NativeAesaRadar qualified API/driver/responder/reset; NativeGroundSensor callbacks; NativeGroundVideo/GroundVideoView; Resource/Donor/Focus/Telemetry; RAPTOR scheduling regions via chat2 integrator. Exclusions: No audit implementation/install; No invented F22 parameters; No duplicate simulation owner.
 
-<a id="pkg-sen-13"></a>
+Requirements: R-RAD-004, R-RAD-005, R-RAD-006, R-RAD-007, R-RAD-010, R-RAD-014, R-RAD-016, R-RAD-017, R-RAD-018, D-R-RAD-001, D-R-RAD-002, D-R-RAD-003, D-R-RAD-004, D-R-WPN-003. Findings: F-RAD-005, D-RAD-001, D-RAD-002, D-RAD-003, D-RAD-004, D-WPN-003. Cleanup: C-RAD-003, C-RAD-004, C-RAD-005.
 
-### SEN-13 — Optional IRDS and passive air-track sensor roles
+1. Before edits recheck main HEAD/status/hashes; serialize contended edits/tests/commits via chat2.
+2. Delete and remake assigned existing tests from independent requirements/host contracts, not old answers.
+3. Pin exact source, compiler, host hashes/PE, exports, vtable/context and loaded package.
+4. Instrument callback threads/phases/quiescence; failed guards withdraw capability.
+5. Prove airborne exported base velocity getter versus virtual38 (ground/gun use38) before changing ABI; mismatch is a question, not proven bug.
+6. Qualify one then concurrent missile targets, AA/AG contention, donor, SIL/ACTIVE/FRZ, moving MAP/EXP.
+7. Measure dense scene/jammer/default logging/opt-in probe costs; prebind handles/refactor bounded regions only with need.
+8. Separate controlled power/cooling/array failure and repair sorties, then VR and multiplayer participants.
+9. Agree D-R-WPN-003 single producer commit contract before changing Radar_Tactical; migrate all native/Lua readers under integrator serialization.
 
-An optional modernized profile separates defensive missile detection from any passive aircraft-search observation and qualifies each source before fusion or radar cueing.
+Acceptance: No stale authority past0.5s control/producer lease or0.25s physical stall; epoch/destruction withdraw.; Caps64tracks/32pending/128candidates/8returns/16LOS remain bounded and overload observable.; Foreign indicator rejected before typed getter; malformed buffer latched; camera/point/params same frame.; Actual target-specific missile effects evidenced, not ready flags.; Predeclare image registration tolerance<=1pixel or justified geometry tolerance; frozen images retain old sample epoch.; Record p50/p95/p99/max CPU/GPU and allocation costs; budgets based on measured integrated host, not standalone benchmark.; Unchanged old sequence cannot qualify partially written source/geometry tuples, or exact measured enforced host serialization excludes that schedule.
 
-- Version legacy missile warning, proposed embedded IRDS and any separate podded IRST as different equipment roles; do not infer a laser rangefinder or targeting camera from the IRST21 database name.
-- Characterize a supported host passive aircraft-observation source before adding player tracks. If only bearing is supported, publish bearing/age/quality rather than exact range or object truth.
-- Add declared aperture/masking, detection/track/coast/loss and degraded-resource states, and qualified handoff to radar or HMD display.
-- Keep missile-warning urgency and aircraft awareness distinct, with no automatic weapon-quality range or remote engagement authority.
-- Record modernization evidence dates and stage. Development/testing announcements remain optional simulated equipment assumptions until applicable fielding evidence exists.
+Contracts provided: . Consumed: I-DEEP-001; I-DEEP-003. Current versus planned status is explicit in INTERFACES.json.
 
-**Keep:** Independent existing optical-warning path; Common source-qualified tactical join.
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: large / high host uncertainty. Completion: Requirement links/new test results/uncovered decisions; Focused main commit plus source/build/package hashes; Actual runtime qualification or precise remaining limits. Verification cases: VS-REQ-RAD-004, VS-REQ-RAD-005, VS-REQ-RAD-006, VS-REQ-RAD-007, VS-REQ-RAD-010, VS-REQ-RAD-014, VS-REQ-RAD-016, VS-REQ-RAD-017, VS-REQ-RAD-018, DVS-RAD-001, DVS-RAD-002, DVS-RAD-003, DVS-RAD-004, DVS-WPN-003.
 
-<details>
-<summary>Files, dependencies and references</summary>
+### P-FLT-003 â€” Finish engine/FADEC/failure chain
 
-- `IRST Sensor.lua`
-- `IRST Pod.lua`
-- `Cockpit/Scripts/Systems/MWS_System.lua`
-- `Cockpit/Scripts/Systems/MWS_Native.lua`
-- `EFM/source/NativeMWS.cpp`
-- `Cockpit/Scripts/Systems/Tactical_Tracks.lua`
-- Proposed: `Cockpit/Scripts/Systems/Passive_IR_System.lua`
+Accountable **chat1**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-FLT-002.
 
-**Depends on:** [SEN-01](#pkg-sen-01), [SEN-06](#pkg-sen-06), [SEN-07](#pkg-sen-07).
+Scope: Engine/start/FADEC. Exclusions: Undisclosed production parameters; incidental install or simulator takeover; radar/fusion native internals.
 
-**References:**
+Requirements: R-FLT-008, D-R-FLT-004. Findings: retention/qualification. Cleanup: C-FLT-002.
 
-- [Lockheed Martin F-22 Infrared Defensive System integration announcement](https://news.lockheedmartin.com/2025-01-22-Lockheed-Martin-to-Modernize-Air-Force-F-22-Raptor-with-Advanced-Infrared-Threat-Detection-Sensors) — Contract/embedded TacIRST paragraphs
-- [GAO Weapon Systems Annual Assessment, F-22 SeE](https://www.gao.gov/assets/gao-25-107569.pdf) — p 74 demonstrations/integration
-- [GAO Weapon Systems Testing, F-22 Sensor Enhancements](https://www.gao.gov/assets/900/890804.pdf) — Figure 7/p 23
-- [Ronald W. Brower, Lockheed F-22 Raptor, The Avionics Handbook chapter 32](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf) — p 9 legacy passive missile-launch role
-- [Chuck's DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — pp 275-277 optical/radar correlation
+1. Retain manual/automatic admitted starter/fuel/ignition behavior
+2. Resolve fire isolation/nozzle supply/relight source evidence policy
+3. Remove superseded timing fields after caller migration; retain declared estimated limits
 
-</details>
+Acceptance: normal: Complete request->owner->achieved effect->valid publication->pilot feedback; healthy behavior retained; limit: Finite domains; zero/invalid dt no advance;<=1s/50substeps; no resource creation; atomic ledger; failure: Reject stale/torn/missing/wronggeneration/wrongtype; withdraw affected source; recovery: Qualified source restoration without stale action replay or unrelated resource repair; .
 
-<details>
-<summary>Completion checks</summary>
+Contracts provided: I-FLT-001; I-FLT-002; I-FLT-003. Consumed: Admitted navigation AFCS; Weapon achieved doors/native carriage. Current versus planned status is explicit in INTERFACES.json.
 
-| Condition | Required result |
-| --- | --- |
-| Normal | Defensive IR warning and passive aircraft awareness publish distinct source roles and display semantics. |
-| Limit | A bearing-only source does not receive precise range because an exact simulator object ID is available.; A generic IRST loadout label does not enable a player sensor without a live qualified source. |
-| Failure | Occlusion and resource failures visibly degrade the affected role, without promoting retained data into current sensing. |
-| Recovery | Restored apertures/source re-establish observations through actual acquisition, not through preserved world target truth. |
+Edit boundary: Chat 1 physical modules and physical RAPTOR callback regions; chat2 single integrator serializes shared RAPTOR/Signals/Engine_System/Electrical_System/mainpanel changes; do not stage another chat work. Effort/uncertainty: Medium-large; host/calibration high uncertainty until probes. Completion: commit/hash IDs; new independent requirement-test traceability; actual logs/uncovered decisions; loaded/native identity and calibration limits. Verification cases: VS-REQ-FLT-008, DVS-FLT-004.
 
-</details>
+### P-FLT-005 â€” Unify gear/brake/hook achieved state
 
-<a id="pkg-sen-14"></a>
-<a id="record-x10"></a>
-<a id="record-x11"></a>
+Accountable **chat1**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-FLT-002.
 
-### SEN-14 — Optional helmet display and head-LOS handoff
+Scope: Gear/hook configuration; Contact/brakes/thermal. Exclusions: Undisclosed production parameters; incidental install or simulator takeover; radar/fusion native internals.
 
-A head-tracked optional display provides aligned, blankable cues and deliberate LOS handoff without mistaking pilot gaze for a sensor measurement or automatic weapon lock.
+Requirements: R-FLT-002, R-FLT-011. Findings: F-FLT-002. Cleanup: caller migration assessed within tasks.
 
-- Choose a Scorpion-inspired optional profile, while labeling DCS JHMCS alignment/blanking/control examples as substitutes.
-- Provide valid head-pose input, coordinate-frame calibration/alignment, power/brightness/NVG presentation and HUD overlap/manual blanking behavior in both desktop and VR.
-- Separate look direction, selected source, cue request and acquired track. Route a deliberate helmet cue to radar, IR seeker or optional pod through each sensor owner.
-- Show source/age and distinguish bearing-only warnings from conformal ranged targets. Preserve head-relative versus aircraft-relative warning references.
-- Define failed pose/alignment and master-mode changes, rejecting invalid/out-of-envelope cues without fabricating acquisition.
+1. Define per-leg travel/door/lock/damage contract; migrate legacy lamp producer AND mainpanel consumers
+2. Probe suspension damage IDs/native arrestment and slip/deceleration before missing effects
+3. Preserve native anti-skid and finite heat/soak/tire/reserve owners
 
-**Keep:** Existing aircraft/world projection helpers; Seeker acquisition independence; Common focus control model.
+Acceptance: normal: Complete request->owner->achieved effect->valid publication->pilot feedback; healthy behavior retained; limit: Finite domains; zero/invalid dt no advance;<=1s/50substeps; no resource creation; atomic ledger; failure: Reject stale/torn/missing/wronggeneration/wrongtype; withdraw affected source; recovery: Qualified source restoration without stale action replay or unrelated resource repair; .
 
-<details>
-<summary>Files, dependencies and references</summary>
+Contracts provided: I-FLT-001; I-FLT-002; I-FLT-003. Consumed: Admitted navigation AFCS; Weapon achieved doors/native carriage. Current versus planned status is explicit in INTERFACES.json.
 
-- `Cockpit/Scripts/device_init.lua`
-- `Cockpit/Scripts/Systems/Combat_Logic.lua`
-- `Cockpit/Scripts/Systems/Sensor_Control.lua`
-- `Cockpit/Scripts/Systems/IR_Seeker.lua`
-- `Cockpit/Scripts/Systems/AG_Mark_System.lua`
-- Proposed: `Cockpit/Scripts/Systems/HMD_System.lua`
-- Proposed: `Cockpit/Scripts/HMD/init.lua`
+Edit boundary: Chat 1 physical modules and physical RAPTOR callback regions; chat2 single integrator serializes shared RAPTOR/Signals/Engine_System/Electrical_System/mainpanel changes; do not stage another chat work. Effort/uncertainty: Medium-large; host/calibration high uncertainty until probes. Completion: commit/hash IDs; new independent requirement-test traceability; actual logs/uncovered decisions; loaded/native identity and calibration limits. Verification cases: VS-002, VS-REQ-FLT-011.
 
-**Depends on:** [SEN-01](#pkg-sen-01), [SEN-05](#pkg-sen-05), [SEN-06](#pkg-sen-06), [SEN-10](#pkg-sen-10), [UI-01](#pkg-ui-01), [UI-03](#pkg-ui-03).
+### P-NAV-002 â€” Consolidate cockpit owners and retire obsolete paths
 
-**Supporting records:** X10, X11.
+Accountable **chat2**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-NAV-001.
 
-**References:**
+Scope: MFD/Avionics page regions, PMFD transport/preferences, retired helpers; no radar/stores algorithm edits. Exclusions: No production calibration from tests; No unsupported host feature promised.
 
-- [Thales F-22 Scorpion HMD interface-development contract](https://www.thalesdsi.com/2024/09/20/thales-awarded-diu-contract-f22-hmd-interface-dev/) — Development/testing/PVI paragraphs
-- [Chuck's DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — pp 284-285
-- [Chuck's DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf) — pp 337-340,357
+Requirements: R-NAV-002, R-NAV-011. Findings: F-NAV-002, F-NAV-008. Cleanup: C-NAV-001, C-NAV-002, C-NAV-003, C-NAV-004.
 
-</details>
+1. During actual execution delete/retire existing tests in this scope and remake them from requirements, independent expectations and actual host contracts. Historical tests are diagnostic only. No test deletion during audit.
+2. Trace registration/dynamic loaders and saved IDs.
+3. Move APU display supply intent to explicit common contract; remove Avionics page writes.
+4. Remove dead PMFD regions and retired helpers after gates; keep physical transport/preferences.
+5. Measure recurring descriptor allocation at requested6ms before optimization; do not invent performance bound.
 
-<details>
-<summary>Completion checks</summary>
+Acceptance: normal: Selected valid behavior complete through feedback; limit: Explicit finite bounds and age/clock rules; failure: Missing/stale/wrong-type/torn/native failed calls withdraw only affected capability; recovery: Fresh current source/request; no pre-failure replay; .
 
-| Condition | Required result |
-| --- | --- |
-| Normal | Head motion moves the qualified cue correctly; a deliberate handoff requests sensor acquisition and actual feedback remains separate.; Blanking/HUD overlap and selected input authority work consistently in 2D and VR. |
-| Limit | Looking at a target does not grant a lock or weapon consent; bearing-only EW cannot appear as a precise conformal target.; Alignment quality and unavailable pose prevent false-precision cueing. |
-| Failure | Head tracker dropout or alignment loss flags unavailable cueing and revokes stale handoffs. |
-| Recovery | Pose restoration/re-alignment restores display and control deliberately without replaying a prior release/cue press. |
+Contracts provided: . Consumed: . Current versus planned status is explicit in INTERFACES.json.
 
-</details>
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: Medium to high; native runtime feasibility and optics uncertain. Completion: Focused main commit; Requirement/function/test trace; Caller and obsolete-owner removal proof; Runtime qualification or explicit blocker. Verification cases: VS-004, VS-REQ-NAV-011.
 
-<a id="pkg-sen-15"></a>
-<a id="record-w03"></a>
-<a id="record-w04"></a>
-<a id="record-x12"></a>
-<a id="record-x13"></a>
-<a id="record-x14"></a>
-<a id="record-x15"></a>
-<a id="record-x16"></a>
-<a id="record-x17"></a>
+### P-NAV-003 â€” Prove receiver context lifetime and ident feasibility
 
-### SEN-15 — Decide unsupported weapons and independent weapon-video chains
+Accountable **chat2**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-NAV-001, P-INT-008.
 
-Unsupported weapon/equipment families remain honestly absent or gain a complete explicitly optional host-supported workflow before appearing as operational capability.
+Scope: NativeNavigation; shared RAPTOR callbacks serialized with chat1. Exclusions: No production calibration from tests; No unsupported host feature promised.
 
-- Keep experimental missile/MAKO labels versioned and unsupported A/G delivery inhibited. Decide each optional store family separately from core equipment.
-- For an optional Maverick-like capability, qualify prelaunch seeker video, boresight/alignment, acquisition/handoff, actual station identity and native release. It is distinct from postlaunch video steering.
-- For optional SLAM-ER/Walleye-like video control, first qualify a native weapon/data-link source, controller ownership, video age, transfer/accept/reject and link-loss behavior. No ordinary Link 16 target message substitutes for weapon video.
-- Treat HARM/HTS/cooperative emitter location, anti-ship planning and decoy equipment as evidence/host-feasibility decisions. Specify only supported game modes and UI state; do not implement real RF targeting, TDOA, guidance or countermeasure recipes.
-- Publish the decision for advanced multi-track/picture-in-picture and external weapon families; an advertised store requires supported mass/drag/configuration, mission preparation, feedback and recovery chains.
+Requirements: R-NAV-004, R-NAV-006. Findings: F-NAV-004, F-NAV-005. Cleanup: caller migration assessed within tasks.
 
-**Keep:** Explicit MAKO A/G unsupported state; Capability allowlist; Native actual station identity.
+1. During actual execution delete/retire existing tests in this scope and remake them from requirements, independent expectations and actual host contracts. Historical tests are diagnostic only. No test deletion during audit.
+2. Inspect reset/context ordering; actual-adapter contextA/B/null/reused-address fixture.
+3. Prove matched allocate/construct/start/release/destroy and no exceptions escaping callback.
+4. Probe ident monitor/mute/readback/retune separately from measurement channels; record exact unsupported capability.
 
-<details>
-<summary>Files, dependencies and references</summary>
+Acceptance: normal: Selected valid behavior complete through feedback; limit: Explicit finite bounds and age/clock rules; failure: Missing/stale/wrong-type/torn/native failed calls withdraw only affected capability; recovery: Fresh current source/request; no pre-failure replay; .
 
-- `Cockpit/Scripts/Systems/Store_Capabilities.lua`
-- `Cockpit/Scripts/Systems/Weapon_System.lua`
-- `EFM/source/NativeAGWeapons.cpp`
-- `entry.lua`
+Contracts provided: . Consumed: . Current versus planned status is explicit in INTERFACES.json.
 
-**Depends on:** [SEN-01](#pkg-sen-01), [SEN-09](#pkg-sen-09), [SEN-12](#pkg-sen-12).
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: Medium to high; native runtime feasibility and optics uncertain. Completion: Focused main commit; Requirement/function/test trace; Caller and obsolete-owner removal proof; Runtime qualification or explicit blocker. Verification cases: VS-REQ-NAV-004, VS-REQ-NAV-006.
 
-**Supporting records:** W03, W04, X12, X13, X14, X15, X16, X17.
+### P-NAV-005 â€” Complete alert decisions and bounded audio qualification
 
-**References:**
+Accountable **chat2**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-NAV-001.
 
-- [USAF F-22 Raptor fact sheet](https://www.af.mil/About-Us/Fact-Sheets/Display/Article/104506/f-22-raptor/About-Us/f-22-raptor/) — Armament; baseline family context, not proof every unlisted item is impossible
-- [USAF AGM-65 Maverick fact sheet](https://www.af.mil/About-Us/Fact-Sheets/Display/Article/104577/agm-65-maverick/) — Features/variant video distinction
-- [NAVAIR SLAM-ER product description](https://www.navair.navy.mil/product/SLAM-ER) — Two-way link and named platforms
-- [Chuck's DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — Maverick/HARM/HTS chapters
-- [Chuck's DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf) — Maverick/Harpoon/SLAM/Walleye chapters
+Scope: Pilot warnings/fault catalogue and display outputs; physical causes remain chat1. Exclusions: No production calibration from tests; No unsupported host feature promised.
 
-</details>
+Requirements: R-NAV-009, R-NAV-010, R-NAV-016. Findings: F-NAV-007. Cleanup: caller migration assessed within tasks.
 
-<details>
-<summary>Completion checks</summary>
+1. During actual execution delete/retire existing tests in this scope and remake them from requirements, independent expectations and actual host contracts. Historical tests are diagnostic only. No test deletion during audit.
+2. Choose overspeed provider/envelope with chat1; label unverified thresholds estimates.
+3. Decide low-fuel/bingo independently from F-22 evidence.
+4. Extend per-cause validity/onset/clear/ACK/recovery; preserve recordings and confirmed delivery.
+5. Measure urgent audio latency across actual clip lengths and MWS/RWR contention before choosing budget.
+6. Preserve existing11714/F22_BINGO_KG_REQUEST threshold. Consume I-NAV-006 qualified current native cause for lamp/registry/audio; agree provider validity/clock with chat1. Delete/remake alert tests during execution from independent current cause/ACK/hysteresis requirements.
+7. R-NAV-016: delete/retire existing terrain tests during execution and remake from independent flat/slope/ridge/obstruction/source-failure expectations. Cover world wind/frame, 0.8sreaction/roll/Gphases, 12kquery cap, cache direction/wind changes<=.2s, clockrollback, ground/power/FCS/airdata loss, onset ties/staggering, live bank and no-escape cue. Preserve advisory-only authority and distinct speech/display clocks.
 
-| Condition | Required result |
-| --- | --- |
-| Normal | Every enabled optional family has the selected equipment profile, complete control/display/native effect and documented limitations. |
-| Limit | Prelaunch seeker image, pod video, own-missile diagnostic truth and postlaunch weapon downlink are not interchangeable.; Unsupported families remain explicitly unavailable rather than passing generic guided-weapon checks. |
-| Failure | Lost video/link/seeker or unsupported host interface yields declared unavailable/unknown state without synthetic weapon steering. |
-| Recovery | Changing station/controller/rearming starts the declared new lifecycle with no stale image, control ownership or consent. |
+Acceptance: normal: Selected valid behavior complete through feedback; limit: Explicit finite bounds and age/clock rules; failure: Missing/stale/wrong-type/torn/native failed calls withdraw only affected capability; recovery: Fresh current source/request; no pre-failure replay; .
 
-</details>
+Contracts provided: . Consumed: I-NAV-006; I-NAV-007. Current versus planned status is explicit in INTERFACES.json.
 
-<a id="pkg-mis-01"></a>
-<a id="case-ax15"></a>
-<a id="case-ax17"></a>
-<a id="record-c06"></a>
-<a id="record-x18"></a>
-<a id="record-x19"></a>
-<a id="record-p06"></a>
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: Medium to high; native runtime feasibility and optics uncertain. Completion: Focused main commit; Requirement/function/test trace; Caller and obsolete-owner removal proof; Runtime qualification or explicit blocker. Verification cases: VS-REQ-NAV-009, VS-REQ-NAV-010, VS-REQ-NAV-016.
 
-### MIS-01 — Create mission-data partitions and optional cartographic presentation
+### P-NAV-006 â€” Resolve navigation depth and mission data decisions
 
-Routes, planned intelligence and pilot defaults have provenance and versioning, independent of current sensor detections.
+Accountable **chat2**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-NAV-001.
 
-- Define a small versioned mission-data schema for route/alternate fields, planned threat zones, radio presets and declared network/ROE/color defaults; no unrestricted enemy truth feed.
-- Load/validate partitions transactionally with provenance and date. Keep planned rings separate from live track lifetimes and distinguish pilot-declared identity from observed classification.
-- If selected, add a cartographic layer with explicit terrain-data source, loaded region, orientation, scale and declutter. Keep route/sensor cues usable when imagery is unavailable.
-- Document mission-editor, local-file and in-cockpit edit precedence and lifecycle. Do not describe an import file as a verified real F-22 DTC replica.
+Scope: Navigation_System/GINS/INS/Mission_Data and radio/route consumer contracts. Exclusions: No production calibration from tests; No unsupported host feature promised.
 
-<details>
-<summary>Files, dependencies and references</summary>
+Requirements: R-NAV-007, R-NAV-012. Findings: F-NAV-006. Cleanup: caller migration assessed within tasks.
 
-- `Cockpit/Scripts/Systems/Navigation_System.lua`
-- `Cockpit/Scripts/Systems/Tactical_Situation.lua`
-- `Cockpit/Scripts/Systems/Tactical_Tracks.lua`
-- `Cockpit/Scripts/MFD_COMMON/formats.lua`
+1. During actual execution delete/retire existing tests in this scope and remake them from requirements, independent expectations and actual host contracts. Historical tests are diagnostic only. No test deletion during audit.
+2. Retain independent marks/manualUTC/timing/route sequencing.
+3. Decide manual independent fix, altitude update, flyby/overfly, DTC zones/presets/network partitions/cartography by applicability and host feasibility.
+4. Implement only selected feasible complete chains; optional HMD/TGP/recovery shared with chat4.
+5. Separate calibration datasets from independent validation; sensitivity/convergence checks on estimated alignment/coast.
 
-**Depends on:** [ARC-01](#pkg-arc-01), [ARC-02](#pkg-arc-02), [ARC-03](#pkg-arc-03), [SEN-05](#pkg-sen-05), [SEN-06](#pkg-sen-06), [SEN-09](#pkg-sen-09).
+Acceptance: normal: Selected valid behavior complete through feedback; limit: Explicit finite bounds and age/clock rules; failure: Missing/stale/wrong-type/torn/native failed calls withdraw only affected capability; recovery: Fresh current source/request; no pre-failure replay; .
 
-**Audit findings:** [AX15](../audit/F22-Fidelity-Audit.html#auth-ax15), [AX17](../audit/F22-Fidelity-Audit.html#auth-ax17).
+Contracts provided: . Consumed: . Current versus planned status is explicit in INTERFACES.json.
 
-**Supporting records:** C06, X18, X19, P06.
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: Medium to high; native runtime feasibility and optics uncertain. Completion: Focused main commit; Requirement/function/test trace; Caller and obsolete-owner removal proof; Runtime qualification or explicit blocker. Verification cases: VS-REQ-NAV-007, VS-REQ-NAV-012.
 
-**References:**
+### P-WPN-002 â€” Unify achieved bay and ballistic supply contract
 
-- [Ronald W. Brower (USAF), Lockheed F-22 Raptor, The Avionics Handbook](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf)
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf)
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf)
-- [Chuck’s DCS F/A-18C Hornet Guide](https://assets.chucksguides.com/pdf/DCS%20FA-18C%20Hornet%20Guide.pdf)
+Accountable **chat4**; status **planned**; prerequisites: P-FLT-002, P-INT-001, P-INT-002, P-WPN-001.
 
-</details>
+Scope: Ballistic bay forecast consumer and chat1 physical-provider interface. Exclusions: No production implementation/deletion/install in this audit.; No undocumented aircraft performance, RF/guidance recipes or optional activation by flag alone..
 
-<details>
-<summary>Completion checks</summary>
+Requirements: R-WPN-002, D-R-WPN-002. Findings: F-WPN-002. Cleanup: caller migration assessed within tasks.
 
-| Condition | Required result |
-| --- | --- |
-| Normal | Load a known route and planned zone; overlay them consistently while actual sensor contacts age independently. |
-| Limit | Corrupt/out-of-region/missing map data cannot corrupt route coordinates or retune a radio. |
-| Failure | Reject a bad partition and retain the previous valid partition with an understandable result. |
-| Recovery | Reload a corrected partition and reproduce the same route/labels without resurrecting old live tracks. |
+1. P-FLT-002 must demonstrate qualified utility supply, current achieved-door feedback, clock/generation and actuator eligibility before forecast/consumer migration. Preserve existing achieved-door reads; this is not a request for a second door integrator. Gear/hook P-FLT-005 is not a bay dependency unless execution moves that provider region there.
+2. Agree one physical utility/clock/station envelope with chat1.
+3. Migrate raw EFM_ACTUATOR_AVAILABLE forecast to qualified current achieved-state contract.
+4. Define variable-dt/pause/failure behavior and eliminate any duplicate physical integration only with chat1 owner migration.
 
-</details>
+Acceptance: Divergent utility/flight supplies yield prediction matching actual doors or explicit unavailable.; Torn/stale/future frame cannot keep valid release prediction.; Current bay/IR/gun clearance preserved.; .
 
-<a id="pkg-nav-wp11"></a>
-<a id="case-an30"></a>
-<a id="record-l23"></a>
-<a id="record-l24"></a>
-<a id="record-l25"></a>
-<a id="record-nav-30"></a>
+Contracts provided: . Consumed: qualified physical snapshot; radar qualified association/support and source 2 gun motion; shared input/entry/audio leases. Current versus planned status is explicit in INTERFACES.json.
 
-### NAV-WP11 — Gate optional automatic recovery capability without inventing production behavior
+Edit boundary: Weapons/EW Lua and named native closure; native radar provider chat3, bay/utility physical authority chat1, shared MFD/UFC/audio dispatch integrator chat2. Serialize shared NativeSidewinder/RAPTOR regions.. Effort/uncertainty: 1-3 focused implementation sessions each; native/runtime and optional-host feasibility uncertain. Completion: focused main commits and drift manifest; independently remade tests/fixtures result ledger; actual native/DCS effect qualification where required; retained behavior and unresolved limits. Verification cases: VS-REQ-WPN-002, DVS-WPN-002.
 
-A conditional AGCAS-equipped profile has explicit availability, arming, intervention, override and handback states. Advisory TAWS and any optional autoland remain separate capabilities.
+### D-P-WPN-001 â€” Preserve identity provenance through the complete donor wire and fusion chain
 
-- Record the selected equipment profile and public functional evidence. Do not claim universal F-22 fit or recovered production law. Show feature availability before issuing commands.
-- Specify the game function and authority states: available, armed, inhibited, active, overridden, failed and handed back. Define pilot override and which owner wins competing commands. A numerical protection model remains a separately declared approximate game implementation.
-- Keep advisory prediction and automatic control under separate owners with independent availability. Neither a renamed warning nor a stale healthy flag creates protection.
-- Qualify intervention, source failure and pilot handoff against actual mod authority before enabling the profile. Do not copy a F-16 recovery trajectory as a F-22 law.
-- Keep automatic ILS/flight director/autoland in a further optional branch requiring receiver integrity, capture state, authority, go-around, flare, WOW and rollout. It does not block manual core release.
-- Exclude carrier ACLS from F-22 requirements; a fictional carrier project would need a separate airframe and host specification.
+Accountable **chat4**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-INT-008, D-P-RAD-001.
 
-**Keep:** Preserve the explicitly advisory terrain module and separate manual recovery.; Keep public automatic-function evidence without filling unknown laws with a donor algorithm..
+Scope: Versioned own IFDL identity known/status/time/clock/epoch fields, actual native transport and Lua fusion/pilot age consumers. Exclusions: No aircraft/test/install edits during this audit; no unselected equipment activation or undisclosed aircraft parameter promise..
 
-<details>
-<summary>Files, dependencies and references</summary>
+Requirements: D-R-WPN-001. Findings: D-WPN-001. Cleanup: caller migration assessed within tasks.
 
-- `Proposed: separately owned game AGCAS state/authority module`
-- `EFM/source/RAPTOR.cpp`
-- `EFM/source/Autopilot.h`
-- `Cockpit/Scripts/Systems/Pilot_Warning_System.lua`
-- `Cockpit/Scripts/Systems/Terrain_Escape.lua`
-- `Optional: separate automatic approach/flare/rollout module`
-- `Profile/configuration documentation`
+1. Define identity-specific original source time or qualified age/clock mapping, known/status and epoch independently of kinematic sample/receipt. Preserve unknown explicitly.
+2. Migrate own native report/wire/receive publication and all Lua fusion/identity/pilot qualifiers as one versioned chain; source/report/peer identity remains independent.
+3. Withdraw unsupported own packet versions or precisely disclose unknown identity age; do not introduce an unchecked legacy compatibility authority. Preserve independent valid geometry and friendly-protection/conflict semantics.
+4. Delete/remake assigned donor/native mocks and tests during execution from independent source-age expectations. Exercise different clock origins, delay/repeat/epoch/reset/contradictory evidence.
+5. Qualify actual supported native radio with two participants before MP provenance claims. Baseline unknown IFF remains unknown until the separate provider-ready decision.
 
-**Depends on:** [NAV-WP01](#pkg-nav-wp01), [NAV-WP07](#pkg-nav-wp07), [NAV-WP08](#pkg-nav-wp08), [NAV-WP09](#pkg-nav-wp09), [NAV-WP10](#pkg-nav-wp10).
+Acceptance: Identity unknown orsource10 withgeometry200 cannot become knownidentitytime200.; Fresh independently qualified identity replaces retained evidence once; receipt/geometry updates never renew it.; Invalid/missing/old-version identity provenance affects only identity, with truthful unknown age and existing no-offboard-weapon-authority rule.; Actual two-participant effects and sourceclock mapping are demonstrated or precisely unqualified; no RF/crypto authenticity inferred.; .
 
-**Audit findings:** [AN30](../audit/F22-Fidelity-Audit.html#auth-an30).
+Contracts provided: I-DEEP-002. Consumed: I-DEEP-005; I-WPN-007. Current versus planned status is explicit in INTERFACES.json.
 
-**Supporting records:** L23, L24, L25, NAV-30.
+Edit boundary: Named source/consumer regions only; Chat 2 serializes shared files, tests and commits on main with domain region owner.. Effort/uncertainty: 1-3 focused implementation sessions plus applicable supported-host qualification; scheduling/ABI evidence may remain a precise limitation.. Completion: Focused main commit and source/build/installed manifest; Independently rebuilt normal/limit/failure/recovery evidence and caller migration; Explicit native/DCS scope and remaining limitation; no synthetic schedule presented as observed host behavior. Verification cases: DVS-WPN-001.
 
-**References:**
+### P-WPN-004 â€” Qualify identity/fusion/donor and native terminal
 
-- [AFMAN 11-2F-22A Volume 3, Operations Procedures](https://static.e-publishing.af.mil/production/1/af_a3/publication/afman11-2f-22av3/afman11-2f-22av3.pdf) — p8 §2.4.2.3; p18 §3.15.3
-- [USAF, F-35s begin Auto GCAS test flights](https://www.acc.af.mil/News/Article/1692384/f-35s-begin-auto-gcas-test-flights/) — Complete historical F-22 statement
-- [Chuck’s DCS F-16C Viper Guide](https://assets.chucksguides.com/pdf/DCS%20F-16C%20Viper%20Guide.pdf) — pp155–157
-- [Eagle Dynamics DCS F/A-18C Early Access Guide](https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf) — p48
+Accountable **chat4**; status **planned**; prerequisites: P-INT-001, P-INT-002, D-P-WPN-001.
 
-</details>
+Scope: Achieved IFF backend feasibility/unknown decision, own responder, fusion identity/provenance and native datalink terminal. Radar request/display integration closes separately in P-RAD-007.. Exclusions: No production implementation/deletion/install in this audit.; No undocumented aircraft performance, RF/guidance recipes or optional activation by flag alone..
 
-<details>
-<summary>Completion checks</summary>
+Requirements: R-WPN-004, R-WPN-008, D-R-WPN-001, D-R-WPN-003. Findings: D-WPN-001, D-WPN-003. Cleanup: caller migration assessed within tasks.
 
-| Condition | Required result |
-| --- | --- |
-| Normal | Feature OFF produces no protection commands while advisory warnings remain.; An equipped profile displays only the declared, available game function.; In a controlled simulation scenario, pilot override ends automatic authority with the stated handback. |
-| Limit | Measure every declared game envelope/authority boundary; make no recovery guarantee beyond qualified conditions.; Simultaneous AP, A/T and protection requests follow one authority table rather than additive outputs. |
-| Failure | Invalid terrain, position, air data or control power yields explicit failure/unavailability and handback.; Optional autoland cannot announce capture or landing without actual mode, receiver and WOW state. |
-| Recovery | Fault or override follows a deliberate reset/rearm policy; normal AP cannot silently resume.; An optional landing abort preserves manual control and healthy flight/radio instruments. |
+1. Chat 4 owns the achieved IFF reply-backend feasibility probe: identify an actual current-host independent interrogation/reply endpoint, request/source/epoch/time correlation, native guard/read status, rejection and destruction ordering. Test the actual matched host interface under execution authorization. If absent/unqualified, publish an explicit no-go/unavailable contract and evidence; never substitute coalition/scene truth or scripted friendly replies.
+2. Agree actual IFF unknown/reply provenance contract with chat3; no coalition truth substitute for missing interrogation.
+3. Keep simulated own responder explicitly simulated and document selected surviving-resource limitations.
+4. Prove donor unknown sample/receipt/epoch, contradictory identity and no weapon authority through native queue and Lua picture.
+5. Qualify terminal destruction/re-slot and2client exchange.
+6. Publish provider_ready with measured backend evidence or explicit no-go/unknown, exact schema and independent event/lifecycle tests to Chat 3. Close this provider/fusion package without requiring the later radar consumer migration; P-RAD-007 and P-INT-006 close the joined request/reply/indication chain.
+7. Require D-P-WPN-001 versioned identity wire/consumer migration before achieved IFF/donor availability claims; consume its result rather than duplicate transport ownership.
+8. Coordinate D-R-WPN-003 radar typed commit with Chat 3/Chat 2 integrator; qualify actual callback scheduling or enforce in-progress snapshot rejection.
 
-</details>
+Acceptance: Bare no-reply unknown, conflicting evidence visible and friendly protection retained.; Unknown donor sample holds position; FOLLOW/cue never grants lock/release.; Actual donor capability limited to tested producer/platform/MP cases.; Provider_ready is demonstrated actual correlated reply behavior or a truthful tested unavailable/no-go interface; no-go is a host limitation, never passed IFF capability. Own responder remains explicitly simulated where applicable. Radar integration is a later consumer gate.; Actual sender original identity time 10 and unknown-100 never become geometry-time 200 known identity at receiver; Independently preempt every radar field boundary and test packet/no packet decision, then qualify actual two-participant native radio paths.
 
-## Completion checks
+Contracts provided: I-WPN-006; I-WPN-007. Consumed: qualified physical snapshot; radar qualified association/support and source 2 gun motion; shared input/entry/audio leases; I-DEEP-002; I-DEEP-005. Current versus planned status is explicit in INTERFACES.json.
 
-<a id="pkg-veh-15"></a>
+Edit boundary: Weapons/EW Lua and named native closure; native radar provider chat3, bay/utility physical authority chat1, shared MFD/UFC/audio dispatch integrator chat2. Serialize shared NativeSidewinder/RAPTOR regions.. Effort/uncertainty: 1-3 focused implementation sessions each; native/runtime and optional-host feasibility uncertain. Completion: focused main commits and drift manifest; independently remade tests/fixtures result ledger; actual native/DCS effect qualification where required; retained behavior and unresolved limits. Verification cases: VS-REQ-WPN-004, VS-REQ-WPN-008, DVS-WPN-001, DVS-WPN-003.
 
-<a id="pkg-nav-wp12"></a>
-<a id="record-h05"></a>
-<a id="record-h07"></a>
-<a id="record-h06"></a>
+### P-RAD-005 â€” Coherent SAR applicability and host feasibility
 
-<a id="pkg-rel-01"></a>
-<a id="record-c08"></a>
-<a id="record-c10"></a>
+Accountable **chat3**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-RAD-004.
 
-- Use the per-system completion checks above. Compare against the selected reference behavior and declared estimates; a passing software test alone does not establish aircraft fidelity.
-- Exercise normal operation, limits, loss/failure and recovery on the actual supported package. Confirm physical/native effects where the feature depends on them.
-- Measure performance at declared mass, CG, payload and atmospheric conditions. Reconcile fuel, energy, pressure, heat and mass changes across the complete chain.
-- Qualify cockpit controls, optical alignment, readability and sound in the actual 2D/VR installation. A preview cannot establish the installed result.
-- Fly the integrated mission: hot runway start, navigation/setup transit, MiG defense, guided or explicitly selected training-store attack, then recovery at a different runway. Use separate sorties for controlled failures and boundary cases.
-- For multiplayer claims, verify authority, remote effects, donor data, disconnect/reconnect and server behavior with actual participants.
+Scope: SAR research notes/tools as nonproduction evidence; new bounded host environment/output probes. Exclusions: No audit implementation/install; No invented F22 parameters; No duplicate simulation owner.
 
-Detailed mission cards and native-integration checks remain in the [backlog](BACKLOG.json).
+Requirements: R-RAD-008, R-RAD-013. Findings: F-RAD-004. Cleanup: caller migration assessed within tasks.
 
-## References and detailed findings
+1. Before edits recheck main HEAD/status/hashes; serialize contended edits/tests/commits via chat2.
+2. Delete and remake assigned existing tests from independent requirements/host contracts, not old answers.
+3. Decide selected addition versus retained DBS approximation.
+4. Qualify terrain/depth/object/visibility ABI, thread, output buffer/layout with independent assembly/runtime evidence.
+5. Qualify owned texture publication after actual render pass; restore borrowed context, no blocking readback.
+6. Declare bounded scatterer/reflectivity/nav-error assumptions and forward-looking ambiguity.
 
-- [Fidelity audit](../audit/F22-Fidelity-Audit.html): documented behavior, current implementation, differences and uncertainty.
-- [Complete backlog](BACKLOG.json): every task, dependency, decision and assignment.
-- [Source catalogue](SOURCES.json): citations, pages, source applicability and access limits.
-- [Captured source](../audit/THIRD_PASS_SOURCE.zip): the preserved source-file bytes matching the planning capture.
+Acceptance: Written go/no-go lists actual usable environment/output contracts, exact profiles, bounds and blockers.; Point-target CPU reference and independent geometry validate formation; no direct known-target pixel drawing.; Missing support leaves coherent SAR unavailable while current useful approximation retained.; .
 
-Code references use the 27 October 2026 planning capture. Recheck affected files before implementing an item.
+Contracts provided: . Consumed: . Current versus planned status is explicit in INTERFACES.json.
+
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: research / high uncertainty. Completion: Requirement links/new test results/uncovered decisions; Focused main commit plus source/build/package hashes; Actual runtime qualification or precise remaining limits. Verification cases: VS-REQ-RAD-008, VS-REQ-RAD-013.
+
+### P-RAD-008 â€” Bound radar evidence, calibration and selected depth
+
+Accountable **chat3**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-RAD-004.
+
+Scope: AesaRadar Policy/detect/queue/dwell; AesaTrackFilter thresholds; AesaReceiver/native interference; Equipment_Profile via chat2. Exclusions: No audit implementation/install; No invented F22 parameters; No duplicate simulation owner.
+
+Requirements: R-RAD-012, R-RAD-013, R-RAD-017. Findings: F-RAD-008. Cleanup: caller migration assessed within tasks.
+
+1. Before edits recheck main HEAD/status/hashes; serialize contended edits/tests/commits via chat2.
+2. Delete and remake assigned existing tests from independent requirements/host contracts, not old answers.
+3. Version parameter/evidence ledger separating historical F22,named analogues, estimates.
+4. Predefine matched geometry/RCS/LOS/ECM, seed/sensitivity/convergence metrics; reserve independent validation data.
+5. Decide CFAR/false-alarm/ambiguity/deception/ground-jammer/LPI depth and complete-chain feasibility.
+6. Implement only selected feasible bounded receiver/measurement/quality/consumer behavior.
+
+Acceptance: No production range/resolution/waveform claim from constants.; Independent seed ensembles verify inverse-fourth echo/inverse-square noise trends/uncertainty under declared simplified model.; Unknown/unsupported profile/ECM/capacity explicit, not healthy zero; runtime impact measured.; .
+
+Contracts provided: . Consumed: . Current versus planned status is explicit in INTERFACES.json.
+
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: evidence/model / high aircraft uncertainty. Completion: Requirement links/new test results/uncovered decisions; Focused main commit plus source/build/package hashes; Actual runtime qualification or precise remaining limits. Verification cases: VS-REQ-RAD-012, VS-REQ-RAD-013, VS-REQ-RAD-017.
+
+### P-FLT-004 â€” Complete FCS/configuration law authority
+
+Accountable **chat1**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-FLT-002, P-FLT-003, D-P-FLT-001.
+
+Scope: FCS/trim/vectoring. Exclusions: Undisclosed production parameters; incidental install or simulator takeover; radar/fusion native internals.
+
+Requirements: R-FLT-009, D-R-INT-001, D-R-FLT-004. Findings: D-INT-001. Cleanup: C-DEEP-001, C-DEEP-002.
+
+1. Select source-limited approach/refuel/single-engine law
+2. Specify mass/config bounds and resettable FCS faults; preserve pitch-priority saturation
+3. Consume admitted AFCS controls at one physical surface/vector owner
+4. Consume D-P-FLT-001 completed reset/retention contract; do not implement a second input-filter owner.
+5. Resolve C-DEEP-001 precise unused-state/local retirement gate; retain all enclosing host callbacks and current gain/achieved-state behavior.
+6. Resolve C-DEEP-002 precise unused-state/local retirement gate; retain all enclosing host callbacks and current gain/achieved-state behavior.
+
+Acceptance: normal: Complete request->owner->achieved effect->valid publication->pilot feedback; healthy behavior retained; limit: Finite domains; zero/invalid dt no advance;<=1s/50substeps; no resource creation; atomic ledger; failure: Reject stale/torn/missing/wronggeneration/wrongtype; withdraw affected source; recovery: Qualified source restoration without stale action replay or unrelated resource repair; .
+
+Contracts provided: I-FLT-001; I-FLT-002; I-FLT-003. Consumed: Admitted navigation AFCS; Weapon achieved doors/native carriage; I-DEEP-004. Current versus planned status is explicit in INTERFACES.json.
+
+Edit boundary: Chat 1 physical modules and physical RAPTOR callback regions; chat2 single integrator serializes shared RAPTOR/Signals/Engine_System/Electrical_System/mainpanel changes; do not stage another chat work. Effort/uncertainty: Medium-large; host/calibration high uncertainty until probes. Completion: commit/hash IDs; new independent requirement-test traceability; actual logs/uncovered decisions; loaded/native identity and calibration limits. Verification cases: VS-REQ-FLT-009, DVS-INT-001, DVS-FLT-004.
+
+### P-FLT-006 â€” Connect environment/oxygen/canopy native effects
+
+Accountable **chat1**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-FLT-001, P-FLT-002, P-FLT-003.
+
+Scope: Canopy/escape; Oxygen/cabin native effects. Exclusions: Undisclosed production parameters; incidental install or simulator takeover; radar/fusion native internals.
+
+Requirements: R-FLT-003, R-FLT-005, D-R-FLT-001, D-R-FLT-004. Findings: F-FLT-004. Cleanup: C-FLT-004.
+
+1. Probe SDK oxygen/pressurization and canopy seal APIs before implementation
+2. Chat 2 adapter under chat1 physical contract; route finite backup/source-loss effects
+3. Select oxygen era and label thermal/cabin schedules estimates
+4. Resolve D-Q-FLT-001 oxygen publication time meaning before altering depletion boundaries.
+5. Declare thermal fuel inlet/massflow enthalpy approximation and measure parameter/dt sensitivity before claiming energy closure.
+
+Acceptance: normal: Complete request->owner->achieved effect->valid publication->pilot feedback; healthy behavior retained; limit: Finite domains; zero/invalid dt no advance;<=1s/50substeps; no resource creation; atomic ledger; failure: Reject stale/torn/missing/wronggeneration/wrongtype; withdraw affected source; recovery: Qualified source restoration without stale action replay or unrelated resource repair; Zero/exact/substep reserve cases obey declared endstate/interval meaning; native physiological effect is explicitly qualified or unavailable..
+
+Contracts provided: I-FLT-001; I-FLT-002; I-FLT-003. Consumed: Admitted navigation AFCS; Weapon achieved doors/native carriage. Current versus planned status is explicit in INTERFACES.json.
+
+Edit boundary: Chat 1 physical modules and physical RAPTOR callback regions; chat2 single integrator serializes shared RAPTOR/Signals/Engine_System/Electrical_System/mainpanel changes; do not stage another chat work. Effort/uncertainty: Medium-large; host/calibration high uncertainty until probes. Completion: commit/hash IDs; new independent requirement-test traceability; actual logs/uncovered decisions; loaded/native identity and calibration limits. Verification cases: VS-REQ-FLT-003, VS-REQ-FLT-005, DVS-FLT-001, DVS-FLT-004.
+
+### P-FLT-009 â€” Finish refueling/lighting adapters
+
+Accountable **chat1**; status **planned**; prerequisites: P-FLT-002, P-FLT-005, P-INT-001, P-INT-002, P-INT-008.
+
+Scope: Fuel/feed/refueling/mass; Lighting/refuel adapters. Exclusions: Undisclosed production parameters; incidental install or simulator takeover; radar/fusion native internals.
+
+Requirements: R-FLT-004, R-FLT-014. Findings: F-FLT-003. Cleanup: C-FLT-003.
+
+1. Before changing or qualifying RAPTOR getParameter consumers, require P-INT-008 checked native-read contract: navigationFrame/entry guidance and refuel/lighting adapters must preserve conversion status. Already safe direct bool-checked readers and independent physical callback work remain separate.
+2. Chat 1 physical provider, chat2 serializes cockpit/native shared-file adapter changes
+3. Connect actual door/ready/contact/disconnect/emitter intensity and retain native controls/audio
+4. Retire only proven unused audio wrappers after host gate
+
+Acceptance: normal: Complete request->owner->achieved effect->valid publication->pilot feedback; healthy behavior retained; limit: Finite domains; zero/invalid dt no advance;<=1s/50substeps; no resource creation; atomic ledger; failure: Reject stale/torn/missing/wronggeneration/wrongtype; withdraw affected source; recovery: Qualified source restoration without stale action replay or unrelated resource repair; .
+
+Contracts provided: I-FLT-001; I-FLT-002; I-FLT-003. Consumed: Admitted navigation AFCS; Weapon achieved doors/native carriage. Current versus planned status is explicit in INTERFACES.json.
+
+Edit boundary: Chat 1 physical modules and physical RAPTOR callback regions; chat2 single integrator serializes shared RAPTOR/Signals/Engine_System/Electrical_System/mainpanel changes; do not stage another chat work. Effort/uncertainty: Medium-large; host/calibration high uncertainty until probes. Completion: commit/hash IDs; new independent requirement-test traceability; actual logs/uncovered decisions; loaded/native identity and calibration limits. Verification cases: VS-REQ-FLT-004, VS-REQ-FLT-014.
+
+### P-NAV-004 â€” Resolve optional complete clear-voice CNI
+
+Accountable **chat2**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-NAV-003.
+
+Scope: Optional voice CNI only; no secure/hopping/cryptography simulation claim. Exclusions: No production calibration from tests; No unsupported host feature promised.
+
+Requirements: R-NAV-005. Findings: F-NAV-005. Cleanup: caller migration assessed within tasks.
+
+1. During actual execution delete/retire existing tests in this scope and remake them from requirements, independent expectations and actual host contracts. Historical tests are diagnostic only. No test deletion during audit.
+2. Keep backend selected off until native lifecycle/tune/RX/TX/PTT/audio proof.
+3. If feasible select explicit optional profile and implement requested/accepted/achieved settings, presets, monitor/guard and boundedPTT lease.
+4. If blocked give exact host/provenance blocker; retain menu/unavailable behavior.
+5. Lost focus/pause/power/restart must releasePTT; no pre-outage transmission replay.
+
+Acceptance: normal: Selected valid behavior complete through feedback; limit: Explicit finite bounds and age/clock rules; failure: Missing/stale/wrong-type/torn/native failed calls withdraw only affected capability; recovery: Fresh current source/request; no pre-failure replay; .
+
+Contracts provided: . Consumed: . Current versus planned status is explicit in INTERFACES.json.
+
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: Medium to high; native runtime feasibility and optics uncertain. Completion: Focused main commit; Requirement/function/test trace; Caller and obsolete-owner removal proof; Runtime qualification or explicit blocker. Verification cases: VS-REQ-NAV-005.
+
+### P-NAV-007 â€” Qualify whole cockpit/manual recovery on pinned installation
+
+Accountable **chat2**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-NAV-002, P-NAV-003, P-NAV-005, P-NAV-006.
+
+Scope: Chat 2 accountable whole-mission integration and cockpit qualification; no incidental DCS takeover. Exclusions: No production calibration from tests; No unsupported host feature promised.
+
+Requirements: R-NAV-008, R-NAV-009, R-NAV-016. Findings: F-NAV-009. Cleanup: caller migration assessed within tasks.
+
+1. During actual execution delete/retire existing tests in this scope and remake them from requirements, independent expectations and actual host contracts. Historical tests are diagnostic only. No test deletion during audit.
+2. Record source/build/package/loaded identity independently.
+3. Nominal coldstart/taxi/takeoff/navigation/received manual approach/landing/shutdown in2D thenVR with exact atmosphere/mass/stores.
+4. Separate controlled source/supply/gear/receiver/audio failures and restart/repair cycles.
+5. Chat 2 integrates serialized shared regions; each domain owner supplies provider evidence. Multiplayer requires actual participants/authority testing.
+6. R-NAV-016: qualify native terrain.GetHeight/isVisible world axes, terrain edits/obstructions/missing service, sensor currentness and bounded worst-case advisory work; compare live HUD cue versus voice timing in controlled2D/VR. Do not claim automaticGCAS.
+
+Acceptance: normal: Selected valid behavior complete through feedback; limit: Explicit finite bounds and age/clock rules; failure: Missing/stale/wrong-type/torn/native failed calls withdraw only affected capability; recovery: Fresh current source/request; no pre-failure replay; .
+
+Contracts provided: . Consumed: . Current versus planned status is explicit in INTERFACES.json.
+
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: Medium to high; native runtime feasibility and optics uncertain. Completion: Focused main commit; Requirement/function/test trace; Caller and obsolete-owner removal proof; Runtime qualification or explicit blocker. Verification cases: VS-REQ-NAV-008, VS-REQ-NAV-009, VS-REQ-NAV-016.
+
+### P-NAV-008 â€” Close side-display validity and physical control lifecycle contracts
+
+Accountable **chat2**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-NAV-001, P-NAV-002, P-FLT-001.
+
+Scope: Avionics side indication/input regions, UFD/common ADI consumers, clickable/default contracts; native producer contract adapters only by chat1 coordination. Exclusions: No production calibration from tests; No unsupported host feature promised.
+
+Requirements: R-NAV-013, R-NAV-014, R-NAV-015. Findings: F-NAV-010, F-NAV-011, F-NAV-012, F-NAV-013. Cleanup: C-NAV-004, C-NAV-005.
+
+1. During execution delete/retire existing tests scoped to these paths and remake from R-NAV-013..015 independent expectations, source units/frame tables and actual host contracts. No deletion during audit.
+2. Agree native field/schema/generation/stamp/source/reference/power and missing-data policies with chat1; determine exact side-field capability after ADC/GINS/radar loss. No raw host truth fallback.
+3. Migrate side readouts to qualified fields and unavailable glyph; preserve current texture/font/position/color unless specific native type or duplicate-node correction requires local change.
+4. Define maintained/toggle aliases and explicit releases; wire SMFD up, add lifecycle cancellation, retain stable input IDs and validate real user diff retention.
+5. Decide selected common ADI LOC/GS applicability then implement independent current axes with documented units/sign/full-scale, or delete obsolete graph after applicability/caller decision.
+6. Remove obsolete side publishers/unused locals and duplicate right G graph only after consumer migration and dynamic-load gates.
+7. Run remade requirement/owner-order/edge/failure tests, actual host callback/type tests, then controlled DCS cold/hot/air2D and VR captures with source/build/package/loaded identity. Record runtime blockers explicitly.
+
+Acceptance: normal: One press cycle one action; each valid side field correct selected units/reference, no changed intended appearance; independent manual LOC/GS if selected.; limit: Finite/wrong-type/torn/zero/negative units boundaries, 270/360headingwrap, controller input decode, per-field age lease, masked source stale values, saved IDs.; failure: ADC/GINS/radar/native context/page/focus/power/pause loss withdraws only affected indication/held input. A healthy attitude neighbor cannot imply healthy airspeed.; recovery: Fresh publication and new press after up; no pre-loss replay, independent axes restore, threshold/user settings retention explicit.; .
+
+Contracts provided: Per-field display admission and control edge/release protocol. Consumed: I-NAV-001; I-NAV-005; I-NAV-006 for alert integration; Current native LOC/GS and GINS/ADC snapshots; chat1 qualified native measurement/power providers; I-FLT-001. Current versus planned status is explicit in INTERFACES.json.
+
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: Medium to high; native runtime feasibility and optics uncertain. Completion: Focused main commit; Requirement/function/test trace; Caller and obsolete-owner removal proof; Runtime qualification or explicit blocker. Verification cases: VS-REQ-NAV-013, VS-REQ-NAV-014, VS-REQ-NAV-015.
+
+### P-WPN-005 â€” Qualify complete IR readiness and audible lifecycle
+
+Accountable **chat4**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-WPN-001, P-WPN-002.
+
+Scope: Selected side-bay seeker/native feedback/HUD/audio. Exclusions: No production implementation/deletion/install in this audit.; No undocumented aircraft performance, RF/guidance recipes or optional activation by flag alone..
+
+Requirements: R-WPN-005. Findings: retention/qualification. Cleanup: caller migration assessed within tasks.
+
+1. Retain caged-before-consent selected-bay preparation, current generation and independent radar-off acquisition.
+2. Remake coherent frame/instance/exposure and requested audio loop tests, then runtime qualify exact loaded combined DLL/Lua.
+3. Declare mount aperture approximation/LOAL/cooling/target association limits rather than invent health.
+
+Acceptance: No generic pickle for typed IR; actual native lock/ID required.; Power/rearm/station/held release cannot launch old instance.; Tones/HUD reflect qualified fresh feedback and warning priority, actual audio listened in host.; .
+
+Contracts provided: . Consumed: qualified physical snapshot; radar qualified association/support and source 2 gun motion; shared input/entry/audio leases. Current versus planned status is explicit in INTERFACES.json.
+
+Edit boundary: Weapons/EW Lua and named native closure; native radar provider chat3, bay/utility physical authority chat1, shared MFD/UFC/audio dispatch integrator chat2. Serialize shared NativeSidewinder/RAPTOR regions.. Effort/uncertainty: 1-3 focused implementation sessions each; native/runtime and optional-host feasibility uncertain. Completion: focused main commits and drift manifest; independently remade tests/fixtures result ledger; actual native/DCS effect qualification where required; retained behavior and unresolved limits. Verification cases: VS-REQ-WPN-005.
+
+### P-RAD-007 â€” Integrate achieved identification at radar seam
+
+Accountable **chat3**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-RAD-001, P-WPN-004.
+
+Scope: Radar_IFF legacy reply/control; AESA_Control observation identity; Radar_System IFF indications; Radar_Tactical identity. Exclusions: No audit implementation/install; No invented F22 parameters; No duplicate simulation owner.
+
+Requirements: R-RAD-009, R-RAD-010, R-RAD-014. Findings: F-RAD-006. Cleanup: caller migration assessed within tasks.
+
+1. Before edits recheck main HEAD/status/hashes; serialize contended edits/tests/commits via chat2.
+2. Delete and remake assigned existing tests from independent requirements/host contracts, not old answers.
+3. Wait for P-WPN-004 IFF_PROVIDER_READY. Chat 4 owns the achieved backend/transponder/fusion decision; Chat 3 owns radar request/control/reply indication integration. Agree source/time/epoch/request/reply/errors, and consume an explicit no-go as unavailable/unknown.
+4. Distinguish request/automatic from achieved reply/unavailability; never use scene coalition.
+5. Migrate once and retire unused reply method after caller proof; retain controls and separate fusion identity.
+
+Acceptance: Request unavailable/rejected visible; no invented friend/hostile.; No response unknown, old identity not renewed by new geometry.; Qualified reply correlated with source/request/epoch/time or capability disclosed unavailable.; Full radar request -> achieved reply or explicit unavailable -> valid identity publication -> pilot indication is qualified with Chat 4 signoff. Never reopen a reverse prerequisite requiring P-RAD-007 before the provider decision.; .
+
+Contracts provided: . Consumed: I-WPN-007. Current versus planned status is explicit in INTERFACES.json.
+
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: medium / external backend feasibility. Completion: Requirement links/new test results/uncovered decisions; Focused main commit plus source/build/package hashes; Actual runtime qualification or precise remaining limits. Verification cases: VS-REQ-RAD-009, VS-REQ-RAD-010, VS-REQ-RAD-014.
+
+### P-RAD-006 â€” Integrate selected leased SAR collection/formation
+
+Accountable **chat3**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-RAD-005.
+
+Scope: new SAR collection/formation modules; AesaRadar surface job lease; NativeGroundVideo texture publication; AG collection/status controls. Exclusions: No audit implementation/install; No invented F22 parameters; No duplicate simulation owner.
+
+Requirements: R-RAD-004, R-RAD-007, R-RAD-008, R-RAD-017. Findings: F-RAD-004. Cleanup: caller migration assessed within tasks.
+
+1. Before edits recheck main HEAD/status/hashes; serialize contended edits/tests/commits via chat2.
+2. Delete and remake assigned existing tests from independent requirements/host contracts, not old answers.
+3. Freeze collection generation/grid/waveform/reference; only granted illuminations contribute.
+4. Bound pulse/processing queues; stream GPU batches, retain last complete image shared by both VR eyes.
+5. Cancel incompatible geometry/profile/power/clock/nav state; separate image progress/quality from target authority.
+6. One selected imagery owner; retire old selected path only after proven cutover.
+
+Acceptance: Independent bandwidth/aperture/motion error/two-target/forward-ambiguity experiments match declared physics.; Complex GPU-reference SER>=40dB for specified synthetic cases (numerical, not aircraft evidence).; No generation mixing, display-time RF credit or image-derived fire-control authority.; Full footprint/VR measured cost meets P-RAD-004/005 budgets; bounded worst batch.; .
+
+Contracts provided: . Consumed: . Current versus planned status is explicit in INTERFACES.json.
+
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: large / high uncertainty; execute only after capability go. Completion: Requirement links/new test results/uncovered decisions; Focused main commit plus source/build/package hashes; Actual runtime qualification or precise remaining limits. Verification cases: VS-REQ-RAD-004, VS-REQ-RAD-007, VS-REQ-RAD-008, VS-REQ-RAD-017.
+
+### P-FLT-007 â€” Reconcile damage/fault/repair outcomes
+
+Accountable **chat1**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-FLT-003, P-FLT-004, P-FLT-005, P-FLT-006.
+
+Scope: Damage/fault/repair. Exclusions: Undisclosed production parameters; incidental install or simulator takeover; radar/fusion native internals.
+
+Requirements: R-FLT-012. Findings: retention/qualification. Cleanup: caller migration assessed within tasks.
+
+1. Map every registered cell/planned fault to physical/native/feedback consequences
+2. Distinguish controller reset, repair and resource servicing; no implicit refuel/cooling/start
+
+Acceptance: normal: Complete request->owner->achieved effect->valid publication->pilot feedback; healthy behavior retained; limit: Finite domains; zero/invalid dt no advance;<=1s/50substeps; no resource creation; atomic ledger; failure: Reject stale/torn/missing/wronggeneration/wrongtype; withdraw affected source; recovery: Qualified source restoration without stale action replay or unrelated resource repair; .
+
+Contracts provided: I-FLT-001; I-FLT-002; I-FLT-003. Consumed: Admitted navigation AFCS; Weapon achieved doors/native carriage. Current versus planned status is explicit in INTERFACES.json.
+
+Edit boundary: Chat 1 physical modules and physical RAPTOR callback regions; chat2 single integrator serializes shared RAPTOR/Signals/Engine_System/Electrical_System/mainpanel changes; do not stage another chat work. Effort/uncertainty: Medium-large; host/calibration high uncertainty until probes. Completion: commit/hash IDs; new independent requirement-test traceability; actual logs/uncovered decisions; loaded/native identity and calibration limits. Verification cases: VS-002.
+
+### P-FLT-008 â€” Characterize physics and validate airborne envelope
+
+Accountable **chat1**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-FLT-003, P-FLT-004, P-FLT-005.
+
+Scope: Aerodynamics/performance; Frames/air data/inertia. Exclusions: Undisclosed production parameters; incidental install or simulator takeover; radar/fusion native internals.
+
+Requirements: R-FLT-010, R-FLT-015, D-R-FLT-003, D-R-FLT-004. Findings: F-FLT-005. Cleanup: caller migration assessed within tasks.
+
+1. Probe host specific-force/gravity/inertia/ground effect/store drag ownership
+2. Verify force/moment/mass identities before tuning
+3. Predeclare conditions/tolerances/uncertainty, separate calibration from held-out validation
+4. Adopt the six-family coefficient/capacity provenance and sensitivity matrix; use numerical invariants independently from held-out flight evidence.
+5. Characterize native force/gravity/inertia/ground effect/store-drag ownership before adding a second contribution.
+6. Keep historical high-alpha documentation and add dated current-code correction during canonicaladoption ratherthan inheriting obsolete drag-discontinuity sentence.
+
+Acceptance: normal: Complete request->owner->achieved effect->valid publication->pilot feedback; healthy behavior retained; limit: Finite domains; zero/invalid dt no advance;<=1s/50substeps; no resource creation; atomic ledger; failure: Reject stale/torn/missing/wronggeneration/wrongtype; withdraw affected source; recovery: Qualified source restoration without stale action replay or unrelated resource repair; Current source truth and numerical convergence credited without authenticating F119/FCS gains or whole-aircraft envelope.; Independentmatchedconditiondataanduncertainty, actualsource/loadedidentity and calibration/holdout split retained..
+
+Contracts provided: I-FLT-001; I-FLT-002; I-FLT-003. Consumed: Admitted navigation AFCS; Weapon achieved doors/native carriage. Current versus planned status is explicit in INTERFACES.json.
+
+Edit boundary: Chat 1 physical modules and physical RAPTOR callback regions; chat2 single integrator serializes shared RAPTOR/Signals/Engine_System/Electrical_System/mainpanel changes; do not stage another chat work. Effort/uncertainty: Medium-large; host/calibration high uncertainty until probes. Completion: commit/hash IDs; new independent requirement-test traceability; actual logs/uncovered decisions; loaded/native identity and calibration limits. Verification cases: VS-REQ-FLT-010, VS-REQ-FLT-015, DVS-FLT-003, DVS-FLT-004.
+
+### P-WPN-008 â€” Retire obsolete owners and remake assigned tests
+
+Accountable **chat4**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-WPN-001, P-WPN-003, P-WPN-004, P-WPN-005, P-WPN-006, P-WPN-007.
+
+Scope: Dead helper/caller migration, complexity/performance and tests retirement closure. Exclusions: No production implementation/deletion/install in this audit.; No undocumented aircraft performance, RF/guidance recipes or optional activation by flag alone..
+
+Requirements: R-WPN-009. Findings: retention/qualification. Cleanup: C-WPN-001, C-WPN-002, C-WPN-004, C-WPN-005.
+
+1. Inventory exact legacy tests/fixtures/runners by hash with P-INT002; DELETE AND REMAKE every assigned artifact during execution.
+2. Remove dead production measured-gun/gravity/exact-ID helpers only after host/dynamic/research caller proof; no default compatibility wrapper.
+3. Focused phase extraction and hard count limits for time-window histories; prebind/preallocate measured native recurring scratch where useful.
+4. Keep original resources/evidence and classify non-test research separately; no backup source trees.
+
+Acceptance: Each old assigned test deleted/replaced or retired requirement explicitly accounted.; Replacement expectations independent, catch demonstrated failures and critical mutations.; Exactly one live physical/data owner, no dead synthetic authority or unbounded history; measured callback/GC limits reported.; .
+
+Contracts provided: . Consumed: qualified physical snapshot; radar qualified association/support and source 2 gun motion; shared input/entry/audio leases. Current versus planned status is explicit in INTERFACES.json.
+
+Edit boundary: Weapons/EW Lua and named native closure; native radar provider chat3, bay/utility physical authority chat1, shared MFD/UFC/audio dispatch integrator chat2. Serialize shared NativeSidewinder/RAPTOR regions.. Effort/uncertainty: 1-3 focused implementation sessions each; native/runtime and optional-host feasibility uncertain. Completion: focused main commits and drift manifest; independently remade tests/fixtures result ledger; actual native/DCS effect qualification where required; retained behavior and unresolved limits. Verification cases: VS-REQ-WPN-009.
+
+### P-FLT-010 â€” Whole-vehicle mission/failure qualification
+
+Accountable **chat1**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-FLT-007, P-FLT-008, P-FLT-009, P-INT-003.
+
+Scope: Input provenance and validity; Gear/hook configuration; Canopy/escape; Fuel/feed/refueling/mass; Oxygen/cabin native effects; Power/APU/SES; Hydraulics/utility demand; Engine/start/FADEC; FCS/trim/vectoring; Aerodynamics/performance; Contact/brakes/thermal; Damage/fault/repair; Lifecycle/input; Lighting/refuel adapters; Frames/air data/inertia. Exclusions: Undisclosed production parameters; incidental install or simulator takeover; radar/fusion native internals.
+
+Requirements: R-FLT-001, R-FLT-002, R-FLT-003, R-FLT-004, R-FLT-005, R-FLT-006, R-FLT-007, R-FLT-008, R-FLT-009, R-FLT-010, R-FLT-011, R-FLT-012, R-FLT-013, R-FLT-014, R-FLT-015. Findings: retention/qualification. Cleanup: caller migration assessed within tasks.
+
+1. During actual execution delete/remake old in-scope tests from independently specified requirements per user steering
+2. Run new owner/state-transition/native suites and controlled normal/failure DCS sorties under runtime authorization
+3. Record loaded identity, 2D/VR feedback and MP authority only where actually tested
+4. Exercise freshspawn/respawn/re-slot with keyboard andanalog histories, explicit keyrelease andidentical newgeneration input; no retainedtransientfilter maycrossgeneration. Parentleadownsreset finding; use independentchallenge as acceptance evidence.
+
+Acceptance: normal: Complete request->owner->achieved effect->valid publication->pilot feedback; healthy behavior retained; limit: Finite domains; zero/invalid dt no advance;<=1s/50substeps; no resource creation; atomic ledger; failure: Reject stale/torn/missing/wronggeneration/wrongtype; withdraw affected source; recovery: Qualified source restoration without stale action replay or unrelated resource repair; Priorleft/priorright keyboardhistory produces same newgeneration ruddertrajectory under samefreshinput; saved bindings preserved. ActualDCSre-slot sequence remains required..
+
+Contracts provided: I-FLT-001; I-FLT-002; I-FLT-003. Consumed: Admitted navigation AFCS; Weapon achieved doors/native carriage. Current versus planned status is explicit in INTERFACES.json.
+
+Edit boundary: Chat 1 physical modules and physical RAPTOR callback regions; chat2 single integrator serializes shared RAPTOR/Signals/Engine_System/Electrical_System/mainpanel changes; do not stage another chat work. Effort/uncertainty: Medium-large; host/calibration high uncertainty until probes. Completion: commit/hash IDs; new independent requirement-test traceability; actual logs/uncovered decisions; loaded/native identity and calibration limits. Verification cases: VS-001, VS-002, VS-REQ-FLT-003, VS-REQ-FLT-004, VS-REQ-FLT-005, VS-REQ-FLT-006, VS-REQ-FLT-007, VS-REQ-FLT-008, VS-REQ-FLT-009, VS-REQ-FLT-010, VS-REQ-FLT-011, VS-REQ-FLT-013, VS-REQ-FLT-014, VS-REQ-FLT-015.
+
+### P-INT-005 â€” Qualify shared lifecycle, performance and multiplayer boundaries
+
+Accountable **chat2**; status **planned**; prerequisites: P-FLT-007, P-INT-002, P-INT-007, P-INT-008, P-NAV-008, P-RAD-004, P-RAD-007, P-WPN-003, P-WPN-004, P-WPN-005, P-WPN-006, D-P-FLT-001, D-P-RAD-001, D-P-WPN-001.
+
+Scope: cross-system orchestration, authority and measurement. Exclusions: No aircraft edits during this audit.; No optional capability activation without separate applicable profile/host decision..
+
+Requirements: R-HOOK-002, R-HOOK-003, R-INT-004, D-R-INT-001, D-R-WPN-001, D-R-WPN-003. Findings: F-HOOK-002, D-INT-001, D-WPN-001. Cleanup: caller migration assessed within tasks.
+
+1. Compose independently rebuilt owner tests through actual providers/consumers; verify reset/power/rearm/refuel/page/dt/teardown combinations.
+2. Measure per-thread callback duration, allocations/GC, queue maxima, dropped/capped work and dt behavior under declared hardware/contact load before assigning real-time budgets. Keep current code caps until measured justified replacements.
+3. Characterize host/client ownership and replication with at least2participants; no assumption that local publication or native host callback implies replication.
+4. Run controlled source-loss while guidance engaged, late acknowledgements across servicing, silent radar with retained tracks, competing warning/seeker audio.
+5. Qualify hook callback coexistence/order, modeltime/renderframe and global/activepause behavior, pending action lifecycle and teardown; measure any callback/log/I/O budget before claiming real-time bounds
+6. Qualify repeated cold/hot/air-hot/release/re-slot transitions with prior held/released/opposing input state; check actual host callback ordering.
+7. Measure exact producer/Lua/native callback scheduling and enforce/document memory publication and reset retirement; distinguish deterministic interleaving probes from observed host schedules.
+8. Keep all current F-WPN-007 payload-hook/terminal/MWS lifetime questions; independently trace reset/re-slot/late callback under matched native host.
+
+Acceptance: No stale command revival, duplicate resource integrator or invented measured data.; Report measured p50/p95/p99/max plus measurement conditions; no unsupported hard-real-time claim.; Multiplayer client/host observations match declared authority and loss/rejoin behavior, or release limitation explicitly excludes unsupported cases.; No actual host coherence/lifetime claim based only on readable pointer, sequence equality or SEH.
+
+Contracts provided: . Consumed: . Current versus planned status is explicit in INTERFACES.json.
+
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: 2-4 focused sessions; host qualification uncertain. Completion: focused commits integrated on main; new requirement-test results and untested limits; source/build/package manifest; updated package status. Verification cases: VS-007, VS-008, VS-REQ-HOOK-002, VS-REQ-HOOK-003, DVS-INT-001, DVS-WPN-001, DVS-WPN-003.
+
+### P-INT-006 â€” Run staged whole-mission and controlled failure qualification
+
+Accountable **chat2**; status **planned**; prerequisites: P-INT-001, P-INT-002, P-INT-003, P-INT-004, P-INT-005, P-INT-007, P-INT-008, P-FLT-001, P-FLT-002, P-FLT-003, P-FLT-004, P-FLT-005, P-FLT-006, P-FLT-007, P-FLT-008, P-FLT-009, P-FLT-010, P-NAV-001, P-NAV-002, P-NAV-003, P-NAV-004, P-NAV-005, P-NAV-006, P-NAV-007, P-RAD-001, P-RAD-002, P-RAD-003, P-RAD-004, P-RAD-005, P-RAD-006, P-RAD-007, P-RAD-008, P-WPN-001, P-WPN-002, P-WPN-003, P-WPN-004, P-WPN-005, P-WPN-006, P-WPN-007, P-WPN-008, P-WPN-009, P-NAV-008, D-P-FLT-001, D-P-RAD-001, D-P-WPN-001.
+
+Scope: whole aircraft release gates; domain qualifications added as dependencies at synthesis. Exclusions: No aircraft edits during this audit.; No optional capability activation without separate applicable profile/host decision..
+
+Requirements: R-INT-003, R-INT-004, R-INT-005. Findings: retention/qualification. Cleanup: caller migration assessed within tasks.
+
+1. Use VERIFICATION procedures with exact current source/build/package/profile, weather/mass/stores and observer collection.
+2. Progress startup/taxi/takeoff/navigation/manual recovery, radar/fusion/weapon effect sorties, then separately controlled failures; no combined destructive failure pileup masking causes.
+3. Qualify2DandVR optics/HUD alignment, saved controls, native text formatting, recorded audio mix and optional equipment exclusion.
+4. Publish supported envelope, numerical uncertainty, host limitations and unexecuted checks; close only actual demonstrated requirements.
+5. Reconcile every captured and subsequently added old test/fixture/runner plus actual managed hook to deleted/remade, retired requirement, or preserved original research evidence. Collect all domain replacements after HARNESS_READY; no old acceptance suite remains authoritative.
+6. Require P-INT-004 adoption, P-INT-007 control/loader preservation, and an explicit P-NAV-004 selected-off/no-go or qualified selected implementation disposition. Optional capability implementation is not required when deliberately unselected or host-limited; its decision and truthful feedback are required.
+
+Acceptance: Every core requirement has rebuilt offline evidence plus applicable native/DCS gates; unqualified features accurately limited.; Independent numerical validation data not reused calibration data; predefined tolerances met or uncertainty retained.; All old test files accounted deleted/remade during execution; no false green based on old suite.; .
+
+Contracts provided: . Consumed: . Current versus planned status is explicit in INTERFACES.json.
+
+Edit boundary: Only assigned owning regions; chat2 serializes shared files per shared instructions.. Effort/uncertainty: 2-4 focused sessions; host qualification uncertain. Completion: focused commits integrated on main; new requirement-test results and untested limits; source/build/package manifest; updated package status. Verification cases: VS-004, VS-007, VS-008, VS-REQ-INT-003.
+
+## Verification and release gates
+
+[VERIFICATION-SPEC.json](<C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Audit/Deep-Audit-2026-10-28-1351/VERIFICATION-SPEC.json>) retains the243-artifact deletion/remake map and adds new requirement cases plus six deep event campaigns. Use independent requirements and actual host contracts, not copied old expected answers. Preserve original research/recordings as evidence rather than a parallel legacy acceptance suite.
+
+New sequences include source/mixed-packet field-boundary interleavings, producer 10/copy 10.49/query 10.8 leases, pending ground state100â†’10 rollback, independent identity 10/unknown with geometry 200, validzero/nonfinite camera/clock fields, shared-pressure versus ADC-only fault, and old keyboard histories across fresh generations. Existing rejecting consumers, bool-checked readers, finite scheduler/resource behavior and source 2 gun policy remain regression obligations.
+
+Flags/IDs/protocol state are exact. Numeric transport tolerances are software tolerances; declare conditions and scale-aware conservation/convergence tolerances before execution. Use the physical six-family provenance matrix for sensitivity and held-out aircraft validation, matched mass/CG/stores/atmosphere. Do not turn a passing analytic/header/property test into F119/FCS/thermal authenticity. Actual callback budgets require measured hardware/load/cadence, not source caps alone.
+
+Qualify normal startup/taxi/takeoff/navigation/manual recovery, radar/fusion/store/gun/CM effects, then separately controlled failure/recovery sorties under exact source/build/package/default-input and loaded identity. Optical/audio/2D/VR and two-participant MP authority/clock/rejoin require actual observation. Installation/runtime follows the later execution request's authorization and one exclusive Chat 2 runtime slot. Never take over or terminate the user's simulator incidentally.

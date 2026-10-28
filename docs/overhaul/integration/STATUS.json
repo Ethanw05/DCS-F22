@@ -1,0 +1,692 @@
+{
+  "schema_version": 1,
+  "integrator": "chat2",
+  "profile": "public_f22_manual_recovery@1",
+  "audit_root": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Deep-Audit-2026-10-28-1351",
+  "runtime_slot": {
+    "owner": null,
+    "status": "unclaimed; simulator not operated"
+  },
+  "leases": [
+    {
+      "owner": "chat2",
+      "region": "canonical audit/overhaul/handoff indexes; CMake output; common replacement harness",
+      "status": "active",
+      "baseline": "INITIAL-STATE.json",
+      "restrictions": "Recheck each affected hash before edit; no other domain source regions"
+    },
+    {
+      "owner": "chat1",
+      "status": "granted",
+      "id": "flight-early",
+      "paths": [
+        "EFM/source/RAPTOR.cpp",
+        "EFM/source/VehicleIntegration.h",
+        "Cockpit/Scripts/Systems/HUD_Flight_Data.lua"
+      ],
+      "regions": [
+        "reset_fm_state yaw reset",
+        "ed_fm_set_atmosphere input provenance",
+        "CockpitManager initialize/update/invalidatePhysical/updateCombat field-group validity only",
+        "VehicleIntegration vehicle_sample_environment provenance",
+        "HUD physical/update independent kinematics versus atmosphere gates only"
+      ],
+      "expected_raptor_sha256": "71d7660ce9b178295f033a1efbd0652d3b964ba501298545b4112888b0cc37a1",
+      "prerequisite_gate": "HARNESS_READY; safe output policy",
+      "release": "Record changed paths/regions/hashes and commit request in flight-execution; integrator serializes commit and refreshes hashes",
+      "exclusions": [
+        "NavigationFrame/parameter cache/entry/refuel/lighting",
+        "HUD altitude selection/reader",
+        "CMake/common harness/API headers",
+        "No installation/runtime lease"
+      ]
+    },
+    {
+      "owner": "chat3",
+      "status": "granted",
+      "id": "radar-independent",
+      "regions": [
+        "Own radar source regions listed in radar-execution/CONTRACT-PROPOSAL.md excluding shared/native wrapper/donor/weapon/HUD/PMFD regions"
+      ],
+      "conditions": [
+        "HARNESS_READY uses explicit new test ports; no cockpit_fixture imports",
+        "Shared PMFD/radar presentation remains integrator review; record focused diff/hashes",
+        "D-P-RAD-001 and native consumers wait checked read cutover where DAG requires it"
+      ],
+      "release": "Record focused patch paths/commit request; no concurrent staging/commit"
+    },
+    {
+      "owner": "chat4",
+      "status": "granted",
+      "id": "weapons-independent",
+      "regions": [
+        "Own noncontended weapon/EW Lua source only after actual DAG prerequisites"
+      ],
+      "conditions": [
+        "Own 76 legacy artifact remakes from TEST-RETIREMENT.json",
+        "NativeSidewinder/common/native read adapters/RAPTOR/registration/input/UI/audio are contended; no cutover without region lease",
+        "IFF_PROVIDER_READY remains Chat4 provided decision; no reverse radar prerequisite"
+      ],
+      "release": "Record focused patch paths/commit request; no concurrent staging/commit"
+    }
+  ],
+  "packages": [
+    {
+      "id": "P-INT-001",
+      "owner": "chat2",
+      "status": "ADOPTED",
+      "dependencies": [],
+      "blockers": [],
+      "evidence": [
+        "INITIAL-STATE.json",
+        "SELECTED-PROFILE.json",
+        "ADOPTION.json"
+      ]
+    },
+    {
+      "id": "P-INT-002",
+      "owner": "chat2",
+      "status": "harness_ready",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-003"
+      ],
+      "blockers": [
+        "Final retirement and actual installed hook/DCS qualification are P-INT-006/005/007 gates."
+      ],
+      "gate": "HARNESS_READY",
+      "evidence": [
+        "HARNESS-RESULTS.json",
+        "TEST-RETIREMENT.json",
+        "../../../tests/README.md"
+      ]
+    },
+    {
+      "id": "P-INT-003",
+      "owner": "chat2",
+      "status": "safe_build_ready; runtime_identity_open",
+      "dependencies": [
+        "P-INT-001"
+      ],
+      "blockers": [
+        "Loaded DLL/hook identity, installed control differences and DCS/2D/VR/MP qualification remain open."
+      ],
+      "evidence": [
+        "BUILD-EVIDENCE.json"
+      ]
+    },
+    {
+      "id": "P-INT-004",
+      "owner": "chat2",
+      "status": "adopted; canonical_link_validation_pending",
+      "dependencies": [
+        "P-INT-001"
+      ],
+      "blockers": [],
+      "evidence": [
+        "ADOPTION.json"
+      ]
+    },
+    {
+      "id": "P-INT-005",
+      "owner": "chat2",
+      "status": "pending",
+      "dependencies": [
+        "P-FLT-007",
+        "P-INT-002",
+        "P-INT-007",
+        "P-INT-008",
+        "P-NAV-008",
+        "P-RAD-004",
+        "P-RAD-007",
+        "P-WPN-003",
+        "P-WPN-004",
+        "P-WPN-005",
+        "P-WPN-006",
+        "D-P-FLT-001",
+        "D-P-RAD-001",
+        "D-P-WPN-001"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-INT-006",
+      "owner": "chat2",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-INT-003",
+        "P-INT-004",
+        "P-INT-005",
+        "P-INT-007",
+        "P-INT-008",
+        "P-FLT-001",
+        "P-FLT-002",
+        "P-FLT-003",
+        "P-FLT-004",
+        "P-FLT-005",
+        "P-FLT-006",
+        "P-FLT-007",
+        "P-FLT-008",
+        "P-FLT-009",
+        "P-FLT-010",
+        "P-NAV-001",
+        "P-NAV-002",
+        "P-NAV-003",
+        "P-NAV-004",
+        "P-NAV-005",
+        "P-NAV-006",
+        "P-NAV-007",
+        "P-RAD-001",
+        "P-RAD-002",
+        "P-RAD-003",
+        "P-RAD-004",
+        "P-RAD-005",
+        "P-RAD-006",
+        "P-RAD-007",
+        "P-RAD-008",
+        "P-WPN-001",
+        "P-WPN-002",
+        "P-WPN-003",
+        "P-WPN-004",
+        "P-WPN-005",
+        "P-WPN-006",
+        "P-WPN-007",
+        "P-WPN-008",
+        "P-WPN-009",
+        "P-NAV-008",
+        "D-P-FLT-001",
+        "D-P-RAD-001",
+        "D-P-WPN-001"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-INT-007",
+      "owner": "chat2",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-INT-008",
+      "owner": "chat2",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-FLT-001",
+      "owner": "chat1",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-FLT-002",
+      "owner": "chat1",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-001"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-FLT-003",
+      "owner": "chat1",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-002"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-FLT-004",
+      "owner": "chat1",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-002",
+        "P-FLT-003",
+        "D-P-FLT-001"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-FLT-005",
+      "owner": "chat1",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-002"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-FLT-006",
+      "owner": "chat1",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-001",
+        "P-FLT-002",
+        "P-FLT-003"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-FLT-007",
+      "owner": "chat1",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-003",
+        "P-FLT-004",
+        "P-FLT-005",
+        "P-FLT-006"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-FLT-008",
+      "owner": "chat1",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-003",
+        "P-FLT-004",
+        "P-FLT-005"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-FLT-009",
+      "owner": "chat1",
+      "status": "pending",
+      "dependencies": [
+        "P-FLT-002",
+        "P-FLT-005",
+        "P-INT-001",
+        "P-INT-002",
+        "P-INT-008"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-FLT-010",
+      "owner": "chat1",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-007",
+        "P-FLT-008",
+        "P-FLT-009",
+        "P-INT-003"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-NAV-001",
+      "owner": "chat2",
+      "status": "pending",
+      "dependencies": [
+        "P-FLT-001",
+        "P-INT-001",
+        "P-INT-002",
+        "P-INT-008"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-NAV-002",
+      "owner": "chat2",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-NAV-001"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-NAV-003",
+      "owner": "chat2",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-NAV-001",
+        "P-INT-008"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-NAV-004",
+      "owner": "chat2",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-NAV-003"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-NAV-005",
+      "owner": "chat2",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-NAV-001"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-NAV-006",
+      "owner": "chat2",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-NAV-001"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-NAV-007",
+      "owner": "chat2",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-NAV-002",
+        "P-NAV-003",
+        "P-NAV-005",
+        "P-NAV-006"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-RAD-001",
+      "owner": "chat3",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-RAD-002",
+      "owner": "chat3",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-RAD-003",
+      "owner": "chat3",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-RAD-004",
+      "owner": "chat3",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001",
+        "P-RAD-002",
+        "P-RAD-003",
+        "P-INT-003",
+        "P-INT-008",
+        "D-P-RAD-001"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-RAD-005",
+      "owner": "chat3",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-004"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-RAD-006",
+      "owner": "chat3",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-005"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-RAD-007",
+      "owner": "chat3",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001",
+        "P-WPN-004"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-RAD-008",
+      "owner": "chat3",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-004"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-WPN-001",
+      "owner": "chat4",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-WPN-002",
+      "owner": "chat4",
+      "status": "pending",
+      "dependencies": [
+        "P-FLT-002",
+        "P-INT-001",
+        "P-INT-002",
+        "P-WPN-001"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-WPN-003",
+      "owner": "chat4",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-WPN-004",
+      "owner": "chat4",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "D-P-WPN-001"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-WPN-005",
+      "owner": "chat4",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-WPN-001",
+        "P-WPN-002"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-WPN-006",
+      "owner": "chat4",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-WPN-007",
+      "owner": "chat4",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-WPN-008",
+      "owner": "chat4",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-WPN-001",
+        "P-WPN-003",
+        "P-WPN-004",
+        "P-WPN-005",
+        "P-WPN-006",
+        "P-WPN-007"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-WPN-009",
+      "owner": "chat4",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "P-NAV-008",
+      "owner": "chat2",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-NAV-001",
+        "P-NAV-002",
+        "P-FLT-001"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "D-P-FLT-001",
+      "owner": "chat1",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "D-P-RAD-001",
+      "owner": "chat3",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-INT-008"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "D-P-WPN-001",
+      "owner": "chat4",
+      "status": "pending",
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-INT-008",
+        "D-P-RAD-001"
+      ],
+      "blockers": []
+    }
+  ],
+  "contracts": [
+    {
+      "id": "I-FLT-001",
+      "decision": "accepted scoped Chat1 proposal",
+      "reference": "../flight-execution/README.md",
+      "fields": {
+        "EFM_HUD_VALID": "full atmosphere/body/world/wind legacy group",
+        "EFM_HUD_KINEMATICS_VALID": "world velocity only; finite SI N/U/E; physical schema/gen/spawn clock"
+      },
+      "conditions": [
+        "Clear both at release/generation reset; independent GS/FPM must survive shared atmosphere failure.",
+        "No native gun/AG wind qualification until Chat4 consumers gate on full atmosphere validity.",
+        "No P-INT-008 status-erasing navigation/refuel/lighting migration under this lease."
+      ]
+    },
+    {
+      "id": "I-INT-003",
+      "decision": "proposed checked cutover; actual callers not migrated",
+      "reference": "NATIVE-PARAMETER-CONTRACT.md"
+    }
+  ]
+}

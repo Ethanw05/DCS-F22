@@ -1,0 +1,131 @@
+{
+  "audit_root": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Deep-Audit-2026-10-28-1351",
+  "audit_head": "7513f931a8bf1016a72e8eb184a9c98074786e81",
+  "profile": "public_f22_manual_recovery@1",
+  "packages": 46,
+  "historical_dispositions": 566,
+  "files": [
+    {
+      "source": "F22-Fidelity-Audit.md",
+      "destination": "docs/audit/README.md",
+      "sha256": "51e50bf6af6bdcf60e93b054a2a1f8cecbc68e630a899c6be5f13c037a4cbf45"
+    },
+    {
+      "source": "F22-Mod-Overhaul-Plan.md",
+      "destination": "docs/overhaul/README.md",
+      "sha256": "edad80b16c9628580deb3fd8252cfb727524bd76ef1ce8d8eadf9f5d3f0073fb"
+    },
+    {
+      "source": "BACKLOG.json",
+      "destination": "docs/overhaul/BACKLOG.json",
+      "sha256": "569419bad07a7ea79f19da95efc0301c1c94250954a94b56b7e8d36579ddfd35"
+    },
+    {
+      "source": "F22-Shared-Instructions.md",
+      "destination": "docs/handoffs/00-shared-instructions.md",
+      "sha256": "145798348856f9d4e86d35082116cfa5b48a0435d7125a7f5a5e3b2baa926ae9"
+    },
+    {
+      "source": "F22-Chat-1-Flight.md",
+      "destination": "docs/handoffs/01-flight-and-aircraft.md",
+      "sha256": "4ae6fedc4dfb140328524dc4ee1f4b10f0d81f27f240bb2d4cf931844cafc458"
+    },
+    {
+      "source": "F22-Chat-2-Navigation-Cockpit.md",
+      "destination": "docs/handoffs/02-navigation-cockpit-integration.md",
+      "sha256": "689cbc5b7a07c25a6bcdae387c69c5297e3c48877b16fe3177dd6d65ce38c576"
+    },
+    {
+      "source": "F22-Chat-3-Radar-AESA.md",
+      "destination": "docs/handoffs/03-radar-aesa.md",
+      "sha256": "4c97a18837ec4dfee060f756080147abf72d657bae10846d303cc90c83fc48ec"
+    },
+    {
+      "source": "F22-Chat-4-Weapons-EW.md",
+      "destination": "docs/handoffs/04-weapons-defensive-avionics.md",
+      "sha256": "6f9da807a75d2c7f477f8b79829f1fd476a31c972e2be15e88ba0ed553e0d37a"
+    },
+    {
+      "source": "REQUIREMENTS.json",
+      "destination": "docs/audit/REQUIREMENTS.json",
+      "sha256": "f9ddc18787a1953e185ef049b3d43214c9e18e7b8f20d69274ed8fc876d6da74"
+    },
+    {
+      "source": "FINDINGS.json",
+      "destination": "docs/audit/FINDINGS.json",
+      "sha256": "cdb3e4a7a31f56acb018220a25cc99b9c2b86abea4c2a7d5f30d8119b86bb250"
+    },
+    {
+      "source": "CLEANUP.json",
+      "destination": "docs/audit/CLEANUP.json",
+      "sha256": "25f6d6e3a412d168202b9c17ee906bdace70a80bdb927bad3ce8df3e2cbde297"
+    },
+    {
+      "source": "INTERFACES.json",
+      "destination": "docs/audit/INTERFACES.json",
+      "sha256": "dffbe6fb6d795fef63ae9ce2f45dee9071ae2de91f38812d2b6d86ceba4a8134"
+    },
+    {
+      "source": "STATE-MODELS.json",
+      "destination": "docs/audit/STATE-MODELS.json",
+      "sha256": "e810977e7747f6a6afcb14d51126972900cdb2ce741c39e22e42a7a945657137"
+    },
+    {
+      "source": "FAILURES.json",
+      "destination": "docs/audit/FAILURES.json",
+      "sha256": "a6ce915022dba4e5ef9d2bba6d8971df9cd1d1b9ab3b36968961edb248956e15"
+    },
+    {
+      "source": "SOURCES.json",
+      "destination": "docs/audit/SOURCES.json",
+      "sha256": "58bee86122a06095b9a367fdc09fc24d5d900a3e77c51b4f37421ae4d102bf09"
+    },
+    {
+      "source": "STANDARDS.json",
+      "destination": "docs/audit/STANDARDS.json",
+      "sha256": "05bca7f39771d752ddcd464d3f643d1ab54c9caabb9c7c98ec5458832a81104e"
+    },
+    {
+      "source": "VERIFICATION-SPEC.json",
+      "destination": "docs/audit/VERIFICATION-SPEC.json",
+      "sha256": "95e4ce5af7c8ea708d2157bdbe33702a43d9ae5b9b933d3e85cf3bcf41002e41"
+    },
+    {
+      "source": "CAPABILITIES.json",
+      "destination": "docs/audit/CAPABILITIES.json",
+      "sha256": "d1fec7c1c95951131504f703fb54bae0ac9c672262a46a820eaf341b86f07e9d"
+    },
+    {
+      "source": "PRIOR-AUDIT-CROSSWALK.json",
+      "destination": "docs/audit/PRIOR-AUDIT-CROSSWALK.json",
+      "sha256": "87752a2facd5ae5c709672ce273afd63aa1ab01555c1e7217ea23179ede60fcd"
+    },
+    {
+      "source": "EXPANSION-DELTA.json",
+      "destination": "docs/audit/EXPANSION-DELTA.json",
+      "sha256": "2d56632ccd2b768b8458f6fdc5bceb7618f50191b77abce5ce61e29395fc8d2e"
+    },
+    {
+      "source": "BASELINE.json",
+      "destination": "docs/audit/BASELINE.json",
+      "sha256": "003bce08d946656aa937d9330665c020b0f04a5aa6bff7ada887ccf3bc5ef3d8"
+    },
+    {
+      "source": "SOURCE-DRIFT.json",
+      "destination": "docs/audit/SOURCE-DRIFT.json",
+      "sha256": "94511a5d9a5294d03cd706b79ff0047fe71221bd69481bac4e22572ee0807411"
+    },
+    {
+      "source": "REVIEWS.json",
+      "destination": "docs/audit/REVIEWS.json",
+      "sha256": "38142df990db0869dc0360a32e8d3177700b3f6b51450684411dd936cbec3e54"
+    },
+    {
+      "source": "NATIVE-COVERAGE-VALIDATION.json",
+      "destination": "docs/audit/NATIVE-COVERAGE-VALIDATION.json",
+      "sha256": "d2ec3b7aaeee7f840eb57fc794fde1daa3ecf81753eb86067290be9f4decf0a8"
+    }
+  ],
+  "policy": "Copied planning records retain their audit-time status. STATUS.json records execution; old companions not listed here are historical, not current authority.",
+  "uncopied_large_evidence": "COVERAGE.json and NATIVE-COVERAGE.json remain at original audit paths with original source/review lineage."
+}

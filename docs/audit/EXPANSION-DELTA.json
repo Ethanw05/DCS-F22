@@ -1,0 +1,43 @@
+{
+  "schema_version": "2.0",
+  "parent_package": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413",
+  "new_findings": [
+    "D-INT-001",
+    "D-RAD-001",
+    "D-RAD-002",
+    "D-RAD-003",
+    "D-RAD-004",
+    "D-WPN-001",
+    "D-WPN-002",
+    "D-WPN-003"
+  ],
+  "new_requirements": [
+    "D-R-INT-001",
+    "D-R-FLT-001",
+    "D-R-FLT-002",
+    "D-R-FLT-003",
+    "D-R-FLT-004",
+    "D-R-RAD-001",
+    "D-R-RAD-002",
+    "D-R-RAD-003",
+    "D-R-RAD-004",
+    "D-R-WPN-001",
+    "D-R-WPN-002",
+    "D-R-WPN-003"
+  ],
+  "new_packages": [
+    "D-P-FLT-001",
+    "D-P-RAD-001",
+    "D-P-WPN-001"
+  ],
+  "totals": {
+    "findings": 48,
+    "requirements": 87,
+    "packages": 46,
+    "native_source_files": 66,
+    "native_lexical_function_reviews": 722,
+    "native_ast_review_entries": 752
+  },
+  "changes": "Fresh native body/declaration review and bounded actual-source probes, with independent challenges. Prior40findings and566historical dispositions retained; all reviewed inherited source bytes match the deepening baseline.",
+  "preservation": "Earlier sealed package and aircraft source/tests/install untouched; all changes are new audit artifacts."
+}

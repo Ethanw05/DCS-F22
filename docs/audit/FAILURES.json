@@ -1,0 +1,505 @@
+{
+  "schema_version": "1.0",
+  "severity_policy": "Qualitative simulator consequence separate from confidence,reproducibility and priority; no aviation DAL/probabilities",
+  "records": [
+    {
+      "id": "FAIL-FLT-001",
+      "condition": "Invalid atmosphere accepted as healthy observation",
+      "initiating_causes": [
+        "nonfinite input",
+        "sanitized fallback loses provenance"
+      ],
+      "propagation": [
+        "wrong cabin/HUD pressure",
+        "healthy atmospheric consent"
+      ],
+      "existing_controls": [
+        "force/airdata validity correctly withdraw"
+      ],
+      "detection": "V-FLT-001",
+      "acceptable_degraded_behavior": "Withdraw atmospheric groups; preserve independent sources",
+      "recovery": "Qualified input only",
+      "severity": "major simulator function",
+      "required_rigor": "Condition-independence valid-input/payload/envelope and invalid->recovered sequences",
+      "finding": "F-FLT-001",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "failure_condition": "Invalid atmosphere accepted as healthy observation"
+    },
+    {
+      "id": "FAIL-FLT-002",
+      "condition": "Unsafe gear green and lamps share nose binding",
+      "initiating_causes": [
+        "damage",
+        "common-position legacy owner",
+        "duplicate consumer binding"
+      ],
+      "propagation": [
+        "false landing status"
+      ],
+      "existing_controls": [
+        "aggregate unsafe/downlock notices damage"
+      ],
+      "detection": "V-FLT-002 plus independent lead consumer read",
+      "acceptable_degraded_behavior": "Per-leg invalid/unsafe without false green",
+      "recovery": "Actual repair/qualified locks",
+      "severity": "major simulator function",
+      "required_rigor": "Eachleg lock/damage/supply transition plus selected decision MC/DC",
+      "finding": "F-FLT-002",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "failure_condition": "Unsafe gear green and lamps share nose binding"
+    },
+    {
+      "id": "FAIL-NAV-001",
+      "failure_condition": "Altitude owner stalls",
+      "initiating_causes": [
+        "Lua exception/callback stop/teardown"
+      ],
+      "propagation": "Retainedvalid->current-lookingHUD",
+      "existing_controls": "Producer expiry only",
+      "detection": "Source health/lease and independent sequence probe",
+      "acceptable_degraded": "Withdraw stale selected altitude",
+      "recovery": "Fresh selected source",
+      "severity": "major indication/guidance or potential native lifetime within stated trigger",
+      "rigor": "Remade independent decision/transition suite plus controlled runtime",
+      "finding_ids": [
+        "F-NAV-001"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json",
+      "acceptable_degraded_behavior": "Withdraw stale selected altitude",
+      "required_rigor": "Remade independent decision/transition suite plus controlled runtime"
+    },
+    {
+      "id": "FAIL-NAV-002",
+      "failure_condition": "Two page writers",
+      "initiating_causes": [
+        "Legacy APU page logic"
+      ],
+      "propagation": "Callback order changes ENG visibility",
+      "existing_controls": "Current controller republishes",
+      "detection": "Source health/lease and independent sequence probe",
+      "acceptable_degraded": "Single page owner, supply separate",
+      "recovery": "Preserve selected layout",
+      "severity": "major indication/guidance or potential native lifetime within stated trigger",
+      "rigor": "Remade independent decision/transition suite plus controlled runtime",
+      "finding_ids": [
+        "F-NAV-002"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json",
+      "acceptable_degraded_behavior": "Single page owner, supply separate",
+      "required_rigor": "Remade independent decision/transition suite plus controlled runtime"
+    },
+    {
+      "id": "FAIL-NAV-003",
+      "failure_condition": "Native context changes before reset",
+      "initiating_causes": [
+        "Host callback ordering unresolved"
+      ],
+      "propagation": "Old TACAN object crosses context",
+      "existing_controls": "EFMreset normally releases;PEguard",
+      "detection": "Source health/lease and independent sequence probe",
+      "acceptable_degraded": "Withdraw before any access",
+      "recovery": "Matched release/newcontext construction",
+      "severity": "major indication/guidance or potential native lifetime within stated trigger",
+      "rigor": "Remade independent decision/transition suite plus controlled runtime",
+      "finding_ids": [
+        "F-NAV-004"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json",
+      "acceptable_degraded_behavior": "Withdraw before any access",
+      "required_rigor": "Remade independent decision/transition suite plus controlled runtime"
+    },
+    {
+      "id": "FAIL-NAV-004",
+      "failure_condition": "Reference/supply loss with AFCS engaged",
+      "initiating_causes": [
+        "GINS/GPS/ADC/busfault"
+      ],
+      "propagation": "Chosen provider->NAV/AFCS/HUD",
+      "existing_controls": "GINS reader/NAVage/baro-radar age/MAINgate",
+      "detection": "Source health/lease and independent sequence probe",
+      "acceptable_degraded": "Only independent healthy axes retained per explicit contract",
+      "recovery": "No stale automatic reengagement",
+      "severity": "major indication/guidance or potential native lifetime within stated trigger",
+      "rigor": "Remade independent decision/transition suite plus controlled runtime",
+      "finding_ids": [
+        "F-NAV-006"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json",
+      "acceptable_degraded_behavior": "Only independent healthy axes retained per explicit contract",
+      "required_rigor": "Remade independent decision/transition suite plus controlled runtime"
+    },
+    {
+      "id": "FF-RAD-001",
+      "condition": "Detected aircraft silently missing",
+      "causes": [
+        "legacy Lua enclosure"
+      ],
+      "propagation": "lost awareness/designation",
+      "controls": [
+        "native sensing valid but consumer wrong"
+      ],
+      "detection": "RAD-PROBE-002",
+      "degraded": "show current real reports;separate source-unavailable",
+      "recovery": "contract fix/new report",
+      "severity": "high simulator consequence",
+      "rigor": "independent admission condition/sequence tests,dense target sortie",
+      "findings": [
+        "F-RAD-001"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "failure_condition": "Detected aircraft silently missing",
+      "initiating_causes": [
+        "legacy Lua enclosure"
+      ],
+      "existing_controls": [
+        "native sensing valid but consumer wrong"
+      ],
+      "acceptable_degraded_behavior": "show current real reports;separate source-unavailable",
+      "required_rigor": "independent admission condition/sequence tests,dense target sortie"
+    },
+    {
+      "id": "FF-RAD-002",
+      "condition": "NaN closure marked healthy",
+      "causes": [
+        "malformed upstream vector"
+      ],
+      "propagation": "display/engagement",
+      "controls": [
+        "STT checks;HUD bridge finite gate;selected missing check"
+      ],
+      "detection": "RAD-PROBE-001",
+      "degraded": "closureinvalid only",
+      "recovery": "freshfinitevector",
+      "severity": "moderate simulator consequence",
+      "rigor": "condition independence of required inputs,result domain",
+      "findings": [
+        "F-RAD-002"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "failure_condition": "NaN closure marked healthy",
+      "initiating_causes": [
+        "malformed upstream vector"
+      ],
+      "existing_controls": [
+        "STT checks;HUD bridge finite gate;selected missing check"
+      ],
+      "acceptable_degraded_behavior": "closureinvalid only",
+      "required_rigor": "condition independence of required inputs,result domain"
+    },
+    {
+      "id": "FF-RAD-003",
+      "condition": "Wrong surface identity through ambiguity",
+      "causes": [
+        "truth-ID association"
+      ],
+      "propagation": "coordinate/weapon handoff",
+      "controls": [
+        "LOS/noise/delay/requestseq;no measured correspondence"
+      ],
+      "detection": "future independent IDpermutation/crossing",
+      "degraded": "ambiguouscoast,withdrawbinding",
+      "recovery": "new associated reports/intent",
+      "severity": "high simulated wrong-target consequence",
+      "rigor": "actual native owner sequence then ground sortie",
+      "findings": [
+        "F-RAD-003"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "failure_condition": "Wrong surface identity through ambiguity",
+      "initiating_causes": [
+        "truth-ID association"
+      ],
+      "existing_controls": [
+        "LOS/noise/delay/requestseq;no measured correspondence"
+      ],
+      "acceptable_degraded_behavior": "ambiguouscoast,withdrawbinding",
+      "required_rigor": "actual native owner sequence then ground sortie"
+    },
+    {
+      "id": "FF-RAD-004",
+      "condition": "Stale/native lifetime authority",
+      "causes": [
+        "host change",
+        "late callback",
+        "mixed DLL/Lua",
+        "clock rewind",
+        "receiver overload"
+      ],
+      "propagation": "all sensor/effect/render consumers",
+      "controls": [
+        "PE/vtable/owner/epoch/lease/fixed caps/latched faults"
+      ],
+      "detection": "guardreason,loadedmanifest,latecallbacktrace",
+      "degraded": "withdraw affected authority,old memory keeps old time",
+      "recovery": "qualified newowner/epoch and deliberate intent",
+      "severity": "potential host crash/high effect;not reproduced",
+      "rigor": "independent lifecycle/allocator/thread and controlled host qualification",
+      "findings": [
+        "F-RAD-005"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "failure_condition": "Stale/native lifetime authority",
+      "initiating_causes": [
+        "host change",
+        "late callback",
+        "mixed DLL/Lua",
+        "clock rewind",
+        "receiver overload"
+      ],
+      "existing_controls": [
+        "PE/vtable/owner/epoch/lease/fixed caps/latched faults"
+      ],
+      "acceptable_degraded_behavior": "withdraw affected authority,old memory keeps old time",
+      "required_rigor": "independent lifecycle/allocator/thread and controlled host qualification"
+    },
+    {
+      "id": "FF-WPN-001",
+      "condition": "Native backend absent during pending delivery",
+      "initiating_causes": [
+        "GetDevice nil/throw/recreated native device"
+      ],
+      "propagation": "Pending branch calls nil selection and aborts owner update; stale status/cancellation uncertain.",
+      "existing_controls": [
+        "pcall around GetDevice and per-station poll",
+        "native ACK quarantine"
+      ],
+      "detection": "Reproduced Lua exception at401; F-WPN001",
+      "acceptable_degraded_behavior": "Unavailable/unresolved transaction, native stops where callable, no replay, current feedback invalid.",
+      "recovery": "Fresh current backend/generation, reconcile actual inventory/effect and require UP/newDOWN.",
+      "consequence": "major simulator weapons function loss",
+      "required_rigor": "actual-owner bounded sequences+native late-effect integration; selected guard mutation",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "failure_condition": "Native backend absent during pending delivery"
+    },
+    {
+      "id": "FF-WPN-002",
+      "condition": "Prediction uses wrong/stale physical authority",
+      "initiating_causes": [
+        "Utility vs flight supply divergence",
+        "torn/stale raw vehicle fields"
+      ],
+      "propagation": "CCIP forecast point/delay can disagree with achieved bay and actual release epoch.",
+      "existing_controls": [
+        "release actual clearance and qualified SMS power",
+        "solver time/schema match"
+      ],
+      "detection": "F-WPN002 static interface mismatch; no flight outcome measured",
+      "acceptable_degraded_behavior": "Withdraw forecast when physical state invalid; one authoritative bay delay.",
+      "recovery": "Current qualified snapshot and new consenting solution.",
+      "consequence": "incorrect training/aim prediction or loss of attack opportunity",
+      "required_rigor": "cross-owner numerical/dt and degraded-source comparison then controlled native release sortie",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "failure_condition": "Prediction uses wrong/stale physical authority"
+    },
+    {
+      "id": "FF-WPN-003",
+      "condition": "AUTO displayed available with no production event source",
+      "initiating_causes": [
+        "readiness conflates dispenser health with event bridge availability"
+      ],
+      "propagation": "Pilot consent/mode has no ordinary warning-to-effect route; tests injecting11110 hide integration absence.",
+      "existing_controls": [
+        "no unauthorized autonomous threat recipe",
+        "manual/direct programs remain actual"
+      ],
+      "detection": "F-WPN003 source closure",
+      "acceptable_degraded_behavior": "Explicit automatic unavailable or qualified declared game event source.",
+      "recovery": "Current new event plus explicit authorization; no old-event replay.",
+      "consequence": "misleading defensive capability and unexpected lack of automatic action",
+      "required_rigor": "actual producer-to-effect integration and independent consent/event transition expectations",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "failure_condition": "AUTO displayed available with no production event source"
+    },
+    {
+      "id": "FF-WPN-004",
+      "condition": "Native callback outlives reset/borrowed resources",
+      "initiating_causes": [
+        "payload callback vs reset overlap",
+        "MWS/datalink host device re-slot",
+        "late queued callback"
+      ],
+      "propagation": "Potential stale EDPARAM/object/native function use or torn snapshot; actual concurrency not established.",
+      "existing_controls": [
+        "Sidewinder feedback guard for update",
+        "profile/readable checks",
+        "matched native destructors"
+      ],
+      "detection": "F-WPN007 qualification gap; not a reproduced crash",
+      "acceptable_degraded_behavior": "Unregister/stop+drain complete producer closure, reject late callbacks and invalidate generation.",
+      "recovery": "Explicit initialization/current native identity only.",
+      "consequence": "potential process fault/current sensor publication error; no likelihood assigned",
+      "required_rigor": "Release-active native mocked concurrency plus actual host thread/allocator/lifecycle measurement",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "failure_condition": "Native callback outlives reset/borrowed resources"
+    },
+    {
+      "id": "DFAIL-D-INT-001",
+      "failure_condition": "Keyboard yaw smoothing survives a new flight-model generation",
+      "initiating_causes": "A prior same-DLL aircraft generation used keyboard rudder; a new cold/hot/air-hot start occurs without unloading the DLL, followed by a new keyboard rudder request.",
+      "propagation": "Different initial achieved rudder response after otherwise identical spawn/input; strength depends on elapsed neutral steps.",
+      "existing_controls": "Keyboard ramping and matching release ownership, joystick precedence and existing yaw gains.",
+      "detection": "reviews/lead/native_edge_probe.py; NATIVE-EDGE-PROBE.json fourth case, actual EFM callbacks and public draw state.",
+      "acceptable_degraded_behavior": "Reject/invalidate affected source or preserve explicitly retained/unknown evidence; no new consent or age by receipt/copy.",
+      "recovery": {
+        "normal": "Fresh held command ramp remains as selected model",
+        "limit": "Rapid opposing/late release and immediate new-generation request deterministic",
+        "failure": "Prior held yaw cannot bias a new generation",
+        "recovery": "Clear/re-engage state only with current consent; no old command replay"
+      },
+      "severity": "minor simulator handling/lifecycle consequence; no real-aircraft safety level",
+      "confidence": "high source/callback reproduction; exact DCS re-slot call order unqualified",
+      "priority": "P2",
+      "finding": "D-INT-001",
+      "required_rigor": "Independent actual-owner normal/boundary/failure/recovery and event-order checks; relevant decision-independence and supported-host qualification without asserting exhaustive coverage."
+    },
+    {
+      "id": "DFAIL-D-RAD-001",
+      "failure_condition": "Video view accepts nonfinite scan-center geometry into native camera basis",
+      "initiating_causes": "View enabled/current and otherwise valid, but scan_center NaN or +/-infinity at GroundVideoView::valid -> prepare -> position. NativeGroundVideo.update copies scan-center parameter without finite admission.",
+      "propagation": "moderate native rendering/data admission consequence; no crash or actual display effect claimed",
+      "existing_controls": "Preserve current MAP/EXP/GMT/TA behavior, immutable image pose, one shared both-eye image, RF-only refresh credit, current host allocation and camera ABI. No alternate image owner or new shader.",
+      "detection": "probe_geometry.cpp includes unmodified GroundVideoView.h, creates explicitly current otherwise-valid View and substitutes NaN/inf scan_center one at a time.",
+      "acceptable_degraded_behavior": "Reject/invalidate affected source or preserve explicitly retained/unknown evidence; no new consent or age by receipt/copy.",
+      "recovery": [
+        "NaN/+inf/-inf/wrong-type failure at actual parameter adapter and header cannot produce accepted nonfinite native matrix/projection.",
+        "Zero geometry remains accepted and finite; independent units/sign/layout reference unchanged.",
+        "Frozen/retained frame and reset/epoch/owner/fault latch transitions remain correct."
+      ],
+      "severity": "moderate native rendering/data admission consequence; no crash or actual display effect claimed",
+      "confidence": "high for fault-injected source condition; normal supported DCS producers emitting malformed values unobserved",
+      "priority": "P2",
+      "finding": "D-RAD-001",
+      "required_rigor": "Independent actual-owner normal/boundary/failure/recovery and event-order checks; relevant decision-independence and supported-host qualification without asserting exhaustive coverage."
+    },
+    {
+      "id": "DFAIL-D-RAD-002",
+      "failure_condition": "Native AESA packet reader reads protected fields before its first sequence",
+      "initiating_causes": "AESA_Control publisher completes a new odd/even packet between reader REQUEST/TIME reads and reader first CONTROL_SEQUENCE read. Reader sees same new even sequence initially/finally but mixes old enable with new payload.",
+      "propagation": "moderate stale control/consent/geometry admission; demonstrated reader output, no observed RF or weapon effect",
+      "existing_controls": "Keep existing bool-checked parameter conversion (valid zero distinct from failure), finite controls, priority/cue IDs, finite model tasks and declared source2 gun analogue. No permanent unchecked compatibility path.",
+      "detection": "probe_command.cpp includes actual NativeAesaRadar.cpp and actual EDPARAM bool conversion API. Callback commits new REQUEST0/sequence4/range2000 at first sequence read, after REQUEST1/TIME10 were copied from old sequence2/range1000. No actual host callbacks invoked.",
+      "acceptable_degraded_behavior": "Reject/invalidate affected source or preserve explicitly retained/unknown evidence; no new consent or age by receipt/copy.",
+      "recovery": [
+        "Independent actual writer/reader adversarial schedules at every read/write boundary yield complete old/new request or unavailable, never mixed enable/time/geometry.",
+        "Odd,changed,stale/future/wrong-type/failed-conversion sequence withdraws; zero enable and zero valid values remain legitimate.",
+        "If supported DCS guarantees serialization, document exact callback/thread evidence and still retain correct packet admission."
+      ],
+      "severity": "moderate stale control/consent/geometry admission; demonstrated reader output, no observed RF or weapon effect",
+      "confidence": "high for actual-reader mixed packet under specified schedule; concurrent producer/native callback schedule in supported DCS remains unqualified",
+      "priority": "P2",
+      "finding": "D-RAD-002",
+      "required_rigor": "Independent actual-owner normal/boundary/failure/recovery and event-order checks; relevant decision-independence and supported-host qualification without asserting exhaustive coverage."
+    },
+    {
+      "id": "DFAIL-D-RAD-003",
+      "failure_condition": "Ground sampler retains future selected and pending state after local clock rewind",
+      "initiating_causes": "World clock decreases100->10 while NativeGroundSensor epoch remains unchanged and active controls refreshed, before a new illuminated job.",
+      "propagation": "moderate provider contract/recovery consequence, currently mitigated at Lua consumer; no immediate pilot/weapon stale admission demonstrated",
+      "existing_controls": "Preserve Lua future-age rejection and rollback request/designation cancellation, ordinary finite silence/coast, actual delayed reports without rollback, RF-budget gates, type3 fixed-terrain disclosure and frozen image source epoch.",
+      "detection": "probe_ground_epoch.cpp includes actual NativeGroundSensor.cpp; declared precondition selected42/current100 and one real Measurements.queue report, then fake clock10 active no-grant call to actual sample and actual update. No scene/terrain/native host call occurs. Separate actual Lua native_track function extracted unmodified via debug.getupvalue tests consumer admission.",
+      "acceptable_degraded_behavior": "Reject/invalidate affected source or preserve explicitly retained/unknown evidence; no new consent or age by receipt/copy.",
+      "recovery": [
+        "Rollback at queue/processing/acquisition/selected/ranging phases retires old pending/private histories or publishes explicit unavailable.",
+        "Actual Lua future sample remains rejected; explicit subsequent new request/current epoch restores only new target; no replay from old queue when numerical time catches up.",
+        "Normal .06/resource delayed report releases once with original stamp; monotone pause does not manufacture reset or new RF credit."
+      ],
+      "severity": "moderate provider contract/recovery consequence, currently mitigated at Lua consumer; no immediate pilot/weapon stale admission demonstrated",
+      "confidence": "high for retained native/provider state in specified rollback; applicability depends actual host rollback/reset guarantees",
+      "priority": "P2",
+      "finding": "D-RAD-003",
+      "required_rigor": "Independent actual-owner normal/boundary/failure/recovery and event-order checks; relevant decision-independence and supported-host qualification without asserting exhaustive coverage."
+    },
+    {
+      "id": "DFAIL-D-RAD-004",
+      "failure_condition": "Cached AESA request renews producer age from receipt time",
+      "initiating_causes": "Native parameter copy accepts producer stamp10 atnow10.49, stores Request.stamp10.49, then EFM copier stops while owned sensing/bridge callback continues at10.8.",
+      "propagation": "moderate bounded stale command/bridge eligibility; no actual RF or weapon effect demonstrated",
+      "existing_controls": "Keep current .5s bounded control/bridge contract and actual bool conversion, valid zero timestamps, epoch cancellation and model no-catchup behavior; do not erase legitimate paused state without host clock characterization.",
+      "detection": "Extended actual Parameters.controls probe constructs a stable current producer packet at10 and copies at10.49, then invokes actual fresh predicate at10.8 for producer and returned Request stamps.",
+      "acceptable_degraded_behavior": "Reject/invalidate affected source or preserve explicitly retained/unknown evidence; no new consent or age by receipt/copy.",
+      "recovery": [
+        "Producer10/copy10.49/later10.8 is unavailable even if request receipt was recent.",
+        "Current source and receipt within leases admit; zero timestamps and same-clock no-work calls remain valid under explicit policy.",
+        "Actual host copier/driver phase characterization documents reachability; a serialized guarantee must be evidenced rather than inferred."
+      ],
+      "severity": "moderate bounded stale command/bridge eligibility; no actual RF or weapon effect demonstrated",
+      "confidence": "high for timestamp renewal and eligibility condition; EFM copier stall with continuing native driver callback is a host schedule/failure condition not observed",
+      "priority": "P2",
+      "finding": "D-RAD-004",
+      "required_rigor": "Independent actual-owner normal/boundary/failure/recovery and event-order checks; relevant decision-independence and supported-host qualification without asserting exhaustive coverage."
+    },
+    {
+      "id": "DFAIL-D-WPN-001",
+      "failure_condition": "IFDL transport converts unknown or stale identity evidence into fresh known identity",
+      "initiating_causes": "An onboard tactical contact retains friendly/hostile affiliation while identity time is unknown or older than fresh geometry. Current native achieved IFF provider is unavailable, so nonzero affiliation is a conditional input and a prerequisite before adding that backend, not a claimed ordinary live observation.",
+      "propagation": "Misleading situational-awareness identity age/protection; offboard reports still have no weapon authority. No probability or live incident inferred.",
+      "existing_controls": [
+        "Independent kinematic original/receipt time and unknown native TADIL observation handling",
+        "Source+reporter+link+epoch keys",
+        "No offboard weapon authority",
+        "PPLI membership versus interrogated identity distinction"
+      ],
+      "detection": "Actual C++ transmit/receive/update using explicit own peer/clock/parameter ports, then actual Lua Datalink_Tracks/Tactical_Tracks/Identification_State. Additional actual Radar_Tactical publisher path supplies original identity_time10 and geometry_time200.",
+      "acceptable_degraded_behavior": "Reject/invalidate affected source or preserve explicitly retained/unknown evidence; no new consent or age by receipt/copy.",
+      "recovery": {
+        "normal": "Known original identity time survives wire and full consumer chain unchanged, independent of fresh geometry.",
+        "limit": "Old,unknown,future,nonfinite or impossible identity times never become current known time; malformed schema invalidates affected identity only.",
+        "failure": "Transport version/identity field missing or source epoch changes yields explicit unavailable/unknown identity provenance without dropping independently valid geometry.",
+        "recovery": "A fresh independently qualified identity event replaces retained evidence once, without receipt-time refresh or duplicate replay."
+      },
+      "severity": "Misleading situational-awareness identity age/protection; offboard reports still have no weapon authority. No probability or live incident inferred.",
+      "confidence": "high for tested software contract; live nonzero identity applicability remains conditional",
+      "priority": "P2",
+      "finding": "D-WPN-001",
+      "required_rigor": "Independent actual-owner normal/boundary/failure/recovery and event-order checks; relevant decision-independence and supported-host qualification without asserting exhaustive coverage."
+    },
+    {
+      "id": "DFAIL-D-WPN-002",
+      "failure_condition": "Native ground-gun solver can mark a NaN-clock result valid",
+      "initiating_causes": "Resolved native World clock returns NaN while a finite current ground-gun request and valid geometry/shell service remain. No evidence this occurs in ordinary DCS.",
+      "propagation": "Incorrect native validity contract; current Lua finite-age behavior contains pilot effect.",
+      "existing_controls": [
+        "Actual native muzzle/shell/wind path",
+        "Current Lua rejection of nonfinite age",
+        "Independently valid flight/kinematic sources"
+      ],
+      "detection": "Actual NativeGunSight.cpp calculate_ground compiled into standalone audit executable; explicit model clockNaN, valid actual-layout pose ports and analytic finite shell trajectory.",
+      "acceptable_degraded_behavior": "Reject/invalidate affected source or preserve explicitly retained/unknown evidence; no new consent or age by receipt/copy.",
+      "recovery": {
+        "normal": "Finite fresh clock/request produces finite-time native vertices and valid publication.",
+        "limit": "NaN/inf/negative/future/stale boundary combinations cannot publish valid time-qualified output.",
+        "failure": "Clock failure invalidates native result before costly solve; no retained point count treated as current.",
+        "recovery": "Fresh admitted clock/request restores without stale generation or queued-consent replay."
+      },
+      "severity": "Incorrect native validity contract; current Lua finite-age behavior contains pilot effect.",
+      "confidence": "high for deterministic fault-injection boundary",
+      "priority": "P2",
+      "finding": "D-WPN-002",
+      "required_rigor": "Independent actual-owner normal/boundary/failure/recovery and event-order checks; relevant decision-independence and supported-host qualification without asserting exhaustive coverage."
+    },
+    {
+      "id": "DFAIL-D-WPN-003",
+      "failure_condition": "Radar-to-IFDL publication lacks an in-progress marker",
+      "initiating_causes": "Native datalink transmitter runs while Lua Radar_Tactical.publish is between slot-field writes. Exact host callback/thread ordering is unqualified; this is a source-protocol counterexample, not an observed DCS race.",
+      "propagation": "Potential incorrect donor object/position association; no offboard fire-control authority granted.",
+      "existing_controls": [
+        "Genuine measured onboard positions only",
+        "Existing native sender before/after checks as secondary protection",
+        "Radar/donor association and weapon authority separation"
+      ],
+      "detection": "Execute actual Radar_Tactical publisher, capture exact parameter state immediately after new first-slot SOURCE write; feed that snapshot into actual C++ transmitter/receiver. No modifications to either owner module.",
+      "acceptable_degraded_behavior": "Reject/invalidate affected source or preserve explicitly retained/unknown evidence; no new consent or age by receipt/copy.",
+      "recovery": {
+        "normal": "A complete source/position/velocity/identity tuple is transmitted from one committed frame.",
+        "limit": "Preempt at each producer field write, sequence wrap and empty/refilled slots; sender rejects every mixed/in-progress snapshot.",
+        "failure": "Torn/missing/stale frame invalidates transmission of affected tracks without invented defaults or replay.",
+        "recovery": "Only a complete new committed generation is admitted after interruption/reset."
+      },
+      "severity": "Potential incorrect donor object/position association; no offboard fire-control authority granted.",
+      "confidence": "high for source protocol and counterexample; actual concurrent host trigger unqualified",
+      "priority": "P2",
+      "finding": "D-WPN-003",
+      "required_rigor": "Independent actual-owner normal/boundary/failure/recovery and event-order checks; relevant decision-independence and supported-host qualification without asserting exhaustive coverage."
+    }
+  ]
+}

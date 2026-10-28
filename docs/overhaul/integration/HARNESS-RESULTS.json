@@ -1,0 +1,39 @@
+{
+  "replacement_tests": 10,
+  "python_passed": true,
+  "native_passed": true,
+  "pre_fix_observations": [
+    {
+      "id": "F-NAV-001",
+      "initial_valid": 1,
+      "expected_valid": 0,
+      "actual_valid": 1,
+      "altitude_ft": 3000,
+      "status": "known_failure"
+    },
+    {
+      "id": "F-NAV-002",
+      "expected_sequence": [
+        1,
+        1,
+        1
+      ],
+      "actual_sequence": [
+        1,
+        0,
+        1
+      ],
+      "status": "known_failure"
+    },
+    {
+      "conversion_status": false,
+      "exposed_value": 7,
+      "id": "F-INT-003",
+      "status": "known_failure",
+      "expected": "failed conversion cannot be a successful value"
+    }
+  ],
+  "gate": "HARNESS_READY",
+  "aircraft_qualified": false,
+  "legacy_acceptance_executed": false
+}

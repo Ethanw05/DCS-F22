@@ -1,43 +1,21 @@
-# Regression contracts
+# Independent replacement test ports
 
-`run_all.py` executes every `test_*.py` and the Lua syntax check. CTest separately
-checks C++ models and actual DLL callbacks. Fixtures do not establish DCS flight
-or native rendering qualification.
+P-INT-002 replaces the shared runner and host layer. Only `cases/` and `native/`
+are acceptance sources. The remaining old files are quarantined from this runner
+and CTest while their assigned owners delete/remake them; they are not a second
+acceptance suite. See `docs/overhaul/integration/TEST-RETIREMENT.json`.
 
-The shared display/UFC redesign superseded three legacy tests removed during
-the 27 October regression repair:
+Use the pinned environment in `tools/requirements-navigation.txt` (Lupa 2.6,
+Lua 5.1). Configure with BUILD_TESTING=ON in an external build directory, build,
+then run `python tests/run_all.py --build-dir <external> --output <external>`.
+No build, test or probe installs a DLL, runs a hook, launches DCS or sends inputs
+to a user's simulator. The new Lua port requires explicit sensor exports and
+physical samples; zero-initialized native parameter storage is not a healthy
+source. Nil, wrong types, nonfinite values and sample mutation remain injectable.
+Elements enforce write-only properties and numeric-string coercion.
 
-| Retired test | Replacement coverage / changed contract |
-| --- | --- |
-| test_human_factors_workflow.py | test_common_ufc_workflow.py, test_entry_transactions.py and test_ufc_mouse_stores.py cover drafts, errors, exact acknowledgements, cancel and CLR/UNDO. The former generic OP5 ENTER, AP wheel pages and row-local draft echo were intentionally replaced by same-option commits and one scratchpad. |
-| test_icp_flight_pages.py | test_common_ufc_workflow.py, test_entry_transactions.py and test_autopilot.cpp cover actual UFC ALT/AP isolation, numeric requests, explicit modes and independent AFCS controls. The removed test expected the retired five-page ICP flight owner. |
-| test_pmfd_local_pages.py | test_common_mfd_workflow.py, test_mfd_mouse_menus.py and test_mfd_physical_layout.py cover every format on all four displays, local subpages, saved mouse descriptors, release ownership and power. The removed SYS submenu no longer exists. |
-
-Numerical model, transaction, launch/release and physical-boundary tests are
-retained. Updated graph tests call format constructors, respect display name
-prefixes and exercise current physical keys. Page snapshots are refreshed only
-with review of the changed formats and their behavioral/visibility checks.
-
-The removed `Electrical_Computer.lua` supplied a second reserve/APU model before
-native ownership. Its finite depletion/recharge and APU/generator cases belong
-to `test_vehicle_contract.cpp::power_and_start_chain` and the actual DLL tests
-in `test_vehicle_overhaul.cpp` (including source loss and live GPU restoration).
-The Lua electrical tests now check request transport, explicit achieved supply,
-snapshot rejection, independent brake axes and preserved APU audio. Startup
-fixtures declare physical provider frames instead of integrating energy in Lua.
-
-Engine indication tests now require the current physical indication schema and
-check stale/torn/unsupported frames, independent field failure, true zero versus
-`---`, source recovery, no display hydraulic integration, and absolute engine
-detent/release transport. Native callback checks reconcile both new delivered
-flow exports with the SDK. The shared fuel-page snapshots retain their 24
-elements and layout; only their four engine text bindings/formats change to
-carry unavailable markers. Engine needles retain their numeric channels and
-gain individual validity gates.
-
-The combined snapshot adds one NAV scale legend per panel and one net START
-reference element after replacing generic rows with achieved engine status/control
-rows. Their graph updates were checked against the corresponding source changes,
-TACAN component tests and the inspected START stroke-font previews. Receiver DATA
-visibility consumes the NAV owner's admitted component flags, independently of
-the native raw flags.
+`probes/known_failures.py` calls actual owners and records unmet independent
+requirements separately. HARNESS_READY requires successful self-checks and the
+declared pre-fix observations; it grants no aircraft, hook, loaded-DLL, optics,
+audio or multiplayer qualification. When a defect is fixed, migrate its probe
+to normal/limit/failure/recovery acceptance and update the stage gate deliberately.

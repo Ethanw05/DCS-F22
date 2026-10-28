@@ -1,0 +1,115 @@
+{
+  "id": "public_f22_manual_recovery@1",
+  "selection_source": "Cockpit/Scripts/Systems/Equipment_Profile.lua",
+  "selected": {
+    "gins": {
+      "owner": "chat2",
+      "implementation": "pre-existing; partial, see CAPABILITIES/REQUIREMENTS",
+      "aircraft_evidence": "Source/access tiers in docs/audit/SOURCES.json",
+      "calibration": "unqualified except explicitly sourced values",
+      "installed_identity": "file hashes to be captured; loaded identity unmeasured",
+      "runtime_qualification": false
+    },
+    "gps": {
+      "owner": "chat2",
+      "implementation": "pre-existing; partial, see CAPABILITIES/REQUIREMENTS",
+      "aircraft_evidence": "Source/access tiers in docs/audit/SOURCES.json",
+      "calibration": "unqualified except explicitly sourced values",
+      "installed_identity": "file hashes to be captured; loaded identity unmeasured",
+      "runtime_qualification": false
+    },
+    "tacan": {
+      "owner": "chat2",
+      "implementation": "pre-existing; partial, see CAPABILITIES/REQUIREMENTS",
+      "aircraft_evidence": "Source/access tiers in docs/audit/SOURCES.json",
+      "calibration": "unqualified except explicitly sourced values",
+      "installed_identity": "file hashes to be captured; loaded identity unmeasured",
+      "runtime_qualification": false
+    },
+    "ils": {
+      "owner": "chat2",
+      "implementation": "pre-existing; partial, see CAPABILITIES/REQUIREMENTS",
+      "aircraft_evidence": "Source/access tiers in docs/audit/SOURCES.json",
+      "calibration": "unqualified except explicitly sourced values",
+      "installed_identity": "file hashes to be captured; loaded identity unmeasured",
+      "runtime_qualification": false
+    },
+    "radar": {
+      "owner": "chat3",
+      "implementation": "pre-existing; partial, see CAPABILITIES/REQUIREMENTS",
+      "aircraft_evidence": "Source/access tiers in docs/audit/SOURCES.json",
+      "calibration": "unqualified except explicitly sourced values",
+      "installed_identity": "file hashes to be captured; loaded identity unmeasured",
+      "runtime_qualification": false
+    },
+    "manual_recovery": {
+      "owner": "chat2",
+      "implementation": "pre-existing; partial, see CAPABILITIES/REQUIREMENTS",
+      "aircraft_evidence": "Source/access tiers in docs/audit/SOURCES.json",
+      "calibration": "unqualified except explicitly sourced values",
+      "installed_identity": "file hashes to be captured; loaded identity unmeasured",
+      "runtime_qualification": false
+    },
+    "advisory_terrain": {
+      "owner": "chat2",
+      "implementation": "pre-existing; partial, see CAPABILITIES/REQUIREMENTS",
+      "aircraft_evidence": "Source/access tiers in docs/audit/SOURCES.json",
+      "calibration": "unqualified except explicitly sourced values",
+      "installed_identity": "file hashes to be captured; loaded identity unmeasured",
+      "runtime_qualification": false
+    }
+  },
+  "excluded": {
+    "targeting_pod": {
+      "selected": false,
+      "decision": "Retain selected off; no complete host/evidence decision has changed applicability",
+      "owner": "chat4"
+    },
+    "hmd": {
+      "selected": false,
+      "decision": "Retain selected off; no complete host/evidence decision has changed applicability",
+      "owner": "chat4"
+    },
+    "irds": {
+      "selected": false,
+      "decision": "Retain selected off; no complete host/evidence decision has changed applicability",
+      "owner": "chat4"
+    },
+    "carrier_acls": {
+      "selected": false,
+      "decision": "Retain selected off; no complete host/evidence decision has changed applicability",
+      "owner": "chat2"
+    },
+    "autoland": {
+      "selected": false,
+      "decision": "Retain selected off; no complete host/evidence decision has changed applicability",
+      "owner": "chat2"
+    },
+    "automatic_gcas": {
+      "selected": false,
+      "decision": "Retain selected off; no complete host/evidence decision has changed applicability",
+      "owner": "chat2"
+    },
+    "additional_weapons": {
+      "selected": false,
+      "decision": "Retain selected off; no complete host/evidence decision has changed applicability",
+      "owner": "chat4"
+    },
+    "clear_voice_backend": {
+      "selected": false,
+      "decision": "Retain selected off; no complete host/evidence decision has changed applicability",
+      "owner": "chat2"
+    },
+    "diagnostic_weapon_truth": {
+      "selected": false,
+      "decision": "Retain selected off; no complete host/evidence decision has changed applicability",
+      "owner": "chat4"
+    }
+  },
+  "policy": "Selection is not implementation, aircraft validation, calibration or runtime qualification. Unknown/unsupported native profile must withdraw the affected capability.",
+  "retained_simulator_analogue": {
+    "gun_high_rate_source": 2,
+    "owner": "chat4",
+    "qualification": "native qualification pending; source provenance retained"
+  }
+}

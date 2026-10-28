@@ -1,0 +1,18 @@
+{
+  "schema_version": "2.0",
+  "checked_at": "2026-10-28T14:30:51.673561-06:00",
+  "timezone": "America/Denver",
+  "initial_head": "7513f931a8bf1016a72e8eb184a9c98074786e81",
+  "current_head": "7513f931a8bf1016a72e8eb184a9c98074786e81",
+  "branch": "main",
+  "initial_status": "M tools/compose_ew_gauntlet.lua\n M tools/research_sar_point_targets.py\n?? Cockpit.zip\n?? EFM.zip",
+  "current_status": "M tools/compose_ew_gauntlet.lua\n M tools/research_sar_point_targets.py\n?? Cockpit.zip\n?? EFM.zip",
+  "hashes_rechecked": 5515,
+  "changed_files": [],
+  "missing_files": [],
+  "capture_is_atomic": false,
+  "parent_package": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413",
+  "parent_manifest_files_rechecked": 257,
+  "parent_package_drift": [],
+  "interpretation": "Source per-file hashes pin this expansion. The earlier audit is preserved and its unchanged Lua/hook review/history retained with explicit provenance; this is a deeper native/body/consumer pass, not a new full Lua pass."
+}

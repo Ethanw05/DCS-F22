@@ -1,0 +1,105 @@
+{
+  "schema_version": "1.0",
+  "edition_verification_date": "2026-10-28 America/Denver",
+  "records": [
+    {
+      "id": "STD-001",
+      "source": "S-LEAD-001",
+      "source_objective": "Catalogue system-safety objective",
+      "project_rule": "Maintain causal failure register with consequence, controls, detection, degraded/recovery behavior.",
+      "applicability": "Release/AFCS/supply/sensor/native lifetime decisions",
+      "verification_evidence": "Failure sequence and independent challenge records",
+      "deviations": "Qualitative simulator consequence only; no invented probabilities or aviation level.",
+      "adoption": "proposed_for_later_execution",
+      "compliance_claim": false
+    },
+    {
+      "id": "STD-002",
+      "source": "S-LEAD-002",
+      "source_objective": "Catalogue guidance and reproducible methods",
+      "project_rule": "Define observable qualification and explicit unavailable host evidence.",
+      "applicability": "Whole mission and physical/host boundary",
+      "verification_evidence": "Exact source/build/configuration and result capture",
+      "deviations": "Internal handbook not adopted or claimed read.",
+      "adoption": "proposed_for_later_execution",
+      "compliance_claim": false
+    },
+    {
+      "id": "STD-003",
+      "source": "S-LEAD-003",
+      "source_objective": "SWE050/055/061/135/066 selected clauses",
+      "project_rule": "Test independently specified requirements, retain coding rules and static checks.",
+      "applicability": "All new/modified owned Lua/C++",
+      "verification_evidence": "REQUIREMENTS, rebuilt tests, static-analysis records",
+      "deviations": "Voluntary tailoring; no NASA class or external certification.",
+      "adoption": "proposed_for_later_execution",
+      "compliance_claim": false
+    },
+    {
+      "id": "STD-004",
+      "source": "S-LEAD-004",
+      "source_objective": "SWE052 and requirements assurance tasks",
+      "project_rule": "Enforce forward/reverse traceability and reviewer independence.",
+      "applicability": "Consequential decisions and cleanup",
+      "verification_evidence": "Schema/reference validator and author/reviewer separation",
+      "deviations": "Not organizationally independent NASA IV&V.",
+      "adoption": "proposed_for_later_execution",
+      "compliance_claim": false
+    },
+    {
+      "id": "STD-005",
+      "source": "S-LEAD-005",
+      "source_objective": "M&S32/33 selected reporting clauses",
+      "project_rule": "Declare calibration dataset, independent validation data, sensitivity, tolerances and unquantified uncertainty.",
+      "applicability": "Numerical aircraft/radar/thermal models",
+      "verification_evidence": "Recorded conditions, convergence study, held-out validation",
+      "deviations": "Public data cannot authenticate undisclosed production parameters; change-date metadata conflict explicit.",
+      "adoption": "proposed_for_later_execution",
+      "compliance_claim": false
+    },
+    {
+      "id": "STD-006",
+      "source": "S-LEAD-006",
+      "source_objective": "Official AC description",
+      "project_rule": "Retain assurance context only.",
+      "applicability": "No direct certification or workflow obligation",
+      "verification_evidence": "No compliance label",
+      "deviations": "DO178C unread; no DAL assigned.",
+      "adoption": "proposed_for_later_execution",
+      "compliance_claim": false
+    },
+    {
+      "id": "STD-007",
+      "source": "S-LEAD-007",
+      "source_objective": "5.1 language contract",
+      "project_rule": "Explicit numeric status normalization, finite/type checking, fail-closed result validation.",
+      "applicability": "Host and module boundaries",
+      "verification_evidence": "Lua5.1 compilation and rebuilt boundary tests",
+      "deviations": "DCS native storage/coercion requires separate host evidence.",
+      "adoption": "proposed_for_later_execution",
+      "compliance_claim": false
+    }
+  ],
+  "deepening_tailoring": [
+    {
+      "source": "DS-CPP-001 CP.1/2/8/9",
+      "project_rule": "Read all protected fields inside one coherent snapshot interval; characterize actual scheduling before concurrency claims; preserve original observation lease and explicit epoch retirement.",
+      "evidence": [
+        "D-RAD-002",
+        "D-RAD-004",
+        "D-WPN-003"
+      ],
+      "deviation": "Public guidance tailored to mod; no aviation assurance level or whole-standard compliance."
+    },
+    {
+      "source": "DS-DLL-001",
+      "project_rule": "Keep DllMain minimal; validate static API readiness separately and retire callbacks/borrowed objects under actual host lifecycle before unload.",
+      "evidence": [
+        "NATIVE-COVERAGE.json",
+        "F-INT-003",
+        "F-WPN-007"
+      ],
+      "deviation": "Native host ordering remains unqualified; no added waits in loader callbacks."
+    }
+  ]
+}

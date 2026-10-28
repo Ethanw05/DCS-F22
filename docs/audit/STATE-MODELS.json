@@ -1,0 +1,690 @@
+{
+  "schema_version": "1.0",
+  "status": "Source-reviewed state tables and explicitly intended requirement models; not universal production conformance proof",
+  "models": [
+    {
+      "id": "SM-INT-TRANSACTION",
+      "system": "Correlated numeric/release transactions",
+      "states": [
+        "idle",
+        "draft",
+        "pending",
+        "accepted",
+        "achieved",
+        "cancelled",
+        "invalid"
+      ],
+      "authority": "Current subsystem owner; UI only drafts/routes",
+      "transitions": [
+        [
+          "idle",
+          "entry",
+          "valid source/profile",
+          "draft",
+          "allocate request identity"
+        ],
+        [
+          "draft",
+          "commit",
+          "typed/bounded value and current generation",
+          "pending",
+          "publish request once"
+        ],
+        [
+          "pending",
+          "owner acceptance",
+          "same request+generation",
+          "accepted",
+          "publish correlated acknowledgement"
+        ],
+        [
+          "accepted",
+          "native/physical effect",
+          "matching instance/action evidence",
+          "achieved",
+          "publish achieved outcome once"
+        ],
+        [
+          "pending/accepted",
+          "page/power/profile/rearm/reset/timeout",
+          "any authority withdrawal",
+          "cancelled",
+          "revoke consent and invalidate late acknowledgements"
+        ],
+        [
+          "cancelled",
+          "late/duplicate actual native outcome",
+          "exact earlier request/action/instance identity",
+          "cancelled intent; reconciled historical outcome",
+          "Record attributable actual effect without reviving consent or acknowledging a new request"
+        ],
+        [
+          "any",
+          "restart",
+          "new mission epoch",
+          "idle",
+          "clear all transient identities"
+        ]
+      ],
+      "properties": [
+        "Never acknowledge by equal value alone.",
+        "A dispatch return or inventory decrease cannot prove a particular physical action.",
+        "Cancellation is monotone within an epoch.",
+        "Cancellation does not prove the already-issued native effect was stopped; preserve and reconcile unresolved outcomes."
+      ]
+    },
+    {
+      "id": "SM-INT-PUBLICATION",
+      "system": "Measured source validity",
+      "states": [
+        "unavailable",
+        "healthy",
+        "stale",
+        "invalid",
+        "recovering"
+      ],
+      "authority": "Owning producer with per-group measurement validity",
+      "transitions": [
+        [
+          "unavailable",
+          "coherent frame",
+          "supported schema/clock/owner and finite domains",
+          "healthy",
+          "admit values"
+        ],
+        [
+          "healthy",
+          "source stops",
+          "age exceeds declared adapter limit",
+          "stale",
+          "withdraw dependent cues"
+        ],
+        [
+          "healthy",
+          "bad type/nonfinite/torn/reset",
+          "validation fails",
+          "invalid",
+          "withdraw affected data, preserve independent sources"
+        ],
+        [
+          "stale/invalid",
+          "new coherent frame",
+          "new valid sample same declared clock",
+          "recovering",
+          "discard stale generation and recheck"
+        ],
+        [
+          "recovering",
+          "validated full commit",
+          "all required conditions",
+          "healthy",
+          "restore eligible consumer once"
+        ]
+      ],
+      "properties": [
+        "Receipt time is not observation time.",
+        "Healthy default values cannot create measurement provenance.",
+        "Do not erase independent valid velocity/backup oxygen because pressure is invalid."
+      ]
+    },
+    {
+      "id": "SM-INT-RADAR",
+      "system": "Radar track observation/memory",
+      "states": [
+        "absent",
+        "tentative",
+        "measured",
+        "coasted",
+        "expired"
+      ],
+      "authority": "Measured sensing owner then source-labeled track owner",
+      "transitions": [
+        [
+          "absent",
+          "admitted observation",
+          "inside actual serviced geometry and quality/time",
+          "tentative",
+          "allocate bounded slot"
+        ],
+        [
+          "tentative",
+          "association/hits",
+          "independent confirmation rules satisfied",
+          "measured",
+          "publish measured state+covariance+time"
+        ],
+        [
+          "measured",
+          "no observation/silence",
+          "within explicit memory limit",
+          "coasted",
+          "grow uncertainty; withdraw unsupported fire control"
+        ],
+        [
+          "coasted",
+          "fresh admitted observation",
+          "association source/time valid",
+          "measured",
+          "update sample; no truth teleport"
+        ],
+        [
+          "tentative/measured/coasted",
+          "age/power/reset/profile",
+          "expiry/epoch condition",
+          "expired",
+          "clear support authority"
+        ],
+        [
+          "expired",
+          "consumer query",
+          "none",
+          "absent",
+          "no stale readiness"
+        ]
+      ],
+      "properties": [
+        "Native commanded coverage and Lua admission coverage agree.",
+        "Donor awareness is not own-radar weapon support.",
+        "World truth cannot bypass modeled observations except explicitly selected diagnostic authority."
+      ]
+    },
+    {
+      "id": "SM-INT-SUPPLY",
+      "system": "Finite physical supply and servicing",
+      "states": [
+        "unavailable",
+        "starting",
+        "available",
+        "degraded",
+        "depleted",
+        "servicing"
+      ],
+      "authority": "Single native physical owner",
+      "transitions": [
+        [
+          "unavailable",
+          "start request",
+          "finite source and guard accepted",
+          "starting",
+          "consume start energy/fuel"
+        ],
+        [
+          "starting",
+          "achieved source",
+          "valid spool/load/supply",
+          "available",
+          "publish achieved supply"
+        ],
+        [
+          "available",
+          "load/failure/source loss",
+          "topology/health predicate",
+          "degraded",
+          "shed/invalidate dependent consumers"
+        ],
+        [
+          "degraded",
+          "reserve reaches zero",
+          "finite ledger",
+          "depleted",
+          "no free energy or automatic repair"
+        ],
+        [
+          "depleted",
+          "authorized ground service",
+          "servicing guards satisfied",
+          "servicing",
+          "account actual delivered resources"
+        ],
+        [
+          "servicing",
+          "service complete",
+          "new totals/coherent epoch",
+          "available",
+          "preserve unrelated failures; no command replay"
+        ]
+      ],
+      "properties": [
+        "Only physical owner integrates mass/energy.",
+        "Fault acknowledgement is not repair.",
+        "Pause/render cannot consume reserves."
+      ]
+    },
+    {
+      "id": "SM-NAV-001",
+      "system": "Numeric entry",
+      "states": [
+        "closed",
+        "draft",
+        "pending",
+        "accepted",
+        "rejected",
+        "timed_out",
+        "cancelled"
+      ],
+      "transitions": [
+        {
+          "start": "draft",
+          "event": "sameoptionvalidsubmit",
+          "guard": "capacity+owner consent",
+          "end": "pending",
+          "authority": "owner mailbox"
+        },
+        {
+          "start": "pending",
+          "event": "matchingACK+achievedreadback",
+          "guard": "ACK_REQUEST exact andRESULT1",
+          "end": "accepted",
+          "authority": "owner"
+        },
+        {
+          "start": "pending",
+          "event": "rejection/1stimeout",
+          "end": "rejected/timed_out",
+          "action": "cancelACTIVE;retaincorrectabledraft"
+        },
+        {
+          "start": "draft/pending",
+          "event": "page/power/profilechange",
+          "end": "cancelled",
+          "action": "ACTIVE0;no replay"
+        }
+      ],
+      "limits": "No formal model checking; plan independent all short sequences<=6withduplicate/delayed/outoforderACK"
+    },
+    {
+      "id": "SM-RAD-001",
+      "system": "air authority",
+      "authority": "C++ measured owner;Lua intent/presentation",
+      "states": [
+        "OFF/unqualified",
+        "SEARCH",
+        "ACQUIRING",
+        "PRIORITY_LOCK",
+        "COAST",
+        "WITHDRAWN"
+      ],
+      "transitions": [
+        [
+          "OFF",
+          "freshphysical/driver/control/emit",
+          "SEARCH"
+        ],
+        [
+          "SEARCH",
+          "acceptedacquire/currentfile",
+          "ACQUIRING"
+        ],
+        [
+          "ACQUIRING",
+          "newpostrequest maturemeasurement",
+          "PRIORITY_LOCK"
+        ],
+        [
+          "ACQUIRING",
+          "4s timeout",
+          "SEARCH"
+        ],
+        [
+          "PRIORITY_LOCK",
+          "miss/ambiguity",
+          "COAST/WITHDRAWN"
+        ],
+        [
+          "any",
+          "power/profile/epoch/clock/ownerloss",
+          "WITHDRAWN"
+        ],
+        [
+          "COAST",
+          "freshassociatedreport",
+          "SEARCH/priority"
+        ]
+      ],
+      "reset": "retire authority/no oldintent replay",
+      "coverage": "Source state-table and selective diagnostics;not exhaustive model checking"
+    },
+    {
+      "id": "SM-RAD-002",
+      "system": "ground transaction",
+      "authority": "Lua intent,native sensing/image owners",
+      "states": [
+        "LIVE",
+        "PREVIEW_HELD",
+        "FRZ",
+        "SIL_HELD",
+        "ACTIVE_COLLECT",
+        "ACQUIRING",
+        "OBJECT_TRACK",
+        "FIXED_FTT",
+        "UNAVAILABLE"
+      ],
+      "transitions": [
+        [
+          "LIVE",
+          "TDCpress",
+          "PREVIEW_HELD"
+        ],
+        [
+          "PREVIEW_HELD",
+          "matchingrelease",
+          "LIVE/ACQUIRING"
+        ],
+        [
+          "PREVIEW_HELD",
+          "focus/page/powercancel",
+          "LIVE/UNAVAILABLE;no commit"
+        ],
+        [
+          "LIVE/FRZ",
+          "SIL",
+          "SIL_HELD;RFoff"
+        ],
+        [
+          "SIL_HELD",
+          "ACTIVE",
+          "ACTIVE_COLLECT"
+        ],
+        [
+          "ACTIVE_COLLECT",
+          "1normalized discoveryvolume",
+          "SIL_HELD"
+        ],
+        [
+          "ACQUIRING",
+          "matchednewmeasurement",
+          "OBJECT_TRACK"
+        ],
+        [
+          "ACQUIRING",
+          "3stimeout+terrainconfirmation",
+          "FIXED_FTT;kind3"
+        ],
+        [
+          "any",
+          "power/epoch/clockloss",
+          "UNAVAILABLE"
+        ]
+      ],
+      "reset": "cancel pending and require newframe",
+      "coverage": "Bounded source guard/transition analysis;future independent sequence exploration"
+    },
+    {
+      "id": "SM-WPN-CM-EXPECTED",
+      "status": "intended requirement model, not claimed current complete implementation",
+      "states": [
+        "unavailable",
+        "idle",
+        "awaiting_consent",
+        "running",
+        "interrupted",
+        "depleted"
+      ],
+      "authority": "EW program/dispenser owner; qualified warning-event provider and actual native inventory/effect adapter",
+      "transitions": [
+        [
+          "unavailable",
+          "qualified clock/power/profile/native/eventprovider",
+          "current coherent source",
+          "idle",
+          "publish mode-specific availability"
+        ],
+        [
+          "idle",
+          "eligible fresh threat in SEMI",
+          "selected program and bounded event provenance",
+          "awaiting_consent",
+          "publish event-correlated consent request"
+        ],
+        [
+          "awaiting_consent",
+          "consent",
+          "same current event/program/generation",
+          "running",
+          "issue bounded physical dispense schedule"
+        ],
+        [
+          "idle",
+          "eligible fresh threat in AUTO",
+          "selected policy permits current source",
+          "running",
+          "no scripted test stimulus substituted"
+        ],
+        [
+          "idle",
+          "manual direct request",
+          "declared manual policy/current inventory",
+          "running",
+          "execute actual native effect once"
+        ],
+        [
+          "running/awaiting_consent",
+          "power/page/program/event/native/clock loss or rearm/reset",
+          "withdrawal condition",
+          "interrupted",
+          "cancel future pulses and retain actual inventory/outcome"
+        ],
+        [
+          "running",
+          "actual inventory exhaustion",
+          "native counts/effects",
+          "depleted",
+          "stop, truthful feedback"
+        ],
+        [
+          "interrupted/depleted",
+          "source restoration/service",
+          "fresh generation/current consent as required",
+          "idle",
+          "never replay old threat/program"
+        ]
+      ],
+      "properties": [
+        "Editing bank is not executed bank",
+        "Source age and actual dispense inventory are independent",
+        "Missing event provider cannot advertise automatic availability"
+      ]
+    },
+    {
+      "id": "SM-NAV-AFCS-EXPECTED",
+      "status": "intended selected-analogue contract; actual sensor mapping decision required",
+      "states": [
+        "axis_off",
+        "axis_engaged",
+        "capture_pending",
+        "temporary_override",
+        "disengaged_reason"
+      ],
+      "authority": "One native AFCS controller, independent lateral/vertical/AT axes; physical/FCS owner supplies achieved authority",
+      "transitions": [
+        [
+          "axis_off",
+          "mode request",
+          "selected provider/power/attitude/domain eligible",
+          "capture_pending",
+          "correlated request, no implied other-axis capture"
+        ],
+        [
+          "capture_pending",
+          "accepted current reference/target",
+          "request/source current",
+          "axis_engaged",
+          "publish actual mode/target"
+        ],
+        [
+          "axis_engaged",
+          "ordinary disconnect",
+          "selected current policy",
+          "disengaged_reason",
+          "withdraw command and distinguish reason"
+        ],
+        [
+          "axis_engaged",
+          "dedicated override",
+          "explicit selected temporary-override policy",
+          "temporary_override",
+          "pilot owns admitted axis"
+        ],
+        [
+          "temporary_override",
+          "release",
+          "reference/eligibility/current target still permitted",
+          "axis_engaged or disengaged_reason",
+          "no unconditional stale recapture"
+        ],
+        [
+          "any engaged state",
+          "power/source/authority failure or reset",
+          "affected-axis conditions",
+          "disengaged_reason",
+          "preserve independent eligible axes and record loss"
+        ],
+        [
+          "disengaged_reason",
+          "new engage",
+          "fresh consent and valid source",
+          "capture_pending",
+          "no failed-mode automatic resurrection"
+        ]
+      ],
+      "properties": [
+        "Raw EFM reference and selected GINS health mapping must be explicitly chosen, not inferred",
+        "CAS/Mach AT differs from unselected approach AoA assistance",
+        "Advisory terrain cue never silently commands automatic GCAS"
+      ]
+    }
+  ],
+  "bounded_model_check": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\probes\\TRANSACTION-MODEL-RESULT.json",
+  "model_scope": "Two request IDs/two generations/depth6 protocol;561states/5565edges, no invariant violations. Real owner/native scheduling/effects unproven by this model.",
+  "deepening_domain_models": [
+    {
+      "lane": "weapons",
+      "models": [
+        {
+          "id": "D-SM-WPN-001",
+          "system": "Native IR/payload lifecycle",
+          "states": [
+            "retired acceptingfalse",
+            "accepting without seeker",
+            "constructed current station/type/generation",
+            "exposed caged or tracking",
+            "retiring exclusive IR guard"
+          ],
+          "transitions": [
+            "spawn start_feedback obtainslifecyclelock->accepting",
+            "validmode/supply/exposure/type/generation->construct+initialize",
+            "instancechange->dispose->newconstruct andsampleheldrelease edge",
+            "lostpower/exposure/stationhealth->dispose, no fabricated lock",
+            "reset acquiresexclusiveIRguard->samplevalid0+acceptingfalse+groundcacheclear+supportunhook+dispose"
+          ],
+          "invariants": [
+            "Late IR update cannot reacquire consent after retirement",
+            "Payload callback outsideIRguard is not proved drained by thismodel",
+            "Only actual armed returned launchID may create native event"
+          ],
+          "limits": "Source state/lock table, not DCS scheduling proof or exhaustive state explorer; F-WPN-007 retained"
+        },
+        {
+          "id": "D-SM-WPN-002",
+          "system": "Datalink terminal and publication",
+          "states": [
+            "API unresolved",
+            "guard rejected",
+            "APIready no terminal",
+            "constructed Rxdisabled",
+            "Rxonly",
+            "RxTx",
+            "retiring"
+          ],
+          "transitions": [
+            "profile/export ready->APIready",
+            "power+ownaircraft->construct/register",
+            "MAIN_POWER/enable loss->receiveroff clearreports",
+            "IFDL enableloss->drop link1reports/transmitteroff",
+            "clockrewind/ownshipchange->reset/unregister/destroy/incrementepoch",
+            "updatebulk writes sequence0 then fields then positivecompletion"
+          ],
+          "invariants": [
+            "source+reporter+link keys preserve separate reports",
+            "unknown native observation sample doesnotgain knowngeometry extrapolation",
+            "identity time is currently missing in ownpacket schema D-WPN-001",
+            "outgoing radar transaction lacks begin marker D-WPN-003"
+          ],
+          "limits": "No measured registration callback ordering or native allocation ABI certification"
+        }
+      ]
+    }
+  ],
+  "deepening_models": [
+    {
+      "id": "DSM-001",
+      "name": "Local packet capture",
+      "states": [
+        "idle/unavailable",
+        "producer-writing",
+        "committed-source",
+        "reader-copy",
+        "accepted-immutable",
+        "expired/rejected"
+      ],
+      "guards": [
+        "Readcommit before any protected field",
+        "Rejectwriting/changed/generation/status mismatch",
+        "Preserve producer stamp independently of receipt",
+        "Disable invalidates consent, no defaultenable"
+      ],
+      "covered_by": [
+        "D-RAD-002",
+        "D-RAD-004",
+        "D-WPN-003"
+      ],
+      "limit": "Source/adversarial scheduling model, not supported-host thread proof."
+    },
+    {
+      "id": "DSM-002",
+      "name": "Identity evidence transport",
+      "states": [
+        "unknown-time",
+        "known-original",
+        "retained-old/conflicting",
+        "source-epoch-invalid",
+        "new-qualified-evidence"
+      ],
+      "invariants": [
+        "Geometry/receipt updates do not renew identity",
+        "Unknown original time never inferred from fresh kinematics",
+        "Friendly protection and conflict provenance remain separate from weapon authority"
+      ],
+      "covered_by": [
+        "D-WPN-001"
+      ]
+    },
+    {
+      "id": "DSM-003",
+      "name": "Generation and ground-clock discontinuity",
+      "states": [
+        "current",
+        "pending/selected",
+        "reset/rewind",
+        "withdrawn",
+        "fresh generation/request"
+      ],
+      "invariants": [
+        "Pending/selected/filter/range timing retire together",
+        "No prior keyboard smoother in fresh spawn",
+        "Current Lua future rejection/cancel guards retained"
+      ],
+      "covered_by": [
+        "D-INT-001",
+        "D-RAD-003"
+      ]
+    }
+  ],
+  "deepening_interface_index": {
+    "packet_control": "I-DEEP-001",
+    "identity_wire": "I-DEEP-002",
+    "ground_clock_retirement": "I-DEEP-003",
+    "generation_input_filter": "I-DEEP-004",
+    "tactical_snapshot": "I-DEEP-005"
+  }
+}

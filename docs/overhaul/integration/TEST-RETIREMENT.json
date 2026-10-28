@@ -1,0 +1,2217 @@
+{
+  "schema_version": 1,
+  "policy": "Only tests/cases and tests/native are replacement acceptance. Pending legacy modules are quarantined from the runner, not accepted or copied as oracles. Domain owner deletes/remakes assigned files after hash recheck; final reconciliation P-INT-006.",
+  "artifacts": [
+    {
+      "path": "EFM/tests/test_native_ground_video.cpp",
+      "owner": "chat3",
+      "captured_sha256": "ba2c987b311c9b5f6e71d9ed00c5356eb724e6943545efef510e36aa3d82ff12",
+      "execution_sha256": "ba2c987b311c9b5f6e71d9ed00c5356eb724e6943545efef510e36aa3d82ff12",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/README.md",
+      "owner": "chat2",
+      "captured_sha256": "5ec177d9abf1c966f5ef5678048f4644119acbce8cbbed176af3fba33c410fcd",
+      "execution_sha256": "5ec177d9abf1c966f5ef5678048f4644119acbce8cbbed176af3fba33c410fcd",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/cockpit_fixture.py",
+      "owner": "chat2",
+      "captured_sha256": "2234dffb07a791a2532f064561818505db0e0de0c190eb145099988b31c2bccf",
+      "execution_sha256": "2234dffb07a791a2532f064561818505db0e0de0c190eb145099988b31c2bccf",
+      "status": "deleted_replaced",
+      "replacement": [
+        "tests/run_all.py",
+        "tests/host.py",
+        "tests/host.lua",
+        "tests/cases/test_host_contract.py",
+        "tests/cases/test_lua_syntax.py"
+      ],
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/fixtures/aesa-position-run02.csv",
+      "owner": "chat3",
+      "captured_sha256": "90e490aad5fa971094aca089a9fbe5c821d19c036d8424260ed2467447a58d67",
+      "execution_sha256": "90e490aad5fa971094aca089a9fbe5c821d19c036d8424260ed2467447a58d67",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/fixtures/aesa-position-run02.md",
+      "owner": "chat3",
+      "captured_sha256": "0b78598ea675effa7b938c6e23ac817f9fa48b62a80ebc720a737cc6c62ff990",
+      "execution_sha256": "0b78598ea675effa7b938c6e23ac817f9fa48b62a80ebc720a737cc6c62ff990",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/fixtures/gun-aesa-player-20261027.csv",
+      "owner": "chat3",
+      "captured_sha256": "9b5d3c2f2327870c57047ee5be85397950194703c2cb72ce4b4ae4fbbb6fec8c",
+      "execution_sha256": "9b5d3c2f2327870c57047ee5be85397950194703c2cb72ce4b4ae4fbbb6fec8c",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/fixtures/gun_deferred_pursuit.csv",
+      "owner": "chat4",
+      "captured_sha256": "3e39e921da80fd521655ea5b6bbf565dc6394a9f35eaf302eaaeb0e42a16cf91",
+      "execution_sha256": "3e39e921da80fd521655ea5b6bbf565dc6394a9f35eaf302eaaeb0e42a16cf91",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/fixtures/mfd_page_elements.json",
+      "owner": "chat2",
+      "captured_sha256": "2b304bcac4a56adfb27a98f4fe7f94d141c79d49aa623bfea38794d7201a8b6e",
+      "execution_sha256": "2b304bcac4a56adfb27a98f4fe7f94d141c79d49aa623bfea38794d7201a8b6e",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/gun_simulation.cpp",
+      "owner": "chat4",
+      "captured_sha256": "f5424c2b54f5ec2517a5e852bb61e0bfe304f53c0f619a8fb54094a094c99a58",
+      "execution_sha256": "f5424c2b54f5ec2517a5e852bb61e0bfe304f53c0f619a8fb54094a094c99a58",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/legacy_measurement_fixture.lua",
+      "owner": "chat2",
+      "captured_sha256": "f8ca1c3fa91006d37e2393049fa7f284c140016b754573359b1f1e556c99e3dc",
+      "execution_sha256": "f8ca1c3fa91006d37e2393049fa7f284c140016b754573359b1f1e556c99e3dc",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/navigation_reference_fixture.lua",
+      "owner": "chat2",
+      "captured_sha256": "06afe90e47602c6113131b70d25add15b603f83e183510207e3965d48dbe3d12",
+      "execution_sha256": "06afe90e47602c6113131b70d25add15b603f83e183510207e3965d48dbe3d12",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/owned_radar_fixture.lua",
+      "owner": "chat3",
+      "captured_sha256": "a9c355e9f5bb79af1c38d7799fc1a49abf22df4a7ee93687ad8036adb1d38cfa",
+      "execution_sha256": "a9c355e9f5bb79af1c38d7799fc1a49abf22df4a7ee93687ad8036adb1d38cfa",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/physical_frame_fixture.lua",
+      "owner": "chat2",
+      "captured_sha256": "539ab7b02fa0ba412f029bddeded65d866ee881da909fd8cb3c90a38d3aae985",
+      "execution_sha256": "539ab7b02fa0ba412f029bddeded65d866ee881da909fd8cb3c90a38d3aae985",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/radar_body_fixture.lua",
+      "owner": "chat3",
+      "captured_sha256": "a27face9b73c10dd74dfe0f6d0211a8cfd4b8ded76233cabe4293f968de05930",
+      "execution_sha256": "a27face9b73c10dd74dfe0f6d0211a8cfd4b8ded76233cabe4293f968de05930",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/radar_physical_fixture.lua",
+      "owner": "chat3",
+      "captured_sha256": "8e437805dbfad1cbcf592caca865171b930bc50b4d98aed45da52732c8c0f677",
+      "execution_sha256": "8e437805dbfad1cbcf592caca865171b930bc50b4d98aed45da52732c8c0f677",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/radar_test_runtime.py",
+      "owner": "chat3",
+      "captured_sha256": "4bc61fb477c93b1a3ba9ba56a4880cd6dc44104dc5eb7b17048bd99262e3b210",
+      "execution_sha256": "4bc61fb477c93b1a3ba9ba56a4880cd6dc44104dc5eb7b17048bd99262e3b210",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/reference_frame_fixture.lua",
+      "owner": "chat2",
+      "captured_sha256": "4bc6d17eb46e4d6da5bfd5399d4775f414f99e4b8b4961bbf3b4966a402f61ae",
+      "execution_sha256": "4bc6d17eb46e4d6da5bfd5399d4775f414f99e4b8b4961bbf3b4966a402f61ae",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/requirements-radar.txt",
+      "owner": "chat3",
+      "captured_sha256": "99cb9765a81dbdc6e2d4d047b82760218c1727894d2b4d17b6f3e27c21d06d79",
+      "execution_sha256": "99cb9765a81dbdc6e2d4d047b82760218c1727894d2b4d17b6f3e27c21d06d79",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/run_all.py",
+      "owner": "chat2",
+      "captured_sha256": "6f432901920c66e12247f85a509bbc29a4558f206f627e3591eaaac96fd2b2f5",
+      "execution_sha256": "6f432901920c66e12247f85a509bbc29a4558f206f627e3591eaaac96fd2b2f5",
+      "status": "deleted_replaced",
+      "replacement": [
+        "tests/run_all.py",
+        "tests/host.py",
+        "tests/host.lua",
+        "tests/cases/test_host_contract.py",
+        "tests/cases/test_lua_syntax.py"
+      ],
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/stt_snapshot_fixture.lua",
+      "owner": "chat3",
+      "captured_sha256": "2c647baba185b45d2573ec2aa44a780d17b82af09cd6864bae0109496a013e17",
+      "execution_sha256": "2c647baba185b45d2573ec2aa44a780d17b82af09cd6864bae0109496a013e17",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/surface_grant_fixture.lua",
+      "owner": "chat3",
+      "captured_sha256": "134c9f1cffe62f1486c206c6d36a4699f490069993791243aec37a021a2316f6",
+      "execution_sha256": "134c9f1cffe62f1486c206c6d36a4699f490069993791243aec37a021a2316f6",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_aesa_association.cpp",
+      "owner": "chat3",
+      "captured_sha256": "26657a4877ea006bba8bcae4b2fb6c61f1ecd0b9f059b9d83e796b0a1e93cbf7",
+      "execution_sha256": "26657a4877ea006bba8bcae4b2fb6c61f1ecd0b9f059b9d83e796b0a1e93cbf7",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_aesa_interference.cpp",
+      "owner": "chat3",
+      "captured_sha256": "5cd48d7a7f4234fb68770fd310d1a65f4461b34535f3b36a4dc3d8067a58f5cc",
+      "execution_sha256": "5cd48d7a7f4234fb68770fd310d1a65f4461b34535f3b36a4dc3d8067a58f5cc",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_aesa_radar.cpp",
+      "owner": "chat3",
+      "captured_sha256": "239b6678ff89c43615a5b3357800acdcf28efd5e7d5e3dfd4707d55d30c808a5",
+      "execution_sha256": "239b6678ff89c43615a5b3357800acdcf28efd5e7d5e3dfd4707d55d30c808a5",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_aesa_scheduling.cpp",
+      "owner": "chat3",
+      "captured_sha256": "458a24c908a8a1e96141b6739f81bcced85c9783e34b8f66275786ed8e8294b3",
+      "execution_sha256": "458a24c908a8a1e96141b6739f81bcced85c9783e34b8f66275786ed8e8294b3",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_aesa_support_authority.py",
+      "owner": "chat3",
+      "captured_sha256": "9e0f642b9b7620cd3845e7fb7df0a2ea33b057cde1b5277d19b4758231901337",
+      "execution_sha256": "9e0f642b9b7620cd3845e7fb7df0a2ea33b057cde1b5277d19b4758231901337",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_aesa_task_contract.py",
+      "owner": "chat3",
+      "captured_sha256": "9ffe1c1e580802cf87fe1f3a7f8e5bfec31346ac96bcf0b8257fa83c2d826f13",
+      "execution_sha256": "9ffe1c1e580802cf87fe1f3a7f8e5bfec31346ac96bcf0b8257fa83c2d826f13",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_aesa_track_filter.cpp",
+      "owner": "chat3",
+      "captured_sha256": "a176ffd6af13e5d52b2ee34451ec99e94931606367159fa5ef12d670951459a9",
+      "execution_sha256": "a176ffd6af13e5d52b2ee34451ec99e94931606367159fa5ef12d670951459a9",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ag_delivery.py",
+      "owner": "chat4",
+      "captured_sha256": "abf5f137e0589148b76b9f105e5247c84cdda86c42bfa9a84a3fd758ec8feefa",
+      "execution_sha256": "abf5f137e0589148b76b9f105e5247c84cdda86c42bfa9a84a3fd758ec8feefa",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ag_radar.py",
+      "owner": "chat3",
+      "captured_sha256": "63bd3bfed377b4ed35c359a4e19064fe1ff1a7fcf964931f7f4296a206676a3c",
+      "execution_sha256": "63bd3bfed377b4ed35c359a4e19064fe1ff1a7fcf964931f7f4296a206676a3c",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ag_usability.py",
+      "owner": "chat4",
+      "captured_sha256": "abfc77593a80e6b36460f8c9fec95d79c03e2c98ff0959f93498fcd6ff659ef4",
+      "execution_sha256": "abfc77593a80e6b36460f8c9fec95d79c03e2c98ff0959f93498fcd6ff659ef4",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_altitude_alerts.py",
+      "owner": "chat2",
+      "captured_sha256": "174aee5f45cc615b6d8d17d1831313a2dcc6a431f03fdcf2e4dbe57dfe3c1cc9",
+      "execution_sha256": "174aee5f45cc615b6d8d17d1831313a2dcc6a431f03fdcf2e4dbe57dfe3c1cc9",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_altitude_settings.py",
+      "owner": "chat2",
+      "captured_sha256": "63eb9c9cc7fa1bc8a33290764a5f931016874f007f5d7f1931c4fb89aee1496c",
+      "execution_sha256": "63eb9c9cc7fa1bc8a33290764a5f931016874f007f5d7f1931c4fb89aee1496c",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_altitude_sources.py",
+      "owner": "chat2",
+      "captured_sha256": "47297c76911c9e65c33c798f9e2ef2f9e2bfec5f00d589b8825f85d3cb1a548c",
+      "execution_sha256": "47297c76911c9e65c33c798f9e2ef2f9e2bfec5f00d589b8825f85d3cb1a548c",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ap_off_confirmation.py",
+      "owner": "chat2",
+      "captured_sha256": "f7dfe963a6b26c5761a5ce5835c385e9eee55b931c22c31e5a68bed78c8634d9",
+      "execution_sha256": "f7dfe963a6b26c5761a5ce5835c385e9eee55b931c22c31e5a68bed78c8634d9",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_autopilot.cpp",
+      "owner": "chat2",
+      "captured_sha256": "f279fdac0ba9688adea427449117dfb45c99ba54cf64654fccf244056e5809b7",
+      "execution_sha256": "f279fdac0ba9688adea427449117dfb45c99ba54cf64654fccf244056e5809b7",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ballistics.py",
+      "owner": "chat4",
+      "captured_sha256": "8fe455de47fc8aedb8e888dbbd5cfe4fca160c1b46c3888abec6d1a7cac33d2f",
+      "execution_sha256": "8fe455de47fc8aedb8e888dbbd5cfe4fca160c1b46c3888abec6d1a7cac33d2f",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_cni_power.cpp",
+      "owner": "chat1",
+      "captured_sha256": "e194112b203bb66be7a51e8982ecd99bc3ba54bf6662aaab3260c3ce5c7b5664",
+      "execution_sha256": "e194112b203bb66be7a51e8982ecd99bc3ba54bf6662aaab3260c3ce5c7b5664",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_cockpit_input_lifecycle.py",
+      "owner": "chat2",
+      "captured_sha256": "8e77f96441bb1d0d1781fa90395c0eb09cb0d2d00aa964e38285f7924a236c31",
+      "execution_sha256": "8e77f96441bb1d0d1781fa90395c0eb09cb0d2d00aa964e38285f7924a236c31",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_cockpit_references.py",
+      "owner": "chat2",
+      "captured_sha256": "8d254bc1fdb9c8a4b62e0ab9d053a0c667bb8cdbfcbe25f33d26c60fad633248",
+      "execution_sha256": "8d254bc1fdb9c8a4b62e0ab9d053a0c667bb8cdbfcbe25f33d26c60fad633248",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_combat_controls.py",
+      "owner": "chat4",
+      "captured_sha256": "f45b124ce15580bfbf831b7d3ad3894bf6c7682a849e9447508f75818d04899d",
+      "execution_sha256": "f45b124ce15580bfbf831b7d3ad3894bf6c7682a849e9447508f75818d04899d",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_common_mfd_workflow.py",
+      "owner": "chat2",
+      "captured_sha256": "0b4b8ba59773a85177342892280f5ce79cfd1b450fe60ec4814688b11333ca39",
+      "execution_sha256": "0b4b8ba59773a85177342892280f5ce79cfd1b450fe60ec4814688b11333ca39",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_common_ufc_workflow.py",
+      "owner": "chat2",
+      "captured_sha256": "9735a503cf4b04ad0cafd0794da14d4260fb03fdc347b5d7f552b23613a77bea",
+      "execution_sha256": "9735a503cf4b04ad0cafd0794da14d4260fb03fdc347b5d7f552b23613a77bea",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_control_cleanup.py",
+      "owner": "chat2",
+      "captured_sha256": "4f397fc4f8de0d62057590f58fb8a0af9f3507fec8ce10f97b0e3c065b615657",
+      "execution_sha256": "4f397fc4f8de0d62057590f58fb8a0af9f3507fec8ce10f97b0e3c065b615657",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_cooperative_radar.py",
+      "owner": "chat3",
+      "captured_sha256": "236c6b9381f8dc0e287767ea392831ef68fce08bad6e71a90ccb754efb63c79f",
+      "execution_sha256": "236c6b9381f8dc0e287767ea392831ef68fce08bad6e71a90ccb754efb63c79f",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_cooperative_radar_transport.py",
+      "owner": "chat3",
+      "captured_sha256": "d3ffdfbd3481113423f505e59bc5304dbeade05e24aac7bdaaf902d969a9bcf6",
+      "execution_sha256": "d3ffdfbd3481113423f505e59bc5304dbeade05e24aac7bdaaf902d969a9bcf6",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_datalink.py",
+      "owner": "chat4",
+      "captured_sha256": "b56333215c60e69a57a8f407df0e08cf526cae4eac9669a3e3a720b6f7ac4448",
+      "execution_sha256": "b56333215c60e69a57a8f407df0e08cf526cae4eac9669a3e3a720b6f7ac4448",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_dcs_contact_labels.py",
+      "owner": "chat2",
+      "captured_sha256": "887b5cecc7675e1c029e5e2a551c651bfbeced3be654f42ddf14cd8dcbf22045",
+      "execution_sha256": "887b5cecc7675e1c029e5e2a551c651bfbeced3be654f42ddf14cd8dcbf22045",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_defensive_lifecycle.py",
+      "owner": "chat4",
+      "captured_sha256": "1ee89b2c52395b6d13f973d544ccc6a0967a9dc94278c3d95f39221328444cd3",
+      "execution_sha256": "1ee89b2c52395b6d13f973d544ccc6a0967a9dc94278c3d95f39221328444cd3",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_detected_hostile_identity.py",
+      "owner": "chat4",
+      "captured_sha256": "795712927747c0cf893dc4f4452ba53863c5f66e78869d08dfedcf0ab2b71fb7",
+      "execution_sha256": "795712927747c0cf893dc4f4452ba53863c5f66e78869d08dfedcf0ab2b71fb7",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_display_startup.py",
+      "owner": "chat2",
+      "captured_sha256": "aeb62a17aa7c6eeb4948c528a35199b14f4b4339567d71ec40fde6097f745062",
+      "execution_sha256": "aeb62a17aa7c6eeb4948c528a35199b14f4b4339567d71ec40fde6097f745062",
+      "status": "deleted_replaced",
+      "replacement": [
+        "tests/run_all.py",
+        "tests/host.py",
+        "tests/host.lua",
+        "tests/cases/test_host_contract.py",
+        "tests/cases/test_lua_syntax.py"
+      ],
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_dlz_displays.py",
+      "owner": "chat2",
+      "captured_sha256": "fa7db97959f7b28ef9fdf149d967476c6de243b56e49b1cba43ffafd0288f276",
+      "execution_sha256": "fa7db97959f7b28ef9fdf149d967476c6de243b56e49b1cba43ffafd0288f276",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_donor_radar_cue.py",
+      "owner": "chat3",
+      "captured_sha256": "6db580a5202d7dcd10f96efc33cff406106e4ef0fb56f39344c9a8357b80473c",
+      "execution_sha256": "6db580a5202d7dcd10f96efc33cff406106e4ef0fb56f39344c9a8357b80473c",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ecm_indication.py",
+      "owner": "chat2",
+      "captured_sha256": "1b6495a63633a3d97ae076c00583f70c4ea0419ab6ba8260bd96157b84e911e3",
+      "execution_sha256": "1b6495a63633a3d97ae076c00583f70c4ea0419ab6ba8260bd96157b84e911e3",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_engine_indications.py",
+      "owner": "chat1",
+      "captured_sha256": "43c96175039d9f910b70a31c3afcb019b409bdeb124481365503053f8b5097b5",
+      "execution_sha256": "43c96175039d9f910b70a31c3afcb019b409bdeb124481365503053f8b5097b5",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_engine_start.cpp",
+      "owner": "chat1",
+      "captured_sha256": "811311d5704e64e83f705b1a3e9e28799591080c31ef775539b3d284ac78cf66",
+      "execution_sha256": "811311d5704e64e83f705b1a3e9e28799591080c31ef775539b3d284ac78cf66",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_engine_status.py",
+      "owner": "chat1",
+      "captured_sha256": "d758e0eddbdaf898a92f594e454efa250fce5a36d885f5da17761323ad91f7d6",
+      "execution_sha256": "d758e0eddbdaf898a92f594e454efa250fce5a36d885f5da17761323ad91f7d6",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_entry_transactions.py",
+      "owner": "chat2",
+      "captured_sha256": "d595da2e45dd49046c50b305598b29d73941fb833664e32d8363da89ea2572e7",
+      "execution_sha256": "d595da2e45dd49046c50b305598b29d73941fb833664e32d8363da89ea2572e7",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ew_backend_lifecycle.py",
+      "owner": "chat4",
+      "captured_sha256": "88cfbef09ba8bd61f7b5772160b46f79b03ec393222b9b1a5faf6f20dabef5b4",
+      "execution_sha256": "88cfbef09ba8bd61f7b5772160b46f79b03ec393222b9b1a5faf6f20dabef5b4",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ew_controls.py",
+      "owner": "chat4",
+      "captured_sha256": "71261511258d814e2ae58f8dc04fbcab30b55c8d2f6771a2bbe9e454ec26e384",
+      "execution_sha256": "71261511258d814e2ae58f8dc04fbcab30b55c8d2f6771a2bbe9e454ec26e384",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ew_geolocation.py",
+      "owner": "chat4",
+      "captured_sha256": "cb4fc10fd7d5396ed5199aed0f4aa4b838b8719c35abd16d89b923f9b73722f8",
+      "execution_sha256": "cb4fc10fd7d5396ed5199aed0f4aa4b838b8719c35abd16d89b923f9b73722f8",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ew_geolocation_transport.py",
+      "owner": "chat4",
+      "captured_sha256": "c7bd91b1e0707992fb4eae4d9fe44c44bba8203644124c3cc4dcec9e16840d77",
+      "execution_sha256": "c7bd91b1e0707992fb4eae4d9fe44c44bba8203644124c3cc4dcec9e16840d77",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ew_programs.py",
+      "owner": "chat4",
+      "captured_sha256": "7babea2b14c52da01f82fd4298b1b01e1f2e8536aaf17658e2419876c43cb135",
+      "execution_sha256": "7babea2b14c52da01f82fd4298b1b01e1f2e8536aaf17658e2419876c43cb135",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_fault_identity.py",
+      "owner": "chat4",
+      "captured_sha256": "d1ce745d2bf06d30abe91bc2c49fc8c686b0ad34a48914e92db73ec9578a9ba7",
+      "execution_sha256": "d1ce745d2bf06d30abe91bc2c49fc8c686b0ad34a48914e92db73ec9578a9ba7",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gins_references.py",
+      "owner": "chat2",
+      "captured_sha256": "c3b5e1145eff45a95cb3dedb7a0cef5f7f3afce8ea4b1491116a2be0129fc4ee",
+      "execution_sha256": "c3b5e1145eff45a95cb3dedb7a0cef5f7f3afce8ea4b1491116a2be0129fc4ee",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ground_collection.py",
+      "owner": "chat3",
+      "captured_sha256": "80068e353c5802c3cea6beff47bb360d473c595154530e5267292a05822165b8",
+      "execution_sha256": "80068e353c5802c3cea6beff47bb360d473c595154530e5267292a05822165b8",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ground_gmt.py",
+      "owner": "chat3",
+      "captured_sha256": "7e47efc563ad536ffeee89aacef76dcef9bd3c4bbb4ad2b723a4e532c35871fe",
+      "execution_sha256": "7e47efc563ad536ffeee89aacef76dcef9bd3c4bbb4ad2b723a4e532c35871fe",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ground_image_cycle.cpp",
+      "owner": "chat3",
+      "captured_sha256": "78bdf88bed114d02951562f4a4a5e9593b3500650c1bc629ea6f0b752c0028a9",
+      "execution_sha256": "78bdf88bed114d02951562f4a4a5e9593b3500650c1bc629ea6f0b752c0028a9",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ground_map_undesignate.py",
+      "owner": "chat3",
+      "captured_sha256": "e48546dbdf5f13f46fef5bdfe3f23343ca3c5c3314357c62cdf9c3812ef84a6e",
+      "execution_sha256": "e48546dbdf5f13f46fef5bdfe3f23343ca3c5c3314357c62cdf9c3812ef84a6e",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ground_moving_targets.cpp",
+      "owner": "chat3",
+      "captured_sha256": "8273b4ea3889a2db519027b6a4654ad8d66306f0ef9ebd9001d1b6749e9dac7a",
+      "execution_sha256": "8273b4ea3889a2db519027b6a4654ad8d66306f0ef9ebd9001d1b6749e9dac7a",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ground_radar_integrity.py",
+      "owner": "chat3",
+      "captured_sha256": "18462a27824cce0ff0df0d45ecdbfe84c4421868ef6b9d6e44798440fc1f7c08",
+      "execution_sha256": "18462a27824cce0ff0df0d45ecdbfe84c4421868ef6b9d6e44798440fc1f7c08",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ground_radar_interaction.py",
+      "owner": "chat3",
+      "captured_sha256": "c3fb67cc56970377c048f1bf9b1c7eb68199b9cb2c757766dd2d9a22d5bb69c6",
+      "execution_sha256": "c3fb67cc56970377c048f1bf9b1c7eb68199b9cb2c757766dd2d9a22d5bb69c6",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ground_radar_modes.py",
+      "owner": "chat3",
+      "captured_sha256": "3b7ff07fe21676f80f60d9ad1ac907eaf58c00d00c726928bebcbbc4bb9de1dc",
+      "execution_sha256": "3b7ff07fe21676f80f60d9ad1ac907eaf58c00d00c726928bebcbbc4bb9de1dc",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ground_radar_source_type.py",
+      "owner": "chat3",
+      "captured_sha256": "647d64a00118c079d9281271df582c6f95261751a162083a943cdee441d632b6",
+      "execution_sha256": "647d64a00118c079d9281271df582c6f95261751a162083a943cdee441d632b6",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ground_video.py",
+      "owner": "chat3",
+      "captured_sha256": "bd77901d8c1d6533bc1c33ef8a4eb0e65c6a3f3b8635cd667ef2cd3603034e2b",
+      "execution_sha256": "bd77901d8c1d6533bc1c33ef8a4eb0e65c6a3f3b8635cd667ef2cd3603034e2b",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ground_view_continuity.py",
+      "owner": "chat3",
+      "captured_sha256": "ba3ef24e2f2e7ab6cef520dc645d4ca06e9f9052c4f8ffade7ec3cbc0b142e03",
+      "execution_sha256": "ba3ef24e2f2e7ab6cef520dc645d4ca06e9f9052c4f8ffade7ec3cbc0b142e03",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gun_async.py",
+      "owner": "chat4",
+      "captured_sha256": "3d42af454a5d996bceca9cab3d796cca48380718638c7afd110295855fc79e4a",
+      "execution_sha256": "3d42af454a5d996bceca9cab3d796cca48380718638c7afd110295855fc79e4a",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gun_coherent_velocity.py",
+      "owner": "chat4",
+      "captured_sha256": "63fefabeab3b36d5b697495d688893f77ef701da699bee6edb2b9505b4250989",
+      "execution_sha256": "63fefabeab3b36d5b697495d688893f77ef701da699bee6edb2b9505b4250989",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gun_cue_stabilizer.py",
+      "owner": "chat4",
+      "captured_sha256": "2662567b8cbb508f810e0baebc621586dc6b84142665bbbb8c36339355df5bf4",
+      "execution_sha256": "2662567b8cbb508f810e0baebc621586dc6b84142665bbbb8c36339355df5bf4",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gun_director.py",
+      "owner": "chat4",
+      "captured_sha256": "0450a51857bd47e8ebbb0d67be4678218ec293a14fd8ade6263b62495d3c74ae",
+      "execution_sha256": "0450a51857bd47e8ebbb0d67be4678218ec293a14fd8ade6263b62495d3c74ae",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gun_fast_response.py",
+      "owner": "chat4",
+      "captured_sha256": "912053412f074c832d90ae59b07851c2a46d7e3e2ac174253bdf48e792dd592e",
+      "execution_sha256": "912053412f074c832d90ae59b07851c2a46d7e3e2ac174253bdf48e792dd592e",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gun_flight_analysis.py",
+      "owner": "chat4",
+      "captured_sha256": "e9384c8beac3ccda2887107e7beea0da3c1c1ca4f71f4fb8dd18def1c1a94aed",
+      "execution_sha256": "e9384c8beac3ccda2887107e7beea0da3c1c1ca4f71f4fb8dd18def1c1a94aed",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gun_flight_replay.py",
+      "owner": "chat4",
+      "captured_sha256": "753f6144d71bbce73bd3ce4587c1fe0788d44d7f35d29921dd628c3f9af9ec71",
+      "execution_sha256": "753f6144d71bbce73bd3ce4587c1fe0788d44d7f35d29921dd628c3f9af9ec71",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gun_frames.py",
+      "owner": "chat4",
+      "captured_sha256": "81dd18f61cd07b5fcd769be6ec83e1244959166f7aae83fc355ea4c8d95f324f",
+      "execution_sha256": "81dd18f61cd07b5fcd769be6ec83e1244959166f7aae83fc355ea4c8d95f324f",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gun_funnel.py",
+      "owner": "chat4",
+      "captured_sha256": "9fabab923fd74ab37c3de0dab05dc4f35d4e7b4b68fa2fe716224a43eb09c094",
+      "execution_sha256": "9fabab923fd74ab37c3de0dab05dc4f35d4e7b4b68fa2fe716224a43eb09c094",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gun_funnel_replay.py",
+      "owner": "chat4",
+      "captured_sha256": "7f6680aa921521a667d671fd782aea2b25400a482536a05ac99951903ade9873",
+      "execution_sha256": "7f6680aa921521a667d671fd782aea2b25400a482536a05ac99951903ade9873",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gun_intercept.cpp",
+      "owner": "chat4",
+      "captured_sha256": "6083dc8fd0d8d316e6d255bd4722faee4e8034a7db9585655169bf71f079dc01",
+      "execution_sha256": "6083dc8fd0d8d316e6d255bd4722faee4e8034a7db9585655169bf71f079dc01",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gun_maneuver.cpp",
+      "owner": "chat4",
+      "captured_sha256": "ad163739afed288841df116b03290e7a7e0260488ac3af4b74c8f26e4f62d1cf",
+      "execution_sha256": "ad163739afed288841df116b03290e7a7e0260488ac3af4b74c8f26e4f62d1cf",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gun_maneuver_display.py",
+      "owner": "chat4",
+      "captured_sha256": "8a26c8196c0ea1a2cc25857f2a10b3fb22a0410a3a943484ef3d4e5b562a2513",
+      "execution_sha256": "8a26c8196c0ea1a2cc25857f2a10b3fb22a0410a3a943484ef3d4e5b562a2513",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gun_measured_cadence.py",
+      "owner": "chat4",
+      "captured_sha256": "6f767ee9140a8c0cdcc836d1718ff3e2c1df8ff844cc0ef069ae7ec794e40488",
+      "execution_sha256": "6f767ee9140a8c0cdcc836d1718ff3e2c1df8ff844cc0ef069ae7ec794e40488",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gun_motion_noise.py",
+      "owner": "chat4",
+      "captured_sha256": "6c6b843c77a6a4d5ea473629c41d705ed3645b03af2dfe0ef5eafbf694180a64",
+      "execution_sha256": "6c6b843c77a6a4d5ea473629c41d705ed3645b03af2dfe0ef5eafbf694180a64",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gun_motion_player.py",
+      "owner": "chat4",
+      "captured_sha256": "70b87c3545fa3a0c7a9d4aee49416288c64419179f47d84b934d55c8e9586e80",
+      "execution_sha256": "70b87c3545fa3a0c7a9d4aee49416288c64419179f47d84b934d55c8e9586e80",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gun_no_fallback.py",
+      "owner": "chat4",
+      "captured_sha256": "3c38fbc6e2f22668a0fe3d1d101b2bd218998ead5f607a6ee5d825604cebf6b2",
+      "execution_sha256": "3c38fbc6e2f22668a0fe3d1d101b2bd218998ead5f607a6ee5d825604cebf6b2",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gun_optical_alignment.py",
+      "owner": "chat4",
+      "captured_sha256": "b06736283cb6cd0673b37339661ca38c07f3b280338075771537a14d518a30fe",
+      "execution_sha256": "b06736283cb6cd0673b37339661ca38c07f3b280338075771537a14d518a30fe",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gun_packet_coherence.py",
+      "owner": "chat4",
+      "captured_sha256": "b5e17397fe454fd530a528d9c8c0656d2d7192fae9346d5040e5093b4e9fecfc",
+      "execution_sha256": "b5e17397fe454fd530a528d9c8c0656d2d7192fae9346d5040e5093b4e9fecfc",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gun_reticle.py",
+      "owner": "chat4",
+      "captured_sha256": "cbf33cab4aa823fa32ace9745244f855a617798a4c5836f09d8a17e8ba940ef8",
+      "execution_sha256": "cbf33cab4aa823fa32ace9745244f855a617798a4c5836f09d8a17e8ba940ef8",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_gun_target_motion.cpp",
+      "owner": "chat4",
+      "captured_sha256": "45d3ba4817b17de9df3ffe3672e0baada33faff0fcd523c0a09c8dd28426f5c9",
+      "execution_sha256": "45d3ba4817b17de9df3ffe3672e0baada33faff0fcd523c0a09c8dd28426f5c9",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_high_alpha.cpp",
+      "owner": "chat1",
+      "captured_sha256": "0c6333643ee2f23765c35d72cf90724df896a0144a017998683ad3d4416664ec",
+      "execution_sha256": "0c6333643ee2f23765c35d72cf90724df896a0144a017998683ad3d4416664ec",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_hud_adi_agreement.py",
+      "owner": "chat2",
+      "captured_sha256": "9c3b204e27d0bfe23b22b972a605e60614521d02155b24e25e8ad74064e89420",
+      "execution_sha256": "9c3b204e27d0bfe23b22b972a605e60614521d02155b24e25e8ad74064e89420",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_hud_combiner.py",
+      "owner": "chat2",
+      "captured_sha256": "d95e945e1e08efb79301e1e05a05eef5edbce4beb2dbf63eca541224d15c4184",
+      "execution_sha256": "d95e945e1e08efb79301e1e05a05eef5edbce4beb2dbf63eca541224d15c4184",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_hud_flight_data.py",
+      "owner": "chat2",
+      "captured_sha256": "0c6beaa2c2632b0d2f1957f805522ebe622adf6da3f996017a9c65ebcad3f5f7",
+      "execution_sha256": "0c6beaa2c2632b0d2f1957f805522ebe622adf6da3f996017a9c65ebcad3f5f7",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_hud_landing_geometry.py",
+      "owner": "chat2",
+      "captured_sha256": "23da3cbf59455da95578cf83f571f36cb36b4aaa757207d7fd3efbaec5f3bcc9",
+      "execution_sha256": "23da3cbf59455da95578cf83f571f36cb36b4aaa757207d7fd3efbaec5f3bcc9",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_hud_native_units.py",
+      "owner": "chat2",
+      "captured_sha256": "a4882742756e778d1bc763f6034ec2799a2a4e6bb109b299b88a5dd18f2002ec",
+      "execution_sha256": "a4882742756e778d1bc763f6034ec2799a2a4e6bb109b299b88a5dd18f2002ec",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_hud_projection_frame.py",
+      "owner": "chat2",
+      "captured_sha256": "9b1a951103def59b45856012e2520a22820af1b57e98e202e89fc9acb9c9e796",
+      "execution_sha256": "9b1a951103def59b45856012e2520a22820af1b57e98e202e89fc9acb9c9e796",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_hud_render_schema.py",
+      "owner": "chat2",
+      "captured_sha256": "190252bcb0bde5be022875b6f5a7c923893c0086bbb15131ee9712afed9eb791",
+      "execution_sha256": "190252bcb0bde5be022875b6f5a7c923893c0086bbb15131ee9712afed9eb791",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_hud_resources.py",
+      "owner": "chat2",
+      "captured_sha256": "83c826b6e2331ef4a193868b02efdb9a100adf09c07919a4b2befc2a579c01ab",
+      "execution_sha256": "83c826b6e2331ef4a193868b02efdb9a100adf09c07919a4b2befc2a579c01ab",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_hud_text_clearance.py",
+      "owner": "chat2",
+      "captured_sha256": "68c6158e6dfc3ed538d7b2cfa1fd2d243b661119909d44182dac980452990664",
+      "execution_sha256": "68c6158e6dfc3ed538d7b2cfa1fd2d243b661119909d44182dac980452990664",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_identity_evidence_age.py",
+      "owner": "chat4",
+      "captured_sha256": "2e40ae94692a2619366b8cf2f809a6b43f7c22849ee7776f367876c756d2d326",
+      "execution_sha256": "2e40ae94692a2619366b8cf2f809a6b43f7c22849ee7776f367876c756d2d326",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ins_lifecycle.py",
+      "owner": "chat2",
+      "captured_sha256": "82dbbed792d5267a497efd56851dbf676e17f12b4af08dcab81b595062a533ac",
+      "execution_sha256": "82dbbed792d5267a497efd56851dbf676e17f12b4af08dcab81b595062a533ac",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ir_audio.py",
+      "owner": "chat4",
+      "captured_sha256": "c40e332c49eb2d52db3e549301844487fe563c32d6a7e7634ec5569231b7815c",
+      "execution_sha256": "c40e332c49eb2d52db3e549301844487fe563c32d6a7e7634ec5569231b7815c",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ir_bay_owner.py",
+      "owner": "chat4",
+      "captured_sha256": "21d9c7f730cbba79faefc3dae0d4b4702da60a96162545cc3a2bdecbf012e346",
+      "execution_sha256": "21d9c7f730cbba79faefc3dae0d4b4702da60a96162545cc3a2bdecbf012e346",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ir_feedback.py",
+      "owner": "chat4",
+      "captured_sha256": "44542a6895cbc448efb7bc0eb849f11488b45f1db8613aaf29b45b8a74af8938",
+      "execution_sha256": "44542a6895cbc448efb7bc0eb849f11488b45f1db8613aaf29b45b8a74af8938",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ir_preparation.py",
+      "owner": "chat4",
+      "captured_sha256": "9fad2bd6091ec2a251327e9773dd29f11fa15e1ae4cd1cfd822ca9b25e6bce6a",
+      "execution_sha256": "9fad2bd6091ec2a251327e9773dd29f11fa15e1ae4cd1cfd822ca9b25e6bce6a",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ir_projection.py",
+      "owner": "chat4",
+      "captured_sha256": "3fce6a590826164af016200f82adef6635fea2db16166ee16c6f59960c7f770c",
+      "execution_sha256": "3fce6a590826164af016200f82adef6635fea2db16166ee16c6f59960c7f770c",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_lcd_typography.py",
+      "owner": "chat2",
+      "captured_sha256": "9f553451e3837dcc84788e2e72036516e26626f2cf47a067ff5c93f37d7afd75",
+      "execution_sha256": "9f553451e3837dcc84788e2e72036516e26626f2cf47a067ff5c93f37d7afd75",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_mfd_menu_contract.py",
+      "owner": "chat2",
+      "captured_sha256": "92bf100b921e562af19ee09e86fe142870be003f7f4f0e650ada427824884181",
+      "execution_sha256": "92bf100b921e562af19ee09e86fe142870be003f7f4f0e650ada427824884181",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_mfd_mouse_menus.py",
+      "owner": "chat2",
+      "captured_sha256": "f615c4bc9347b4af5774cea135a0a94d867290ba2f1a08425c5a25a0a732d0c3",
+      "execution_sha256": "f615c4bc9347b4af5774cea135a0a94d867290ba2f1a08425c5a25a0a732d0c3",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_mfd_physical_layout.py",
+      "owner": "chat2",
+      "captured_sha256": "2a23b15fa07fa01d646eab842ecd974bf1a39cdea576bb85ff584ac85771919b",
+      "execution_sha256": "2a23b15fa07fa01d646eab842ecd974bf1a39cdea576bb85ff584ac85771919b",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_mfd_shared_pages.py",
+      "owner": "chat2",
+      "captured_sha256": "8eb13b9d6df1ffe1d230acc8293df0068cf9c15556f7589b1e605206e9ea078d",
+      "execution_sha256": "8eb13b9d6df1ffe1d230acc8293df0068cf9c15556f7589b1e605206e9ea078d",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_missile_support_display.py",
+      "owner": "chat2",
+      "captured_sha256": "c57f876d13bbb2a1812cc57a23a42853361c0295dc27f00d2b56bf22d4c88026",
+      "execution_sha256": "c57f876d13bbb2a1812cc57a23a42853361c0295dc27f00d2b56bf22d4c88026",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_mission_information.py",
+      "owner": "chat2",
+      "captured_sha256": "da6baf87e8c2a3bd9aab0089172d39b4c62e015eeaad220dff0c127c96d2370e",
+      "execution_sha256": "da6baf87e8c2a3bd9aab0089172d39b4c62e015eeaad220dff0c127c96d2370e",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_mission_partitions.py",
+      "owner": "chat2",
+      "captured_sha256": "86e6a1afca8b0bfdf9609f1c145451a3a213c7fa95af7bdad198d857c0d15692",
+      "execution_sha256": "86e6a1afca8b0bfdf9609f1c145451a3a213c7fa95af7bdad198d857c0d15692",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_mws.py",
+      "owner": "chat4",
+      "captured_sha256": "9f8ec49f9615e01e2ace0d9b6f81da15be2e5a4dc220f98c41f77138a15f3c53",
+      "execution_sha256": "9f8ec49f9615e01e2ace0d9b6f81da15be2e5a4dc220f98c41f77138a15f3c53",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_native_aesa.cpp",
+      "owner": "chat3",
+      "captured_sha256": "68f6d5fa6137d9ed6dc9025d9932f1d0729a7e0d3f76583d52f116593fcabb90",
+      "execution_sha256": "68f6d5fa6137d9ed6dc9025d9932f1d0729a7e0d3f76583d52f116593fcabb90",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_native_ag_weapons.cpp",
+      "owner": "chat4",
+      "captured_sha256": "6744aea3d0f06f2fce42cdcc3cb21bc01c16aef060e2c5ffa11c776944dfd9de",
+      "execution_sha256": "6744aea3d0f06f2fce42cdcc3cb21bc01c16aef060e2c5ffa11c776944dfd9de",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_native_altimetry.cpp",
+      "owner": "chat2",
+      "captured_sha256": "215fbd891fa3454a82b35a8d5882c67eb39c957466d6ac8935efb84d85fe6504",
+      "execution_sha256": "215fbd891fa3454a82b35a8d5882c67eb39c957466d6ac8935efb84d85fe6504",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_native_contact_identity.cpp",
+      "owner": "chat4",
+      "captured_sha256": "2018a4bd516abd556b413a9c645c8f41438f660893527fb34b8cb3222ade68c7",
+      "execution_sha256": "2018a4bd516abd556b413a9c645c8f41438f660893527fb34b8cb3222ade68c7",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_native_datalink.cpp",
+      "owner": "chat4",
+      "captured_sha256": "fa6b90c25916eaa6ea09aaf1941b8c91dbc4fed84be4a7af2280a7f2ed3e1f7b",
+      "execution_sha256": "fa6b90c25916eaa6ea09aaf1941b8c91dbc4fed84be4a7af2280a7f2ed3e1f7b",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_native_feedback_lifecycle.cpp",
+      "owner": "chat2",
+      "captured_sha256": "a59a9cef0a3a0a560a7ccad5d6554e89a92681d2f3c59c0f5d0f3dc0a2774f94",
+      "execution_sha256": "a59a9cef0a3a0a560a7ccad5d6554e89a92681d2f3c59c0f5d0f3dc0a2774f94",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_native_gmt_detection.cpp",
+      "owner": "chat2",
+      "captured_sha256": "b023641a5de4fd661bb467cce1ae7b7b8267b403a834904760a5fb30d0df450a",
+      "execution_sha256": "b023641a5de4fd661bb467cce1ae7b7b8267b403a834904760a5fb30d0df450a",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_native_ground_controls.cpp",
+      "owner": "chat3",
+      "captured_sha256": "8402da9d16b79a2756fa301b3e071f7a9a988ea89f1152c5645c7141991de65d",
+      "execution_sha256": "8402da9d16b79a2756fa301b3e071f7a9a988ea89f1152c5645c7141991de65d",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_native_ground_publication.cpp",
+      "owner": "chat3",
+      "captured_sha256": "e2f2d271883cf128cbb6a4b255792d2606cd7531e7ba5a45472417a5d822978a",
+      "execution_sha256": "e2f2d271883cf128cbb6a4b255792d2606cd7531e7ba5a45472417a5d822978a",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_native_ground_returns.cpp",
+      "owner": "chat3",
+      "captured_sha256": "53b9db8b001d38a3bcc60ef33b59ce8ac2a68e7c7e16539d133c35873042fc60",
+      "execution_sha256": "53b9db8b001d38a3bcc60ef33b59ce8ac2a68e7c7e16539d133c35873042fc60",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_native_gun_adapter.cpp",
+      "owner": "chat4",
+      "captured_sha256": "10361ce288a7636cfe5f44b85621d5775eaaec9506745b7558259a2c843f3383",
+      "execution_sha256": "10361ce288a7636cfe5f44b85621d5775eaaec9506745b7558259a2c843f3383",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_native_mws.cpp",
+      "owner": "chat4",
+      "captured_sha256": "3b8871b487cdb65fa5da9bf24cbd2a65033279ae4e56b1693a398314b860e91a",
+      "execution_sha256": "3b8871b487cdb65fa5da9bf24cbd2a65033279ae4e56b1693a398314b860e91a",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_native_navigation_audio.cpp",
+      "owner": "chat2",
+      "captured_sha256": "76476521e6169d5bd4e4049dbebca9b3b7dc04db5904f18bbacc119b8c329ec7",
+      "execution_sha256": "76476521e6169d5bd4e4049dbebca9b3b7dc04db5904f18bbacc119b8c329ec7",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_native_seeker.cpp",
+      "owner": "chat4",
+      "captured_sha256": "4bd7759efd62535d205bedda2477b58410ca353f6c250503dddfc210c720cfa6",
+      "execution_sha256": "4bd7759efd62535d205bedda2477b58410ca353f6c250503dddfc210c720cfa6",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_native_text_formats.py",
+      "owner": "chat2",
+      "captured_sha256": "a236c2b6a3119e9aa3e914ee08ebfeac9be32348566f7d1bad4a769df1a6aad9",
+      "execution_sha256": "a236c2b6a3119e9aa3e914ee08ebfeac9be32348566f7d1bad4a769df1a6aad9",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_nav_bezel_selection.py",
+      "owner": "chat2",
+      "captured_sha256": "e31def425f12d798d587450505734b171ba6c78da8f7f5413ca990600951dd44",
+      "execution_sha256": "e31def425f12d798d587450505734b171ba6c78da8f7f5413ca990600951dd44",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_nav_data_workflow.py",
+      "owner": "chat2",
+      "captured_sha256": "8c15564e2f580364a7acac9130b1695d19d29bca9d0c95459bca885e80426f8d",
+      "execution_sha256": "8c15564e2f580364a7acac9130b1695d19d29bca9d0c95459bca885e80426f8d",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_nav_designation.py",
+      "owner": "chat2",
+      "captured_sha256": "86bea2a6dc622f32116ad7410ae8b428ca5f8b8018b5c1f8e64b44e2eb953320",
+      "execution_sha256": "86bea2a6dc622f32116ad7410ae8b428ca5f8b8018b5c1f8e64b44e2eb953320",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_nav_entry.py",
+      "owner": "chat2",
+      "captured_sha256": "a56eaf21f810753f38e9055196efed46c287f9e2eaa30f45e851388a1b5483a5",
+      "execution_sha256": "a56eaf21f810753f38e9055196efed46c287f9e2eaa30f45e851388a1b5483a5",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_nav_ew_isolation.py",
+      "owner": "chat4",
+      "captured_sha256": "59f6fb43a86f99d37fdd45e292dc1fdbf7b7c2abb75f1e2c2fb52c1154c6777e",
+      "execution_sha256": "59f6fb43a86f99d37fdd45e292dc1fdbf7b7c2abb75f1e2c2fb52c1154c6777e",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_nav_geometry.py",
+      "owner": "chat2",
+      "captured_sha256": "edd6303c4e1b691710e7d4987849049c7d13955dfe840cf46f3416c1888fdf27",
+      "execution_sha256": "edd6303c4e1b691710e7d4987849049c7d13955dfe840cf46f3416c1888fdf27",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_nav_marks_time.py",
+      "owner": "chat2",
+      "captured_sha256": "28ee63fb3ed88cbd0466255df890ec9e17b12ea156ffd849114bd96ef3d18dfe",
+      "execution_sha256": "28ee63fb3ed88cbd0466255df890ec9e17b12ea156ffd849114bd96ef3d18dfe",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_nav_publication.py",
+      "owner": "chat2",
+      "captured_sha256": "7e24fe9d6b801c5686790610b301de4e69f03a413578dc6e719536f963125ac1",
+      "execution_sha256": "7e24fe9d6b801c5686790610b301de4e69f03a413578dc6e719536f963125ac1",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_nav_workflow.py",
+      "owner": "chat2",
+      "captured_sha256": "49f24bef8d7b3fce54b84a3e544d1714bc2da75c9fb0c7a7031e7dd96b0ca5d3",
+      "execution_sha256": "49f24bef8d7b3fce54b84a3e544d1714bc2da75c9fb0c7a7031e7dd96b0ca5d3",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_navigation.py",
+      "owner": "chat2",
+      "captured_sha256": "b1c64b981e01129371f11faf76a713cd45990acc88fb0bacb00cf0d92b472f80",
+      "execution_sha256": "b1c64b981e01129371f11faf76a713cd45990acc88fb0bacb00cf0d92b472f80",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_navigation_guidance.py",
+      "owner": "chat2",
+      "captured_sha256": "2e7cef0b39a8b5dad6011cad149f498a735c7ec02e4e21f90cef92348fee7269",
+      "execution_sha256": "2e7cef0b39a8b5dad6011cad149f498a735c7ec02e4e21f90cef92348fee7269",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_navigation_reference_invariance.py",
+      "owner": "chat2",
+      "captured_sha256": "b9b7c9eb562b803b2a9a3e705b934ffe9234d8fef6090cdf253fca3fdab64326",
+      "execution_sha256": "b9b7c9eb562b803b2a9a3e705b934ffe9234d8fef6090cdf253fca3fdab64326",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_navigation_snapshot.cpp",
+      "owner": "chat2",
+      "captured_sha256": "1911d1308d1d88638eb58bbff08fcf5713fcd8779e8fda667e9ae01bbeadab60",
+      "execution_sha256": "1911d1308d1d88638eb58bbff08fcf5713fcd8779e8fda667e9ae01bbeadab60",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_navigation_source_loss.py",
+      "owner": "chat2",
+      "captured_sha256": "e929d1e3a067e8fc82f7df7cef81fe6cbf27f98f8b829ed10feceda0a65bc0f1",
+      "execution_sha256": "e929d1e3a067e8fc82f7df7cef81fe6cbf27f98f8b829ed10feceda0a65bc0f1",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_nws_hud.py",
+      "owner": "chat2",
+      "captured_sha256": "c02b324914fdacb5cc07dfd8803c218f8fbba9b86dd6b8c8c91c0c617d174037",
+      "execution_sha256": "c02b324914fdacb5cc07dfd8803c218f8fbba9b86dd6b8c8c91c0c617d174037",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_overhaul_attack_context.py",
+      "owner": "chat2",
+      "captured_sha256": "8ae7a3cf0a3008a959f147174d9cdc6f8e43387388e35d80a3ae28987ed75014",
+      "execution_sha256": "8ae7a3cf0a3008a959f147174d9cdc6f8e43387388e35d80a3ae28987ed75014",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_overhaul_ballistics.py",
+      "owner": "chat4",
+      "captured_sha256": "9839016eb66eddedf62a06094331af81f50c8fcb948d61cd4a47da20e4d3ecc7",
+      "execution_sha256": "9839016eb66eddedf62a06094331af81f50c8fcb948d61cd4a47da20e4d3ecc7",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_overhaul_defensive_overview.py",
+      "owner": "chat4",
+      "captured_sha256": "5df47cd340fba4395d6aeefa6983ea0e2288f577254804031367377cffee9b68",
+      "execution_sha256": "5df47cd340fba4395d6aeefa6983ea0e2288f577254804031367377cffee9b68",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_overhaul_device_contract.py",
+      "owner": "chat2",
+      "captured_sha256": "79e5514a8523bb17a9d44e9965e451838672c1b6979d8b8c4d02d438636d6e5d",
+      "execution_sha256": "79e5514a8523bb17a9d44e9965e451838672c1b6979d8b8c4d02d438636d6e5d",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_overhaul_guidance_cache.py",
+      "owner": "chat2",
+      "captured_sha256": "8ef6eb7b3074c99c72fd724c2f01a57bd230d29d202fa5a8635b0d3175eeb66c",
+      "execution_sha256": "8ef6eb7b3074c99c72fd724c2f01a57bd230d29d202fa5a8635b0d3175eeb66c",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_overhaul_hud_binding.py",
+      "owner": "chat2",
+      "captured_sha256": "02480ce6393c5bac0e0a261b7490b572bdca968424829f2ad65d12d4eb576faa",
+      "execution_sha256": "02480ce6393c5bac0e0a261b7490b572bdca968424829f2ad65d12d4eb576faa",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_overhaul_menu_routes.py",
+      "owner": "chat2",
+      "captured_sha256": "a3fb5e091b412480cfeb3d7a69992b869dcbedde9f532f2f8e0a5723280eeebf",
+      "execution_sha256": "a3fb5e091b412480cfeb3d7a69992b869dcbedde9f532f2f8e0a5723280eeebf",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_overhaul_release_contract.py",
+      "owner": "chat2",
+      "captured_sha256": "52ed57826fdb59577b0324c57d2afac3a13ed8f3713d91d81712a0ebf1dd5b56",
+      "execution_sha256": "52ed57826fdb59577b0324c57d2afac3a13ed8f3713d91d81712a0ebf1dd5b56",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_overhaul_stores.py",
+      "owner": "chat4",
+      "captured_sha256": "9f30df0cd949bfd9837cc98531e02998a64cde7c6b3157e31a5778bfd4f0e880",
+      "execution_sha256": "9f30df0cd949bfd9837cc98531e02998a64cde7c6b3157e31a5778bfd4f0e880",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_overhaul_stores_actuators.py",
+      "owner": "chat4",
+      "captured_sha256": "4b5bc4ab269a809b1fd52a0eb0a397935382c092c28eb285d695e765c1d89508",
+      "execution_sha256": "4b5bc4ab269a809b1fd52a0eb0a397935382c092c28eb285d695e765c1d89508",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_overhaul_stores_display.py",
+      "owner": "chat4",
+      "captured_sha256": "3f4a775f82e2951a21c522da81f2bff268e5281c268098f3fcffece23902435e",
+      "execution_sha256": "3f4a775f82e2951a21c522da81f2bff268e5281c268098f3fcffece23902435e",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_overhaul_tactical_binding.py",
+      "owner": "chat4",
+      "captured_sha256": "1eedb9b9662b85a8f3c1ad0d5a621049df62614949340679de55cf0971502b5a",
+      "execution_sha256": "1eedb9b9662b85a8f3c1ad0d5a621049df62614949340679de55cf0971502b5a",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_overhaul_vehicle_indications.py",
+      "owner": "chat1",
+      "captured_sha256": "35838597d4eb5220b1e6e8145f0a9e2ed8ac5d6d8946f4fea247439a364f153f",
+      "execution_sha256": "35838597d4eb5220b1e6e8145f0a9e2ed8ac5d6d8946f4fea247439a364f153f",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_owned_aesa_lua.py",
+      "owner": "chat3",
+      "captured_sha256": "87f07729cc44a42b5f5462b3fb5d6da6ecc40149eee2c20426642e9508256b37",
+      "execution_sha256": "87f07729cc44a42b5f5462b3fb5d6da6ecc40149eee2c20426642e9508256b37",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_physical_cockpit_consumers.py",
+      "owner": "chat2",
+      "captured_sha256": "d2d8a389f1a1c295f31d6a4ae5f0b57a78cf1b2484c53fee084a620c042a4f77",
+      "execution_sha256": "d2d8a389f1a1c295f31d6a4ae5f0b57a78cf1b2484c53fee084a620c042a4f77",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_pilot_warning_owner.py",
+      "owner": "chat2",
+      "captured_sha256": "43a1770ede53b9d3c8a11efc732bcf9072bb4933f0e0ca13a2dd9f6f502e9307",
+      "execution_sha256": "43a1770ede53b9d3c8a11efc732bcf9072bb4933f0e0ca13a2dd9f6f502e9307",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_pilot_warnings.py",
+      "owner": "chat2",
+      "captured_sha256": "3931ad78c26fa2072442be80eba0d0d6788a26b1ceff2b9117c5ba277ef0e454",
+      "execution_sha256": "3931ad78c26fa2072442be80eba0d0d6788a26b1ceff2b9117c5ba277ef0e454",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_acm_hud_focus.py",
+      "owner": "chat3",
+      "captured_sha256": "1562284e4f9149f48ce612a734fe0f16f55680f7251d267ab93a5d5293b6c1d9",
+      "execution_sha256": "1562284e4f9149f48ce612a734fe0f16f55680f7251d267ab93a5d5293b6c1d9",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_acm_transitions.py",
+      "owner": "chat3",
+      "captured_sha256": "53c9682a3917514583aa5df3c2421792ed926dfe77f8c698e5e858795b25fcc1",
+      "execution_sha256": "53c9682a3917514583aa5df3c2421792ed926dfe77f8c698e5e858795b25fcc1",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_adapter.py",
+      "owner": "chat3",
+      "captured_sha256": "76009c134f99c0fba5e6e0538f11fc9cec6fb35b92015517988daa2f6b085ff2",
+      "execution_sha256": "76009c134f99c0fba5e6e0538f11fc9cec6fb35b92015517988daa2f6b085ff2",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_ag_handoff.py",
+      "owner": "chat3",
+      "captured_sha256": "38ad017a19b2e6731bf5808be9b5469197e7a5ebc9f0ecd8b669463a1d71dad6",
+      "execution_sha256": "38ad017a19b2e6731bf5808be9b5469197e7a5ebc9f0ecd8b669463a1d71dad6",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_bridge.py",
+      "owner": "chat3",
+      "captured_sha256": "ec9176cd3ff5dcc65cbf6df5881953bde40d71373202a6464d42432eeef5fb58",
+      "execution_sha256": "ec9176cd3ff5dcc65cbf6df5881953bde40d71373202a6464d42432eeef5fb58",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_computer.py",
+      "owner": "chat3",
+      "captured_sha256": "392fefc8c66dd1c43b06e1ec1ff7e6ad29445e02d6e5d0092f0e9cbcec0f519b",
+      "execution_sha256": "392fefc8c66dd1c43b06e1ec1ff7e6ad29445e02d6e5d0092f0e9cbcec0f519b",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_declutter.py",
+      "owner": "chat3",
+      "captured_sha256": "68df2c5235d88c25cee7aff33f7980d334d2da1563da2505968613c2d22c7052",
+      "execution_sha256": "68df2c5235d88c25cee7aff33f7980d334d2da1563da2505968613c2d22c7052",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_display_palette.py",
+      "owner": "chat3",
+      "captured_sha256": "0e122d90e6a5276123ad0ddd1b05b44b03bbcd6ca57bab5f09adbfbeb0aa5f0d",
+      "execution_sha256": "0e122d90e6a5276123ad0ddd1b05b44b03bbcd6ca57bab5f09adbfbeb0aa5f0d",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_integrity.py",
+      "owner": "chat3",
+      "captured_sha256": "26fb8d2498abb035a704ac1022439c2c3b40937994a55f7c82d4e3a9ab9dba30",
+      "execution_sha256": "26fb8d2498abb035a704ac1022439c2c3b40937994a55f7c82d4e3a9ab9dba30",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_launch_zone.py",
+      "owner": "chat3",
+      "captured_sha256": "54e50fbbc24222d0845a140c0e51a0d6757d618a52977bd18060e7ca47640883",
+      "execution_sha256": "54e50fbbc24222d0845a140c0e51a0d6757d618a52977bd18060e7ca47640883",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_mfd_controls.py",
+      "owner": "chat3",
+      "captured_sha256": "20dff62bf6c11e1e44f5f00cc0ddcce670ed8cbafa8ce59f4c5f9feaf7b44dd0",
+      "execution_sha256": "20dff62bf6c11e1e44f5f00cc0ddcce670ed8cbafa8ce59f4c5f9feaf7b44dd0",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_native_units.py",
+      "owner": "chat3",
+      "captured_sha256": "3891f5533fa781934ecd24f3ed126e31eb6e4ea8b7e3e60adc32a3b76e831edf",
+      "execution_sha256": "3891f5533fa781934ecd24f3ed126e31eb6e4ea8b7e3e60adc32a3b76e831edf",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_owned_retirement.py",
+      "owner": "chat3",
+      "captured_sha256": "7867893096238021715405e9784d3caf45204352d22cfad9afcbffcfc5536ba3",
+      "execution_sha256": "7867893096238021715405e9784d3caf45204352d22cfad9afcbffcfc5536ba3",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_presentation.py",
+      "owner": "chat3",
+      "captured_sha256": "2275f0e381609228da4703c7399630e7fa4189f01de9860be3689a62ce374267",
+      "execution_sha256": "2275f0e381609228da4703c7399630e7fa4189f01de9860be3689a62ce374267",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_relocated_focus.py",
+      "owner": "chat3",
+      "captured_sha256": "3acb36ff32d20c6f8066bf1e4ab75f54b2e383335714969c5b2792c4b860f240",
+      "execution_sha256": "3acb36ff32d20c6f8066bf1e4ab75f54b2e383335714969c5b2792c4b860f240",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_resource.py",
+      "owner": "chat3",
+      "captured_sha256": "d9dce32ee83f9ccd2b74ee9e473d722100cb7dfcb33e4f683cdadf88e6f95b58",
+      "execution_sha256": "d9dce32ee83f9ccd2b74ee9e473d722100cb7dfcb33e4f683cdadf88e6f95b58",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_scan_quality.py",
+      "owner": "chat3",
+      "captured_sha256": "2ace5de529b4c2ebc2f470a294227182f38d957bb2f20abce19e5f3925ec1a0e",
+      "execution_sha256": "2ace5de529b4c2ebc2f470a294227182f38d957bb2f20abce19e5f3925ec1a0e",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_scenario_matrix.py",
+      "owner": "chat3",
+      "captured_sha256": "c68bd305c215b7586fef6c926e0ae05b8efc1ed5b4fb1c20bee527f49e4d899d",
+      "execution_sha256": "c68bd305c215b7586fef6c926e0ae05b8efc1ed5b4fb1c20bee527f49e4d899d",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_telemetry.py",
+      "owner": "chat3",
+      "captured_sha256": "a3be97f7ee677b92221861b8869bcde9e8ca29e0b7c8341d70696a1fec342234",
+      "execution_sha256": "a3be97f7ee677b92221861b8869bcde9e8ca29e0b7c8341d70696a1fec342234",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_tracking_beam.py",
+      "owner": "chat3",
+      "captured_sha256": "b70d0a79061b1e17ebc05d9ef416ea619d16c2efa086d625823377bce1ec873a",
+      "execution_sha256": "b70d0a79061b1e17ebc05d9ef416ea619d16c2efa086d625823377bce1ec873a",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_weapon_state.py",
+      "owner": "chat3",
+      "captured_sha256": "18524a66d35746ccdafe6d97c1a11dba8d808330b0a0740d6641ce5f702c3176",
+      "execution_sha256": "18524a66d35746ccdafe6d97c1a11dba8d808330b0a0740d6641ce5f702c3176",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_radar_world_observations.py",
+      "owner": "chat3",
+      "captured_sha256": "2ca0c0c35c24e2725214fb77947596354541b68413d1e24f8f98ccae2e9e6d0e",
+      "execution_sha256": "2ca0c0c35c24e2725214fb77947596354541b68413d1e24f8f98ccae2e9e6d0e",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_recovery_context.py",
+      "owner": "chat2",
+      "captured_sha256": "cb3c5a8fe73ef211e78c0fa6fbb6bbdd588567f5431abdf0a9f0d8831388264c",
+      "execution_sha256": "cb3c5a8fe73ef211e78c0fa6fbb6bbdd588567f5431abdf0a9f0d8831388264c",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_reference_hud_cadence.py",
+      "owner": "chat2",
+      "captured_sha256": "e59914832478fd3df37add2c21dea099657453cdbf1e9dd667bda1f18f302025",
+      "execution_sha256": "e59914832478fd3df37add2c21dea099657453cdbf1e9dd667bda1f18f302025",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_rwr_affiliation.py",
+      "owner": "chat4",
+      "captured_sha256": "8ffa517da07c1cd1adbb4f2d1808b7a08bc00fa95625388cfc30925a59d5c203",
+      "execution_sha256": "8ffa517da07c1cd1adbb4f2d1808b7a08bc00fa95625388cfc30925a59d5c203",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_rwr_audio.py",
+      "owner": "chat4",
+      "captured_sha256": "176cc7e7fadb40e0d13d69a97671a84f2f22cec7ded97979aa23296f9106ab15",
+      "execution_sha256": "176cc7e7fadb40e0d13d69a97671a84f2f22cec7ded97979aa23296f9106ab15",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_rwr_bearings.py",
+      "owner": "chat4",
+      "captured_sha256": "a8d88e1249a3aa07c4dbe4523f86fe3c77e19dffceee1ba4e380734895c340d9",
+      "execution_sha256": "a8d88e1249a3aa07c4dbe4523f86fe3c77e19dffceee1ba4e380734895c340d9",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_rwr_proximity.py",
+      "owner": "chat4",
+      "captured_sha256": "24c48a103c6969e2899b9d393d8110fc40864ecb6917a40a12dbff7b47420a79",
+      "execution_sha256": "24c48a103c6969e2899b9d393d8110fc40864ecb6917a40a12dbff7b47420a79",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_rwr_scenario_matrix.py",
+      "owner": "chat4",
+      "captured_sha256": "fa3eaa26d112ca6dbdf0c5adec33d7940800366d3ad68840d2f3a41ac2605909",
+      "execution_sha256": "fa3eaa26d112ca6dbdf0c5adec33d7940800366d3ad68840d2f3a41ac2605909",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_selected_delivery_modes.py",
+      "owner": "chat2",
+      "captured_sha256": "f936989cca6fff2ff6daa4f332e9ac72d3fab68c3ad0b5d0b4efa3593353fb89",
+      "execution_sha256": "f936989cca6fff2ff6daa4f332e9ac72d3fab68c3ad0b5d0b4efa3593353fb89",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_sensor_control.py",
+      "owner": "chat2",
+      "captured_sha256": "b14a7a22bbccdf38c1c089a80af331fc395fa6e8ce14a7d8726781ba792256d2",
+      "execution_sha256": "b14a7a22bbccdf38c1c089a80af331fc395fa6e8ce14a7d8726781ba792256d2",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_sensor_fusion.py",
+      "owner": "chat2",
+      "captured_sha256": "c5330abc32f9f4f65c291cd1f80392ed7229e620cc8c3d36bc148b7cc633c733",
+      "execution_sha256": "c5330abc32f9f4f65c291cd1f80392ed7229e620cc8c3d36bc148b7cc633c733",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_standalone.py",
+      "owner": "chat2",
+      "captured_sha256": "66fe3cddba7af3a28b6cde7226b0384fe857186710322b5e54e1bd2e6cff4692",
+      "execution_sha256": "66fe3cddba7af3a28b6cde7226b0384fe857186710322b5e54e1bd2e6cff4692",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_store_registration.py",
+      "owner": "chat4",
+      "captured_sha256": "adf69db27476a6f1ecff35d93e0a538ae14875db168b5be5639058a1fd9c5fe1",
+      "execution_sha256": "adf69db27476a6f1ecff35d93e0a538ae14875db168b5be5639058a1fd9c5fe1",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_stores_context.py",
+      "owner": "chat4",
+      "captured_sha256": "2062fa74f8f7c2068a8e79894320669d65e7feea8a0f3e959f91f8514465aeec",
+      "execution_sha256": "2062fa74f8f7c2068a8e79894320669d65e7feea8a0f3e959f91f8514465aeec",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_tacan_components.py",
+      "owner": "chat2",
+      "captured_sha256": "2fecd1e7aeede28647e35d313da2e0263a4a281ffd7d366b023feffc6719d53f",
+      "execution_sha256": "2fecd1e7aeede28647e35d313da2e0263a4a281ffd7d366b023feffc6719d53f",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_tactical_association.py",
+      "owner": "chat4",
+      "captured_sha256": "d2649db9125c157760c8e5d6242ed4cfc7d5422138c6f1cbf70fdcd3fd9ec498",
+      "execution_sha256": "d2649db9125c157760c8e5d6242ed4cfc7d5422138c6f1cbf70fdcd3fd9ec498",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_tactical_identity_palette.py",
+      "owner": "chat4",
+      "captured_sha256": "3887aa0c5c9b1fa2a107c4767f090eb8f1bdb38340ebfeba0f244cb2cc68c29c",
+      "execution_sha256": "3887aa0c5c9b1fa2a107c4767f090eb8f1bdb38340ebfeba0f244cb2cc68c29c",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_tactical_picture.py",
+      "owner": "chat4",
+      "captured_sha256": "7507d7f0fad4da4eef4bbc21aa6434b1ba8ebc868321362516f1f6f221610947",
+      "execution_sha256": "7507d7f0fad4da4eef4bbc21aa6434b1ba8ebc868321362516f1f6f221610947",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_tactical_provenance.py",
+      "owner": "chat4",
+      "captured_sha256": "9b3aaba110a0d66abbca6fe2af60d054772df9598cae2b182269a69dfc2835da",
+      "execution_sha256": "9b3aaba110a0d66abbca6fe2af60d054772df9598cae2b182269a69dfc2835da",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_tactical_situation.py",
+      "owner": "chat4",
+      "captured_sha256": "daea9a29563098792287761811f5bd98e77431b13843f9082fae9357538ecad6",
+      "execution_sha256": "daea9a29563098792287761811f5bd98e77431b13843f9082fae9357538ecad6",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_tactical_startup.py",
+      "owner": "chat4",
+      "captured_sha256": "3ea6a6fc48d9ef5a279430e1a82290043a7dd5db6c22fa2ce737de751d7cc4df",
+      "execution_sha256": "3ea6a6fc48d9ef5a279430e1a82290043a7dd5db6c22fa2ce737de751d7cc4df",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_target_designation.py",
+      "owner": "chat2",
+      "captured_sha256": "24ef52f1572c9da721537fdfede603d7d3f03c8ddc5116aa0b5fd8e267566934",
+      "execution_sha256": "24ef52f1572c9da721537fdfede603d7d3f03c8ddc5116aa0b5fd8e267566934",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_tdc_workflow.py",
+      "owner": "chat2",
+      "captured_sha256": "06c7c54ebe43fe6014272984927fe9c9b83b725d19937a33ce348f1278607fee",
+      "execution_sha256": "06c7c54ebe43fe6014272984927fe9c9b83b725d19937a33ce348f1278607fee",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_terrain_director.py",
+      "owner": "chat2",
+      "captured_sha256": "4514a9bdb7e33f6b2547cc9a921f3cb7de8bc559fa229a9646df52d2ac166798",
+      "execution_sha256": "4514a9bdb7e33f6b2547cc9a921f3cb7de8bc559fa229a9646df52d2ac166798",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_terrain_escape.py",
+      "owner": "chat2",
+      "captured_sha256": "519ae2834b4b0655d64b328abbbc94bd6561669357797a3825fa89e6d0e39eb1",
+      "execution_sha256": "519ae2834b4b0655d64b328abbbc94bd6561669357797a3825fa89e6d0e39eb1",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_terrain_nuisance.py",
+      "owner": "chat2",
+      "captured_sha256": "0f5369d42d3513056641715f2000b8c0c3f53328e8d0cd5746bf36675b37a0c1",
+      "execution_sha256": "0f5369d42d3513056641715f2000b8c0c3f53328e8d0cd5746bf36675b37a0c1",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_terrain_recovery_cue.py",
+      "owner": "chat2",
+      "captured_sha256": "6ff53689c05715a2fbb8c7be69a5d326752663efee843badc60243626bafae2b",
+      "execution_sha256": "6ff53689c05715a2fbb8c7be69a5d326752663efee843badc60243626bafae2b",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_terrain_warning_owner.py",
+      "owner": "chat2",
+      "captured_sha256": "de245decde194b6b68e7e80a33d2db881a80fb7b0d98ce0859acaa5978f562a7",
+      "execution_sha256": "de245decde194b6b68e7e80a33d2db881a80fb7b0d98ce0859acaa5978f562a7",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_trim_control.cpp",
+      "owner": "chat1",
+      "captured_sha256": "86c1999f22ef48d3569b642a1fa4b1fb646873473c555dd7ebc237a2d4c63e69",
+      "execution_sha256": "86c1999f22ef48d3569b642a1fa4b1fb646873473c555dd7ebc237a2d4c63e69",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_trim_telemetry.py",
+      "owner": "chat1",
+      "captured_sha256": "a874f7b749d50651893c24cb99b73242ae3f5197d7614e1457e8fb8231db7cba",
+      "execution_sha256": "a874f7b749d50651893c24cb99b73242ae3f5197d7614e1457e8fb8231db7cba",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ufc_entry_display.py",
+      "owner": "chat2",
+      "captured_sha256": "b624e5d9c02f10c519bb39acdb01d94f41c73787314fc315303b9fd3f619ea4e",
+      "execution_sha256": "b624e5d9c02f10c519bb39acdb01d94f41c73787314fc315303b9fd3f619ea4e",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_ufc_mouse_stores.py",
+      "owner": "chat4",
+      "captured_sha256": "d230812c65f91aa003995dcd4910ca072e314218b4812ca0479a409195830bb9",
+      "execution_sha256": "d230812c65f91aa003995dcd4910ca072e314218b4812ca0479a409195830bb9",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_vehicle_contract.cpp",
+      "owner": "chat1",
+      "captured_sha256": "ca3557d5274aeb59fa5f7e8cfacec6ed50d305881a60a33b5e24bac2e469b3d6",
+      "execution_sha256": "ca3557d5274aeb59fa5f7e8cfacec6ed50d305881a60a33b5e24bac2e469b3d6",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_vehicle_efm.cpp",
+      "owner": "chat1",
+      "captured_sha256": "ce44282f254f1e9bab0a521c1dbc40ac94f6af2814b5011fa622affad45ef935",
+      "execution_sha256": "ce44282f254f1e9bab0a521c1dbc40ac94f6af2814b5011fa622affad45ef935",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_vehicle_electrical.py",
+      "owner": "chat1",
+      "captured_sha256": "9aea793663ba49660ea47f144153b52166aa4c14019fb377f7306b6cf2b1bbab",
+      "execution_sha256": "9aea793663ba49660ea47f144153b52166aa4c14019fb377f7306b6cf2b1bbab",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_vehicle_overhaul.cpp",
+      "owner": "chat1",
+      "captured_sha256": "49a2970b81596115616d04c7afbbf04d3979c679d0c31ebe17f988e8d8335024",
+      "execution_sha256": "49a2970b81596115616d04c7afbbf04d3979c679d0c31ebe17f988e8d8335024",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_vehicle_power_owner.py",
+      "owner": "chat1",
+      "captured_sha256": "5233886e2f9164a66d4246d90cbfb7f06add9372f3a49d094b870042fb4eadb7",
+      "execution_sha256": "5233886e2f9164a66d4246d90cbfb7f06add9372f3a49d094b870042fb4eadb7",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_vehicle_stores_adapter.py",
+      "owner": "chat4",
+      "captured_sha256": "14186705b36d562fee0adddc559b041189cad5e203bbf255d041aa67772b28b1",
+      "execution_sha256": "14186705b36d562fee0adddc559b041189cad5e203bbf255d041aa67772b28b1",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_vehicle_systems.cpp",
+      "owner": "chat1",
+      "captured_sha256": "205a35c1a41e08c68774bd0f689f8b852713251ce50db31fd5417112b5271fe3",
+      "execution_sha256": "205a35c1a41e08c68774bd0f689f8b852713251ce50db31fd5417112b5271fe3",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_warning_confirmation.py",
+      "owner": "chat2",
+      "captured_sha256": "792dc0fcf033a35d62b99014ba70e94518e03eb15ebcafc780167d217e03953e",
+      "execution_sha256": "792dc0fcf033a35d62b99014ba70e94518e03eb15ebcafc780167d217e03953e",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_warning_priority_expiry.py",
+      "owner": "chat2",
+      "captured_sha256": "49fc32f20905c89d3afc0fff5387f19a01a947098a17ee8aff2e0c95c02c788c",
+      "execution_sha256": "49fc32f20905c89d3afc0fff5387f19a01a947098a17ee8aff2e0c95c02c788c",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_warning_replay.py",
+      "owner": "chat2",
+      "captured_sha256": "871b8a51e82aadf612f1ad0304c77a50d38496d3ef05299f4703f51afb025804",
+      "execution_sha256": "871b8a51e82aadf612f1ad0304c77a50d38496d3ef05299f4703f51afb025804",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_warning_voice_timing.py",
+      "owner": "chat2",
+      "captured_sha256": "a33b3475577abc875baee1292024da80a44dedee46dc14a905c4e8db4430a596",
+      "execution_sha256": "a33b3475577abc875baee1292024da80a44dedee46dc14a905c4e8db4430a596",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_weapon_engagement.py",
+      "owner": "chat4",
+      "captured_sha256": "8aa1f96bc771709ceb5572e7792a3df07bfa7dc8585a8a6fbd4d6d1a46e1e0ae",
+      "execution_sha256": "8aa1f96bc771709ceb5572e7792a3df07bfa7dc8585a8a6fbd4d6d1a46e1e0ae",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_weapon_hud_selection.py",
+      "owner": "chat4",
+      "captured_sha256": "970b6805f34369c329efb25dbf5244af7b31c844092400d8bed510ff381a9cb2",
+      "execution_sha256": "970b6805f34369c329efb25dbf5244af7b31c844092400d8bed510ff381a9cb2",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_weapon_physical_consumer.py",
+      "owner": "chat4",
+      "captured_sha256": "49bf6e5e06bd5ae82c6eee322453a49589d369b4845fa0d613d1551ee1caa873",
+      "execution_sha256": "49bf6e5e06bd5ae82c6eee322453a49589d369b4845fa0d613d1551ee1caa873",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_weapon_transactions.py",
+      "owner": "chat4",
+      "captured_sha256": "926782bb7b8e95fd127b1f7d192409b676dfaa5e48136ec4a4506a2b3493a174",
+      "execution_sha256": "926782bb7b8e95fd127b1f7d192409b676dfaa5e48136ec4a4506a2b3493a174",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/test_weapon_trigger_inputs.py",
+      "owner": "chat4",
+      "captured_sha256": "aae459deaeb3776a7381d460c9c059722829ebcb3a8ddd1dc725b9a2d599be87",
+      "execution_sha256": "aae459deaeb3776a7381d460c9c059722829ebcb3a8ddd1dc725b9a2d599be87",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/validate_modified_lua.py",
+      "owner": "chat2",
+      "captured_sha256": "ddc1bcc1d16070b69cb2abf10fb8d8e000bf9f37ec29372ad850a887b3299aba",
+      "execution_sha256": "ddc1bcc1d16070b69cb2abf10fb8d8e000bf9f37ec29372ad850a887b3299aba",
+      "status": "deleted_replaced",
+      "replacement": [
+        "tests/run_all.py",
+        "tests/host.py",
+        "tests/host.lua",
+        "tests/cases/test_host_contract.py",
+        "tests/cases/test_lua_syntax.py"
+      ],
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/vehicle_mock_cockpit.cpp",
+      "owner": "chat1",
+      "captured_sha256": "cab840f5a5563f741e0a309d0863103b737c0bdde1655f527da912115d5b0884",
+      "execution_sha256": "cab840f5a5563f741e0a309d0863103b737c0bdde1655f527da912115d5b0884",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/vehicle_mock_world.cpp",
+      "owner": "chat1",
+      "captured_sha256": "373815515197ae5839bf3f8f8aaa9207771dfdfa7dbeb3c1201615e5ded8bffd",
+      "execution_sha256": "373815515197ae5839bf3f8f8aaa9207771dfdfa7dbeb3c1201615e5ded8bffd",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    },
+    {
+      "path": "tests/warning_physical_fixture.lua",
+      "owner": "chat2",
+      "captured_sha256": "16fba2e118332ce48cb8a6875bbb40ff397072a8e53d2d86d689740512657f14",
+      "execution_sha256": "16fba2e118332ce48cb8a6875bbb40ff397072a8e53d2d86d689740512657f14",
+      "status": "pending_domain_remake",
+      "replacement": null,
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+    }
+  ]
+}

@@ -1,0 +1,4066 @@
+{
+  "schema_version": "1.0",
+  "selected_profile": {
+    "id": "public_f22_manual_recovery",
+    "revision": 1,
+    "source": "Cockpit/Scripts/Systems/Equipment_Profile.lua",
+    "selected": [
+      "gins",
+      "gps",
+      "tacan",
+      "ils",
+      "radar",
+      "manual_recovery",
+      "advisory_terrain"
+    ],
+    "unselected": [
+      "targeting_pod",
+      "hmd",
+      "irds",
+      "carrier_acls",
+      "autoland",
+      "automatic_gcas",
+      "additional_weapons",
+      "clear_voice_backend",
+      "diagnostic_weapon_truth"
+    ],
+    "boundaries": [
+      "Player capability profile does not authenticate inherited AI sensor labels.",
+      "Simulator-assisted weapon source2 is separately declared retained analogue, not measured radar."
+    ]
+  },
+  "records": [
+    {
+      "id": "CAP-FLT-001",
+      "title": "Input provenance and validity",
+      "applicability": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved",
+      "requirements": [
+        "R-FLT-001"
+      ],
+      "implementation": "partial",
+      "verification": "source-reviewed; only two bounded native probes executed, real DCS unqualified",
+      "dependencies": [
+        "P-FLT-001"
+      ],
+      "disposition": "Retain narrow current behavior and complete named host/calibration/integration gaps",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "packages": [
+        "P-FLT-001",
+        "P-FLT-010"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-FLT-001": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-FLT-001",
+          "evidence": [
+            "S-FLT-001",
+            "S-FLT-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-007",
+        "P-FLT-008",
+        "P-FLT-009",
+        "P-INT-003"
+      ],
+      "verification_status": "source-reviewed; only two bounded native probes executed, real DCS unqualified"
+    },
+    {
+      "id": "CAP-FLT-002",
+      "title": "Gear/hook configuration",
+      "applicability": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved",
+      "requirements": [
+        "R-FLT-002"
+      ],
+      "implementation": "partial",
+      "verification": "source-reviewed; only two bounded native probes executed, real DCS unqualified",
+      "dependencies": [
+        "P-FLT-005"
+      ],
+      "disposition": "Retain narrow current behavior and complete named host/calibration/integration gaps",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "packages": [
+        "P-FLT-005",
+        "P-FLT-010"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-FLT-002": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-FLT-002",
+          "evidence": [
+            "S-FLT-001",
+            "S-FLT-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-002",
+        "P-FLT-007",
+        "P-FLT-008",
+        "P-FLT-009",
+        "P-INT-003"
+      ],
+      "verification_status": "source-reviewed; only two bounded native probes executed, real DCS unqualified"
+    },
+    {
+      "id": "CAP-FLT-003",
+      "title": "Canopy/escape",
+      "applicability": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved",
+      "requirements": [
+        "R-FLT-003"
+      ],
+      "implementation": "missing_adapter",
+      "verification": "source-reviewed; only two bounded native probes executed, real DCS unqualified",
+      "dependencies": [
+        "P-FLT-006"
+      ],
+      "disposition": "Retain narrow current behavior and complete named host/calibration/integration gaps",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "packages": [
+        "P-FLT-006",
+        "P-FLT-010"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-FLT-003": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-FLT-003",
+          "evidence": [
+            "S-FLT-001",
+            "S-FLT-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-001",
+        "P-FLT-002",
+        "P-FLT-003",
+        "P-FLT-007",
+        "P-FLT-008",
+        "P-FLT-009",
+        "P-INT-003"
+      ],
+      "verification_status": "source-reviewed; only two bounded native probes executed, real DCS unqualified"
+    },
+    {
+      "id": "CAP-FLT-004",
+      "title": "Fuel/feed/refueling/mass",
+      "applicability": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved",
+      "requirements": [
+        "R-FLT-004"
+      ],
+      "implementation": "partial",
+      "verification": "source-reviewed; only two bounded native probes executed, real DCS unqualified",
+      "dependencies": [
+        "P-FLT-002"
+      ],
+      "disposition": "Retain narrow current behavior and complete named host/calibration/integration gaps",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "packages": [
+        "P-FLT-002",
+        "P-FLT-009",
+        "P-FLT-010"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-FLT-004": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-FLT-004",
+          "evidence": [
+            "S-FLT-001",
+            "S-FLT-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-001",
+        "P-FLT-002",
+        "P-FLT-005",
+        "P-INT-008",
+        "P-FLT-007",
+        "P-FLT-008",
+        "P-FLT-009",
+        "P-INT-003"
+      ],
+      "verification_status": "source-reviewed; only two bounded native probes executed, real DCS unqualified"
+    },
+    {
+      "id": "CAP-FLT-005",
+      "title": "Oxygen/cabin native effects",
+      "applicability": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved",
+      "requirements": [
+        "R-FLT-005"
+      ],
+      "implementation": "partial_native_boundary",
+      "verification": "source-reviewed; only two bounded native probes executed, real DCS unqualified",
+      "dependencies": [
+        "P-FLT-006"
+      ],
+      "disposition": "Retain narrow current behavior and complete named host/calibration/integration gaps",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "packages": [
+        "P-FLT-006",
+        "P-FLT-010"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-FLT-005": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-FLT-005",
+          "evidence": [
+            "S-FLT-001",
+            "S-FLT-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-001",
+        "P-FLT-002",
+        "P-FLT-003",
+        "P-FLT-007",
+        "P-FLT-008",
+        "P-FLT-009",
+        "P-INT-003"
+      ],
+      "verification_status": "source-reviewed; only two bounded native probes executed, real DCS unqualified"
+    },
+    {
+      "id": "CAP-FLT-006",
+      "title": "Power/APU/SES",
+      "applicability": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved",
+      "requirements": [
+        "R-FLT-006"
+      ],
+      "implementation": "implemented_abstraction_partial_topology",
+      "verification": "source-reviewed; only two bounded native probes executed, real DCS unqualified",
+      "dependencies": [
+        "P-FLT-002"
+      ],
+      "disposition": "Retain narrow current behavior and complete named host/calibration/integration gaps",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "packages": [
+        "P-FLT-002",
+        "P-FLT-010"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-FLT-006": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-FLT-006",
+          "evidence": [
+            "S-FLT-001",
+            "S-FLT-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-001",
+        "P-FLT-007",
+        "P-FLT-008",
+        "P-FLT-009",
+        "P-INT-003"
+      ],
+      "verification_status": "source-reviewed; only two bounded native probes executed, real DCS unqualified"
+    },
+    {
+      "id": "CAP-FLT-007",
+      "title": "Hydraulics/utility demand",
+      "applicability": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved",
+      "requirements": [
+        "R-FLT-007"
+      ],
+      "implementation": "implemented_abstraction_partial_routing",
+      "verification": "source-reviewed; only two bounded native probes executed, real DCS unqualified",
+      "dependencies": [
+        "P-FLT-002"
+      ],
+      "disposition": "Retain narrow current behavior and complete named host/calibration/integration gaps",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "packages": [
+        "P-FLT-002",
+        "P-FLT-010"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-FLT-007": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-FLT-007",
+          "evidence": [
+            "S-FLT-001",
+            "S-FLT-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-001",
+        "P-FLT-007",
+        "P-FLT-008",
+        "P-FLT-009",
+        "P-INT-003"
+      ],
+      "verification_status": "source-reviewed; only two bounded native probes executed, real DCS unqualified"
+    },
+    {
+      "id": "CAP-FLT-008",
+      "title": "Engine/start/FADEC",
+      "applicability": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved",
+      "requirements": [
+        "R-FLT-008"
+      ],
+      "implementation": "implemented_source_limited",
+      "verification": "source-reviewed; only two bounded native probes executed, real DCS unqualified",
+      "dependencies": [
+        "P-FLT-003"
+      ],
+      "disposition": "Retain narrow current behavior and complete named host/calibration/integration gaps",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "packages": [
+        "P-FLT-003",
+        "P-FLT-010"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-FLT-008": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-FLT-008",
+          "evidence": [
+            "S-FLT-001",
+            "S-FLT-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-002",
+        "P-FLT-007",
+        "P-FLT-008",
+        "P-FLT-009",
+        "P-INT-003"
+      ],
+      "verification_status": "source-reviewed; only two bounded native probes executed, real DCS unqualified"
+    },
+    {
+      "id": "CAP-FLT-009",
+      "title": "FCS/trim/vectoring",
+      "applicability": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved",
+      "requirements": [
+        "R-FLT-009"
+      ],
+      "implementation": "partial",
+      "verification": "source-reviewed; only two bounded native probes executed, real DCS unqualified",
+      "dependencies": [
+        "P-FLT-004"
+      ],
+      "disposition": "Retain narrow current behavior and complete named host/calibration/integration gaps",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "packages": [
+        "P-FLT-004",
+        "P-FLT-010"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-FLT-009": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-FLT-009",
+          "evidence": [
+            "S-FLT-001",
+            "S-FLT-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-002",
+        "P-FLT-003",
+        "D-P-FLT-001",
+        "P-FLT-007",
+        "P-FLT-008",
+        "P-FLT-009",
+        "P-INT-003"
+      ],
+      "verification_status": "source-reviewed; only two bounded native probes executed, real DCS unqualified"
+    },
+    {
+      "id": "CAP-FLT-010",
+      "title": "Aerodynamics/performance",
+      "applicability": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved",
+      "requirements": [
+        "R-FLT-010"
+      ],
+      "implementation": "implemented_estimate_unvalidated",
+      "verification": "source-reviewed; only two bounded native probes executed, real DCS unqualified",
+      "dependencies": [
+        "P-FLT-008"
+      ],
+      "disposition": "Retain narrow current behavior and complete named host/calibration/integration gaps",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "packages": [
+        "P-FLT-008",
+        "P-FLT-010"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-FLT-010": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-FLT-010",
+          "evidence": [
+            "S-FLT-001",
+            "S-FLT-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-003",
+        "P-FLT-004",
+        "P-FLT-005",
+        "P-FLT-007",
+        "P-FLT-008",
+        "P-FLT-009",
+        "P-INT-003"
+      ],
+      "verification_status": "source-reviewed; only two bounded native probes executed, real DCS unqualified"
+    },
+    {
+      "id": "CAP-FLT-011",
+      "title": "Contact/brakes/thermal",
+      "applicability": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved",
+      "requirements": [
+        "R-FLT-011"
+      ],
+      "implementation": "implemented_estimate_host_unqualified",
+      "verification": "source-reviewed; only two bounded native probes executed, real DCS unqualified",
+      "dependencies": [
+        "P-FLT-005"
+      ],
+      "disposition": "Retain narrow current behavior and complete named host/calibration/integration gaps",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "packages": [
+        "P-FLT-005",
+        "P-FLT-010"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-FLT-011": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-FLT-011",
+          "evidence": [
+            "S-FLT-001",
+            "S-FLT-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-002",
+        "P-FLT-007",
+        "P-FLT-008",
+        "P-FLT-009",
+        "P-INT-003"
+      ],
+      "verification_status": "source-reviewed; only two bounded native probes executed, real DCS unqualified"
+    },
+    {
+      "id": "CAP-FLT-012",
+      "title": "Damage/fault/repair",
+      "applicability": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved",
+      "requirements": [
+        "R-FLT-012"
+      ],
+      "implementation": "partial",
+      "verification": "source-reviewed; only two bounded native probes executed, real DCS unqualified",
+      "dependencies": [
+        "P-FLT-007"
+      ],
+      "disposition": "Retain narrow current behavior and complete named host/calibration/integration gaps",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "packages": [
+        "P-FLT-007",
+        "P-FLT-010"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-FLT-012": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-FLT-012",
+          "evidence": [
+            "S-FLT-001",
+            "S-FLT-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-003",
+        "P-FLT-004",
+        "P-FLT-005",
+        "P-FLT-006",
+        "P-FLT-007",
+        "P-FLT-008",
+        "P-FLT-009",
+        "P-INT-003"
+      ],
+      "verification_status": "source-reviewed; only two bounded native probes executed, real DCS unqualified"
+    },
+    {
+      "id": "CAP-FLT-013",
+      "title": "Lifecycle/input",
+      "applicability": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved",
+      "requirements": [
+        "R-FLT-013"
+      ],
+      "implementation": "partial_runtime_unqualified",
+      "verification": "source-reviewed; only two bounded native probes executed, real DCS unqualified",
+      "dependencies": [
+        "P-FLT-001"
+      ],
+      "disposition": "Retain narrow current behavior and complete named host/calibration/integration gaps",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "packages": [
+        "P-FLT-001",
+        "P-FLT-010"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-FLT-013": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-FLT-013",
+          "evidence": [
+            "S-FLT-001",
+            "S-FLT-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-007",
+        "P-FLT-008",
+        "P-FLT-009",
+        "P-INT-003"
+      ],
+      "verification_status": "source-reviewed; only two bounded native probes executed, real DCS unqualified"
+    },
+    {
+      "id": "CAP-FLT-014",
+      "title": "Lighting/refuel adapters",
+      "applicability": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved",
+      "requirements": [
+        "R-FLT-014"
+      ],
+      "implementation": "partial_native_unqualified",
+      "verification": "source-reviewed; only two bounded native probes executed, real DCS unqualified",
+      "dependencies": [
+        "P-FLT-009"
+      ],
+      "disposition": "Retain narrow current behavior and complete named host/calibration/integration gaps",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "packages": [
+        "P-FLT-009",
+        "P-FLT-010"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-FLT-014": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-FLT-014",
+          "evidence": [
+            "S-FLT-001",
+            "S-FLT-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-FLT-002",
+        "P-FLT-005",
+        "P-INT-001",
+        "P-INT-002",
+        "P-INT-008",
+        "P-FLT-007",
+        "P-FLT-008",
+        "P-FLT-009",
+        "P-INT-003"
+      ],
+      "verification_status": "source-reviewed; only two bounded native probes executed, real DCS unqualified"
+    },
+    {
+      "id": "CAP-FLT-015",
+      "title": "Frames/air data/inertia",
+      "applicability": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved",
+      "requirements": [
+        "R-FLT-015"
+      ],
+      "implementation": "partial_host_uncertainty",
+      "verification": "source-reviewed; only two bounded native probes executed, real DCS unqualified",
+      "dependencies": [
+        "P-FLT-008"
+      ],
+      "disposition": "Retain narrow current behavior and complete named host/calibration/integration gaps",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "packages": [
+        "P-FLT-008",
+        "P-FLT-010"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-FLT-015": "Current registered F-22A source-limited profile; exact dated equipment/era unresolved"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-FLT-015",
+          "evidence": [
+            "S-FLT-001",
+            "S-FLT-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-003",
+        "P-FLT-004",
+        "P-FLT-005",
+        "P-FLT-007",
+        "P-FLT-008",
+        "P-FLT-009",
+        "P-INT-003"
+      ],
+      "verification_status": "source-reviewed; only two bounded native probes executed, real DCS unqualified"
+    },
+    {
+      "id": "CAP-NAV-001",
+      "name": "Selected altitude freshness",
+      "profile": "selected public_f22_manual_recovery revision1",
+      "requirement_ids": [
+        "R-NAV-001"
+      ],
+      "evidence": [
+        "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+      ],
+      "implementation": "partial: consumer lease missing",
+      "verification": "Static review and diagnostic probes only; native runtime unqualified",
+      "disposition": "Assigned package or explicit optional capability decision",
+      "packages": [
+        "P-NAV-001"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json",
+      "requirements": [
+        "R-NAV-001"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-NAV-001": "selected public_f22_manual_recovery revision1"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-NAV-001",
+          "evidence": [
+            "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-FLT-001",
+        "P-INT-001",
+        "P-INT-002",
+        "P-INT-008"
+      ],
+      "verification_status": "Static review and diagnostic probes only; native runtime unqualified"
+    },
+    {
+      "id": "CAP-NAV-002",
+      "name": "Single display format owner",
+      "profile": "selected public_f22_manual_recovery revision1",
+      "requirement_ids": [
+        "R-NAV-002"
+      ],
+      "evidence": [
+        "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+      ],
+      "implementation": "implemented_partial",
+      "verification": "Static review and diagnostic probes only; native runtime unqualified",
+      "disposition": "Assigned package or explicit optional capability decision",
+      "packages": [
+        "P-NAV-002"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json",
+      "requirements": [
+        "R-NAV-002"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-NAV-002": "selected public_f22_manual_recovery revision1"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-NAV-002",
+          "evidence": [
+            "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-NAV-001"
+      ],
+      "verification_status": "Static review and diagnostic probes only; native runtime unqualified"
+    },
+    {
+      "id": "CAP-NAV-003",
+      "name": "Qualified ADI vertical speed",
+      "profile": "selected public_f22_manual_recovery revision1",
+      "requirement_ids": [
+        "R-NAV-003"
+      ],
+      "evidence": [
+        "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+      ],
+      "implementation": "implemented_partial",
+      "verification": "Static review and diagnostic probes only; native runtime unqualified",
+      "disposition": "Assigned package or explicit optional capability decision",
+      "packages": [
+        "P-NAV-001"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json",
+      "requirements": [
+        "R-NAV-003"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-NAV-003": "selected public_f22_manual_recovery revision1"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-NAV-003",
+          "evidence": [
+            "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-FLT-001",
+        "P-INT-001",
+        "P-INT-002",
+        "P-INT-008"
+      ],
+      "verification_status": "Static review and diagnostic probes only; native runtime unqualified"
+    },
+    {
+      "id": "CAP-NAV-004",
+      "name": "Native receiver lifetime",
+      "profile": "selected public_f22_manual_recovery revision1",
+      "requirement_ids": [
+        "R-NAV-004"
+      ],
+      "evidence": [
+        "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+      ],
+      "implementation": "guard gap; host reset ordering unresolved",
+      "verification": "Static review and diagnostic probes only; native runtime unqualified",
+      "disposition": "Assigned package or explicit optional capability decision",
+      "packages": [
+        "P-NAV-003"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json",
+      "requirements": [
+        "R-NAV-004"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-NAV-004": "selected public_f22_manual_recovery revision1"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-NAV-004",
+          "evidence": [
+            "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-NAV-001",
+        "P-INT-008"
+      ],
+      "verification_status": "Static review and diagnostic probes only; native runtime unqualified"
+    },
+    {
+      "id": "CAP-NAV-005",
+      "name": "Optional clear voice",
+      "profile": "clear_voice_backend=false; future opt-in decision",
+      "requirement_ids": [
+        "R-NAV-005"
+      ],
+      "evidence": [
+        "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+      ],
+      "implementation": "selected off; feasibility unresolved",
+      "verification": "Static review and diagnostic probes only; native runtime unqualified",
+      "disposition": "Assigned package or explicit optional capability decision",
+      "packages": [
+        "P-NAV-004"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json",
+      "requirements": [
+        "R-NAV-005"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-NAV-005": "clear_voice_backend=false; future opt-in decision"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-NAV-005",
+          "evidence": [
+            "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-NAV-003"
+      ],
+      "verification_status": "Static review and diagnostic probes only; native runtime unqualified"
+    },
+    {
+      "id": "CAP-NAV-006",
+      "name": "Navigation ident monitor",
+      "profile": "selected public_f22_manual_recovery revision1",
+      "requirement_ids": [
+        "R-NAV-006"
+      ],
+      "evidence": [
+        "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+      ],
+      "implementation": "missing selected monitor policy",
+      "verification": "Static review and diagnostic probes only; native runtime unqualified",
+      "disposition": "Assigned package or explicit optional capability decision",
+      "packages": [
+        "P-NAV-003"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json",
+      "requirements": [
+        "R-NAV-006"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-NAV-006": "selected public_f22_manual_recovery revision1"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-NAV-006",
+          "evidence": [
+            "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-NAV-001",
+        "P-INT-008"
+      ],
+      "verification_status": "Static review and diagnostic probes only; native runtime unqualified"
+    },
+    {
+      "id": "CAP-NAV-007",
+      "name": "Independent references and AFCS mapping",
+      "profile": "selected public_f22_manual_recovery revision1",
+      "requirement_ids": [
+        "R-NAV-007"
+      ],
+      "evidence": [
+        "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+      ],
+      "implementation": "implemented_partial",
+      "verification": "Static review and diagnostic probes only; native runtime unqualified",
+      "disposition": "Assigned package or explicit optional capability decision",
+      "packages": [
+        "P-NAV-001",
+        "P-NAV-006"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json",
+      "requirements": [
+        "R-NAV-007"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-NAV-007": "selected public_f22_manual_recovery revision1"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-NAV-007",
+          "evidence": [
+            "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-FLT-001",
+        "P-INT-001",
+        "P-INT-002",
+        "P-INT-008",
+        "P-NAV-001"
+      ],
+      "verification_status": "Static review and diagnostic probes only; native runtime unqualified"
+    },
+    {
+      "id": "CAP-NAV-008",
+      "name": "Native optics and recovery qualification",
+      "profile": "selected public_f22_manual_recovery revision1",
+      "requirement_ids": [
+        "R-NAV-008"
+      ],
+      "evidence": [
+        "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+      ],
+      "implementation": "offline source represented; runtime unqualified",
+      "verification": "Static review and diagnostic probes only; native runtime unqualified",
+      "disposition": "Assigned package or explicit optional capability decision",
+      "packages": [
+        "P-NAV-007"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json",
+      "requirements": [
+        "R-NAV-008"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-NAV-008": "selected public_f22_manual_recovery revision1"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-NAV-008",
+          "evidence": [
+            "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-NAV-002",
+        "P-NAV-003",
+        "P-NAV-005",
+        "P-NAV-006"
+      ],
+      "verification_status": "Static review and diagnostic probes only; native runtime unqualified"
+    },
+    {
+      "id": "CAP-NAV-009",
+      "name": "Fault and audio lifecycle",
+      "profile": "selected public_f22_manual_recovery revision1",
+      "requirement_ids": [
+        "R-NAV-009"
+      ],
+      "evidence": [
+        "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+      ],
+      "implementation": "implemented_partial",
+      "verification": "Static review and diagnostic probes only; native runtime unqualified",
+      "disposition": "Assigned package or explicit optional capability decision",
+      "packages": [
+        "P-NAV-005",
+        "P-NAV-007"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json",
+      "requirements": [
+        "R-NAV-009"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-NAV-009": "selected public_f22_manual_recovery revision1"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-NAV-009",
+          "evidence": [
+            "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-NAV-001",
+        "P-NAV-002",
+        "P-NAV-003",
+        "P-NAV-005",
+        "P-NAV-006"
+      ],
+      "verification_status": "Static review and diagnostic probes only; native runtime unqualified"
+    },
+    {
+      "id": "CAP-NAV-010",
+      "name": "Alert gap decisions",
+      "profile": "selected public_f22_manual_recovery revision1",
+      "requirement_ids": [
+        "R-NAV-010"
+      ],
+      "evidence": [
+        "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+      ],
+      "implementation": "missing or unresolved policy",
+      "verification": "Static review and diagnostic probes only; native runtime unqualified",
+      "disposition": "Assigned package or explicit optional capability decision",
+      "packages": [
+        "P-NAV-005"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json",
+      "requirements": [
+        "R-NAV-010"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-NAV-010": "selected public_f22_manual_recovery revision1"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-NAV-010",
+          "evidence": [
+            "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-NAV-001"
+      ],
+      "verification_status": "Static review and diagnostic probes only; native runtime unqualified"
+    },
+    {
+      "id": "CAP-NAV-011",
+      "name": "Cleanup and saved controls",
+      "profile": "selected public_f22_manual_recovery revision1",
+      "requirement_ids": [
+        "R-NAV-011"
+      ],
+      "evidence": [
+        "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+      ],
+      "implementation": "retirement candidates",
+      "verification": "Static review and diagnostic probes only; native runtime unqualified",
+      "disposition": "Assigned package or explicit optional capability decision",
+      "packages": [
+        "P-NAV-002"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json",
+      "requirements": [
+        "R-NAV-011"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-NAV-011": "selected public_f22_manual_recovery revision1"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-NAV-011",
+          "evidence": [
+            "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-NAV-001"
+      ],
+      "verification_status": "Static review and diagnostic probes only; native runtime unqualified"
+    },
+    {
+      "id": "CAP-NAV-012",
+      "name": "Mission data and nav depth",
+      "profile": "selected public_f22_manual_recovery revision1",
+      "requirement_ids": [
+        "R-NAV-012"
+      ],
+      "evidence": [
+        "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+      ],
+      "implementation": "route active; other partition APIs and optional depths partial",
+      "verification": "Static review and diagnostic probes only; native runtime unqualified",
+      "disposition": "Assigned package or explicit optional capability decision",
+      "packages": [
+        "P-NAV-006"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json",
+      "requirements": [
+        "R-NAV-012"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-NAV-012": "selected public_f22_manual_recovery revision1"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-NAV-012",
+          "evidence": [
+            "Current project source/ownership contract; aircraft evidence limited as specified in sources"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-NAV-001"
+      ],
+      "verification_status": "Static review and diagnostic probes only; native runtime unqualified"
+    },
+    {
+      "id": "CAP-RAD-001",
+      "name": "Owned measurement admission",
+      "profile": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "requirements": [
+        "R-RAD-001"
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_status": "defect reproduced",
+      "verification_status": "Per linked requirement verification; no blanket runtime/fidelity pass",
+      "dependencies": [
+        "P-RAD-001"
+      ],
+      "disposition": "planned package;retain correct current behavior andexplicit limits",
+      "applicability": "selected core",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "packages": [
+        "P-RAD-001"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-RAD-001": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-RAD-001",
+          "evidence": [
+            "S-RAD-005"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ]
+    },
+    {
+      "id": "CAP-RAD-002",
+      "name": "Finite closure",
+      "profile": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "requirements": [
+        "R-RAD-002"
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_status": "defect reproduced",
+      "verification_status": "Per linked requirement verification; no blanket runtime/fidelity pass",
+      "dependencies": [
+        "P-RAD-002"
+      ],
+      "disposition": "planned package;retain correct current behavior andexplicit limits",
+      "applicability": "selected core",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "packages": [
+        "P-RAD-002"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-RAD-002": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-RAD-002",
+          "evidence": [
+            "S-RAD-005"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001"
+      ]
+    },
+    {
+      "id": "CAP-RAD-003",
+      "name": "Measured surface association",
+      "profile": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "requirements": [
+        "R-RAD-003"
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_status": "air implemented; ground missing",
+      "verification_status": "Per linked requirement verification; no blanket runtime/fidelity pass",
+      "dependencies": [
+        "P-RAD-003"
+      ],
+      "disposition": "planned package;retain correct current behavior andexplicit limits",
+      "applicability": "selected core",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "packages": [
+        "P-RAD-003"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-RAD-003": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-RAD-003",
+          "evidence": [
+            "S-RAD-005"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001"
+      ]
+    },
+    {
+      "id": "CAP-RAD-004",
+      "name": "Shared finite scheduling",
+      "profile": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "requirements": [
+        "R-RAD-004"
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_status": "implemented/offline checked, runtime partial",
+      "verification_status": "Per linked requirement verification; no blanket runtime/fidelity pass",
+      "dependencies": [
+        "P-RAD-004"
+      ],
+      "disposition": "planned package;retain correct current behavior andexplicit limits",
+      "applicability": "selected core",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "packages": [
+        "P-RAD-004",
+        "P-RAD-006"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-RAD-004": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-RAD-004",
+          "evidence": [
+            "S-RAD-005"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001",
+        "P-RAD-002",
+        "P-RAD-003",
+        "P-INT-003",
+        "P-INT-008",
+        "D-P-RAD-001",
+        "P-RAD-005"
+      ]
+    },
+    {
+      "id": "CAP-RAD-005",
+      "name": "Physical resource admission",
+      "profile": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "requirements": [
+        "R-RAD-005"
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_status": "implemented/offline checked",
+      "verification_status": "Per linked requirement verification; no blanket runtime/fidelity pass",
+      "dependencies": [
+        "P-RAD-004"
+      ],
+      "disposition": "planned package;retain correct current behavior andexplicit limits",
+      "applicability": "selected core",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "packages": [
+        "P-RAD-004"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-RAD-005": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-RAD-005",
+          "evidence": [
+            "S-RAD-005"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001",
+        "P-RAD-002",
+        "P-RAD-003",
+        "P-INT-003",
+        "P-INT-008",
+        "D-P-RAD-001"
+      ]
+    },
+    {
+      "id": "CAP-RAD-006",
+      "name": "Native ABI/lifecycle",
+      "profile": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "requirements": [
+        "R-RAD-006"
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_status": "guards implemented; host ordering unqualified",
+      "verification_status": "Per linked requirement verification; no blanket runtime/fidelity pass",
+      "dependencies": [
+        "P-RAD-004"
+      ],
+      "disposition": "planned package;retain correct current behavior andexplicit limits",
+      "applicability": "selected core",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "packages": [
+        "P-RAD-004"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-RAD-006": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-RAD-006",
+          "evidence": [
+            "S-RAD-005"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001",
+        "P-RAD-002",
+        "P-RAD-003",
+        "P-INT-003",
+        "P-INT-008",
+        "D-P-RAD-001"
+      ]
+    },
+    {
+      "id": "CAP-RAD-007",
+      "name": "Image registration",
+      "profile": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "requirements": [
+        "R-RAD-007"
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_status": "shared renderer approximation implemented",
+      "verification_status": "Per linked requirement verification; no blanket runtime/fidelity pass",
+      "dependencies": [
+        "P-RAD-004"
+      ],
+      "disposition": "planned package;retain correct current behavior andexplicit limits",
+      "applicability": "selected core",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "packages": [
+        "P-RAD-004",
+        "P-RAD-006"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-RAD-007": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-RAD-007",
+          "evidence": [
+            "S-RAD-005"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001",
+        "P-RAD-002",
+        "P-RAD-003",
+        "P-INT-003",
+        "P-INT-008",
+        "D-P-RAD-001",
+        "P-RAD-005"
+      ]
+    },
+    {
+      "id": "CAP-RAD-008",
+      "name": "Coherent SAR decision",
+      "profile": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "requirements": [
+        "R-RAD-008"
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_status": "research only; production/host missing",
+      "verification_status": "Per linked requirement verification; no blanket runtime/fidelity pass",
+      "dependencies": [
+        "P-RAD-005"
+      ],
+      "disposition": "planned package;retain correct current behavior andexplicit limits",
+      "applicability": "coherent SAR selection required",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "packages": [
+        "P-RAD-005",
+        "P-RAD-006"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-RAD-008": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-RAD-008",
+          "evidence": [
+            "S-RAD-005"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-004",
+        "P-RAD-005"
+      ]
+    },
+    {
+      "id": "CAP-RAD-009",
+      "name": "Independent IFF evidence",
+      "profile": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "requirements": [
+        "R-RAD-009"
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_status": "request UI exists, no reply chain",
+      "verification_status": "Per linked requirement verification; no blanket runtime/fidelity pass",
+      "dependencies": [
+        "P-RAD-007"
+      ],
+      "disposition": "planned package;retain correct current behavior andexplicit limits",
+      "applicability": "selected core",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "packages": [
+        "P-RAD-007"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-RAD-009": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-RAD-009",
+          "evidence": [
+            "S-RAD-005"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001",
+        "P-WPN-004"
+      ]
+    },
+    {
+      "id": "CAP-RAD-010",
+      "name": "Declared AA workflows",
+      "profile": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "requirements": [
+        "R-RAD-010"
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_status": "implemented, numerical aircraft fidelity unknown",
+      "verification_status": "Per linked requirement verification; no blanket runtime/fidelity pass",
+      "dependencies": [
+        "P-RAD-004"
+      ],
+      "disposition": "planned package;retain correct current behavior andexplicit limits",
+      "applicability": "selected core",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "packages": [
+        "P-RAD-004",
+        "P-RAD-007"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-RAD-010": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-RAD-010",
+          "evidence": [
+            "S-RAD-005"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001",
+        "P-RAD-002",
+        "P-RAD-003",
+        "P-INT-003",
+        "P-INT-008",
+        "D-P-RAD-001",
+        "P-WPN-004"
+      ]
+    },
+    {
+      "id": "CAP-RAD-011",
+      "name": "Safe retirement",
+      "profile": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "requirements": [
+        "R-RAD-011"
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_status": "cleanup candidates; no audit removal",
+      "verification_status": "Per linked requirement verification; no blanket runtime/fidelity pass",
+      "dependencies": [
+        "P-RAD-001"
+      ],
+      "disposition": "planned package;retain correct current behavior andexplicit limits",
+      "applicability": "selected core",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "packages": [
+        "P-RAD-001"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-RAD-011": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-RAD-011",
+          "evidence": [
+            "S-RAD-005"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ]
+    },
+    {
+      "id": "CAP-RAD-012",
+      "name": "Model depth and calibration",
+      "profile": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "requirements": [
+        "R-RAD-012"
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_status": "partial model, uncertainty remains",
+      "verification_status": "Per linked requirement verification; no blanket runtime/fidelity pass",
+      "dependencies": [
+        "P-RAD-008"
+      ],
+      "disposition": "planned package;retain correct current behavior andexplicit limits",
+      "applicability": "selected core",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "packages": [
+        "P-RAD-008"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-RAD-012": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-RAD-012",
+          "evidence": [
+            "S-RAD-005"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-004"
+      ]
+    },
+    {
+      "id": "CAP-RAD-013",
+      "name": "Profile applicability",
+      "profile": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "requirements": [
+        "R-RAD-013"
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_status": "profile selected; fleet fit unknown",
+      "verification_status": "Per linked requirement verification; no blanket runtime/fidelity pass",
+      "dependencies": [
+        "P-RAD-008"
+      ],
+      "disposition": "planned package;retain correct current behavior andexplicit limits",
+      "applicability": "selected core",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "packages": [
+        "P-RAD-005",
+        "P-RAD-008"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-RAD-013": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-RAD-013",
+          "evidence": [
+            "S-RAD-005"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-004"
+      ]
+    },
+    {
+      "id": "CAP-RAD-014",
+      "name": "Donor/RF cue provenance",
+      "profile": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "requirements": [
+        "R-RAD-014"
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_status": "implemented offline, network runtime open",
+      "verification_status": "Per linked requirement verification; no blanket runtime/fidelity pass",
+      "dependencies": [
+        "P-RAD-004"
+      ],
+      "disposition": "planned package;retain correct current behavior andexplicit limits",
+      "applicability": "selected core",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "packages": [
+        "P-RAD-004",
+        "P-RAD-007"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-RAD-014": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-RAD-014",
+          "evidence": [
+            "S-RAD-005"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001",
+        "P-RAD-002",
+        "P-RAD-003",
+        "P-INT-003",
+        "P-INT-008",
+        "D-P-RAD-001",
+        "P-WPN-004"
+      ]
+    },
+    {
+      "id": "CAP-RAD-015",
+      "name": "Ground request/fallback",
+      "profile": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "requirements": [
+        "R-RAD-015"
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_status": "implemented; retain and qualify",
+      "verification_status": "Per linked requirement verification; no blanket runtime/fidelity pass",
+      "dependencies": [
+        "P-RAD-003"
+      ],
+      "disposition": "planned package;retain correct current behavior andexplicit limits",
+      "applicability": "selected core",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "packages": [
+        "P-RAD-003"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-RAD-015": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-RAD-015",
+          "evidence": [
+            "S-RAD-005"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001"
+      ]
+    },
+    {
+      "id": "CAP-RAD-016",
+      "name": "Display/input retention",
+      "profile": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "requirements": [
+        "R-RAD-016"
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_status": "current focus helper implemented",
+      "verification_status": "Per linked requirement verification; no blanket runtime/fidelity pass",
+      "dependencies": [
+        "P-RAD-004"
+      ],
+      "disposition": "planned package;retain correct current behavior andexplicit limits",
+      "applicability": "selected core",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "packages": [
+        "P-RAD-004"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-RAD-016": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-RAD-016",
+          "evidence": [
+            "S-RAD-005"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001",
+        "P-RAD-002",
+        "P-RAD-003",
+        "P-INT-003",
+        "P-INT-008",
+        "D-P-RAD-001"
+      ]
+    },
+    {
+      "id": "CAP-RAD-017",
+      "name": "Measured budgets",
+      "profile": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "requirements": [
+        "R-RAD-017"
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_status": "air fixed caps; ground complexity/allocation exceptions",
+      "verification_status": "Per linked requirement verification; no blanket runtime/fidelity pass",
+      "dependencies": [
+        "P-RAD-004"
+      ],
+      "disposition": "planned package;retain correct current behavior andexplicit limits",
+      "applicability": "selected core",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "packages": [
+        "P-RAD-004",
+        "P-RAD-006",
+        "P-RAD-008"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-RAD-017": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-RAD-017",
+          "evidence": [
+            "S-RAD-005"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001",
+        "P-RAD-002",
+        "P-RAD-003",
+        "P-INT-003",
+        "P-INT-008",
+        "D-P-RAD-001",
+        "P-RAD-005",
+        "P-RAD-004"
+      ]
+    },
+    {
+      "id": "CAP-RAD-018",
+      "name": "Actual support/MP",
+      "profile": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "requirements": [
+        "R-RAD-018"
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_status": "offline responder; current runtime unqualified",
+      "verification_status": "Per linked requirement verification; no blanket runtime/fidelity pass",
+      "dependencies": [
+        "P-RAD-004"
+      ],
+      "disposition": "planned package;retain correct current behavior andexplicit limits",
+      "applicability": "selected core",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "packages": [
+        "P-RAD-004"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-RAD-018": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-RAD-018",
+          "evidence": [
+            "S-RAD-005"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001",
+        "P-RAD-002",
+        "P-RAD-003",
+        "P-INT-003",
+        "P-INT-008",
+        "D-P-RAD-001"
+      ]
+    },
+    {
+      "id": "CAP-RAD-019",
+      "name": "Clock/cadence",
+      "profile": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "requirements": [
+        "R-RAD-019"
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_status": "RF implemented; cursor nominal dt needs decision",
+      "verification_status": "Per linked requirement verification; no blanket runtime/fidelity pass",
+      "dependencies": [
+        "P-RAD-002"
+      ],
+      "disposition": "planned package;retain correct current behavior andexplicit limits",
+      "applicability": "selected core",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "packages": [
+        "P-RAD-002"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-RAD-019": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-RAD-019",
+          "evidence": [
+            "S-RAD-005"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001"
+      ]
+    },
+    {
+      "id": "CAP-RAD-020",
+      "name": "Independent tests",
+      "profile": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "requirements": [
+        "R-RAD-020"
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_status": "planned per user; existing tests untouched, diagnostic only",
+      "verification_status": "Per linked requirement verification; no blanket runtime/fidelity pass",
+      "dependencies": [
+        "P-RAD-001"
+      ],
+      "disposition": "planned package;retain correct current behavior andexplicit limits",
+      "applicability": "selected core",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "packages": [
+        "P-RAD-001"
+      ],
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-RAD-020": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-RAD-020",
+          "evidence": [
+            "S-RAD-005"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ]
+    },
+    {
+      "id": "CAP-HOOK-FILE-F22TrimTelemetry",
+      "path": "installed-hooks/F22TrimTelemetry.lua",
+      "classification": "passive recorder",
+      "implementation": "installed source present; not loaded/runtime qualified",
+      "applicability": "Named mission gate or actualF22 recording condition as per function records",
+      "requirements": [
+        "R-HOOK-001",
+        "R-HOOK-002"
+      ],
+      "verification": "Static/substantive function review only",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\assurance\\installed-hooks\\lane.json",
+      "packages": [
+        "P-INT-003",
+        "P-INT-005",
+        "P-INT-007"
+      ],
+      "original_lane_id": "CAP-HOOK-001",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-HOOK-001": "All5 installed project hooks; supplemental host/test/diagnostic scope, not hidden exclusion from317primaryproductionLua",
+        "R-HOOK-002": "Normal F22 passive recorder and4 mission-scoped test hooks"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-HOOK-001",
+          "evidence": [
+            "Current source/declaration and linked reviewer evidence; aircraft validation not implied"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        },
+        {
+          "requirement": "R-HOOK-002",
+          "evidence": [
+            "Current source/declaration and linked reviewer evidence; aircraft validation not implied"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-FLT-007",
+        "P-INT-002",
+        "P-INT-007",
+        "P-INT-008",
+        "P-NAV-008",
+        "P-RAD-004",
+        "P-RAD-007",
+        "P-WPN-003",
+        "P-WPN-004",
+        "P-WPN-005",
+        "P-WPN-006",
+        "D-P-FLT-001",
+        "D-P-RAD-001",
+        "D-P-WPN-001"
+      ],
+      "verification_status": "Static/substantive function review only",
+      "disposition": "Execute linked packages under exact applicability; retain current correct behavior, complete confirmed defects, or record precise evidence/calibration/host no-go/selected-off decision. No optional activation by default."
+    },
+    {
+      "id": "CAP-HOOK-FILE-F22NativePreview",
+      "path": "installed-hooks/F22NativePreview.lua",
+      "classification": "conditional actuating test harness",
+      "implementation": "installed source present; not loaded/runtime qualified",
+      "applicability": "Named mission gate or actualF22 recording condition as per function records",
+      "requirements": [
+        "R-HOOK-001",
+        "R-HOOK-002"
+      ],
+      "verification": "Static/substantive function review only",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\assurance\\installed-hooks\\lane.json",
+      "packages": [
+        "P-INT-003",
+        "P-INT-005",
+        "P-INT-007"
+      ],
+      "original_lane_id": "CAP-HOOK-002",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-HOOK-001": "All5 installed project hooks; supplemental host/test/diagnostic scope, not hidden exclusion from317primaryproductionLua",
+        "R-HOOK-002": "Normal F22 passive recorder and4 mission-scoped test hooks"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-HOOK-001",
+          "evidence": [
+            "Current source/declaration and linked reviewer evidence; aircraft validation not implied"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        },
+        {
+          "requirement": "R-HOOK-002",
+          "evidence": [
+            "Current source/declaration and linked reviewer evidence; aircraft validation not implied"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-FLT-007",
+        "P-INT-002",
+        "P-INT-007",
+        "P-INT-008",
+        "P-NAV-008",
+        "P-RAD-004",
+        "P-RAD-007",
+        "P-WPN-003",
+        "P-WPN-004",
+        "P-WPN-005",
+        "P-WPN-006",
+        "D-P-FLT-001",
+        "D-P-RAD-001",
+        "D-P-WPN-001"
+      ],
+      "verification_status": "Static/substantive function review only",
+      "disposition": "Execute linked packages under exact applicability; retain current correct behavior, complete confirmed defects, or record precise evidence/calibration/host no-go/selected-off decision. No optional activation by default."
+    },
+    {
+      "id": "CAP-HOOK-FILE-F22GroundRegressionHook",
+      "path": "installed-hooks/F22GroundRegressionHook.lua",
+      "classification": "conditional actuating test harness",
+      "implementation": "installed source present; not loaded/runtime qualified",
+      "applicability": "Named mission gate or actualF22 recording condition as per function records",
+      "requirements": [
+        "R-HOOK-001",
+        "R-HOOK-002"
+      ],
+      "verification": "Static/substantive function review only",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\assurance\\installed-hooks\\lane.json",
+      "packages": [
+        "P-INT-003",
+        "P-INT-005",
+        "P-INT-007"
+      ],
+      "original_lane_id": "CAP-HOOK-003",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-HOOK-001": "All5 installed project hooks; supplemental host/test/diagnostic scope, not hidden exclusion from317primaryproductionLua",
+        "R-HOOK-002": "Normal F22 passive recorder and4 mission-scoped test hooks"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-HOOK-001",
+          "evidence": [
+            "Current source/declaration and linked reviewer evidence; aircraft validation not implied"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        },
+        {
+          "requirement": "R-HOOK-002",
+          "evidence": [
+            "Current source/declaration and linked reviewer evidence; aircraft validation not implied"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-FLT-007",
+        "P-INT-002",
+        "P-INT-007",
+        "P-INT-008",
+        "P-NAV-008",
+        "P-RAD-004",
+        "P-RAD-007",
+        "P-WPN-003",
+        "P-WPN-004",
+        "P-WPN-005",
+        "P-WPN-006",
+        "D-P-FLT-001",
+        "D-P-RAD-001",
+        "D-P-WPN-001"
+      ],
+      "verification_status": "Static/substantive function review only",
+      "disposition": "Execute linked packages under exact applicability; retain current correct behavior, complete confirmed defects, or record precise evidence/calibration/host no-go/selected-off decision. No optional activation by default."
+    },
+    {
+      "id": "CAP-HOOK-FILE-F22EWTrialHook",
+      "path": "installed-hooks/F22EWTrialHook.lua",
+      "classification": "conditional actuating test harness",
+      "implementation": "installed source present; not loaded/runtime qualified",
+      "applicability": "Named mission gate or actualF22 recording condition as per function records",
+      "requirements": [
+        "R-HOOK-001",
+        "R-HOOK-002"
+      ],
+      "verification": "Static/substantive function review only",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\assurance\\installed-hooks\\lane.json",
+      "packages": [
+        "P-INT-003",
+        "P-INT-005",
+        "P-INT-007"
+      ],
+      "original_lane_id": "CAP-HOOK-004",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-HOOK-001": "All5 installed project hooks; supplemental host/test/diagnostic scope, not hidden exclusion from317primaryproductionLua",
+        "R-HOOK-002": "Normal F22 passive recorder and4 mission-scoped test hooks"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-HOOK-001",
+          "evidence": [
+            "Current source/declaration and linked reviewer evidence; aircraft validation not implied"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        },
+        {
+          "requirement": "R-HOOK-002",
+          "evidence": [
+            "Current source/declaration and linked reviewer evidence; aircraft validation not implied"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-FLT-007",
+        "P-INT-002",
+        "P-INT-007",
+        "P-INT-008",
+        "P-NAV-008",
+        "P-RAD-004",
+        "P-RAD-007",
+        "P-WPN-003",
+        "P-WPN-004",
+        "P-WPN-005",
+        "P-WPN-006",
+        "D-P-FLT-001",
+        "D-P-RAD-001",
+        "D-P-WPN-001"
+      ],
+      "verification_status": "Static/substantive function review only",
+      "disposition": "Execute linked packages under exact applicability; retain current correct behavior, complete confirmed defects, or record precise evidence/calibration/host no-go/selected-off decision. No optional activation by default."
+    },
+    {
+      "id": "CAP-HOOK-FILE-F22DogfightValidation",
+      "path": "installed-hooks/F22DogfightValidation.lua",
+      "classification": "conditional actuating test harness",
+      "implementation": "installed source present; not loaded/runtime qualified",
+      "applicability": "Named mission gate or actualF22 recording condition as per function records",
+      "requirements": [
+        "R-HOOK-001",
+        "R-HOOK-002"
+      ],
+      "verification": "Static/substantive function review only",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\assurance\\installed-hooks\\lane.json",
+      "packages": [
+        "P-INT-003",
+        "P-INT-005",
+        "P-INT-007"
+      ],
+      "original_lane_id": "CAP-HOOK-005",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-HOOK-001": "All5 installed project hooks; supplemental host/test/diagnostic scope, not hidden exclusion from317primaryproductionLua",
+        "R-HOOK-002": "Normal F22 passive recorder and4 mission-scoped test hooks"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-HOOK-001",
+          "evidence": [
+            "Current source/declaration and linked reviewer evidence; aircraft validation not implied"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        },
+        {
+          "requirement": "R-HOOK-002",
+          "evidence": [
+            "Current source/declaration and linked reviewer evidence; aircraft validation not implied"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-FLT-007",
+        "P-INT-002",
+        "P-INT-007",
+        "P-INT-008",
+        "P-NAV-008",
+        "P-RAD-004",
+        "P-RAD-007",
+        "P-WPN-003",
+        "P-WPN-004",
+        "P-WPN-005",
+        "P-WPN-006",
+        "D-P-FLT-001",
+        "D-P-RAD-001",
+        "D-P-WPN-001"
+      ],
+      "verification_status": "Static/substantive function review only",
+      "disposition": "Execute linked packages under exact applicability; retain current correct behavior, complete confirmed defects, or record precise evidence/calibration/host no-go/selected-off decision. No optional activation by default."
+    },
+    {
+      "capability": "Core actual store/gun/IR release and station service",
+      "selected": true,
+      "implementation": "implemented with confirmed F001/002/004/005 remaining defects",
+      "verification": "source and bounded actual-owner probes; exact native effect/unflown scope separate",
+      "requirements": [
+        "R-WPN-001",
+        "R-WPN-002",
+        "R-WPN-005",
+        "R-WPN-006"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "packages": [
+        "P-WPN-001",
+        "P-WPN-002",
+        "P-WPN-005",
+        "P-WPN-006"
+      ],
+      "id": "CAP-WPN-LANE-001",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-WPN-001": "selected core profile",
+        "R-WPN-002": "selected core profile",
+        "R-WPN-005": "selected core profile",
+        "R-WPN-006": "selected core profile"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-WPN-001",
+          "evidence": [
+            "Current source contracts",
+            "User task: complete behavior chain and independent test rebuild"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        },
+        {
+          "requirement": "R-WPN-002",
+          "evidence": [
+            "Current source contracts",
+            "User task: complete behavior chain and independent test rebuild"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        },
+        {
+          "requirement": "R-WPN-005",
+          "evidence": [
+            "Current source contracts",
+            "User task: complete behavior chain and independent test rebuild"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        },
+        {
+          "requirement": "R-WPN-006",
+          "evidence": [
+            "S-WPN-004",
+            "current source2 headers/contracts"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-002",
+        "P-WPN-001",
+        "P-WPN-002"
+      ],
+      "verification_status": "source and bounded actual-owner probes; exact native effect/unflown scope separate",
+      "disposition": "Execute linked packages under exact applicability; retain current correct behavior, complete confirmed defects, or record precise evidence/calibration/host no-go/selected-off decision. No optional activation by default."
+    },
+    {
+      "capability": "CM MAN/draft/NORMAL/DIRECT/native inventory",
+      "selected": true,
+      "implementation": "substantial source chain",
+      "verification": "not a DCS effect pass; remade suite planned",
+      "requirements": [
+        "R-WPN-003"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "packages": [
+        "P-WPN-003"
+      ],
+      "id": "CAP-WPN-LANE-002",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-WPN-003": "selected core profile"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-WPN-003",
+          "evidence": [
+            "Current source contracts",
+            "User task: complete behavior chain and independent test rebuild"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "verification_status": "not a DCS effect pass; remade suite planned",
+      "disposition": "Execute linked packages under exact applicability; retain current correct behavior, complete confirmed defects, or record precise evidence/calibration/host no-go/selected-off decision. No optional activation by default."
+    },
+    {
+      "capability": "CM SEMI/AUTO ordinary warning operation",
+      "selected": "exposed by UI/readiness, source contract incomplete",
+      "implementation": "engine implemented, production abstract event source missing",
+      "verification": "source-closure evidence; F003",
+      "requirements": [
+        "R-WPN-003"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "packages": [
+        "P-WPN-003"
+      ],
+      "id": "CAP-WPN-LANE-003",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-WPN-003": "selected core profile"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-WPN-003",
+          "evidence": [
+            "Current source contracts",
+            "User task: complete behavior chain and independent test rebuild"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "verification_status": "source-closure evidence; F003",
+      "disposition": "Execute linked packages under exact applicability; retain current correct behavior, complete confirmed defects, or record precise evidence/calibration/host no-go/selected-off decision. No optional activation by default."
+    },
+    {
+      "capability": "IFF interrogation and own transponder",
+      "selected": "historical core role, current native feasibility missing",
+      "implementation": "Radar_IFF acceptance helper no production reply caller; AESA observations iff=-1; own responder explicitly game-only HOST_READY0",
+      "verification": "no RF/crypto/authenticated reply claim; provider probe with radar owner required",
+      "requirements": [
+        "R-WPN-004"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "packages": [
+        "P-WPN-004",
+        "P-WPN-009"
+      ],
+      "id": "CAP-WPN-LANE-004",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-WPN-004": "selected core profile"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-WPN-004",
+          "evidence": [
+            "S-WPN-001",
+            "current AESA_Control.lua61 forces iff=-1; Radar_IFF.reply no production caller found"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "D-P-WPN-001"
+      ],
+      "verification_status": "no RF/crypto/authenticated reply claim; provider probe with radar owner required",
+      "disposition": "Execute linked packages under exact applicability; retain current correct behavior, complete confirmed defects, or record precise evidence/calibration/host no-go/selected-off decision. No optional activation by default."
+    },
+    {
+      "capability": "Fusion/datalink/donor awareness",
+      "selected": true,
+      "implementation": "source-local age/identity/provenance and geometry-qualified association implemented; donor cue separate",
+      "verification": "native message/MP producer/runtime qualification still limited",
+      "requirements": [
+        "R-WPN-004",
+        "R-WPN-008"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "packages": [
+        "P-WPN-004",
+        "P-WPN-009",
+        "P-WPN-006"
+      ],
+      "id": "CAP-WPN-LANE-005",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-WPN-004": "selected core profile",
+        "R-WPN-008": "selected core profile"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-WPN-004",
+          "evidence": [
+            "S-WPN-001",
+            "current AESA_Control.lua61 forces iff=-1; Radar_IFF.reply no production caller found"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        },
+        {
+          "requirement": "R-WPN-008",
+          "evidence": [
+            "Current source contracts",
+            "User task: complete behavior chain and independent test rebuild"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "D-P-WPN-001"
+      ],
+      "verification_status": "native message/MP producer/runtime qualification still limited",
+      "disposition": "Execute linked packages under exact applicability; retain current correct behavior, complete confirmed defects, or record precise evidence/calibration/host no-go/selected-off decision. No optional activation by default."
+    },
+    {
+      "capability": "Passive RF/MWS and ECM",
+      "selected": true,
+      "implementation": "independent warning memory/bearings, estimated stationary-ground geo, optional common host ECM enable/effect",
+      "verification": "generic host/model, no authenticated ALR94/AAR56 performance; lifetime/audio/source qualification incomplete",
+      "requirements": [
+        "R-WPN-008"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "packages": [
+        "P-WPN-004",
+        "P-WPN-006",
+        "P-WPN-009"
+      ],
+      "id": "CAP-WPN-LANE-006",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-WPN-008": "selected core profile"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-WPN-008",
+          "evidence": [
+            "Current source contracts",
+            "User task: complete behavior chain and independent test rebuild"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "D-P-WPN-001"
+      ],
+      "verification_status": "generic host/model, no authenticated ALR94/AAR56 performance; lifetime/audio/source qualification incomplete",
+      "disposition": "Execute linked packages under exact applicability; retain current correct behavior, complete confirmed defects, or record precise evidence/calibration/host no-go/selected-off decision. No optional activation by default."
+    },
+    {
+      "capability": "Simulator-assisted source2 gun director",
+      "selected": "explicit current implementation analogue to retain",
+      "implementation": "fresh unique radar association then native PVA;120Hz current-attitude same-epoch display",
+      "verification": "old comparative metrics not re-certified; actual native DCS/burst accuracy open",
+      "requirements": [
+        "R-WPN-006"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "packages": [
+        "P-WPN-006"
+      ],
+      "id": "CAP-WPN-LANE-007",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-WPN-006": "selected core profile"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-WPN-006",
+          "evidence": [
+            "S-WPN-004",
+            "current source2 headers/contracts"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "verification_status": "old comparative metrics not re-certified; actual native DCS/burst accuracy open",
+      "disposition": "Execute linked packages under exact applicability; retain current correct behavior, complete confirmed defects, or record precise evidence/calibration/host no-go/selected-off decision. No optional activation by default."
+    },
+    {
+      "capability": "Per-store alignment/BIT/coolant/target navigation quality",
+      "selected": "only as actual equipment/native backend supports",
+      "implementation": "station/inventory/instance/native feedback exist, complete independent health/nav-error-to-target chain not established",
+      "verification": "feasibility/reference and uncertainty decisions; no invented timer/healthy default",
+      "requirements": [
+        "R-WPN-001",
+        "R-WPN-005",
+        "R-WPN-007"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "packages": [
+        "P-WPN-001",
+        "P-WPN-005",
+        "P-WPN-007",
+        "P-WPN-009"
+      ],
+      "id": "CAP-WPN-LANE-008",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-WPN-001": "selected core profile",
+        "R-WPN-005": "selected core profile",
+        "R-WPN-007": "selected core profile"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-WPN-001",
+          "evidence": [
+            "Current source contracts",
+            "User task: complete behavior chain and independent test rebuild"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        },
+        {
+          "requirement": "R-WPN-005",
+          "evidence": [
+            "Current source contracts",
+            "User task: complete behavior chain and independent test rebuild"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        },
+        {
+          "requirement": "R-WPN-007",
+          "evidence": [
+            "S-WPN-002",
+            "S-WPN-003",
+            "S-WPN-004",
+            "selected profile and actual registration"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-WPN-001",
+        "P-WPN-002"
+      ],
+      "verification_status": "feasibility/reference and uncertainty decisions; no invented timer/healthy default",
+      "disposition": "Execute linked packages under exact applicability; retain current correct behavior, complete confirmed defects, or record precise evidence/calibration/host no-go/selected-off decision. No optional activation by default."
+    },
+    {
+      "capability": "Targetingpod/IRDS/HMD/video weapons/additional weapons",
+      "selected": false,
+      "implementation": "selected-off or unsupported; registration/preset alone not player backend",
+      "verification": "precise host image/LOS/pose/laser/track/video/guidance support absent/unqualified; optional capability decisions",
+      "requirements": [
+        "R-WPN-007"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "packages": [
+        "P-WPN-007",
+        "P-WPN-009"
+      ],
+      "id": "CAP-WPN-LANE-009",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-WPN-007": "selected core profile"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-WPN-007",
+          "evidence": [
+            "S-WPN-002",
+            "S-WPN-003",
+            "S-WPN-004",
+            "selected profile and actual registration"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "verification_status": "precise host image/LOS/pose/laser/track/video/guidance support absent/unqualified; optional capability decisions",
+      "disposition": "Execute linked packages under exact applicability; retain current correct behavior, complete confirmed defects, or record precise evidence/calibration/host no-go/selected-off decision. No optional activation by default."
+    },
+    {
+      "capability": "AI/native/MP registration compatibility",
+      "selected": "separate from player cockpit profile",
+      "implementation": "inherited host sensor/jammer names, IRST/custom stores/presets remain registered",
+      "verification": "REGISTRATION-REVIEW.json and R-REG003 carry host ambiguity, not automatic player capability or automatic defect",
+      "requirements": [
+        "R-WPN-007"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "packages": [
+        "P-WPN-007",
+        "P-WPN-009"
+      ],
+      "id": "CAP-WPN-LANE-010",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-WPN-007": "selected core profile"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-WPN-007",
+          "evidence": [
+            "S-WPN-002",
+            "S-WPN-003",
+            "S-WPN-004",
+            "selected profile and actual registration"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "verification_status": "REGISTRATION-REVIEW.json and R-REG003 carry host ambiguity, not automatic player capability or automatic defect",
+      "disposition": "Execute linked packages under exact applicability; retain current correct behavior, complete confirmed defects, or record precise evidence/calibration/host no-go/selected-off decision. No optional activation by default."
+    },
+    {
+      "id": "CAP-INT-001",
+      "name": "Selected profile and host registration",
+      "applicability": "selected core release and all later implementation chats",
+      "requirements": [
+        "R-INT-001"
+      ],
+      "implementation": "partly represented in current code/policy; new plan/test adoption planned",
+      "verification": "audit static/source review only; implementation/runtime gates below remain unexecuted",
+      "packages": [
+        "P-INT-001"
+      ],
+      "disposition": "implement/retain/probe as exact requirement; no automatic optional equipment mandate",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-INT-001": "selected core release and all later implementation chats"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-INT-001",
+          "evidence": [
+            "user task and 28October2026 test-rebuild steering",
+            "S-LOCAL-011",
+            "S-LEAD-003",
+            "S-LEAD-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [],
+      "verification_status": "audit static/source review only; implementation/runtime gates below remain unexecuted"
+    },
+    {
+      "id": "CAP-INT-002",
+      "name": "Delete and remake test suite during execution",
+      "applicability": "selected core release and all later implementation chats",
+      "requirements": [
+        "R-INT-002"
+      ],
+      "implementation": "partly represented in current code/policy; new plan/test adoption planned",
+      "verification": "audit static/source review only; implementation/runtime gates below remain unexecuted",
+      "packages": [
+        "P-INT-002"
+      ],
+      "disposition": "implement/retain/probe as exact requirement; no automatic optional equipment mandate",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-INT-002": "selected core release and all later implementation chats"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-INT-002",
+          "evidence": [
+            "user task and 28October2026 test-rebuild steering",
+            "S-LOCAL-011",
+            "S-LEAD-003",
+            "S-LEAD-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-003"
+      ],
+      "verification_status": "audit static/source review only; implementation/runtime gates below remain unexecuted"
+    },
+    {
+      "id": "CAP-INT-003",
+      "name": "Build/install/loaded identity",
+      "applicability": "selected core release and all later implementation chats",
+      "requirements": [
+        "R-INT-003"
+      ],
+      "implementation": "partly represented in current code/policy; new plan/test adoption planned",
+      "verification": "audit static/source review only; implementation/runtime gates below remain unexecuted",
+      "packages": [
+        "P-INT-003",
+        "P-INT-006"
+      ],
+      "disposition": "implement/retain/probe as exact requirement; no automatic optional equipment mandate",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-INT-003": "selected core release and all later implementation chats"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-INT-003",
+          "evidence": [
+            "user task and 28October2026 test-rebuild steering",
+            "S-LOCAL-011",
+            "S-LEAD-003",
+            "S-LEAD-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-INT-003",
+        "P-INT-004",
+        "P-INT-005",
+        "P-INT-007",
+        "P-INT-008",
+        "P-FLT-001",
+        "P-FLT-002",
+        "P-FLT-003",
+        "P-FLT-004",
+        "P-FLT-005",
+        "P-FLT-006",
+        "P-FLT-007",
+        "P-FLT-008",
+        "P-FLT-009",
+        "P-FLT-010",
+        "P-NAV-001",
+        "P-NAV-002",
+        "P-NAV-003",
+        "P-NAV-004",
+        "P-NAV-005",
+        "P-NAV-006",
+        "P-NAV-007",
+        "P-RAD-001",
+        "P-RAD-002",
+        "P-RAD-003",
+        "P-RAD-004",
+        "P-RAD-005",
+        "P-RAD-006",
+        "P-RAD-007",
+        "P-RAD-008",
+        "P-WPN-001",
+        "P-WPN-002",
+        "P-WPN-003",
+        "P-WPN-004",
+        "P-WPN-005",
+        "P-WPN-006",
+        "P-WPN-007",
+        "P-WPN-008",
+        "P-WPN-009",
+        "P-NAV-008",
+        "D-P-FLT-001",
+        "D-P-RAD-001",
+        "D-P-WPN-001"
+      ],
+      "verification_status": "audit static/source review only; implementation/runtime gates below remain unexecuted"
+    },
+    {
+      "id": "CAP-INT-004",
+      "name": "Restart, pause, authority and resources",
+      "applicability": "selected core release and all later implementation chats",
+      "requirements": [
+        "R-INT-004"
+      ],
+      "implementation": "partly represented in current code/policy; new plan/test adoption planned",
+      "verification": "audit static/source review only; implementation/runtime gates below remain unexecuted",
+      "packages": [
+        "P-INT-005",
+        "P-INT-006"
+      ],
+      "disposition": "implement/retain/probe as exact requirement; no automatic optional equipment mandate",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-INT-004": "selected core release and all later implementation chats"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-INT-004",
+          "evidence": [
+            "user task and 28October2026 test-rebuild steering",
+            "S-LOCAL-011",
+            "S-LEAD-003",
+            "S-LEAD-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-FLT-007",
+        "P-INT-002",
+        "P-INT-007",
+        "P-INT-008",
+        "P-NAV-008",
+        "P-RAD-004",
+        "P-RAD-007",
+        "P-WPN-003",
+        "P-WPN-004",
+        "P-WPN-005",
+        "P-WPN-006",
+        "D-P-FLT-001",
+        "D-P-RAD-001",
+        "D-P-WPN-001",
+        "P-INT-001",
+        "P-INT-003",
+        "P-INT-004",
+        "P-INT-005",
+        "P-FLT-001",
+        "P-FLT-002",
+        "P-FLT-003",
+        "P-FLT-004",
+        "P-FLT-005",
+        "P-FLT-006",
+        "P-FLT-008",
+        "P-FLT-009",
+        "P-FLT-010",
+        "P-NAV-001",
+        "P-NAV-002",
+        "P-NAV-003",
+        "P-NAV-004",
+        "P-NAV-005",
+        "P-NAV-006",
+        "P-NAV-007",
+        "P-RAD-001",
+        "P-RAD-002",
+        "P-RAD-003",
+        "P-RAD-005",
+        "P-RAD-006",
+        "P-RAD-008",
+        "P-WPN-001",
+        "P-WPN-002",
+        "P-WPN-007",
+        "P-WPN-008",
+        "P-WPN-009"
+      ],
+      "verification_status": "audit static/source review only; implementation/runtime gates below remain unexecuted"
+    },
+    {
+      "id": "CAP-INT-005",
+      "name": "Saved controls, HUD styling and recorded audio",
+      "applicability": "selected core release and all later implementation chats",
+      "requirements": [
+        "R-INT-005"
+      ],
+      "implementation": "partly represented in current code/policy; new plan/test adoption planned",
+      "verification": "audit static/source review only; implementation/runtime gates below remain unexecuted",
+      "packages": [
+        "P-INT-003",
+        "P-INT-006",
+        "P-INT-007"
+      ],
+      "disposition": "implement/retain/probe as exact requirement; no automatic optional equipment mandate",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-INT-005": "selected core release and all later implementation chats"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-INT-005",
+          "evidence": [
+            "user task and 28October2026 test-rebuild steering",
+            "S-LOCAL-011",
+            "S-LEAD-003",
+            "S-LEAD-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-INT-003",
+        "P-INT-004",
+        "P-INT-005",
+        "P-INT-007",
+        "P-INT-008",
+        "P-FLT-001",
+        "P-FLT-002",
+        "P-FLT-003",
+        "P-FLT-004",
+        "P-FLT-005",
+        "P-FLT-006",
+        "P-FLT-007",
+        "P-FLT-008",
+        "P-FLT-009",
+        "P-FLT-010",
+        "P-NAV-001",
+        "P-NAV-002",
+        "P-NAV-003",
+        "P-NAV-004",
+        "P-NAV-005",
+        "P-NAV-006",
+        "P-NAV-007",
+        "P-RAD-001",
+        "P-RAD-002",
+        "P-RAD-003",
+        "P-RAD-004",
+        "P-RAD-005",
+        "P-RAD-006",
+        "P-RAD-007",
+        "P-RAD-008",
+        "P-WPN-001",
+        "P-WPN-002",
+        "P-WPN-003",
+        "P-WPN-004",
+        "P-WPN-005",
+        "P-WPN-006",
+        "P-WPN-007",
+        "P-WPN-008",
+        "P-WPN-009",
+        "P-NAV-008",
+        "D-P-FLT-001",
+        "D-P-RAD-001",
+        "D-P-WPN-001"
+      ],
+      "verification_status": "audit static/source review only; implementation/runtime gates below remain unexecuted"
+    },
+    {
+      "id": "CAP-INT-006",
+      "name": "Cleanup proof",
+      "applicability": "selected core release and all later implementation chats",
+      "requirements": [
+        "R-INT-006"
+      ],
+      "implementation": "partly represented in current code/policy; new plan/test adoption planned",
+      "verification": "audit static/source review only; implementation/runtime gates below remain unexecuted",
+      "packages": [
+        "P-INT-007"
+      ],
+      "disposition": "implement/retain/probe as exact requirement; no automatic optional equipment mandate",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-INT-006": "selected core release and all later implementation chats"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-INT-006",
+          "evidence": [
+            "user task and 28October2026 test-rebuild steering",
+            "S-LOCAL-011",
+            "S-LEAD-003",
+            "S-LEAD-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "verification_status": "audit static/source review only; implementation/runtime gates below remain unexecuted"
+    },
+    {
+      "id": "CAP-INT-007",
+      "name": "Canonical adoption and shared checkout",
+      "applicability": "selected core release and all later implementation chats",
+      "requirements": [
+        "R-INT-007"
+      ],
+      "implementation": "partly represented in current code/policy; new plan/test adoption planned",
+      "verification": "audit static/source review only; implementation/runtime gates below remain unexecuted",
+      "packages": [
+        "P-INT-001",
+        "P-INT-004"
+      ],
+      "disposition": "implement/retain/probe as exact requirement; no automatic optional equipment mandate",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-INT-007": "selected core release and all later implementation chats"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-INT-007",
+          "evidence": [
+            "user task and 28October2026 test-rebuild steering",
+            "S-LOCAL-011",
+            "S-LEAD-003",
+            "S-LEAD-004"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001"
+      ],
+      "verification_status": "audit static/source review only; implementation/runtime gates below remain unexecuted"
+    },
+    {
+      "id": "CAP-INT-008",
+      "name": "Native parameter API read/resolve status",
+      "applicability": "All actual EDPARAM consumers and supported host guards",
+      "requirements": [
+        "R-INT-008"
+      ],
+      "implementation": "EDPARAM wrappers currently erase conversion result and call borrowed function pointers without local readiness checks; caller guards vary",
+      "verification": "Static closure reviewed; no unsupported-host crash or observed failed DCS read claimed",
+      "packages": [
+        "P-INT-008"
+      ],
+      "disposition": "implement/retain/probe as exact requirement; no automatic optional equipment mandate",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-INT-008": "All actual EDPARAM consumers and supported host guards"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-INT-008",
+          "evidence": [
+            "EFM/include/Cockpit/ccParametersAPI.h native bool conversion contract",
+            "docs/CODING_STANDARD.md checked return/status rule"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "verification_status": "Static closure reviewed; no unsupported-host crash or observed failed DCS read claimed"
+    },
+    {
+      "id": "CAP-WPN-009",
+      "name": "Dead code and verification replacement",
+      "applicability": "all weapons/defensive changes",
+      "requirements": [
+        "R-WPN-009"
+      ],
+      "implementation": "Planned only; current old tests used as harness design context, no old assertion adopted as acceptance oracle.",
+      "verification": "Manual source review and named bounded probes only; rebuilt requirements suite/native/DCS gates planned.",
+      "packages": [
+        "P-WPN-008",
+        "P-WPN-009"
+      ],
+      "disposition": "implement/retain/probe as exact requirement; no automatic optional equipment mandate",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-WPN-009": "all weapons/defensive changes"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-WPN-009",
+          "evidence": [
+            "Current source contracts",
+            "User task: complete behavior chain and independent test rebuild"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-WPN-001",
+        "P-WPN-003",
+        "P-WPN-004",
+        "P-WPN-005",
+        "P-WPN-006",
+        "P-WPN-007"
+      ],
+      "verification_status": "Manual source review and named bounded probes only; rebuilt requirements suite/native/DCS gates planned."
+    },
+    {
+      "id": "CAP-NAV-013",
+      "name": "Qualified side indication fields",
+      "applicability": "Selected public_f22_manual_recovery revision1, with explicit ADI display applicability decision",
+      "requirements": [
+        "R-NAV-013"
+      ],
+      "implementation": "Partial/gap described in fresh finding",
+      "verification": "Source inspection only; remade tests and DCS runtime pending",
+      "packages": [
+        "P-NAV-001",
+        "P-NAV-008"
+      ],
+      "disposition": "implement/retain/probe as exact requirement; no automatic optional equipment mandate",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-NAV-013": "Selected public_f22_manual_recovery revision1, with explicit ADI display applicability decision"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-NAV-013",
+          "evidence": [
+            "Fresh source graph and input declarations; aircraft fidelity unknown where documented"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-FLT-001",
+        "P-INT-001",
+        "P-INT-002",
+        "P-INT-008",
+        "P-NAV-001",
+        "P-NAV-002"
+      ],
+      "verification_status": "Source inspection only; remade tests and DCS runtime pending"
+    },
+    {
+      "id": "CAP-NAV-014",
+      "name": "Stable control edges and releases",
+      "applicability": "Selected public_f22_manual_recovery revision1, with explicit ADI display applicability decision",
+      "requirements": [
+        "R-NAV-014"
+      ],
+      "implementation": "Partial/gap described in fresh finding",
+      "verification": "Source inspection only; remade tests and DCS runtime pending",
+      "packages": [
+        "P-NAV-008"
+      ],
+      "disposition": "implement/retain/probe as exact requirement; no automatic optional equipment mandate",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-NAV-014": "Selected public_f22_manual_recovery revision1, with explicit ADI display applicability decision"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-NAV-014",
+          "evidence": [
+            "Fresh source graph and input declarations; aircraft fidelity unknown where documented"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-NAV-001",
+        "P-NAV-002",
+        "P-FLT-001"
+      ],
+      "verification_status": "Source inspection only; remade tests and DCS runtime pending"
+    },
+    {
+      "id": "CAP-NAV-015",
+      "name": "Owned manual approach display axes",
+      "applicability": "Selected public_f22_manual_recovery revision1, with explicit ADI display applicability decision",
+      "requirements": [
+        "R-NAV-015"
+      ],
+      "implementation": "Partial/gap described in fresh finding",
+      "verification": "Source inspection only; remade tests and DCS runtime pending",
+      "packages": [
+        "P-NAV-008"
+      ],
+      "disposition": "implement/retain/probe as exact requirement; no automatic optional equipment mandate",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-NAV-015": "Selected public_f22_manual_recovery revision1, with explicit ADI display applicability decision"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-NAV-015",
+          "evidence": [
+            "Fresh source graph and input declarations; aircraft fidelity unknown where documented"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-NAV-001",
+        "P-NAV-002",
+        "P-FLT-001"
+      ],
+      "verification_status": "Source inspection only; remade tests and DCS runtime pending"
+    },
+    {
+      "id": "CAP-NAV-016",
+      "name": "Bounded advisory terrain recovery",
+      "applicability": "Selected public manual recovery advisory; automatic intervention is outside selected scope",
+      "requirements": [
+        "R-NAV-016"
+      ],
+      "implementation": "Present simplified constant-speed model; bounded source contracts reviewed, runtime and fidelity unqualified",
+      "verification": "All23 AST entries reviewed_static; no new runtime",
+      "packages": [
+        "P-NAV-005",
+        "P-NAV-007"
+      ],
+      "disposition": "implement/retain/probe as exact requirement; no automatic optional equipment mandate",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-NAV-016": "Selected public manual recovery advisory; automatic intervention is outside selected scope"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-NAV-016",
+          "evidence": [
+            "Full current Terrain_Director/Escape/Recovery_Cue and actual Pilot_Warning_System/Pilot_Warnings source; original Hornet native branch not independently re-read in this residue pass"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-NAV-001",
+        "P-NAV-002",
+        "P-NAV-003",
+        "P-NAV-005",
+        "P-NAV-006"
+      ],
+      "verification_status": "All23 AST entries reviewed_static; no new runtime"
+    },
+    {
+      "id": "CAP-HOOK-003",
+      "name": "Bounded diagnostic requests and lifecycle",
+      "applicability": "Active dedicated Dogfight/Fusion/NativePreview/Ground/EW test missions only",
+      "requirements": [
+        "R-HOOK-003"
+      ],
+      "implementation": "Mixed: EW6000samples bound; trim1hour and20Hz bounds; dogfight queue/command length unbounded and model-time release/hold scheduling needs explicit qualification",
+      "verification": "Source-confirmed absence of queue bound, no live effect or stuck input claimed",
+      "packages": [
+        "P-INT-002",
+        "P-INT-005"
+      ],
+      "disposition": "implement/retain/probe as exact requirement; no automatic optional equipment mandate",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-HOOK-003": "Active dedicated Dogfight/Fusion/NativePreview/Ground/EW test missions only"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-HOOK-003",
+          "evidence": [
+            "Current source/declaration and linked reviewer evidence; aircraft validation not implied"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-003",
+        "P-FLT-007",
+        "P-INT-002",
+        "P-INT-007",
+        "P-INT-008",
+        "P-NAV-008",
+        "P-RAD-004",
+        "P-RAD-007",
+        "P-WPN-003",
+        "P-WPN-004",
+        "P-WPN-005",
+        "P-WPN-006",
+        "D-P-FLT-001",
+        "D-P-RAD-001",
+        "D-P-WPN-001"
+      ],
+      "verification_status": "Source-confirmed absence of queue bound, no live effect or stuck input claimed"
+    },
+    {
+      "id": "CAP-HOOK-004",
+      "name": "Test hook replacement and preserved user evidence",
+      "applicability": "Current hooks and future test infrastructure under user execution authorization",
+      "requirements": [
+        "R-HOOK-004"
+      ],
+      "implementation": "Planned only",
+      "verification": "No installed/control/eval/mission mutation or operation performed",
+      "packages": [
+        "P-INT-002",
+        "P-INT-007"
+      ],
+      "disposition": "implement/retain/probe as exact requirement; no automatic optional equipment mandate",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-HOOK-004": "Current hooks and future test infrastructure under user execution authorization"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-HOOK-004",
+          "evidence": [
+            "Current source/declaration and linked reviewer evidence; aircraft validation not implied"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-003",
+        "P-INT-002"
+      ],
+      "verification_status": "No installed/control/eval/mission mutation or operation performed"
+    },
+    {
+      "id": "CAP-REG-001",
+      "name": "Payload identity/station/profile integrity",
+      "applicability": "public_f22_manual_recovery revision1; additional_weapons=false and irds=false",
+      "requirements": [
+        "R-REG-001"
+      ],
+      "implementation": "partial; invalid legacy IRST preset identified; experimental store capability gates already present",
+      "verification": "not runtime qualified",
+      "packages": [
+        "P-WPN-007"
+      ],
+      "disposition": "implement/retain/probe as exact requirement; no automatic optional equipment mandate",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-REG-001": "public_f22_manual_recovery revision1; additional_weapons=false and irds=false"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-REG-001",
+          "evidence": [
+            "Current source/declaration and linked reviewer evidence; aircraft validation not implied"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "verification_status": "not runtime qualified"
+    },
+    {
+      "id": "CAP-REG-002",
+      "name": "Declared store/sensor model versus qualified native effects",
+      "applicability": "All declared stores; experimental AIM260/MAKO and pod remain selected off or unsupported as current capability model declares",
+      "requirements": [
+        "R-REG-002"
+      ],
+      "implementation": "source-limited estimates with native qualification gaps",
+      "verification": "not runtime qualified",
+      "packages": [
+        "P-WPN-007"
+      ],
+      "disposition": "implement/retain/probe as exact requirement; no automatic optional equipment mandate",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-REG-002": "All declared stores; experimental AIM260/MAKO and pod remain selected off or unsupported as current capability model declares"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-REG-002",
+          "evidence": [
+            "Current source/declaration and linked reviewer evidence; aircraft validation not implied"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "verification_status": "not runtime qualified"
+    },
+    {
+      "id": "CAP-REG-003",
+      "name": "Failure and shared host declarations have accountable actual owners",
+      "applicability": "Current F22A registration; physical provider ownership remains chat1; integration chat2",
+      "requirements": [
+        "R-REG-003"
+      ],
+      "implementation": "33owned fault IDs map exactly;11legacy host IDs and CM charge/gun/sensor effects require host qualification",
+      "verification": "not runtime qualified",
+      "packages": [
+        "P-WPN-009"
+      ],
+      "disposition": "implement/retain/probe as exact requirement; no automatic optional equipment mandate",
+      "selected_profile_context": "public_f22_manual_recovery@1; exact selected/off/conditional applicability is retained per capability and linked requirement below, not inferred from this context.",
+      "requirement_applicability": {
+        "R-REG-003": "Current F22A registration; physical provider ownership remains chat1; integration chat2"
+      },
+      "evidence_trace": [
+        {
+          "requirement": "R-REG-003",
+          "evidence": [
+            "Current source/declaration and linked reviewer evidence; aircraft validation not implied"
+          ],
+          "access_scope": "Use original SOURCES record and lane access limits; code presence and analogues do not establish production F-22 validation."
+        }
+      ],
+      "evidence_tier": "Per-source aircraft-specific / named analogue / general engineering / simulation estimate / unknown distinctions remain in linked evidence. Static implementation review is a separate evidence layer.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "verification_status": "not runtime qualified"
+    },
+    {
+      "id": "CAP-D-R-INT-001",
+      "title": "Fresh generation input-filter state",
+      "requirements": [
+        "D-R-INT-001"
+      ],
+      "applicability": "Current selected profile under exact declared source/host condition; numerical/physical estimates are not authenticated aircraft data.",
+      "selected_profile_context": "public_f22_manual_recovery@1 under exact stated condition; no optional activation",
+      "implementation": "confirmed missing yaw reset in common legacy reset",
+      "verification": "actual callback reproduction; native/DCS lifecycle still unqualified",
+      "evidence_trace": [
+        "D-INT-001",
+        "reviews/lead/NATIVE-EDGE-PROBE.json"
+      ],
+      "packages": [
+        "P-FLT-004",
+        "P-INT-005",
+        "D-P-FLT-001"
+      ],
+      "disposition": "Execute exact source-contract or model/evidence decision; retain independent valid sources and protective consumers.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-002",
+        "P-FLT-003",
+        "D-P-FLT-001",
+        "P-FLT-007",
+        "P-INT-007",
+        "P-INT-008",
+        "P-NAV-008",
+        "P-RAD-004",
+        "P-RAD-007",
+        "P-WPN-003",
+        "P-WPN-004",
+        "P-WPN-005",
+        "P-WPN-006",
+        "D-P-RAD-001",
+        "D-P-WPN-001"
+      ],
+      "requirement_applicability": {
+        "D-R-INT-001": "Current selected profile under exact declared source/host condition; numerical/physical estimates are not authenticated aircraft data."
+      }
+    },
+    {
+      "id": "CAP-D-R-FLT-001",
+      "title": "Deeper physical source contract D-R-FLT-001",
+      "requirements": [
+        "D-R-FLT-001"
+      ],
+      "applicability": "Current selected profile under exact declared source/host condition; numerical/physical estimates are not authenticated aircraft data.",
+      "selected_profile_context": "public_f22_manual_recovery@1 under exact stated condition; no optional activation",
+      "implementation": "Current pre-debit selection followed by debit leaves a one-substep ambiguity; source fact reproduced, intended semantics unresolved.",
+      "verification": "D-V-FLT-001 plus future independently rebuilt endpoint cases; no native oxygen/physiology pass.",
+      "evidence_trace": [
+        "Current-code temporal semantics and finite-resource model, not actual ABOS hardware limits."
+      ],
+      "packages": [
+        "P-FLT-006"
+      ],
+      "disposition": "Execute exact source-contract or model/evidence decision; retain independent valid sources and protective consumers.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-001",
+        "P-FLT-002",
+        "P-FLT-003"
+      ],
+      "requirement_applicability": {
+        "D-R-FLT-001": "Current selected profile under exact declared source/host condition; numerical/physical estimates are not authenticated aircraft data."
+      }
+    },
+    {
+      "id": "CAP-D-R-FLT-002",
+      "title": "Deeper physical source contract D-R-FLT-002",
+      "requirements": [
+        "D-R-FLT-002"
+      ],
+      "applicability": "Current selected profile under exact declared source/host condition; numerical/physical estimates are not authenticated aircraft data.",
+      "selected_profile_context": "public_f22_manual_recovery@1 under exact stated condition; no optional activation",
+      "implementation": "Normalization implemented, actual capacity and start-fuel kg/J conversion unqualified.",
+      "verification": "Bounded independent resource property checks; future typed input/charge/source ledger and failure/recovery.",
+      "evidence_trace": [
+        "VehiclePower declares normalized reserves; current fixed callers finite; arbitrary NaN helper call is outside established production domain."
+      ],
+      "packages": [
+        "P-FLT-002"
+      ],
+      "disposition": "Execute exact source-contract or model/evidence decision; retain independent valid sources and protective consumers.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-001"
+      ],
+      "requirement_applicability": {
+        "D-R-FLT-002": "Current selected profile under exact declared source/host condition; numerical/physical estimates are not authenticated aircraft data."
+      }
+    },
+    {
+      "id": "CAP-D-R-FLT-003",
+      "title": "Deeper physical source contract D-R-FLT-003",
+      "requirements": [
+        "D-R-FLT-003"
+      ],
+      "applicability": "Current selected profile under exact declared source/host condition; numerical/physical estimates are not authenticated aircraft data.",
+      "selected_profile_context": "public_f22_manual_recovery@1 under exact stated condition; no optional activation",
+      "implementation": "Pure current fuel/ledger headers satisfy the tested20,000-event bounded sequences/capacity refusal; actual host mass/CG/inertia and refill callbacks still separate.",
+      "verification": "D-V-FLT-001 finite result metrics; future property/mutation/host-callback ports rebuilt during execution.",
+      "evidence_trace": [
+        "Mass conservation and source contract; no private aircraft parameters required."
+      ],
+      "packages": [
+        "P-FLT-002",
+        "P-FLT-008"
+      ],
+      "disposition": "Execute exact source-contract or model/evidence decision; retain independent valid sources and protective consumers.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-001",
+        "P-FLT-003",
+        "P-FLT-004",
+        "P-FLT-005"
+      ],
+      "requirement_applicability": {
+        "D-R-FLT-003": "Current selected profile under exact declared source/host condition; numerical/physical estimates are not authenticated aircraft data."
+      }
+    },
+    {
+      "id": "CAP-D-R-FLT-004",
+      "title": "Deeper physical source contract D-R-FLT-004",
+      "requirements": [
+        "D-R-FLT-004"
+      ],
+      "applicability": "Current selected profile under exact declared source/host condition; numerical/physical estimates are not authenticated aircraft data.",
+      "selected_profile_context": "public_f22_manual_recovery@1 under exact stated condition; no optional activation",
+      "implementation": "Current reduced-order estimates clearly exist; 600s thermal and steady-engine dt convergence verified, F119/FCS/ground/effect accuracy unvalidated.",
+      "verification": "Provenance matrix and future matched-condition actual flight/host program; no mass retuning from unqualified benchmark.",
+      "evidence_trace": [
+        "Reviewed complete declaration tables and local model documentation; original production decks remain unavailable."
+      ],
+      "packages": [
+        "P-FLT-003",
+        "P-FLT-004",
+        "P-FLT-006",
+        "P-FLT-008"
+      ],
+      "disposition": "Execute exact source-contract or model/evidence decision; retain independent valid sources and protective consumers.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-002",
+        "P-FLT-003",
+        "D-P-FLT-001",
+        "P-FLT-001",
+        "P-FLT-004",
+        "P-FLT-005"
+      ],
+      "requirement_applicability": {
+        "D-R-FLT-004": "Current selected profile under exact declared source/host condition; numerical/physical estimates are not authenticated aircraft data."
+      }
+    },
+    {
+      "id": "CAP-D-R-RAD-001",
+      "title": "Video view accepts nonfinite scan-center geometry into native camera basis",
+      "requirements": [
+        "D-R-RAD-001"
+      ],
+      "applicability": "Current selected radar/surface renderer source; host-specific reachable schedule/clock behavior remains qualification condition",
+      "selected_profile_context": "public_f22_manual_recovery@1 under exact stated condition; no optional activation",
+      "implementation": "Current source gap reproduced at actual owner/header under stated ports",
+      "verification": [
+        "NaN/+inf/-inf/wrong-type failure at actual parameter adapter and header cannot produce accepted nonfinite native matrix/projection.",
+        "Zero geometry remains accepted and finite; independent units/sign/layout reference unchanged.",
+        "Frozen/retained frame and reset/epoch/owner/fault latch transitions remain correct."
+      ],
+      "evidence_trace": [
+        {
+          "path": "EFM/source/GroundVideoView.h",
+          "line": 149,
+          "end_line": 164,
+          "sha256": "cbf835ae58c12547adbf6fc67a1f2324572a3db0b544ab34df353d7ca74a84da"
+        },
+        {
+          "path": "EFM/source/GroundVideoView.h",
+          "line": 196,
+          "end_line": 207,
+          "sha256": "cbf835ae58c12547adbf6fc67a1f2324572a3db0b544ab34df353d7ca74a84da"
+        },
+        {
+          "path": "EFM/source/NativeGroundVideo.cpp",
+          "line": 350,
+          "end_line": 361,
+          "sha256": "9f9af37e838af27cd95d9b2065b3f40c3facd231f2c3cfc47e9444c3d199a08d"
+        }
+      ],
+      "packages": [
+        "D-P-RAD-001",
+        "P-RAD-004"
+      ],
+      "disposition": "Execute exact source-contract or model/evidence decision; retain independent valid sources and protective consumers.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-INT-008",
+        "P-RAD-001",
+        "P-RAD-002",
+        "P-RAD-003",
+        "P-INT-003",
+        "D-P-RAD-001"
+      ],
+      "requirement_applicability": {
+        "D-R-RAD-001": "Current selected radar/surface renderer source; host-specific reachable schedule/clock behavior remains qualification condition"
+      }
+    },
+    {
+      "id": "CAP-D-R-RAD-002",
+      "title": "Native AESA packet reader reads protected fields before its first sequence",
+      "requirements": [
+        "D-R-RAD-002"
+      ],
+      "applicability": "Current selected radar/surface renderer source; host-specific reachable schedule/clock behavior remains qualification condition",
+      "selected_profile_context": "public_f22_manual_recovery@1 under exact stated condition; no optional activation",
+      "implementation": "Current source gap reproduced at actual owner/header under stated ports",
+      "verification": [
+        "Independent actual writer/reader adversarial schedules at every read/write boundary yield complete old/new request or unavailable, never mixed enable/time/geometry.",
+        "Odd,changed,stale/future/wrong-type/failed-conversion sequence withdraws; zero enable and zero valid values remain legitimate.",
+        "If supported DCS guarantees serialization, document exact callback/thread evidence and still retain correct packet admission."
+      ],
+      "evidence_trace": [
+        {
+          "path": "EFM/source/NativeAesaRadar.cpp",
+          "line": 362,
+          "end_line": 369,
+          "sha256": "e9577f2b5103833abe4f98e4f217c73778b4be37ba042ee05963310a2566722b"
+        },
+        {
+          "path": "EFM/source/NativeAesaRadar.cpp",
+          "line": 449,
+          "end_line": 474,
+          "sha256": "e9577f2b5103833abe4f98e4f217c73778b4be37ba042ee05963310a2566722b"
+        },
+        {
+          "path": "Cockpit/Scripts/Systems/AESA_Control.lua",
+          "line": 104,
+          "end_line": 138,
+          "sha256": "cce16ba3ec9736706cde98cbb7f6d74a76042b0f8e617508ec364bbb9c07d923"
+        }
+      ],
+      "packages": [
+        "D-P-RAD-001",
+        "P-RAD-004"
+      ],
+      "disposition": "Execute exact source-contract or model/evidence decision; retain independent valid sources and protective consumers.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-INT-008",
+        "P-RAD-001",
+        "P-RAD-002",
+        "P-RAD-003",
+        "P-INT-003",
+        "D-P-RAD-001"
+      ],
+      "requirement_applicability": {
+        "D-R-RAD-002": "Current selected radar/surface renderer source; host-specific reachable schedule/clock behavior remains qualification condition"
+      }
+    },
+    {
+      "id": "CAP-D-R-RAD-003",
+      "title": "Ground sampler retains future selected and pending state after local clock rewind",
+      "requirements": [
+        "D-R-RAD-003"
+      ],
+      "applicability": "Current selected radar/surface renderer source; host-specific reachable schedule/clock behavior remains qualification condition",
+      "selected_profile_context": "public_f22_manual_recovery@1 under exact stated condition; no optional activation",
+      "implementation": "Current source gap reproduced at actual owner/header under stated ports",
+      "verification": [
+        "Rollback at queue/processing/acquisition/selected/ranging phases retires old pending/private histories or publishes explicit unavailable.",
+        "Actual Lua future sample remains rejected; explicit subsequent new request/current epoch restores only new target; no replay from old queue when numerical time catches up.",
+        "Normal .06/resource delayed report releases once with original stamp; monotone pause does not manufacture reset or new RF credit."
+      ],
+      "evidence_trace": [
+        {
+          "path": "EFM/source/NativeGroundSensor.cpp",
+          "line": 260,
+          "end_line": 304,
+          "sha256": "6593a916ec9e82fdf7439caa189b35a1f3314c3763c4f5a4689208a94daaff6c"
+        },
+        {
+          "path": "EFM/source/NativeGroundSensor.cpp",
+          "line": 435,
+          "end_line": 454,
+          "sha256": "6593a916ec9e82fdf7439caa189b35a1f3314c3763c4f5a4689208a94daaff6c"
+        },
+        {
+          "path": "EFM/source/GroundMovingTargets.h",
+          "line": 51,
+          "end_line": 55,
+          "sha256": "9284831c2fffd418dbbe692d877062893aef283467eb92c6fe6883eb059a81ee"
+        },
+        {
+          "path": "Cockpit/Scripts/Systems/AG_Radar_System.lua",
+          "line": 8,
+          "end_line": 31,
+          "sha256": "c19decf39d36370b1b1d3f6f55e86493770c7373f270912b54f27bc5ae5ce828"
+        },
+        {
+          "path": "Cockpit/Scripts/Systems/AG_Radar_System.lua",
+          "line": 283,
+          "end_line": 291,
+          "sha256": "c19decf39d36370b1b1d3f6f55e86493770c7373f270912b54f27bc5ae5ce828"
+        }
+      ],
+      "packages": [
+        "D-P-RAD-001",
+        "P-RAD-004"
+      ],
+      "disposition": "Execute exact source-contract or model/evidence decision; retain independent valid sources and protective consumers.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-INT-008",
+        "P-RAD-001",
+        "P-RAD-002",
+        "P-RAD-003",
+        "P-INT-003",
+        "D-P-RAD-001"
+      ],
+      "requirement_applicability": {
+        "D-R-RAD-003": "Current selected radar/surface renderer source; host-specific reachable schedule/clock behavior remains qualification condition"
+      }
+    },
+    {
+      "id": "CAP-D-R-RAD-004",
+      "title": "Cached AESA request renews producer age from receipt time",
+      "requirements": [
+        "D-R-RAD-004"
+      ],
+      "applicability": "Current selected radar/surface renderer source; host-specific reachable schedule/clock behavior remains qualification condition",
+      "selected_profile_context": "public_f22_manual_recovery@1 under exact stated condition; no optional activation",
+      "implementation": "Current source gap reproduced at actual owner/header under stated ports",
+      "verification": [
+        "Producer10/copy10.49/later10.8 is unavailable even if request receipt was recent.",
+        "Current source and receipt within leases admit; zero timestamps and same-clock no-work calls remain valid under explicit policy.",
+        "Actual host copier/driver phase characterization documents reachability; a serialized guarantee must be evidenced rather than inferred."
+      ],
+      "evidence_trace": [
+        {
+          "path": "EFM/source/NativeAesaRadar.cpp",
+          "line": 433,
+          "end_line": 436,
+          "sha256": "e9577f2b5103833abe4f98e4f217c73778b4be37ba042ee05963310a2566722b"
+        },
+        {
+          "path": "EFM/source/NativeAesaRadar.cpp",
+          "line": 449,
+          "end_line": 474,
+          "sha256": "e9577f2b5103833abe4f98e4f217c73778b4be37ba042ee05963310a2566722b"
+        },
+        {
+          "path": "EFM/source/NativeAesaRadar.cpp",
+          "line": 582,
+          "end_line": 589,
+          "sha256": "e9577f2b5103833abe4f98e4f217c73778b4be37ba042ee05963310a2566722b"
+        },
+        {
+          "path": "EFM/source/NativeAesaRadar.cpp",
+          "line": 817,
+          "end_line": 825,
+          "sha256": "e9577f2b5103833abe4f98e4f217c73778b4be37ba042ee05963310a2566722b"
+        }
+      ],
+      "packages": [
+        "D-P-RAD-001",
+        "P-RAD-004"
+      ],
+      "disposition": "Execute exact source-contract or model/evidence decision; retain independent valid sources and protective consumers.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-INT-008",
+        "P-RAD-001",
+        "P-RAD-002",
+        "P-RAD-003",
+        "P-INT-003",
+        "D-P-RAD-001"
+      ],
+      "requirement_applicability": {
+        "D-R-RAD-004": "Current selected radar/surface renderer source; host-specific reachable schedule/clock behavior remains qualification condition"
+      }
+    },
+    {
+      "id": "CAP-D-R-WPN-001",
+      "title": "Deeper weapons source contract D-R-WPN-001",
+      "requirements": [
+        "D-R-WPN-001"
+      ],
+      "applicability": "Own custom IFDL packets carrying nonzero affiliation; baseline achieved IFF currently unavailable",
+      "selected_profile_context": "public_f22_manual_recovery@1 under exact stated condition; no optional activation",
+      "implementation": "Current source reviewed; exact defect, protective consumer or model uncertainty is retained in linked lane.",
+      "verification": "D-V-WPN-001; actual two-participant radio/MP after source fix",
+      "evidence_trace": [
+        "Current source contract and actual owner probes; no aircraft-specific authentication"
+      ],
+      "packages": [
+        "P-WPN-004",
+        "P-INT-005",
+        "D-P-WPN-001"
+      ],
+      "disposition": "Execute exact source-contract or model/evidence decision; retain independent valid sources and protective consumers.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "D-P-WPN-001",
+        "P-FLT-007",
+        "P-INT-007",
+        "P-INT-008",
+        "P-NAV-008",
+        "P-RAD-004",
+        "P-RAD-007",
+        "P-WPN-003",
+        "P-WPN-004",
+        "P-WPN-005",
+        "P-WPN-006",
+        "D-P-FLT-001",
+        "D-P-RAD-001"
+      ],
+      "requirement_applicability": {
+        "D-R-WPN-001": "Own custom IFDL packets carrying nonzero affiliation; baseline achieved IFF currently unavailable"
+      }
+    },
+    {
+      "id": "CAP-D-R-WPN-002",
+      "title": "Deeper weapons source contract D-R-WPN-002",
+      "requirements": [
+        "D-R-WPN-002"
+      ],
+      "applicability": "All current ground-gun native results; invalid-host-clock trigger conditional",
+      "selected_profile_context": "public_f22_manual_recovery@1 under exact stated condition; no optional activation",
+      "implementation": "Current source reviewed; exact defect, protective consumer or model uncertainty is retained in linked lane.",
+      "verification": "D-V-WPN-002",
+      "evidence_trace": [
+        "NaN fault injection through actual owner"
+      ],
+      "packages": [
+        "P-WPN-006",
+        "P-WPN-002"
+      ],
+      "disposition": "Execute exact source-contract or model/evidence decision; retain independent valid sources and protective consumers.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-002",
+        "P-WPN-001"
+      ],
+      "requirement_applicability": {
+        "D-R-WPN-002": "All current ground-gun native results; invalid-host-clock trigger conditional"
+      }
+    },
+    {
+      "id": "CAP-D-R-WPN-003",
+      "title": "Deeper weapons source contract D-R-WPN-003",
+      "requirements": [
+        "D-R-WPN-003"
+      ],
+      "applicability": "When producer/consumer can interleave; explicit serialization proof is an acceptable closed contract",
+      "selected_profile_context": "public_f22_manual_recovery@1 under exact stated condition; no optional activation",
+      "implementation": "Current source reviewed; exact defect, protective consumer or model uncertainty is retained in linked lane.",
+      "verification": "D-V-WPN-003",
+      "evidence_trace": [
+        "Actual-owner intentional interleaving counterexample; host schedule unqualified"
+      ],
+      "packages": [
+        "P-RAD-004",
+        "P-WPN-004",
+        "P-INT-005",
+        "D-P-RAD-001"
+      ],
+      "disposition": "Execute exact source-contract or model/evidence decision; retain independent valid sources and protective consumers.",
+      "implementation_dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-RAD-001",
+        "P-RAD-002",
+        "P-RAD-003",
+        "P-INT-003",
+        "P-INT-008",
+        "D-P-RAD-001",
+        "D-P-WPN-001",
+        "P-FLT-007",
+        "P-INT-007",
+        "P-NAV-008",
+        "P-RAD-004",
+        "P-RAD-007",
+        "P-WPN-003",
+        "P-WPN-004",
+        "P-WPN-005",
+        "P-WPN-006",
+        "D-P-FLT-001"
+      ],
+      "requirement_applicability": {
+        "D-R-WPN-003": "When producer/consumer can interleave; explicit serialization proof is an acceptable closed contract"
+      }
+    }
+  ],
+  "normalization_note": "Assigned stable IDs to weapons records without IDs; distinguished installed-hook file inventory IDs from requirement-derived hook capability IDs. Original content retained."
+}

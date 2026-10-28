@@ -1,0 +1,940 @@
+{
+  "captured_at": "2026-10-28T21:02:39.415762+00:00",
+  "source_count": 496,
+  "differences": [
+    {
+      "path": "CMakeLists.txt",
+      "sha256": "706aa8db73d22695a818b6c89f06e622f1f90a76dcc6fb3d3ac8f9b19048eee2",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "CMakePresets.json",
+      "sha256": "a4cf1ff01dc03430ec107a624a5cffc1fc85eead7b203882662c6d3de759b7ee",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/HUD/landing.lua",
+      "sha256": "5b6c68ff6169be7737892018ada8f67061b9112fa2ba79a4d134c0c4fac4e42a",
+      "installed_sha256": "9ea24724abb911505fc29d6763a957d6b23313041ad09432d3a7e2c8776d07f4",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/HUD/navigation.lua",
+      "sha256": "ef986e05410e4d46a6622897d33a5826e973b44be3cb35052829223a53dda9fb",
+      "installed_sha256": "a03ccd21d2d2983527b4b5e6f2131f8aa01654cf9439d9115e89ae4b18c171bb",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/HUD/pilot_warnings.lua",
+      "sha256": "e5073b27dfd6c1c9ae5d235a9e1a196d72505396b45569d2f94893c744a6dcf2",
+      "installed_sha256": "a3cc61ca1cc4f57be92f1399d8483ea55794eb3a7504f2d92e14082d94dea9a3",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/ICP/flight_pages.lua",
+      "sha256": "91e270ebd5b4ee735a95450eb4a4875b5ada2501fd3b3033ced621b80a458def",
+      "installed_sha256": "902ebbc07169cba10d5dd52f4f001fdf010e629db9a17a3a8dcc927b0a515d3e",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/ICP/init.lua",
+      "sha256": "04c86b2f76ca4d4da32db0b569af3df18b3de16d55486c7094e6023c8bff9c0e",
+      "installed_sha256": "8ae16769eeff491aded645ffff978e964ad932590747cf50cfc5f8afdc1fcc99",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/ICP/stores_page.lua",
+      "sha256": "8859cca8f13abfb9a24e3cb9fa604b9e1b5026b36586ad344e2c549121d9b8b8",
+      "installed_sha256": "3b90a75a1cac8bd6a92813f723b9cc6f2e1f84b21a676168e2980005c7dc5458",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_CENTER/bay_page.lua",
+      "sha256": "331105293494a81de9b3da25d1abc165b76160ee5dd0fcf4fc42e777bbc015f6",
+      "installed_sha256": "d96b8cb42fd46a15094adb9620b238903162bde74eb504db22cf7f7bba3e9156",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_CENTER/menu_page.lua",
+      "sha256": "12d3aca9f9cd751d0d29bf3224bc781d02d2b61ca3fb3f36bceed2ee109ee587",
+      "installed_sha256": "1d9a8d3b25ede50538de0eb55248233dc519b2d698eeda017264939dfe82f6c7",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_CENTER/sensor_control.lua",
+      "sha256": "4d56aca86e8f129a054f72b1784d0cf6c110ee94dd4d0efc385580b6bf58c794",
+      "installed_sha256": "fcbc997d7f0867d69d72a57d4205f09889690f2828bc02579f7a056af54d5a76",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/adi_page.lua",
+      "sha256": "cae9d145dac3c168abb56847b6ac3ed177e5bdf25163d6e02e6390ce13132549",
+      "installed_sha256": "e9a2b24a2388a0cb1a69a3ac99346ac5df8d712a6e74ef7643e1de453deb9a96",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/bezel.lua",
+      "sha256": "ada7db87046058c8b13b5f560520c24768f4b41c286b7e0b3ef5107b76e2d572",
+      "installed_sha256": "e7959b4e7b00f7116c440465cfba69795a208ff2315401550fb592142b2048c8",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/f22_outline.lua",
+      "sha256": "6c5a9a9db55988e57f2c3be9966e519d02392c48b1ba1130a6b176a4d2fd70fc",
+      "installed_sha256": "e6665de5a2e5d40f7b211e1bb61826e9ba12a71767c442ff32acc2a952800439",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/init.lua",
+      "sha256": "dba34d473fa4f38104f719abea18e7198dd2ba66e7bdcb13f7a58b59fbf16b4f",
+      "installed_sha256": "dc59f97dca0f281f42a53709ab162bf6ea815f32ed32e433410256ffebccc6ea",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/radar_palette.lua",
+      "sha256": "6ac7dc4f2d38f4e5c47406da68f6f00fd852ac71aaaafeb69f6963623b74e7be",
+      "installed_sha256": "4dbfa55bae9c9968f3e9601946c55247486ce915464707b89e898a932c772878",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/sensor_control.lua",
+      "sha256": "6d4d55c343d4ee60fddd4e5b3b48f06c2f5c59299ccd423c981d806cfabfe4a3",
+      "installed_sha256": "f405b4f906820f8d1f9960fb9a90656dc08acc64a3ec71f27cc07b06ed095b30",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/stores_page.lua",
+      "sha256": "97beb6b01228f6476955c41dabe97776f6b27da459ae78c62c8271cd58487a76",
+      "installed_sha256": "03494cb27b0c754370ffe159d0d47f5553558a05a6066929881f64bfbf2755a2",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_LEFT/menu_page.lua",
+      "sha256": "b37d29707dc5ab40f9fed229701f556385b4c331ec9fe4e7165ee96021a2190a",
+      "installed_sha256": "e5c9017ac63b1cf5370c3c355636f235b6803dd98abc18fcdbcbf074ecdee280",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_LEFT/sensor_control.lua",
+      "sha256": "2c027d2b3496c32b24894df64454f9c4c2a27b7d60d6af67bbdc5d3ba52c5e3e",
+      "installed_sha256": "c0a2e8eb22a8cad6556e08d675dda754f24ed74be83a14ced8fdc43ab6948921",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_RIGHT/menu_page.lua",
+      "sha256": "416ca9409546a092df22b20873640eb99ff54d33627866ff97448e9e505fdc97",
+      "installed_sha256": "eed8bcca2b2a3cdf924a0c18f6542e5c9e55fc58541f02afcd89d3c00ef5e89b",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_RIGHT/sensor_control.lua",
+      "sha256": "53a50c2cc8d9c85c612fc3f10fd2bd576aa0d5f81bbf73e22ccaef903448dccc",
+      "installed_sha256": "9796cb74dd7b549a0ea28dcb1bd2fae91483a154a5d2f3faade494835c6d055c",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/PMFD_CENTER/config_page.lua",
+      "sha256": "a5a9b6c3739f56d7e2925d5e973c1b80081fc75d293733de859f40d3457c3f09",
+      "installed_sha256": "6746c6c9ea0d5eebf4c09b0c9a1c527a9aeb5f3428ef57bdc02d9fd1b2c01220",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/PMFD_CENTER/map_page.lua",
+      "sha256": "f788ba4cb19843b852218fe93dd9e3e7c8047406ed89c8ed15a3071fb8de2efd",
+      "installed_sha256": "85236ae7aeb5df094a0e58d013e415e7d54a2f2ab2e82c92b4e1cbfff3b720a4",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/PMFD_CENTER/menu_page.lua",
+      "sha256": "4bdbbc97db004e79986c08dab0bd68987e7a1d49530471d6db163d38cd4be94b",
+      "installed_sha256": "0385cd865c4a6ffed1320beb6cef5c51d5bae86b66bcc326785392c4661294a4",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/PMFD_CENTER/sensor_control.lua",
+      "sha256": "4627669a3b400814c7bd1e9a8b427386339c98beef2ee6be0a97a776eece35b9",
+      "installed_sha256": "a0fbfb6cb98ef8dc5c79629802ba6220106075b01cbcee581fe18fd4bd8fc384",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/PMFD_CENTER/sfm_page.lua",
+      "sha256": "40fb0b04514ae337cf3a412b7ddb90f87ca5b3560f53e2a232e36e912d6ba8e4",
+      "installed_sha256": "ec09751995c2da3aa53ea4c4febdb5dff11657e903986a518e9fe77e08309d87",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Radar_Video/empty.lua",
+      "sha256": "812162608880a843e2adab570c703104c731d05af0ab13fa4420cbeddad1ea59",
+      "installed_sha256": "79530f9f39362ece75d52cdbf23d3f3f49f45ca014f0c4d76e054632ba68b307",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Radar_Video/init.lua",
+      "sha256": "77a7f8aeb8766d3b4836c813b052b15732eb1acb8d31bad18a603b6dcf181dee",
+      "installed_sha256": "6a1c0673a8fc76a0ca3931711fc62830a276ba0d18fc7ce7f1b1084d14883003",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Altitude_Alerts.lua",
+      "sha256": "89fcc270610b6f7c3686b3081dd53ba5a7f8d4f2e5d5fe5201b3caa821d6f23e",
+      "installed_sha256": "1da982955d38c1607f49dffcc39e052d0c67ff76d804f76ca7e19e830d880637",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Attitude_References.lua",
+      "sha256": "f8b47fce5dc30ec429baf7be75916accce6c581840b83afa7cf85be61be45877",
+      "installed_sha256": "cf0bc6aad485d03e92b6feb877a72fe2b7494fcccfd8294d7335f604f5bb4dd9",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Cockpit_References.lua",
+      "sha256": "787344288a4c80ba981cedf4feb51908841468d4c8038c907d31e2cdaa1cdf12",
+      "installed_sha256": "46d1c89ebd26e640f83186f2bba440ff9ee71634fdf616bcacce0b2e79a315ba",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Combat_Commands.lua",
+      "sha256": "04ceea9998aa2d9993ee751566e7d2af79fea3572cf9c43817a0a39c485945fd",
+      "installed_sha256": "46813db7037b1160ea4e8ae8ec32cac10c44d777bf9f792961fe7241f8a65e5f",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Display_Routing.lua",
+      "sha256": "1648706631684cee65c79d5c32de19bfb5b4f8cda2fb35a13ae2fd5c9a409ecd",
+      "installed_sha256": "70f4425bc279fe630d3881980fc3c217ead249326ba55735bef709aad638e237",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Engagement_System.lua",
+      "sha256": "6f3ecc97597e4d03cb6b090341af07f4ef2311739e5efc580a9df0dbee29d792",
+      "installed_sha256": "d475502563e00441503fae135387393ab47bd0929f8c3319fd9157fd8bf067a6",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Fault_Registry.lua",
+      "sha256": "22978a75e45e364ec52129e985a127b6e37d4e02d8a75405f695dceb2bfbc0b7",
+      "installed_sha256": "0a3748217faf0f381b5ad19e4ee27df507ce00d4da0132ed638337c1c85f0561",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Flight_Guidance.lua",
+      "sha256": "4e870ee5e08e3bb337e5aa4f32be347eef437cfa7e2ef8b6ebdaf3c2c30498a4",
+      "installed_sha256": "007486bad008cf9bf121aa00e94ac5b0fdca69e20c675c93386c545c9173e6b6",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Gins_Alignment.lua",
+      "sha256": "1f2845237b3ed3ee5fd3cc28b5ae754c54ae98efb15eaf12bdbd4800352fb37a",
+      "installed_sha256": "4fe4924c0dcbd6c7c1c007081dc2b2406a1c89b2f994bb9d54a8d94fc2a358de",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/HUD_TargetMath.lua",
+      "sha256": "78855df41d431fe7998c7ab3f45f8e428df3ec39323d018e05950fbc227c441f",
+      "installed_sha256": "195cc4ce3f5021f4657b495c90426b6879839022ca6a9942a2cfea078906bce6",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/ICP_Flight_Pages.lua",
+      "sha256": "fc3ac472d45c7c4fb79c0265392785c09e10da21b50349885c4c02625692ee90",
+      "installed_sha256": "b37f374ae8ded51ad49a6b23d5e813bc6b1b9726fa26597568c0f8bf633a5dcc",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/ICP_Stores_Page.lua",
+      "sha256": "d81f98d573ca24f3f1c48bdba95cf84f380ff58ddf3c89795cdb5118d937adc2",
+      "installed_sha256": "0608ee3757f402996689c3f1de52972642b0a657467c2e8036398c6aa9db1418",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/ILS_Native.lua",
+      "sha256": "4970877fdc982e033733b4f111f1aac4f649532a2ec6546bc6798c1270805482",
+      "installed_sha256": "701cc0adfd550c4ef98cce57852371f5c190c0ba8eb5d166cd3cb151d7198c7d",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/MWS_Indicator.lua",
+      "sha256": "93cd9a3caca7ed6a090cc5b1f677729ca83c7810adeb4492a7f328f31fb611c1",
+      "installed_sha256": "c7a6cb9f0fe02c9837137b86b3d4141aaf1d0494c19264809da390e413ed19d5",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/MWS_Native.lua",
+      "sha256": "c29da090d8f37d60a673136deff6f5a8657794e818d2d1282a4d4f59b9c79b15",
+      "installed_sha256": "91064bb5bd1a1d9f069512ebfd5055c715d7e266a4f05ed322aa8b84a6624217",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Nav_Display.lua",
+      "sha256": "b20157ad5b374092d73a2dd4a29cc5135970df7148d17be6ac20e54063104f71",
+      "installed_sha256": "d6db603e81a84c9c72ec145a829feba63a90d73d17d33bcf44095637c4758b07",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Nav_Publication.lua",
+      "sha256": "7b264d7695ca1a0dddc95aa74da3bbd3ff9488581767cd12e8c2930dbef4eea3",
+      "installed_sha256": "6b642eb24a4a6be93c018c9b359aa39d250324d0677cc301ef0545aa114c38e4",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Navigation_Power.lua",
+      "sha256": "30d603167f24360ac75c4e4d87d029618209a71ac7a71f278ce21c1a1253c866",
+      "installed_sha256": "4ffa4fa6b2be7fae93f93debecf57987bf8c46ae0646083e8e98ab6b03a876c3",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Navigation_System.lua",
+      "sha256": "1dda01ab55e5cf92c60c581fa5b21f21f832a796fee2674e8e6c9199f79b395c",
+      "installed_sha256": "4bd8f1d2544dba556c08400a9407fb2df1879c09081d009cee4806de61d39413",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/RWR_Affiliation.lua",
+      "sha256": "497f541be431155d2f7effd6ce1f96d93a8bb0ae986dabd99a1a40f2c3555ae6",
+      "installed_sha256": "798e8964640f2d8cdcbafdcdfb5bdae133778fb54d33ccb6e544641a95de6a3a",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/RWR_Proximity.lua",
+      "sha256": "028305406c8259b848df129a9e41b2a52847d71471aa2f1cfc54e3b34d0b98ec",
+      "installed_sha256": "5bd5e8430f04b58b5cd299e3444ae1b7232444089a27862a352a682671555287",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/RWR_System.lua",
+      "sha256": "f862d42f6ea8a365200797763f465446536a32ae317d4cb397eea38aa65f52f3",
+      "installed_sha256": "224c65718260d11e951a6da51a74d1846d9aa825d98b6edf9ffa3a2395190629",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Data_Bridge.lua",
+      "sha256": "2727fbab8539db067797a4daca8d81e469eac1c9a7a0dde9a4b9010e3e3f4756",
+      "installed_sha256": "4c4dc6a3b9d9f23a8a8cab417065072dd7323454a85d450c35b0b7e736490613",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Display.lua",
+      "sha256": "f0e169f75b281bfc56133f6c8e802fe23b54978167d61437c0123815f816058b",
+      "installed_sha256": "e61cd7c570946b76886cb697994d494189ab89414f31d48c59ee56973a21eea0",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_IFF.lua",
+      "sha256": "f1e92c6b8c3940bc05f8481098444b01f21849001910531eb61633a3695c55e7",
+      "installed_sha256": "61d5a4cc41b5ea07a5d6c7fd1d0dae1d87d1ae7542700ccb3793f3cabcbf167e",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Launch_Zone.lua",
+      "sha256": "79d9da8ec6fa0ab96d1a1e9ef3becff7e9a192f3d005fc4a2964c2ea8c3f96f1",
+      "installed_sha256": "f9e2058b66c74bc5421e9b9b69578556de41ac85fb1a77a6db01e19b4ad3747a",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_STT.lua",
+      "sha256": "ce651c8fc08a7c8c03d2f844035f0667dd47d5c41408ccadd0caae1f0a1e779e",
+      "installed_sha256": "0448fa45cd8a5e5507fbb8e8db2e6a01ff013f2ce113f4bd46c94d37ae63d319",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Telemetry.lua",
+      "sha256": "e53cdf10a9a417fb4ee87cdde5c0ed98259735499cab66135bdbe191314fee8d",
+      "installed_sha256": "36da6e7d05a7c335b870451593e49c59e344ed15ddffd1c186569cb565cd2b28",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radio_Navigation.lua",
+      "sha256": "2002f3e45fdb171ed2704daeeb2e7d750d92e4c6445b458494a250fd62d9ddc9",
+      "installed_sha256": "174263e5e21c3d040b532a65c9786efd22c3bc05163d8dac1071cf6bb68b3721",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Recovery_Context.lua",
+      "sha256": "5e3e88834c61f204e5ad33e243558d2e7a3e543aefdc44b611ceb3d75c657c12",
+      "installed_sha256": "4bfc3ace5cfd47fe11979987529cf47971ffde85380d117698e804b93dfd1be1",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Sensor_Control.lua",
+      "sha256": "ee50352df3b552dd14502ba52e5c5e04a04aef6a1e17467882e1ecbe489bb419",
+      "installed_sha256": "4c53ab96dc0ffed260ad44ebaa5f25f42adf65d5ebc9b1f6d5f9b7e804ad2668",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Stores_Display.lua",
+      "sha256": "3f693b24ba70675a306d241f724538b94212a28a91c8647f67b7b74dfe7f52c1",
+      "installed_sha256": "9e2fb47f7b4c187c92e505b016f02487c6efae879a0ffe3e45e5e4a4b20b3ff1",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/TACAN_Native.lua",
+      "sha256": "02e3bdaef5162cfd5f998c02105da5fe76e0fd50ada33aa4b082579fa1493075",
+      "installed_sha256": "5bb54225b3b5de95e436a511ee5d53faba7a75de8e1e75eaf4e0a4b916064e64",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Tactical_Declutter.lua",
+      "sha256": "eecbe0fdc24385cba6e22cf75cd4fafe2fff1f2e05c2e0b2189a39e00ca8ab8d",
+      "installed_sha256": "55df549fdd97f92235f8bf65d5c37d4758c0bbd7ee785103526c2da51d1bbc75",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Tactical_Identity.lua",
+      "sha256": "96ac6621f3be588bff81e0ad11351a5bb3a1dd51fa7b29075fa93810aa3edb54",
+      "installed_sha256": "f3aed035f94b5c1405f4d7ebdc8af088603f5bc27d1c9bcd252f43da139c48be",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Tactical_Threat.lua",
+      "sha256": "21fda221e8ac9de387b75fb73aed58be82dcaddc55f7e62e151396e52f316e02",
+      "installed_sha256": "b997269a31fd585a1d364b71b40a6da2cae7a891fda41751a0ed3fad412de101",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Terrain_Director.lua",
+      "sha256": "39b967857a82894c2038911330c1cf2fc0ed544ac9c67c16590c71a6055914b2",
+      "installed_sha256": "c737da9e5547a5317935640425b11cbc14e2caa1dc3174f86caef7c56ffb2714",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Terrain_Recovery_Cue.lua",
+      "sha256": "aa7b1733fda991a876674e46c288f616d6dff127a79ad5f52ef133527e9bf764",
+      "installed_sha256": "48686f0cc95c7d21d803adf673c9b83ab3887374bc2c92ba21967128df760b32",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Weapon_Engagement.lua",
+      "sha256": "236e021202cf1aeb80f89aa866be02a70c540d9761d392ac887b0148772ca5f0",
+      "installed_sha256": "0b49470f8a8255e315085de62122212bdaaef68fd51dfeb6cee14362bf87e910",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Weapon_Native.lua",
+      "sha256": "a9b3c1b330d160c4bc29800dc96552c77e54640a3f4ef8b004f63d671c6898c4",
+      "installed_sha256": "7c795d1af4efc2a59aba41dee0a7d0b64accd2411adb0272c995757199db7a0d",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Weapon_System.lua",
+      "sha256": "516293d3015b883ebbf0fa98963dab704dbefe88511ccddec417b5bffdb4d5f3",
+      "installed_sha256": "79fcf370f3eb3ab0755837660655b72ce3f87950532318203f0bed2cad588171",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/UFD_LEFT/ew_page.lua",
+      "sha256": "2c988c71a3d16e31672f668cd5ffc9c88d6c3fb2aea825cc66f1facf1bac839e",
+      "installed_sha256": "38276a5ea419cbd30ecb81d7adf1b7a2856e8e8b9ae63cb855787ccfa40d5c55",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/UFD_LEFT/init.lua",
+      "sha256": "51bc2f9325b0710443ccc3dd82404ec28a2e3f345c43cd88e48e79d484720be1",
+      "installed_sha256": "04304c689f6976d22ce9a35cce2eb7e4e09ad66e90c9fccdb441d538a52d7ef9",
+      "matches_installed": false
+    },
+    {
+      "path": "Cockpit/Scripts/clickabledata.lua",
+      "sha256": "edde506fd4ed361aac18123ac8c0ff633ebf779228a57c3d1cf254bea6a4d0e4",
+      "installed_sha256": "b37fbd20c7deed4046dd5c2822741c3b4fb82e761de229d8f23be8d980e1b87d",
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/CMakeLists.txt",
+      "sha256": "65a30e8ebac02b305d952d4b27c8e10f4755d143552e88832812a2783457a53c",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/LICENSE",
+      "sha256": "aac686a587429415d5b525d2b11177f103a14dab6814ff22d800a308f52518b2",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/include/Cockpit/CockpitAPI_Declare.h",
+      "sha256": "c0e1786a30c81b88f77aebc83e0734ccb083967d7ef96ad10e3787e0bf77683a",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/include/Cockpit/ccParametersAPI.h",
+      "sha256": "cf8d79a785ec67e97c60f216c6bb25ef626c5fcd5c463b6ed07e7cfc24301419",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/include/FM/wHumanCustomPhysicsAPI.h",
+      "sha256": "a356c397b02959b07e969a82a1ce9fc2ddcbb8f376df947704fe831bfec5e394",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/include/FM/wHumanCustomPhysicsAPI_ImplementationDeclare.h",
+      "sha256": "58e246eea93efe6f13903b43619defc5f7db0d1616bf50b9b35435542d74f90a",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/AesaAssociation.h",
+      "sha256": "2a6f1cda3bd8fd9cd5ea6de4188d0cb1ea50aa8fac61f908811acca67ae9959e",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/AesaRadar.cpp",
+      "sha256": "2a15b2d6118d40d6b83a6ac4de72c45cd864266a14139bbeeb45014d4ce8445a",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/AesaRadar.h",
+      "sha256": "2f5ff1f49d66241c43a8025f37025dcbec568a1ca4a5dd74288984f5a413327f",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/AesaReceiver.h",
+      "sha256": "a5fbdb7aef2dc5ebc5f5cd2c939385231f7b78afada5796d28db4d121c2b6159",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/AesaTrackFilter.h",
+      "sha256": "6b9c8e7a3ce7147aaad1410074392581a508a3039381ba34c2485a3b7bf59d60",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/AirData.h",
+      "sha256": "80cf9077c974478b25434806860b4cf738c4af59d5e49b381d980680fdff1ab0",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/Autopilot.h",
+      "sha256": "104c6bd41bbb91359163ce8b775be7ebc1602512524d56434b425ae1572fdc06",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/BrakeEnergy.h",
+      "sha256": "a878221cb53f1711214d37996fad63bcf8e1764f59aeb51962c4557c63599395",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/CniPower.h",
+      "sha256": "2552258f32bedfda4c0aae02d9792a2e1646fc577fe721d5544d527c235f1bb7",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/CommandRouting.h",
+      "sha256": "a01f9e65a5869cff3f4ef594e890cffce834a6c9e37cf31374879bd37ceb9a01",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/EngineController.h",
+      "sha256": "313d7225efd32a26fb7eeee0f83c5cbe0e1ed05a6e6869254a3812899c58c49a",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/EngineStart.h",
+      "sha256": "d4a29d662a84b570ee6c19a1278f13ca7fda4f31423ac9e0e87a5b372cd2ec6b",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/FuelSystem.h",
+      "sha256": "987075faaa08ab614f9b8d8822873335822ee53aeb519ce861ddfb7646260363",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/GroundContact.h",
+      "sha256": "62d0354a8df56de74c5faa084e96058da8f81b231a86e8ee936965227f4803f3",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/GroundMovingTargets.h",
+      "sha256": "9284831c2fffd418dbbe692d877062893aef283467eb92c6fe6883eb059a81ee",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/GroundVideoProbe.h",
+      "sha256": "ab86b5993e0ca569d15cf94c4e7d9d7f25a96810ae51e4b0a7ea0c4e7e99a2e1",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/GroundVideoView.h",
+      "sha256": "cbf835ae58c12547adbf6fc67a1f2324572a3db0b544ab34df353d7ca74a84da",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/GunIntercept.h",
+      "sha256": "55f5446f0a18feade75b48a852822a95dc319f2f9bcc73d12f9d6e3e551d38ba",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/GunManeuver.h",
+      "sha256": "7c8a7302913ce45bd1853ef312c1db5a3aac1650e1edf2091fc20dfb58ae0cac",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/GunTargetMotion.h",
+      "sha256": "aa0531e6e9fd2798489e2e4fdb93e4b1cceb17ef3bbb39bbe072908f33dc8662",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/HighAlpha.h",
+      "sha256": "c6ece10eedfa5d8ba5c1dde977230a2b40b7c15b6cb188afcdc2a5fa00961c86",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/Inputs.h",
+      "sha256": "1e952456657c01e0ca2efb7cbde2f7260815099f5ccdf76e5df01f9eb2a1dbbb",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeAGWeapons.cpp",
+      "sha256": "fb54db44b58e2fe646777a5ca28cf3528284fc74a101bc3e9e59b937927e7393",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeAGWeapons.h",
+      "sha256": "c98036ccd90995bd9e65391a409246b5d9a3132c8301a94f675ba6ced4f77da8",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeAesaRadar.cpp",
+      "sha256": "e9577f2b5103833abe4f98e4f217c73778b4be37ba042ee05963310a2566722b",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeAesaRadar.h",
+      "sha256": "bb333fd2d35268dc260503f252977169c5de93939a77264d0ffc7a089c546462",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeAltimetry.cpp",
+      "sha256": "8ad0b92382c96b8be932c18f9f8893fd07655b8a840b3d9aaf2822d035747f30",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeAltimetry.h",
+      "sha256": "541c657850d2c5eaf4ffa96c1c3b28dd9c042c08606c14ad60bbbbc36df81b71",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeContactIdentity.cpp",
+      "sha256": "752627d76295f6706e6dffc56235ff66e415d792a0d6784ff71c78527dd98eca",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeContactIdentity.h",
+      "sha256": "74bd129c314f1acd48097a28df4c1de17ddef78ee306025597ae75997db84ed1",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeDatalink.cpp",
+      "sha256": "cfdb4b81794139cc0b5ec983728d9ac7eb0053d6325c8dabd11f8843b333e9d7",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeDatalink.h",
+      "sha256": "6758592084c721bcc9145f1df00c1d1fdeb0c06bdc89e481872a5cc24ff0c66a",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundRadar.cpp",
+      "sha256": "9dcfba46688b317be8648195b1f8df1c7d03e9590d1e676690acc0df1ceb08f6",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundRadar.h",
+      "sha256": "d26d7248882cb66217d7cddc07221ab5e171043cc365a6bc96a4ee8590ffe54b",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundReturns.h",
+      "sha256": "15dfd1e88075fe2362b653288260f7bcac80809b4b51e2831005a59dbb8e7099",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundSensor.cpp",
+      "sha256": "6593a916ec9e82fdf7439caa189b35a1f3314c3763c4f5a4689208a94daaff6c",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundSensor.h",
+      "sha256": "815df712ffec23c36c9c44480b18299b8437aa631c41aa0e7c58690478c48904",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "sha256": "9f9af37e838af27cd95d9b2065b3f40c3facd231f2c3cfc47e9444c3d199a08d",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.h",
+      "sha256": "b58ad2fb0058e4c9a4a9825231df9acc67d1ca8fad02cae89ebadbfd87b2fb62",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeGunSight.cpp",
+      "sha256": "6c18cee665413400df6ee3053f965b8c2e2f4d462f1dc94cd7e47f062c179408",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeGunSight.h",
+      "sha256": "37ca78d39a4b89daf242ef49a2e3a1125c3f0cd3565ed36b8bebc4f69b63298a",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeMWS.cpp",
+      "sha256": "6c4feead9e9f443fa411d88f3f738fc92f20fda95ced6f38db68680e54ae9899",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeMWS.h",
+      "sha256": "ccc5033628e232c568a2942951bec85bf7655b928fbbca491706e0d349a297d0",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeNavigation.cpp",
+      "sha256": "eb675f2f43d3fca4eac41ed75f035ed1115198a1f0f3cc132059132c128656a8",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeNavigation.h",
+      "sha256": "5b5e6c7de5c7f1c4daaf2f0779b36e2507ec370a40d357f81d0d89f128717e8a",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeSidewinder.cpp",
+      "sha256": "bfee40246d6b27180a4a84df63243df218b906b966b0bee141894bd30b262ce6",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NativeSidewinder.h",
+      "sha256": "004efa44dbf2b94d2070645e83309d0a83ae686b9332015e5b4170a0b29e37b0",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/NavigationSnapshot.h",
+      "sha256": "96249a2f3a1ef12d54451075b5be2cb1cab6a858121e88183dda2b4f31028601",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/RAPTOR.cpp",
+      "sha256": "71d7660ce9b178295f033a1efbd0652d3b964ba501298545b4112888b0cc37a1",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/RAPTOR.h",
+      "sha256": "e37076d9ec3021fa89edf41f172efd97309d07b5db0b1936d2a57696d26f17cb",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/ThrustDeck.h",
+      "sha256": "c121b1cd02ce144453e9a10d92f14d5aeabd26d31b2452e8b77f0c0e0d1c5b85",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/TrimControl.h",
+      "sha256": "4b85c198fa856b07c3020e0c6028c7c5a73234a352e33eb54d9af8a846876b91",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/Utility.h",
+      "sha256": "7b667024c1a394aa831ec176fa7cff795067b7146a6ee0bab21ef881e4fe92b0",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/VehicleConfiguration.h",
+      "sha256": "46f5e49291994de6a102b9eae36b7867e49df79a5759f16e067666429fed121b",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/VehicleContext.h",
+      "sha256": "af3c93936969e01a2623ed8d6991dd0c8ab6664a598f4d3d21a29e4cee738d71",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/VehicleDemand.h",
+      "sha256": "f3bfe78084362cae1664bccca71b9e6aa48759f84cf69fd5e3cd809efac53b87",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/VehicleEnvironment.h",
+      "sha256": "dab51175908036d45df61d544fb14426f68164b202a606c49528102643bc9c2d",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/VehicleFaults.h",
+      "sha256": "32afcbb9ced9450c92db22e5af770767e5aa45e12bd3f27e54af92f6ddf4717d",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "sha256": "bd48d257f274309f0434ab3f18627ecbda813d1976b52e28ba0e68dae1431159",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/VehicleLedger.h",
+      "sha256": "73c35700b94708ebad99d7e7e528ecb8825d7258b46a21fd0dd3653f3ac5f5f2",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/VehiclePower.h",
+      "sha256": "ef1292c3ef18a38be37fcaf4ebdffea52168b6418c6f81a1117e1c4dae36f9f3",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/VehicleSignals.h",
+      "sha256": "04ecfdfeefce37ebdddd24fe3e6b91151058d6109c37ecb0c9c07738478ab8d3",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "sha256": "125e7013dd89bc5682af4648671e30a99bb7c37e6f96a937f89399c7fd2fb603",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/source/dllmain.cpp",
+      "sha256": "c1dd5b0ab9e692b5621bb06a5395c5a4a80452d3559a62435f84c9cb2cb10141",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "EFM/tests/test_native_ground_video.cpp",
+      "sha256": "ba2c987b311c9b5f6e71d9ed00c5356eb724e6943545efef510e36aa3d82ff12",
+      "installed_sha256": null,
+      "matches_installed": false
+    },
+    {
+      "path": "Input/F-22A/joystick/default.lua",
+      "sha256": "4ef5f0fb8420a0d972b8129519f50aa9cbe52e14da643fcb842994e3bf929d59",
+      "installed_sha256": "d064b8f17e7c19e82990bc4f9aefd07518850b7833e0556a84bb1afd9f382e02",
+      "matches_installed": false
+    },
+    {
+      "path": "Input/F-22A/keyboard/default.lua",
+      "sha256": "8e9e73713ba77387a2e6529a4186e2980ad4c3050b674685d7aaf53d91fa0e6f",
+      "installed_sha256": "d4e267d8ca489952628fb746b5f5fab086b159c7e028dbf9e09ff8da396d6f3e",
+      "matches_installed": false
+    },
+    {
+      "path": "Sounds/sdef/Aircrafts/F-22A/MWS/approach.sdef",
+      "sha256": "2c0395f470a70af98e44989a8498600d3fad431321b2adb1673d129aaa519279",
+      "installed_sha256": "b79e22b0f7b1ab4fc043f856eb4501d6d977406a03fa0561dbe7b1029b7cf7a9",
+      "matches_installed": false
+    },
+    {
+      "path": "Weapons/AG_Training.lua",
+      "sha256": "19982de902945c9482cc0132d7369a864f2006f2fdc1b865e2b02664a0c2a8ba",
+      "installed_sha256": "ec0e42ec58f7297f1ce4cbd9813a0fe8fa053a99d28d7d2a55a20080b6a1e412",
+      "matches_installed": false
+    }
+  ],
+  "hooks": [
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22DogfightValidation.lua",
+      "sha256": "72e4f90ef029c95227d2a20c3487e5a0d3727a21c51120ce0e270865b617af2e",
+      "counterpart": null,
+      "counterpart_sha256": null,
+      "authority": "actuating diagnostic; filename gates can activate without control file",
+      "loaded": "unmeasured"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22EWTrialHook.lua",
+      "sha256": "d14bb2fe7a8e76ad3e386e4381a27a907eaa54397f184838900e4acd276203b5",
+      "counterpart": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tools\\diagnostics\\F22EWTrialHook.lua",
+      "counterpart_sha256": "7b80aa41539b3ae2a96bf128ad737b0a20d34b0c0cc119286655cd4cab9e7e3a",
+      "authority": "actuating diagnostic; filename gates can activate without control file",
+      "loaded": "unmeasured"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22GroundRegressionHook.lua",
+      "sha256": "d02d9fc4ce43ce93ade228255667c8f5214165ce71a9601b7f4960e64b356cea",
+      "counterpart": null,
+      "counterpart_sha256": null,
+      "authority": "actuating diagnostic; filename gates can activate without control file",
+      "loaded": "unmeasured"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22NativePreview.lua",
+      "sha256": "275da49485131451c5ffcbd0296f9d8d7cfdd075084b543fa4207321476686d6",
+      "counterpart": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tools\\F22NativePreview.lua",
+      "counterpart_sha256": "ec2326a17c32bdee9799bbc65762992d587b800c8b38db0a92c390ba0a010208",
+      "authority": "actuating diagnostic; filename gates can activate without control file",
+      "loaded": "unmeasured"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22TrimTelemetry.lua",
+      "sha256": "9af5efbdd7381a1543938d96a8f5870390b1c51b30f37568cf2e1d4ac6eae2ea",
+      "counterpart": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tools\\diagnostics\\F22TrimTelemetry.lua",
+      "counterpart_sha256": "9af5efbdd7381a1543938d96a8f5870390b1c51b30f37568cf2e1d4ac6eae2ea",
+      "authority": "passive recorder",
+      "loaded": "unmeasured"
+    }
+  ],
+  "source_dll": "c50b245ffd2c069cce105397294f9d2e17f37e5b8d5834933b4e87a309af43a5",
+  "installed_dll": "c50b245ffd2c069cce105397294f9d2e17f37e5b8d5834933b4e87a309af43a5",
+  "loaded": "unmeasured",
+  "policy": "Do not overwrite installed default controls or saved diffs until owner/import review; no installation performed."
+}

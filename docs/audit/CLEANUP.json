@@ -1,0 +1,2057 @@
+{
+  "schema_version": "1.0",
+  "audit_deletions": false,
+  "records": [
+    {
+      "id": "C-INT-001",
+      "location": "Standalone old handoffs and canonical docs/handoffs",
+      "class_": "superseded instructions",
+      "evidence": "All5old standalone handoffs explicitly prescribe obsolete tag/isolated worktrees; current AGENTS main policy and new assignment override.",
+      "confidence": "high",
+      "callers_consumers": "Later implementation chats",
+      "conditions": "Current main-only policy",
+      "replacement_owner": "chat2 new handoffs",
+      "action": "Update canonical during P-INT-004; preserve historical standalone evidence in place.",
+      "migration_order": "Adopt new baseline then redirect canonical index and prompts",
+      "compatibility_impact": "Prevents accidental old-tag implementation",
+      "tests_required": "Path/policy/package reference checks",
+      "packages": [
+        "P-INT-004"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\assurance\\lead.json",
+      "classification": "superseded instructions",
+      "proposed_action": "Update canonical during P-INT-004; preserve historical standalone evidence in place.",
+      "accountable_chat": "chat2",
+      "disposition": "planned migration/removal or retention gate; no audit deletion",
+      "anchors": [
+        {
+          "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\docs\\handoffs\\00-shared-instructions.md",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\docs\\handoffs\\00-shared-instructions.md",
+          "line": 1,
+          "end_line": 24,
+          "function_or_region": "historical handoff instructions",
+          "sha256": "d32c3cadf22bb91e2c99944d685ba9d2ac5c89acdb53a37d0959ca8ffd41f1bf"
+        },
+        {
+          "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\docs\\handoffs\\01-flight-and-aircraft.md",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\docs\\handoffs\\01-flight-and-aircraft.md",
+          "line": 1,
+          "end_line": 16,
+          "function_or_region": "historical handoff instructions",
+          "sha256": "682a66b967e329761d9378d8bc6dba4a158e11880a56e09c2ff3ce860f7dee13"
+        },
+        {
+          "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\docs\\handoffs\\02-navigation-cockpit-integration.md",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\docs\\handoffs\\02-navigation-cockpit-integration.md",
+          "line": 1,
+          "end_line": 16,
+          "function_or_region": "historical handoff instructions",
+          "sha256": "d922a8124d01900601ba745106002e04ff6ec73eda7038869bd19651504141e3"
+        },
+        {
+          "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\docs\\handoffs\\03-radar-aesa.md",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\docs\\handoffs\\03-radar-aesa.md",
+          "line": 1,
+          "end_line": 22,
+          "function_or_region": "historical handoff instructions",
+          "sha256": "7951d3e8c819746724f5db40bdb6e6f8fc2b2b0ac238c634b8dc249b5bfaf5f5"
+        },
+        {
+          "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\docs\\handoffs\\04-weapons-defensive-avionics.md",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\docs\\handoffs\\04-weapons-defensive-avionics.md",
+          "line": 1,
+          "end_line": 18,
+          "function_or_region": "historical handoff instructions",
+          "sha256": "860937dc9b8758c04bcf6ecdfade2036d2b48448bca12f39e57ec646b945fad2"
+        },
+        {
+          "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\docs\\handoffs\\README.md",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\docs\\handoffs\\README.md",
+          "line": 1,
+          "end_line": 14,
+          "function_or_region": "historical handoff instructions",
+          "sha256": "e21acb5a6c706a3e2200a2d7010679aa81fec0c77cfe882735112e01895beae0"
+        },
+        {
+          "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\F22-Chat-1-Flight.md",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\F22-Chat-1-Flight.md",
+          "line": 1,
+          "end_line": 45,
+          "function_or_region": "historical handoff instructions",
+          "sha256": "fe2343b6f5e11c6d031f9116ea262df695a5af6ad0362bd17167d279747bde25"
+        },
+        {
+          "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\F22-Chat-2-Navigation-Cockpit.md",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\F22-Chat-2-Navigation-Cockpit.md",
+          "line": 1,
+          "end_line": 45,
+          "function_or_region": "historical handoff instructions",
+          "sha256": "7534aba4f7ca463351db520e622aaae211ce554244030a616f94a1b4ba8eda0f"
+        },
+        {
+          "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\F22-Chat-3-Radar-AESA.md",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\F22-Chat-3-Radar-AESA.md",
+          "line": 1,
+          "end_line": 51,
+          "function_or_region": "historical handoff instructions",
+          "sha256": "2ef03a3c138ed7ec61fe5edf2b47e5abd6e7ee49ecaf694381a4bdc4b9014e15"
+        },
+        {
+          "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\F22-Chat-4-Weapons-EW.md",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\F22-Chat-4-Weapons-EW.md",
+          "line": 1,
+          "end_line": 47,
+          "function_or_region": "historical handoff instructions",
+          "sha256": "00b599e8e8f489b62e5aaf4ccd67520dc8df4d05d0c9d8a4cf0e76c4b034f106"
+        },
+        {
+          "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\F22-Chat-Prompts.md",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\F22-Chat-Prompts.md",
+          "line": 1,
+          "end_line": 14,
+          "function_or_region": "historical handoff instructions",
+          "sha256": "a17de50ac89cc8c0f3efecfb5f518a1a4ebf0f1ccf0e43e19fca90a3c772a780"
+        }
+      ],
+      "known_callers_consumers": "Later implementation chats",
+      "profile_host_conditions": "Current main-only policy",
+      "retirement_gate": "Complete named replacement/migration order and independently rebuilt listed tests; prove remaining dynamic/host/saved-control users are migrated or deliberately retained. No deletion in audit.",
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-INT-002",
+      "location": "Input/F-22A/control_cleanup.lua::aliases/host_aliases",
+      "class_": "retention criterion",
+      "evidence": "Runtime input profile loader invokes cleanup; maps old/default host rows while current command IDs retain actions. No-search proof insufficient for saved profiles.",
+      "confidence": "high for reachability; runtime saved-diff qualification open",
+      "callers_consumers": "keyboard/default.lua and joystick/default.lua; user saved input profiles",
+      "conditions": "DCS input loader host constants",
+      "replacement_owner": "existing current command owner, not new compatibility layer",
+      "action": "Retain until exact saved-control/import migration earns removal; remove obsolete production owner separately.",
+      "migration_order": "Inventory IDs/edges -> remade host tests -> actual saved import -> retire specific alias only if justified",
+      "compatibility_impact": "Potential saved control loss if deleted indiscriminately",
+      "tests_required": "New command/edge/held-release and DCS saved-profile tests",
+      "packages": [
+        "P-INT-007"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\assurance\\lead.json",
+      "classification": "retention criterion",
+      "proposed_action": "Retain until exact saved-control/import migration earns removal; remove obsolete production owner separately.",
+      "accountable_chat": "chat2",
+      "disposition": "planned migration/removal or retention gate; no audit deletion",
+      "anchors": [
+        {
+          "path": "Input/F-22A/control_cleanup.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Input\\F-22A\\control_cleanup.lua",
+          "line": 1,
+          "end_line": 139,
+          "function_or_region": "<chunk>",
+          "sha256": "504b34953b7c2490da9ff6b998cb20ac31b07e591d404e3db686000aeae01c65"
+        }
+      ],
+      "known_callers_consumers": "keyboard/default.lua and joystick/default.lua; user saved input profiles",
+      "profile_host_conditions": "DCS input loader host constants",
+      "retirement_gate": "Complete named replacement/migration order and independently rebuilt listed tests; prove remaining dynamic/host/saved-control users are migrated or deliberately retained. No deletion in audit.",
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-FLT-001",
+      "anchors": [
+        {
+          "path": "EFM/source/Utility.h",
+          "line": 21,
+          "end_line": 21,
+          "sha256": "7b667024c1a394aa831ec176fa7cff795067b7146a6ee0bab21ef881e4fe92b0",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\EFM\\source\\Utility.h"
+        }
+      ],
+      "class_": "probable unreachable legacy helpers",
+      "evidence": "No production calls to actuator or smooth_lerp in EFM source closure; no named host entry point",
+      "confidence": "medium",
+      "callers_consumers": [
+        "Known active owner/host closure described in evidence"
+      ],
+      "profile_host_conditions": "Current source-limited F22A",
+      "replacement_owner": "actuator_timed/slew",
+      "proposed_action": "Check linker/export map and external linking before removal; no deletion now",
+      "migration_order": [
+        "characterize call/host boundary",
+        "agree current owner",
+        "migrate consumers",
+        "retire proven obsolete path",
+        "rebuild independent requirement tests"
+      ],
+      "compatibility_impact": "Preserve saved control IDs, host callbacks and audio assets",
+      "tests_required": [
+        "Fresh owner normal/limit/failure/recovery tests",
+        "build/link/export checks",
+        "host integration where applicable"
+      ],
+      "package": "P-FLT-001",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "packages": [
+        "P-FLT-001"
+      ],
+      "classification": "probable unreachable legacy helpers",
+      "accountable_chat": "chat1",
+      "disposition": "planned migration/removal or retention gate; no audit deletion",
+      "known_callers_consumers": [
+        "Known active owner/host closure described in evidence"
+      ],
+      "retirement_gate": "Complete named replacement/migration order and independently rebuilt listed tests; prove remaining dynamic/host/saved-control users are migrated or deliberately retained. No deletion in audit.",
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-FLT-002",
+      "anchors": [
+        {
+          "path": "EFM/source/RAPTOR.h",
+          "line": 205,
+          "end_line": 205,
+          "sha256": "e37076d9ec3021fa89edf41f172efd97309d07b5db0b1936d2a57696d26f17cb",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\EFM\\source\\RAPTOR.h"
+        }
+      ],
+      "class_": "obsolete start fields/constants",
+      "evidence": "Legacy timers only reset; EngineStartState/Profile now owns start timing",
+      "confidence": "medium",
+      "callers_consumers": [
+        "Known active owner/host closure described in evidence"
+      ],
+      "profile_host_conditions": "Current source-limited F22A",
+      "replacement_owner": "EngineStartState/Profile",
+      "proposed_action": "Remove internal fields and reset writes only after full caller/link check; no deletion now",
+      "migration_order": [
+        "characterize call/host boundary",
+        "agree current owner",
+        "migrate consumers",
+        "retire proven obsolete path",
+        "rebuild independent requirement tests"
+      ],
+      "compatibility_impact": "Preserve saved control IDs, host callbacks and audio assets",
+      "tests_required": [
+        "Fresh owner normal/limit/failure/recovery tests",
+        "build/link/export checks",
+        "host integration where applicable"
+      ],
+      "package": "P-FLT-003",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "packages": [
+        "P-FLT-003"
+      ],
+      "classification": "obsolete start fields/constants",
+      "accountable_chat": "chat1",
+      "disposition": "planned migration/removal or retention gate; no audit deletion",
+      "known_callers_consumers": [
+        "Known active owner/host closure described in evidence"
+      ],
+      "retirement_gate": "Complete named replacement/migration order and independently rebuilt listed tests; prove remaining dynamic/host/saved-control users are migrated or deliberately retained. No deletion in audit.",
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-FLT-003",
+      "anchors": [
+        {
+          "path": "Cockpit/Scripts/Systems/Engine_System.lua",
+          "line": 363,
+          "end_line": 363,
+          "sha256": "2d46e26456709c65cde4e070984af6455af11bda80f963e2ec04a94858f1bd3b",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\Systems\\Engine_System.lua"
+        }
+      ],
+      "class_": "possibly dormant global audio helpers",
+      "evidence": "No visible calls to updateLoopSoundParameters/playSoundOnceFromParam/playLoopingSound; Lua globals could be host invoked",
+      "confidence": "medium",
+      "callers_consumers": [
+        "Known active owner/host closure described in evidence"
+      ],
+      "profile_host_conditions": "Current source-limited F22A",
+      "replacement_owner": "update_apu_sound and active loop helpers",
+      "proposed_action": "Retain until native callback/global reachability characterization; preserve recorded assets; no deletion now",
+      "migration_order": [
+        "characterize call/host boundary",
+        "agree current owner",
+        "migrate consumers",
+        "retire proven obsolete path",
+        "rebuild independent requirement tests"
+      ],
+      "compatibility_impact": "Preserve saved control IDs, host callbacks and audio assets",
+      "tests_required": [
+        "Fresh owner normal/limit/failure/recovery tests",
+        "build/link/export checks",
+        "host integration where applicable"
+      ],
+      "package": "P-FLT-009",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "packages": [
+        "P-FLT-009"
+      ],
+      "classification": "possibly dormant global audio helpers",
+      "accountable_chat": "chat1",
+      "disposition": "planned migration/removal or retention gate; no audit deletion",
+      "known_callers_consumers": [
+        "Known active owner/host closure described in evidence"
+      ],
+      "retirement_gate": "Complete named replacement/migration order and independently rebuilt listed tests; prove remaining dynamic/host/saved-control users are migrated or deliberately retained. No deletion in audit.",
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-FLT-004",
+      "anchors": [
+        {
+          "path": "EFM/source/RAPTOR.cpp",
+          "line": 1294,
+          "end_line": 1294,
+          "sha256": "71d7660ce9b178295f033a1efbd0652d3b964ba501298545b4112888b0cc37a1",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\EFM\\source\\RAPTOR.cpp"
+        }
+      ],
+      "class_": "intentional fixed compatibility result",
+      "evidence": "Oxygen SDK callback bypasses finite modeled delivery pending host test",
+      "confidence": "high",
+      "callers_consumers": [
+        "Known active owner/host closure described in evidence"
+      ],
+      "profile_host_conditions": "Current source-limited F22A",
+      "replacement_owner": "Environment::oxygen_delivery_pa",
+      "proposed_action": "Retain callback, retire only constant fallback after bounded native physiology probe; no deletion now",
+      "migration_order": [
+        "characterize call/host boundary",
+        "agree current owner",
+        "migrate consumers",
+        "retire proven obsolete path",
+        "rebuild independent requirement tests"
+      ],
+      "compatibility_impact": "Preserve saved control IDs, host callbacks and audio assets",
+      "tests_required": [
+        "Fresh owner normal/limit/failure/recovery tests",
+        "build/link/export checks",
+        "host integration where applicable"
+      ],
+      "package": "P-FLT-006",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\flight\\lane.json",
+      "packages": [
+        "P-FLT-006"
+      ],
+      "classification": "intentional fixed compatibility result",
+      "accountable_chat": "chat1",
+      "disposition": "planned migration/removal or retention gate; no audit deletion",
+      "known_callers_consumers": [
+        "Known active owner/host closure described in evidence"
+      ],
+      "retirement_gate": "Complete named replacement/migration order and independently rebuilt listed tests; prove remaining dynamic/host/saved-control users are migrated or deliberately retained. No deletion in audit.",
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-NAV-001",
+      "anchors": [
+        {
+          "path": "Cockpit/Scripts/Systems/ICP_Flight_Pages.lua",
+          "line": 4,
+          "function_or_region": "function M.new",
+          "sha256": "fc3ac472d45c7c4fb79c0265392785c09e10da21b50349885c4c02625692ee90",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\Systems\\ICP_Flight_Pages.lua",
+          "end_line": 4
+        },
+        {
+          "path": "Cockpit/Scripts/Systems/ICP_Stores_Page.lua",
+          "line": 5,
+          "function_or_region": "function M.new",
+          "sha256": "d81f98d573ca24f3f1c48bdba95cf84f380ff58ddf3c89795cdb5118d937adc2",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\Systems\\ICP_Stores_Page.lua",
+          "end_line": 5
+        }
+      ],
+      "classification": "superseded unregistered helpers",
+      "evidence": "device_init->ICP_System->UFC_Controller; old helper names have no production loader found",
+      "confidence": "high within named boundary",
+      "known_callers": [
+        "Current host callbacks and explicit loader paths described above"
+      ],
+      "profile_host_conditions": "selected manual-recovery profile",
+      "replacement_owner": "UFC_Controller",
+      "proposed_action": "Delete helpers only in execution after load graph proof",
+      "migration_order": "Contract -> caller migration -> remade requirement tests -> precise removal -> host check",
+      "compatibility_impact": "Preserve saved command IDs, active preferences, HUD/audio and unrelated files",
+      "tests_required": [
+        "Check dynamic loaders/host registration and all saved aliases; remake current UFC tests"
+      ],
+      "retirement_gate": "Check dynamic loaders/host registration and all saved aliases; remake current UFC tests",
+      "package": "P-NAV-002",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json",
+      "packages": [
+        "P-NAV-002"
+      ],
+      "accountable_chat": "chat2",
+      "disposition": "planned migration/removal or retention gate; no audit deletion",
+      "known_callers_consumers": [
+        "Current host callbacks and explicit loader paths described above"
+      ],
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-NAV-002",
+      "anchors": [
+        {
+          "path": "Cockpit/Scripts/Systems/PMFD_System.lua",
+          "line": 101,
+          "function_or_region": "local function select_page",
+          "sha256": "598f5432e7e37ac2117f8719b09a38acba0af57095b95fc6ecab74ef41fa70ca",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\Systems\\PMFD_System.lua",
+          "end_line": 101
+        }
+      ],
+      "classification": "unreachable local function/regions",
+      "evidence": "All OSB branches forward and return before later CONFIG OSB tests; select_page definition has no call",
+      "confidence": "high within named boundary",
+      "known_callers": [
+        "Current host callbacks and explicit loader paths described above"
+      ],
+      "profile_host_conditions": "selected manual-recovery profile",
+      "replacement_owner": "MFD_Controller and live11301..11305 preferences",
+      "proposed_action": "Remove exact dead regions; keep host device/transport",
+      "migration_order": "Contract -> caller migration -> remade requirement tests -> precise removal -> host check",
+      "compatibility_impact": "Preserve saved command IDs, active preferences, HUD/audio and unrelated files",
+      "tests_required": [
+        "All forwarded events and ground-only preference behavior preserved"
+      ],
+      "retirement_gate": "All forwarded events and ground-only preference behavior preserved",
+      "package": "P-NAV-002",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json",
+      "packages": [
+        "P-NAV-002"
+      ],
+      "accountable_chat": "chat2",
+      "disposition": "planned migration/removal or retention gate; no audit deletion",
+      "known_callers_consumers": [
+        "Current host callbacks and explicit loader paths described above"
+      ],
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-NAV-003",
+      "anchors": [
+        {
+          "path": "Cockpit/Scripts/Systems/Avionics.lua",
+          "line": 329,
+          "function_or_region": "parameters.LMFD_ENG_PAGE:set(0)",
+          "sha256": "707e1dd78f990e118eabc9b8110557edb7c51b0fcd204b362678950d6749370e",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\Systems\\Avionics.lua",
+          "end_line": 329
+        },
+        {
+          "path": "Cockpit/Scripts/Systems/MFD_Controller.lua",
+          "line": 96,
+          "function_or_region": "function s:publish()",
+          "sha256": "b0f761b6114fc346133dcac9962a66552c716b8e90a91417e9967de2cdc3d4e8",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\Systems\\MFD_Controller.lua",
+          "end_line": 96
+        }
+      ],
+      "classification": "duplicate active writer",
+      "evidence": "Actual module1->0->1 probe",
+      "confidence": "high within named boundary",
+      "known_callers": [
+        "Current host callbacks and explicit loader paths described above"
+      ],
+      "profile_host_conditions": "selected manual-recovery profile",
+      "replacement_owner": "MFD_Controller only",
+      "proposed_action": "Migrate APU supply intent then remove Avionics page writer",
+      "migration_order": "Contract -> caller migration -> remade requirement tests -> precise removal -> host check",
+      "compatibility_impact": "Preserve saved command IDs, active preferences, HUD/audio and unrelated files",
+      "tests_required": [
+        "New callback-order/power/source tests; no other uncontracted page writer"
+      ],
+      "retirement_gate": "New callback-order/power/source tests; no other uncontracted page writer",
+      "package": "P-NAV-002",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\lane.json",
+      "packages": [
+        "P-NAV-002"
+      ],
+      "accountable_chat": "chat2",
+      "disposition": "planned migration/removal or retention gate; no audit deletion",
+      "known_callers_consumers": [
+        "Current host callbacks and explicit loader paths described above"
+      ],
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-RAD-001",
+      "anchors": [
+        {
+          "path": "Cockpit/Scripts/Systems/Radar_Computer.lua",
+          "start_line": 110,
+          "end_line": 237,
+          "sha256": "5fc47e9123766d8cab8eaba3432c652fac3459d152b1f416a1cda3723d2ceb9f",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\Systems\\Radar_Computer.lua",
+          "line": 110
+        }
+      ],
+      "classification": "superseded production authority",
+      "evidence": "RAD-PROBE-002/003:actual60deg versus Lua30deg; callers Radar_System,tasking,Engagement,radar_format",
+      "confidence": "high for checked-in trace; host/external caller limits explicit",
+      "callers_consumers": "RAD-PROBE-002/003:actual60deg versus Lua30deg; callers Radar_System,tasking,Engagement,radar_format",
+      "profile_conditions": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "replacement_owner": "AesaRadar completed task/deadline plus owned report validity",
+      "proposed_action": "Agree contract, remake tests, migrate consumers, remove obsolete enclosing admission; preserve saved commands",
+      "migration_order": "Agree contract, remake tests, migrate consumers, remove obsolete enclosing admission; preserve saved commands",
+      "compatibility_impact": "Preserve host-required entry points, saved IDs, HUD/audio and old evidence; mixed unsupported packages must be disclosed.",
+      "tests_required": "Independent current-owner normal/limit/failure/recovery suite, then affected host/visual qualification.",
+      "packages": [
+        "P-RAD-001"
+      ],
+      "status": "planned",
+      "disposition": "retain until specified retirement gate; no audit deletion",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "accountable_chat": "chat3",
+      "known_callers_consumers": "RAD-PROBE-002/003:actual60deg versus Lua30deg; callers Radar_System,tasking,Engagement,radar_format",
+      "profile_host_conditions": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "retirement_gate": "Complete named replacement/migration order and independently rebuilt listed tests; prove remaining dynamic/host/saved-control users are migrated or deliberately retained. No deletion in audit.",
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-RAD-002",
+      "anchors": [
+        {
+          "path": "EFM/source/NativeGroundReturns.h",
+          "start_line": 1,
+          "end_line": 36,
+          "sha256": "15dfd1e88075fe2362b653288260f7bcac80809b4b51e2831005a59dbb8e7099",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\EFM\\source\\NativeGroundReturns.h",
+          "line": 1
+        }
+      ],
+      "classification": "retired producer/test path",
+      "evidence": "NativeGroundRadar forces count0; decoder only test include; F22G Lua overlay/tests remain",
+      "confidence": "high for checked-in trace; host/external caller limits explicit",
+      "callers_consumers": "NativeGroundRadar forces count0; decoder only test include; F22G Lua overlay/tests remain",
+      "profile_conditions": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "replacement_owner": "NativeGroundSensor current measured contacts and NativeGroundVideo image reference",
+      "proposed_action": "Confirm supported profiles/external parameter policy; delete/remake obsolete tests; remove noise decoder/overlay after current designation checks",
+      "migration_order": "Confirm supported profiles/external parameter policy; delete/remake obsolete tests; remove noise decoder/overlay after current designation checks",
+      "compatibility_impact": "Preserve host-required entry points, saved IDs, HUD/audio and old evidence; mixed unsupported packages must be disclosed.",
+      "tests_required": "Independent current-owner normal/limit/failure/recovery suite, then affected host/visual qualification.",
+      "packages": [
+        "P-RAD-001"
+      ],
+      "status": "planned",
+      "disposition": "retain until specified retirement gate; no audit deletion",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "accountable_chat": "chat3",
+      "known_callers_consumers": "NativeGroundRadar forces count0; decoder only test include; F22G Lua overlay/tests remain",
+      "profile_host_conditions": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "retirement_gate": "Complete named replacement/migration order and independently rebuilt listed tests; prove remaining dynamic/host/saved-control users are migrated or deliberately retained. No deletion in audit.",
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-RAD-003",
+      "anchors": [
+        {
+          "path": "Cockpit/Scripts/Systems/AG_Radar_System.lua",
+          "start_line": 71,
+          "end_line": 85,
+          "sha256": "c19decf39d36370b1b1d3f6f55e86493770c7373f270912b54f27bc5ae5ce828",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\Systems\\AG_Radar_System.lua",
+          "line": 71
+        }
+      ],
+      "classification": "compatibility fallback",
+      "evidence": "Schema2 gate when present; source-marker-absent/older schema still permits coordinate selection; production indicator normally supplies marker",
+      "confidence": "high for checked-in trace; host/external caller limits explicit",
+      "callers_consumers": "Schema2 gate when present; source-marker-absent/older schema still permits coordinate selection; production indicator normally supplies marker",
+      "profile_conditions": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "replacement_owner": "current coherent schema2 image reference or explicitly selected coordinate-only capability",
+      "proposed_action": "Qualify current package, declare unsupported mixed schemas unavailable, retire implicit healthy fallback; no new shim by default",
+      "migration_order": "Qualify current package, declare unsupported mixed schemas unavailable, retire implicit healthy fallback; no new shim by default",
+      "compatibility_impact": "Preserve host-required entry points, saved IDs, HUD/audio and old evidence; mixed unsupported packages must be disclosed.",
+      "tests_required": "Independent current-owner normal/limit/failure/recovery suite, then affected host/visual qualification.",
+      "packages": [
+        "P-RAD-004"
+      ],
+      "status": "planned",
+      "disposition": "retain until specified retirement gate; no audit deletion",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "accountable_chat": "chat3",
+      "known_callers_consumers": "Schema2 gate when present; source-marker-absent/older schema still permits coordinate selection; production indicator normally supplies marker",
+      "profile_host_conditions": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "retirement_gate": "Complete named replacement/migration order and independently rebuilt listed tests; prove remaining dynamic/host/saved-control users are migrated or deliberately retained. No deletion in audit.",
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-RAD-004",
+      "anchors": [
+        {
+          "path": "Cockpit/Scripts/Systems/Radar_Telemetry.lua",
+          "start_line": 328,
+          "end_line": 350,
+          "sha256": "e53cdf10a9a417fb4ee87cdde5c0ed98259735499cab66135bdbe191314fee8d",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\Systems\\Radar_Telemetry.lua",
+          "line": 328
+        }
+      ],
+      "classification": "obsolete diagnostics",
+      "evidence": "Current F22A writer; telemetry retains F22O and F22N readers,default enabled",
+      "confidence": "high for checked-in trace; host/external caller limits explicit",
+      "callers_consumers": "Current F22A writer; telemetry retains F22O and F22N readers,default enabled",
+      "profile_conditions": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "replacement_owner": "bounded current-schema trace",
+      "proposed_action": "Remove retired readers, measure logging budget, preserve historical format readers outside runtime",
+      "migration_order": "Remove retired readers, measure logging budget, preserve historical format readers outside runtime",
+      "compatibility_impact": "Preserve host-required entry points, saved IDs, HUD/audio and old evidence; mixed unsupported packages must be disclosed.",
+      "tests_required": "Independent current-owner normal/limit/failure/recovery suite, then affected host/visual qualification.",
+      "packages": [
+        "P-RAD-004"
+      ],
+      "status": "planned",
+      "disposition": "retain until specified retirement gate; no audit deletion",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "accountable_chat": "chat3",
+      "known_callers_consumers": "Current F22A writer; telemetry retains F22O and F22N readers,default enabled",
+      "profile_host_conditions": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "retirement_gate": "Complete named replacement/migration order and independently rebuilt listed tests; prove remaining dynamic/host/saved-control users are migrated or deliberately retained. No deletion in audit.",
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-RAD-005",
+      "anchors": [
+        {
+          "path": "EFM/source/NativeGroundSensor.cpp",
+          "start_line": 116,
+          "end_line": 124,
+          "sha256": "6593a916ec9e82fdf7439caa189b35a1f3314c3763c4f5a4689208a94daaff6c",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\EFM\\source\\NativeGroundSensor.cpp",
+          "line": 116
+        }
+      ],
+      "classification": "analysis/complexity exception",
+      "evidence": "Strict build C6011 despite readable() null rejection; long map/string native update bodies remain",
+      "confidence": "high for checked-in trace; host/external caller limits explicit",
+      "callers_consumers": "Strict build C6011 despite readable() null rejection; long map/string native update bodies remain",
+      "profile_conditions": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "replacement_owner": "same provider with explicit pointer contract/prebound handles/bounded helpers",
+      "proposed_action": "Resolve or narrowly justify warning then focused contract-tested refactor; preserve ABI and useful degraded behavior",
+      "migration_order": "Resolve or narrowly justify warning then focused contract-tested refactor; preserve ABI and useful degraded behavior",
+      "compatibility_impact": "Preserve host-required entry points, saved IDs, HUD/audio and old evidence; mixed unsupported packages must be disclosed.",
+      "tests_required": "Independent current-owner normal/limit/failure/recovery suite, then affected host/visual qualification.",
+      "packages": [
+        "P-RAD-004"
+      ],
+      "status": "planned",
+      "disposition": "retain until specified retirement gate; no audit deletion",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\radar\\lane.json",
+      "accountable_chat": "chat3",
+      "known_callers_consumers": "Strict build C6011 despite readable() null rejection; long map/string native update bodies remain",
+      "profile_host_conditions": "public_f22_manual_recovery revision1; radar selected; no exact operational block/OFP established",
+      "retirement_gate": "Complete named replacement/migration order and independently rebuilt listed tests; prove remaining dynamic/host/saved-control users are migrated or deliberately retained. No deletion in audit.",
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-WPN-001",
+      "candidate": [
+        "Gun_Motion.lua",
+        "Gun_Maneuver_Observer.lua",
+        "Gun_Cue_Stabilizer.lua::primary"
+      ],
+      "disposition": "planned removal of unused production estimator/primary damping after caller and research classification",
+      "evidence": "rg production finds Gun_Motion only defines itself and imports Observer; Gun_Director source2 no longer loads either. Maneuver stabilizer remains live.",
+      "prerequisites": [
+        "Preserve original research/source lineage and needed comparison harness as explicitly non-production research",
+        "Delete/remake existing tests rather than preserving superseded estimator assertions as acceptance",
+        "Keep source2 highrate primary and current maneuver geometry"
+      ],
+      "package": "P-WPN-008",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "packages": [
+        "P-WPN-008"
+      ],
+      "classification": "unused production estimator / retained live stabilizer boundary",
+      "proposed_action": "planned removal of unused production estimator/primary damping after caller and research classification",
+      "accountable_chat": "chat4",
+      "confidence": "High for scoped production import search; dynamic/research consumers require execution-time closure",
+      "replacement_owner": "Chat4 source2 director and live maneuver stabilizer",
+      "migration_order": "Classify source and research callers -> remake requirements tests -> migrate any live caller -> remove exact unused estimator/primary damping",
+      "compatibility_impact": "Preserve source2 gun workflow and live maneuver stabilizer; preserve research lineage",
+      "tests_required": "Remade source2 tracking, bursts, maneuver geometry and caller/import checks",
+      "anchors": [
+        {
+          "path": "Cockpit/Scripts/Systems/Gun_Motion.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\Systems\\Gun_Motion.lua",
+          "line": 1,
+          "end_line": 185,
+          "function_or_region": "<chunk>",
+          "sha256": "a5ed597f5156bc8216afea38340bb9999ff43e1212d75dd759fb74c6823b8ed3"
+        },
+        {
+          "path": "Cockpit/Scripts/Systems/Gun_Maneuver_Observer.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\Systems\\Gun_Maneuver_Observer.lua",
+          "line": 1,
+          "end_line": 55,
+          "function_or_region": "<chunk>",
+          "sha256": "eb52eafb2f7a63dbda3eadbf7d0bef89adde06aa264c986f6332be74bb857ea1"
+        },
+        {
+          "path": "Cockpit/Scripts/Systems/Gun_Cue_Stabilizer.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\Systems\\Gun_Cue_Stabilizer.lua",
+          "line": 79,
+          "end_line": 83,
+          "function_or_region": "primary",
+          "sha256": "0dd7d375e784554c1dd171da8b67cf020adafa063d0adb36c7b2d17335eda18f"
+        }
+      ],
+      "known_callers_consumers": [
+        {
+          "entry": "Cockpit/Scripts/Systems/Gun_Motion.lua::<chunk>:1",
+          "callers_consumers": [
+            "dofile(LockOn_Options.script_path .. 'Systems/Gun_Maneuver_Observer.lua')",
+            "observer:integral(",
+            "observer:reset(",
+            "observer:update(",
+            "self:reset(",
+            "state:reset(",
+            "state:update("
+          ],
+          "reachability": "Host chunk/device registration or helper called by owning module; explicitly unused candidates listed in cleanup. Numeric registrations assigned separate registration reviewer."
+        },
+        {
+          "entry": "Cockpit/Scripts/Systems/Gun_Maneuver_Observer.lua::<chunk>:1",
+          "callers_consumers": [
+            "M:integral(",
+            "M:reset(",
+            "M:update("
+          ],
+          "reachability": "Host chunk/device registration or helper called by owning module; explicitly unused candidates listed in cleanup. Numeric registrations assigned separate registration reviewer."
+        },
+        {
+          "entry": "Cockpit/Scripts/Systems/Gun_Cue_Stabilizer.lua::primary:79:4",
+          "callers_consumers": [
+            "state:primary("
+          ],
+          "reachability": "Host chunk/device registration or helper called by owning module; explicitly unused candidates listed in cleanup. Numeric registrations assigned separate registration reviewer."
+        }
+      ],
+      "profile_host_conditions": "Current selected public_f22_manual_recovery@1; host/input/mission/test reachability remains an execution-time retirement gate, not an automatic delete permission.",
+      "retirement_gate": "Complete named replacement/migration order and independently rebuilt listed tests; prove remaining dynamic/host/saved-control users are migrated or deliberately retained. No deletion in audit.",
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-WPN-002",
+      "candidate": [
+        "Ballistic_Point_Mass.lua",
+        "AG_Release_Geometry.lua",
+        "RWR_Computer.lua::associate"
+      ],
+      "disposition": "unused production candidates; remove after dynamic/host loader proof",
+      "evidence": "No production dofile/call found in Cockpit/EFM; training-only gravity models superseded by actual native trajectories; exact RF-source helper is not legitimate radar join.",
+      "prerequisites": [
+        "Resolve tools/research/test callers explicitly",
+        "Retain original evidence, no compatibility wrapper by default",
+        "Actual native trajectory and source-aware association replacement qualification"
+      ],
+      "package": "P-WPN-008",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "packages": [
+        "P-WPN-008"
+      ],
+      "classification": "unused production helper candidates, host reachability unresolved",
+      "proposed_action": "unused production candidates; remove after dynamic/host loader proof",
+      "accountable_chat": "chat4",
+      "confidence": "Medium; absence of scoped production references is not global reachability proof",
+      "replacement_owner": "Chat4 qualified native trajectories and provenance-aware RF association",
+      "migration_order": "Resolve dynamic/host/tool loaders -> qualify actual replacement -> migrate callers -> remove exact obsolete helper",
+      "compatibility_impact": "Keep independent radar/RWR identity and active host registrations; no broad module removal",
+      "tests_required": "Remade native trajectory, RF association, loader and research harness checks",
+      "anchors": [
+        {
+          "path": "Cockpit/Scripts/Systems/Ballistic_Point_Mass.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\Systems\\Ballistic_Point_Mass.lua",
+          "line": 1,
+          "end_line": 47,
+          "function_or_region": "<chunk>",
+          "sha256": "7b2c95b4614af2b5d0fd1dc3b7a1147b01b5846f79623a7843ea74f4b290a4fa"
+        },
+        {
+          "path": "Cockpit/Scripts/Systems/AG_Release_Geometry.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\Systems\\AG_Release_Geometry.lua",
+          "line": 1,
+          "end_line": 23,
+          "function_or_region": "<chunk>",
+          "sha256": "41c5e5e9e95318b01b3301fd221f37960c9b0007a3a74c3d16f223eebdfee13b"
+        },
+        {
+          "path": "Cockpit/Scripts/Systems/RWR_Computer.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\Systems\\RWR_Computer.lua",
+          "line": 132,
+          "end_line": 141,
+          "function_or_region": "associate",
+          "sha256": "99812709a7c2c54636113ab1114ae036ac43031fab68e79be7b2e61d5dbbe9b2"
+        }
+      ],
+      "known_callers_consumers": [
+        {
+          "entry": "Cockpit/Scripts/Systems/Ballistic_Point_Mass.lua::<chunk>:1",
+          "callers_consumers": [],
+          "reachability": "Host chunk/device registration or helper called by owning module; explicitly unused candidates listed in cleanup. Numeric registrations assigned separate registration reviewer."
+        },
+        {
+          "entry": "Cockpit/Scripts/Systems/AG_Release_Geometry.lua::<chunk>:1",
+          "callers_consumers": [],
+          "reachability": "Host chunk/device registration or helper called by owning module; explicitly unused candidates listed in cleanup. Numeric registrations assigned separate registration reviewer."
+        },
+        {
+          "entry": "Cockpit/Scripts/Systems/RWR_Computer.lua::associate:132:1",
+          "callers_consumers": [
+            "r:associate("
+          ],
+          "reachability": "Host chunk/device registration or helper called by owning module; explicitly unused candidates listed in cleanup. Numeric registrations assigned separate registration reviewer."
+        }
+      ],
+      "profile_host_conditions": "Current selected public_f22_manual_recovery@1; host/input/mission/test reachability remains an execution-time retirement gate, not an automatic delete permission.",
+      "retirement_gate": "Complete named replacement/migration order and independently rebuilt listed tests; prove remaining dynamic/host/saved-control users are migrated or deliberately retained. No deletion in audit.",
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-WPN-003",
+      "candidate": [
+        "Weapons/GBU_32.lua legacy definition",
+        "{GBU32_JDAM} catalogue entry"
+      ],
+      "disposition": "migrate operational consumers; retain mission alias only deliberately unavailable until qualified",
+      "evidence": "F-WPN004 actual type mismatch, registration reviewer extends preset map",
+      "prerequisites": [
+        "Search saved/packaged presets and supported mission format migration",
+        "Do not delete alias before explicit compatibility disposition",
+        "Stock bomb complete native targeting/effect gate"
+      ],
+      "package": "P-WPN-007",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "packages": [
+        "P-WPN-007"
+      ],
+      "classification": "legacy weapon alias with confirmed type mismatch",
+      "proposed_action": "migrate operational consumers; retain mission alias only deliberately unavailable until qualified",
+      "accountable_chat": "chat4",
+      "confidence": "High source mismatch; historical mission use remains unknown",
+      "replacement_owner": "Chat4 qualified stock bomb/alias policy under P-WPN-007",
+      "migration_order": "Map presets/mission aliases -> qualify stock targeting/effects -> migrate operational users -> retain deliberately unavailable alias or remove only with compatibility disposition",
+      "compatibility_impact": "Saved missions and AI/MP loadouts may use alias; migration decision required",
+      "tests_required": "R-WPN-005/007 and R-REG-001/002/003 alias registration, preset, station/type and native release checks",
+      "anchors": [
+        {
+          "path": "Weapons/GBU_32.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Weapons\\GBU_32.lua",
+          "line": 1,
+          "end_line": 180,
+          "function_or_region": "<chunk>",
+          "sha256": "22d0a38b36ce5a3656cf29c2db48b405d7cab0c931de712fc97b100e6e07dae8"
+        },
+        {
+          "path": "Cockpit/Scripts/Systems/Store_Capabilities.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\Systems\\Store_Capabilities.lua",
+          "line": 1,
+          "end_line": 81,
+          "function_or_region": "<chunk>",
+          "sha256": "c68aa321ae9469f6db40cfea0b27aa26b6b8e80bc86d3d99e85710ca730e2da8"
+        }
+      ],
+      "known_callers_consumers": [
+        {
+          "entry": "Weapons/GBU_32.lua::<chunk>:1",
+          "callers_consumers": "Registered in loader and internal5/7; current supported-guided capability is challenged by weapons/assurance lane",
+          "reachability": "Registered in loader and internal5/7; current supported-guided capability is challenged by weapons/assurance lane"
+        },
+        {
+          "entry": "Cockpit/Scripts/Systems/Store_Capabilities.lua::<chunk>:1",
+          "callers_consumers": [
+            "dofile(LockOn_Options.script_path..'Systems/Equipment_Profile.lua')"
+          ],
+          "reachability": "Host chunk/device registration or helper called by owning module; explicitly unused candidates listed in cleanup. Numeric registrations assigned separate registration reviewer."
+        }
+      ],
+      "profile_host_conditions": "Current selected public_f22_manual_recovery@1; host/input/mission/test reachability remains an execution-time retirement gate, not an automatic delete permission.",
+      "retirement_gate": "Complete named replacement/migration order and independently rebuilt listed tests; prove remaining dynamic/host/saved-control users are migrated or deliberately retained. No deletion in audit.",
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-WPN-004",
+      "candidate": [
+        "Weapon_System.lua::update/handle_command",
+        "Engagement_System.lua::update",
+        "NativeSidewinder.cpp::update/publish_launch_events",
+        "NativeGunSight.cpp::calculate"
+      ],
+      "disposition": "focused phase extraction and explicit exception retirement, no mass formatting",
+      "evidence": "Large mixed-control/publication/native paths, recurring maps/vectors/strings and time-window-only histories",
+      "prerequisites": [
+        "Independently rebuilt transition/packet/lifecycle suite",
+        "Measure real callback cost before numeric budget",
+        "Preserve single owner and request/native-effect separation"
+      ],
+      "package": "P-WPN-008",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "packages": [
+        "P-WPN-008"
+      ],
+      "classification": "large mixed-phase callbacks and performance candidates",
+      "proposed_action": "focused phase extraction and explicit exception retirement, no mass formatting",
+      "accountable_chat": "chat4",
+      "confidence": "High structural observation; callback cost and behavior impact unmeasured",
+      "replacement_owner": "Chat4 existing authoritative weapon/engagement/native owners",
+      "migration_order": "Remake behavioral suite -> measure callback paths -> extract phases without a second owner -> retire exact obsolete paths",
+      "compatibility_impact": "Keep native callback lifetime, source2 gun geometry and accepted versus actual effect separation",
+      "tests_required": "Remade transition, error injection, lifecycle, packet and measured callback-budget checks",
+      "anchors": [
+        {
+          "path": "Cockpit/Scripts/Systems/Weapon_System.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\Systems\\Weapon_System.lua",
+          "line": 779,
+          "end_line": 1114,
+          "function_or_region": "update",
+          "sha256": "516293d3015b883ebbf0fa98963dab704dbefe88511ccddec417b5bffdb4d5f3"
+        },
+        {
+          "path": "Cockpit/Scripts/Systems/Weapon_System.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\Systems\\Weapon_System.lua",
+          "line": 553,
+          "end_line": 761,
+          "function_or_region": "handle_command",
+          "sha256": "516293d3015b883ebbf0fa98963dab704dbefe88511ccddec417b5bffdb4d5f3"
+        },
+        {
+          "path": "Cockpit/Scripts/Systems/Engagement_System.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\Systems\\Engagement_System.lua",
+          "line": 79,
+          "end_line": 248,
+          "function_or_region": "update",
+          "sha256": "6f3ecc97597e4d03cb6b090341af07f4ef2311739e5efc580a9df0dbee29d792"
+        },
+        {
+          "path": "EFM/source/NativeSidewinder.cpp",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\EFM\\source\\NativeSidewinder.cpp",
+          "line": 704,
+          "end_line": 853,
+          "function_or_region": "NativeSidewinder::update( EDPARAM & p , double dt)",
+          "sha256": "bfee40246d6b27180a4a84df63243df218b906b966b0bee141894bd30b262ce6"
+        },
+        {
+          "path": "EFM/source/NativeSidewinder.cpp",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\EFM\\source\\NativeSidewinder.cpp",
+          "line": 432,
+          "end_line": 507,
+          "function_or_region": "NativeSidewinder::publish_launch_events( EDPARAM & p)",
+          "sha256": "bfee40246d6b27180a4a84df63243df218b906b966b0bee141894bd30b262ce6"
+        },
+        {
+          "path": "EFM/source/NativeGunSight.cpp",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\EFM\\source\\NativeGunSight.cpp",
+          "line": 225,
+          "end_line": 414,
+          "function_or_region": "NativeGunSight::calculate( EDPARAM & p)",
+          "sha256": "6c18cee665413400df6ee3053f965b8c2e2f4d462f1dc94cd7e47f062c179408"
+        }
+      ],
+      "known_callers_consumers": [
+        {
+          "entry": "Cockpit/Scripts/Systems/Weapon_System.lua::update:779:0",
+          "callers_consumers": [
+            "AIR_ORIDE:set(",
+            "ARM_STATUS:set(",
+            "AVAILABLE:set(",
+            "BAY_C_ARG:set(",
+            "BAY_L_ARG:set(",
+            "BAY_R_ARG:set(",
+            "BAY_STATION:get(",
+            "CUE_VALID:set(",
+            "DETENT:set(",
+            "DOGFIGHT:set(",
+            "GROUND_ORIDE:get(",
+            "GROUND_POWER:get("
+          ],
+          "reachability": "Host chunk/device registration or helper called by owning module; explicitly unused candidates listed in cleanup. Numeric registrations assigned separate registration reviewer."
+        },
+        {
+          "entry": "Cockpit/Scripts/Systems/Weapon_System.lua::handle_command:553:0",
+          "callers_consumers": [
+            "HUD_MODE:set(",
+            "MAIN_POWER:get(",
+            "WoW:get(",
+            "ag_stores:backspace(",
+            "ag_stores:begin_entry(",
+            "ag_stores:cancel(",
+            "ag_stores:capture_target(",
+            "ag_stores:clear_target(",
+            "ag_stores:commit(",
+            "ag_stores:digit(",
+            "ag_stores:edit(",
+            "ag_stores:group("
+          ],
+          "reachability": "Host chunk/device registration or helper called by owning module; explicitly unused candidates listed in cleanup. Numeric registrations assigned separate registration reviewer."
+        },
+        {
+          "entry": "Cockpit/Scripts/Systems/Engagement_System.lua::update:79:0",
+          "callers_consumers": [
+            "ir_feedback:update(",
+            "physical_supply:update("
+          ],
+          "reachability": "Host chunk/device registration or helper called by owning module; explicitly unused candidates listed in cleanup. Numeric registrations assigned separate registration reviewer."
+        },
+        {
+          "entry": "native:EFM/source/NativeSidewinder.cpp::NativeSidewinder::update( EDPARAM & p , double dt):704",
+          "callers_consumers": [],
+          "reachability": "native host/caller analysis retained in lane review"
+        },
+        {
+          "entry": "native:EFM/source/NativeSidewinder.cpp::NativeSidewinder::publish_launch_events( EDPARAM & p):432",
+          "callers_consumers": [],
+          "reachability": "native host/caller analysis retained in lane review"
+        },
+        {
+          "entry": "native:EFM/source/NativeGunSight.cpp::NativeGunSight::calculate( EDPARAM & p):225",
+          "callers_consumers": [],
+          "reachability": "native host/caller analysis retained in lane review"
+        }
+      ],
+      "profile_host_conditions": "Current selected public_f22_manual_recovery@1; host/input/mission/test reachability remains an execution-time retirement gate, not an automatic delete permission.",
+      "retirement_gate": "Complete named replacement/migration order and independently rebuilt listed tests; prove remaining dynamic/host/saved-control users are migrated or deliberately retained. No deletion in audit.",
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-WPN-005",
+      "candidate": [
+        "Existing tests/test_weapon*.py",
+        "Existing tests/test_ew*.py",
+        "Existing tests/test_ir*.py",
+        "Existing tests/test_gun*.py",
+        "Existing tests/test_mws*.py",
+        "Existing tests/test_rwr*.py",
+        "Existing tactical/datalink/mission-information tests",
+        "EFM/tests native seeker/gun/bomb/MWS/datalink/contact-identity fixtures and runners"
+      ],
+      "disposition": "DELETE AND REMAKE during execution, not this audit",
+      "evidence": "Latest explicit user steering; all assigned fixture/runner/native mocks in P-INT002 retirement map",
+      "prerequisites": [
+        "Resolve exact test inventory by hash and accountable package before deletion",
+        "Derive independent requirements/host contracts first",
+        "No old assertions copied as acceptance oracle; no parallel authoritative legacy suite"
+      ],
+      "package": "P-WPN-008",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "packages": [
+        "P-WPN-008"
+      ],
+      "classification": "superseded tests and mocks; explicit user-requested execution-time rebuild",
+      "proposed_action": "DELETE AND REMAKE during execution, not this audit",
+      "accountable_chat": "chat4",
+      "confidence": "High: explicit user instruction; exact deletion set must be re-inventoried",
+      "replacement_owner": "Chat2 coordinates P-INT-002 manifest; Chat4 remakes its owned tests",
+      "migration_order": "Record exact inventory/hash/owner -> derive independent oracle and host contracts -> delete scoped old tests during execution -> remake -> run meaningful regressions",
+      "compatibility_impact": "No production code, recorded evidence, user missions, saved controls or unrelated test assets deleted",
+      "tests_required": "VERIFICATION-SPEC test_retirement_rebuild_map and independently derived requirements cases; no parallel legacy acceptance authority",
+      "anchors": [
+        {
+          "path": "tests/fixtures/gun_deferred_pursuit.csv",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\fixtures\\gun_deferred_pursuit.csv",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "3e39e921da80fd521655ea5b6bbf565dc6394a9f35eaf302eaaeb0e42a16cf91"
+        },
+        {
+          "path": "tests/gun_simulation.cpp",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\gun_simulation.cpp",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "f5424c2b54f5ec2517a5e852bb61e0bfe304f53c0f619a8fb54094a094c99a58"
+        },
+        {
+          "path": "tests/test_ag_delivery.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_ag_delivery.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "abf5f137e0589148b76b9f105e5247c84cdda86c42bfa9a84a3fd758ec8feefa"
+        },
+        {
+          "path": "tests/test_ag_usability.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_ag_usability.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "abfc77593a80e6b36460f8c9fec95d79c03e2c98ff0959f93498fcd6ff659ef4"
+        },
+        {
+          "path": "tests/test_ballistics.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_ballistics.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "8fe455de47fc8aedb8e888dbbd5cfe4fca160c1b46c3888abec6d1a7cac33d2f"
+        },
+        {
+          "path": "tests/test_combat_controls.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_combat_controls.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "f45b124ce15580bfbf831b7d3ad3894bf6c7682a849e9447508f75818d04899d"
+        },
+        {
+          "path": "tests/test_datalink.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_datalink.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "b56333215c60e69a57a8f407df0e08cf526cae4eac9669a3e3a720b6f7ac4448"
+        },
+        {
+          "path": "tests/test_defensive_lifecycle.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_defensive_lifecycle.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "1ee89b2c52395b6d13f973d544ccc6a0967a9dc94278c3d95f39221328444cd3"
+        },
+        {
+          "path": "tests/test_detected_hostile_identity.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_detected_hostile_identity.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "795712927747c0cf893dc4f4452ba53863c5f66e78869d08dfedcf0ab2b71fb7"
+        },
+        {
+          "path": "tests/test_ew_backend_lifecycle.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_ew_backend_lifecycle.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "88cfbef09ba8bd61f7b5772160b46f79b03ec393222b9b1a5faf6f20dabef5b4"
+        },
+        {
+          "path": "tests/test_ew_controls.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_ew_controls.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "71261511258d814e2ae58f8dc04fbcab30b55c8d2f6771a2bbe9e454ec26e384"
+        },
+        {
+          "path": "tests/test_ew_geolocation.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_ew_geolocation.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "cb4fc10fd7d5396ed5199aed0f4aa4b838b8719c35abd16d89b923f9b73722f8"
+        },
+        {
+          "path": "tests/test_ew_geolocation_transport.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_ew_geolocation_transport.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "c7bd91b1e0707992fb4eae4d9fe44c44bba8203644124c3cc4dcec9e16840d77"
+        },
+        {
+          "path": "tests/test_ew_programs.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_ew_programs.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "7babea2b14c52da01f82fd4298b1b01e1f2e8536aaf17658e2419876c43cb135"
+        },
+        {
+          "path": "tests/test_fault_identity.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_fault_identity.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "d1ce745d2bf06d30abe91bc2c49fc8c686b0ad34a48914e92db73ec9578a9ba7"
+        },
+        {
+          "path": "tests/test_gun_async.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_gun_async.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "3d42af454a5d996bceca9cab3d796cca48380718638c7afd110295855fc79e4a"
+        },
+        {
+          "path": "tests/test_gun_coherent_velocity.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_gun_coherent_velocity.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "63fefabeab3b36d5b697495d688893f77ef701da699bee6edb2b9505b4250989"
+        },
+        {
+          "path": "tests/test_gun_cue_stabilizer.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_gun_cue_stabilizer.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "2662567b8cbb508f810e0baebc621586dc6b84142665bbbb8c36339355df5bf4"
+        },
+        {
+          "path": "tests/test_gun_director.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_gun_director.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "0450a51857bd47e8ebbb0d67be4678218ec293a14fd8ade6263b62495d3c74ae"
+        },
+        {
+          "path": "tests/test_gun_fast_response.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_gun_fast_response.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "912053412f074c832d90ae59b07851c2a46d7e3e2ac174253bdf48e792dd592e"
+        },
+        {
+          "path": "tests/test_gun_flight_analysis.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_gun_flight_analysis.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "e9384c8beac3ccda2887107e7beea0da3c1c1ca4f71f4fb8dd18def1c1a94aed"
+        },
+        {
+          "path": "tests/test_gun_flight_replay.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_gun_flight_replay.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "753f6144d71bbce73bd3ce4587c1fe0788d44d7f35d29921dd628c3f9af9ec71"
+        },
+        {
+          "path": "tests/test_gun_frames.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_gun_frames.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "81dd18f61cd07b5fcd769be6ec83e1244959166f7aae83fc355ea4c8d95f324f"
+        },
+        {
+          "path": "tests/test_gun_funnel.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_gun_funnel.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "9fabab923fd74ab37c3de0dab05dc4f35d4e7b4b68fa2fe716224a43eb09c094"
+        },
+        {
+          "path": "tests/test_gun_funnel_replay.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_gun_funnel_replay.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "7f6680aa921521a667d671fd782aea2b25400a482536a05ac99951903ade9873"
+        },
+        {
+          "path": "tests/test_gun_intercept.cpp",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_gun_intercept.cpp",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "6083dc8fd0d8d316e6d255bd4722faee4e8034a7db9585655169bf71f079dc01"
+        },
+        {
+          "path": "tests/test_gun_maneuver.cpp",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_gun_maneuver.cpp",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "ad163739afed288841df116b03290e7a7e0260488ac3af4b74c8f26e4f62d1cf"
+        },
+        {
+          "path": "tests/test_gun_maneuver_display.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_gun_maneuver_display.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "8a26c8196c0ea1a2cc25857f2a10b3fb22a0410a3a943484ef3d4e5b562a2513"
+        },
+        {
+          "path": "tests/test_gun_measured_cadence.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_gun_measured_cadence.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "6f767ee9140a8c0cdcc836d1718ff3e2c1df8ff844cc0ef069ae7ec794e40488"
+        },
+        {
+          "path": "tests/test_gun_motion_noise.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_gun_motion_noise.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "6c6b843c77a6a4d5ea473629c41d705ed3645b03af2dfe0ef5eafbf694180a64"
+        },
+        {
+          "path": "tests/test_gun_motion_player.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_gun_motion_player.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "70b87c3545fa3a0c7a9d4aee49416288c64419179f47d84b934d55c8e9586e80"
+        },
+        {
+          "path": "tests/test_gun_no_fallback.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_gun_no_fallback.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "3c38fbc6e2f22668a0fe3d1d101b2bd218998ead5f607a6ee5d825604cebf6b2"
+        },
+        {
+          "path": "tests/test_gun_optical_alignment.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_gun_optical_alignment.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "b06736283cb6cd0673b37339661ca38c07f3b280338075771537a14d518a30fe"
+        },
+        {
+          "path": "tests/test_gun_packet_coherence.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_gun_packet_coherence.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "b5e17397fe454fd530a528d9c8c0656d2d7192fae9346d5040e5093b4e9fecfc"
+        },
+        {
+          "path": "tests/test_gun_reticle.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_gun_reticle.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "cbf33cab4aa823fa32ace9745244f855a617798a4c5836f09d8a17e8ba940ef8"
+        },
+        {
+          "path": "tests/test_gun_target_motion.cpp",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_gun_target_motion.cpp",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "45d3ba4817b17de9df3ffe3672e0baada33faff0fcd523c0a09c8dd28426f5c9"
+        },
+        {
+          "path": "tests/test_identity_evidence_age.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_identity_evidence_age.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "2e40ae94692a2619366b8cf2f809a6b43f7c22849ee7776f367876c756d2d326"
+        },
+        {
+          "path": "tests/test_ir_audio.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_ir_audio.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "c40e332c49eb2d52db3e549301844487fe563c32d6a7e7634ec5569231b7815c"
+        },
+        {
+          "path": "tests/test_ir_bay_owner.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_ir_bay_owner.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "21d9c7f730cbba79faefc3dae0d4b4702da60a96162545cc3a2bdecbf012e346"
+        },
+        {
+          "path": "tests/test_ir_feedback.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_ir_feedback.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "44542a6895cbc448efb7bc0eb849f11488b45f1db8613aaf29b45b8a74af8938"
+        },
+        {
+          "path": "tests/test_ir_preparation.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_ir_preparation.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "9fad2bd6091ec2a251327e9773dd29f11fa15e1ae4cd1cfd822ca9b25e6bce6a"
+        },
+        {
+          "path": "tests/test_ir_projection.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_ir_projection.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "3fce6a590826164af016200f82adef6635fea2db16166ee16c6f59960c7f770c"
+        },
+        {
+          "path": "tests/test_mws.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_mws.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "9f8ec49f9615e01e2ace0d9b6f81da15be2e5a4dc220f98c41f77138a15f3c53"
+        },
+        {
+          "path": "tests/test_native_ag_weapons.cpp",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_native_ag_weapons.cpp",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "6744aea3d0f06f2fce42cdcc3cb21bc01c16aef060e2c5ffa11c776944dfd9de"
+        },
+        {
+          "path": "tests/test_native_contact_identity.cpp",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_native_contact_identity.cpp",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "2018a4bd516abd556b413a9c645c8f41438f660893527fb34b8cb3222ade68c7"
+        },
+        {
+          "path": "tests/test_native_datalink.cpp",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_native_datalink.cpp",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "fa6b90c25916eaa6ea09aaf1941b8c91dbc4fed84be4a7af2280a7f2ed3e1f7b"
+        },
+        {
+          "path": "tests/test_native_gun_adapter.cpp",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_native_gun_adapter.cpp",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "10361ce288a7636cfe5f44b85621d5775eaaec9506745b7558259a2c843f3383"
+        },
+        {
+          "path": "tests/test_native_mws.cpp",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_native_mws.cpp",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "3b8871b487cdb65fa5da9bf24cbd2a65033279ae4e56b1693a398314b860e91a"
+        },
+        {
+          "path": "tests/test_native_seeker.cpp",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_native_seeker.cpp",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "4bd7759efd62535d205bedda2477b58410ca353f6c250503dddfc210c720cfa6"
+        },
+        {
+          "path": "tests/test_nav_ew_isolation.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_nav_ew_isolation.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "59f6fb43a86f99d37fdd45e292dc1fdbf7b7c2abb75f1e2c2fb52c1154c6777e"
+        },
+        {
+          "path": "tests/test_overhaul_ballistics.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_overhaul_ballistics.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "9839016eb66eddedf62a06094331af81f50c8fcb948d61cd4a47da20e4d3ecc7"
+        },
+        {
+          "path": "tests/test_overhaul_defensive_overview.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_overhaul_defensive_overview.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "5df47cd340fba4395d6aeefa6983ea0e2288f577254804031367377cffee9b68"
+        },
+        {
+          "path": "tests/test_overhaul_stores.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_overhaul_stores.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "9f30df0cd949bfd9837cc98531e02998a64cde7c6b3157e31a5778bfd4f0e880"
+        },
+        {
+          "path": "tests/test_overhaul_stores_actuators.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_overhaul_stores_actuators.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "4b5bc4ab269a809b1fd52a0eb0a397935382c092c28eb285d695e765c1d89508"
+        },
+        {
+          "path": "tests/test_overhaul_stores_display.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_overhaul_stores_display.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "3f4a775f82e2951a21c522da81f2bff268e5281c268098f3fcffece23902435e"
+        },
+        {
+          "path": "tests/test_overhaul_tactical_binding.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_overhaul_tactical_binding.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "1eedb9b9662b85a8f3c1ad0d5a621049df62614949340679de55cf0971502b5a"
+        },
+        {
+          "path": "tests/test_rwr_affiliation.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_rwr_affiliation.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "8ffa517da07c1cd1adbb4f2d1808b7a08bc00fa95625388cfc30925a59d5c203"
+        },
+        {
+          "path": "tests/test_rwr_audio.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_rwr_audio.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "176cc7e7fadb40e0d13d69a97671a84f2f22cec7ded97979aa23296f9106ab15"
+        },
+        {
+          "path": "tests/test_rwr_bearings.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_rwr_bearings.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "a8d88e1249a3aa07c4dbe4523f86fe3c77e19dffceee1ba4e380734895c340d9"
+        },
+        {
+          "path": "tests/test_rwr_proximity.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_rwr_proximity.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "24c48a103c6969e2899b9d393d8110fc40864ecb6917a40a12dbff7b47420a79"
+        },
+        {
+          "path": "tests/test_rwr_scenario_matrix.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_rwr_scenario_matrix.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "fa3eaa26d112ca6dbdf0c5adec33d7940800366d3ad68840d2f3a41ac2605909"
+        },
+        {
+          "path": "tests/test_store_registration.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_store_registration.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "adf69db27476a6f1ecff35d93e0a538ae14875db168b5be5639058a1fd9c5fe1"
+        },
+        {
+          "path": "tests/test_stores_context.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_stores_context.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "2062fa74f8f7c2068a8e79894320669d65e7feea8a0f3e959f91f8514465aeec"
+        },
+        {
+          "path": "tests/test_tactical_association.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_tactical_association.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "d2649db9125c157760c8e5d6242ed4cfc7d5422138c6f1cbf70fdcd3fd9ec498"
+        },
+        {
+          "path": "tests/test_tactical_identity_palette.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_tactical_identity_palette.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "3887aa0c5c9b1fa2a107c4767f090eb8f1bdb38340ebfeba0f244cb2cc68c29c"
+        },
+        {
+          "path": "tests/test_tactical_picture.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_tactical_picture.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "7507d7f0fad4da4eef4bbc21aa6434b1ba8ebc868321362516f1f6f221610947"
+        },
+        {
+          "path": "tests/test_tactical_provenance.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_tactical_provenance.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "9b3aaba110a0d66abbca6fe2af60d054772df9598cae2b182269a69dfc2835da"
+        },
+        {
+          "path": "tests/test_tactical_situation.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_tactical_situation.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "daea9a29563098792287761811f5bd98e77431b13843f9082fae9357538ecad6"
+        },
+        {
+          "path": "tests/test_tactical_startup.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_tactical_startup.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "3ea6a6fc48d9ef5a279430e1a82290043a7dd5db6c22fa2ce737de751d7cc4df"
+        },
+        {
+          "path": "tests/test_ufc_mouse_stores.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_ufc_mouse_stores.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "d230812c65f91aa003995dcd4910ca072e314218b4812ca0479a409195830bb9"
+        },
+        {
+          "path": "tests/test_vehicle_stores_adapter.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_vehicle_stores_adapter.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "14186705b36d562fee0adddc559b041189cad5e203bbf255d041aa67772b28b1"
+        },
+        {
+          "path": "tests/test_weapon_engagement.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_weapon_engagement.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "8aa1f96bc771709ceb5572e7792a3df07bfa7dc8585a8a6fbd4d6d1a46e1e0ae"
+        },
+        {
+          "path": "tests/test_weapon_hud_selection.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_weapon_hud_selection.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "970b6805f34369c329efb25dbf5244af7b31c844092400d8bed510ff381a9cb2"
+        },
+        {
+          "path": "tests/test_weapon_physical_consumer.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_weapon_physical_consumer.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "49bf6e5e06bd5ae82c6eee322453a49589d369b4845fa0d613d1551ee1caa873"
+        },
+        {
+          "path": "tests/test_weapon_transactions.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_weapon_transactions.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "926782bb7b8e95fd127b1f7d192409b676dfaa5e48136ec4a4506a2b3493a174"
+        },
+        {
+          "path": "tests/test_weapon_trigger_inputs.py",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\tests\\test_weapon_trigger_inputs.py",
+          "line": 1,
+          "end_line": 1,
+          "function_or_region": "test/fixture/runner retirement candidate; exact research classification before deletion",
+          "sha256": "aae459deaeb3776a7381d460c9c059722829ebcb3a8ddd1dc725b9a2d599be87"
+        }
+      ],
+      "known_callers_consumers": "Exact old test/handoff artifacts are reached by development tooling or later implementation readers; all dynamic users must be rechecked before retirement.",
+      "profile_host_conditions": "Current selected public_f22_manual_recovery@1; host/input/mission/test reachability remains an execution-time retirement gate, not an automatic delete permission.",
+      "retirement_gate": "Complete named replacement/migration order and independently rebuilt listed tests; prove remaining dynamic/host/saved-control users are migrated or deliberately retained. No deletion in audit.",
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-WPN-006",
+      "candidate": [
+        "Legacy input listeners10026/10007/10008 and commented legacy blocks",
+        "IRST host registration and experimental presets"
+      ],
+      "disposition": "review migration and applicability; no deletion merely because no ordinary Lua caller",
+      "evidence": "control_cleanup remaps saved controls; mission/AI/host registrations reachable outside cockpit Lua",
+      "prerequisites": [
+        "Preserve saved binding migration",
+        "Registration/preset player-AI-MP applicability decision",
+        "No silent host capability removal"
+      ],
+      "package": "P-WPN-007",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\weapons\\lane.json",
+      "packages": [
+        "P-WPN-007"
+      ],
+      "classification": "legacy input compatibility and optional host registration; retain pending migration decision",
+      "proposed_action": "review migration and applicability; no deletion merely because no ordinary Lua caller",
+      "accountable_chat": "chat4",
+      "confidence": "High source reachability; exact user bindings and host applicability require qualification",
+      "replacement_owner": "Chat4 registration policy with Chat2 input/focus adapter",
+      "migration_order": "Trace saved bindings and host/mission/AI users -> define applicability -> qualify migration -> retire only exact superseded path",
+      "compatibility_impact": "Preserve binding aliases needed for migration; IRST/experimental registrations are not automatically dead or selected player equipment",
+      "tests_required": "Remade saved-control migration, command edges, player/AI/MP registration and optional-equipment matrix",
+      "anchors": [
+        {
+          "path": "Cockpit/Scripts/Systems/Weapon_System.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\Systems\\Weapon_System.lua",
+          "line": 1,
+          "end_line": 1114,
+          "function_or_region": "<chunk>",
+          "sha256": "516293d3015b883ebbf0fa98963dab704dbefe88511ccddec417b5bffdb4d5f3"
+        },
+        {
+          "path": "Input/F-22A/control_cleanup.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Input\\F-22A\\control_cleanup.lua",
+          "line": 1,
+          "end_line": 139,
+          "function_or_region": "<chunk>",
+          "sha256": "504b34953b7c2490da9ff6b998cb20ac31b07e591d404e3db686000aeae01c65"
+        },
+        {
+          "path": "IRST Pod.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\IRST Pod.lua",
+          "line": 1,
+          "end_line": 65,
+          "function_or_region": "<chunk>",
+          "sha256": "4a3b388545b48de3818606fc08eeb55091d44fdb3a2c2ad2e75796234268d674"
+        },
+        {
+          "path": "IRST Sensor.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\IRST Sensor.lua",
+          "line": 1,
+          "end_line": 61,
+          "function_or_region": "<chunk>",
+          "sha256": "1666d208605eb04bfeaf325befa0495022e7c2b700bac887e34c1f99e5ccafea"
+        },
+        {
+          "path": "UnitPayloads/F-22A.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\UnitPayloads\\F-22A.lua",
+          "line": 1,
+          "end_line": 1040,
+          "function_or_region": "<chunk>",
+          "sha256": "adf5683ddeec51babd0039f99062e8cdbdef8bae7ed6cbea643ffee0fa51e9cb"
+        }
+      ],
+      "known_callers_consumers": [
+        {
+          "entry": "Cockpit/Scripts/Systems/Weapon_System.lua::<chunk>:1",
+          "callers_consumers": [
+            "AIR_ORIDE:set(",
+            "ARM_STATUS:set(",
+            "AVAILABLE:set(",
+            "BAY_C_ARG:set(",
+            "BAY_L_ARG:set(",
+            "BAY_OPTION:set(",
+            "BAY_R_ARG:set(",
+            "BAY_STATION:get(",
+            "CUE_VALID:set(",
+            "DETENT:set(",
+            "DOGFIGHT:set(",
+            "GENERATION:set("
+          ],
+          "reachability": "Host chunk/device registration or helper called by owning module; explicitly unused candidates listed in cleanup. Numeric registrations assigned separate registration reviewer."
+        },
+        {
+          "entry": "Input/F-22A/control_cleanup.lua::<chunk>:1",
+          "callers_consumers": "DCS input-profile load",
+          "reachability": "DCS input-profile load"
+        },
+        {
+          "entry": "IRST Pod.lua::<chunk>:1",
+          "callers_consumers": "entry.lua -> declare_pod closure -> declare_loadout; offered only station6",
+          "reachability": "entry.lua -> declare_pod closure -> declare_loadout; offered only station6"
+        },
+        {
+          "entry": "IRST Sensor.lua::<chunk>:1",
+          "callers_consumers": "entry.lua before IRST Pod; declare_sensor global",
+          "reachability": "entry.lua before IRST Pod; declare_sensor global"
+        },
+        {
+          "entry": "UnitPayloads/F-22A.lua::<chunk>:1",
+          "callers_consumers": "DCS unit payload loader returns local unitPayloads table, no owning physical integration",
+          "reachability": "DCS unit payload loader returns local unitPayloads table, no owning physical integration"
+        }
+      ],
+      "profile_host_conditions": "Current selected public_f22_manual_recovery@1; host/input/mission/test reachability remains an execution-time retirement gate, not an automatic delete permission.",
+      "retirement_gate": "Complete named replacement/migration order and independently rebuilt listed tests; prove remaining dynamic/host/saved-control users are migrated or deliberately retained. No deletion in audit.",
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-NAV-004",
+      "target": "Avionics unused raw HUD calculation locals and repeated handle/closure allocations",
+      "evidence": [
+        {
+          "path": "Cockpit/Scripts/Systems/Avionics.lua",
+          "line": 272,
+          "function_or_region": "unused pitch/roll/ias/alt_ft/tas/climb/flight_path",
+          "sha256": "707e1dd78f990e118eabc9b8110557edb7c51b0fcd204b362678950d6749370e"
+        }
+      ],
+      "decision": "During execution remove unused calculations after reader search; cache stable handles/constructors outside recurring update if measurements justify. Do not remove live HUD heading tape or raw side numbers until R-NAV-013 migration.",
+      "owner": "chat2",
+      "packages": [
+        "P-NAV-002",
+        "P-NAV-008"
+      ],
+      "tests": "Delete/remake touched historical tests during execution; verify unchanged valid behavior and absence of obsolete owner.",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\residue\\lane.json",
+      "classification": "unused calculations and repeated allocation candidates",
+      "proposed_action": "During execution remove unused calculations after reader search; cache stable handles/constructors outside recurring update if measurements justify. Do not remove live HUD heading tape or raw side numbers until R-NAV-013 migration.",
+      "accountable_chat": "chat2",
+      "disposition": "planned migration/removal or retention gate; no audit deletion",
+      "confidence": "High for unused local source reads; performance benefit not measured",
+      "replacement_owner": "Chat2 owned air-data publishers and display adapters",
+      "migration_order": "Migrate R-NAV-013 raw displays -> remake tests -> remove exact unused locals -> cache only measured safe stable allocations",
+      "compatibility_impact": "Preserve valid current HUD heading/side-number behavior until owner migration; no restyling",
+      "tests_required": "Remade validity/staleness/side-instrument tests and unchanged valid output; measured allocation check if caching",
+      "anchors": [
+        {
+          "path": "Cockpit/Scripts/Systems/Avionics.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\Systems\\Avionics.lua",
+          "line": 1,
+          "end_line": 467,
+          "function_or_region": "<chunk>",
+          "sha256": "707e1dd78f990e118eabc9b8110557edb7c51b0fcd204b362678950d6749370e"
+        }
+      ],
+      "known_callers_consumers": [
+        {
+          "entry": "Cockpit/Scripts/Systems/Avionics.lua::<chunk>:1",
+          "callers_consumers": "device_init creator AVIONICS; DCS invokes post_initialize, SetCommand and update every requested .006 s; common ADI, both UFD, mainpanel and HUD consume outputs.",
+          "reachability": "device_init creator AVIONICS; DCS invokes post_initialize, SetCommand and update every requested .006 s; common ADI, both UFD, mainpanel and HUD consume outputs."
+        }
+      ],
+      "profile_host_conditions": "Current selected public_f22_manual_recovery@1; host/input/mission/test reachability remains an execution-time retirement gate, not an automatic delete permission.",
+      "retirement_gate": "Complete named replacement/migration order and independently rebuilt listed tests; prove remaining dynamic/host/saved-control users are migrated or deliberately retained. No deletion in audit.",
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-NAV-005",
+      "target": "Duplicate right UFD G labels/readouts and repeated native object names",
+      "evidence": [
+        {
+          "path": "Cockpit/Scripts/UFD_RIGHT/base_page.lua",
+          "line": 1612,
+          "function_or_region": "first GTXT/G_NUM",
+          "sha256": "8346be40abfe3f4f9870977d4a66bdc417af22fa673458fe60165e12c20c0aa6"
+        },
+        {
+          "path": "Cockpit/Scripts/UFD_RIGHT/base_page.lua",
+          "line": 1654,
+          "function_or_region": "second GTXT/G_NUM",
+          "sha256": "8346be40abfe3f4f9870977d4a66bdc417af22fa673458fe60165e12c20c0aa6"
+        }
+      ],
+      "decision": "Review intended current appearance, keep one G readout at the chosen existing location/precision, use unique stored names for G/AOA/Mach, qualify native graph. No wholesale restyling.",
+      "owner": "chat2",
+      "packages": [
+        "P-NAV-008"
+      ],
+      "tests": "Remade descriptor/type/uniqueness plus native2D/VR capture; duplicate names source-confirmed, visible overlap/native lookup behavior unobserved.",
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\navigation\\residue\\lane.json",
+      "classification": "duplicate display descriptors and object-name candidates",
+      "proposed_action": "Review intended current appearance, keep one G readout at the chosen existing location/precision, use unique stored names for G/AOA/Mach, qualify native graph. No wholesale restyling.",
+      "accountable_chat": "chat2",
+      "disposition": "planned migration/removal or retention gate; no audit deletion",
+      "confidence": "High source duplication; actual host overlap/lookup effect unobserved",
+      "replacement_owner": "Chat2 one chosen current G readout and unique display descriptor names",
+      "migration_order": "Capture existing 2D/VR appearance -> define retained placement -> remake descriptor tests -> remove exact duplicate -> qualify host rendering",
+      "compatibility_impact": "Preserve chosen current layout/precision and HUD styling; native object identity may be observable",
+      "tests_required": "Remade descriptor type/name uniqueness and actual 2D/VR captures at valid/invalid/boundary values",
+      "anchors": [
+        {
+          "path": "Cockpit/Scripts/UFD_RIGHT/base_page.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\Cockpit\\Scripts\\UFD_RIGHT\\base_page.lua",
+          "line": 1,
+          "end_line": 1792,
+          "function_or_region": "<chunk>",
+          "sha256": "8346be40abfe3f4f9870977d4a66bdc417af22fa673458fe60165e12c20c0aa6"
+        }
+      ],
+      "known_callers_consumers": [
+        {
+          "entry": "Cockpit/Scripts/UFD_RIGHT/base_page.lua::<chunk>:1",
+          "callers_consumers": "UFD_RIGHT/init loads base page only; Avionics and qualified native owners publish fields.",
+          "reachability": "UFD_RIGHT/init loads base page only; Avionics and qualified native owners publish fields."
+        }
+      ],
+      "profile_host_conditions": "Current selected public_f22_manual_recovery@1; host/input/mission/test reachability remains an execution-time retirement gate, not an automatic delete permission.",
+      "retirement_gate": "Complete named replacement/migration order and independently rebuilt listed tests; prove remaining dynamic/host/saved-control users are migrated or deliberately retained. No deletion in audit.",
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-HOOK-001",
+      "classification": "installed source drift/unmanaged test material",
+      "anchors": [
+        {
+          "path": "installed-hooks/F22NativePreview.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22NativePreview.lua",
+          "line": 2,
+          "end_line": 3,
+          "sha256": "275da49485131451c5ffcbd0296f9d8d7cfdd075084b543fa4207321476686d6"
+        },
+        {
+          "path": "installed-hooks/F22GroundRegressionHook.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22GroundRegressionHook.lua",
+          "line": 1,
+          "end_line": 21,
+          "sha256": "d02d9fc4ce43ce93ade228255667c8f5214165ce71a9601b7f4960e64b356cea"
+        },
+        {
+          "path": "installed-hooks/F22DogfightValidation.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22DogfightValidation.lua",
+          "line": 1,
+          "end_line": 68,
+          "sha256": "72e4f90ef029c95227d2a20c3487e5a0d3727a21c51120ce0e270865b617af2e"
+        }
+      ],
+      "evidence": "NativePreview current-source mismatch; GroundRegression/Dogfight no matching repository source found. Host callbacks remain reachable by loader and mission basename; missing path is not dead-code proof.",
+      "confidence": "high for scoped inventory; no global filesystem proof",
+      "known_callers": [
+        "DCS.setUserCallbacks hook loader",
+        "matching mission onSimulationStart/Frame"
+      ],
+      "replacement_owner": "Chat2 managed source-controlled test harness/manifest",
+      "proposed_action": "Future authorized replacement/removal only after bounded replacement and exact mission/control/callback qualification; no audit deletion",
+      "migration_order": "Capturemanifest->remake replacement under PINT002->qualify callback/control lifecycle->retire exact superseded installed testhook",
+      "compatibility_impact": "Preserve passive trim recorder, user CSV/log/image/mission/control assets, saved bindings",
+      "retirement_gate": "One current testaction owner and exact installed hash/mission/control identity; no required active native callback lost",
+      "packages": [
+        "P-INT-002",
+        "P-INT-003",
+        "P-INT-007"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\assurance\\installed-hooks\\lane.json",
+      "accountable_chat": "chat2",
+      "disposition": "planned migration/removal or retention gate; no audit deletion",
+      "tests_required": "Remade bounded callback/control/queue/pause-reset lifecycle tests plus actual host qualification under P-INT-002/005/007; preserve passive recorder and user recordings.",
+      "known_callers_consumers": [
+        "DCS.setUserCallbacks hook loader",
+        "matching mission onSimulationStart/Frame"
+      ],
+      "profile_host_conditions": "Current selected public_f22_manual_recovery@1; host/input/mission/test reachability remains an execution-time retirement gate, not an automatic delete permission.",
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-HOOK-002",
+      "classification": "unused local diagnostic fields and unbounded pending-action path",
+      "anchors": [
+        {
+          "path": "installed-hooks/F22NativePreview.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22NativePreview.lua",
+          "line": 3,
+          "end_line": 3,
+          "sha256": "275da49485131451c5ffcbd0296f9d8d7cfdd075084b543fa4207321476686d6"
+        },
+        {
+          "path": "installed-hooks/F22DogfightValidation.lua",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22DogfightValidation.lua",
+          "line": 3,
+          "end_line": 3,
+          "sha256": "72e4f90ef029c95227d2a20c3487e5a0d3727a21c51120ce0e270865b617af2e"
+        }
+      ],
+      "evidence": "NativePreview localmission never read; Dogfight local last never used. Retained active callbacks/queues are not dead because these fields are unused.",
+      "confidence": "high exact locals",
+      "known_callers": [
+        "Enclosing active hook remains host-registered"
+      ],
+      "replacement_owner": "Current bounded diagnostic harness",
+      "proposed_action": "Remove unused local fields only within later focused driver remake, never wholehook deletion from local no-call evidence",
+      "migration_order": "Prove localreadgraph->replace driver/testoracle->precise cleanup",
+      "compatibility_impact": "No saved control or recording deletion",
+      "retirement_gate": "Remade regression and actual callback lifecycle proof",
+      "packages": [
+        "P-INT-002",
+        "P-INT-007"
+      ],
+      "review_source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\reviews\\assurance\\installed-hooks\\lane.json",
+      "accountable_chat": "chat2",
+      "disposition": "planned migration/removal or retention gate; no audit deletion",
+      "tests_required": "Remade bounded callback/control/queue/pause-reset lifecycle tests plus actual host qualification under P-INT-002/005/007; preserve passive recorder and user recordings.",
+      "known_callers_consumers": [
+        "Enclosing active hook remains host-registered"
+      ],
+      "profile_host_conditions": "Current selected public_f22_manual_recovery@1; host/input/mission/test reachability remains an execution-time retirement gate, not an automatic delete permission.",
+      "reachability_limit": "Scoped source/load/caller evidence in original lane review. A no-match text search or unused local is not global host/mission dead-code proof."
+    },
+    {
+      "id": "C-DEEP-001",
+      "classification": "Write-only legacy state / unused local candidate",
+      "title": "Write-only legacy g_assist_pos accumulator",
+      "anchors": [
+        {
+          "path": "EFM/source/RAPTOR.h",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\EFM\\source\\RAPTOR.h",
+          "line": 193,
+          "end_line": 193,
+          "sha256": "e37076d9ec3021fa89edf41f172efd97309d07b5db0b1936d2a57696d26f17cb"
+        },
+        {
+          "path": "EFM/source/RAPTOR.cpp",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\EFM\\source\\RAPTOR.cpp",
+          "line": 365,
+          "end_line": 370,
+          "sha256": "71d7660ce9b178295f033a1efbd0652d3b964ba501298545b4112888b0cc37a1"
+        }
+      ],
+      "evidence": "Scoped rg across EFM source/include, Cockpit, tools and tests: g_assist_pos only declaration and self-update; each named local only declaration. Full enclosing bodies reviewed. No ordinary host callback publishes this state.",
+      "confidence": "High for scoped current source/tools/tests read graph; no supported native export/consumer found. Not a claim about actual F22 equipment.",
+      "known_callers_consumers": "Enclosing simulate_vehicle_step/updateNavAntiCollisionLights remain active; exact candidate has no found downstream read. Do not delete enclosing callback.",
+      "profile_host_conditions": "Current public_f22_manual_recovery@1; native export/diagnostic/reference and later source drift must be checked before retirement.",
+      "replacement_owner": "Chat1 current physical/control owner with Chat2 RAPTOR integration",
+      "proposed_action": "During focused implementation only, remove precise unused local/write-only computations after current reader/export proof; no compatibility wrapper and no inferred missing real g-suit model.",
+      "migration_order": "Confirm exact current read/export graph -> rebuild affected owner tests -> retire only candidate in focused change -> compare achieved forces/controls/light feedback.",
+      "compatibility_impact": "Preserve real host callbacks, current gains/filters, saved commands, passive recordings and visible styling.",
+      "tests_required": "Affected independently rebuilt EFM/control/drawing normal/limit/failure/recovery cases remain numerically consistent; changed callbacks meet warnings or explicit reviewed exception.",
+      "retirement_gate": "No supported caller/export/diagnostic reader remains, every removed expression is side-effect-free, and affected regression holds. No audit deletion.",
+      "packages": [
+        "P-FLT-004"
+      ],
+      "accountable_chat": "chat1",
+      "disposition": "planned cleanup investigation/removal in execution; current aircraft unchanged",
+      "review_source": "reviews/lead/lane.json"
+    },
+    {
+      "id": "C-DEEP-002",
+      "classification": "Write-only legacy state / unused local candidate",
+      "title": "Unused callback locals fbw_scale, max_deflection_rate and flash_on",
+      "anchors": [
+        {
+          "path": "EFM/source/RAPTOR.cpp",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\EFM\\source\\RAPTOR.cpp",
+          "line": 437,
+          "end_line": 437,
+          "sha256": "71d7660ce9b178295f033a1efbd0652d3b964ba501298545b4112888b0cc37a1"
+        },
+        {
+          "path": "EFM/source/RAPTOR.cpp",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\EFM\\source\\RAPTOR.cpp",
+          "line": 466,
+          "end_line": 466,
+          "sha256": "71d7660ce9b178295f033a1efbd0652d3b964ba501298545b4112888b0cc37a1"
+        },
+        {
+          "path": "EFM/source/RAPTOR.cpp",
+          "absolute_path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\EFM\\source\\RAPTOR.cpp",
+          "line": 2074,
+          "end_line": 2074,
+          "sha256": "71d7660ce9b178295f033a1efbd0652d3b964ba501298545b4112888b0cc37a1"
+        }
+      ],
+      "evidence": "Scoped rg across EFM source/include, Cockpit, tools and tests: g_assist_pos only declaration and self-update; each named local only declaration. Full enclosing bodies reviewed. No ordinary host callback publishes this state.",
+      "confidence": "High exact lexical scope and source read graph; no side-effect expression in these three local initializers.",
+      "known_callers_consumers": "Enclosing simulate_vehicle_step/updateNavAntiCollisionLights remain active; exact candidate has no found downstream read. Do not delete enclosing callback.",
+      "profile_host_conditions": "Current public_f22_manual_recovery@1; native export/diagnostic/reference and later source drift must be checked before retirement.",
+      "replacement_owner": "Chat1 current physical/control owner with Chat2 RAPTOR integration",
+      "proposed_action": "During focused implementation only, remove precise unused local/write-only computations after current reader/export proof; no compatibility wrapper and no inferred missing real g-suit model.",
+      "migration_order": "Confirm exact current read/export graph -> rebuild affected owner tests -> retire only candidate in focused change -> compare achieved forces/controls/light feedback.",
+      "compatibility_impact": "Preserve real host callbacks, current gains/filters, saved commands, passive recordings and visible styling.",
+      "tests_required": "Affected independently rebuilt EFM/control/drawing normal/limit/failure/recovery cases remain numerically consistent; changed callbacks meet warnings or explicit reviewed exception.",
+      "retirement_gate": "No supported caller/export/diagnostic reader remains, every removed expression is side-effect-free, and affected regression holds. No audit deletion.",
+      "packages": [
+        "P-FLT-004"
+      ],
+      "accountable_chat": "chat1",
+      "disposition": "planned cleanup investigation/removal in execution; current aircraft unchanged",
+      "review_source": "reviews/lead/lane.json"
+    }
+  ]
+}

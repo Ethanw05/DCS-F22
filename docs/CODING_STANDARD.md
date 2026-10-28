@@ -45,6 +45,30 @@ Language behavior is documented in the [Lua 5.1 Reference Manual](https://www.lu
 
 ## Applying and checking the standard
 
+The expanded 28 October 2026 execution baseline also requires these focused
+controls. They do not claim aircraft or standards certification.
+
+- Preserve native resolve/conversion status independently of data; successful
+  numeric zero is valid. Missing exports, stale contexts and failed conversions
+  withdraw the affected authority. Retain already bool-checked readers.
+- Declare source schema, units/frame, observation clock, sample time, generation,
+  validity, bounds and reset/teardown for each coherent group. Receipt or copy
+  cannot renew source age or consent; sanitized defaults are not measurements.
+- Read the commit marker before the protected payload and validate marker/epoch
+  after every used field. Retire pending requests, filters and delayed reports
+  together across source-clock/generation changes.
+- Delete/remake tests in accountable batches from independent requirements and
+  actual host contracts. Historical diagnostic assertions are not acceptance.
+  Keep original research measurements and user recordings as evidence.
+- Keep explicit build outputs separate from installation. Capture source/dirty
+  state, tools, dependencies, DLL/assets/default controls and installed hooks.
+  Loaded identity requires actual host evidence.
+- Trace dynamic loaders, exports, saved controls and callbacks before cleanup.
+  Migrate the callers, then remove obsolete owners without a default wrapper.
+- Preserve identity-known, source observation time and clock/epoch independently
+  through transport, fusion and pilot qualifiers. Modeled schedules do not prove
+  observed DCS concurrency, memory ordering or native lifetime.
+
 NASA [SWE-061](https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695445/SWE-061%2B-%2BCoding%2BStandards) calls for defined and followed coding standards; [SWE-135](https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695494/SWE-135%2B-%2BStatic%2BAnalysis) calls for analysis during development and testing. For this project:
 
 - Use readable, normally spaced formatting. Explain units, assumptions and unusual failure handling; avoid dense one-line control code.

@@ -1,0 +1,46 @@
+{
+  "schema_version": "2.0",
+  "records": [
+    {
+      "path": "reviews/physical/INDEPENDENT-LEAD.json",
+      "sha256": "046dc3b91524e110dd66cb63e59a6f179279e24f5e6f7f14f324a540d01412bb",
+      "scope": "Independent bounded challenge of another author; exact fixture reuse/host limits disclosed in original artifact.",
+      "result": "Confirmed with narrowed applicability/protective controls; no live host/fidelity certification."
+    },
+    {
+      "path": "reviews/weapons/INDEPENDENT-RADAR.json",
+      "sha256": "f10d0451cf61f16536b70b8772d639b347d5715b9988a3ca856f0ba49d93c13a",
+      "scope": "Independent bounded challenge of another author; exact fixture reuse/host limits disclosed in original artifact.",
+      "result": "Confirmed with narrowed applicability/protective controls; no live host/fidelity certification."
+    },
+    {
+      "path": "reviews/radar/INDEPENDENT-WEAPONS.json",
+      "sha256": "077877576bd6ff1342b8b4f9f4afb40a878ea1243a976b6a4978c25fb110b89f",
+      "scope": "Independent bounded challenge of another author; exact fixture reuse/host limits disclosed in original artifact.",
+      "result": "Confirmed with narrowed applicability/protective controls; no live host/fidelity certification."
+    },
+    {
+      "path": "reviews/physical/final-package-review/REVIEW.json",
+      "sha256": "886dabe51186da4f885a09af142ef584db23e391a92174e2c2f2e0184a81a41c",
+      "scope": "Independent bounded package/interface/roles/dependency and claim-strength review; own physical/numerical stream excluded",
+      "result": "D-FINAL-001 resolved and independently rechecked; zero unresolved within scope.",
+      "limits": [
+        "Bounded independent architecture/packaging/claim review only; does not certify own physical/numerical stream or every other body finding.",
+        "Lead-known mechanical metrics/schema/link normalization excluded; no duplicate findings.",
+        "No production/test/installed/binary/prior package edits, no native build or simulator operation for this final review.",
+        "Per-body static review, numerical probes and acyclic graph do not prove actual DCS callback threads/ABI/allocators/GPU/native effects/2D/VR/MP or production aircraft coefficients.",
+        "Review-index/machine-ledger metadata may be refreshed after this review; structural semantic artifact changes need focused recheck."
+      ]
+    }
+  ],
+  "parent_review_index": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Fresh-Audit-2026-10-28-0413\\REVIEWS.json",
+  "policy": "Authors did not certify their own complete streams. Root integrates and preserves narrowed triggers/disagreements. Final package review separately indexed when complete.",
+  "resolved_narrowings": [
+    "Old-key release/opposite histories isolate reset filter; analogzero control neutral",
+    "Ground rollback future report rejected by actual Lua; normal rollback cancels request",
+    "NaN gun time rejected by current Lua; native producer contract still wrong",
+    "Identity nonzero input conditional while baseline achieved IFF unavailable; unknown control produces no hostile evidence",
+    "Packet preemption is modeled, not measured supported-host concurrency",
+    "Source lease renewal exposed only if query/sample precedes next control revalidation"
+  ]
+}
