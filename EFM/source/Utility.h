@@ -17,25 +17,6 @@ inline double deg(double x)
 	return x * 57.295779513082320876798154814105;
 };
 
-// Simple actuator
-inline double actuator(double value, double target, double down_speed, double up_speed)
-{
-	if ((value + up_speed) < target)
-	{
-		return value += up_speed;
-	}
-
-	else if ((value + down_speed) > target)
-	{
-		return value += down_speed;
-	}
-
-	else
-	{
-		return target;
-	}
-};
-
 // Rates in units/second; independent of EFM callback frequency.
 inline double actuator_timed(double value, double target, double down_rate, double up_rate, double dt)
 {
@@ -182,12 +163,6 @@ inline double lerp(const double* x, const double* f, size_t sz, double t)
 
 	This can be used for other stuff, like the throttle response curve.
 */
-
-// Linear interpolation smoothing function
-double smooth_lerp(double current, double target, double t)
-{
-	return current + (target - current) * t;
-};
 
 //Slew Rate Limiter
 inline double slew_rate_limit(double current, double target, double rate, double dt) {
