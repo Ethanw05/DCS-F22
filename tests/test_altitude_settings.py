@@ -15,7 +15,7 @@ lua=runtime()
 lua.execute('''
 local time=10;function get_model_time()return time end
 function get_base_data()return {getRadarAltitude=function()return 100 end}end
-dofile(SCRIPT_ROOT..'Systems/Altitude_System.lua');post_initialize()
+local altitude_physical=dofile(SCRIPT_ROOT..'../../tests/physical_frame_fixture.lua')({F22_ESSENTIAL_POWER=1});altitude_physical:publish(get_param_handle('F22_AP_CLOCK'):get());dofile(SCRIPT_ROOT..'Systems/Altitude_System.lua');post_initialize()
 local function p(n,v)get_param_handle(n):set(v)end
 local function g(n)return get_param_handle(n):get()end
 p('MAIN_POWER',1);p('EFM_HUD_VALID',1);update()

@@ -29,4 +29,14 @@ Physical cockpit consumers use Physical_Snapshot.lua: one fixed field list (at m
 
 Focused complexity cleanup separates snapshot epoch/payload checks, route point validation and reference formatting. Reference strings are recomputed only after their bounded input cache changes. These extractions preserve existing owner APIs and fail-closed behavior; the actual consumer/mission/native fixtures remain the behavior checks. This does not declare the retained large HUD/UFC/legacy callback functions compliant.
 
-The actual DLL coupling regression first reproduced acceptance of loose steering fields without a snapshot. It now rejects that startup path, accepts a complete current frame, disconnects on schema withdrawal and requires a deliberate new engagement after restoration. The deprecated native raw-steering handle/read route and optional-schema flag are removed. This source cleanup is separate from the installed playtest hotfixes.
+The actual DLL coupling regression first reproduced acceptance of loose steering fields without a snapshot. It now rejects that startup path, accepts a complete current frame, disconnects on schema withdrawal and requires a deliberate new engagement after restoration. The deprecated native raw-steering handle/read route and optional-schema flag are removed. The combined installed integration includes this contract; installation receipts identify its exact build.
+
+HUD flight/landing data, read-only mass/fuel/trim/supply references and altitude
+control now require the current physical envelope from startup. Pre-owner loose
+fields, computed CAS from host truth and animation-based gear/contact substitutes
+are removed. HUD cage and native pressure requests require current supply.
+Measured ADC health/age and achieved gear/contact govern their own indications;
+independent current barometric/standby sources remain available under their
+declared feeds. Invalid AoA never sends NaN to the render parameter. The actual
+startup regression failed before the change; current-frame, invalid/stale data,
+ADC degradation, landing contact, source/recovery and UFC transaction cases pass.

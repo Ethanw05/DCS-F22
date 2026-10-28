@@ -18,5 +18,11 @@ return function(values)
         put('F22_AP_CLOCK', clock)
         put('EFM_PHYSICAL_VALID', 1)
     end
+    function f:wrap(callback)
+        return function(...)
+            self:publish(get_param_handle('F22_AP_CLOCK'):get())
+            return callback(...)
+        end
+    end
     return f
 end

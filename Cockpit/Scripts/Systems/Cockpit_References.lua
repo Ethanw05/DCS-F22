@@ -21,11 +21,10 @@ local function fuel(sample)
         or internal<0 or external<0 then return 'FUEL --'end
     return string.format('FUEL %.0f LB',(internal+external)*2.204622622)
 end
-local function supply(sample,snapshot,get)
-    local value
-    if snapshot.owned then value=sample('F22_ESSENTIAL_POWER')else value=get('MAIN_POWER')end
-    if sample('EFM_VEHICLE_VALID')~=1 or not finite(value)then return 'SUPPLY --'end
-    return value>.5 and 'SUPPLY AVAILABLE'or'SUPPLY LOST'
+local function supply(sample)
+    local value=sample('F22_ESSENTIAL_POWER')
+    if sample('EFM_VEHICLE_VALID')~=1 or not Envelope.boolean(value)then return 'SUPPLY --'end
+    return value==1 and 'SUPPLY AVAILABLE'or'SUPPLY LOST'
 end
 local function gear(sample,snapshot)
     local down,up,unsafe=sample('EFM_GEAR_DOWN_LOCKED'),sample('EFM_GEAR_UP_LOCKED'),sample('EFM_GEAR_UNSAFE')
@@ -38,19 +37,16 @@ end
 function M.new(get,put)
     local snapshot=Envelope.new(get,fields)
     local function sample(key)
-        if not snapshot.owned then return get(key)end
         if snapshot.valid then return snapshot.values[key]end
     end
-    local previous,values={},{valid=false,owned=false,initialized=false}
+    local previous,values={},{valid=false,initialized=false}
     local function changed()
-        local different=not values.initialized or values.valid~=snapshot.valid or values.owned~=snapshot.owned
-        values.initialized,values.valid,values.owned=true,snapshot.valid,snapshot.owned
+        local different=not values.initialized or values.valid~=snapshot.valid
+        values.initialized,values.valid=true,snapshot.valid
         for index=1,#fields do
             local key=fields[index];local value=sample(key)
             if values[key]~=value then values[key]=value;different=true end
         end
-        local main=get('MAIN_POWER')
-        if values.main~=main then values.main=main;different=true end
         return different
     end
     local function publish(key,value)
@@ -62,7 +58,7 @@ function M.new(get,put)
         snapshot:update()
         if not changed()then return end
         publish('F22_REFERENCE_MASS',mass(sample));publish('F22_REFERENCE_TRIM',trim(sample))
-        publish('F22_REFERENCE_FUEL',fuel(sample));publish('F22_REFERENCE_SUPPLY',supply(sample,snapshot,get))
+        publish('F22_REFERENCE_FUEL',fuel(sample));publish('F22_REFERENCE_SUPPLY',supply(sample))
         publish('F22_REFERENCE_GEAR',gear(sample,snapshot))
     end
     return references
