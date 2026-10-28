@@ -3,7 +3,7 @@
   "owner": "chat4",
   "selected_profile": "public_f22_manual_recovery@1",
   "reviewed_head": "7513f931a8bf1016a72e8eb184a9c98074786e81",
-  "stage": "IMPLEMENTING_AFTER_HARNESS_READY",
+  "stage": "VERIFIED_SOURCE_SLICES_READY_FOR_SERIALIZED_INTEGRATION",
   "shared_gates": {
     "P_INT_001": "ADOPTED per integrator STATUS",
     "P_INT_002": "HARNESS_READY per integrator STATUS",
@@ -25,15 +25,17 @@
         "P-INT-001",
         "P-INT-002"
       ],
-      "status": "source implemented; eight independent replacement tests pass; native/DCS qualification open",
-      "tests": "2 legacy tests deleted/remade; tests/cases/test_weapon_release.py",
+      "status": "initial remedy committed98e626a; additional mode-held replay fixed and9 source tests pass; follow-up commit requested",
+      "tests": "9 independent release tests pass; two old tests deleted/remade",
       "native_runtime": "not qualified",
       "outcomes": {
         "normal": "matching native record only; count alone and wrong station/type rejected",
         "limit": "station shapes/count bounds; independent valid station retained",
         "failure": "nil/throwing backend, select/launch exceptions/rejection retire current request",
         "recovery": "fresh consent after reconciliation; late record updates history without current ACK"
-      }
+      },
+      "source_commit": "98e626a",
+      "followup": "Actual-owner test reproduced mode change followed by repeated held DOWN launching again. Master/delivery mode changes now consume held release until UP. Initial source commit98e626a; focused follow-up integration requested."
     },
     {
       "id": "P-WPN-002",
@@ -78,7 +80,8 @@
         "failure": "missing/throwing/nonfinite/negative clock unavailable; dispatch without effect never completes",
         "recovery": "rollback/recovery cancels consent; fresh request required"
       },
-      "event_provider": "no qualified production warning-event source; SEMI/AUTO unavailable with CM UNAV pilot control feedback"
+      "event_provider": "no qualified production warning-event source; SEMI/AUTO unavailable with CM UNAV pilot control feedback",
+      "source_commit": "98e626a"
     },
     {
       "id": "P-WPN-004",
@@ -145,16 +148,18 @@
         "P-INT-001",
         "P-INT-002"
       ],
-      "status": "finite ground-gun clock patch prepared; native region lease/caller cutover pending",
-      "tests": "not deleted or run; preserve pending HARNESS_READY",
+      "status": "Clock/full-flight/parameter-epoch consumer guards implemented and64 native software cases pass; whole native/lifetime/DCS qualification open",
+      "tests": "31 gun/clock/funnel/admission/context cases +15 native bomb +18 native TOF cases pass (64 total)",
       "native_runtime": "not qualified",
-      "patch": "gun-clock.patch",
+      "patch": "gun-clock.patch applied by integrator; leased full-flight regions implemented",
       "retained": "source2 simulator-assisted 120Hz primary gun unchanged",
       "blockers": [
-        "native read-adapter lease/checked caller migration",
-        "native finite clock replacement port",
-        "actual payload/gun threading/retirement and DCS effects"
-      ]
+        "Remaining P-INT-008 value-only readers, old context/handle caches and whole tactical packet admission",
+        "Original frozen request source clock/physical epoch mapping",
+        "Actual source2 native gun/shell/pose/burst, callback/thread/retirement and DCS qualification"
+      ],
+      "native_fixture": "tests/native/weapons_ground_clock.cpp",
+      "evidence": "native-flight-evidence.json"
     },
     {
       "id": "P-WPN-007",
@@ -175,13 +180,12 @@
         "P-INT-001",
         "P-INT-002"
       ],
-      "status": "legacy alias release authority withdrawn and IRST profile tag implemented; supplied preset patch prepared pending shared lease",
-      "tests": "one assigned legacy test deleted; 4 independent profile cases; two pass after capability fix, two pending supplied preset patch",
+      "status": "source remedy passes four profile tests; integrator applied preset patch with contiguous pylon records",
+      "tests": "1 old test deleted/remade; all 4 independent profile cases pass",
       "native_runtime": "not qualified",
       "patch": "payload-profile.patch",
       "blockers": [
-        "UnitPayloads shared lease",
-        "native selected store / AI / MP / optional backend qualification"
+        "native selected-store, AI/MP, optional backend/optics evidence remain unqualified"
       ]
     },
     {
@@ -206,8 +210,8 @@
         "P-WPN-006",
         "P-WPN-007"
       ],
-      "status": "6 of 76 assigned artifacts deleted/remade so far; remaining legacy artifacts excluded by independent common runner",
-      "tests": "test-remakes.json exact retirement identities",
+      "status": "7 of76 assigned legacy artifacts deleted/remade;69 remain quarantined pending their owning packages",
+      "tests": "test-remakes.json exact identities; independent common runner excludes remaining legacy suite",
       "native_runtime": "not qualified",
       "blockers": [
         "remaining package implementations and independent remakes",
@@ -281,5 +285,10 @@
     }
   ],
   "runtime_slot": "not acquired; no installation/simulator operations",
-  "build": "not invoked; current CMake output overwrites source bin"
+  "build": "not invoked; current CMake output overwrites source bin",
+  "current_main_head": "5cca15d56d5016a5b6f20aae7b79eb462ef10a33",
+  "source_commits": {
+    "release_cm_and_legacy_alias": "98e626a"
+  },
+  "new_user_requests": "user-requested-fixes.json (four additions)"
 }

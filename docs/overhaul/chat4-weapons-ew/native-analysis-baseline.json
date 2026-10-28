@@ -1,0 +1,17 @@
+[
+  {
+    "source": "NativeGunSight.cpp",
+    "pre_edit_git_sha256": "022f0b4647a9d82f17026b66c9d62d253eb57a22e1ae557e477b42c924fd07e7",
+    "translation_unit": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat4-ground-clock\\project\\gun_analyze_baseline.cpp"
+  },
+  {
+    "source": "NativeAGWeapons.cpp",
+    "pre_edit_git_sha256": "622f5ffdf4b5d272ce7e858a46c7f4c10c1ca4158855292968f6810193e51794",
+    "translation_unit": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat4-ground-clock\\project\\bomb_analyze_baseline.cpp"
+  },
+  {
+    "source": "NativeSidewinder.cpp",
+    "pre_edit_git_sha256": "7822e3924f321f8ee0f7e9fb3c448461fe1f8eb8223da0bdb4d372bbe41eb0b2",
+    "translation_unit": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat4-ground-clock\\project\\tof_analyze_baseline.cpp"
+  }
+]

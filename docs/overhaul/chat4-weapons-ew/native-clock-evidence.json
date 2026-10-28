@@ -1,0 +1,17 @@
+{
+  "head": "db8df9b2da87850baf82148cc28f8bf790ba7c58",
+  "source": {
+    "EFM/source/NativeGunSight.cpp": "6c18cee665413400df6ee3053f965b8c2e2f4d462f1dc94cd7e47f062c179408",
+    "tests/native/weapons_ground_clock.cpp": "be1c3ba1ab7e5c62df4c83248478bd504c70070bcdefe428a3c00f55ebeabf59"
+  },
+  "build_directory": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat4-ground-clock\\build",
+  "compiler": "MSVC 19.51.36252.0 / toolset14.51.36231 x64 / C++23 /W4",
+  "configuration": "Release",
+  "warnings": "No warnings in actual compile output",
+  "before_result": "gun-clock-before.txt; 13 clock cases, recovery, 9 unmet assertions, actual owner VALID1/81 points at injected NaN/negative clocks",
+  "fixture_executable_sha256": "92896a2b1ab6a4f21bd86b1965dafe9c8d1b31cebaa88835ccbd45183b3b4714",
+  "source_bin_dll_sha256": "c50b245ffd2c069cce105397294f9d2e17f37e5b8d5834933b4e87a309af43a5",
+  "installed": false,
+  "simulator_operated": false,
+  "limits": "Owned mock native ports / vacuum trajectory; real shell, DCS ABI/lifetime/thread/burst/aircraft validation not established"
+}

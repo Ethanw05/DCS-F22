@@ -5,6 +5,7 @@
 #include "GunIntercept.h"
 #include "GunTargetMotion.h"
 #include "GunManeuver.h"
+#include "WeaponFlightFrame.h"
 #include <chrono>
 #include <Cockpit/CockpitAPI_Declare.h>
 #include <Windows.h>
@@ -148,6 +149,29 @@ double previous_time = -1, previous_id = -1;
 std::uint64_t previous_generation{};
 struct FunnelShot { double time; V muzzle,bore,velocity,wind; };
 std::vector<FunnelShot> funnel_history;
+double physical_generation=0;
+const EDPARAM* flight_owner=nullptr;
+std::uint64_t flight_parameter_epoch=0;
+void retire_flight(EDPARAM& p) {
+    funnel_history.clear();
+    previous={};maneuver_cues={};previous_time=-1;previous_id=-1;previous_generation=0;
+    physical_generation=0;
+    flight_owner=nullptr;flight_parameter_epoch=0;
+    for (const char* name:{"F22_GUN_SOLUTION_VALID","F22_GUN_RESULT_SCHEMA",
+         "F22_GUN_RESULT_SOURCE","F22_GUN_MNV_VALID","F22_FUNNEL_NATIVE_VALID",
+         "F22_AG_GUN_NATIVE_VALID","F22_AG_GUN_POINT_COUNT"}) put(p,name,0);
+    for (unsigned i=1;i<=7;++i) {
+        char key[64];std::snprintf(key,sizeof(key),"F22_FUNNEL_%02u_VALID",i);put(p,key,0);
+    }
+}
+bool flight_input(EDPARAM& p, WeaponFlightFrame::Snapshot<6>& input) {
+    if (!input.load(p,WeaponFlightFrame::motion_names)) {retire_flight(p);return false;}
+    if (physical_generation!=input.generation() || flight_owner!=&p
+        || flight_parameter_epoch!=input.parameter_epoch) retire_flight(p);
+    physical_generation=input.generation();
+    flight_owner=&p;flight_parameter_epoch=input.parameter_epoch;
+    return true;
+}
 bool shot_at(double time,FunnelShot &out) {
     for (std::size_t i=1;i<funnel_history.size();++i) {
         const auto &a=funnel_history[i-1],&b=funnel_history[i];
@@ -169,6 +193,8 @@ void calculate_funnel(EDPARAM &p) {
     for (unsigned i=1;i<=7;++i) {
         char key[64];std::snprintf(key,sizeof(key),"F22_FUNNEL_%02u_VALID",i);put(p,key,0);
     }
+    WeaponFlightFrame::Snapshot<6> flight;
+    if (!flight_input(p,flight)) return;
     if (failed || get(p,"F22_FUNNEL_REQUEST_VALID")<.5) {funnel_history.clear();return;}
     if (!api.resolve()) return;
     const double now=api.clock(),requested=get(p,"F22_FUNNEL_REQUEST_TIME");
@@ -185,8 +211,8 @@ void calculate_funnel(EDPARAM &p) {
     V muzzle,bore;
     if (!gun_pose(device,muzzle,bore)) return;
     const V own_position{get(p,"F22_FUNNEL_OWN_N"),get(p,"F22_FUNNEL_OWN_U"),get(p,"F22_FUNNEL_OWN_E")};
-    const V velocity{get(p,"EFM_HUD_VN"),get(p,"EFM_HUD_VU"),get(p,"EFM_HUD_VE")};
-    const V air{get(p,"EFM_HUD_WN"),get(p,"EFM_HUD_WU"),get(p,"EFM_HUD_WE")};
+    const V velocity{flight.values[0],flight.values[1],flight.values[2]};
+    const V air{flight.values[3],flight.values[4],flight.values[5]};
     if (!std::isfinite(own_position.norm()) || (muzzle-own_position).norm()>30 ||
         !std::isfinite(velocity.norm()) || velocity.norm()>1500 || !std::isfinite(air.norm()) || air.norm()>300) return;
     if (!funnel_history.empty()) {
@@ -220,6 +246,7 @@ void calculate_funnel(EDPARAM &p) {
         std::snprintf(key,sizeof(key),"F22_FUNNEL_%02u_VALID",i+1);put(p,key,1);++count;
     }
     api.dtor(sight.data());
+    if (!flight.current(p)) {retire_flight(p);return;}
     put(p,"F22_FUNNEL_RESULT_TIME",now);put(p,"F22_FUNNEL_NATIVE_VALID",count>=2 ? 1 : 0);
 }
 void calculate(EDPARAM &p) {
@@ -228,6 +255,8 @@ void calculate(EDPARAM &p) {
     put(p, "F22_GUN_RESULT_SOURCE", 0);
     put(p, "F22_GUN_MNV_VALID", 0);
     put(p, "F22_GUN_SOLVER_REASON", 1);
+    WeaponFlightFrame::Snapshot<6> flight;
+    if (!flight_input(p,flight)) return;
     if (failed || get(p, "F22_GUN_REQUEST_VALID") < .5)
         return;
     if (!api.resolve()) {
@@ -275,8 +304,8 @@ void calculate(EDPARAM &p) {
     if (!std::isfinite((target - muzzle).norm()) || (target - muzzle).norm() < 100
         || (target - muzzle).norm() > 2000 || !std::isfinite(velocity.norm()) || velocity.norm() > 1500
         || !std::isfinite(acceleration.norm()) || acceleration.norm() > 150) return;
-    V own{get(p, "EFM_HUD_VN"), get(p, "EFM_HUD_VU"), get(p, "EFM_HUD_VE")};
-    V air{get(p, "EFM_HUD_WN"), get(p, "EFM_HUD_WU"), get(p, "EFM_HUD_WE")};
+    V own{flight.values[0],flight.values[1],flight.values[2]};
+    V air{flight.values[3],flight.values[4],flight.values[5]};
     if (!std::isfinite(own.norm()) || own.norm() > 1500 || !std::isfinite(air.norm()) ||
         air.norm() > 300)
         return;
@@ -338,6 +367,7 @@ void calculate(EDPARAM &p) {
     }
 
     api.dtor(sight.data());
+    if (!flight.current(p)) {retire_flight(p);return;}
     previous = result;
     previous_time = now;
     previous_id = identity;
@@ -416,9 +446,13 @@ void calculate(EDPARAM &p) {
 // Lua intersects these physical points with terrain; no target object is assumed.
 void calculate_ground(EDPARAM& p) {
     put(p,"F22_AG_GUN_NATIVE_VALID",0);
+    put(p,"F22_AG_GUN_POINT_COUNT",0);
+    WeaponFlightFrame::Snapshot<6> flight;
+    if (!flight_input(p,flight)) return;
     if(failed || get(p,"F22_AG_GUN_REQUEST_VALID")<.5 || !api.resolve())return;
     const double now=api.clock(),stamp=get(p,"F22_AG_GUN_REQUEST_TIME");
-    if(!std::isfinite(stamp)||now-stamp<-.01||now-stamp>.2)return;
+    if(!std::isfinite(now)||now<0||!std::isfinite(stamp)||stamp<0
+       ||now-stamp<-.01||now-stamp>.2)return;
     auto ctx=api.context();if(!ctx)return;
     auto device=api.device(ctx,15);
     if(!readable(device,32)||*reinterpret_cast<const void**>(device)!=api.vtable)return;
@@ -426,8 +460,8 @@ void calculate_ground(EDPARAM& p) {
     const double speed=*reinterpret_cast<const double*>(static_cast<const std::byte*>(shell)+176);
     V muzzle,bore;if(!std::isfinite(speed)||speed<100||speed>2000||!gun_pose(device,muzzle,bore))return;
     const V own{get(p,"F22_AG_OWN_N"),get(p,"F22_AG_OWN_U"),get(p,"F22_AG_OWN_E")};
-    const V velocity{get(p,"EFM_HUD_VN"),get(p,"EFM_HUD_VU"),get(p,"EFM_HUD_VE")};
-    const V air{get(p,"EFM_HUD_WN"),get(p,"EFM_HUD_WU"),get(p,"EFM_HUD_WE")};
+    const V velocity{flight.values[0],flight.values[1],flight.values[2]};
+    const V air{flight.values[3],flight.values[4],flight.values[5]};
     if(!std::isfinite(own.norm())||(muzzle-own).norm()>30||!std::isfinite(velocity.norm())||velocity.norm()>1500||!std::isfinite(air.norm())||air.norm()>300)return;
     Wind wind{wind_table,{static_cast<float>(air.x),static_cast<float>(air.y),static_cast<float>(air.z)}};
     alignas(16) std::array<std::byte,80> sight{};api.ctor(sight.data(),shell);
@@ -440,7 +474,9 @@ void calculate_ground(EDPARAM& p) {
         for(unsigned k=0;k<3;++k){std::snprintf(key,sizeof(key),"F22_AG_GUN_%02u_%s",i,axes[k]);put(p,key,values[k]);}
         ++count;
     }
-    api.dtor(sight.data());put(p,"F22_AG_GUN_POINT_COUNT",count);put(p,"F22_AG_GUN_RESULT_TIME",now);
+    api.dtor(sight.data());
+    if (!flight.current(p)) {retire_flight(p);return;}
+    put(p,"F22_AG_GUN_POINT_COUNT",count);put(p,"F22_AG_GUN_RESULT_TIME",now);
     put(p,"F22_AG_GUN_NATIVE_VALID",count>1?1:0);
 }
 } // namespace
@@ -453,6 +489,8 @@ void reset() {
     previous_generation = 0;
     failed = false;
     funnel_history.clear();
+    physical_generation=0;
+    flight_owner=nullptr;flight_parameter_epoch=0;
 }
 void update(EDPARAM &p) {
     double sequence = 0;

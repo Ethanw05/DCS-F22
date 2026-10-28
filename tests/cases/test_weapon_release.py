@@ -125,6 +125,26 @@ class ReleaseTransactions(unittest.TestCase):
                 self.assertEqual(h.get('F22_AG_RELEASE_SEQUENCE'), 0)
                 self.assertEqual(h.env.launches, 1)
 
+    def test_mode_transfer_consumes_the_held_release_until_up(self):
+        h = WeaponHost()
+        h.request()
+        h.command(10800, 1)
+        h.command(10800, 7)
+        h.execute('payload[2].count=1')
+        for _ in range(15):
+            h.tick(solve=True)
+        h.command(10803, 1)  # Repeated DOWN is still the original held press.
+        for _ in range(30):
+            h.tick(solve=True)
+        self.assertEqual(h.env.launches, 1)
+        h.command(10803, 0)
+        h.command(10803, 1)
+        for _ in range(30):
+            h.tick(solve=True)
+            if h.env.launches == 2:
+                break
+        self.assertEqual(h.env.launches, 2)
+
     def test_station_boundary_contract_and_ir_consumer(self):
         h = Host()
         h.execute("caps=dofile(LockOn_Options.script_path..'Systems/Store_Capabilities.lua');ir=dofile(LockOn_Options.script_path..'Systems/IR_Seeker.lua')")

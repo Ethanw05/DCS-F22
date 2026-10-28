@@ -1,0 +1,42 @@
+{
+  "owner": "chat4",
+  "scope": "Requested D-P-RAD-001 native transmit / Lua fusion region review; no production source edited by this review",
+  "native_transmit": {
+    "decision": "approved for integrator application with paired complete-packet provider",
+    "patch_sha256": "2445c96b658c75234c6d0d3f80acf43ed209c574e2c76555904378fa054cfb62",
+    "notes": [
+      "Reader brackets every protected native field with checked source/context commit and epoch; original geometry time preserved.",
+      "Unknown v1 radar identity is an explicit temporary limitation until D-P-WPN-001; it does not close own PPLI/received v1 identity provenance.",
+      "Bounded32 radar reports/64slots; borrowed native queue/callback/terminal lifetime and actual RF/MP remain unqualified."
+    ]
+  },
+  "lua_consumers": {
+    "decision": "requires two corrections before approval",
+    "identity_trace": {
+      "original_unknown_time_friendly_protected": true,
+      "proposed_time_known_gated_protection": null,
+      "original_age_known": false
+    },
+    "epoch_trace": {
+      "new_epoch": 2,
+      "new_original_packet_time": 99.95,
+      "consumer_now": 100.1,
+      "actual_retained_epoch": 1,
+      "actual_retained_packet_time": 100,
+      "independent_rf_preserved": true
+    },
+    "required_corrections": [
+      "Do not gate FRIENDLY/HOSTILE bits on IDENTITY_KNOWN. That producer flag is original identity-time known, not absence of all identity evidence. Keep identity_time nil and time_known false while retaining friendly protection/conflict semantics. Bare no-reply with both bits0 remains unknown.",
+      "On a qualified radar source epoch change, retire only the old radar batch/history before comparing old time/sequence. Current separate batch.time>=old.time blocks the new fresh epoch in the exact trace; preserve independent RF/datalink observations."
+    ]
+  },
+  "verification_scope": "Actual Identification_State and proposed Tactical_Tracks source executed in-memory using the independent Lua5.1 host. Field/epoch trace is modeled software evidence, not DCS scheduling or host effects.",
+  "reviewed_replacement_patch": "TACTICAL-CONSUMERS-REVIEWED.patch",
+  "replacement_sha256": "0fe5556704bd677465507edde876c292531306f249cfa44ee0c1d565ec1c3e4d",
+  "corrected_epoch_trace": {
+    "accepted_epoch": 2,
+    "original_packet_time": 99.95,
+    "independent_rf_preserved": true
+  },
+  "replacement_status": "approved for integrator paired application after hash/drift recheck and complete consumer tests"
+}

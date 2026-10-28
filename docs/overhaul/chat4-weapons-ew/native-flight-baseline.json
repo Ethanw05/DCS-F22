@@ -1,0 +1,9 @@
+{
+  "lease": "weapons-flight-group-admission",
+  "before_sha256": {
+    "EFM/source/NativeAGWeapons.cpp": "fb54db44b58e2fe646777a5ca28cf3528284fc74a101bc3e9e59b937927e7393",
+    "EFM/source/NativeSidewinder.cpp": "bfee40246d6b27180a4a84df63243df218b906b966b0bee141894bd30b262ce6"
+  },
+  "NativeGunSight_before": "6985e7056911417bacf8a60912ae4432350448c6bddcd808bee436e101913ac2 (after integrator finite-clock patch)",
+  "policy": "Only leased full-flight admission/cache regions; no API/producer/wire/control/IR lifetime edits"
+}

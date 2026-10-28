@@ -1,0 +1,65 @@
+{
+  "lease": "weapons-flight-group-admission",
+  "source_head": "16d762585cc7e575a8fefbc7e4f7456e0989bfb9",
+  "changed_source_hashes": {
+    "EFM/source/NativeGunSight.cpp": "00a6cf36a6dffd0d01207d3fd47d5421be6e6fcbc7a7d04895aed9c2f21d7ac7",
+    "EFM/source/NativeAGWeapons.cpp": "eb05e72eabea4a19f6edef3a37a1b349498835170c7bf152d2a695a2579ac5aa",
+    "EFM/source/NativeSidewinder.cpp": "547921ca1673e9838dc4fb880bb172f6e6bf61a9338f514754b56692f95bac01",
+    "EFM/source/WeaponFlightFrame.h": "bbf66f9b88bc64d62834eb02f4b6210500488b17fd4abca5f7b1b4e433513e5f",
+    "tests/native/weapons_ground_clock.cpp": "d50414d8d70de22a230642cd41aaedf5df87baeb818973b7fb989e790addc155",
+    "tests/native/weapons_bomb_flight.cpp": "e33d1a7fac5520f7188cae59c66fe8be81d8a209f86b6bc38d3fe30eb07ae636",
+    "tests/native/weapons_tof_flight.cpp": "eb8a94bd0dcaa88039517bfe71f80c6071e75aded76ae4412bc9bbba3588c115",
+    "tests/native/weapon_parameter_port.h": "81a01803e7f2474ee8e4ea8a3f319aa5d644fca8778fa99971fb85b5558518ce",
+    "tests/native/weapons.cmake": "8e90f5be1782e5c97a3554b605876651e8ddd7828548ce58799daf0bd2dfe7fe"
+  },
+  "tests": [
+    {
+      "executable": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat4-ground-clock\\build\\Release\\clock_port.exe",
+      "sha256": "94df7dd31cafb27b4606870d9c66b5e4d0dcafa0315a0e5865906836d90c2066",
+      "exit_code": 0,
+      "result": {
+        "clock_cases": 13,
+        "recovery_cases": 1,
+        "failures": 0,
+        "flight_cases": 17,
+        "actual_DCS_effect": false
+      }
+    },
+    {
+      "executable": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat4-ground-clock\\build\\Release\\bomb_port.exe",
+      "sha256": "1b3542a1813bc72e81b4bb3627e516becc325c80dcf4dc46c61ff4cf8ad8da11",
+      "exit_code": 0,
+      "result": {
+        "bomb_flight_cases": 15,
+        "failures": 0,
+        "DCS_qualified": false
+      }
+    },
+    {
+      "executable": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat4-ground-clock\\build\\Release\\tof_port.exe",
+      "sha256": "f818989d37fc0ff10106bae215393d08a54725f4a0d522578ea26e484c4b5934",
+      "exit_code": 0,
+      "result": {
+        "tof_flight_cases": 18,
+        "failures": 0,
+        "DCS_qualified": false
+      }
+    }
+  ],
+  "native_cases": 64,
+  "before_results": "native-before-reproduction.json (15 bomb cases:8 failures;17 TOF cases:14 failures), native-flight-before.txt (13 ground/gun/funnel admission failures), gun-clock-before.txt (9 clock/count failures)",
+  "warnings": "MSVC19.51 /W4:0 gun/bomb;3 unchanged NativeSidewinder warnings independently reproduced from pre-edit source;0 added warnings",
+  "clock_contract": "Spawn-clock kind1 qualified independently of World clock; no origin equivalence or new observation time created",
+  "bounds": "2 complete physical header reads around<=16 fixed payload fields; checked conversion status; pre/post solve qualification; no owned heap allocation in new reader",
+  "limits": [
+    "No complete P-INT-008 or native callback/context lifetime claim",
+    "Original frozen request physical epoch/World-time correspondence and tactical input whole-packet coherence remain unqualified",
+    "Actual native callbacks/scheduling, allocator retirement, timing/GC budgets, shell/burst/weapon effects, aircraft calibration, DCS/2D/VR/MP unqualified",
+    "Source2 gun algorithm/cadence unchanged; this source-admission fixture does not qualify its nominal native PVA/aim/burst chain"
+  ],
+  "installed": false,
+  "source_bin_dll_sha256": "c50b245ffd2c069cce105397294f9d2e17f37e5b8d5834933b4e87a309af43a5",
+  "context_tests": "native-context-before.txt and native-cache-context-before.txt/tof-cache-context-before.txt reproduce missing same-copy, delayed-result and cross-callback parameter-epoch retirement guards; all four additional cases now pass",
+  "complexity": "native-complexity.json and coding-exceptions.json: max new helper CCN9; named legacy high-complexity function exceptions await integrator review",
+  "analysis": "MSVC /analyze performed; separate native-static-analysis.json baseline comparison pending final completion"
+}

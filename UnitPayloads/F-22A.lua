@@ -634,14 +634,6 @@ local unitPayloads = {
 					["num"] = 2,
 				},
 				[3] = {
-					["CLSID"] = "{IRST_SENSOR_Pod}",
-					["num"] = 8,
-				},
-				[4] = {
-					["CLSID"] = "{IRST_SENSOR_Pod}",
-					["num"] = 4,
-				},
-				[5] = {
 					["CLSID"] = "{F22_IRST}",
 					["num"] = 6,
 				},				
@@ -1037,4 +1029,18 @@ local unitPayloads = {
 	},
 	["unitType"] = "F-22A",
 }
+-- The selected public_f22_manual_recovery@1 profile leaves these families off.
+-- Keep every saved preset name/ID; carriage registration is not functionality.
+local optional_stores={
+    ['{AIM-260A}']=true, ['{MAKO_A2A_C}']=true,
+    ['{MAKO_A2G_C}']=true, ['{F22_IRST}']=true,
+}
+for index=1,24 do
+    local payload=unitPayloads.payloads[index]
+    local selected_off=false
+    for _,station in pairs(payload.pylons) do
+        if optional_stores[station.CLSID] then selected_off=true end
+    end
+    if selected_off then payload.displayName=payload.displayName..' [OPTIONAL OFF]' end
+end
 return unitPayloads		

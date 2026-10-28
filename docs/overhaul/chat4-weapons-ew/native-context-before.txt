@@ -1,0 +1,16 @@
+{"case":1,"clock_finite":true,"expected_valid":1,"native_valid":1,"points":81,"host_context_calls":1,"trajectory_calls":80}
+{"case":2,"clock_finite":true,"expected_valid":1,"native_valid":1,"points":81,"host_context_calls":1,"trajectory_calls":80}
+{"case":3,"clock_finite":true,"expected_valid":1,"native_valid":1,"points":81,"host_context_calls":1,"trajectory_calls":80}
+{"case":4,"clock_finite":true,"expected_valid":1,"native_valid":1,"points":81,"host_context_calls":1,"trajectory_calls":80}
+{"case":5,"clock_finite":false,"expected_valid":0,"native_valid":0,"points":0,"host_context_calls":0,"trajectory_calls":0}
+{"case":6,"clock_finite":false,"expected_valid":0,"native_valid":0,"points":0,"host_context_calls":0,"trajectory_calls":0}
+{"case":7,"clock_finite":false,"expected_valid":0,"native_valid":0,"points":0,"host_context_calls":0,"trajectory_calls":0}
+{"case":8,"clock_finite":true,"expected_valid":0,"native_valid":0,"points":0,"host_context_calls":0,"trajectory_calls":0}
+{"case":9,"clock_finite":true,"expected_valid":0,"native_valid":0,"points":0,"host_context_calls":0,"trajectory_calls":0}
+{"case":10,"clock_finite":true,"expected_valid":0,"native_valid":0,"points":0,"host_context_calls":0,"trajectory_calls":0}
+{"case":11,"clock_finite":true,"expected_valid":0,"native_valid":0,"points":0,"host_context_calls":0,"trajectory_calls":0}
+{"case":12,"clock_finite":true,"expected_valid":0,"native_valid":0,"points":0,"host_context_calls":0,"trajectory_calls":0}
+{"case":13,"clock_finite":true,"expected_valid":0,"native_valid":0,"points":0,"host_context_calls":0,"trajectory_calls":0}
+Changed parameter context authenticated mixed flight inputs
+Changed parameter context authenticated a delayed result
+{"clock_cases":13,"recovery_cases":1,"failures":2,"flight_cases":16,"actual_DCS_effect":false}

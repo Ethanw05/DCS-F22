@@ -1,0 +1,44 @@
+{
+  "method": "Verified pre-edit Git body embedded into external test translation unit with same independent ports. LF/CRLF identity checked. No source restore or copied mod tree; generated source removed after compile.",
+  "records": [
+    {
+      "source": "EFM/source/NativeAGWeapons.cpp",
+      "baseline_worktree_CRLF_sha256": "fb54db44b58e2fe646777a5ca28cf3528284fc74a101bc3e9e59b937927e7393",
+      "git_LF_sha256": "622f5ffdf4b5d272ce7e858a46c7f4c10c1ca4158855292968f6810193e51794",
+      "git_commit": "5cca15d",
+      "fixture": "tests/native/weapons_bomb_flight.cpp",
+      "fixture_sha256": "e33d1a7fac5520f7188cae59c66fe8be81d8a209f86b6bc38d3fe30eb07ae636",
+      "generated_translation_unit_sha256": "eb6ae56ba126c94793c55811c1de3602663c8021de31538d4156393182679889"
+    },
+    {
+      "source": "EFM/source/NativeSidewinder.cpp",
+      "baseline_worktree_CRLF_sha256": "bfee40246d6b27180a4a84df63243df218b906b966b0bee141894bd30b262ce6",
+      "git_LF_sha256": "7822e3924f321f8ee0f7e9fb3c448461fe1f8eb8223da0bdb4d372bbe41eb0b2",
+      "git_commit": "5cca15d",
+      "fixture": "tests/native/weapons_tof_flight.cpp",
+      "fixture_sha256": "2c1c45374fc8ace47c17c74667bf1e72a9834c843cdad5d24be6cd71763a4219",
+      "generated_translation_unit_sha256": "c497bd3c42bdc6a90d5a82d9f9da64e57b7d4fa5f718adc6738c1e744cbd8989"
+    }
+  ],
+  "results": [
+    {
+      "name": "bomb_baseline",
+      "exit_code": 1,
+      "summary": {
+        "bomb_flight_cases": 15,
+        "failures": 8,
+        "DCS_qualified": false
+      }
+    },
+    {
+      "name": "tof_baseline",
+      "exit_code": 1,
+      "summary": {
+        "tof_flight_cases": 17,
+        "failures": 14,
+        "DCS_qualified": false
+      }
+    }
+  ],
+  "baseline_warnings": "Same pre-existing NativeSidewinder C4459(object), C4456(maximum), C4244(uintptr_t->double) as changed-source fixture; no added warnings in leased regions."
+}

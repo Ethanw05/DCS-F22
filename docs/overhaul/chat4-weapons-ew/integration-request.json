@@ -31,23 +31,6 @@
       "review_required": "Domain source changes remain Chat4; native/wire/shared region and commits serialized by Chat2."
     },
     {
-      "id": "weapons-native",
-      "packages": [
-        "P-WPN-006",
-        "D-P-WPN-001"
-      ],
-      "regions": [
-        "NativeGunSight.cpp::calculate_ground finite clock admission",
-        "NativeDatalink.cpp::transmit/read/report/wire identity known/time/clock/epoch"
-      ],
-      "needed_gates": [
-        "HARNESS_READY",
-        "checked native read contract P-INT-008 for donor",
-        "D-P-RAD-001 complete packet admission before donor"
-      ],
-      "review_required": "Chat3 tactical packet schema; no native wire edit before accepted packet provider."
-    },
-    {
       "id": "weapons-payload-profile",
       "packages": [
         "P-WPN-007"
@@ -61,6 +44,43 @@
       ],
       "proposed_change": "Remove only the two unregistered IRST_SENSOR_Pod rows on stations4/8 from supplied preset14; retain valid F22_IRST station6. Keep every preset name/ID and annotate displayName OPTIONAL OFF for all selected-off additional_weapons/irds presets. No F-22A.lua aircraft registration, saved missions or controls change.",
       "status": "request; focused patch will be prepared without applying until lease"
+    },
+    {
+      "id": "weapons-native-clock",
+      "packages": [
+        "P-WPN-006 (D-R-WPN-002 bounded remedy)"
+      ],
+      "paths": [
+        "EFM/source/NativeGunSight.cpp"
+      ],
+      "regions": [
+        "calculate_ground finite api.clock/request timestamp preconditions and clear point count only"
+      ],
+      "expected_sha256": "6c18cee665413400df6ee3053f965b8c2e2f4d462f1dc94cd7e47f062c179408",
+      "patch": "gun-clock.patch",
+      "needed_gates": [
+        "P-INT-001 ADOPTED: satisfied",
+        "P-INT-002 HARNESS_READY: satisfied"
+      ],
+      "not_dependencies": "This bounded direct api.clock guard does not consume the P-INT-008 migration or D-P-RAD-001 donor provider. Those still gate the separate native read/donor changes.",
+      "native_test": "tests/native/weapons_ground_clock.cpp actual owner; external Release MSVC fixture builds without warnings; NaN/negative clock produces VALID1/81 points pre-fix",
+      "cmake_request": "tests/CMakeLists.txt include(native/weapons.cmake) owned by integrator",
+      "verification_command": "cmake --build ../F22-Build/chat4-ground-clock/build --config Release --target clock_port; execute Release/clock_port.exe",
+      "status": "ready; grant exact region or apply focused patch as integrator"
+    },
+    {
+      "id": "weapons-donor-native",
+      "packages": [
+        "D-P-WPN-001"
+      ],
+      "regions": [
+        "NativeDatalink transmit/report/wire independent identity provenance"
+      ],
+      "needed_gates": [
+        "P-INT-008 actual checked caller cutover",
+        "D-P-RAD-001 complete coherent local packet provider"
+      ],
+      "status": "waiting; not part of finite clock request"
     }
   ],
   "test_ownership": "76 exact artifacts in baseline.json. Only relevant assigned artifacts will be deleted/remade per completed package, after harness readiness and immediate hash recheck. Original recordings/research preserved.",

@@ -3,6 +3,7 @@
 // Runtime validation is still required. Reject a different CockpitBase ABI.
 #include "NativeSidewinder.h"
 #include "NativeAesaRadar.h"
+#include "WeaponFlightFrame.h"
 #include <Cockpit/CockpitAPI_Declare.h>
 #include <Windows.h>
 #include <array>
@@ -560,30 +561,72 @@ Direction tof_body(const Direction& v,double pitch,double roll,double heading) {
     const double up=-f*std::sin(pitch)+v.y*std::cos(pitch);
     return {f*std::cos(pitch)+v.y*std::sin(pitch),right*std::sin(roll)+up*std::cos(roll),right*std::cos(roll)-up*std::sin(roll)};
 }
+// This local publication consumes checked fields; unrelated legacy readers in
+// the adapter remain explicitly tracked by P-INT-008 until their own cutover.
+struct TofInputs {
+    enum Field : unsigned { Type, Target, Mode, Power, MissileValid, TargetValid, RadarTarget,
+        Life, DN, DU, DE, VN, VU, VE, Altitude, Pitch, Roll, Heading, Count };
+    std::array<double,Count> value{};
+    bool load(EDPARAM& p) {
+        constexpr std::array<const char*,Count> names{
+            "F22_WEAPON_TYPE4","F22_FC_TARGET_INPUT_ID","HUD_MODE","MAIN_POWER",
+            "F22_MISSILE_DATA_VALID","F22_FC_TARGET_INPUT_VALID","F22_RADAR_WEAPON_TARGET_ID",
+            "F22_MISSILE_LIFETIME","F22_FC_TARGET_DN","F22_FC_TARGET_DU","F22_FC_TARGET_DE",
+            "F22_FC_TARGET_VN","F22_FC_TARGET_VU","F22_FC_TARGET_VE",
+            "F22_FC_OWN_ALTITUDE","F22_FC_OWN_PITCH","F22_FC_OWN_ROLL","F22_FC_OWN_HEADING"};
+        for(unsigned i=0;i<Count;++i)
+            if(!p.getParamNumber(p.getParamHandle(names[i]),value[i]))return false;
+        return true;
+    }
+    bool ids() const {
+        for(unsigned field:{Type,Target})
+            if(value[field]<1 || value[field]>UINT_MAX || value[field]!=std::floor(value[field]))return false;
+        return true;
+    }
+    bool eligible() const {
+        return ids() && (value[Mode]==2 || value[Mode]==3) && value[Power]==1
+            && value[MissileValid]==1 && value[TargetValid]==1 && value[RadarTarget]==value[Target]
+            && value[Life]>=1 && value[Life]<=1000;
+    }
+};
+void retire_time_estimate() {
+    AcquireSRWLockExclusive(&time_estimate_lock);time_estimate={};ReleaseSRWLockExclusive(&time_estimate_lock);
+    last_tof_attempt=-1e9;last_tof_target=last_tof_type=0;
+}
 void publish_time_estimate(EDPARAM& p) {
+    static double physical_generation=0;
+    static const EDPARAM* parameter_owner=nullptr;
+    static std::uint64_t parameter_epoch=0;
     write(p,"F22_TOF_NATIVE_VALID",0);write(p,"F22_TOF_ACT_VALID",0);write(p,"F22_TOF_SOURCE",0);
+    WeaponFlightFrame::Snapshot<1> flight;
+    TofInputs input;
+    if(!flight.load(p,WeaponFlightFrame::speed_names) || !input.load(p) || !input.eligible()) {
+        retire_time_estimate();physical_generation=0;parameter_owner=nullptr;parameter_epoch=0;return;
+    }
+    if(physical_generation!=flight.generation() || parameter_owner!=&p
+        || parameter_epoch!=flight.parameter_epoch)retire_time_estimate();
+    physical_generation=flight.generation();
+    parameter_owner=&p;parameter_epoch=flight.parameter_epoch;
     api.resolve_tof();write(p,"F22_TOF_BACKEND_READY",api.aam_tof || api.descriptor_flight?1:0);
-    const auto type=static_cast<unsigned>(read(p,"F22_WEAPON_TYPE4"));
-    const auto target_id=static_cast<unsigned>(read(p,"F22_FC_TARGET_INPUT_ID"));
-    const double now=api.clock ? api.clock() : 0;
-    const auto mode=read(p,"HUD_MODE");const bool stock=mode==2 && (type==24 || type==106);
+    const auto type=static_cast<unsigned>(input.value[TofInputs::Type]);
+    const auto target_id=static_cast<unsigned>(input.value[TofInputs::Target]);
+    const double now=api.clock ? api.clock() : -1;
+    if(!std::isfinite(now)||now<0){retire_time_estimate();return;}
+    const auto mode=input.value[TofInputs::Mode];const bool stock=mode==2 && (type==24 || type==106);
     const bool generic=api.descriptor_flight && selected_missile_descriptor &&
         readable(selected_missile_descriptor,324) && *reinterpret_cast<const unsigned*>(selected_missile_descriptor+168)==type;
-    const bool eligible=(stock && api.aam_tof || generic) && api.clock && (mode==2 || mode==3) && read(p,"MAIN_POWER")>.5 &&
-        read(p,"F22_MISSILE_DATA_VALID")>.5 && read(p,"F22_FC_TARGET_INPUT_VALID")>.5 && target_id &&
-        read(p,"F22_RADAR_WEAPON_TARGET_ID")==target_id;
+    const bool eligible=(stock && api.aam_tof || generic) && api.clock;
     TimeEstimate value{};
     if (eligible) {
         AcquireSRWLockShared(&time_estimate_lock);value=time_estimate;ReleaseSRWLockShared(&time_estimate_lock);
         if (target_id!=last_tof_target || type!=last_tof_type || value.mode!=mode || now<last_tof_attempt || now-last_tof_attempt>=.2) {
             last_tof_attempt=now;last_tof_target=target_id;last_tof_type=type;
             value={};value.target=target_id;value.type=type;value.mode=static_cast<unsigned>(mode);value.stamp=now;
-            const double life=read(p,"F22_MISSILE_LIFETIME");
-            if(std::isfinite(life)&&life>=1&&life<=1000)value.life=life;
-            Direction relative{read(p,"F22_FC_TARGET_DN"),read(p,"F22_FC_TARGET_DU"),read(p,"F22_FC_TARGET_DE")};
-            Direction velocity{read(p,"F22_FC_TARGET_VN"),read(p,"F22_FC_TARGET_VU"),read(p,"F22_FC_TARGET_VE")};
-            const double altitude=read(p,"F22_FC_OWN_ALTITUDE"),speed=read(p,"EFM_HUD_TAS");
-            const double pitch=read(p,"F22_FC_OWN_PITCH"),roll=read(p,"F22_FC_OWN_ROLL"),heading=read(p,"F22_FC_OWN_HEADING");
+            value.life=input.value[TofInputs::Life];
+            Direction relative{input.value[TofInputs::DN],input.value[TofInputs::DU],input.value[TofInputs::DE]};
+            Direction velocity{input.value[TofInputs::VN],input.value[TofInputs::VU],input.value[TofInputs::VE]};
+            const double altitude=input.value[TofInputs::Altitude],speed=flight.values[0];
+            const double pitch=input.value[TofInputs::Pitch],roll=input.value[TofInputs::Roll],heading=input.value[TofInputs::Heading];
             const double range=std::hypot(relative.x,relative.y,relative.z),target_speed=std::hypot(velocity.x,velocity.y,velocity.z);
             bool finite=true;for (double v:{altitude,speed,pitch,roll,heading,range,target_speed,relative.x,relative.y,relative.z,velocity.x,velocity.y,velocity.z}) finite=finite && std::isfinite(v);
             if (finite && altitude>=-500 && altitude<=30000 && speed>=0 && speed<1500 && target_speed<1500 &&
@@ -618,6 +661,7 @@ void publish_time_estimate(EDPARAM& p) {
             }
         }
     } else {last_tof_attempt=-1e9;last_tof_target=last_tof_type=0;}
+    if(!flight.current(p)){retire_time_estimate();return;}
     AcquireSRWLockExclusive(&time_estimate_lock);time_estimate=value;ReleaseSRWLockExclusive(&time_estimate_lock);
     if (!value.valid) return;
     write(p,"F22_TOF_NATIVE_VALID",1);write(p,"F22_TOF_TARGET_ID",value.target);write(p,"F22_TOF_TYPE",value.type);

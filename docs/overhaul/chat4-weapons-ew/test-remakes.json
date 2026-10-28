@@ -6,7 +6,8 @@
     "requirements": [
       "R-WPN-001"
     ],
-    "status": "deleted; independent replacement under construction"
+    "status": "deleted and independently remade; replacement acceptance passes",
+    "replacement_sha256": "c4b1738fcf5f9a02591040122fb191e826e65ba1112075f29584392c823c6a57"
   },
   {
     "path": "tests/test_weapon_hud_selection.py",
@@ -15,7 +16,8 @@
     "requirements": [
       "R-WPN-001"
     ],
-    "status": "deleted; independent replacement under construction"
+    "status": "deleted and independently remade; replacement acceptance passes",
+    "replacement_sha256": "c4b1738fcf5f9a02591040122fb191e826e65ba1112075f29584392c823c6a57"
   },
   {
     "path": "tests/test_ew_backend_lifecycle.py",
@@ -24,7 +26,8 @@
     "requirements": [
       "R-WPN-003"
     ],
-    "status": "deleted; replacement under construction"
+    "status": "deleted and independently remade; replacement acceptance passes",
+    "replacement_sha256": "3616475f9a135faeb103d0c47675daba37a504dcbf07a4b0826c7cdb77c96302"
   },
   {
     "path": "tests/test_ew_controls.py",
@@ -33,7 +36,8 @@
     "requirements": [
       "R-WPN-003"
     ],
-    "status": "deleted; replacement under construction"
+    "status": "deleted and independently remade; replacement acceptance passes",
+    "replacement_sha256": "3616475f9a135faeb103d0c47675daba37a504dcbf07a4b0826c7cdb77c96302"
   },
   {
     "path": "tests/test_ew_programs.py",
@@ -42,7 +46,8 @@
     "requirements": [
       "R-WPN-003"
     ],
-    "status": "deleted; replacement under construction"
+    "status": "deleted and independently remade; replacement acceptance passes",
+    "replacement_sha256": "3616475f9a135faeb103d0c47675daba37a504dcbf07a4b0826c7cdb77c96302"
   },
   {
     "path": "tests/test_store_registration.py",
@@ -53,6 +58,21 @@
       "R-REG-001",
       "R-REG-002"
     ],
-    "status": "deleted; independent replacement under construction"
+    "status": "deleted and independently remade; replacement acceptance passes",
+    "replacement_sha256": "49b57df16448db4bbb30d425c2f646c4f5dc9731519ea5bdf33d415a36a3cee1"
+  },
+  {
+    "path": "tests/test_native_ag_weapons.cpp",
+    "deleted_sha256": "6744aea3d0f06f2fce42cdcc3cb21bc01c16aef060e2c5ffa11c776944dfd9de",
+    "replacement": "tests/native/weapons_bomb_flight.cpp",
+    "replacement_sha256": "e33d1a7fac5520f7188cae59c66fe8be81d8a209f86b6bc38d3fe30eb07ae636",
+    "requirements": [
+      "R-WPN-002",
+      "R-WPN-008",
+      "D-R-WPN-002"
+    ],
+    "status": "deleted and independently remade; 15 actual-owner native software cases pass",
+    "coverage": "native store class, independent vacuum-plane oracle, frozen request/cancellation, typed full-flight gate/coherence/failure/recovery, absent actual host module",
+    "limits": "Actual BombSight ABI/effects and original frozen-input physical-epoch/World-clock mapping remain unqualified; legacy request branch/caller retirement remains P-WPN-008/P-INT-008 work"
   }
 ]

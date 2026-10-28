@@ -1,0 +1,15 @@
+{"tof_flight_cases":17,"failures":14,"DCS_qualified":false}
+Atmosphere loss retained eligible TOF cache
+Recovery reused pre-loss TOF cache
+Failed read/source reached TOF estimator
+Failed read/source reached TOF estimator
+Failed read/source reached TOF estimator
+Failed read/source reached TOF estimator
+Failed read/source reached TOF estimator
+Failed read/source reached TOF estimator
+Failed read/source reached TOF estimator
+TOF result survived mid-call atmosphere loss
+Physical generation reused an old TOF estimate
+Invalid World clock reached native TOF estimator
+Invalid World clock reached native TOF estimator
+Invalid World clock reached native TOF estimator

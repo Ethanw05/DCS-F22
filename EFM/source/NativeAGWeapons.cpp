@@ -1,5 +1,6 @@
 // GPL-3.0-or-later. BombSight ABI checked in the user's installed CockpitBase.
 #include "NativeAGWeapons.h"
+#include "WeaponFlightFrame.h"
 #include <Cockpit/CockpitAPI_Declare.h>
 #include <Windows.h>
 #include <array>
@@ -52,6 +53,8 @@ void solve(EDPARAM& p,double request_sequence) {
  put(p,"F22_AG_BOMB_NATIVE_VALID",0);put(p,"F22_AG_BOMB_NATIVE_REASON",1);
  put(p,"F22_AG_BOMB_TRAJECTORY_SUPPORTED",1);put(p,"F22_AG_BOMB_TRAJECTORY_READY",0);put(p,"F22_AG_BOMB_POINT_COUNT",0);
  if(failed || get(p,"F22_AG_BOMB_REQUEST_VALID")<.5)return;
+ WeaponFlightFrame::Snapshot<6> flight;
+ if(!flight.load(p,WeaponFlightFrame::motion_names))return;
  if(!api.resolve()){put(p,"F22_AG_BOMB_NATIVE_REASON",2);return;}
  double now=api.clock(),stamp=get(p,"F22_AG_BOMB_REQUEST_TIME");
  if(!std::isfinite(now)||!std::isfinite(stamp)||now-stamp<-.01||now-stamp>.2)return;
@@ -63,13 +66,13 @@ void solve(EDPARAM& p,double request_sequence) {
  Type type{4,5,static_cast<std::uint8_t>(third),0,static_cast<std::uint32_t>(fourth)};
  if((type.three!=9&&type.three!=36)||type.four==0)return;
  FloatVec pos{static_cast<float>(get(p,frozen?"F22_AG_BOMB_REQUEST_N":"F22_AG_OWN_N")),static_cast<float>(get(p,frozen?"F22_AG_BOMB_REQUEST_U":"F22_AG_OWN_U")),static_cast<float>(get(p,frozen?"F22_AG_BOMB_REQUEST_E":"F22_AG_OWN_E"))};
- FloatVec velocity{static_cast<float>(get(p,"EFM_HUD_VN")),static_cast<float>(get(p,"EFM_HUD_VU")),static_cast<float>(get(p,"EFM_HUD_VE"))};
+ FloatVec velocity{static_cast<float>(flight.values[0]),static_cast<float>(flight.values[1]),static_cast<float>(flight.values[2])};
  if(get(p,"F22_AG_RELEASE_VELOCITY_VALID")>.5)velocity={static_cast<float>(get(p,"F22_AG_RELEASE_VN")),static_cast<float>(get(p,"F22_AG_RELEASE_VU")),static_cast<float>(get(p,"F22_AG_RELEASE_VE"))};
  if(frozen)velocity={static_cast<float>(get(p,"F22_AG_BOMB_REQUEST_VN")),static_cast<float>(get(p,"F22_AG_BOMB_REQUEST_VU")),static_cast<float>(get(p,"F22_AG_BOMB_REQUEST_VE"))};
  double level=get(p,frozen?"F22_AG_BOMB_REQUEST_GROUND_LEVEL":"F22_AG_BOMB_GROUND_LEVEL");
  if(!std::isfinite(pos.n)||!std::isfinite(pos.u)||!std::isfinite(pos.e)||!std::isfinite(level)||pos.u-level<5 || pos.u-level>18000)return;
  if(!std::isfinite(std::hypot(velocity.n,velocity.u,velocity.e))||std::hypot(velocity.n,velocity.u,velocity.e)>1200)return;
- Wind wind{wind_methods,{static_cast<float>(get(p,"EFM_HUD_WN")),static_cast<float>(get(p,"EFM_HUD_WU")),static_cast<float>(get(p,"EFM_HUD_WE"))}};
+ Wind wind{wind_methods,{static_cast<float>(flight.values[3]),static_cast<float>(flight.values[4]),static_cast<float>(flight.values[5])}};
  if(frozen)wind.value={static_cast<float>(get(p,"F22_AG_BOMB_REQUEST_WN")),static_cast<float>(get(p,"F22_AG_BOMB_REQUEST_WU")),static_cast<float>(get(p,"F22_AG_BOMB_REQUEST_WE"))};
  if(!std::isfinite(std::hypot(wind.value.n,wind.value.u,wind.value.e))||std::hypot(wind.value.n,wind.value.u,wind.value.e)>300)return;
  Wind* proxy=&wind;
@@ -93,6 +96,7 @@ void solve(EDPARAM& p,double request_sequence) {
      !std::isfinite(trajectory[i].n)||!std::isfinite(trajectory[i].u)||!std::isfinite(trajectory[i].e)) {path=false;break;}
  }
  api.dtor(sight.data());
+ if(!flight.current(p))return;
  // Lua publishes VALID last and clears it before changing frozen inputs.
  // A cancellation/replacement during solver work cannot validate mixed input.
  if(get(p,"F22_AG_BOMB_REQUEST_VALID")<.5 || get(p,"F22_AG_BOMB_REQUEST_SEQUENCE")!=request_sequence)return;

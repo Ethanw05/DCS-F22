@@ -1,0 +1,9 @@
+{"bomb_flight_cases":15,"failures":8,"DCS_qualified":false}
+Invalid full group reached bomb solver
+Invalid full group reached bomb solver
+Invalid full group reached bomb solver
+Invalid full group reached bomb solver
+Invalid full group reached bomb solver
+Invalid full group reached bomb solver
+Torn motion admitted by bomb solver
+Delayed bomb result survived source loss

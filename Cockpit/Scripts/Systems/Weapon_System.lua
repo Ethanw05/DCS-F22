@@ -678,8 +678,10 @@ local function handle_command(command,value)
     -- Absolute private controls prevent repeated/late releases from toggling fire ON.
     if command==10800 then
         if value==1 or value==2 or value==3 or value==5 or value==7 then
+            local held=weapon_release_state==1
             trigger_input:cancel()
             ag_stores:cancel();mode_state=value;fire_z_weapons=0;first_state=0;weapon_release_state=0
+            pickle_consumed=held or pickle_consumed
             if value==7 then ag_first_selection=true end
             parameters.HUD_MODE:set(value)
             native_command(85);native_command(351);gun_command_active=false;native_pickle_active=false
@@ -730,12 +732,13 @@ local function handle_command(command,value)
             if command==10813 and ag_submode==1 then return end
             local requested=command==10813 and (ag_submode==2 and 3 or 2)or command-10806
             if requested~=1 and not store_caps.mode_available(ag_stores:group(),requested)then return end
+            local held=weapon_release_state==1
             ag_submode=requested
             trigger_input:cancel()
             ag_stores:cancel();ag_first_selection=false;station_refresh=0;selected_station=-2
             get_param_handle('F22_AG_SOLUTION_VALID'):set(0)
             if ag_submode~=1 then ag_stores:profile().mode=ag_submode end
-            weapon_release_state=0;pickle_pos=0;pickle_consumed=false;fire_z_weapons=0
+            weapon_release_state=0;pickle_pos=0;pickle_consumed=held or pickle_consumed;fire_z_weapons=0
             native_command(85);native_command(351);gun_command_active=false;native_pickle_active=false
         end
         return

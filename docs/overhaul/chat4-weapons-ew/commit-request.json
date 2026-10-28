@@ -1,50 +1,63 @@
 {
   "owner": "chat4",
-  "status": "READY_FOR_INTEGRATOR_COMMIT",
+  "status": "READY_FOR_SERIALIZED_SOURCE_INTEGRATION",
   "packages": [
-    "P-WPN-001",
-    "P-WPN-003",
-    "P-WPN-007 (legacy alias withdrawal only; supplied-preset patch awaits lease)"
+    "P-WPN-001 source remedy",
+    "P-WPN-003 explicit provider unavailable/clock remedy",
+    "P-WPN-007 store/profile source remedy"
   ],
-  "subject": "fix weapons release loss and CM source readiness",
+  "subject": "Qualify weapons full-flight consumers, preserve mode cancellation and finish optional preset repair",
   "paths": [
-    "Cockpit/Scripts/Systems/AG_Stores.lua",
-    "Cockpit/Scripts/Systems/Store_Capabilities.lua",
-    "Cockpit/Scripts/Systems/IR_Seeker.lua",
     "Cockpit/Scripts/Systems/Weapon_System.lua",
-    "Cockpit/Scripts/Systems/EW_System.lua",
-    "Cockpit/Scripts/Systems/Defensive_Controls.lua",
-    "tests/weapon_ports.py",
+    "UnitPayloads/F-22A.lua",
     "tests/cases/test_weapon_release.py",
-    "tests/cases/test_cm_lifecycle.py",
-    "tests/test_weapon_transactions.py",
-    "tests/test_weapon_hud_selection.py",
-    "tests/test_ew_backend_lifecycle.py",
-    "tests/test_ew_controls.py",
-    "tests/test_ew_programs.py"
+    "tests/cases/test_store_profile.py",
+    "tests/test_store_registration.py",
+    "EFM/source/NativeGunSight.cpp",
+    "EFM/source/NativeAGWeapons.cpp",
+    "EFM/source/NativeSidewinder.cpp",
+    "EFM/source/WeaponFlightFrame.h",
+    "tests/native/weapons_ground_clock.cpp",
+    "tests/native/weapons_bomb_flight.cpp",
+    "tests/native/weapons_tof_flight.cpp",
+    "tests/native/weapon_parameter_port.h",
+    "tests/native/weapons.cmake",
+    "tests/test_native_ag_weapons.cpp"
   ],
   "documentation_directory": "docs/overhaul/chat4-weapons-ew",
   "current_source_hashes": {
-    "Cockpit/Scripts/Systems/AG_Stores.lua": "41b883f7b6d90d8eb86038dd274397ad2c8aad06c0565930ef9a52c168276e97",
-    "Cockpit/Scripts/Systems/Store_Capabilities.lua": "9bf6d237dd92ddf5ebdfb4f135c3145c5bf5d4f0c3933da2f7be60c2598872e6",
-    "Cockpit/Scripts/Systems/IR_Seeker.lua": "8086e5bc8df82441cea3574e66a7dffcf32b923871f72bb3ddf79721daced981",
-    "Cockpit/Scripts/Systems/Weapon_System.lua": "5ef54c34ab5e5c7510abdcd08bffcb4463a11c796acf9eb504965ef533a3751e",
-    "Cockpit/Scripts/Systems/EW_System.lua": "1ac62584e40fb51c32172034ab32014e52046d2eacf7fbaf605e4b6ea56f02ed",
-    "Cockpit/Scripts/Systems/Defensive_Controls.lua": "a491b37dbebef664950839978351384d5afb3e84bce0c7d31237b6a3f72ec6a5",
-    "tests/weapon_ports.py": "0e6a7f19ede4aa0a3dfb070d4ea48815da7bc91401659803530264eec28c6bb1",
-    "tests/cases/test_weapon_release.py": "57d747b95979a37f7a473f378e4d70e353499aef7fa2bc98dd5467169453c703",
-    "tests/cases/test_cm_lifecycle.py": "3616475f9a135faeb103d0c47675daba37a504dcbf07a4b0826c7cdb77c96302"
+    "Cockpit/Scripts/Systems/Weapon_System.lua": "7eb9da1e57cff6a73a197be38d19dea115d65353defca9d251f01bd7bb50cce6",
+    "UnitPayloads/F-22A.lua": "fd04c70bb35e4bfcd7d140d49017895f9e8ac6d08c3fea96cfeaab73bc6a97e9",
+    "tests/cases/test_weapon_release.py": "c4b1738fcf5f9a02591040122fb191e826e65ba1112075f29584392c823c6a57",
+    "tests/cases/test_store_profile.py": "49b57df16448db4bbb30d425c2f646c4f5dc9731519ea5bdf33d415a36a3cee1",
+    "EFM/source/NativeGunSight.cpp": "00a6cf36a6dffd0d01207d3fd47d5421be6e6fcbc7a7d04895aed9c2f21d7ac7",
+    "EFM/source/NativeAGWeapons.cpp": "eb05e72eabea4a19f6edef3a37a1b349498835170c7bf152d2a695a2579ac5aa",
+    "EFM/source/NativeSidewinder.cpp": "547921ca1673e9838dc4fb880bb172f6e6bf61a9338f514754b56692f95bac01",
+    "EFM/source/WeaponFlightFrame.h": "bbf66f9b88bc64d62834eb02f4b6210500488b17fd4abca5f7b1b4e433513e5f",
+    "tests/native/weapons_ground_clock.cpp": "d50414d8d70de22a230642cd41aaedf5df87baeb818973b7fb989e790addc155",
+    "tests/native/weapons_bomb_flight.cpp": "e33d1a7fac5520f7188cae59c66fe8be81d8a209f86b6bc38d3fe30eb07ae636",
+    "tests/native/weapons_tof_flight.cpp": "eb8a94bd0dcaa88039517bfe71f80c6071e75aded76ae4412bc9bbba3588c115",
+    "tests/native/weapon_parameter_port.h": "81a01803e7f2474ee8e4ea8a3f319aa5d644fca8778fa99971fb85b5558518ce",
+    "tests/native/weapons.cmake": "8e90f5be1782e5c97a3554b605876651e8ddd7828548ce58799daf0bd2dfe7fe"
   },
   "checks": {
-    "release": "8 passing requirement tests",
-    "cm": "6 passing requirement tests",
-    "lua": "6 files compile Lua5.1; zero new pinned lint diagnostics"
+    "lua": "19 tests pass;7 files compile;0 new pinned lint",
+    "native": "64 actual owner cases pass (31gun,15bomb,18TOF), including parameter epoch change during copy/solve and cache retirement across contexts",
+    "warnings": "0 added /W4 warnings;3 pre-existing warnings independently reproduced",
+    "evidence": "native-flight-evidence.json; native-before-reproduction.json; lua-results.json",
+    "complexity": "new helper max CCN9; coding-exceptions.json names existing large bodies for integrator review"
   },
   "limits": [
-    "No matched DCS/native effects or install/runtime slot",
-    "No aircraft calibration, optics/audio/MP qualification",
-    "71 assigned legacy artifacts still await their package remakes",
-    "tests/cases/test_store_profile.py has two expected pre-fix supplied-preset failures pending payload-profile.patch lease; omit it from the first completed tranche or grant/apply patch before all-case verification."
+    "No installation/runtime slot; actual native/DCS/2D/VR/MP and aircraft calibration unqualified",
+    "No complete P-INT-008, whole tactical packet or frozen-input physical epoch/World-time mapping claim",
+    "Long native calculate/solve/TOF remain focused legacy complexity exceptions; new helpers bounded; decision coverage/runtime budgets unmeasured"
   ],
-  "instructions": "Only these exact paths and this own documentation directory are Chat4 completed tranche. Serialize commit; no other source/tests staged by Chat4. NativeSidewinder/common files untouched."
+  "instructions": "Only these exact paths and this own documentation directory are Chat4 completed tranche. Serialize commit; no other source/tests staged by Chat4. NativeSidewinder/common files untouched.",
+  "previous_commit": "98e626a (release/CM/legacy alias source tranche integrated)",
+  "pending_native_integration": {
+    "status": "clock patch applied; full-flight regions compiled/verified; shared CMake includes native/weapons.cmake",
+    "needed": "serialized main commit and full external DLL/package identity build"
+  },
+  "native_scope": "Only leased weapons-flight-group-admission regions + new read-only helper; common API/RAPTOR/radar/wire/IR lifetime regions untouched",
+  "test_retirement": "7/76 remade;69 remain quarantined"
 }

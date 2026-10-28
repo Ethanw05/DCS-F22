@@ -1,0 +1,120 @@
+{
+  "package": "P-WPN-009",
+  "requirements": [
+    "R-REG-003",
+    "R-WPN-008"
+  ],
+  "scope": "Execution-time applicability record; prior AST/body audit retained, not repeated or relabelled incomplete",
+  "source_hashes": {
+    "F-22A.lua": "ccb122f14e28f17be47e8ef40e8f60ece45b2328d13293934fada3afc409e2f0",
+    "EFM/source/VehicleFaults.h": "32afcbb9ced9450c92db22e5af770767e5aa45e12bd3f27e54af92f6ddf4717d",
+    "EFM/source/RAPTOR.cpp": "271d4002b75cfbd2b013b4e5adb90641dc59c3fbfeda869c167a8be2c95202db"
+  },
+  "owned_callback": "RAPTOR::ed_fm_on_planned_failure searches RaptorVehicle::planned_faults only; lack of an exact owned alias does not establish that the host ignores these names",
+  "legacy_ids": [
+    {
+      "id": "asc",
+      "registration": "retained; disabled unless mission author selects",
+      "proposed_accountable_effect_review": "chat1 physical/FCS",
+      "owned_efm_exact_name_mapping": false,
+      "actual_host_dispatch": "unqualified; no native failure injection executed",
+      "disposition": "Retain native name; do not remap to an f22_ fault or delete without host effect/owner proof"
+    },
+    {
+      "id": "autopilot",
+      "registration": "retained; disabled unless mission author selects",
+      "proposed_accountable_effect_review": "chat2 AFCS with chat1 physical eligibility",
+      "owned_efm_exact_name_mapping": false,
+      "actual_host_dispatch": "unqualified; no native failure injection executed",
+      "disposition": "Retain native name; do not remap to an f22_ fault or delete without host effect/owner proof"
+    },
+    {
+      "id": "hydro",
+      "registration": "retained; disabled unless mission author selects",
+      "proposed_accountable_effect_review": "chat1 physical supply",
+      "owned_efm_exact_name_mapping": false,
+      "actual_host_dispatch": "unqualified; no native failure injection executed",
+      "disposition": "Retain native name; do not remap to an f22_ fault or delete without host effect/owner proof"
+    },
+    {
+      "id": "l_engine",
+      "registration": "retained; disabled unless mission author selects",
+      "proposed_accountable_effect_review": "chat1 engine",
+      "owned_efm_exact_name_mapping": false,
+      "actual_host_dispatch": "unqualified; no native failure injection executed",
+      "disposition": "Retain native name; do not remap to an f22_ fault or delete without host effect/owner proof"
+    },
+    {
+      "id": "r_engine",
+      "registration": "retained; disabled unless mission author selects",
+      "proposed_accountable_effect_review": "chat1 engine",
+      "owned_efm_exact_name_mapping": false,
+      "actual_host_dispatch": "unqualified; no native failure injection executed",
+      "disposition": "Retain native name; do not remap to an f22_ fault or delete without host effect/owner proof"
+    },
+    {
+      "id": "radar",
+      "registration": "retained; disabled unless mission author selects",
+      "proposed_accountable_effect_review": "chat3 sensing",
+      "owned_efm_exact_name_mapping": false,
+      "actual_host_dispatch": "unqualified; no native failure injection executed",
+      "disposition": "Retain native name; do not remap to an f22_ fault or delete without host effect/owner proof"
+    },
+    {
+      "id": "mlws",
+      "registration": "retained; disabled unless mission author selects",
+      "proposed_accountable_effect_review": "chat4 MWS",
+      "owned_efm_exact_name_mapping": false,
+      "actual_host_dispatch": "unqualified; no native failure injection executed",
+      "disposition": "Retain native name; do not remap to an f22_ fault or delete without host effect/owner proof"
+    },
+    {
+      "id": "rws",
+      "registration": "retained; disabled unless mission author selects",
+      "proposed_accountable_effect_review": "chat4 RWR",
+      "owned_efm_exact_name_mapping": false,
+      "actual_host_dispatch": "unqualified; no native failure injection executed",
+      "disposition": "Retain native name; do not remap to an f22_ fault or delete without host effect/owner proof"
+    },
+    {
+      "id": "ecm",
+      "registration": "retained; disabled unless mission author selects",
+      "proposed_accountable_effect_review": "chat4 EW",
+      "owned_efm_exact_name_mapping": false,
+      "actual_host_dispatch": "unqualified; no native failure injection executed",
+      "disposition": "Retain native name; do not remap to an f22_ fault or delete without host effect/owner proof"
+    },
+    {
+      "id": "hud",
+      "registration": "retained; disabled unless mission author selects",
+      "proposed_accountable_effect_review": "chat2 HUD/display with chat1 supply",
+      "owned_efm_exact_name_mapping": false,
+      "actual_host_dispatch": "unqualified; no native failure injection executed",
+      "disposition": "Retain native name; do not remap to an f22_ fault or delete without host effect/owner proof"
+    },
+    {
+      "id": "mfd",
+      "registration": "retained; disabled unless mission author selects",
+      "proposed_accountable_effect_review": "chat2 MFD/display with chat1 supply",
+      "owned_efm_exact_name_mapping": false,
+      "actual_host_dispatch": "unqualified; no native failure injection executed",
+      "disposition": "Retain native name; do not remap to an f22_ fault or delete without host effect/owner proof"
+    }
+  ],
+  "ai_metadata": {
+    "Sensors.RADAR": "AN/APG-63 inherited AI label; does not identify player radar",
+    "Sensors.IRST": "OLS-27 inherited AI metadata; not selected player IRDS backend",
+    "Sensors.OPTIC": [
+      "TADS DTV",
+      "TADS DVO",
+      "TADS FLIR"
+    ],
+    "Countermeasures.ECM": "AN/ALQ-135 inherited AI label; no player radiation/effectiveness claim"
+  },
+  "unresolved": [
+    "Chat1 physical and Chat2 integration applicability review",
+    "matched native failure source/dispatch/achieved effect/pilot feedback",
+    "actual AI/MP consequences and recovery",
+    "CM chargeSz native cartridge accounting separate from Lua count deltas"
+  ]
+}

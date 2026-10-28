@@ -1,0 +1,29 @@
+{
+  "compiler": "MSVC19.51.36252.0 C++23 Release /W4 /analyze",
+  "build_exit": 0,
+  "pre_edit_source": "Git5cca15d; generated translation units used same independent ports; source hashes in native-analysis-baseline.json",
+  "before_warning_codes": {
+    "C6387": 2,
+    "C6320": 2,
+    "C4459": 1,
+    "C4456": 1,
+    "C4244": 1,
+    "C6246": 1
+  },
+  "after_warning_codes": {
+    "C6387": 2,
+    "C6320": 2,
+    "C4459": 1,
+    "C4456": 1,
+    "C4244": 1,
+    "C6246": 1
+  },
+  "new_warning_codes": [],
+  "dispositions": {
+    "C6387": "Pre-existing NativeGunSight Api::resolve module pointer diagnostic; profile() rejects null before GetProcAddress. No new module/lifetime proof claimed.",
+    "C6320": "Pre-existing broad native SEH filters; not proof of lifetime/ABI/exception completeness. Remain P-WPN-006/P-INT-005 qualification items.",
+    "C4459/C4456/C6246": "Pre-existing NativeSidewinder object/maximum shadow declarations outside leased edit regions; no new warning suppression.",
+    "C4244": "Pre-existing diagnostic pointer-to-double conversion outside this source-admission scope; API/identity/lifetime qualification remains open."
+  },
+  "limits": "Lexical complexity and native static checks are not branch/condition coverage, DCS callback/runtime or aircraft validation."
+}

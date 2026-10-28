@@ -1,0 +1,174 @@
+{
+  "tool": "lizard1.17.31 lexical complexity; compiler checks separate",
+  "functions": [
+    {
+      "path": "EFM/source/WeaponFlightFrame.h",
+      "function": "WeaponFlightFrame::read_header",
+      "start": 21,
+      "nloc": 6,
+      "ccn": 3
+    },
+    {
+      "path": "EFM/source/WeaponFlightFrame.h",
+      "function": "WeaponFlightFrame::flags",
+      "start": 27,
+      "nloc": 3,
+      "ccn": 4
+    },
+    {
+      "path": "EFM/source/WeaponFlightFrame.h",
+      "function": "WeaponFlightFrame::epoch",
+      "start": 30,
+      "nloc": 4,
+      "ccn": 3
+    },
+    {
+      "path": "EFM/source/WeaponFlightFrame.h",
+      "function": "WeaponFlightFrame::fresh",
+      "start": 34,
+      "nloc": 4,
+      "ccn": 4
+    },
+    {
+      "path": "EFM/source/WeaponFlightFrame.h",
+      "function": "WeaponFlightFrame::qualified",
+      "start": 38,
+      "nloc": 1,
+      "ccn": 3
+    },
+    {
+      "path": "EFM/source/WeaponFlightFrame.h",
+      "function": "WeaponFlightFrame::same_epoch",
+      "start": 39,
+      "nloc": 4,
+      "ccn": 4
+    },
+    {
+      "path": "EFM/source/WeaponFlightFrame.h",
+      "function": "WeaponFlightFrame::Snapshot::load",
+      "start": 50,
+      "nloc": 12,
+      "ccn": 9
+    },
+    {
+      "path": "EFM/source/WeaponFlightFrame.h",
+      "function": "WeaponFlightFrame::Snapshot::current",
+      "start": 62,
+      "nloc": 6,
+      "ccn": 6
+    },
+    {
+      "path": "EFM/source/WeaponFlightFrame.h",
+      "function": "WeaponFlightFrame::Snapshot::generation",
+      "start": 68,
+      "nloc": 1,
+      "ccn": 1
+    },
+    {
+      "path": "EFM/source/NativeGunSight.cpp",
+      "function": "NativeGunSight::Api::resolve",
+      "start": 85,
+      "nloc": 25,
+      "ccn": 12
+    },
+    {
+      "path": "EFM/source/NativeGunSight.cpp",
+      "function": "NativeGunSight::retire_flight",
+      "start": 155,
+      "nloc": 12,
+      "ccn": 3
+    },
+    {
+      "path": "EFM/source/NativeGunSight.cpp",
+      "function": "NativeGunSight::flight_input",
+      "start": 167,
+      "nloc": 8,
+      "ccn": 5
+    },
+    {
+      "path": "EFM/source/NativeGunSight.cpp",
+      "function": "NativeGunSight::calculate_funnel",
+      "start": 191,
+      "nloc": 60,
+      "ccn": 45
+    },
+    {
+      "path": "EFM/source/NativeGunSight.cpp",
+      "function": "NativeGunSight::calculate",
+      "start": 252,
+      "nloc": 188,
+      "ccn": 67
+    },
+    {
+      "path": "EFM/source/NativeGunSight.cpp",
+      "function": "NativeGunSight::calculate_ground",
+      "start": 447,
+      "nloc": 35,
+      "ccn": 33
+    },
+    {
+      "path": "EFM/source/NativeAGWeapons.cpp",
+      "function": "NativeAGWeapons::Api::resolve",
+      "start": 34,
+      "nloc": 16,
+      "ccn": 12
+    },
+    {
+      "path": "EFM/source/NativeAGWeapons.cpp",
+      "function": "NativeAGWeapons::solve",
+      "start": 51,
+      "nloc": 65,
+      "ccn": 71
+    },
+    {
+      "path": "EFM/source/NativeSidewinder.cpp",
+      "function": "NativeSidewinder::Api::resolve_tof",
+      "start": 141,
+      "nloc": 13,
+      "ccn": 9
+    },
+    {
+      "path": "EFM/source/NativeSidewinder.cpp",
+      "function": "NativeSidewinder::Api::resolve",
+      "start": 159,
+      "nloc": 58,
+      "ccn": 12
+    },
+    {
+      "path": "EFM/source/NativeSidewinder.cpp",
+      "function": "NativeSidewinder::TofInputs::load",
+      "start": 570,
+      "nloc": 11,
+      "ccn": 3
+    },
+    {
+      "path": "EFM/source/NativeSidewinder.cpp",
+      "function": "NativeSidewinder::TofInputs::ids",
+      "start": 581,
+      "nloc": 5,
+      "ccn": 5
+    },
+    {
+      "path": "EFM/source/NativeSidewinder.cpp",
+      "function": "NativeSidewinder::TofInputs::eligible",
+      "start": 586,
+      "nloc": 5,
+      "ccn": 9
+    },
+    {
+      "path": "EFM/source/NativeSidewinder.cpp",
+      "function": "NativeSidewinder::retire_time_estimate",
+      "start": 592,
+      "nloc": 4,
+      "ccn": 1
+    },
+    {
+      "path": "EFM/source/NativeSidewinder.cpp",
+      "function": "NativeSidewinder::publish_time_estimate",
+      "start": 596,
+      "nloc": 71,
+      "ccn": 62
+    }
+  ],
+  "policy": "New helpers target CCN<=10. Existing native solve/calculate/publish bodies remain reviewed focused legacy exceptions, not reformatted or claimed compliant. Statement-count/callback and branch/condition/runtime cost qualification remain explicit limits."
+}

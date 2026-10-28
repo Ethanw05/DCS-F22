@@ -1,0 +1,24 @@
+test_device_loss_retires_pending_and_recovery_does_not_replay (test_weapon_release.ReleaseTransactions.test_device_loss_retires_pending_and_recovery_does_not_replay) ... ok
+test_late_native_outcome_updates_history_without_restoring_consent (test_weapon_release.ReleaseTransactions.test_late_native_outcome_updates_history_without_restoring_consent) ... ok
+test_malformed_station_does_not_hide_independent_valid_station (test_weapon_release.ReleaseTransactions.test_malformed_station_does_not_hide_independent_valid_station) ... ok
+test_mode_transfer_consumes_the_held_release_until_up (test_weapon_release.ReleaseTransactions.test_mode_transfer_consumes_the_held_release_until_up) ... ok
+test_only_matching_native_outcome_completes (test_weapon_release.ReleaseTransactions.test_only_matching_native_outcome_completes) ... ok
+test_rearm_and_safe_cancel_before_native_outcomes (test_weapon_release.ReleaseTransactions.test_rearm_and_safe_cancel_before_native_outcomes) ... ok
+test_station_and_selection_exceptions_are_unavailable (test_weapon_release.ReleaseTransactions.test_station_and_selection_exceptions_are_unavailable) ... ok
+test_station_boundary_contract_and_ir_consumer (test_weapon_release.ReleaseTransactions.test_station_boundary_contract_and_ir_consumer) ... ok
+test_throwing_launch_is_uncertain_and_never_retried (test_weapon_release.ReleaseTransactions.test_throwing_launch_is_uncertain_and_never_retried) ... ok
+test_dispatch_alone_cannot_complete_and_loss_does_not_replay (test_cm_lifecycle.Countermeasures.test_dispatch_alone_cannot_complete_and_loss_does_not_replay) ... ok
+test_draft_is_independent_of_saved_normal_and_direct_banks (test_cm_lifecycle.Countermeasures.test_draft_is_independent_of_saved_normal_and_direct_banks) ... ok
+test_man_normal_and_direct_observe_counts_and_complete (test_cm_lifecycle.Countermeasures.test_man_normal_and_direct_observe_counts_and_complete) ... ok
+test_missing_throwing_and_nonfinite_clocks_revoke_readiness (test_cm_lifecycle.Countermeasures.test_missing_throwing_and_nonfinite_clocks_revoke_readiness) ... ok
+test_rollback_and_clock_recovery_require_fresh_request (test_cm_lifecycle.Countermeasures.test_rollback_and_clock_recovery_require_fresh_request) ... ok
+test_semi_auto_remain_unavailable_without_qualified_event_provider (test_cm_lifecycle.Countermeasures.test_semi_auto_remain_unavailable_without_qualified_event_provider) ... ok
+test_each_optional_family_is_selected_off_and_cannot_release (test_store_profile.StoreProfile.test_each_optional_family_is_selected_off_and_cannot_release) ... ok
+test_legacy_mission_alias_has_no_bomb_delivery_authority (test_store_profile.StoreProfile.test_legacy_mission_alias_has_no_bomb_delivery_authority) ... ok
+test_optional_presets_are_labelled_without_changing_mission_names (test_store_profile.StoreProfile.test_optional_presets_are_labelled_without_changing_mission_names) ... ok
+test_supplied_ferry_uses_only_the_registered_sensor_station (test_store_profile.StoreProfile.test_supplied_ferry_uses_only_the_registered_sensor_station) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.214s
+
+OK

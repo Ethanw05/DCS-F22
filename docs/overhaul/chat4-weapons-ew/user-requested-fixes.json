@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "requested_on": "2026-10-28",
+  "source": "User request in Weapons-EW chat",
+  "status": "added to execution fix list; implementation and qualification pending",
+  "items": [
+    {
+      "id": "U-WPN-001",
+      "title": "Complete the missing AIM-120 launch-mode workflows against the selected DCS F/A-18 reference",
+      "related_packages": [
+        "P-WPN-001",
+        "P-WPN-007",
+        "P-WPN-009"
+      ],
+      "collaborators": [
+        "chat3 radar/fire-control provider",
+        "chat2 shared controls/MFD/HUD integrator"
+      ],
+      "tasks": [
+        "Inventory the exact missing Hornet launch modes from authoritative installed/reference material; record the selected analogue and names before implementation.",
+        "Trace pilot mode selection through weapon/station and target handoff, native launch effect, support state and pilot feedback.",
+        "Remake requirement tests for normal operation, limits, mode/station/target change, unavailable source and recovery; qualify actual matched native/DCS behavior."
+      ],
+      "completion": "Every selected launch mode has a real supported control-to-launch/support/feedback chain or an explicit native no-go; no mode is represented by a label alone."
+    },
+    {
+      "id": "U-WPN-002",
+      "title": "Complete aircraft-to-weapon datalink/support symbology",
+      "related_packages": [
+        "P-WPN-001",
+        "P-WPN-009"
+      ],
+      "collaborators": [
+        "chat3 qualified radar association and support",
+        "chat2 common MFD/HUD/audio presentation"
+      ],
+      "tasks": [
+        "Audit existing launched-weapon support, target/launch identity, guidance/support availability and current seeker-state publications against the chosen F/A-18 display reference.",
+        "Define exact missing weapon-link symbols and transitions, units/clocks/ages and per-weapon ownership.",
+        "Connect achieved native support/seeker state and explicit uncertainty to indications; preserve actual-versus-estimated ACT/TOF distinctions.",
+        "Verify cancellation, retarget/support loss, multiple weapons, target loss, stale/delayed events, recovery and applicable MP/2D/VR presentation."
+      ],
+      "completion": "Weapon-link symbols reflect qualified native state for the correct weapon/target, with honest unknown/lost/estimated indications and actual display verification."
+    },
+    {
+      "id": "U-WPN-003",
+      "title": "Implement complete LITENING targeting-pod functionality",
+      "related_packages": [
+        "P-WPN-007",
+        "P-WPN-009"
+      ],
+      "collaborators": [
+        "chat3 imaging/LOS and radar handoff",
+        "chat2 controls/MFD/UFC/HUD integrator"
+      ],
+      "tasks": [
+        "Resolve the current LITENING native video/LOS/head-pose/stabilization/designation and simulated effect endpoints.",
+        "Complete carriage/power/startup, controls, video and sensor status, applicable designation/weapon handoff and unavailable/failure/recovery behavior.",
+        "Make the equipment-profile selection decision after the complete backend and interaction chain is demonstrated.",
+        "Qualify actual imagery, controls, geometry, native effects and applicable 2D/VR/MP behavior; label unsourced performance estimates."
+      ],
+      "completion": "A selected pod has a working end-to-end simulator workflow with truthful status; registration or an empty page is not functionality."
+    },
+    {
+      "id": "U-WPN-004",
+      "title": "Implement complete IRST-pod sensing and pilot workflows",
+      "related_packages": [
+        "P-WPN-004",
+        "P-WPN-007",
+        "D-P-WPN-001"
+      ],
+      "collaborators": [
+        "chat3 passive sensor/tracking and fusion provider",
+        "chat2 controls/display integrator"
+      ],
+      "tasks": [
+        "Qualify an actual passive sensor/backend and the intended IRST pod control, LOS, track, time/age and provenance contract.",
+        "Complete carriage/power, acquisition/tracking, fusion/display and applicable cue/handoff behavior without inventing measured range/identity or weapon authority.",
+        "Resolve profile selection and unavailable/failure/recovery behavior alongside the existing supplied-preset repair.",
+        "Qualify actual native imagery/sensor effects and applicable 2D/VR/MP behavior; keep aircraft evidence/calibration distinct from estimates."
+      ],
+      "completion": "The pod provides a real qualified sensing/control/display chain with correct provenance and unavailable states; model/CLSID presence alone does not close it."
+    }
+  ],
+  "current_profile": "public_f22_manual_recovery@1 remains the current baseline; these requests add work toward complete optional capabilities and do not themselves demonstrate backend availability."
+}

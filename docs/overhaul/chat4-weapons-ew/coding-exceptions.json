@@ -1,0 +1,110 @@
+{
+  "tool": "lizard1.17.31 lexical count, not actual statement/decision coverage",
+  "exceptions": [
+    {
+      "file": "EFM/source/NativeGunSight.cpp",
+      "function": "NativeGunSight::calculate_funnel",
+      "rules": [
+        "roughly60statement/declaration-line target",
+        "preferredCCN10;above15needs reviewed exception"
+      ],
+      "before": {
+        "nloc": 57,
+        "ccn": 43
+      },
+      "after": {
+        "nloc": 60,
+        "ccn": 45
+      },
+      "reason": "Existing native algorithm/ABI/lifetime body retained under a bounded admission-only region lease. Broad phase rewrite would exceed this reviewed interface cutover and requires the full native algorithm/lifecycle replacement campaign.",
+      "bounded_alternative": "New typed admission/epoch/cancellation work extracted to fixed-size helpers (maximum new CCN9). Existing per-store/trajectory/solver loop caps remain unchanged; no retries or extra native solves added.",
+      "verification": "64 actual native software cases cover new admission/cancellation/recovery; pre-edit failures reproduced. Three old warnings independently reproduced, no new warnings. Full old algorithm branch/condition coverage, runtime/host/lifetime/aircraft validation not claimed.",
+      "review": "Chat4 source self-review complete; Chat2 integrator acceptance requested before commit.",
+      "followup": "P-WPN-008 phase extraction and P-WPN-006 actual native/lifecycle qualification remain open; no mass formatting or certification claim."
+    },
+    {
+      "file": "EFM/source/NativeGunSight.cpp",
+      "function": "NativeGunSight::calculate",
+      "rules": [
+        "roughly60statement/declaration-line target",
+        "preferredCCN10;above15needs reviewed exception"
+      ],
+      "before": {
+        "nloc": 185,
+        "ccn": 65
+      },
+      "after": {
+        "nloc": 188,
+        "ccn": 67
+      },
+      "reason": "Existing native algorithm/ABI/lifetime body retained under a bounded admission-only region lease. Broad phase rewrite would exceed this reviewed interface cutover and requires the full native algorithm/lifecycle replacement campaign.",
+      "bounded_alternative": "New typed admission/epoch/cancellation work extracted to fixed-size helpers (maximum new CCN9). Existing per-store/trajectory/solver loop caps remain unchanged; no retries or extra native solves added.",
+      "verification": "64 actual native software cases cover new admission/cancellation/recovery; pre-edit failures reproduced. Three old warnings independently reproduced, no new warnings. Full old algorithm branch/condition coverage, runtime/host/lifetime/aircraft validation not claimed.",
+      "review": "Chat4 source self-review complete; Chat2 integrator acceptance requested before commit.",
+      "followup": "P-WPN-008 phase extraction and P-WPN-006 actual native/lifecycle qualification remain open; no mass formatting or certification claim."
+    },
+    {
+      "file": "EFM/source/NativeGunSight.cpp",
+      "function": "NativeGunSight::calculate_ground",
+      "rules": [
+        "roughly60statement/declaration-line target",
+        "preferredCCN10;above15needs reviewed exception"
+      ],
+      "before": {
+        "nloc": 29,
+        "ccn": 28
+      },
+      "after": {
+        "nloc": 35,
+        "ccn": 33
+      },
+      "reason": "Existing native algorithm/ABI/lifetime body retained under a bounded admission-only region lease. Broad phase rewrite would exceed this reviewed interface cutover and requires the full native algorithm/lifecycle replacement campaign.",
+      "bounded_alternative": "New typed admission/epoch/cancellation work extracted to fixed-size helpers (maximum new CCN9). Existing per-store/trajectory/solver loop caps remain unchanged; no retries or extra native solves added.",
+      "verification": "64 actual native software cases cover new admission/cancellation/recovery; pre-edit failures reproduced. Three old warnings independently reproduced, no new warnings. Full old algorithm branch/condition coverage, runtime/host/lifetime/aircraft validation not claimed.",
+      "review": "Chat4 source self-review complete; Chat2 integrator acceptance requested before commit.",
+      "followup": "P-WPN-008 phase extraction and P-WPN-006 actual native/lifecycle qualification remain open; no mass formatting or certification claim."
+    },
+    {
+      "file": "EFM/source/NativeAGWeapons.cpp",
+      "function": "NativeAGWeapons::solve",
+      "rules": [
+        "roughly60statement/declaration-line target",
+        "preferredCCN10;above15needs reviewed exception"
+      ],
+      "before": {
+        "nloc": 62,
+        "ccn": 69
+      },
+      "after": {
+        "nloc": 65,
+        "ccn": 71
+      },
+      "reason": "Existing native algorithm/ABI/lifetime body retained under a bounded admission-only region lease. Broad phase rewrite would exceed this reviewed interface cutover and requires the full native algorithm/lifecycle replacement campaign.",
+      "bounded_alternative": "New typed admission/epoch/cancellation work extracted to fixed-size helpers (maximum new CCN9). Existing per-store/trajectory/solver loop caps remain unchanged; no retries or extra native solves added.",
+      "verification": "64 actual native software cases cover new admission/cancellation/recovery; pre-edit failures reproduced. Three old warnings independently reproduced, no new warnings. Full old algorithm branch/condition coverage, runtime/host/lifetime/aircraft validation not claimed.",
+      "review": "Chat4 source self-review complete; Chat2 integrator acceptance requested before commit.",
+      "followup": "P-WPN-008 phase extraction and P-WPN-006 actual native/lifecycle qualification remain open; no mass formatting or certification claim."
+    },
+    {
+      "file": "EFM/source/NativeSidewinder.cpp",
+      "function": "NativeSidewinder::publish_time_estimate",
+      "rules": [
+        "roughly60statement/declaration-line target",
+        "preferredCCN10;above15needs reviewed exception"
+      ],
+      "before": {
+        "nloc": 60,
+        "ccn": 63
+      },
+      "after": {
+        "nloc": 71,
+        "ccn": 62
+      },
+      "reason": "Existing native algorithm/ABI/lifetime body retained under a bounded admission-only region lease. Broad phase rewrite would exceed this reviewed interface cutover and requires the full native algorithm/lifecycle replacement campaign.",
+      "bounded_alternative": "New typed admission/epoch/cancellation work extracted to fixed-size helpers (maximum new CCN9). Existing per-store/trajectory/solver loop caps remain unchanged; no retries or extra native solves added.",
+      "verification": "64 actual native software cases cover new admission/cancellation/recovery; pre-edit failures reproduced. Three old warnings independently reproduced, no new warnings. Full old algorithm branch/condition coverage, runtime/host/lifetime/aircraft validation not claimed.",
+      "review": "Chat4 source self-review complete; Chat2 integrator acceptance requested before commit.",
+      "followup": "P-WPN-008 phase extraction and P-WPN-006 actual native/lifecycle qualification remain open; no mass formatting or certification claim."
+    }
+  ]
+}

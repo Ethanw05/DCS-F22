@@ -34,5 +34,11 @@
     "compiled_lua51": true,
     "new_lint": [],
     "retained_diagnostics": 0
+  },
+  {
+    "path": "UnitPayloads/F-22A.lua",
+    "compiled_lua51": true,
+    "new_lint": [],
+    "retained_diagnostics": 26
   }
 ]
