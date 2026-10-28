@@ -60,6 +60,8 @@ struct API {
   void *connected_ils{};
   Set start{};
   Valid tacan_power{}, ils_power_state{};
+  Power receiver_squelch{};
+  Valid receiver_squelch_state{};
   void *electrical_table{};
   Connect connect_tacan{}, connect_ils{};
   Bus ac_bus{}, dc_bus{};
@@ -98,6 +100,8 @@ struct API {
     BIND(start, Set, "?start@avDevice@cockpit@@QEAAXI@Z");
     BIND(tacan_power, Valid, "?getElecPower@avTACAN@cockpit@@UEBA_NXZ");
     BIND(ils_power_state, Valid, "?getElecPower@avILS@cockpit@@UEBA_NXZ");
+    BIND(receiver_squelch, Power, "?setSquelchOnOff@avReceiver@cockpit@@QEAAX_N@Z");
+    BIND(receiver_squelch_state, Valid, "?getSquelchIsOn@avReceiver@cockpit@@QEBA_NXZ");
     electrical_table = GetProcAddress(
         m, "??_7avSimpleElectricSystem@cockpit@@6BccContextRelatedObject@1@@");
     BIND(connect_tacan, Connect,
@@ -191,6 +195,18 @@ int integer(double v, int fallback, int lo, int hi) {
 bool ils_frequency(int f) {
   return f >= 108100 && f <= 111950 && ((f % 200) == 100 || (f % 200) == 150);
 }
+bool configure_squelch(void *tacan, void *ils) {
+  if (!api.receiver_squelch || !api.receiver_squelch_state)
+    return false;
+  // Matched common receiver subobjects, verified in their initialize/post
+  // methods. TACAN enables squelch itself; base ILS leaves it open unless its
+  // aircraft supplies an audio panel. We own these receivers, not voice COM.
+  auto t = static_cast<char *>(tacan) + 2064;
+  auto i = static_cast<char *>(ils) + 2048;
+  api.receiver_squelch(t, true);
+  api.receiver_squelch(i, true);
+  return api.receiver_squelch_state(t) && api.receiver_squelch_state(i);
+}
 } // namespace
 void reset() {
   if (api.component && api.release && api.destroy && api.free) {
@@ -205,6 +221,7 @@ void reset() {
   ch = band = mode = freq = power = -1;
 }
 void update(EDPARAM &p) {
+  put(p, "F22_NAV_SQUELCH_VALID", 0);
   const auto feed = supply.sample(p);
   put(p, "F22_CNI_SUPPLY_VALID", feed.valid ? 1 : 0);
   put(p, "F22_CNI_RECEIVER_FEED", feed.receiver ? 1 : 0);
@@ -265,6 +282,7 @@ void update(EDPARAM &p) {
     put(p, "F22_RADIONAV_REASON", 4);
     return;
   }
+  put(p, "F22_NAV_SQUELCH_VALID", configure_squelch(t, i) ? 1 : 0);
   if (i != api.connected_ils) {
     if (auto electrical = owned(context, 26, api.electrical_table, 5800)) {
       api.connect_ils(i, api.dc_bus(electrical, 1), api.ac_bus(electrical, 1));

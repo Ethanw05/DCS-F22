@@ -50,7 +50,7 @@ static_assert(offsetof(SceneUnit,type)==296);
 SceneUnit own_unit{},target_unit{target_methods.data()};
 std::array<void*,5> ecm_methods{};
 EcmView target_ecm{ecm_methods.data(),&target_unit,1};
-bool ecm_on{}, own_ecm_on{};
+bool ecm_on{}, own_ecm_on{}, target_present = true;
 EcmView own_ecm{ecm_methods.data(),&own_unit,1};
 void* borrowed_ecm = &target_ecm;
 unsigned receiver_visits = 1, ecm_reads{};
@@ -74,7 +74,10 @@ bool dead(const void*) { return false; }
 unsigned id(void*) { return 42; }
 void* registration(void*) { return &registered; }
 void* unit(void*) { return &target_unit; }
-bool flag(const void* object, int mask) { return mask==8 && ((object==&target_unit && ecm_on) || (object==&own_unit && own_ecm_on)); }
+bool flag(const void* object, int mask) {
+    if (mask == 32) return object != &target_unit || target_present;
+    return mask==8 && ((object==&target_unit && ecm_on) || (object==&own_unit && own_ecm_on));
+}
 void* get_ecm(void* object) { ++ecm_reads; return object==&own_unit ? &own_ecm : borrowed_ecm; }
 void query(void*, const Box&, unsigned, const Query& visitor) {
     ++queries;
@@ -91,7 +94,7 @@ void fixture() {
     for (std::size_t i=0;i<names.size();++i) effect_handles[i]=handle(names[i]);
     target_unit.type={};std::memcpy(target_unit.type.inline_text,"MiG-29S",8);
     target_unit.type.size=7;target_unit.type.capacity=15;
-    ecm_on=false;own_ecm_on=false;own_unit.table=target_methods.data();own_ecm={ecm_methods.data(),&own_unit,1};
+    ecm_on=false;own_ecm_on=false;target_present=true;own_unit.table=target_methods.data();own_ecm={ecm_methods.data(),&own_unit,1};
     for (auto& function : driver_methods) function = reinterpret_cast<void*>(&nothing);
     driver_methods[0] = nullptr; driver_methods[1] = reinterpret_cast<void*>(&destroy);
     driver_methods[7] = reinterpret_cast<void*>(&tick); driver_methods[16] = nullptr;
@@ -305,9 +308,25 @@ void type_metadata() {
     target_unit.type.size=17;target_unit.type.pointer=nullptr;CHECK(!scene_type(&target_unit,name));
     CHECK(!scene_type(nullptr,name));
 }
+void dormant_units() {
+    fixture();Provider provider;Pose pose{};CHECK(provider.pose(pose));
+    static std::array<Truth,maximum_candidates> reports{};
+    Beam beam{};beam.direction={1,0,0};beam.half_angle=degree;beam.range_m=80000;
+    std::size_t count=0;QueryStats stats{};
+    // DCS keeps a dormant aircraft's spawn position and initial velocity in
+    // the common scene. Neither is an actual present radar/jammer target.
+    target_present=false;ecm_on=true;Interference noise{};
+    CHECK(provider.query(pose,beam,reports,count,stats) && count==0);
+    CHECK(provider.interference(now,pose,beam,noise,stats) && noise.sources==0 && noise.noise_ratio==0);
+    target_present=true;count=0;stats={};
+    CHECK(provider.query(pose,beam,reports,count,stats) && count==1);
+    CHECK(reports[0].id==42 && reports[0].velocity.n==250);
+    target_present=false;count=0;stats={};
+    CHECK(provider.query(pose,beam,reports,count,stats) && count==0);
+}
 }
 int main() {
-    try { scenarios(); receiver_scenarios(); receiver_authority(); surface_publication(); own_effect_publication(); type_metadata(); std::cout << "Owned native AESA: scene provider, noisy reports, avLua clock lifetime, "
+    try { scenarios(); receiver_scenarios(); receiver_authority(); surface_publication(); own_effect_publication(); type_metadata(); dormant_units(); std::cout << "Owned native AESA: scene presence/activation, noisy reports, avLua clock lifetime, "
         "context responder registration, actual virtual target/support calls, expiry and teardown PASS\n"; return 0; }
     catch (const std::exception& error) { std::cerr<<error.what()<<'\n'; return 1; }
 }

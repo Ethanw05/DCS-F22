@@ -21,6 +21,13 @@ set_target_properties(f22 PROPERTIES
 # Small standalone numerical tests; no DCS SDK or host process is required.
 include(CTest)
 if(BUILD_TESTING)
+    add_executable(f22_native_navigation_audio_test "${CMAKE_SOURCE_DIR}/tests/test_native_navigation_audio.cpp")
+    target_include_directories(f22_native_navigation_audio_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_compile_definitions(f22_native_navigation_audio_test PRIVATE NOMINMAX)
+    if(MSVC)
+        target_compile_options(f22_native_navigation_audio_test PRIVATE /W4 /WX /analyze)
+    endif()
+    add_test(NAME native_navigation_audio COMMAND f22_native_navigation_audio_test)
     add_executable(f22_aesa_track_filter_test "${CMAKE_SOURCE_DIR}/tests/test_aesa_track_filter.cpp")
     if(MSVC)
         target_compile_options(f22_aesa_track_filter_test PRIVATE /W4 /WX /analyze)

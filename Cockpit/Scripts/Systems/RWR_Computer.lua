@@ -4,7 +4,7 @@ local M = { lifetime = 12, search_coast = 6, warning_coast = 3.5 }
 function M.coasting(c)
 	return c.age > (c.signal > 1 and M.warning_coast or M.search_coast)
 end
-M.symbols = { "U", "M", "M2", "E3", "P", "S", "SAM", "AAA" }
+M.symbols = { "U", "M", "M2", "E3", "P", "EWR", "SAM", "AAA" }
 function M.label_code(label)
 	local number = tonumber(label)
 	if number then
@@ -27,6 +27,8 @@ function M.label(name, general)
 	if general == 4 then
 		return "M"
 	end
+    -- The stock S means a ground search/early-warning radar, not a fighter.
+    if s == 'S' or s:find('EWR') then return 'EWR' end
     if general == 2 then
         if s=='A' or s=='AAA' or s:find('SHILKA') or s:find('GEPARD') or s:find('VULCAN') then return 'AAA' end
         return 'SAM'
@@ -58,7 +60,6 @@ function M.label(name, general)
 		{ "^KUB", "6" },
 		{ "^TOR", "15" },
 		{ "^OSA", "8" },
-		{ "EWR", "S" },
 	}
 	for _, v in ipairs(patterns) do
 		if s:find(v[1]) then
