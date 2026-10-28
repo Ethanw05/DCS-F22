@@ -60,7 +60,8 @@ function M.new(emit)
 			return
 		end
 		local acm = self.mode == 5 or self.mode == 3
-		local hud_ag = self.mode == 7 and self.soi == 1 and (n == "tdc" or n == "tms_up" or n == "tms_down")
+		local hud_ag = self.soi == 1 and (self.mode == 7 and (n == "tdc" or n == "tms_up" or n == "tms_down")
+			or self.mode == 1 and (n == "tdc" or n == "tms_down"))
 		-- GUN/SRM acquisition patterns control the weapon's radar search, not a
 		-- display page. A previous bezel/focus selection must not disable them.
 		local weapon_acm = acm and (n == "tms_up" or n == "tms_down" or n == "tms_right")
@@ -75,7 +76,7 @@ function M.new(emit)
 			emit(n)
 		elseif n == "ag_waypoint" or n == "ag_mark" or n == "ag_clear" then
 			emit(n)
-		elseif n == "tdc" and self.mode == 7 and self.soi == 1 then
+		elseif n == "tdc" and (self.mode == 7 or self.mode == 1) and self.soi == 1 then
 			emit("ag_mark")
 		elseif n == "tdc" then
 			emit("designate")
@@ -88,7 +89,7 @@ function M.new(emit)
 				emit("designate")
 			end
 		elseif n == "tms_down" then
-			if self.mode == 7 then
+			if self.mode == 7 or (self.mode == 1 and self.soi == 1) then
 				emit(radar_focus and "undesignate"or "ag_clear")
 			elseif acm then
 				emit("vertical")

@@ -121,6 +121,22 @@ assert(g('ICP_NAV_MENU')==1,'DATA UFC did not open the selected-waypoint editor'
 assert(g('CMFD_PAGE')==8 and g('HUD_MODE')==7,'UFC displaced NAV or changed master mode')
 owners[7].command(11030,7.375);owners[7].command(11030,7.25);tick();assert(g('ICP_NAV_MENU')==1,'forced STPT reopen lost its context')
 bezel(12);tick();assert(g('CMFD_PAGE')==8 and g('CMFD_HSI_PAGE_DATA')==0,'NAV did not return to steering')
+-- HUD focus and TDC depress create a terrain mark in NAV, including repeat presses.
+base.getPitch=function()return -.2 end
+owners[16].command(10721,1);owners[16].command(10721,0)
+owners[16].command(10704,1);owners[16].command(10704,0);drain();tick()
+assert(g('F22_SOI')==1 and g('HUD_MODE')==1)
+owners[16].command(10733,1);owners[16].command(10733,0);drain();tick()
+assert(g('HUD_AG_TARGET_VALID')==1 and g('F22_AG_TARGET_SOURCE')==1,'HUD TDC did not designate terrain')
+local first=g('F22_AG_TARGET_SEQUENCE')
+owners[16].command(10733,1);owners[16].command(10733,0);drain();tick()
+assert(g('F22_AG_TARGET_SEQUENCE')>first,'second TDC press did not create a fresh mark')
+base.getHeading=function()return math.pi end;tick()
+assert(g('HUD_AG_TARGET_VALID')==1 and g('HUD_AG_EDGE_VALID')==1,'rearward designation lost its edge cue')
+local flash=g('HUD_AG_EDGE_FLASH');now=now+.25;owners[9].update()
+assert(g('HUD_AG_EDGE_FLASH')~=flash,'off-screen marker does not flash')
+base.getHeading=function()return 0 end;tick()
+assert(g('HUD_AG_EDGE_VALID')==0 and g('HUD_AG_CUE_VALID')==1,'on-screen designation retained the edge box')
 ''')
 print('Actual NAV workflow: next/designate, queued selected point, SAFE planning, A/G page/focus/target persistence, sources, zoom, clear and blank-key ownership PASS')
 

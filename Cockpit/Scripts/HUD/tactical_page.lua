@@ -96,23 +96,25 @@ return function(api)
 
     -- NAV: retain historical flight symbology and C-130-inspired heading tape.
     local nav = visible("NAV","HUD_MODE",1)
-    -- Ordinary waypoints use steering marks. A 3-D diamond requires explicit WPDSG.
+    -- A confirmed ground designation remains visible across navigation and
+    -- air-to-air modes; A/G mode draws its existing smaller diamond separately.
     angular("HUD_NAV_STEERING",0,0,
-        {"HUD_WP_X","HUD_WP_Y","HUD_POWER","HUD_WP_CUE_VALID","HUD_MODE"},
-        {{"move_left_right_using_parameter",0,1.18},
-         {"move_up_down_using_parameter",1,1.18},
+        {"HUD_AG_TGT_X_SLOPE","HUD_AG_TGT_Y_SLOPE","HUD_POWER","HUD_AG_CUE_VALID","HUD_MODE"},
+        {{"move_left_right_using_parameter",0,1},
+         {"move_up_down_using_parameter",1,1},
          {"opacity_using_parameter",2},
          {"parameter_in_range",3,0.9,1.1},
-         {"parameter_in_range",4,0.9,1.1}})
+         {"parameter_in_range",4,0.9,6.1}})
     diamond(0,0,0.047,"HUD_NAV_STEERING")
-    angular('HUD_NAV_OFFSCREEN',0,0,
-        {'HUD_WP_ARROW_X','HUD_WP_ARROW_Y','HUD_POWER','HUD_WP_OFFSCREEN','HUD_MODE'},
+    angular('HUD_GROUND_TARGET_EDGE',0,0,
+        {'HUD_AG_EDGE_X','HUD_AG_EDGE_Y','HUD_POWER','HUD_AG_EDGE_VALID','HUD_AG_EDGE_FLASH'},
         {{'move_left_right_using_parameter',0,1},{'move_up_down_using_parameter',1,1},
          {'opacity_using_parameter',2},{'parameter_in_range',3,.9,1.1},{'parameter_in_range',4,.9,1.1}})
-    group('HUD_NAV_DIRECTION',0,0,{'HUD_WP_ARROW_ROT'},{{'rotate_using_parameter',0,1}},'HUD_NAV_OFFSCREEN')
-    line(0,.025,-.018,-.012,.004,'HUD_NAV_DIRECTION')
-    line(0,.025,.018,-.012,.004,'HUD_NAV_DIRECTION')
-    label(0,-.04,'HUD_NAV_TARGET_LABEL','%s',.018,'HUD_NAV_OFFSCREEN')
+    local edge_r,edge_w=.0125/api.layout_scale,.001/api.layout_scale
+    line(-edge_r,-edge_r,edge_r,-edge_r,edge_w,'HUD_GROUND_TARGET_EDGE')
+    line(edge_r,-edge_r,edge_r,edge_r,edge_w,'HUD_GROUND_TARGET_EDGE')
+    line(edge_r,edge_r,-edge_r,edge_r,edge_w,'HUD_GROUND_TARGET_EDGE')
+    line(-edge_r,edge_r,-edge_r,-edge_r,edge_w,'HUD_GROUND_TARGET_EDGE')
 
     -- Selected payload identity/count, shared with the weapon controller.
     -- Without track/kinematics the HUD MUST NOT show a DLZ or SHOOT cue.

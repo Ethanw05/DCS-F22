@@ -3,6 +3,8 @@ dofile(LockOn_Options.script_path .. "devices.lua")
 local decode = dofile(LockOn_Options.script_path .. "Systems/Input_Value.lua")
 local geom = dofile(LockOn_Options.script_path .. "Systems/NavGeometry.lua")
 local projection = dofile(LockOn_Options.script_path .. "Systems/HUD_Projection.lua")
+local edge_projection = dofile(LockOn_Options.script_path .. "Systems/HUD_TargetMath.lua").new(
+    dofile(LockOn_Options.script_path .. "HUD/glass.lua"))
 local base = get_base_data()
 local dev = GetSelf()
 make_default_activity(0.05)
@@ -21,7 +23,8 @@ local function put(n, v)
 end
 -- Complete invalid ground-marker render snapshot before the HUD binds.
 for _,name in ipairs({"HUD_AG_TGT_X_SLOPE","HUD_AG_TGT_Y_SLOPE",
-    "HUD_AG_TARGET_VALID","HUD_AG_CUE_VALID"}) do put(name,0) end
+    "HUD_AG_TARGET_VALID","HUD_AG_CUE_VALID","HUD_AG_EDGE_VALID","HUD_AG_EDGE_FLASH",
+    "HUD_AG_EDGE_X","HUD_AG_EDGE_Y"}) do put(name,0) end
 local function finite(v)
 	return type(v) == "number" and v == v and math.abs(v) < 1e7
 end
@@ -57,6 +60,7 @@ local function clear()
 	put("F22_AG_TARGET_SEQUENCE", sequence)
 	put("HUD_AG_TARGET_VALID", 0)
 	put("HUD_AG_CUE_VALID", 0)
+	put("HUD_AG_EDGE_VALID", 0)
 	put("HUD_AG_TGT_RANGE_NM", 0)
 end
 local function assign(n, u, e, source)
@@ -132,7 +136,7 @@ function SetCommand(c, v)
 		if get("MAIN_POWER") <= .5 then acknowledge_waypoint(waypoint_request, 4) end
 	end
 	if down and not old and get("MAIN_POWER") > 0.5
-        and (get("HUD_MODE") == 7 or c == 10812 or c == 10843 or (c == 10811 and target and target.source == 3)) then
+        and (get("HUD_MODE") == 7 or get("HUD_MODE") == 1 or c == 10812 or c == 10843 or (c == 10811 and target)) then
 		request = c
 	end
 end
@@ -146,12 +150,6 @@ function update()
 		request = nil
 		mark_sequence = marks
 		radar_sequence = radar
-		return
-	end
-	if get("HUD_MODE") ~= 7 and request ~= 10812 and request ~= 10843 and request ~= 10811
-        and not (target and target.source == 3) then
-		put("HUD_AG_TARGET_VALID", 0)
-		put("HUD_AG_CUE_VALID", 0)
 		return
 	end
 	if get("HUD_MODE") == 7 and radar ~= radar_sequence then
@@ -200,6 +198,7 @@ function update()
 	if not target then
 		put("HUD_AG_TARGET_VALID", 0)
 		put("HUD_AG_CUE_VALID", 0)
+		put("HUD_AG_EDGE_VALID", 0)
 		return
 	end
 	local n, u, e = base.getSelfCoordinates()
@@ -212,6 +211,7 @@ function update()
 	if not r or r < 1 then
 		put("HUD_AG_TARGET_VALID", 0)
 		put("HUD_AG_CUE_VALID", 0)
+		put("HUD_AG_EDGE_VALID", 0)
 		return
 	end
 	put("HUD_AG_MARK_NORTH", target.n)
@@ -223,6 +223,13 @@ function update()
     local x,y=projection.planar(az,el)
     put("HUD_AG_TGT_X_SLOPE",x or 0);put("HUD_AG_TGT_Y_SLOPE",y or 0)
 	put("HUD_AG_TARGET_VALID", 1)
-	put("HUD_AG_CUE_VALID", az and el and math.abs(az) < math.rad(13) and math.abs(el) < math.rad(13) and 1 or 0)
+	local forward,right,up=geom.body(target.n-n,target.e-e,target.u-u,-base.getHeading(),base.getPitch(),base.getRoll())
+	if not forward then put("HUD_AG_CUE_VALID",0);put("HUD_AG_EDGE_VALID",0);return end
+	local cue=edge_projection(math.atan2(right,forward),math.atan2(up,math.sqrt(forward*forward+right*right)))
+	put("HUD_AG_CUE_VALID",az and el and cue.visible and 1 or 0)
+	put("HUD_AG_EDGE_X",cue.arrow_x);put("HUD_AG_EDGE_Y",cue.arrow_y)
+	local now=type(get_model_time)=="function" and get_model_time() or nil
+	put("HUD_AG_EDGE_FLASH",finite(now) and now%0.5<0.25 and 1 or 0)
+	put("HUD_AG_EDGE_VALID",not cue.visible and finite(now) and 1 or 0)
 end
 need_to_be_closed = false

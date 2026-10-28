@@ -41,9 +41,9 @@ local function emit(n, v)
 	elseif n == "ag_cycle" then
 		send(devices.WEAPON_SYSTEM, 10813)
 	elseif n == "ag_mark" then
-		send(devices.AG_MARK_SYSTEM, 10810)
+		send(devices.AG_MARK_SYSTEM, 10810, 1);send(devices.AG_MARK_SYSTEM, 10810, 0)
 	elseif n == "ag_clear" then
-		send(devices.AG_MARK_SYSTEM, 10811)
+		send(devices.AG_MARK_SYSTEM, 10811, 1);send(devices.AG_MARK_SYSTEM, 10811, 0)
 	elseif n == "ground_tdc" then
 		send(devices.RADAR_COMPUTER, v > 0 and radar.designate_begin or radar.designate_end)
 	elseif n == "ground_acquire" then
@@ -51,7 +51,7 @@ local function emit(n, v)
 	elseif n == "ground_preview_cancel" then
 		send(devices.RADAR_COMPUTER, radar.preview_cancel)
 	elseif n == "ag_waypoint" then
-		send(devices.AG_MARK_SYSTEM, 10812)
+		send(devices.AG_MARK_SYSTEM, 10812, 1);send(devices.AG_MARK_SYSTEM, 10812, 0)
 	elseif n == "ew_priority" then
 		send(devices.RWR_SYSTEM, 10902)
 	elseif n == "nav_zoom" then
