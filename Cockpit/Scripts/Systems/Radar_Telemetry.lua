@@ -12,6 +12,8 @@ end
 local aesa_prefixes = {}
 for i = 1, 64 do aesa_prefixes[i] = string.format("F22A_%02d_",i) end
 local service_fields = {
+    "F22_AESA_CUE_REQUEST", "F22_AESA_CUE_TIME", "F22_AESA_CUE_DWELLS",
+    "F22_RADAR_DONOR_STATUS", "F22_RADAR_DONOR_SOURCE",
     "F22_AESA_FC_TARGET", "F22_AESA_FC_REVISIT_S", "F22_AESA_FC_LAST_LOOK", "F22_AESA_DEADLINE_MISSES",
 	"F22_AESA_DRIVER_READY",
 	"F22_AESA_READY",

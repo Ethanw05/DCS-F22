@@ -155,11 +155,44 @@ void degraded() {
     }
     CHECK(granted);
 }
+void cued_search() {
+    static Model radar;
+    radar.reset();
+    Scene world;
+    Pose pose{}; pose.position.u = 3000;
+    const double az = 40*degree, el = 25*degree;
+    world.objects[0].position = {800*std::cos(el)*std::cos(az),
+        3000+800*std::sin(el),800*std::cos(el)*std::sin(az)};
+    Controls c{}; c.enabled = true;
+    c.cue_valid = true; c.cue_azimuth = az; c.cue_elevation = el;
+    c.cue_half_azimuth = 6*degree; c.cue_half_elevation = 6*degree; c.cue_request = 22; c.range_m = 500; c.cue_range_m = 1000;
+    double left = 1, right = -1, low = 1, high = -1;
+    unsigned cued = 0, background = 0;
+    for (unsigned i = 0; i < 480; ++i) {
+        const auto beam = radar.status().beam;
+        const auto dwells = radar.status().dwells;
+        CHECK(radar.update(i/240.0,c,pose,world));
+        if (radar.status().dwells == dwells) continue;
+        if (!beam.cued) { ++background; continue; }
+        ++cued;
+        left = std::min(left,beam.azimuth); right = std::max(right,beam.azimuth);
+        low = std::min(low,beam.elevation); high = std::max(high,beam.elevation);
+    }
+    CHECK(cued > 10 && background >= 3*cued-1);
+    CHECK(right-left > 5*degree && high-low > 5*degree);
+    CHECK(radar.measurements()[0].valid && radar.measurements()[0].id == 42);
+    CHECK(radar.status().cue_request == 22 && radar.status().cue_time > 0);
+    // A malformed cue cannot replace or disable ordinary search.
+    c.cue_half_azimuth = std::numeric_limits<double>::quiet_NaN();
+    const auto previous = radar.status().cue_dwells;
+    for (unsigned i = 480; i < 600; ++i) CHECK(radar.update(i/240.0,c,pose,world));
+    CHECK(radar.status().cue_dwells <= previous+1); // Only an already-started valid look may finish.
+}
 }
 int main() {
     try {
         engagement(1.0 / 240, true); engagement(1.0 / 60, true); engagement(1.0 / 240, false);
-        engagement(1.0 / 240, true, true); saturated(); degraded();
+        engagement(1.0 / 240, true, true); saturated(); degraded(); cued_search();
         return 0;
     } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
 }

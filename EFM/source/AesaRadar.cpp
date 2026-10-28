@@ -57,6 +57,31 @@ void body_angles(Vector delta, const Pose& pose, double& azimuth, double& elevat
     azimuth = std::atan2(right, forward);
     elevation = std::atan2(dot(delta, pose.up), std::hypot(forward, right));
 }
+bool valid_cue(const Controls& c) noexcept {
+    const std::array values{c.cue_azimuth,c.cue_elevation,c.cue_half_azimuth,c.cue_half_elevation,c.cue_range_m};
+    for (double value : values) if (!std::isfinite(value)) return false;
+    return std::abs(c.cue_azimuth) <= 60*degree && std::abs(c.cue_elevation) <= 60*degree
+        && c.cue_half_azimuth >= .001*degree && c.cue_half_azimuth <= 60*degree
+        && c.cue_half_elevation >= .001*degree && c.cue_half_elevation <= 60*degree
+        && c.cue_range_m >= 40 && c.cue_range_m <= 160*1852;
+}
+std::uint32_t central_cell(std::uint32_t index, std::uint32_t count) noexcept {
+    const auto middle = (count-1)/2;
+    return index%2 == 1 ? middle+(index+1)/2 : middle-index/2;
+}
+void grid_angles(double center_azimuth, double center_elevation, double half_azimuth,
+                 double half_elevation, double beam, std::uint32_t& cell, double& azimuth, double& elevation, bool central = false) noexcept {
+    const auto columns = static_cast<std::uint32_t>(std::ceil(half_azimuth / (beam*.7)));
+    const auto rows = static_cast<std::uint32_t>(std::ceil(half_elevation / (beam*.7)));
+    const auto count = std::clamp(columns*rows, 1u, 8192u);
+    const auto index = cell % count;
+    const auto tile = index % 2 == 0 ? index/2 : count - 1 - index/2;
+    const auto column = central ? central_cell(index%columns,columns) : tile%columns;
+    const auto row = central ? central_cell(index/columns,rows) : tile/columns;
+    azimuth = center_azimuth - half_azimuth + (column + .5)*2*half_azimuth/columns;
+    elevation = center_elevation - half_elevation + (row + .5)*2*half_elevation/rows;
+    cell = (cell+1)%count;
+}
 bool active_inputs(double now, const Controls& c, const Pose& pose) noexcept {
     return std::isfinite(now) && c.enabled && c.emit && valid_controls(c) && valid_pose(pose);
 }
@@ -77,6 +102,7 @@ void Model::reset(std::uint64_t generation) noexcept {
     for(auto& pending:pending_) pending={};
     for(auto& filter:filters_) filter.reset();
     last_priority_look_.fill(-100);
+    cue_cell_ = 0; cue_turn_ = 0;
     status_ = {}; previous_ = {};
     clock_ = -1; next_start_ = 0; priority_run_s_ = 0; cell_ = 0; turn_ = 0; surface_cell_ = 0; array_turn_ = 0; candidate_cursor_ = 0; generation_ = generation;
     random_ = 0x1a2b3c4d ^ static_cast<std::uint32_t>(generation);
@@ -183,18 +209,17 @@ Model::Task Model::priority_task(double now, const Controls& c, const Pose& pose
     }
     return next;
 }
-void Model::search_angles(const Controls& c, double& azimuth, double& elevation) noexcept {
-    const auto columns = static_cast<std::uint32_t>(std::ceil(c.half_azimuth / (policy_.beam_half_angle * .7)));
-    const auto rows = static_cast<std::uint32_t>(std::ceil(c.half_elevation / (policy_.beam_half_angle * .7)));
-    const auto count = std::clamp(columns * rows, 1u, 8192u);
-    const auto index = cell_ % count;
-    const auto tile = index % 2 == 0 ? index / 2 : count - 1 - index / 2;
-    azimuth = c.azimuth - c.half_azimuth + (tile % columns + .5) * 2 * c.half_azimuth / columns;
-    elevation = c.elevation - c.half_elevation + (tile / columns + .5) * 2 * c.half_elevation / rows;
-    cell_ = (cell_ + 1) % count;
-    if (c.cue_valid && turn_ % 4 == 1 && std::isfinite(c.cue_azimuth) && std::isfinite(c.cue_elevation)) {
-        azimuth = c.cue_azimuth; elevation = c.cue_elevation;
-    }
+bool Model::search_angles(const Controls& c, double& azimuth, double& elevation) noexcept {
+    const bool cued = c.cue_valid && valid_cue(c) && cue_turn_ == 1;
+    cue_turn_ = (cue_turn_+1)%4;
+    if (cued) {
+        const double az = std::clamp(c.cue_azimuth, -60*degree+c.cue_half_azimuth, 60*degree-c.cue_half_azimuth);
+        const double el = std::clamp(c.cue_elevation, -60*degree+c.cue_half_elevation, 60*degree-c.cue_half_elevation);
+        grid_angles(az, el, c.cue_half_azimuth, c.cue_half_elevation,
+            policy_.beam_half_angle, cue_cell_, azimuth, elevation, true);
+    } else grid_angles(c.azimuth, c.elevation, c.half_azimuth, c.half_elevation,
+        policy_.beam_half_angle, cell_, azimuth, elevation);
+    return cued;
 }
 void Model::start(double now, const Controls& c, const Pose& pose) noexcept {
     const bool surface_job = c.surface && array_turn_ % 3 != 0;
@@ -203,15 +228,16 @@ void Model::start(double now, const Controls& c, const Pose& pose) noexcept {
     auto task = priority_task(now, c, pose);
     double azimuth = 0, elevation = 0;
     if (task.track && !priority_angles(*task.track, pose, now, azimuth, elevation)) task = {};
-    if (!task.track) search_angles(c, azimuth, elevation);
+    const bool cued = !task.track && search_angles(c, azimuth, elevation);
     azimuth = std::clamp(azimuth, -60 * degree, 60 * degree);
     elevation = std::clamp(elevation, -60 * degree, 60 * degree);
     const double duration = task.track ? task.dwell : policy_.dwell_s / c.resource;
+    const double search_range = cued ? std::max(c.range_m,c.cue_range_m) : c.range_m;
     const double range = task.track ? std::min(160 * 1852.0,
-        std::max(c.range_m, length(task.track->position - pose.position) * 1.15)) : c.range_m;
+        std::max(c.range_m, length(task.track->position - pose.position) * 1.15)) : search_range;
     status_.beam = {direction(pose, azimuth, elevation), policy_.beam_half_angle, range, now,
         now + duration, azimuth, elevation, task.track ? task.track->id : 0, task.track != nullptr,
-        false, task.deadline, duration * c.resource};
+        false, task.deadline, duration * c.resource, cued, cued ? c.cue_request : 0};
     status_.dwelling = true;
     turn_ = (turn_ + 1) % 4;
 }
@@ -275,6 +301,9 @@ void Model::detect(double now, const Controls& c, const Pose& pose, const Truth&
     queue(now, pose, truth, signal);
 }
 void Model::completed_look(double now, const Controls& c) noexcept {
+    if (status_.beam.cued) {
+        status_.cue_request = status_.beam.cue_request; status_.cue_time = now; ++status_.cue_dwells;
+    }
     if (status_.beam.priority) {
         priority_run_s_ += now - status_.beam.started;
         if (const auto* track = find(status_.beam.task_source))
@@ -323,6 +352,7 @@ bool Model::prepare(double now, const Controls& c) noexcept {
     if (clock_ == now) { status_.surface_service = false; return false; }
     if (configuration_changed(c)) { status_.dwelling = false; cell_ = 0; next_start_ = now; }
     reduce_resource(now, c);
+    if (c.cue_request != previous_.cue_request) cue_cell_ = 0;
     clock_ = now; previous_ = c;
     status_.ready = true; status_.emitting = true; status_.time = now; status_.resource = c.resource;
     status_.processing_s = policy_.processing_s / c.resource;

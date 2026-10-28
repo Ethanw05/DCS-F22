@@ -1,4 +1,4 @@
-# SEN-01â€“04: owned AESA sensor
+# SEN-01Ã¢â‚¬â€œ04: owned AESA sensor
 
 This replaces the earlier native-constrained slice. Device13 is an owned
 `avLuaDevice` clock; no `avSimpleRadar` detector, mechanical scan, observation
@@ -35,20 +35,20 @@ These work items remain partial pending the qualification limits below.
   released native owner. The integrated physical owner remains authoritative.
 
 All numerical policies are estimates: 20ms dwell, 60ms processing, 3deg beam
-half-angle, 250ms priority revisit, reference80km at1mÂ², noise laws and continuous
-acceleration intensity100mÂ²/sÂ³. Callback cadence quantizes these requested times.
+half-angle, 250ms priority revisit, reference80km at1mÃ‚Â², noise laws and continuous
+acceleration intensity100mÃ‚Â²/sÃ‚Â³. Callback cadence quantizes these requested times.
 The ground 8..55kt discovery predicate is an APG-73 game analogue. Exact RCS,
 waveforms/PRFs, ambiguity resolution, ECM/CFAR, false alarms and crossing-target
 association ambiguity are not modeled. Simulator IDs correlate reports/native
 weapons; this is not authenticated APG-77 processing or performance.
 
-Sources consulted: [Brower, 2001, ch32 Â§32.3.2 p8](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf)
+Sources consulted: [Brower, 2001, ch32 Ã‚Â§32.3.2 p8](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf)
 for interleaved electronic service; [NOAA PAR](https://www.nssl.noaa.gov/tools/radar/par/)
 and [RTX APG-79](https://www.rtx.com/raytheon/what-we-do/air/apg79aesa) for steering
 context; [IEEE AESS nonlinear radar tracking tutorial](https://ieee-aess.org/media/basic-tracking-using-nonlinear-3d-monostatic-and-bistatic-measurements)
 and [MathWorks measurement model](https://www.mathworks.com/help/fusion/ug/introduction-to-radar-for-object-tracking.html)
 for range/angles/Doppler, pose and uncertainty. The installed ED Hornet guide
-pp171â€“176 supplies named ACM/TWS procedural analogues; mod VACQ/WIDE choices
+pp171Ã¢â‚¬â€œ176 supplies named ACM/TWS procedural analogues; mod VACQ/WIDE choices
 remain estimates. These references do not authenticate the tuning above.
 
 ## Native and consumer contracts
@@ -134,9 +134,12 @@ See [current scheduler verification](SEN-02-revisit.md) for its tests and limits
 
 Outstanding: actual missile-in-flight multi-target support, surface/imagery and
 physical-failure runtime qualification on the integrated flight/weapon build,
-donor cue consumer, and broader tactical fusion qualification. Final RF-revisit
+[offboard cueing](SEN-02-donor-cue.md) runtime acceptance, and broader tactical fusion qualification. Final RF-revisit
 spacing is covered offline, not by the archived flown DLL. The inherited ground
 adapter's long sample/update functions and parameter-string/map allocations are
 recorded coding exceptions: query/ray/track work is bounded, but full callback
 allocation/complexity compliance is not claimed. The air model/new provider have
 fixed storage; further ground refactoring must preserve the qualified ABI.
+
+The offboard cue consumer now has explicit source/epoch/intent validation and
+finite native cue-area search; see [the donor cue contract](SEN-02-donor-cue.md).

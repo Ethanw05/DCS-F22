@@ -229,10 +229,10 @@ function M.new()
 		if plan and plan.rf_cued then
 			local last=self.rf_scan_windows[#self.rf_scan_windows]
 			if not old or not old.rf_cued or not last then
-				last={first=now,last=now,range=plan.range}
+				last={first=now,last=now,range=plan.cue_range or plan.range}
 				self.rf_scan_windows[#self.rf_scan_windows+1]=last
 			end
-			last.range=math.max(last.range,plan.range)
+			last.range=math.max(last.range,plan.range,plan.cue_range or 0)
 		end
 		while #self.rf_scan_windows>0 and now-self.rf_scan_windows[1].last>6 do
 			table.remove(self.rf_scan_windows,1)

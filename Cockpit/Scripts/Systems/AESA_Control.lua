@@ -115,7 +115,12 @@ function M:publish(now, computer, resource, powered, surface, plan)
     put("F22_AESA_CONTROL_HALF_EL",math.rad(p and (p.hi-p.lo)/2 or computer.vertical_span/2))
     put("F22_AESA_CONTROL_RANGE",p and p.nm*1852 or computer.ranges[computer.range_index]*1852)
     put("F22_AESA_CONTROL_CUE_VALID",plan and plan.rf_cued and 1 or 0)
-    put("F22_AESA_CONTROL_CUE_AZ",plan and plan.az or 0); put("F22_AESA_CONTROL_CUE_EL",plan and plan.el or 0)
+    put("F22_AESA_CONTROL_CUE_AZ",plan and (plan.cue_az or plan.az) or 0)
+    put("F22_AESA_CONTROL_CUE_EL",plan and (plan.cue_el or plan.el) or 0)
+    put("F22_AESA_CONTROL_CUE_HALF_AZ",plan and (plan.cue_half_az or plan.half_az) or 0)
+    put("F22_AESA_CONTROL_CUE_HALF_EL",plan and (plan.cue_half_el or plan.half_el) or 0)
+    put("F22_AESA_CONTROL_CUE_REQUEST",plan and plan.cue_request or 0)
+    put("F22_AESA_CONTROL_CUE_RANGE",plan and (plan.cue_range or plan.range) or 0)
     local selected = computer.selected and computer.tracks[computer.selected]
     local focus = not surface and (self.acquiring or self.locked) or 0
     put("F22_AESA_CONTROL_FC_TARGET",focus)

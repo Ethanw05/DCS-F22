@@ -66,6 +66,9 @@ function M.for_page(page,view,get)
    c[7]={label='PREV',device='RWR_SYSTEM',command=11141}
    c[8]={label='FOLLOW',device='RWR_SYSTEM',command=11144}
    c[9]={label='REJECT',device='RWR_SYSTEM',command=11142}
+   if get('F22_DONOR_HANDOFF_AVAILABLE')==1 then
+    c[10]={label='CUE',device='RWR_SYSTEM',command=11143,selected=get('F22_RADAR_DONOR_STATUS')>0}
+   end
    c[12]=row('RTN','view',0)
    return c
   end

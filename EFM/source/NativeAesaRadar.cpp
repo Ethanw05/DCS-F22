@@ -230,7 +230,8 @@ struct Parameters {
         "F22_AESA_CONTROL_HALF_AZ", "F22_AESA_CONTROL_HALF_EL", "F22_AESA_CONTROL_RANGE",
         "F22_AESA_CONTROL_CUE_VALID", "F22_AESA_CONTROL_CUE_AZ", "F22_AESA_CONTROL_CUE_EL",
         "F22_AESA_CONTROL_TARGET", "F22_AESA_CONTROL_SURFACE_HALF_AZ",
-        "F22_AESA_CONTROL_FC_TARGET", "F22_AESA_CONTROL_GUN_TRACK"};
+        "F22_AESA_CONTROL_FC_TARGET", "F22_AESA_CONTROL_GUN_TRACK",
+        "F22_AESA_CONTROL_CUE_HALF_AZ", "F22_AESA_CONTROL_CUE_HALF_EL", "F22_AESA_CONTROL_CUE_REQUEST", "F22_AESA_CONTROL_CUE_RANGE"};
     static constexpr std::array output_names{
         "F22_AESA_READY", "F22_AESA_REASON", "F22_AESA_TIME", "F22_AESA_SEQUENCE", "F22_AESA_COUNT",
         "F22_AESA_BEAM_AZ", "F22_AESA_BEAM_EL", "F22_AESA_DWELLS", "F22_AESA_SEARCH_DWELLS",
@@ -238,7 +239,8 @@ struct Parameters {
         "F22_AESA_DROPS", "F22_AESA_TERRAIN_BLOCKED", "F22_AESA_OBJECT_BLOCKED", "F22_AESA_TRUNCATED",
         "F22_AESA_DRIVER_READY", "F22_TWS_GUIDANCE_BACKEND_READY", "F22_RADAR_WEAPON_TARGET_ID",
         "F22_AESA_SURFACE_SERVICE", "F22_AESA_SURFACE_AZ", "F22_AESA_SURFACE_SEQUENCE", "F22_AESA_ARRAY_KNOWN", "F22_AESA_ARRAY_HEALTH", "F22_AESA_RESOURCE", "F22_AESA_PROCESSING_S", "F22_AESA_GENERATION",
-        "F22_AESA_FC_TARGET", "F22_AESA_FC_REVISIT_S", "F22_AESA_FC_LAST_LOOK", "F22_AESA_DEADLINE_MISSES"};
+        "F22_AESA_FC_TARGET", "F22_AESA_FC_REVISIT_S", "F22_AESA_FC_LAST_LOOK", "F22_AESA_DEADLINE_MISSES",
+        "F22_AESA_CUE_REQUEST", "F22_AESA_CUE_TIME", "F22_AESA_CUE_DWELLS"};
     static constexpr std::array fields{"VALID", "ID", "TIME", "N", "U", "E", "VN", "VU", "VE",
         "VELOCITY_VALID", "RANGE_SIGMA_M", "ANGLE_SIGMA_RAD", "HITS",
         "FILTER_VALID", "POSITION_SIGMA_M", "VELOCITY_SIGMA_MPS", "RAW_N", "RAW_U", "RAW_E",
@@ -309,6 +311,9 @@ struct Parameters {
         r.controls.range_m = values[10]; r.controls.cue_valid = values[11] == 1;
         r.controls.cue_azimuth = values[12]; r.controls.cue_elevation = values[13];
         r.controls.surface_half_azimuth = values[15];
+        r.controls.cue_half_azimuth = values[18]; r.controls.cue_half_elevation = values[19];
+        r.controls.cue_range_m = values[21];
+        if (!identifier(values[20], r.controls.cue_request)) r.controls.cue_valid = false;
         const bool selected_valid = identifier(values[14], r.controls.selected_id);
         if (!selected_valid) r.controls.selected_id = 0;
         if (!focus(r.controls, values)) return {};
@@ -375,6 +380,9 @@ struct Parameters {
         gated(p, 29, q.fire_control_revisit_s, fresh);
         p.setParamNumber(outputs[30], fresh ? q.fire_control_last_look : -100);
         p.setParamNumber(outputs[31], q.deadline_misses);
+        gated(p, 32, q.cue_request, fresh);
+        p.setParamNumber(outputs[33], fresh ? q.cue_time : -100);
+        p.setParamNumber(outputs[34], q.cue_dwells);
     }
 } parameters;
 bool fresh(double now, double stamp, double age) noexcept {

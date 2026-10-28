@@ -32,6 +32,8 @@ struct Beam {
     std::uint32_t task_source{};
     bool priority{}, surface{};
     double deadline{}, integration_s{};
+    bool cued{};
+    std::uint32_t cue_request{};
 };
 // Environment truth is private input. It is never a published measurement.
 struct Truth {
@@ -52,7 +54,8 @@ public:
 struct Controls {
     bool enabled{}, surface{}, emit = true;
     bool cue_valid{};
-    double cue_azimuth{}, cue_elevation{};
+    double cue_azimuth{}, cue_elevation{}, cue_half_azimuth{}, cue_half_elevation{}, cue_range_m{};
+    std::uint32_t cue_request{};
     double surface_half_azimuth = 45 * degree;
     double resource = 1, azimuth{}, elevation{}, half_azimuth = 60 * degree;
     double half_elevation = 10 * degree, range_m = 160 * 1852.0;
@@ -91,6 +94,8 @@ struct Status {
     double surface_azimuth{};
     std::uint32_t surface_sequence{}, fire_control_id{}, deadline_misses{};
     double fire_control_revisit_s{}, fire_control_last_look = -100;
+    std::uint32_t cue_request{}, cue_dwells{};
+    double cue_time = -100;
 };
 class Model {
 public:
@@ -115,7 +120,7 @@ private:
     Status status_{};
     double clock_ = -1, next_start_{}, priority_run_s_{};
     std::uint64_t generation_{};
-    std::uint32_t random_ = 0x1a2b3c4d, cell_{}, turn_{}, surface_cell_{}, array_turn_{}, candidate_cursor_{};
+    std::uint32_t random_ = 0x1a2b3c4d, cell_{}, turn_{}, surface_cell_{}, array_turn_{}, candidate_cursor_{}, cue_cell_{}, cue_turn_{};
     double uniform() noexcept;
     double error(double sigma) noexcept;
     bool configuration_changed(const Controls&) const noexcept;
@@ -126,7 +131,7 @@ private:
     double revisit(std::uint32_t id, std::size_t priority, const Controls&) const noexcept;
     double track_dwell(const Measurement&, const Pose&) const noexcept;
     Task priority_task(double now, const Controls&, const Pose&) noexcept;
-    void search_angles(const Controls&, double& azimuth, double& elevation) noexcept;
+    bool search_angles(const Controls&, double& azimuth, double& elevation) noexcept;
     void start(double now, const Controls&, const Pose&) noexcept;
     void completed_look(double now, const Controls&) noexcept;
     void observe(double now, const Controls&, const Pose&, Environment&) noexcept;
