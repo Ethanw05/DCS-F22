@@ -7,6 +7,6 @@
 - When the user requests deletion, remove the specified item without creating or retaining a backup.
 - Implement complete behavior chains with explicit physical/data ownership and focused commits; preserve changes already made by other owners.
 - Preserve original source references and evidence. Update the relevant work item after a change; keep documentation concise and useful to implementation.
-- Current user priority is airborne systems and handling. Complete validated fixes with installation into the normal DCS mod, using one coordinated installer, backups and verification; preserve other chats' updates and saved bindings. Do not leave completed fixes source-only.
+- Current user priority is airborne systems and handling. Complete validated fixes with installation into the normal DCS mod and verification; preserve other chats' updates and saved bindings. Do not create backups unless the user explicitly requests one. Do not leave completed fixes source-only.
 - The user requires completed changes to be committed and integrated into the main checkout on `main`; do not leave main behind. Preserve any unrelated working changes and integrate safely.
 - The user has explicitly stopped chat-to-chat messaging for individual features. Only communicate when absolutely nessisary as it dramatically slows work down.
