@@ -7,6 +7,7 @@ from lupa.lua51 import LuaRuntime
 
 ROOT = Path(__file__).resolve().parents[1]
 lua = LuaRuntime(unpack_returned_tuples=True)
+lua.globals().LockOn_Options = lua.table_from({'script_path': (ROOT/'Cockpit/Scripts').as_posix()+'/'})
 motion = lua.eval('dofile')((ROOT/'Cockpit/Scripts/Systems/Gun_Motion.lua').as_posix())
 rng = random.Random(271026)
 for rate in (0, .18):
@@ -18,7 +19,7 @@ for rate in (0, .18):
         velocity = [220*math.cos(rate*time), 220*math.sin(rate*time), 0]
         truth = [-rate*velocity[1], rate*velocity[0], 0]
         measured = [v+rng.gauss(0, 2.34) for v in velocity]
-        value = estimator.update(estimator, time, lua.table_from(measured))
+        value = estimator.update(estimator, time, lua.table_from(measured), 2.34)
         if index < 40:
             continue
         if value is None:
@@ -27,7 +28,7 @@ for rate in (0, .18):
             errors.append(math.dist(truth, [value[k] for k in (1, 2, 3)]))
     rms = math.sqrt(statistics.mean(x*x for x in errors))
     assert rejected == 0, ('noise repeatedly discarded a valid track', rate, rejected)
-    assert rms < 18, ('fast-cadence noise became target maneuver acceleration', rate, rms)
+    assert rms < 9, ('fast-cadence noise became target maneuver acceleration', rate, rms)
     print(f'Fast measured-motion rate={rate}: acceleration error RMS={rms:.3f} m/s2; rejects={rejected}')
 
 # Cadence and lifecycle limits remain independent of the estimator window.

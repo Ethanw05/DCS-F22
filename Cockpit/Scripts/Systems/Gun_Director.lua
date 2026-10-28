@@ -81,7 +81,7 @@ function M.new(sensors, get, put, dispatch, display, device_id)
         self.own_consistent = nil
         self.pending = nil
         self.solution = nil
-        self.history = {}
+        for index = #self.history, 1, -1 do self.history[index] = nil end
         self.senttime = nil
         self.motion:reset()
         put("F22_GUN_REQUEST_VALID", 0)
@@ -197,6 +197,8 @@ function M.new(sensors, get, put, dispatch, display, device_id)
             table.remove(self.history, 1)
         end
         local velocity = vector("F22_STT_V")
+        local sigma = get("F22_STT_VELOCITY_SIGMA_MPS")
+        if not finite(sigma) or sigma <= 0 or sigma > 100 then reset(); return end
         if self.id ~= id then
             self.id = id
             self.stamp = stamp
@@ -205,7 +207,7 @@ function M.new(sensors, get, put, dispatch, display, device_id)
             self.pending = nil
             self.solution = nil
             self.motion:reset()
-            self.motion:update(stamp, velocity)
+            self.motion:update(stamp, velocity, sigma)
             return
         end
         if self.stamp ~= stamp then
@@ -216,7 +218,7 @@ function M.new(sensors, get, put, dispatch, display, device_id)
             end
             self.stable = self.stable + elapsed
             self.stamp = stamp
-            local acceleration = self.motion:update(stamp, velocity)
+            local acceleration = self.motion:update(stamp, velocity, sigma)
             if not acceleration then
                 reset()
                 return

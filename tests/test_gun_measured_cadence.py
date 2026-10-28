@@ -9,7 +9,7 @@ lua.execute(r'''
 LockOn_Options={script_path=ROOT}
 local Director=dofile(ROOT..'Systems/Gun_Director.lua')
 local display=dofile(ROOT..'Systems/Radar_Display.lua')
-local values={F22_RADAR_STT_VALID=1,F22_STT_MOTION_VALID=1,EFM_HUD_VALID=1,
+local values={F22_RADAR_STT_VALID=1,F22_STT_MOTION_VALID=1,F22_STT_VELOCITY_SIGMA_MPS=.4,EFM_HUD_VALID=1,
  F22_STT_ID=42,EFM_HUD_VN=220,F22_STT_VN=220,F22_STT_VU=10,F22_STT_VE=80}
 local now, stamp, calls, solutions = 10.1, 10, 0, 0
 local function get(k)return values[k]or 0 end

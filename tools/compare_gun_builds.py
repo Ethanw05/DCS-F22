@@ -20,7 +20,7 @@ from lupa.lua51 import LuaRuntime
 ROOT = Path(__file__).resolve().parents[1]
 AXES = ('N', 'U', 'E')
 OLD = 'b2650c945dbec6bd355f43d0c3695abbb9b6ab6e'
-CURRENT = '7759688f9ebb4c7d38052b9ab616a7ec920804c3'
+CURRENT = '9fa5fc210d1b67352a7f1e590fffcdf5539b5275'
 DT = .02
 TRUTH_DT = .002
 WIND = (12., 0., 15.)
@@ -29,7 +29,7 @@ WIND = (12., 0., 15.)
 @lru_cache(maxsize=128)
 def source(revision, path):
     if revision == 'candidate':
-        return (ROOT/path).read_bytes() if path.endswith('/Gun_Motion.lua') else source(CURRENT, path)
+        return (ROOT/path).read_bytes() if path.rsplit('/',1)[-1] in ('Gun_Motion.lua','Gun_Maneuver_Observer.lua','Gun_Director.lua') else source(CURRENT, path)
     return subprocess.check_output(['git', 'show', f'{revision}:{path}'], cwd=ROOT)
 
 
@@ -147,8 +147,9 @@ class Pipeline:
         self.host.reset()
         self.lua = LuaRuntime(unpack_returned_tuples=True)
         scripts = 'Cockpit/Scripts/Systems/'
-        modules = self.lua.table_from({name: source(revision, scripts+name+'.lua').decode()
-                                      for name in ('Gun_Motion', 'Gun_Frames', 'Radar_Display')})
+        names = ['Gun_Motion', 'Gun_Frames', 'Radar_Display']
+        if revision == 'candidate': names.append('Gun_Maneuver_Observer')
+        modules = self.lua.table_from({name: source(revision, scripts+name+'.lua').decode() for name in names})
         self.lua.globals().modules = modules
         self.lua.execute('''
         LockOn_Options={script_path='snapshot/'}
@@ -198,7 +199,7 @@ class Pipeline:
             miss = math.dist([p+d for p, d in zip(muzzle, bullet)], target)
             self.shots.append({'time': fire, 'miss_m': miss, 'tof': tof, 'aim': aim})
 
-    def step(self, now, stamp, measured, velocity):
+    def step(self, now, stamp, measured, velocity, sigma):
         # Deliver the preceding native response at the next real cockpit tick.
         for key in OUTPUTS:
             self.values[key] = self.host.get(key)
@@ -208,7 +209,7 @@ class Pipeline:
         pose['north'], pose['altitude'], pose['east'], pose['heading'] = *own, heading
         for key, value in {'F22_RADAR_STT_VALID': 1, 'F22_STT_MOTION_VALID': 1,
                            'EFM_HUD_VALID': 1, 'F22_STT_ID': 42, 'F22_STT_TIME': stamp,
-                           'F22_GUN_DEVICE_ID': 15}.items():
+                           'F22_GUN_DEVICE_ID': 15, 'F22_STT_VELOCITY_SIGMA_MPS': sigma}.items():
             self.put(key, value)
         age = now-stamp
         # Native radar geometry is propagated with the same measured velocity.
@@ -275,7 +276,7 @@ def run_case(hosts, scenario, distance, noise, cadence, duration, correlation=0.
             held_report = report
         ideal = oracle_aim(hosts['oracle'], truth, now) if now >= 1 else None
         for label, pipeline in pipelines.items():
-            result = pipeline.step(now, stamp, measured, velocity)
+            result = pipeline.step(now, stamp, measured, velocity, max(.0001, noise))
             if now < 1:
                 continue
             samples[label] += 1
@@ -355,6 +356,8 @@ def main():
                   'harness_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                   'host_sha256': hashlib.sha256((output/'host/host.cpp').read_bytes()).hexdigest(),
                   'candidate_motion_sha256': hashlib.sha256(source('candidate','Cockpit/Scripts/Systems/Gun_Motion.lua')).hexdigest(),
+                  'candidate_observer_sha256': hashlib.sha256(source('candidate','Cockpit/Scripts/Systems/Gun_Maneuver_Observer.lua')).hexdigest(),
+                  'candidate_director_sha256': hashlib.sha256(source('candidate','Cockpit/Scripts/Systems/Gun_Director.lua')).hexdigest(),
                   'duration_s': time.monotonic()-began, 'rows': rows}
     (output/'comparison.json').write_text(json.dumps(provenance, indent=2)+'\n')
     for noise in noises:

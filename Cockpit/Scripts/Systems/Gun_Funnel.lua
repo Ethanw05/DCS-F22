@@ -5,6 +5,9 @@ local Presentation = dofile(LockOn_Options.script_path .. "Systems/Gun_Funnel_Pr
 local function finite(v)
 	return type(v) == "number" and v == v and math.abs(v) < math.huge
 end
+local function clear_history(history)
+    for index = #history, 1, -1 do history[index] = nil end
+end
 local function pose_at(history, time)
 	local frame = Frames.at(history, time)
 	if not frame then
@@ -66,7 +69,7 @@ function M.new(sensors, get, put, dispatch, device_id)
 		put("F22_FUNNEL_REQUEST_VALID", 0)
 		if not enabled or type(get_model_time) ~= "function" or get("EFM_HUD_VALID") < 0.5 then
 			self.sent = nil
-			self.history = {}
+			clear_history(self.history)
 			invalidate()
 			return
 		end
@@ -87,7 +90,7 @@ function M.new(sensors, get, put, dispatch, device_id)
 				(n - previous.position[1]) ^ 2 + (u - previous.position[2]) ^ 2 + (e - previous.position[3]) ^ 2
 			)
 			if dt < 0 or dt > 0.2 or distance > math.max(30, 1500 * dt + 10) then
-				self.history = {}
+				clear_history(self.history)
 				self.sent = nil
 				invalidate()
 			elseif dt == 0 then

@@ -79,6 +79,7 @@ local fields = {
 	"F22_STT_VN",
 	"F22_STT_VU",
 	"F22_STT_VE",
+	"F22_STT_VELOCITY_SIGMA_MPS",
 	"F22_STT_AN",
 	"F22_STT_AU",
 	"F22_STT_AE",

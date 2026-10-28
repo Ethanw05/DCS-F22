@@ -3,7 +3,7 @@ local M = { delay = 0.04 }
 function M.new()
 	local s = { samples = {} }
 	function s:reset()
-		self.samples = {}
+		for index = #self.samples, 1, -1 do self.samples[index] = nil end
 	end
 	function s:push(stamp, points)
 		local last = self.samples[#self.samples]

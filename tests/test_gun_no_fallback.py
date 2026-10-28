@@ -1,30 +1,37 @@
-"""A valid native gyro output must never replace a missing computed solution."""
+"""The real high-rate owner must never replace the computed aim with native gyro."""
 from pathlib import Path
-from lupa.lua51 import LuaRuntime
-root=Path(__file__).resolve().parents[1]
-s=(root/'Cockpit/Scripts/Systems/Weapon_System.lua').read_text(encoding='utf8')
-start=s.index("    local pa=get_param_handle('WS_GUN_PIPER_AZIMUTH')") if "    local pa=get_param_handle('WS_GUN_PIPER_AZIMUTH')" in s else s.index('    -- Computed director is the sole gun aiming source.')
-end=s.index('    -- Interlock all locally dispatched',start)
-lua=LuaRuntime();lua.globals().BLOCK=s[start:end]
-lua.globals().PROJECTION=str(root/"Cockpit/Scripts/Systems/HUD_Projection.lua")
-lua.execute('''
-hud_projection=dofile(PROJECTION)
-values={WS_GUN_PIPER_AVAILABLE=1,WS_GUN_PIPER_AZIMUTH=.1,WS_GUN_PIPER_ELEVATION=.1}
-function get_param_handle(n)return{get=function()return values[n]or 0 end,set=function(_,v)values[n]=v end}end
-native_ready=true;mode_state=5;parameters={MAIN_POWER={get=function()return 1 end}}
-physical_supply={mission=true}
-gun_director={update=function()return nil end}
-local funnel_enabled
-gun_funnel={update=function(_,enabled)funnel_enabled=enabled end}
-assert(loadstring(BLOCK))()
-assert(values.HUD_GUN_NATIVE_VALID==0,'native gyro substituted for missing director')
-assert(values.HUD_GUN_NATIVE_AZ==0 and values.HUD_GUN_NATIVE_EL==0)
-gun_director.update=function()return 0,.02 end
-assert(loadstring(BLOCK))()
-assert(values.HUD_GUN_NATIVE_VALID==1 and values.HUD_GUN_NATIVE_AZ==0 and values.HUD_GUN_NATIVE_EL==.02)
-assert(values.HUD_GUN_NATIVE_X_SLOPE==0 and math.abs(values.HUD_GUN_NATIVE_Y_SLOPE-math.tan(.02))<1e-12)
-native_ready=false;gun_director.update=function()return nil end
-assert(loadstring(BLOCK))()
-assert(not funnel_enabled and values.HUD_GUN_NATIVE_VALID==0,'unavailable backend supplied a gun cue')
+ROOT = Path(__file__).resolve().parents[1]
+fixture = ROOT/'tests/test_display_startup.py'
+ns = {'__file__': str(fixture)}
+exec(compile(fixture.read_text().split('\nfor page in ', 1)[0], str(fixture), 'exec'), ns)
+lua = ns['runtime']()
+lua.execute(r'''
+local original=dofile
+local aim, elevation, funnel_enabled
+function dofile(path)
+ if path:find('Systems/Gun_Director.lua',1,true)then
+  return{new=function()return{update=function(_,enabled)if enabled then return aim,elevation end end}end}
+ elseif path:find('Systems/Gun_Funnel.lua',1,true)then
+  return{new=function()return{update=function(_,enabled)funnel_enabled=enabled end}end}
+ end
+ return original(path)
+end
+local period
+function make_default_activity(value)period=value end
+local function p(n,v)get_param_handle(n):set(v)end
+local function g(n)return get_param_handle(n):get()end
+p('MAIN_POWER',1);p('HUD_MODE',5);p('F22_WEAPON_BACKEND_READY',1)
+p('WS_GUN_PIPER_AVAILABLE',1);p('WS_GUN_PIPER_AZIMUTH',.1);p('WS_GUN_PIPER_ELEVATION',.1)
+dofile(SCRIPT_ROOT..'Systems/Gun_System.lua');post_initialize();update()
+assert(period<=1/120,'aiming retained the slower stores/control activity')
+assert(g('HUD_GUN_NATIVE_VALID')==0,'native gyro substituted for missing computed aim')
+assert(g('HUD_GUN_NATIVE_AZ')==0 and g('HUD_GUN_NATIVE_EL')==0)
+aim,elevation=0,.02;update()
+assert(g('HUD_GUN_NATIVE_VALID')==1 and g('HUD_GUN_NATIVE_AZ')==0 and g('HUD_GUN_NATIVE_EL')==.02)
+assert(g('HUD_GUN_NATIVE_X_SLOPE')==0 and math.abs(g('HUD_GUN_NATIVE_Y_SLOPE')-math.tan(.02))<1e-12)
+p('F22_WEAPON_BACKEND_READY',0);update()
+assert(not funnel_enabled and g('HUD_GUN_NATIVE_VALID')==0,'missing backend retained a gun cue')
+p('F22_WEAPON_BACKEND_READY',1);p('MAIN_POWER',0);update()
+assert(not funnel_enabled and g('HUD_GUN_NATIVE_VALID')==0,'power loss retained a gun cue')
 ''')
-print('Gun aiming: computed director only; no gyro/manual substitute')
+print('Actual 120Hz aiming owner: computed solution only, projection, backend and power withdrawal PASS')

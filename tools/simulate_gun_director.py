@@ -9,7 +9,7 @@ def main():
  ap=argparse.ArgumentParser();ap.add_argument('--output',type=Path,required=True)
  ap.add_argument('--simulator',type=Path,default=ROOT/'out/build/local-release/efm/Release/f22_gun_simulation.exe')
  args=ap.parse_args();args.output.mkdir(parents=True,exist_ok=True)
- lua=LuaRuntime(unpack_returned_tuples=True);module=lua.eval('dofile')(str(ROOT/'Cockpit/Scripts/Systems/Gun_Motion.lua'))
+ lua=LuaRuntime(unpack_returned_tuples=True);lua.globals().LockOn_Options=lua.table_from({'script_path':(ROOT/'Cockpit/Scripts').as_posix()+'/'});module=lua.eval('dofile')(str(ROOT/'Cockpit/Scripts/Systems/Gun_Motion.lua'))
  rng=random.Random(20261025);inputs=args.output/'simulation-inputs.csv'
  with inputs.open('w',newline='')as f:
   writer=csv.writer(f);writer.writerow(['scenario','noise','age','range','speed','rate','heading','bank','px','py','pz','vx','vy','vz','new_ax','new_ay','new_az','old_ax','old_ay','old_az'])
@@ -25,7 +25,7 @@ def main():
           t=-2+i*.02;angle=heading+rate*t
           truth=[speed*math.cos(angle),speed*math.sin(angle)*math.sin(bank),speed*math.sin(angle)*math.cos(bank)]
           measured=[v+rng.gauss(0,noise)for v in truth]
-          acc=estimator.update(estimator,t,lua.table_from(measured))
+          acc=estimator.update(estimator,t,lua.table_from(measured),noise)
           if prior is not None:
            alpha=1-math.exp(-.02/.12)
            old=[old[k]+alpha*((measured[k]-prior[k])/.02-old[k])for k in range(3)]

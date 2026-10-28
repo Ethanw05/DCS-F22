@@ -53,3 +53,5 @@ devices["FLIGHT_GUIDANCE"] = counter()--25: navigation/AFCS control and annuncia
 devices["NAV_POWER_NATIVE"] = counter()--26: common native navigation electrical buses
 devices["ALTITUDE_SYSTEM"] = counter()--27: native altimetry request and warning-floor settings
 devices["PILOT_WARNING_SYSTEM"] = counter()--28: terrain/floor/control cautions and original voice
+
+devices["GUN_SYSTEM"] = counter()--29: independent fire-control aiming cadence

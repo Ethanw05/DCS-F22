@@ -42,6 +42,7 @@ creators[devices.ICP_SYSTEM]			 = {"avLuaDevice"		    ,LockOn_Options.script_pat
 creators[devices.ILS_NATIVE] = {"avILS", LockOn_Options.script_path.."Systems/ILS_Native.lua"}
 creators[devices.NAV_POWER_NATIVE] = {"avSimpleElectricSystem", LockOn_Options.script_path.."Systems/Navigation_Power.lua"}
 creators[devices.FLIGHT_GUIDANCE] = {"avLuaDevice", LockOn_Options.script_path.."Systems/Flight_Guidance.lua"}
+creators[devices.GUN_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/Gun_System.lua"}
 creators[devices.NAV_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/Navigation_System.lua"}
 creators[devices.AG_MARK_SYSTEM] = {"avLuaDevice", LockOn_Options.script_path.."Systems/AG_Mark_System.lua"}
 creators[devices.RADAR_DATA_BRIDGE] = {"avLuaDevice", LockOn_Options.script_path.."Systems/Radar_Data_Bridge.lua"}

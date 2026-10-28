@@ -37,6 +37,7 @@ assert(g('F22_RADAR_STT_VALID')==1 and g('F22_STT_ID')==42)
 assert(g('F22_STT_MOTION_VALID')==1 and g('F22_RADAR_STT_MEASUREMENT_SOURCE')==2)
 assert(g('F22_AESA_CONTROL_TARGET')==42)
 assert(g('F22_STT_PN')==10000 and g('F22_STT_VN')==-200)
+assert(g('F22_STT_VELOCITY_SIGMA_MPS')==10,'selected velocity uncertainty was discarded')
 assert(#actions==0)
 -- Other reports keep updating while the selected source has a priority lock.
 for k,v in pairs({VALID=1,ID=84,TIME=now,N=12000,U=0,E=100,VN=-180,VU=0,VE=0,
