@@ -37,11 +37,13 @@ struct Beam {
     bool surface_search{};
     std::uint32_t surface_cells{};
 };
-// Environment truth is private input. It is never a published measurement.
+// Kinematic truth is private input. Type text is DCS metadata, published only
+// on a detected report by the user's explicit aircraft-label policy.
 struct Truth {
     std::uint32_t id{};
     Vector position{}, velocity{};
     double cross_section_m2 = 1; // Explicit game estimate if provider has none.
+    std::array<char,64> type_name{};
 };
 struct QueryStats {
     std::uint32_t visited{}, terrain_blocked{}, object_blocked{}, visibility_queries{};
@@ -99,6 +101,7 @@ struct Measurement {
     std::array<double, 21> covariance{};
     Vector sensor_origin{},sensor_velocity{},sensor_forward{},sensor_up{},sensor_right{};
     bool association_valid{};
+    std::array<char,64> type_name{};
 };
 // Private simulator bridge. Never published as sensor identity or used for association.
 struct Binding {

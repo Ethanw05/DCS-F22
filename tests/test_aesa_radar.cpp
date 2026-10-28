@@ -120,7 +120,7 @@ int scenarios() {
 }
 void clutter_reference() {
     static std::array<Model,3> radars;
-    World world;
+    static World world;
     Pose pose{};pose.position.u=3000;pose.velocity.n=300;
     Controls controls{};controls.enabled=true;
     controls.half_azimuth=degree;controls.half_elevation=degree;

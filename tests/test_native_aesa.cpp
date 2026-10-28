@@ -22,8 +22,16 @@ void sample(void*, const ArrayService&) { ++samples; }
 namespace {
 using namespace NativeAesaRadar;
 std::map<std::string, double> values;
+std::map<void*,std::string> text_values;
+std::array<void*,4> effect_handles{};
+bool coherent_effect=true;
 void* handle(const char* name) { return &values[name]; }
-void put(void* h, double v) { *static_cast<double*>(h) = v; }
+void put(void* h, double v) {
+    for (const auto effect:effect_handles) if (h==effect && static_cast<unsigned>(values["F22_AESA_SEQUENCE"])%2!=1)
+        coherent_effect=false;
+    *static_cast<double*>(h) = v;
+}
+void put_text(void* h,const char* v) {text_values[h]=v;}
 bool get(const void* h, double& v, bool) { v = *static_cast<const double*>(h); return true; }
 double now = 10;
 double clock_value() { return now; }
@@ -37,7 +45,9 @@ Object driver{driver_methods.data()+1}, la{la_methods.data()}, manager{manager_m
     land{land_methods.data()}, scene{scene_methods.data()}, registered{registered_methods.data()};
 void* driver_pointer=&driver;
 std::array<void*,58> target_methods{};
-Object own_unit{}, target_unit{target_methods.data()};
+struct SceneUnit { void** table{};std::array<std::byte,288> prefix{};TypeTextView type{}; };
+static_assert(offsetof(SceneUnit,type)==296);
+SceneUnit own_unit{},target_unit{target_methods.data()};
 std::array<void*,5> ecm_methods{};
 EcmView target_ecm{ecm_methods.data(),&target_unit,1};
 bool ecm_on{}, own_ecm_on{};
@@ -76,6 +86,11 @@ const char* intersection(const Scene&, const Vector&, const Vector&, Vector&, do
 void emitter(bool value) { emitting = value; }
 void fixture() {
     reset(); repair(); values.clear();
+    text_values.clear();coherent_effect=true;
+    const std::array names{"F22_NATIVE_ECM_VALID","F22_NATIVE_ECM_ACTIVE","F22_NATIVE_ECM_TIME","F22_NATIVE_ECM_GENERATION"};
+    for (std::size_t i=0;i<names.size();++i) effect_handles[i]=handle(names[i]);
+    target_unit.type={};std::memcpy(target_unit.type.inline_text,"MiG-29S",8);
+    target_unit.type.size=7;target_unit.type.capacity=15;
     ecm_on=false;own_ecm_on=false;own_unit.table=target_methods.data();own_ecm={ecm_methods.data(),&own_unit,1};
     for (auto& function : driver_methods) function = reinterpret_cast<void*>(&nothing);
     driver_methods[0] = nullptr; driver_methods[1] = reinterpret_cast<void*>(&destroy);
@@ -105,6 +120,7 @@ void scenarios() {
     fixture(); EDPARAM parameters_api;
     parameters_api.ed_param_api.pfn_ed_cockpit_get_parameter_handle=handle;
     parameters_api.ed_param_api.pfn_ed_cockpit_update_parameter_with_number=put;
+    parameters_api.ed_param_api.pfn_ed_cockpit_update_parameter_with_string=put_text;
     parameters_api.ed_param_api.pfn_ed_cockpit_parameter_value_to_number=get;
     update(parameters_api);
     CHECK(values["F22_AESA_DRIVER_READY"]==1 && driver.table != api.lua_vtable);
@@ -124,6 +140,7 @@ void scenarios() {
     }
     CHECK(AllocationProbe::count==0);
     CHECK(updates==30 && queries>0 && emitting && values["F22_AESA_COUNT"]==1);
+    CHECK(text_values[handle("F22A_01_TYPE_NAME")]=="MiG-29S");
     const auto track=static_cast<unsigned>(values["F22A_01_ID"]);
     CHECK(track>0 && track!=42 && values["F22A_01_HITS"]>=3);
     CHECK(host_for_track(track)==42 && track_for_host(42)==track);
@@ -276,10 +293,21 @@ void own_effect_publication() {
     own_ecm.owner=&own_unit;own_ecm_on=false;now+=.01;driver_update(&driver);update(p);
     CHECK(values["F22_NATIVE_ECM_VALID"]==1 && values["F22_NATIVE_ECM_ACTIVE"]==0);
     reset();update(p);CHECK(values["F22_NATIVE_ECM_VALID"]==0);
+    CHECK(coherent_effect);
+}
+void type_metadata() {
+    fixture();std::array<char,64> name{};
+    CHECK(scene_type(&target_unit,name) && std::string(name.data())=="MiG-29S");
+    const char extended[]="FA-18C_hornet_long";
+    target_unit.type.pointer=extended;target_unit.type.size=sizeof(extended)-1;target_unit.type.capacity=31;
+    CHECK(scene_type(&target_unit,name) && std::string(name.data())==extended);
+    target_unit.type.size=64;CHECK(!scene_type(&target_unit,name) && name[0]==0);
+    target_unit.type.size=17;target_unit.type.pointer=nullptr;CHECK(!scene_type(&target_unit,name));
+    CHECK(!scene_type(nullptr,name));
 }
 }
 int main() {
-    try { scenarios(); receiver_scenarios(); receiver_authority(); surface_publication(); own_effect_publication(); std::cout << "Owned native AESA: scene provider, noisy reports, avLua clock lifetime, "
+    try { scenarios(); receiver_scenarios(); receiver_authority(); surface_publication(); own_effect_publication(); type_metadata(); std::cout << "Owned native AESA: scene provider, noisy reports, avLua clock lifetime, "
         "context responder registration, actual virtual target/support calls, expiry and teardown PASS\n"; return 0; }
     catch (const std::exception& error) { std::cerr<<error.what()<<'\n'; return 1; }
 }

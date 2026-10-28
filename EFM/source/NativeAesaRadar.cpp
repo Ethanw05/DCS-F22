@@ -151,6 +151,31 @@ void* moving(Scene& scene) noexcept {
     const auto convert = method<Convert>(object, 7);
     return convert ? convert(object) : nullptr;
 }
+struct TypeTextView {
+    union { const char* pointer; char inline_text[16]; };
+    std::size_t size{},capacity{};
+};
+static_assert(sizeof(TypeTextView)==32);
+bool scene_type(void* unit,std::array<char,64>& output) noexcept {
+    output.fill(0);
+    if (!unit) return false;
+    // Matched RWR insertion copies model type text from the borrowed object's
+    // scene metadata at +296. This never reads a sensor's contact cache.
+    constexpr std::size_t offset=296;
+    const auto address=static_cast<const std::byte*>(unit)+offset;
+    if (!readable(address,sizeof(TypeTextView))) return false;
+    TypeTextView text{};std::memcpy(&text,address,sizeof(text));
+    if (!text.size || text.size>=output.size() || text.capacity<text.size || text.capacity>1048576) return false;
+    const auto source=text.capacity>15 ? text.pointer : text.inline_text;
+    if (text.capacity>15 && !readable(source,text.size+1)) return false;
+    if (source[text.size]!=0) return false;
+    for (std::size_t i=0;i<text.size;++i) {
+        const auto value=static_cast<unsigned char>(source[i]);
+        if (value<32 || value>126) return false;
+    }
+    std::memcpy(output.data(),source,text.size);
+    return true;
+}
 std::uint32_t identity(Scene& scene) noexcept {
     using Identity = unsigned(__fastcall*)(void*);
     const auto get = method<Identity>(&scene, 1);
@@ -264,6 +289,7 @@ public:
             const auto velocity = api.velocity(unit);
             if (!readable(velocity, sizeof(*velocity)) || *c->count >= c->out.size()) return 1;
             Truth truth{}; truth.id = identity(scene); api.point(unit, &truth.position);
+            scene_type(unit,truth.type_name);
             truth.velocity = {velocity->n, velocity->u, velocity->e};
             // Shared object kinematics, no coalition/classification truth. RCS=1m2 is a declared game baseline.
             if (truth.id && finite(truth.position) && finite(truth.velocity)) c->out[(*c->count)++] = truth;
@@ -358,6 +384,9 @@ struct Parameters {
     std::array<void*, output_names.size()> outputs{};
     std::array<void*, 10> priorities{};
     std::array<std::array<void*, fields.size()>, maximum_tracks> contacts{};
+    std::array<void*,maximum_tracks> type_names{};
+    std::array<std::array<char,64>,maximum_tracks> published_types{};
+    std::array<bool,maximum_tracks> published_type_valid{};
     std::array<double, maximum_tracks> published_time{};
     std::array<unsigned, maximum_tracks> published_id{};
     std::atomic<bool> bound{};
@@ -376,6 +405,10 @@ struct Parameters {
         for (std::size_t i = 0; i < contacts.size(); ++i) for (std::size_t j = 0; j < fields.size(); ++j) {
             std::snprintf(name, sizeof(name), "F22A_%02u_%s", static_cast<unsigned>(i + 1), fields[j]);
             if (!(contacts[i][j] = p.getParamHandle(name))) return false;
+        }
+        for (std::size_t i=0;i<type_names.size();++i) {
+            std::snprintf(name,sizeof(name),"F22A_%02u_TYPE_NAME",static_cast<unsigned>(i+1));
+            type_names[i]=p.getParamHandle(name);
         }
         bound = true; return true;
     }
@@ -438,6 +471,7 @@ struct Parameters {
         for (std::size_t i = 0; i < s.measurements.size(); ++i)
             if (publish_contact(p, i, s.measurements[i], fresh)) ++count;
         publish_status(p, s, fresh, count);
+        publish_own_effect(p,s,now);
         p.setParamNumber(outputs[3], publication + 2);
     }
     void publish_authority(EDPARAM& p, std::size_t i, const Measurement& m, bool valid) noexcept {
@@ -446,6 +480,7 @@ struct Parameters {
     }
     bool publish_contact(EDPARAM& p, std::size_t i, const Measurement& m, bool fresh) noexcept {
         const bool valid = fresh && m.valid;
+        publish_type(p,i,m,valid);
         p.setParamNumber(contacts[i][0], valid ? 1 : 0);
         publish_authority(p,i,m,valid);
         if (!valid) { published_id[i] = 0; return false; }
@@ -469,6 +504,14 @@ struct Parameters {
     }
     void gated(EDPARAM& p, std::size_t index, double value, bool valid) noexcept {
         p.setParamNumber(outputs[index], valid ? value : 0);
+    }
+    void publish_type(EDPARAM& p,std::size_t i,const Measurement& m,bool valid) noexcept {
+        const char* name=valid ? m.type_name.data() : "";
+        if (!type_names[i] || !p.ed_param_api.pfn_ed_cockpit_update_parameter_with_string) return;
+        if (published_type_valid[i] && std::strncmp(name,published_types[i].data(),published_types[i].size())==0) return;
+        published_type_valid[i]=true;published_types[i].fill(0);
+        if (valid) published_types[i]=m.type_name;
+        p.setParamString(type_names[i],name);
     }
     void publish_surface(EDPARAM& p, const Status& q, bool fresh) noexcept {
         const auto& beam=q.surface_beam;
@@ -667,11 +710,21 @@ void reset() noexcept {
     AcquireSRWLockExclusive(&state_lock); request = {}; snapshot.status = {}; snapshot.epoch = 0; snapshot.own_effect = {};
     for (auto& measurement : snapshot.measurements) measurement = {};
     parameters.published_id.fill(0);
+    parameters.published_type_valid.fill(false);
     parameters.bound = false;
     ReleaseSRWLockExclusive(&state_lock);
 }
+bool can_sample(void* radar) noexcept {
+    return radar && owner.load(std::memory_order_acquire)==radar && api.ready.load(std::memory_order_acquire);
+}
+OwnEffect own_effect(Provider& provider,bool pose_valid,double now) noexcept {
+    OwnEffect effect{};double strength=0;
+    effect.valid=pose_valid && std::isfinite(now) && provider.own_effect(effect.active,strength);
+    effect.time=now;
+    return effect;
+}
 void sample(void* radar) noexcept {
-    if (!radar || owner.load(std::memory_order_acquire) != radar || !api.ready.load(std::memory_order_acquire)) return;
+    if (!can_sample(radar)) return;
     const auto generation = epoch.load(std::memory_order_acquire);
     if (sampled_epoch != generation) { model.reset(generation); sampled_epoch = generation; }
     AcquireSRWLockShared(&state_lock); Request r = request; ReleaseSRWLockShared(&state_lock);
@@ -685,10 +738,7 @@ void sample(void* radar) noexcept {
     // Receiver qualification loss does not stop an otherwise commanded RF dwell.
     api.emitter(model.status().emitting && r.controls.emit);
     auto& next = sensor_scratch;
-    next.own_effect={};
-    double strength=0;
-    next.own_effect.valid=pose_valid && std::isfinite(now) && provider.own_effect(next.own_effect.active,strength);
-    next.own_effect.time=now;
+    next.own_effect=own_effect(provider,pose_valid,now);
     next.status = model.status(); next.measurements = model.measurements();
     next.bindings = model.bindings(); next.epoch = generation;
     if (!updated) next.status.ready = false;
@@ -712,7 +762,6 @@ void update(EDPARAM& p) noexcept {
     AcquireSRWLockExclusive(&state_lock); request = next; publication_scratch = snapshot;
     ReleaseSRWLockExclusive(&state_lock);
     parameters.publish(p, publication_scratch, now, available && next.controls.enabled);
-    parameters.publish_own_effect(p,publication_scratch,now);
     // These are shared compatibility endpoints backed entirely by our provider.
     p.setParamNumber(parameters.outputs[17], driver_ready ? 1 : 0);
     p.setParamNumber(parameters.outputs[18], support_ready ? 1 : 0);
