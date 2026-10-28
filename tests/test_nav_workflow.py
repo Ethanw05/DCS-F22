@@ -83,16 +83,31 @@ for _,row in ipairs(sent)do assert(row[2]~=10005,'A/G selection requested a rada
 -- A PMFD-targeted packet must not trigger the MFD's old global page override.
 owners[5].command(10005,devices.PMFD_SYSTEM+.375);tick()
 assert(g('CMFD_PAGE')==8,'foreign page request displaced NAV')
-for button,source in pairs({[6]=0,[7]=1,[8]=2})do
+-- A second press removes steering without clearing the selected point or target.
+bezel(6);tick();assert(g('F22_NAV_SOURCE')==3 and g('F22_NAV_STEER_VALID')==0)
+assert(g('HUD_WP_VALID')==0 and g('HUD_WP_INDEX')==3 and g('HUD_AG_TARGET_VALID')==1)
+bezel(6);tick();assert(g('F22_NAV_SOURCE')==0 and g('HUD_WP_INDEX')==3)
+-- Route-line visibility is independent from the active steering source.
+bezel(1);tick();assert(g('F22_NAV_SEQUENCE_VISIBLE')==0 and g('F22_NAV_LEG_01_VALID')==0)
+assert(g('F22_NAV_SOURCE')==0 and g('HUD_WP_INDEX')==3)
+bezel(1);tick();assert(g('F22_NAV_SEQUENCE_VISIBLE')==1)
+local nav=dofile(SCRIPT_ROOT..'Systems/Nav_Computer.lua')
+local route=nav.new({{x=0,y=0,alt=3000},{x=1000,y=0,alt=3000},{x=2000,y=0,alt=3000}})
+route.automatic=true
+local at_waypoint={x=1000,y=0,alt=3000,heading=0,gs=200}
+nav.solution(route,at_waypoint,false);assert(route.selected==1,'unselected waypoint steering advanced AUTO')
+nav.solution(route,at_waypoint,true);assert(route.selected==2,'selected waypoint steering failed to advance AUTO')
+for _,pair in ipairs({{7,1},{8,2},{6,0}})do
+ local button,source=pair[1],pair[2]
  bezel(button);tick();assert(g('F22_NAV_SOURCE')==source,'visible navigation source routed elsewhere')
  assert(g('HUD_AG_TARGET_VALID')==1,'source selection silently cleared the weapon target')
 end
-bezel(6);tick();assert(g('F22_AG_TARGET_SEQUENCE')==sequence)
+assert(g('F22_AG_TARGET_SEQUENCE')==sequence)
 local before=g('F22_NAV_SCALE_NM');bezel(15);tick()
 assert(g('F22_NAV_SCALE_NM')<before,'RNG- did not reduce numerical range')
 bezel(14);tick();assert(g('F22_NAV_SCALE_NM')==before)
 -- Unlabelled keys cannot fall through to old HSI/ICP/master-mode actions.
-for _,button in ipairs({1,2,3,4,12})do
+for _,button in ipairs({2,3,4,12})do
  sent={};bezel(button);tick()
  for _,row in ipairs(sent)do assert(row[2]==10742,'blank NAV key reached a hidden action')end
  assert(g('HUD_MODE')==7 and g('CMFD_PAGE')==8 and g('HUD_AG_TARGET_VALID')==1)

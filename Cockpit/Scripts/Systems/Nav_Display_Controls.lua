@@ -1,6 +1,7 @@
 -- GPL-3.0-or-later. One physical-bezel contract for NAV labels and actions.
 local command=dofile(LockOn_Options.script_path..'Systems/Nav_Commands.lua')
 local controls={
+ [1]={label='SEQ1',device='NAV_SYSTEM',command=command.sequence_display,selected_parameter='F22_NAV_SEQUENCE_VISIBLE'},
  [13]={label='MENU',page=0},
  [16]={label='HDG',device='ICP_SYSTEM',command=11033},
  [11]={label='DATA',view=1},

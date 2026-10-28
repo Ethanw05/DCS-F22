@@ -104,7 +104,7 @@ local function geometry(self,own)
     end
     return s
 end
-function M.solution(self,own)
+function M.solution(self,own,sequence_enabled)
     if not own or not M.finite(own.x) or not M.finite(own.y) or not M.finite(own.alt)
         or not M.finite(own.heading) then return end
     local s=geometry(self,own)
@@ -113,7 +113,7 @@ function M.solution(self,own)
     local captured=distance<=.3*1852 or (s.along and s.along>=s.length
         and math.abs(s.cross)<=.75*1852 and distance<=1.5*1852)
     if not self.designation and M.finite(own.gs) and own.gs>15 and captured then
-        if self.automatic and self.selected<#self.route then
+        if self.automatic and sequence_enabled~=false and self.selected<#self.route then
             local previous=s.waypoint.id
             self.selected=self.selected+1;self.direct_origin=nil;self.arrived=false
             self.sequence_count=self.sequence_count+1

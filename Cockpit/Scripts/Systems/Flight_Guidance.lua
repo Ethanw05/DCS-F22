@@ -106,7 +106,7 @@ local function apply_command(command,value)
  if command==10953 then dispatch_action(nil,11603,1);return end
  if get('MAIN_POWER')<.5 then return end
  if command>=10950 and command<=10969 then dispatch_action(nil,command+650,1);return end
- if command==10930 then set('F22_NAV_SOURCE',(get('F22_NAV_SOURCE')+1)%3)
+ if command==10930 then set('F22_NAV_SOURCE',(get('F22_NAV_SOURCE')+1)%4)
  elseif command==10931 or command==10932 then
   set('F22_NAV_OBS',1);course_true=(course_true+(command==10931 and 1 or -1))%360;publish_course()
  elseif command==10933 or command==10934 then set('F22_TCN_CHANNEL',math.max(1,math.min(126,get('F22_TCN_CHANNEL')+(command==10933 and 1 or -1))))
@@ -117,10 +117,11 @@ local function apply_command(command,value)
  elseif command==10940 then set('F22_GPS_AID',1-get('F22_GPS_AID'))
  elseif command==10941 then set('F22_NAV_OBS',0)
  elseif command==10942 then references:align(0)
- elseif command==10943 then
-  set('F22_NAV_SOURCE',0);dispatch_action(devices.NAV_SYSTEM,11819,1)
- elseif command==10944 then set('F22_NAV_SOURCE',1)
- elseif command==10945 then set('F22_NAV_SOURCE',2)
+ elseif command>=10943 and command<=10945 then
+  local selected=command-10943
+  local next_source=get('F22_NAV_SOURCE')==selected and 3 or selected
+  set('F22_NAV_SOURCE',next_source)
+  if next_source==0 then dispatch_action(devices.NAV_SYSTEM,11819,1)end
  elseif command==10948 then set('F22_NAV_OBS',1-get('F22_NAV_OBS'))
  end
 end
@@ -180,7 +181,7 @@ function update()
  set('F22_AP_SPEED_TEXT',get('F22_AP_MACH_HOLD')>.5 and string.format('M %.2f',get('F22_AP_MACH')) or string.format('SPD %.0f',get('F22_AP_SPEED')))
  set('F22_TCN_TUNE_TEXT',string.format('TCN %03d%s %s',get('F22_TCN_CHANNEL'),get('F22_TCN_BAND')>.5 and 'Y' or 'X',names[get('F22_TCN_MODE')] or '?'))
  set('F22_ILS_TUNE_TEXT',string.format('ILS %.2f',get('F22_ILS_FREQ_KHZ')/1000))
- set('F22_NAV_SOURCE_TEXT',({'WPT','TCN','ILS'})[get('F22_NAV_SOURCE')+1] or 'WPT')
+ set('F22_NAV_SOURCE_TEXT',({'WPT','TCN','ILS','---'})[get('F22_NAV_SOURCE')+1] or '---')
  set('F22_NAV_CRS_TEXT',get('F22_NAV_COURSE_REF_VALID')>.5
   and string.format('CRS %03d%s',get('F22_NAV_COURSE'),mag and 'M' or 'T')or'CRS ---M')
 end

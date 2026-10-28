@@ -25,7 +25,7 @@ for _,key in ipairs({'MAIN_POWER','HUD_GS_VALID','HUD_GS_MPS','HUD_WP_VALID','HU
     'HUD_WP_BRG_VALID','HUD_WP_BEARING_DEG','HUD_WP_INFO','HUD_WP_TTG_TEXT','HUD_WP_TTG_VALID',
     'HUD_WP_AZ_RAD','HUD_WP_EL_RAD','HUD_WP_X','HUD_WP_Y','HUD_WP_CUE_VALID','HUD_WP_OFFSCREEN',
     'HUD_WP_ARROW_X','HUD_WP_ARROW_Y','HUD_WP_ARROW_ROT','F22_NAV_VALID','F22_NAV_AUTO','F22_NAV_AUTO_TEXT',
-    'F22_NAV_SCALE_NM','F22_NAV_ROUTE_COUNT','F22_NAV_COMPASS_ROT','F22_NAV_HEADING_TEXT','F22_NAV_BRG_ROT',
+    'F22_NAV_SCALE_NM','F22_NAV_ROUTE_COUNT','F22_NAV_SEQUENCE_VISIBLE','F22_NAV_COMPASS_ROT','F22_NAV_HEADING_TEXT','F22_NAV_BRG_ROT',
     'F22_NAV_STATUS_TEXT','F22_NAV_FIX_TEXT','F22_NAV_BRG_TEXT','F22_NAV_DIST_TEXT','F22_NAV_ALT_TEXT',
     'F22_NAV_TTG_TEXT','F22_NAV_COURSE_TEXT','F22_NAV_XTK_TEXT',
     'F22_NAV_OWN_VALID','F22_NAV_OWN_N','F22_NAV_OWN_E','F22_NAV_SEQUENCE_COUNT','F22_NAV_AUTO_HOLD','HUD_LANDING_CONFIG','HUD_ILS_DISPLAY_ENABLE','F22_NAV_FIX_LAT','F22_NAV_FIX_LON','F22_NAV_FIX_GEO_VALID','F22_NAV_FIX_ALT_FT','F22_NAV_EDIT_STATUS',
@@ -217,7 +217,7 @@ end
 function post_initialize()
     computer=nav.new({});mission=dofile(LockOn_Options.script_path..'Systems/Mission_Data.lua').new()
     publication=Publication.new(get,set)
-    set('F22_ENTRY_NAV_ACTIVE',0);set('F22_MISSION_ROUTE_GENERATION',0)
+    set('F22_ENTRY_NAV_ACTIVE',0);set('F22_MISSION_ROUTE_GENERATION',0);set('F22_NAV_SEQUENCE_VISIBLE',1)
     set('F22_NAV_OWN_VALID',0);set('F22_NAV_HEADING_VALID',0);set('F22_NAV_ATTITUDE_VALID',0)
     set('F22_NAV_STEER_VALID',0);set('F22_INS_LAST_FIX_AGE',-1)
     extras=Marks.new();mark_navigation=nav.new({});mark_active=false
@@ -285,7 +285,8 @@ local function apply_command(command,value)
         set('F22_NAV_EDIT_STATUS',accepted and 'STPT STORED' or 'EDIT REJECTED');return
     end
     local old_designation=computer.designation
-    if command==commands.next or command==Keys.PlaneChangeTarget then mark_active=false;computer:step(1)
+    if command==commands.sequence_display then set('F22_NAV_SEQUENCE_VISIBLE',1-get('F22_NAV_SEQUENCE_VISIBLE'))
+    elseif command==commands.next or command==Keys.PlaneChangeTarget then mark_active=false;computer:step(1)
     elseif command==commands.previous or command==1315 then mark_active=false;computer:step(-1)
     elseif command==commands.auto and not mark_active then computer.automatic=not computer.automatic
     elseif command==commands.range_in then active_computer():scale(-1)
@@ -478,7 +479,7 @@ function update()
     set('F22_NAV_COMPASS_ROT',own and own.heading or 0)
     set('F22_NAV_HEADING_TEXT',own and string.format('%03dT',math.floor(math.deg(own.heading)+.5)%360) or '---T')
     local selected_computer=active_computer()
-    local s=own and nav.solution(selected_computer,own)
+    local s=own and nav.solution(selected_computer,own,get('F22_NAV_SOURCE')==0)
     if not s then
         clear();guidance(get,set,own,nil);publication.publish();diagnostic(own,nil);return
     end
@@ -548,10 +549,10 @@ function update()
     end
     for i=1,nav.slots do
         local p=s.points[i];local root=string.format('F22_NAV_PT_%02d_',i)
-        set(root..'VALID',p and p.visible and 1 or 0)
+        set(root..'VALID',p and p.visible and (p.active or get('F22_NAV_SEQUENCE_VISIBLE')==1) and 1 or 0)
         if p then set(root..'X',p.x);set(root..'Y',p.y);set(root..'ID',p.id);set(root..'ACTIVE',p.active and 1 or 0) end
         local l=s.legs[i];root=string.format('F22_NAV_LEG_%02d_',i)
-        set(root..'VALID',l and 1 or 0)
+        set(root..'VALID',l and get('F22_NAV_SEQUENCE_VISIBLE')==1 and 1 or 0)
         if l then for _,k in ipairs({'x1','y1','x2','y2'}) do set(root..k:upper(),l[k]) end;set(root..'ACTIVE',l.active and 1 or 0) end
     end
     guidance(get,set,own,s)

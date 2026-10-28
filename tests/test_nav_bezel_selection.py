@@ -11,10 +11,10 @@ local ui=dofile(SCRIPT_ROOT..'Systems/MFD_Controller.lua').new(get_param_handle,
 put('MAIN_POWER',1);ui:update(true)
 for index,panel in ipairs({'LMFD','RMFD','CMFD','PMFD'})do
  ui:select(index,7)
- for source=0,2 do
+ for source=0,3 do
   put('F22_NAV_SOURCE',source);ui:publish()
   for b=6,8 do
-   assert(get('F22_MFD_'..panel..'_SEL_'..b)==(b==source+6 and 1 or 0),'NAV source highlight missing or on wrong bezel key')
+   assert(get('F22_MFD_'..panel..'_SEL_'..b)==(source<3 and b==source+6 and 1 or 0),'NAV source highlight missing or on wrong bezel key')
   end
  end
 end

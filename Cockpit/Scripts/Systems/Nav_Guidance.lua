@@ -35,7 +35,7 @@ return function(get,set,own,s)
  set('F22_NAV_COMPASS_ROT',(own.heading-reference)%(2*math.pi))
  set('F22_NAV_HEADING_TEXT',string.format('%03d%s',math.floor(math.deg(own.heading-reference)+.5)%360,suffix))
  if source~=0 then set('F22_NAV_DESIGNATED',0)end
- set('F22_NAV_DISPLAY_VALID',(source~=0 or s~=nil)and 1 or 0)
+ set('F22_NAV_DISPLAY_VALID',(source~=3 and (source~=0 or s~=nil))and 1 or 0)
  if source~=0 or not ready then
   set('HUD_WP_CUE_VALID',0);set('HUD_WP_OFFSCREEN',0);set('HUD_WP_VALID',0)
  end
@@ -43,6 +43,9 @@ return function(get,set,own,s)
   set('HUD_WP_INFO',get('F22_TCN_TUNE_TEXT'));set('HUD_WP_TTG_TEXT','--:--:--')
  elseif source==2 then
   set('HUD_WP_INFO',get('F22_ILS_TUNE_TEXT'));set('HUD_WP_TTG_TEXT','--:--:--')
+ elseif source==3 then
+  set('HUD_WP_INFO','');set('HUD_WP_TTG_TEXT','--:--:--');set('HUD_WP_TTG_VALID',0);set('HUD_WP_BRG_VALID',0)
+  set('F22_NAV_STATUS_TEXT','NO NAV SOURCE')
  elseif not ready then set('HUD_WP_INFO','IRS ALIGN');set('HUD_WP_TTG_TEXT','--:--:--');set('F22_NAV_STATUS_TEXT',get('F22_INS_STATUS_TEXT'))end
  local bearing,distance,course,cross,steer
  local lookahead=math.max(1852,(own.gs or 0)*25)

@@ -39,3 +39,16 @@ route/weapon isolation, explicit UTC/arrival commits, midnight, past/limited RGS
 remaining-route distance and outage cancellation. Existing geometry, designation,
 source and UFC regressions pass. Native path capture/dynamics, fly-by anticipation
 and F-22 procedural fidelity remain outside these tests.
+# NAV source and sequence display interaction
+
+Chuck's F/A-18C guide, Part 15, pp. 669, 671, 681-682, distinguishes
+the selected steering source, SEQ route-line visibility, and AUTO sequencing.
+The F-22 mod adopts that workflow as an interface analogue, without claiming
+the original aircraft's controls. Pressing the selected WYPT, TCN or ILS key
+now clears the selected source; selecting another key switches directly.
+The selected point and target designation survive source deselection, while
+waypoint steering and automatic sequencing withdraw. SEQ1 independently
+shows or hides route points and legs, retaining the selected waypoint.
+The source-off state does not claim loss of the independent ILS receiver.
+Only the mission's one route is implemented; the Hornet's multiple sequences,
+moving-map background and other unsupported HSI functions are not implied.
