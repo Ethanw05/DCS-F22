@@ -24,7 +24,7 @@ assert(get('F22_AG_MODE')==2,'mode publishes on update only')
 assert(s.model.mode==2 and get('F22_AG_TRACK_REQUEST_ACTIVE')==1)
 assert(get('F22_AG_TRACK_REQUEST_NORTH')==18550 and get('F22_AG_TRACK_REQUEST_EAST')==0)
 assert(get('F22_AG_TRACK_REQUEST_ID')==0,'TDC acquisition must not require a search ID')
-for k,x in pairs({VALID=1,ID=123,TYPE=2,N=18550,U=50,E=0,VN=8,VU=0,VE=0,TIME=10.1})do put('F22_AG_NATIVE_TRACK_'..k,x)end
+for k,x in pairs({VALID=1,ID=123,TYPE=2,N=18550,U=50,E=0,VN=8,VU=0,VE=0,VELOCITY_VALID=1,TIME=10.1})do put('F22_AG_NATIVE_TRACK_'..k,x)end
 put('F22_AG_NATIVE_TRACK_REQUEST_SEQUENCE',get('F22_AG_TRACK_REQUEST_SEQUENCE'))
 s:update(pose,10.1,1/60,true,true)
 assert(get('F22_AG_TRACK_VALID')==1 and get('F22_AG_DESIGNATION_VALID')==1)

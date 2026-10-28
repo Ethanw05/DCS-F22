@@ -7,6 +7,7 @@
 #include <cstddef>
 #include "AesaTrackFilter.h"
 namespace GroundMovingTargets {
+inline constexpr double memory_s=30; // Coasting SA covers a finite wide surface scan; never refreshes an observation.
 constexpr double pi=3.14159265358979323846, knot=1.943844492440605;
 struct Vec {double n{},u{},e{};};
 inline double length(Vec v){return std::hypot(v.n,v.u,v.e);}
@@ -50,7 +51,7 @@ public:
     void advance(double now) noexcept {
         if (now < clock_ || now - clock_ > 10) clear();
         clock_ = now;
-        for (auto& t : tracks_) if (t.id && now - t.stamp > 6) t = {};
+        for (auto& t : tracks_) if (t.id && now - t.stamp > memory_s) t = {};
     }
     void observe(Contact c) noexcept {
         if (!c.id || !std::isfinite(c.stamp) || !std::isfinite(length(c.point))

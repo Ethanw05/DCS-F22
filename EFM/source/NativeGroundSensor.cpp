@@ -77,7 +77,11 @@ struct Api {
     reason=ok?0:3;ready.store(ok,std::memory_order_release);
   }
 } api;
-struct Controls {bool active{},search{},request{},sea{},ranging{},fan{},illuminated=true;double resource=1,elevation{},stamp{},range=37040,az{},request_sequence{};Vec request_point{};unsigned selected{};};
+struct Controls {
+  bool active{},array_active{},search{},request{},sea{},ranging{},fan{},illuminated{};
+  double resource{},elevation{},stamp=-100,range{},az{},request_sequence{};
+  Vec request_point{};
+};
 struct Output {
   bool ready{};int reason=4;double stamp{};unsigned queries{},candidates{},terrain_rejects{},object_rejects{},speed_rejects{},ground_candidates{},truncated{};
   Vec origin{};double heading{},az{},dt{},aspect{};Contacts contacts;
@@ -154,7 +158,7 @@ bool positive_response(void *unit) {
 }
 // Graphics::Camera::getClipVolume builds ClipVolumeCamera using the SAME
 // shared constructor as the Hornet's 5DEBD0. Query manager+152, not an AABB.
-const void *volume(Vec origin,double heading,double elevation,double half_az,double half_el) {
+const void *volume(Vec origin,double heading,double elevation,double half_az,double half_el,double range) {
   struct CameraState {alignas(16) std::array<std::byte,784> data{};bool initialized{};};
   thread_local CameraState c;
   if(!c.initialized){api.camera(c.data.data(),0);c.initialized=true;}
@@ -164,20 +168,94 @@ const void *volume(Vec origin,double heading,double elevation,double half_az,dou
   for(unsigned row=0;row<4;++row)std::memcpy(c.data.data()+560+16*row,pose.data()+row*3,12);
   // Native ClipVolumeCamera aspect is half-angle ratio, not tangent ratio.
   const std::array<float,5> projection{static_cast<float>(2*half_az),static_cast<float>(2*half_el),
-    static_cast<float>(half_az/half_el),0,185200.f};
+    static_cast<float>(half_az/half_el),0,static_cast<float>(range)};
   std::memcpy(c.data.data()+688,projection.data(),sizeof(projection));c.data[776]=std::byte{1};
   return api.clip(c.data.data());
 }
 }
 void reset(){epoch.fetch_add(1);std::lock_guard<std::mutex>lock(state_mutex);controls={};output={};handles.clear();}
-void sample(void *owned_radar, const ArrayService* service) {
+namespace {
+bool pointing_clock(const Controls& c,double now) {
+  return api.ready&&c.array_active&&std::isfinite(now)&&now>=c.stamp&&now-c.stamp<=.5;
+}
+bool pointing_geometry(const Controls& c) {
+  return std::isfinite(c.range)&&c.range>=40&&c.range<=160*1852&&std::isfinite(c.elevation);
+}
+Vec predicted_point(const Contact& contact,double now) {
+  Vec target=contact.point;
+  const double age=now-contact.stamp;
+  if(contact.velocity_valid&&age>=0&&age<=5){
+    target.n+=contact.velocity.n*age;target.u+=contact.velocity.u*age;target.e+=contact.velocity.e*age;
+  }
+  return target;
+}
+Vec selected_point(const Controls& c,const Output& observed,double now) {
+  const bool current=observed.ready&&now>=observed.stamp&&now-observed.stamp<=.5;
+  if(current&&observed.request_sequence==c.request_sequence&&(observed.selected.id||observed.fixed))
+    return predicted_point(observed.selected,now);
+  return c.request_point;
+}
+bool aim_at(AesaRadar::SurfaceRequest& request,Vec target,const AesaRadar::Pose& pose) {
+  const Vec delta{target.n-pose.position.n,target.u-pose.position.u,target.e-pose.position.e};
+  const double distance=length(delta);
+  if(!std::isfinite(distance)||distance<40||distance>160*1852)return false;
+  request.direction={delta.n/distance,delta.u/distance,delta.e/distance};request.point=true;
+  request.range_m=std::min(160*1852.,std::max(request.range_m,distance*1.1));
+  return true;
+}
+void routine_request(AesaRadar::SurfaceRequest& request,const Output& observed,double now,const AesaRadar::Pose& pose) {
+  const Contact* oldest=nullptr;
+  for(const auto& contact:observed.contacts)
+    if(contact.filter_valid&&now-contact.stamp>=1.5&&now-contact.stamp<=30
+       &&(!oldest||contact.stamp<oldest->stamp))oldest=&contact;
+  if(oldest&&aim_at(request,predicted_point(*oldest,now),pose))request.routine=true;
+}
+bool job_geometry(const AesaRadar::Beam& b) {
+  const double norm=std::hypot(b.direction.n,b.direction.u,b.direction.e);
+  return b.surface&&std::isfinite(norm)&&std::abs(norm-1)<.002
+      &&std::isfinite(b.half_angle)&&b.half_angle>0&&b.half_angle<=10*pi/180
+      &&std::isfinite(b.range_m)&&b.range_m>=40&&b.range_m<=160*1852;
+}
+bool valid_job(const ArrayService& service,double now) {
+  const auto& b=service.beam;
+  return service.granted&&service.active&&job_geometry(b)
+      &&std::isfinite(service.resource)&&service.resource>=.1&&service.resource<=1
+      &&std::isfinite(b.started)&&std::isfinite(b.completes)&&b.completes>b.started
+      &&now>=b.completes&&now-b.completes<=.25;
+}
+bool in_job(const Vec& origin,const Vec& point,const AesaRadar::Beam& beam) {
+  const Vec delta=point-origin;
+  const double distance=length(delta);
+  return distance>=10&&distance<=beam.range_m
+      &&delta.n*beam.direction.n+delta.u*beam.direction.u+delta.e*beam.direction.e>=distance*std::cos(beam.half_angle);
+}
+}
+AesaRadar::SurfaceRequest pointing(double now,const AesaRadar::Pose& pose) noexcept {
+  Controls c;Output observed;
+  {std::lock_guard<std::mutex>lock(state_mutex);c=controls;observed=output;}
+  AesaRadar::SurfaceRequest request;
+  if(!pointing_clock(c,now)||!pointing_geometry(c))return request;
+  request.valid=true;request.range_m=c.range;
+  request.center_elevation=c.fan?-30*pi/180:-std::atan2(pose.position.u,c.range)+c.elevation;
+  request.center_elevation=std::clamp(request.center_elevation,-60*pi/180,-pi/180);
+  request.half_elevation=c.fan?29*pi/180:.001*pi/180;
+  if(c.ranging){
+    const double co=std::cos(c.elevation),si=std::sin(c.elevation);
+    request.direction={pose.forward.n*co+pose.up.n*si,pose.forward.u*co+pose.up.u*si,pose.forward.e*co+pose.up.e*si};
+    request.point=true;
+  }else if(c.request){
+    if(!aim_at(request,selected_point(c,observed,now),pose))return {};
+  }else if(c.search)routine_request(request,observed,now,pose);
+  return request;
+}
+void sample(void *owned_radar, const ArrayService& service) {
   if(!owned_radar||!api.ready.load(std::memory_order_acquire))return;
   const auto generation=epoch.load();
   if(generation!=sampled_epoch){range_pending={};range_report={};measurements.clear();tracks.clear();selected={};selected_type=0;acquiring=false;fixed=false;request_sequence=-1;last_query=-1;sampled_epoch=generation;}
   Controls c;Output stats;
   {std::lock_guard<std::mutex>lock(state_mutex);c=controls;stats=output;}
-  if(service){c.illuminated=service->granted;c.az=service->azimuth;c.resource=service->resource;c.active=c.active&&service->active;}
   const double now=api.clock();
+  c.illuminated=valid_job(service,now);c.az=service.azimuth;c.resource=service.resource;c.active=c.active&&service.active;
   stats.ready=true;stats.reason=0;stats.stamp=now;
   // FRZ holds the video, not the transmitter or ground sensor. MAP can
   // request the same native acquisition/FTT path without enabling GMT search.
@@ -223,13 +301,13 @@ void sample(void *owned_radar, const ArrayService* service) {
     // ballistic trajectory and is invalid when the beam does not hit ground.
     using Ray=bool(__fastcall*)(void*,const VecF&,const VecF&,float,VecF*);
     void *land=api.land?*api.land:nullptr;auto ray=method<Ray>(land,13);
-    const double elevation=std::atan2(basis[1],std::hypot(basis[0],basis[2]))+c.elevation;
+    const double elevation=std::atan2(service.beam.direction.u,std::hypot(service.beam.direction.n,service.beam.direction.e));
     const VecF from{static_cast<float>(origin.n),static_cast<float>(origin.u),static_cast<float>(origin.e)},
-      direction{static_cast<float>(std::cos(heading)*std::cos(elevation)),static_cast<float>(std::sin(elevation)),static_cast<float>(std::sin(heading)*std::cos(elevation))};
+      direction{static_cast<float>(service.beam.direction.n),static_cast<float>(service.beam.direction.u),static_cast<float>(service.beam.direction.e)};
     VecF hit{};
-    if(ray&&elevation<-pi/180&&ray(land,from,direction,static_cast<float>(c.range),&hit)) {
+    if(ray&&elevation<-pi/180&&ray(land,from,direction,static_cast<float>(service.beam.range_m),&hit)) {
       const Vec point{hit.n,hit.u,hit.e};const double distance=length(point-origin);
-      if(distance>=10&&distance<=c.range) {
+      if(distance>=10&&distance<=service.beam.range_m) {
         // Bounded game-estimate range error and finite processing; no exact
         // terrain-ray distance is published as a radar measurement.
         RangeReport measured{now,now+.06/std::clamp(c.resource,.1,1.),distance+3*std::sin(now*11.2),0,true};
@@ -251,7 +329,7 @@ void sample(void *owned_radar, const ArrayService* service) {
   stats.request_sequence=request_sequence;
   if(fixed){
     const auto relative=selected.point-origin;
-    const bool measured=std::abs(difference(bearing(relative),heading))<=pi/3&&
+    const bool measured=in_job(origin,selected.point,service.beam)&&
       std::atan2(relative.u,std::hypot(relative.n,relative.e))<-pi/180&&terrain_visible(origin,selected.point);
     if(measured)selected.stamp=now;
     else if(now-selected.stamp>=5+2*dt){fixed=false;selected={};}
@@ -260,35 +338,21 @@ void sample(void *owned_radar, const ArrayService* service) {
     std::lock_guard<std::mutex>lock(state_mutex);if(epoch.load()==generation)output=std::move(stats);return;
   }
   if(selected.id&&now-selected.stamp>=2*dt+5)selected={};
-  const bool memory=selected.id&&now-selected.stamp>=2*dt;
-  if(memory){selected.point.n+=dt*selected.velocity.n;selected.point.u+=dt*selected.velocity.u;selected.point.e+=dt*selected.velocity.e;}
   double az=c.az;
   const bool tracking=selected.id!=0;
   if(!c.search&&!acquiring&&!tracking){
     stats.contacts.clear();stats.selected={};stats.fixed=false;stats.acquiring=false;
     std::lock_guard<std::mutex>lock(state_mutex);if(epoch.load()==generation)output=std::move(stats);return;
   }
-  const Vec aim=tracking?selected.point:acquisition_point;
-  if(acquiring||tracking)az=difference(bearing(aim-origin),heading);
-  // Acquired tracking still respects the forward antenna field of regard.
-  // A target crossing behind must coast/expire rather than being seen through
-  // the aircraft by a scene query steered outside the physical radar sector.
-  if(std::abs(az)>pi/3) {
-    stats.contacts=tracks.contacts();stats.selected=selected;stats.selected_type=selected_type;stats.memory=memory;stats.acquiring=acquiring;
-    std::lock_guard<std::mutex>lock(state_mutex);
-    if(epoch.load()==generation)output=std::move(stats);return;
-  }
-  // Electronic pointing does not illuminate the angles between consecutive
-  // commands. Search beam width is independent of a large steering jump.
-  const double half=(acquiring||tracking)?1.65*pi/180:3*pi/180;
-  const double look=-std::atan(origin.u/c.range)+c.elevation;
-  const double half_el=(acquiring||tracking||!c.fan)?1.65*pi/180:std::max(.001,look+pi/2);
-  const double elevation=(acquiring||tracking)?std::atan2(aim.u-origin.u,std::hypot(aim.n-origin.n,aim.e-origin.e)):(c.fan?-half_el*.5:look);
-  const void *clip=volume(origin,heading+az,elevation,half,half_el);
+  const double beam_heading=std::atan2(service.beam.direction.e,service.beam.direction.n);
+  az=difference(beam_heading,heading);
+  const double elevation=std::atan2(service.beam.direction.u,std::hypot(service.beam.direction.n,service.beam.direction.e));
+  const double half=service.beam.half_angle;
+  const void *clip=volume(origin,beam_heading,elevation,half,half,service.beam.range_m);
   if(!clip)return;
   struct SearchState { Controls* controls;Output* stats;Vec origin,own_velocity;double heading{};unsigned own_id{},visited{},visibility{};double now{};bool tracking{};
-    double nearest=1e6;Contact candidate{}; };
-  SearchState context{&c,&stats,origin,own_velocity,heading,own_id,0,0,now,tracking};
+    double nearest=1e6;Contact candidate{};const AesaRadar::Beam* beam{}; };
+  SearchState context{&c,&stats,origin,own_velocity,heading,own_id,0,0,now,tracking,1e6,{},&service.beam};
   Query each=[state=&context](Scene& object) {
     auto& c=*state->controls;auto& stats=*state->stats;
     const auto& origin=state->origin;const double heading=state->heading;
@@ -307,6 +371,7 @@ void sample(void *owned_radar, const ArrayService* service) {
     if(!acquiring&&!tracking&&!GroundMovingTargets::moving(velocity)){++stats.speed_rejects;return 0;}
     Vec point{};api.point(unit,&point);
     const auto relative=point-origin;
+    if(!in_job(origin,point,*state->beam))return 0;
     if(!acquiring&&!tracking&&std::hypot(relative.n,relative.e)>c.range)return 0;
     // Native callback rejects contacts at/above -1deg even inside the frustum.
     if(std::atan2(relative.u,std::hypot(relative.n,relative.e))>=-pi/180)return 0;
@@ -327,10 +392,11 @@ void sample(void *owned_radar, const ArrayService* service) {
   // 4A4B80 initializes the acquisition timer to 3 seconds; 4A02E0 falls
   // back to a fixed terrain designation only if the same terrain LOS passes.
   if(acquiring&&now-acquisition_time>=3){
-    acquiring=false;fixed=terrain_visible(origin,acquisition_point);
+    acquiring=false;fixed=in_job(origin,acquisition_point,service.beam)&&terrain_visible(origin,acquisition_point);
     if(fixed){selected={0,acquisition_point,{},now};selected_type=3;}
   }
   stats.origin=origin;stats.heading=heading;stats.az=az;stats.dt=dt;stats.contacts=tracks.contacts();
+  stats.aspect=selected.velocity_valid?difference(bearing(selected.velocity),heading):0;
   stats.selected=selected;stats.selected_type=selected_type;stats.memory=selected.id&&now-selected.stamp>=2*dt;stats.acquiring=acquiring;stats.fixed=fixed;
   std::lock_guard<std::mutex>lock(state_mutex);if(epoch.load()==generation)output=std::move(stats);
 }
@@ -339,14 +405,12 @@ void update(EDPARAM &p) {
   Controls c;const int mode=static_cast<int>(get(p,"F22_AG_MODE"));
   c.search=mode==2||mode==3||mode==4||mode==5;c.sea=mode==4||mode==5;c.ranging=mode==7;
   c.elevation=get(p,"F22_AG_VIDEO_ANTENNA_DEG")*pi/180;c.fan=get(p,"F22_AG_VIDEO_FAN")>.5;
-  c.illuminated=get(p,"F22_AESA_SURFACE_SERVICE")>.5;
   c.resource=get(p,"F22_AESA_CONTROL_RESOURCE");
   c.request=get(p,"F22_AG_TRACK_REQUEST_ACTIVE")>.5;
-  c.active=get(p,"HUD_MODE")==7&&get(p,"MAIN_POWER")>.5&&get(p,"RADAR_PWR")>.5&&
-    get(p,"F22_AG_RADAR_OPERATING")>.5&&(c.search||c.request||c.ranging)&&
-    (get(p,"F22_AG_SILENT")<.5||get(p,"F22_AG_ACTIVE")>.5);
+  c.array_active=get(p,"HUD_MODE")==7&&get(p,"MAIN_POWER")>.5&&get(p,"RADAR_PWR")>.5&&
+    get(p,"F22_AG_RADAR_OPERATING")>.5&&(get(p,"F22_AG_SILENT")<.5||get(p,"F22_AG_ACTIVE")>.5);
+  c.active=c.array_active&&(c.search||c.request||c.ranging);
   c.stamp=now;c.range=get(p,"F22_AG_RADAR_RANGE_NM")*1852;
-  c.az=get(p,"F22_AESA_SURFACE_AZ");
   c.request_sequence=get(p,"F22_AG_TRACK_REQUEST_SEQUENCE");c.request=get(p,"F22_AG_TRACK_REQUEST_ACTIVE")>.5;
   c.request_point={get(p,"F22_AG_TRACK_REQUEST_NORTH"),get(p,"F22_AG_TRACK_REQUEST_ALTITUDE"),get(p,"F22_AG_TRACK_REQUEST_EAST")};
   Output result;{std::lock_guard<std::mutex>lock(state_mutex);controls=c;result=output;}
@@ -355,7 +419,7 @@ void update(EDPARAM &p) {
   put(p,"F22_AG_AGR_RANGE_FT",result.agr_range*3.280839895);put(p,"F22_AG_AGR_VELOCITY_KT",result.agr_rate*1.94384449);
   put(p,"F22_AG_AGR_TIME",result.agr_stamp);
   put(p,"F22_AG_GMT_READY",fresh?1:0);put(p,"F22_AG_GMT_REASON",fresh?0:api.reason?api.reason:4);
-  put(p,"F22_AG_GMT_LAST_TIME",result.stamp);put(p,"F22_AG_GMT_COUNT",fresh&&c.active?result.contacts.size():0);
+  put(p,"F22_AG_GMT_LAST_TIME",result.stamp);put(p,"F22_AG_GMT_COUNT",fresh&&c.active?static_cast<double>(result.contacts.size()):0);
   put(p,"F22_AG_GMT_QUERY_COUNT",result.queries);put(p,"F22_AG_GMT_CANDIDATES",result.candidates);
   put(p,"F22_AG_GMT_GROUND_CANDIDATES",result.ground_candidates);put(p,"F22_AG_GMT_TRUNCATED",result.truncated);
   put(p,"F22_AG_GMT_TERRAIN_REJECTS",result.terrain_rejects);put(p,"F22_AG_GMT_OBJECT_REJECTS",result.object_rejects);put(p,"F22_AG_GMT_SPEED_REJECTS",result.speed_rejects);

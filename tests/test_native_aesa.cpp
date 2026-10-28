@@ -13,7 +13,11 @@ void operator delete(void* p,std::size_t) noexcept { std::free(p); }
 #include <iostream>
 #include <map>
 #include <stdexcept>
-namespace NativeGroundSensor { unsigned samples{}; void sample(void*, const ArrayService*) { ++samples; } }
+namespace NativeGroundSensor {
+unsigned samples{};
+AesaRadar::SurfaceRequest pointing(double,const AesaRadar::Pose&) noexcept { return {}; }
+void sample(void*, const ArrayService&) { ++samples; }
+}
 #define CHECK(x) do { if (!(x)) throw std::runtime_error(#x); } while (false)
 namespace {
 using namespace NativeAesaRadar;

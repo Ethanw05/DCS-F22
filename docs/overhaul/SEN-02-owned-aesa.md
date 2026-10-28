@@ -160,3 +160,6 @@ compares co-speed lookdown, stationary lookdown and equal-range lookup.
 Reference: MIT Lincoln Laboratory, Introduction to Radar Systems, lecture7,
 Attributes of Ground Clutter (platform motion shifts clutter Doppler):
 https://www.ll.mit.edu/sites/default/files/outreach/doc/2018-07/lecture%207.pdf
+
+[Surface beam ownership](SEN-02-surface-beams.md) now carries actual pointing,
+cone/range and completion epoch through the shared array and ground sampler.

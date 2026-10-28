@@ -241,7 +241,9 @@ struct Parameters {
         "F22_AESA_SURFACE_SERVICE", "F22_AESA_SURFACE_AZ", "F22_AESA_SURFACE_SEQUENCE", "F22_AESA_ARRAY_KNOWN", "F22_AESA_ARRAY_HEALTH", "F22_AESA_RESOURCE", "F22_AESA_PROCESSING_S", "F22_AESA_GENERATION",
         "F22_AESA_FC_TARGET", "F22_AESA_FC_REVISIT_S", "F22_AESA_FC_LAST_LOOK", "F22_AESA_DEADLINE_MISSES",
         "F22_AESA_CUE_REQUEST", "F22_AESA_CUE_TIME", "F22_AESA_CUE_DWELLS",
-        "F22_AESA_ASSOCIATION_AMBIGUOUS", "F22_AESA_ASSOCIATION_DROPPED"};
+        "F22_AESA_ASSOCIATION_AMBIGUOUS", "F22_AESA_ASSOCIATION_DROPPED",
+        "F22_AESA_SURFACE_EL", "F22_AESA_SURFACE_HALF", "F22_AESA_SURFACE_RANGE", "F22_AESA_SURFACE_TIME",
+        "F22_AESA_SURFACE_SEARCH", "F22_AESA_SURFACE_CELLS"};
     static constexpr std::array fields{"VALID", "ID", "TIME", "N", "U", "E", "VN", "VU", "VE",
         "VELOCITY_VALID", "RANGE_SIGMA_M", "ANGLE_SIGMA_RAD", "HITS",
         "FILTER_VALID", "POSITION_SIGMA_M", "VELOCITY_SIGMA_MPS", "RAW_N", "RAW_U", "RAW_E",
@@ -391,6 +393,13 @@ struct Parameters {
         p.setParamNumber(outputs[34], q.cue_dwells);
         p.setParamNumber(outputs[35], q.association_ambiguous);
         p.setParamNumber(outputs[36], q.association_dropped);
+        const auto& beam=q.surface_beam;
+        const double depression=std::atan2(beam.direction.u,std::hypot(beam.direction.n,beam.direction.e));
+        const bool surface_known=fresh&&q.surface_sequence>0;
+        gated(p,37,depression,surface_known);gated(p,38,beam.half_angle,surface_known);gated(p,39,beam.range_m,surface_known);
+        p.setParamNumber(outputs[40],fresh&&q.surface_sequence>0?beam.completes:-100);
+        gated(p,41,q.surface_service&&beam.surface_search?1:0,fresh);
+        gated(p,42,beam.surface_cells,surface_known);
     }
 } parameters;
 bool fresh(double now, double stamp, double age) noexcept {
@@ -547,6 +556,7 @@ void sample(void* radar) noexcept {
     if (!std::isfinite(now) || now - r.stamp < -.01 || now - r.stamp > .5) r.controls.enabled = false;
     Provider provider; Pose pose{};
     if (!provider.pose(pose)) r.controls.enabled = false;
+    if(r.controls.surface)r.controls.surface_request=NativeGroundSensor::pointing(now,pose);
     const bool updated = model.update(now, r.controls, pose, provider);
     api.emitter(updated && r.controls.emit);
     auto& next = sensor_scratch;
@@ -557,8 +567,9 @@ void sample(void* radar) noexcept {
     if (epoch.load(std::memory_order_acquire) == generation) { snapshot = next; responder.origin = pose.position; }
     ReleaseSRWLockExclusive(&state_lock);
     const NativeGroundSensor::ArrayService service{updated && next.status.surface_service,
-        next.status.surface_azimuth, r.controls.resource, updated && r.controls.surface && r.controls.emit};
-    NativeGroundSensor::sample(radar, &service);
+        next.status.surface_azimuth, r.controls.resource, updated && r.controls.surface && r.controls.emit,
+        next.status.surface_beam};
+    NativeGroundSensor::sample(radar, service);
 }
 void update(EDPARAM& p) noexcept {
     if (!parameters.bind(p)) return;

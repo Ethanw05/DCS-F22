@@ -188,11 +188,66 @@ void cued_search() {
     for (unsigned i = 480; i < 600; ++i) CHECK(radar.update(i/240.0,c,pose,world));
     CHECK(radar.status().cue_dwells <= previous+1); // Only an already-started valid look may finish.
 }
+void surface_beams() {
+    static Model radar;
+    radar.reset();Scene world;world.count=0;
+    Pose pose{};pose.position.u=3000;
+    Controls c{};c.enabled=true;c.surface=true;
+    c.surface_request.valid=true;c.surface_request.point=true;c.surface_request.range_m=12000;
+    c.surface_request.center_elevation=-30*degree;c.surface_request.half_elevation=29*degree;
+    const double slope=-30*degree;
+    c.surface_request.direction={std::cos(slope),std::sin(slope),0};
+    Beam issued{};bool started=false,received=false;
+    for(unsigned tick=0;tick<240;++tick){
+        const double now=tick/240.;
+        CHECK(radar.update(now,c,pose,world));
+        if(started&&radar.status().surface_service){
+            const auto& completed=radar.status().surface_beam;
+            CHECK(dot(completed.direction,issued.direction)>1-1e-12);
+            CHECK(completed.range_m==12000 && completed.completes==now);
+            received=true;break;
+        }
+        if(!started&&radar.status().beam.surface){
+            issued=radar.status().beam;started=true;
+            // A changed request cannot rewrite a beam already in flight.
+            c.surface_request.direction={std::cos(20*degree),-std::sin(20*degree),0};
+        }
+    }
+    CHECK(received);
+    radar.reset();c.surface_request.point=false;
+    double highest=-2,lowest=2;unsigned air=0,surface=0;
+    for(unsigned tick=0;tick<15000;++tick){
+        const auto previous=radar.status().dwells;
+        CHECK(radar.update(tick/240.,c,pose,world));
+        if(radar.status().dwells==previous)continue;
+        if(!radar.status().surface_service){++air;continue;}
+        ++surface;
+        const auto& beam=radar.status().surface_beam;
+        const double elevation=std::atan2(beam.direction.u,std::hypot(beam.direction.n,beam.direction.e));
+        highest=std::max(highest,elevation);lowest=std::min(lowest,elevation);
+        CHECK(beam.half_angle==3*degree && beam.range_m==12000);
+        CHECK(beam.surface_search && beam.surface_cells==308);
+    }
+    CHECK(surface>1000 && air>500 && highest>-5*degree && lowest<-55*degree);
+    radar.reset();c.surface_request.point=true;c.surface_request.routine=true;
+    c.surface_request.direction={std::cos(17.5*degree)*std::cos(38.123*degree),
+        -std::sin(17.5*degree),std::cos(17.5*degree)*std::sin(38.123*degree)};
+    unsigned cues=0,search=0;
+    for(unsigned tick=0;tick<2400;++tick){
+        CHECK(radar.update(tick/240.,c,pose,world));
+        if(!radar.status().surface_service)continue;
+        const auto& beam=radar.status().surface_beam;
+        if(dot(beam.direction,c.surface_request.direction)>1-1e-12){
+            ++cues;CHECK(!beam.surface_search && beam.surface_cells==0);
+        }else{++search;CHECK(beam.surface_search && beam.surface_cells==308);}
+    }
+    CHECK(cues>20 && search>=3*cues-1 && search<=3*cues+3);
+}
 }
 int main() {
     try {
         engagement(1.0 / 240, true); engagement(1.0 / 60, true); engagement(1.0 / 240, false);
-        engagement(1.0 / 240, true, true); saturated(); degraded(); cued_search();
+        engagement(1.0 / 240, true, true); saturated(); degraded(); cued_search(); surface_beams();
         return 0;
     } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
 }

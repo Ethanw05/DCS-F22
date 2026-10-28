@@ -34,6 +34,8 @@ struct Beam {
     double deadline{}, integration_s{};
     bool cued{};
     std::uint32_t cue_request{};
+    bool surface_search{};
+    std::uint32_t surface_cells{};
 };
 // Environment truth is private input. It is never a published measurement.
 struct Truth {
@@ -51,12 +53,18 @@ public:
     virtual bool query(const Pose&, const Beam&, std::span<Truth>, std::size_t&, QueryStats&) noexcept = 0;
     virtual bool visible(const Pose&, const Truth&, QueryStats&) noexcept = 0;
 };
+struct SurfaceRequest {
+    bool valid{}, point{}, routine{};
+    Vector direction{};
+    double range_m{}, center_elevation{}, half_elevation{};
+};
 struct Controls {
     bool enabled{}, surface{}, emit = true;
     bool cue_valid{};
     double cue_azimuth{}, cue_elevation{}, cue_half_azimuth{}, cue_half_elevation{}, cue_range_m{};
     std::uint32_t cue_request{};
     double surface_half_azimuth = 45 * degree;
+    SurfaceRequest surface_request{};
     double resource = 1, azimuth{}, elevation{}, half_azimuth = 60 * degree;
     double half_elevation = 10 * degree, range_m = 160 * 1852.0;
     std::array<std::uint32_t, 10> priority_ids{};
@@ -98,6 +106,7 @@ struct Status {
     double time{}, resource{}, processing_s{};
     bool surface_service{};
     double surface_azimuth{};
+    Beam surface_beam{};
     std::uint32_t surface_sequence{}, fire_control_id{}, deadline_misses{};
     double fire_control_revisit_s{}, fire_control_last_look = -100;
     std::uint32_t cue_request{}, cue_dwells{};
@@ -130,7 +139,7 @@ private:
     double clock_ = -1, next_start_{}, priority_run_s_{};
     std::uint64_t generation_{};
     std::uint32_t random_ = 0x1a2b3c4d, cell_{}, turn_{}, surface_cell_{}, array_turn_{}, candidate_cursor_{}, cue_cell_{}, cue_turn_{};
-    std::uint32_t next_track_ = 1;
+    std::uint32_t next_track_ = 1, surface_turn_{};
     double uniform() noexcept;
     double error(double sigma) noexcept;
     bool configuration_changed(const Controls&) const noexcept;

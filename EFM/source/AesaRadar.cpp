@@ -19,6 +19,8 @@ bool valid_pose(const Pose& p) noexcept {
         && std::abs(dot(p.forward, p.right)) < .002 && std::abs(dot(p.up, p.right)) < .002;
 }
 bool valid_controls(const Controls& c) noexcept {
+    if(c.surface&&(!std::isfinite(c.surface_half_azimuth)||c.surface_half_azimuth<degree
+        ||c.surface_half_azimuth>60*degree))return false;
     const std::array ranges{
         std::array{c.resource, .1, 1.0}, std::array{c.range_m, 40.0, 160 * 1852.0},
         std::array{c.azimuth, -60 * degree, 60 * degree},
@@ -70,7 +72,7 @@ std::uint32_t central_cell(std::uint32_t index, std::uint32_t count) noexcept {
     const auto middle = (count-1)/2;
     return index%2 == 1 ? middle+(index+1)/2 : middle-index/2;
 }
-void grid_angles(double center_azimuth, double center_elevation, double half_azimuth,
+std::uint32_t grid_angles(double center_azimuth, double center_elevation, double half_azimuth,
                  double half_elevation, double beam, std::uint32_t& cell, double& azimuth, double& elevation, bool central = false) noexcept {
     const auto columns = static_cast<std::uint32_t>(std::ceil(half_azimuth / (beam*.7)));
     const auto rows = static_cast<std::uint32_t>(std::ceil(half_elevation / (beam*.7)));
@@ -82,6 +84,7 @@ void grid_angles(double center_azimuth, double center_elevation, double half_azi
     azimuth = center_azimuth - half_azimuth + (column + .5)*2*half_azimuth/columns;
     elevation = center_elevation - half_elevation + (row + .5)*2*half_elevation/rows;
     cell = (cell+1)%count;
+    return count;
 }
 bool active_inputs(double now, const Controls& c, const Pose& pose) noexcept {
     return std::isfinite(now) && c.enabled && c.emit && valid_controls(c) && valid_pose(pose);
@@ -106,7 +109,7 @@ void Model::reset(std::uint64_t generation) noexcept {
     // Track numbers never reuse a retired number during this model lifetime.
     // A generation reset retires all public consumers separately.
     last_priority_look_.fill(-100);
-    cue_cell_ = 0; cue_turn_ = 0;
+    cue_cell_ = 0; cue_turn_ = 0; surface_turn_=0;
     status_ = {}; previous_ = {};
     clock_ = -1; next_start_ = 0; priority_run_s_ = 0; cell_ = 0; turn_ = 0; surface_cell_ = 0; array_turn_ = 0; candidate_cursor_ = 0; generation_ = generation;
     random_ = 0x1a2b3c4d ^ static_cast<std::uint32_t>(generation);
@@ -239,18 +242,48 @@ void Model::release(double now) noexcept {
     for (const auto& p : pending_) if (p.occupied) ++status_.pending;
 }
 
-void Model::start_surface(double now, const Controls& c, const Pose& pose) noexcept {
-    const double half = std::isfinite(c.surface_half_azimuth)
-        ? std::clamp(c.surface_half_azimuth, degree, 60 * degree) : 45 * degree;
-    const auto count = static_cast<std::uint32_t>(std::ceil(half / (policy_.beam_half_angle * .7)));
-    const auto index = surface_cell_ % count;
-    const auto tile = index % 2 == 0 ? index / 2 : count - 1 - index / 2;
-    const double azimuth = -half + (tile + .5) * 2 * half / count;
-    surface_cell_ = (surface_cell_ + 1) % count;
-    status_.beam = {direction(pose, azimuth, -10 * degree), policy_.beam_half_angle, c.range_m,
-        now, now + policy_.dwell_s / c.resource, azimuth, -10 * degree, 0, false, true};
-    status_.dwelling = true;
+namespace {
+bool valid_surface_request(const SurfaceRequest& request) noexcept {
+    return request.valid && finite(request.direction) && std::isfinite(request.range_m)
+        && request.range_m >= 40 && request.range_m <= 160*1852
+        && std::isfinite(request.center_elevation) && std::isfinite(request.half_elevation)
+        && std::abs(request.center_elevation) <= 60*degree
+        && request.half_elevation >= .001*degree && request.half_elevation <= 30*degree;
 }
+Vector level_direction(const Pose& pose,double azimuth,double elevation) noexcept {
+    const double heading=std::atan2(pose.forward.e,pose.forward.n)+azimuth;
+    return {std::cos(heading)*std::cos(elevation),std::sin(elevation),std::sin(heading)*std::cos(elevation)};
+}
+}
+void Model::start_surface(double now, const Controls& c, const Pose& pose) noexcept {
+    const auto& requested=c.surface_request;
+    const bool qualified=valid_surface_request(requested);
+    const double half=std::clamp(c.surface_half_azimuth,degree,60*degree);
+    double azimuth=0,elevation=0;
+    const double center=qualified ? requested.center_elevation : -30*degree;
+    const double vertical=qualified ? requested.half_elevation : 29*degree;
+    const bool pointed=qualified&&requested.point&&(!requested.routine||surface_turn_%4==1)
+        &&std::abs(length(requested.direction)-1)<.002;
+    surface_turn_=(surface_turn_+1)%4;
+    Vector ray{};
+    std::uint32_t cells=0;
+    if(pointed)ray=requested.direction;
+    else {
+        cells=grid_angles(0,center,half,vertical,policy_.beam_half_angle,surface_cell_,azimuth,elevation);
+        ray=level_direction(pose,azimuth,elevation);
+    }
+    body_angles(ray,pose,azimuth,elevation);
+    if (std::abs(azimuth)>60*degree || std::abs(elevation)>60*degree) {
+        // An unreachable request consumes no off-aircraft observation.
+        ray=direction(pose,std::clamp(azimuth,-60*degree,60*degree),std::clamp(elevation,-60*degree,60*degree));
+        body_angles(ray,pose,azimuth,elevation);
+    }
+    const double range=qualified ? requested.range_m : c.range_m;
+    status_.beam={ray,policy_.beam_half_angle,range,now,now+policy_.dwell_s/c.resource,azimuth,elevation,0,false,true};
+    status_.beam.surface_search=!pointed;status_.beam.surface_cells=cells;
+    status_.dwelling=true;
+}
+
 double Model::revisit(std::uint32_t id, std::size_t priority, const Controls& c) const noexcept {
     if (id == c.fire_control_id) return c.gun_tracking ? policy_.gun_revisit_s : policy_.fire_control_revisit_s;
     return priority >= 2 ? policy_.support_revisit_s : policy_.track_revisit_s;
@@ -394,7 +427,11 @@ void Model::completed_look(double now, const Controls& c) noexcept {
 }
 void Model::observe(double now, const Controls& c, const Pose& pose, Environment& environment) noexcept {
     if (status_.beam.surface) {
-        status_.surface_service = true; status_.surface_azimuth = status_.beam.azimuth;
+        status_.surface_service = true;
+        status_.surface_beam = status_.beam;
+        status_.surface_beam.completes=now;
+        const double heading=std::atan2(pose.forward.e,pose.forward.n);
+        status_.surface_azimuth=std::remainder(std::atan2(status_.beam.direction.e,status_.beam.direction.n)-heading,2*pi);
         ++status_.surface_sequence; ++status_.dwells; status_.dwelling = false;
         return;
     }
