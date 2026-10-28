@@ -23,6 +23,8 @@ local EngineIndications = dofile(LockOn_Options.script_path..'Systems/Engine_Ind
 local engine_indications = EngineIndications.new(get_param_handle)
 local left_rpm_valid = get_param_handle('F22_ENGINE_L_RPM_VALID')
 local right_rpm_valid = get_param_handle('F22_ENGINE_R_RPM_VALID')
+local fault_registry_ready = get_param_handle('F22_FAULT_REGISTRY_READY')
+local master_attention = get_param_handle('F22_MASTER_ATTENTION')
 local reference_handles={}
 local function reference_handle(key)
  if not reference_handles[key]then reference_handles[key]=get_param_handle(key)end
@@ -250,7 +252,6 @@ function update()
 	local L_GEN_ARG         = get_cockpit_draw_argument_value(207)
 	local R_GEN_ARG         = get_cockpit_draw_argument_value(219)
 	local HYD_ARG           = get_cockpit_draw_argument_value(208) 
-	local CAUTION_ARG       = get_cockpit_draw_argument_value(117)       
 	local OIL_ARG           = get_cockpit_draw_argument_value(220)
 
 	--parameters.UFD_OPACITY  :set(UFD_KNOB)
@@ -425,13 +426,7 @@ function update()
 		parameters.OIL_LIGHT:set(1)
 
 	end
-    local registry_ready = get_param_handle('F22_FAULT_REGISTRY_READY'):get() > .5
-    local attention = registry_ready and get_param_handle('F22_MASTER_ATTENTION'):get() > .5
-    if not registry_ready then
-        attention = CAUTION_ARG > .5 or parameters.L_GEN_OUT:get() > .5 or parameters.R_GEN_OUT:get() > .5
-            or parameters.HYD_LIGHT:get() > .5 or parameters.OIL_LIGHT:get() > .5
-            or parameters.CANOPY_LIGHT:get() > .5 or get_param_handle('F22_PILOT_WARNING_VALID'):get() > .5
-    end
+    local attention = fault_registry_ready:get()==1 and master_attention:get()==1
     parameters.CAUTION_LIGHT:set(attention and 1 or 0)
     -- Turning the UFD brightness to zero must never erase fault/alert state.
     -- The display and annunciator surfaces observe the state through opacity.

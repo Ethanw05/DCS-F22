@@ -69,3 +69,29 @@ post_initialize()
 now=15;update();assert(get('F22_FAULT_GEN_L_OCCURRENCE')==1,'fresh mission retained prior occurrence sequence')
 ''')
 print('Actual alert owner: fault history and physical ACK latch survive power loss; deliberate release/repress and mission reset PASS')
+
+lua=scope['runtime']()
+lua.execute(r'''
+local function get(k)return get_param_handle(k):get()end
+local function put(k,v)get_param_handle(k):set(v)end
+function get_cockpit_draw_argument_value(index)return index==117 and 1 or 0 end
+put('HYD_LIGHT',1);put('OIL_LIGHT',1);put('L_GEN_OUT',1);put('F22_PILOT_WARNING_VALID',1)
+dofile(SCRIPT_ROOT..'Systems/Avionics.lua');post_initialize();update()
+assert(get('CAUTION_LIGHT')==0,'missing fault registry was replaced by aggregate/animation caution')
+put('F22_FAULT_REGISTRY_READY',1);put('F22_MASTER_ATTENTION',1);update();assert(get('CAUTION_LIGHT')==1)
+put('F22_MASTER_ATTENTION',0);update();assert(get('CAUTION_LIGHT')==0,'aggregate flags defeated registry ACK')
+put('F22_FAULT_REGISTRY_READY',0);update();assert(get('CAUTION_LIGHT')==0,'withdrawn registry revived aggregate caution')
+''')
+print('Master caution uses the fault registry from startup and preserves its acknowledgement authority PASS')
+lua=scope['runtime']()
+lua.execute(r'''
+local hosts=0
+function get_model_time()return 0 end
+function create_sound_host()hosts=hosts+1;return {create_sound=function()return{update=function()end,
+ play_once=function()end,is_playing=function()return false end,stop=function()end}end}end
+get_param_handle('MAIN_POWER'):set(1)
+dofile(SCRIPT_ROOT..'Systems/Pilot_Warning_System.lua');post_initialize();SetCommand(11001,1);update()
+assert(hosts==0 and get_param_handle('F22_PILOT_TEST_ACTIVE'):get()==0,
+ 'loose main power admitted warning/audio control without physical ownership')
+''')
+print('Warning power and command authority require the current physical producer from startup PASS')

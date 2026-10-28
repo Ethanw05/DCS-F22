@@ -19,7 +19,7 @@ function create_sound_host()return {create_sound=function()
 end}end
 local function put(k,v)get_param_handle(k):set(v)end
 local function get(k)return get_param_handle(k):get()end
-dofile(SCRIPT_ROOT..'Systems/Pilot_Warning_System.lua');post_initialize()
+dofile(SCRIPT_ROOT..'Systems/Pilot_Warning_System.lua');local physical=dofile(SCRIPT_ROOT..'../../tests/warning_physical_fixture.lua')();update=physical:wrap(update);SetCommand=physical:wrap(SetCommand);post_initialize()
 put('MAIN_POWER',1);put('EFM_FCS_INTEGRITY_VALID',1);put('EFM_FCS_DAMAGED',1)
 local function advance(seconds)for i=1,math.ceil(seconds/.05)do now=now+.05;update()end end
 advance(.8)

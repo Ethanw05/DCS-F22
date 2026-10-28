@@ -26,7 +26,7 @@ end}end
 native={set_power=function()end};function GetDevice()return native end
 local function p(k,v)get_param_handle(k):set(v)end
 local function g(k)return get_param_handle(k):get()end
-dofile(SCRIPT_ROOT..'Systems/Pilot_Warning_System.lua');post_initialize();local voice=update
+dofile(SCRIPT_ROOT..'Systems/Pilot_Warning_System.lua');local physical=dofile(SCRIPT_ROOT..'../../tests/warning_physical_fixture.lua')();update=physical:wrap(update);SetCommand=physical:wrap(SetCommand);post_initialize();local voice=update
 dofile(SCRIPT_ROOT..'Systems/MWS_System.lua');post_initialize();local mws=update
 dofile(SCRIPT_ROOT..'Systems/RWR_System.lua');post_initialize();local rwr=update
 p('MAIN_POWER',1);p('EFM_HUD_VALID',1);p('EFM_GROUND_VALID',1);p('EFM_HUD_VN',200);p('EFM_HUD_VU',-120)

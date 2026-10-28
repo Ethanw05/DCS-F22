@@ -29,7 +29,7 @@ function create_sound_host()return {create_sound=function(_,path)
 end}end
 local function p(k,x)get_param_handle(k):set(x)end
 local function g(k)return get_param_handle(k):get()end
-dofile(SCRIPT_ROOT..'Systems/Pilot_Warning_System.lua');post_initialize()
+dofile(SCRIPT_ROOT..'Systems/Pilot_Warning_System.lua');local physical=dofile(SCRIPT_ROOT..'../../tests/warning_physical_fixture.lua')(function()return cas end);update=physical:wrap(update);SetCommand=physical:wrap(SetCommand);post_initialize()
 p('MAIN_POWER',1);p('EFM_HUD_VALID',1);p('EFM_GROUND_VALID',1);p('EFM_HUD_VN',200);p('EFM_HUD_VU',vu)
 -- Continuous descent gives each recovery path its real unsafe-onset timestamp.
 local found=false

@@ -11,7 +11,7 @@ function create_sound_host()
   play_once=function()active[name]=true;plays=plays+1 end,
   is_playing=function()return active[name]or false end,stop=function()active[name]=false end}end}
 end
-dofile(SCRIPT_ROOT..'Systems/Pilot_Warning_System.lua');post_initialize()
+dofile(SCRIPT_ROOT..'Systems/Pilot_Warning_System.lua');local physical=dofile(SCRIPT_ROOT..'../../tests/warning_physical_fixture.lua')();update=physical:wrap(update);SetCommand=physical:wrap(SetCommand);post_initialize()
 local function p(k,v)get_param_handle(k):set(v)end
 local function g(k)return get_param_handle(k):get()end
 local function tap(c)SetCommand(c,28.375);SetCommand(c,28.25)end
