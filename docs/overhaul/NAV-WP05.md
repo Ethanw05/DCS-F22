@@ -1,5 +1,9 @@
 # NAV-WP05 — received radio components and angular course indication
 
+Native NAV audio (28 October): with no selected identification monitor, the owned TACAN/ILS localizer receivers are explicitly muted. The common receiver postInitialize_ explicitly opens its headphone mute switch and sets gain1. Squelch alone leaves tuned-station identification audible. IDA inspection of the exact installed CockpitBase.dll confirms avReceiver::mute at0x1802E7C60 only closes its Sounder switch; the readback at0x1802E6950 is independent of measurements. The existing profiled receiver subobjects are used. Tuning, electrical supply, bearing/range and LOC/GS remain unchanged. F22_NAV_IDENT_MUTED requires successful readback from both owned receivers; missing audio interfaces or rejected mute do not disable navigation. Retuning/reset reapply the policy.
+
+The preserved flight log has5330 RWR audio-loop samples at0, only7 RWR one-shot events and long seeker-off periods. NAV identification is the strongest candidate for the constant Morse-like tone; the audible source remains unconfirmed.32 native tests and9 affected script checks pass, covering audio/data separation, retuning, missing interfaces and ownership withdrawal. RWR/MWS/seeker/voice assets and policies are unchanged. Listening after a full DCS restart remains necessary.
+
 The installed ED Hornet guide (24 March 2024), pp136–138 distinguishes receive-only
 bearing, transmit/receive bearing plus slant range, and air-to-air range without
 bearing. Its p145 selected-course HUD uses 4/8-degree references. This mod adopts

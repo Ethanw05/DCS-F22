@@ -62,6 +62,8 @@ struct API {
   Valid tacan_power{}, ils_power_state{};
   Power receiver_squelch{};
   Valid receiver_squelch_state{};
+  Power receiver_mute{};
+  Valid receiver_mute_state{};
   void *electrical_table{};
   Connect connect_tacan{}, connect_ils{};
   Bus ac_bus{}, dc_bus{};
@@ -102,6 +104,8 @@ struct API {
     BIND(ils_power_state, Valid, "?getElecPower@avILS@cockpit@@UEBA_NXZ");
     BIND(receiver_squelch, Power, "?setSquelchOnOff@avReceiver@cockpit@@QEAAX_N@Z");
     BIND(receiver_squelch_state, Valid, "?getSquelchIsOn@avReceiver@cockpit@@QEBA_NXZ");
+    BIND(receiver_mute, Power, "?mute@avReceiver@cockpit@@QEAAX_N@Z");
+    BIND(receiver_mute_state, Valid, "?getMuteIsOn@avReceiver@cockpit@@QEBA_NXZ");
     electrical_table = GetProcAddress(
         m, "??_7avSimpleElectricSystem@cockpit@@6BccContextRelatedObject@1@@");
     BIND(connect_tacan, Connect,
@@ -198,14 +202,24 @@ bool ils_frequency(int f) {
 bool configure_squelch(void *tacan, void *ils) {
   if (!api.receiver_squelch || !api.receiver_squelch_state)
     return false;
-  // Matched common receiver subobjects, verified in their initialize/post
-  // methods. TACAN enables squelch itself; base ILS leaves it open unless its
-  // aircraft supplies an audio panel. We own these receivers, not voice COM.
+  // Matched common receiver subobjects, verified in initialize/post methods.
+  // Squelch gates receiver noise; tuned-station identification remains audio.
   auto t = static_cast<char *>(tacan) + 2064;
   auto i = static_cast<char *>(ils) + 2048;
   api.receiver_squelch(t, true);
   api.receiver_squelch(i, true);
   return api.receiver_squelch_state(t) && api.receiver_squelch_state(i);
+}
+bool mute_identification(void *tacan, void *ils) {
+  if (!api.receiver_mute || !api.receiver_mute_state) return false;
+  // The mod has no selected NAV identification monitor. The native receiver
+  // mute only closes Sounder::Switcher (+152); measurement/power are separate.
+  // Audited CockpitBase 0x1802E7C60, getMuteIsOn 0x1802E6950.
+  auto t = static_cast<char *>(tacan) + 2064;
+  auto i = static_cast<char *>(ils) + 2048;
+  api.receiver_mute(t, true);
+  api.receiver_mute(i, true);
+  return api.receiver_mute_state(t) && api.receiver_mute_state(i);
 }
 } // namespace
 void reset() {
@@ -222,6 +236,7 @@ void reset() {
 }
 void update(EDPARAM &p) {
   put(p, "F22_NAV_SQUELCH_VALID", 0);
+  put(p, "F22_NAV_IDENT_MUTED", 0);
   const auto feed = supply.sample(p);
   put(p, "F22_CNI_SUPPLY_VALID", feed.valid ? 1 : 0);
   put(p, "F22_CNI_RECEIVER_FEED", feed.receiver ? 1 : 0);
@@ -329,6 +344,7 @@ void update(EDPARAM &p) {
     api.ils_power(i, on != 0);
     power = on;
   }
+  put(p, "F22_NAV_IDENT_MUTED", mute_identification(t, i) ? 1 : 0);
   put(p, "F22_TCN_POWER", api.tacan_power(t) ? 1 : 0);
   put(p, "F22_ILS_POWER", api.ils_power_state(i) ? 1 : 0);
   if (!on)
