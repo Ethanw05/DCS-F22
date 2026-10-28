@@ -138,6 +138,10 @@ array. The exact channel list is [VehicleSignals.h](../EFM/source/VehicleSignals
 
 ## Fuel and physical budgets
 
+Damage is enabled by default; only the host's explicit immortal setting enables
+protection. The [damage-mode correction](overhaul/VEH-14-invulnerability.md)
+records the forced-immortal training mission and read-only damage diagnostics.
+
 Wheel contact uses fresh native reaction loads; strut travel alone does not set
 weight-on-wheels. Unknown near-surface feedback clears `EFM_GROUND_VALID`.
 Surface clearance uses the greater of the SDK's terrain/object elevations.

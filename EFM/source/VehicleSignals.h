@@ -63,7 +63,8 @@ enum class Signal : std::size_t {
     RightTireTemperature, LeftTireFailed, RightTireFailed, FuelInventoryStamp,
     GroundClearance, SurfaceValid, WheelZeroCompression, WheelOneCompression,
     WheelTwoCompression, WheelZeroReaction, WheelOneReaction, WheelTwoReaction,
-    WheelZeroAge, WheelOneAge, WheelTwoAge, Count
+    WheelZeroAge, WheelOneAge, WheelTwoAge, Invulnerable, DamageCallbacks,
+    LastDamageCell, LastDamageIntegrity, Destroyed, Count
 };
 
 inline constexpr std::array<const char*, static_cast<std::size_t>(Signal::Count)> signal_names = {
@@ -132,7 +133,9 @@ inline constexpr std::array<const char*, static_cast<std::size_t>(Signal::Count)
     "F22_FUEL_INVENTORY_STAMP", "EFM_GROUND_CLEARANCE_M", "EFM_SURFACE_VALID",
     "EFM_WHEEL_0_COMPRESSION", "EFM_WHEEL_1_COMPRESSION", "EFM_WHEEL_2_COMPRESSION",
     "EFM_WHEEL_0_REACTION_N", "EFM_WHEEL_1_REACTION_N", "EFM_WHEEL_2_REACTION_N",
-    "EFM_WHEEL_0_FEEDBACK_AGE_S", "EFM_WHEEL_1_FEEDBACK_AGE_S", "EFM_WHEEL_2_FEEDBACK_AGE_S"
+    "EFM_WHEEL_0_FEEDBACK_AGE_S", "EFM_WHEEL_1_FEEDBACK_AGE_S", "EFM_WHEEL_2_FEEDBACK_AGE_S",
+    "EFM_INVULNERABLE", "EFM_DAMAGE_CALLBACKS", "EFM_LAST_DAMAGE_CELL",
+    "EFM_LAST_DAMAGE_INTEGRITY", "EFM_DESTROYED"
 };
 static_assert([] {
     for (const auto* name : signal_names) if (name == nullptr) return false;

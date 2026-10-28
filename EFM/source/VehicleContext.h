@@ -41,6 +41,9 @@ struct VehicleContext {
     double wing_reference_x_m = 0.0;
     double wing_reference_y_m = 0.0;
     unsigned generation = 0;
+    unsigned damage_callbacks = 0;
+    int last_damage_cell = -1;
+    double last_damage_integrity = 1.0;
     bool atmosphere_valid = false;
     bool surface_valid = false;
     bool motion_valid = false;

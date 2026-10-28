@@ -168,7 +168,8 @@ namespace RAPTOR {
     bool is_destroyed = false;
     bool destruction_events_pushed = false;
 
-    bool invincible = true, infinite_fuel = false, easy_flight = false;
+    // Damage is enabled unless the host explicitly requests invulnerability.
+    bool invincible = false, infinite_fuel = false, easy_flight = false;
     double shake_amplitude = 0, fm_clock = 0;
     bool sim_initialised = false;
 

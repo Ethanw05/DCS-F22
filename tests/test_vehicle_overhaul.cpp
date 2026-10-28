@@ -162,6 +162,21 @@ void cold_start_failure_recovery(Fixture& fixture) {
     assert(fixture.parameter(ED_FM_ENGINE_1_COMBUSTION) == 1);
 }
 
+void default_damage_and_host_invulnerability(Fixture& f) {
+    f.air(); f.fuel(5000); f.conditions(200); f.ticks(1);
+    // No immortal callback has occurred in this freshly loaded DLL.
+    f.damage(25,0);f.ticks(1);
+    assert(f.needs_repair() && f.get("EFM_INVULNERABLE")==0);
+    assert(f.get("EFM_DAMAGE_CALLBACKS")==1 && f.get("EFM_LAST_DAMAGE_CELL")==25);
+    assert(f.get("EFM_LAST_DAMAGE_INTEGRITY")==0);
+    f.repair();f.immortal(true);f.damage(25,0);f.ticks(1);
+    assert(!f.needs_repair() && f.get("EFM_INVULNERABLE")==1);
+    f.immortal(false);f.damage(25,0);f.ticks(1);
+    assert(f.needs_repair() && f.get("EFM_INVULNERABLE")==0);
+    f.immortal(true);f.release();f.air();f.fuel(5000);f.conditions(200);f.ticks(1);
+    assert(f.get("EFM_INVULNERABLE")==0); // previous mission cannot leave it latched
+}
+
 void fixed_force_and_wind_contract(Fixture& fixture) {
     fixture.air(); fixture.fuel(5000); fixture.unlimited(true); fixture.conditions(300);
     fixture.mass_state(30000,0,0,0,100000,150000,120000);
@@ -681,6 +696,7 @@ int main(int argc, char** argv) {
     _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
     assert(argc == 3);
     Fixture fixture(argv[1], argv[2]);
+    default_damage_and_host_invulnerability(fixture);
     cold_start_failure_recovery(fixture);
     flow_and_sensor_separation(fixture);
     fixed_force_and_wind_contract(fixture);

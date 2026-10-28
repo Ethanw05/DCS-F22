@@ -1386,6 +1386,9 @@ void ed_fm_set_immortal(bool value) { RAPTOR::invincible = value; }
 void ed_fm_on_damage(int Element, double element_integrity_factor) {
     if (!vehicle.alive || Element < 0 || Element >= 137 || !std::isfinite(element_integrity_factor)) return;
     element_integrity_factor = RaptorVehicle::unit(element_integrity_factor);
+    vehicle.damage_callbacks = std::min(vehicle.damage_callbacks + 1, 1000000000u);
+    vehicle.last_damage_cell = Element;
+    vehicle.last_damage_integrity = element_integrity_factor;
     if (RAPTOR::invincible) return;
     RAPTOR::element_integrity[Element] = element_integrity_factor;
     static_cast<void>(vehicle.damage.add(Element, element_integrity_factor));
@@ -1571,6 +1574,7 @@ void ed_fm_hot_start_in_air() {
 
 void ed_fm_release() {
     vehicle.alive = false;
+    RAPTOR::invincible = false;
     vehicle.mass.clear();
     RAPTOR::common_force = Vec3();
     RAPTOR::common_moment = Vec3();

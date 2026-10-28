@@ -23,6 +23,8 @@ for _, name in ipairs({
     "EFM_WHEEL_0_COMPRESSION", "EFM_WHEEL_1_COMPRESSION", "EFM_WHEEL_2_COMPRESSION",
     "EFM_WHEEL_0_REACTION_N", "EFM_WHEEL_1_REACTION_N", "EFM_WHEEL_2_REACTION_N",
     "EFM_WHEEL_0_FEEDBACK_AGE_S", "EFM_WHEEL_1_FEEDBACK_AGE_S", "EFM_WHEEL_2_FEEDBACK_AGE_S",
+    "EFM_INVULNERABLE", "EFM_DAMAGE_CALLBACKS", "EFM_LAST_DAMAGE_CELL",
+    "EFM_LAST_DAMAGE_INTEGRITY", "EFM_DESTROYED",
 }) do parameters[#parameters + 1] = name end
 local quoted = {}
 for _, name in ipairs(parameters) do quoted[#quoted + 1] = string.format("%q", name) end

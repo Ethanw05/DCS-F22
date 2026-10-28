@@ -533,6 +533,11 @@ void vehicle_publish_configuration() {
     const std::pair<VehicleSignal, double> values[] = {
         {VehicleSignal::GroundClearance, RAPTOR::altitude_AGL},
         {VehicleSignal::SurfaceValid, vehicle_status(vehicle.surface_valid)},
+        {VehicleSignal::Invulnerable, vehicle_status(RAPTOR::invincible)},
+        {VehicleSignal::DamageCallbacks, static_cast<double>(vehicle.damage_callbacks)},
+        {VehicleSignal::LastDamageCell, static_cast<double>(vehicle.last_damage_cell)},
+        {VehicleSignal::LastDamageIntegrity, vehicle.last_damage_integrity},
+        {VehicleSignal::Destroyed, vehicle_status(RAPTOR::is_destroyed)},
         {VehicleSignal::WheelZeroCompression, wheels[0].compression},
         {VehicleSignal::WheelOneCompression, wheels[1].compression},
         {VehicleSignal::WheelTwoCompression, wheels[2].compression},
