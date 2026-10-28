@@ -22,7 +22,7 @@ function get_param_handle(name)
  return h
 end
 function get_model_time()error('constructor unexpectedly advanced a producer')end
-for _,owner in ipairs({'Weapon_System','HUD_Flight_Data','AG_Mark_System','AG_Ballistic_Computer'})do
+for _,owner in ipairs({'Weapon_System','Gun_System','HUD_Flight_Data','AG_Mark_System','AG_Ballistic_Computer'})do
  dofile(SCRIPT_ROOT..'Systems/'..owner..'.lua')
 end
 assert(#actions==0,'constructor dispatched a sensor/weapon/physics request')

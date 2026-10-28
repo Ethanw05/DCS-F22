@@ -7,7 +7,7 @@ ns={'__file__':str(fixture)}
 exec(compile(fixture.read_text().split('\nfor page in ',1)[0],str(fixture),'exec'),ns)
 lua=ns['runtime']()
 lua.execute(r'''
-for _,owner in ipairs({'Weapon_System','HUD_Flight_Data','AG_Mark_System','AG_Ballistic_Computer'})do
+for _,owner in ipairs({'Weapon_System','Gun_System','HUD_Flight_Data','AG_Mark_System','AG_Ballistic_Computer'})do
  dofile(SCRIPT_ROOT..'Systems/'..owner..'.lua')
 end
 local declared={};for name in pairs(handles)do declared[name]=true end

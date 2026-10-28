@@ -1,5 +1,6 @@
 """Replay the recorded close pursuit that produced no pipper before the handoff fix.
 This checks transport/rendering with captured native outputs, not live ballistic accuracy.
+The historical fixture predates covariance export; .4m/s is a declared harness value.
 """
 import csv
 from pathlib import Path
@@ -7,7 +8,7 @@ from lupa.lua51 import LuaRuntime
 ROOT=Path(__file__).resolve().parents[1]
 lua=LuaRuntime();lua.globals().ROOT=(ROOT/'Cockpit/Scripts').as_posix()+'/'
 lua.execute('''
-LockOn_Options={script_path=ROOT};values={};now=0;pending=nil
+LockOn_Options={script_path=ROOT};values={F22_STT_VELOCITY_SIGMA_MPS=.4};now=0;pending=nil
 function get_model_time()return now end
 local function get(k)return values[k]or 0 end
 local function put(k,v)values[k]=v end

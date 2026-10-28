@@ -100,3 +100,12 @@ extern "C" __declspec(dllexport) void benchmark_projectile(const double* velocit
         {wind[0],wind[1],wind[2]},time,.002);
     output[0]=result.x;output[1]=result.y;output[2]=result.z;
 }
+
+// Evaluate the actual target-motion kernel for sampled player-flight forecasts.
+extern "C" __declspec(dllexport) void benchmark_predict(const double* position,
+    const double* velocity,const double* acceleration,double time,double* output) {
+    const GunTargetMotion::Model model({position[0],position[1],position[2]},
+        {velocity[0],velocity[1],velocity[2]},{acceleration[0],acceleration[1],acceleration[2]});
+    const V result=model.at(time);
+    output[0]=result.x;output[1]=result.y;output[2]=result.z;
+}

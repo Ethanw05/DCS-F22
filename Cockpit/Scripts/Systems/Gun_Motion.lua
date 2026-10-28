@@ -1,7 +1,9 @@
 -- GPL-3.0-or-later. Gun maneuver estimate from measured track velocity history.
--- A short velocity fit avoids differentiating individual noisy radar reports.
--- Window and damping are mod estimator policy, not recovered F-22 parameters.
-local M = {maximum_interval = .5, window = .24, capacity = 32, damping = .05}
+-- A bounded velocity fit carries the radar uncertainty into a maneuver observer.
+-- Window/observer settings are mod estimator policies, not F-22 parameters.
+local M = {maximum_interval = .5, window = .24, capacity = 32}
+
+local Observer = dofile(LockOn_Options.script_path .. 'Systems/Gun_Maneuver_Observer.lua')
 
 local function finite(value)
     return type(value) == 'number' and value == value and math.abs(value) < 1e8
@@ -11,8 +13,9 @@ local function norm(v)
     return math.sqrt(v[1]^2 + v[2]^2 + v[3]^2)
 end
 
-local function valid_sample(time, velocity)
+local function valid_sample(time, velocity, sigma)
     if not finite(time) or type(velocity) ~= 'table' then return false end
+    if sigma ~= nil and (not finite(sigma) or sigma < 0 or sigma > 100) then return false end
     for axis = 1, 3 do
         if not finite(velocity[axis]) then return false end
     end
@@ -23,13 +26,13 @@ local function slot(self, offset)
     return self.samples[(self.first + offset - 1) % M.capacity + 1]
 end
 
-local function append(self, time, velocity, speed)
+local function append(self, time, velocity, speed, sigma)
     if self.count == M.capacity then
         self.first = self.first % M.capacity + 1
         self.count = self.count - 1
     end
     local value = slot(self, self.count)
-    value.time, value.speed = time, speed
+    value.time, value.speed, value.sigma = time, speed, sigma or 0
     for axis = 1, 3 do value.v[axis] = velocity[axis] end
     self.count = self.count + 1
     -- Retain the report bracketing the window, including two slower reports.
@@ -37,6 +40,26 @@ local function append(self, time, velocity, speed)
         self.first = self.first % M.capacity + 1
         self.count = self.count - 1
     end
+end
+
+-- A smooth correlated posterior can have small fit residuals while retaining
+-- substantial uncertainty. Never let those residuals erase the radar's sigma.
+local function fit_error(self, time, mean_time, mean_speed, tangent, denominator)
+    local error, speed_error, floor = self.error, 0, 0
+    for axis = 1, 3 do error[axis] = 0 end
+    for index = 0, self.count - 1 do
+        local value = slot(self, index)
+        local delta = value.time - time - mean_time
+        floor = math.max(floor, value.sigma^2)
+        speed_error = speed_error + (value.speed - mean_speed - tangent * delta)^2
+        for axis = 1, 3 do
+            local residual = value.v[axis] - self.mean[axis] - self.slope[axis] * delta
+            error[axis] = error[axis] + residual * residual
+        end
+    end
+    local degrees = math.max(1, self.count - 2)
+    for axis = 1, 3 do error[axis] = math.max(error[axis] / degrees, floor) / denominator end
+    self.speed_error = math.max(speed_error / degrees, floor) / denominator
 end
 
 local function fit(self, time)
@@ -50,6 +73,7 @@ local function fit(self, time)
         for axis = 1, 3 do mean[axis] = mean[axis] + value.v[axis] end
     end
     mean_time, mean_speed = mean_time / self.count, mean_speed / self.count
+    self.sample_time = time + mean_time
     for axis = 1, 3 do mean[axis] = mean[axis] / self.count end
     local denominator, tangent = 0, 0
     for index = 0, self.count - 1 do
@@ -61,28 +85,34 @@ local function fit(self, time)
     end
     if denominator <= 1e-12 then return end
     for axis = 1, 3 do slope[axis] = slope[axis] / denominator end
-    return tangent / denominator
+    tangent = tangent / denominator
+    fit_error(self, time, mean_time, mean_speed, tangent, denominator)
+    return tangent
 end
 
 local function rotation(self)
     local mean, slope, omega = self.mean, self.slope, self.raw_omega
     local square = mean[1]^2 + mean[2]^2 + mean[3]^2
     if square < 1e-8 then
-        for axis = 1, 3 do omega[axis] = 0 end
+        for axis = 1, 3 do omega[axis], self.variance[axis] = 0, 0 end
         return
     end
+    local variance, error = self.variance, self.error
+    variance[1] = (mean[2]^2 * error[3] + mean[3]^2 * error[2]) / square^2
+    variance[2] = (mean[3]^2 * error[1] + mean[1]^2 * error[3]) / square^2
+    variance[3] = (mean[1]^2 * error[2] + mean[2]^2 * error[1]) / square^2
     omega[1] = (mean[2]*slope[3] - mean[3]*slope[2]) / square
     omega[2] = (mean[3]*slope[1] - mean[1]*slope[3]) / square
     omega[3] = (mean[1]*slope[2] - mean[2]*slope[1]) / square
 end
 
-local function acceleration(self, velocity, speed, tangent, dt)
+local function acceleration(self, velocity, speed, tangent)
     rotation(self)
-    local gain = self.warmed and 1 - math.exp(-dt/M.damping) or 1
     for axis = 1, 3 do
-        self.omega[axis] = self.omega[axis] + gain * (self.raw_omega[axis] - self.omega[axis])
+        self.omega[axis] = self.observer:update(axis, self.raw_omega[axis], self.variance[axis],
+            self.sample_time, self.t, M.window)
     end
-    self.tangent = self.tangent + gain * (tangent - self.tangent)
+    self.tangent = self.observer:update(4, tangent, self.speed_error, self.sample_time, self.t, M.window)
     self.warmed = true
     local w, a = self.omega, self.a
     a[1] = w[2]*velocity[3] - w[3]*velocity[2]
@@ -95,16 +125,18 @@ local function acceleration(self, velocity, speed, tangent, dt)
 end
 
 function M.new()
-    local state = {samples = {}, first = 1, count = 0, tangent = 0, warmed = false,
-        mean = {0,0,0}, slope = {0,0,0}, raw_omega = {0,0,0}, omega = {0,0,0}, a = {0,0,0}}
-    for index = 1, M.capacity do state.samples[index] = {time = 0, speed = 0, v = {0,0,0}} end
+    local state = {observer = Observer.new(), error = {0,0,0}, variance = {0,0,0}, samples = {},
+        first = 1, count = 0, tangent = 0, warmed = false, mean = {0,0,0}, slope = {0,0,0},
+        raw_omega = {0,0,0}, omega = {0,0,0}, a = {0,0,0}}
+    for index = 1, M.capacity do state.samples[index] = {time = 0, speed = 0, sigma = 0, v = {0,0,0}} end
     function state:reset()
         self.t, self.count, self.first = nil, 0, 1
         self.tangent, self.warmed = 0, false
+        self.observer:reset()
         for axis = 1, 3 do self.omega[axis], self.a[axis] = 0, 0 end
     end
-    function state:update(time, velocity)
-        if not valid_sample(time, velocity) then self:reset(); return end
+    function state:update(time, velocity, sigma)
+        if not valid_sample(time, velocity, sigma) then self:reset(); return end
         if self.t == time then
             if self.warmed then return self.a end
             return
@@ -113,11 +145,11 @@ function M.new()
         local dt = self.t and time - self.t or 0
         if dt <= 0 or dt > M.maximum_interval then self:reset() end
         self.t = time
-        append(self, time, velocity, speed)
+        append(self, time, velocity, speed, sigma)
         if self.count < 2 then return end
         local tangent = fit(self, time)
         if not tangent then self:reset(); return end
-        local value = acceleration(self, velocity, speed, tangent, dt)
+        local value = acceleration(self, velocity, speed, tangent)
         if norm(value) > 150 then self:reset(); return end
         return value
     end

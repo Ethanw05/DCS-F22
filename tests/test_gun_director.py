@@ -10,7 +10,7 @@ assert(p and p[3]<0,'a right-lead requirement moves the director pipper left')
 local aligned=M.pipper({1,0,0},{1,0,0},{1,.1,.2})
 assert(math.abs(aligned[2]/aligned[1]-.1)<1e-9 and math.abs(aligned[3]/aligned[1]-.2)<1e-9,
  'solved aim places pipper on current target')
-local values={F22_RADAR_STT_VALID=1,F22_STT_MOTION_VALID=1,EFM_HUD_VALID=1,
+local values={F22_RADAR_STT_VALID=1,F22_STT_MOTION_VALID=1,F22_STT_VELOCITY_SIGMA_MPS=.4,EFM_HUD_VALID=1,
  F22_STT_ID=42,F22_STT_ACCEL_VALID=1,EFM_HUD_VN=220,F22_STT_VN=220,F22_STT_VU=10,F22_STT_VE=80,
  F22_STT_AN=0,F22_STT_AU=0,F22_STT_AE=0}
 local now=0;function get_model_time()return now end

@@ -41,8 +41,15 @@ def main():
   source=(ROOT/name).read_text(encoding='utf-8-sig')
   lua.compile(source,name=name);compiled+=1
   baseline=git('show',BASE+':'+name,check=False)
+  # These are host configuration exports, scoped to their declaration files.
+  host_export={'Cockpit/Scripts/devices.lua':'devices','Cockpit/Scripts/device_init.lua':'creators'}.get(name)
+  file_options=options
+  if host_export:
+   file_options=lua.table_from({'std':'lua51','max_line_length':120,
+    'globals':lua.table_from(entrypoints+[host_export]),
+    'read_globals':lua.table_from([key for key in read_globals if key!=host_export])})
   def lint(text):
-   lines=text.splitlines();report=check(lua.table_from([text]),options)[1]
+   lines=text.splitlines();report=check(lua.table_from([text]),file_options)[1]
    return Counter((e['code'],e['name'],lines[e['line']-1].strip())for _,e in report.items())
   old,new=lint(baseline),lint(source)
   legacy_count+=sum((new&old).values())

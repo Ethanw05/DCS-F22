@@ -37,13 +37,7 @@ make_default_activity(update_time_step)
 
 local sensor_data		= get_base_data()
 local hud_projection=dofile(LockOn_Options.script_path.."Systems/HUD_Projection.lua")
-local gun_director=dofile(LockOn_Options.script_path..'Systems/Gun_Director.lua').new(
-    sensor_data,function(n)return get_param_handle(n):get()end,
-    function(n,v)get_param_handle(n):set(v)end,dispatch_action,
-    dofile(LockOn_Options.script_path..'Systems/Radar_Display.lua'),devices.WEAPON_NATIVE)
-local gun_funnel=dofile(LockOn_Options.script_path..'Systems/Gun_Funnel.lua').new(
-    sensor_data,function(n)return get_param_handle(n):get()end,
-    function(n,v)get_param_handle(n):set(v)end,dispatch_action,devices.WEAPON_NATIVE)
+
 
 	local parameters =
 		{
@@ -434,8 +428,7 @@ end
 -- Declare a complete invalid/empty display snapshot before indicators bind.
 publish_stores()
 for _,name in ipairs({'HUD_IR_SEEKER_X_SLOPE','HUD_IR_SEEKER_Y_SLOPE',
-    'HUD_IR_SEEKER_AVAILABLE','HUD_IR_SEEKER_VALID','HUD_GUN_NATIVE_X_SLOPE',
-    'HUD_GUN_NATIVE_Y_SLOPE','HUD_GUN_NATIVE_VALID','F22_GUN_USING_DIRECTOR'}) do
+    'HUD_IR_SEEKER_AVAILABLE','HUD_IR_SEEKER_VALID'}) do
     get_param_handle(name):set(0)
 end
 ------------------------------------------------------------------FUNCTION-POSTINIT---------------------------------------------------------------------------------------------------
@@ -852,17 +845,6 @@ function update()
     get_param_handle('HUD_IR_SEEKER_VALID'):set(mode_state==3 and ir_locked and ir_x and ir_y and 1 or 0)
     get_param_handle('HUD_IR_SEEKER_AZ'):set(ir_az or 0)
     get_param_handle('HUD_IR_SEEKER_EL'):set(ir_el and math.atan2(math.sin(ir_el),math.cos(ir_el)*math.cos(ir_az)) or 0)
-    -- Computed director is the sole gun aiming source.
-    local az,el=gun_director:update(native_ready and mode_state==5 and physical_supply.mission)
-    local valid=az~=nil and el~=nil
-    get_param_handle('F22_GUN_USING_DIRECTOR'):set(valid and 1 or 0)
-    get_param_handle('HUD_GUN_NATIVE_VALID'):set(valid and 1 or 0)
-    get_param_handle('HUD_GUN_NATIVE_AZ'):set(valid and az or 0)
-    get_param_handle('HUD_GUN_NATIVE_EL'):set(valid and el or 0)
-    local gun_x,gun_y=hud_projection.planar(az,el)
-    get_param_handle('HUD_GUN_NATIVE_X_SLOPE'):set(gun_x or 0)
-    get_param_handle('HUD_GUN_NATIVE_Y_SLOPE'):set(gun_y or 0)
-    gun_funnel:update(native_ready and mode_state==5 and physical_supply.mission)
     -- Interlock all locally dispatched weapon requests on ground, power loss,
     -- and master-arm loss. Do not confuse gear-down with weight-on-wheels.
     local ready_to_release = not simulation and not ag_stores.servicing and master_arm_state == 1
@@ -1081,6 +1063,9 @@ function update()
     dispatch_action(nil,10850,update_time_step)
     diagnostic_clock=diagnostic_clock+update_time_step
     if log and log.write then
+        local az = get_param_handle('HUD_GUN_NATIVE_AZ'):get()
+        local el = get_param_handle('HUD_GUN_NATIVE_EL'):get()
+        local valid = get_param_handle('HUD_GUN_NATIVE_VALID'):get() == 1
         if diagnostic_clock>=next_telemetry then
             next_telemetry=diagnostic_clock+1
             log.write('F22_IR_NATIVE',log.INFO,string.format('ticks=%.0f api=%.0f abi=%.0f available=%.0f state=%.0f strength=%.3f caged=%.0f radar_config=%.0f radar_reason=%.0f min_m=%.0f el_limit=%.3f launch_seq=%.0f launch_id=%.0f',

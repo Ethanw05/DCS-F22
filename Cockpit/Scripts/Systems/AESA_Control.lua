@@ -92,6 +92,7 @@ function M:state(now, computer, observations)
     put("F22N_RADAR_MODE", self.mode)
     put("F22_STT_MOTION_VALID", lock and lock.velocity_valid and 1 or 0); put("F22_STT_ACCEL_VALID",0)
     put("F22_STT_ID",lock and lock.native_id or 0); put("F22_STT_TIME",lock and lock.observed or -100)
+    put("F22_STT_VELOCITY_SIGMA_MPS", lock and lock.velocity_sigma_mps or 0)
     for key, field in pairs(axes) do put("F22_STT_"..key,lock and lock[field] or 0) end
     put("F22N_RADAR_STT_AZIMUTH",lock and lock.az or 0)
     put("F22N_RADAR_STT_ELEVATION",lock and lock.el or 0)
