@@ -5,6 +5,10 @@ local M={}
 local ap_off_fields={'F22_AP_ACTIVE','F22_AP_AT','F22_AP_ROLL_MODE','F22_AP_PITCH_MODE',
  'F22_AP_OVERRIDE','F22_AP_NAV_OVERRIDE'}
 local function finite(v)return type(v)=='number'and v==v and math.abs(v)<1e9 end
+local function ap_all_off(get)
+ for _,key in ipairs(ap_off_fields)do if get(key)~=0 then return false end end
+ return true
+end
 function M.new(get,put,send,_sensors)
  local s={page='',entry=nil,pending=nil,status='',clock=0,point=nil}
  local channels={}
@@ -80,10 +84,14 @@ function M.new(get,put,send,_sensors)
   send('FLIGHT_GUIDANCE',10953,1)
  end
  function s:ap_off_update()
-  if self.ap_off_sequence==nil then return end
+  if self.ap_off_sequence==nil then
+   -- Another input owner can select a mode after this request completed.
+   -- A past acknowledgement must never describe that new active state as OFF.
+   if self.status=='AP / AT OFF' and not ap_all_off(get)then self.status=''end
+   return
+  end
   local sequence=get('F22_AP_OFF_SEQUENCE')
-  local off=finite(sequence) and sequence>0 and sequence~=self.ap_off_sequence
-  for _,key in ipairs(ap_off_fields)do off=off and get(key)==0 end
+  local off=finite(sequence) and sequence>0 and sequence~=self.ap_off_sequence and ap_all_off(get)
   if off then self.ap_off_sequence=nil;self.status='AP / AT OFF'
   elseif self.clock-self.ap_off_started>1 then
    self.ap_off_sequence=nil;self.status='AP OFF NOT CONFIRMED'
