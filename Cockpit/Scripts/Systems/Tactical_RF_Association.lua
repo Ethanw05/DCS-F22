@@ -19,6 +19,7 @@ local function estimate(radar,stamp,history)
     return p,math.sqrt(ps^2+dt^2*vs^2+100*math.abs(dt)^3/3)
 end
 function M.match(radar,rf,now,history)
+    if rf.general==2 then return false end -- Surface emitters are not air radar tracks.
     local origin,w=rf.bearing_origin,rf.world
     if not origin or not w then return nil end -- old direction-only input
     if not finite(radar.n) or not finite(radar.u) or not finite(radar.e)then return nil end

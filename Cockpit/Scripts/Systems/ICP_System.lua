@@ -13,7 +13,7 @@ local ui=dofile(LockOn_Options.script_path..'Systems/UFC_Controller.lua').new(ge
 local held={};make_default_activity(.006)
 for c=10041,10053 do dev:listen_command(c)end
 for c=11401,11402 do dev:listen_command(c)end
-for c=10989,10993 do dev:listen_command(c)end
+for c=10989,10994 do dev:listen_command(c)end
 for c=11030,11034 do dev:listen_command(c)end
 local pages={[3001]='COM1',[3002]='COM2',[3003]='NAV',[3004]='STPT',[3005]='ALT',[3006]='HUD',[3007]='OTHR',
  [3015]='AP',[3033]='IFF',[3034]='DVR',
@@ -31,6 +31,8 @@ function SetCommand(c,v)
  if get('MAIN_POWER')<.5 then return end
  if c==10989 then
   if get('F22_SMS_PROGRAM_PAGE')>.5 and get('F22_SMS_LABEL')>0 and get('HUD_AG_SUBMODE')~=1 then ui:open('STORES')end
+ elseif c==10994 then
+  if ui.page=='STORES'and ui.entry then ui:option(ui.entry.option)end
  elseif c>=11030 and c<=11034 then
   ui:open(c==11030 and'STPT'or c==11033 and'HEADING'or c==11034 and'MARK/TIME'or'NAV',true)
  elseif pages[c]then ui:open(pages[c])

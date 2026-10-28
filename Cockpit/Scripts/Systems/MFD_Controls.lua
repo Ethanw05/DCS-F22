@@ -27,7 +27,18 @@ function M.for_page(page,view,get)
   elseif view==2 then
    if get('WoW')>.5 then c[10]=row('GND OVR','ground_override')end
   elseif view==3 then
-   c[12]=row('RTN','view',1)
+   c[12]=row('RTN','view',0)
+   c[14]={label='PP SLOT',device='WEAPON_SYSTEM',command=11121}
+   c[15]={label='STN STEP',device='WEAPON_SYSTEM',command=10804}
+   c[16]={label='TGT SET',device='WEAPON_SYSTEM',command=10987}
+   c[17]={label='TGT CLR',device='WEAPON_SYSTEM',command=10988}
+  elseif view==1 then
+   c[12]=row('DONE','stores_edit',0)
+   for _,spec in ipairs({{14,'QTY',10048},{15,'MULT',10049},{16,'INTVL',10050},{17,'UNITS',10051}})do
+    c[spec[1]]={label=spec[2],device='ICP_SYSTEM',command=spec[3]}
+   end
+   c[18]={label='ENTER',device='ICP_SYSTEM',command=10994}
+   c[19]={label='CLEAR',device='ICP_SYSTEM',command=3026}
   else
    c[20]=row('MASTER','view',5);c[10]=row('DOORS','view',2)
    c[19]={label='SIM',device='WEAPON_SYSTEM',command=11120,selected=get('F22_SMS_SIM')>.5}
@@ -41,16 +52,9 @@ function M.for_page(page,view,get)
     end
     c[6]=row('MODE','view',4)
     if get('HUD_AG_SUBMODE')~=1 and get('F22_SMS_LABEL')>0 then
-     c[7]={label='PROG',device='WEAPON_SYSTEM',command=10982}
-     c[8]={label='UFC',device='ICP_SYSTEM',command=10989}
-     if view==0 then c[11]=row('DATA','view',1)end
-     if view==1 then
-      c[14]=row('COORD','view',3)
-      c[18]={label='STN STEP',device='WEAPON_SYSTEM',command=10804}
-      c[17]={label='TGT CLR',device='WEAPON_SYSTEM',command=10988}
-      c[16]={label='TGT SET',device='WEAPON_SYSTEM',command=10987}
-      c[15]={label='PP SLOT',device='WEAPON_SYSTEM',command=11121}
-     end
+     c[7]={label='PROFILE',device='WEAPON_SYSTEM',command=10982}
+     c[8]=row('EDIT','stores_edit',1)
+     c[11]=row('TARGET','view',3)
     end
    end
   end

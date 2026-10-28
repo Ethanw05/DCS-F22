@@ -159,6 +159,7 @@ function M.new()
 					-- Each field retains its originating observation. Radar range expires
 					-- independently even when optical/RF observations keep the object alive.
 					if sensor == "radar" then
+                        if not t.label or t.label=='U'then t.label=o.label end
 						t.selected = o.selected
 						t.radar_age = age
 						t.range_estimated = o.estimated or age > 0.001

@@ -307,6 +307,8 @@ for i = 1, 24 do
 			if code==3 then line(0,.03,0,.055,color,symbol)end
 		end
 		group(symbol .. "_ALT", { p .. "ALT_VALID" }, { { "parameter_in_range", 0, 0.9, 1.1 } }, symbol)
+        dofile(LockOn_Options.script_path..'Systems/Contact_Label_Indicator.lua')(
+            {group=group,text=text},p,-.065,0,symbol,symbol..'_TYPE',color,.0032)
 		text("%.0f", 0, 0.061, p .. "ALT_FT", color, symbol .. "_ALT", 0.0038)
 	end
 	-- White 30-second groundspeed vector, clipped by the LCD aperture.

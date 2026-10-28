@@ -6,6 +6,7 @@ local Datalink = dofile(LockOn_Options.script_path .. "Systems/Datalink_Tracks.l
 local Identification = dofile(LockOn_Options.script_path .. 'Systems/Identification_State.lua')
 local Donor = dofile(LockOn_Options.script_path .. 'Systems/Donor_Selection.lua')
 local M = {}
+local Labels=dofile(LockOn_Options.script_path..'Systems/RWR_Computer.lua')
 function M.new(get, put, sensors)
 	put('F22_DATALINK_ENABLE',1)
 	put('F22_IFDL_ENABLE',1)
@@ -75,6 +76,7 @@ function M.new(get, put, sensors)
 					range = get(p .. "RANGE"),
 					measured_range = get(p .. "MEASURED_RANGE"),
 					quality = get(p .. "QUALITY"),
+                    label=Labels.label(get(p..'TYPE_NAME'),1),
                     n=get(p..'POSITION_VALID')==1 and get(p..'N') or nil,
                     u=get(p..'U'),e=get(p..'E'),vn=get(p..'VN'),vu=get(p..'VU'),ve=get(p..'VE'),
                     measurement_source = get(p .. 'MEASUREMENT_SOURCE'),
@@ -112,6 +114,7 @@ function M.new(get, put, sensors)
 			put(p .. "AZ", t and t.az or 0)
 			put(p .. "EL", t and t.el or 0)
 			put(p .. "AFFILIATION", t and t.affiliation or -1)
+            put(p..'LABEL_CODE',Labels.label_code(t and t.label or 'U'))
             put(p .. 'IDENTITY_CONFLICT', t and t.identity_conflict and 1 or 0)
             put(p .. 'FRIENDLY_PROTECTED', t and t.friendly_protected and 1 or 0)
 			put(p .. "RANGE_VALID", t and t.range and 1 or 0)
@@ -124,6 +127,7 @@ function M.new(get, put, sensors)
 			put(p .. "UNCERTAINTY_RAD", t and t.uncertainty or 0)
 			put(p .. "SELECTED", t and t.selected and 1 or 0)
             local radar=t and t.observations.radar
+            put(p..'RADAR_SOURCE',radar and radar.source or 0)
             put(p .. 'RADAR_MEASUREMENT_SOURCE',radar and radar.measurement_source or 0)
             put(p .. 'WEAPON_AUTHORITY',0) -- This picture is never the release provider.
 			local dl = t and t.datalink

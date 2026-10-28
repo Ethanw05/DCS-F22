@@ -10,6 +10,7 @@ local task_library = dofile(LockOn_Options.script_path .. "Systems/Radar_Sensor_
 local sensor_tasks = task_library.new()
 local display = dofile(LockOn_Options.script_path .. "Systems/Radar_Display.lua")
 local tactical = dofile(LockOn_Options.script_path .. "Systems/Radar_Tactical.lua")
+local contact_metadata=dofile(LockOn_Options.script_path..'Systems/Radar_Contact_Metadata.lua')
 local identification = dofile(LockOn_Options.script_path .. "Systems/Radar_IFF.lua").new()
 local sensors = get_base_data()
 local dev = GetSelf()
@@ -727,6 +728,7 @@ function update()
 		log.write("F22_RADAR", log.INFO, diagnostic)
 		last_diagnostic = diagnostic
 	end
+    local correlated=contact_metadata.read(get,computer.clock)
 	for i = 1, 24 do
 		local t = visible[i]
 		local p = string.format("F22_SCOPE_%02d_", i)
@@ -755,16 +757,9 @@ function update()
 			p .. "DESIGNATED",
 			t and (t.designated or t.id == computer.selected or t.id == computer.secondary) and 1 or 0
 		)
-		local ew_signal = 0
-		if t and t.native_id then
-			for j = 1, 16 do
-				local ew = string.format("F22_EW_%02d_", j)
-				if get(ew .. "SOURCE") == t.native_id and get(ew .. "AGE") <= 12 then
-					ew_signal = get(ew .. "SIGNAL")
-					break
-				end
-			end
-		end
+        local joined=t and correlated[t.native_id]
+        local ew_signal=joined and joined.signal or 0
+		put(p..'LABEL_CODE',contact_metadata.label(t,joined))
 		put(p .. "EW_SIGNAL", ew_signal)
 		if t and (t.stt or t.id == computer.selected) then
 			put("F22_RADAR_SELECTED_EW_SIGNAL", ew_signal)

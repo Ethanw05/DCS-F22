@@ -73,7 +73,7 @@ for page in ['MFD_RIGHT/rwr_page.lua','UFD_LEFT/base_page.lua','UFD_LEFT/ew_page
     lua=runtime();lua.execute("dofile(SCRIPT_ROOT..'"+page+"')")
     print('DCS write-only indicator construction:',page,'OK')
 
-# RWR observations associate with a ranged radar file only by exact source ID.
+# Equal numeric RF/radar identifiers cannot supply tactical correlation.
 lua=runtime()
 lua.execute("""
 native={set_power=function() end};function GetDevice() return native end
@@ -91,7 +91,7 @@ end
 update();update()
 assert(get_param_handle('F22_RADAR_TRACK_COUNT'):get()==2)
 assert(get_param_handle('F22_SCOPE_01_AFFILIATION'):get()==-1)
-assert(get_param_handle('F22_SCOPE_01_EW_SIGNAL'):get()==2)
+assert(get_param_handle('F22_SCOPE_01_EW_SIGNAL'):get()==0,'equal numeric identifiers granted RF association')
 assert(get_param_handle('F22_SCOPE_02_EW_SIGNAL'):get()==0,'same-bearing target incorrectly fused')
 assert(get_param_handle('F22_SCOPE_02_AFFILIATION'):get()==-1)
 """)

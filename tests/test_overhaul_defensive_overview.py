@@ -197,7 +197,10 @@ local function key(b)edge(b,true);edge(b,false);tick()end
 put('MAIN_POWER',1);tick();assert(get('F22_DEFENSIVE_DETAIL')==0)
 local active=0
 for b=1,20 do if get('F22_MFD_RMFD_KEY_'..b)~=''then active=active+1 end end
-assert(active==5,'normal DEF needs exactly five routine controls')
+assert(active==8,'normal DEF needs range and ECM beside its five routine controls')
+assert(get('F22_MFD_RMFD_KEY_14')=='RNG+'and get('F22_MFD_RMFD_KEY_15')=='RNG-')
+local initial_range=get('F22_DEF_DISPLAY_RANGE_NM');key(14);assert(get('F22_DEF_DISPLAY_RANGE_NM')==initial_range*2)
+key(15);assert(get('F22_DEF_DISPLAY_RANGE_NM')==initial_range)
 events={};key(20)
 assert(#events==0 and get('F22_RWR_FILTER')==0,'blank DEF key changed focus or receiver state')
 local edit_before=get('F22_CM_PROGRAM_SELECTED')
@@ -206,7 +209,8 @@ key(1)
 assert(get('F22_CM_NORMAL_BANK')==normal_before%3+1 and get('F22_CM_PROGRAM_SELECTED')==edit_before,
  'normal program selection required/mutated programming')
 key(10);assert(get('F22_DEF_DETAIL_RMFD')==1 and get('F22_MFD_RMFD_KEY_12')=='RTN')
-key(20);assert(get('F22_RWR_FILTER')==1,'setup filter missed receiver')
+events={};key(20);assert(#events==0 and get('F22_RWR_FILTER')==0,'removed setup option still dispatched')
+assert(get('F22_MFD_RMFD_KEY_14')==''and get('F22_MFD_RMFD_KEY_15')=='','range remained on setup')
 local before=get('F22_CM_PROGRAM_SELECTED');events={}
 edge(1,true);edge(1,true);assert(get('F22_CM_PROGRAM_SELECTED')==before%3+1)
 key(13);edge(1,false);edge(1,false)

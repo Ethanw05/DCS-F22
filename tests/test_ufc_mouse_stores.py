@@ -41,20 +41,20 @@ for guided in (False,True):
      local name,stem=panel[1],panel[2]
      click(stem..'13_PNT');click(stem..'3_PNT');click(stem..'8_PNT')
      assert(get('F22_UFC_PAGE')=='STORES','Stores UFC button did not open numeric programming')
-     option(1);digits('2');option(1)
+     click(stem..'14_PNT');digits('2');click(stem..'18_PNT')
      assert(get('F22_SMS_QUANTITY')==2 and get('F22_UFC_SELECTED')==0,'physical same-option QTY commit failed on '..name)
      assert(get('F22_UFC_ROW_1')=='QTY 2','accepted quantity not displayed')
-     assert(get('F22_MFD_'..name..'_KEY_8')=='UFC','Stores still labels its keypad control HUD')
-     option(2);digits('2');option(2)
+     assert(get('F22_MFD_'..name..'_KEY_14')=='QTY'and get('F22_'..name..'_VIEW')==1,'EDIT did not expose program fields')
+     click(stem..'15_PNT');digits('2');option(2)
      assert(get('F22_SMS_PAIR')==2 and get('F22_UFC_SELECTED')==0,'physical MULT commit failed')
-     option(3);digits('500');option(3)
+     click(stem..'16_PNT');digits('500');option(3)
      local field=guided and'F22_SMS_INTERVAL_MS'or'F22_SMS_SPACING_FT'
      assert(get(field)==500 and get('F22_UFC_SELECTED')==0,'interval/spacing or repeated zero entry failed')
      option(1);digits('9');option(1)
      assert(get('F22_SMS_QUANTITY')==2 and get('F22_UFC_SELECTED')==1,'invalid quantity was accepted or erased')
-     click('ICP_CLR_PNT');digits('4');option(1)
+     click(stem..'19_PNT');digits('4');click(stem..'18_PNT')
      assert(get('F22_SMS_QUANTITY')==4 and get('F22_UFC_SELECTED')==0,'corrected quantity did not commit')
-     click(stem..'8_PNT');assert(get('F22_UFC_PAGE')=='','same Stores UFC key could not close its page')
+     click(stem..'12_PNT');assert(get('F22_UFC_PAGE')==''and get('F22_'..name..'_VIEW')==0,'DONE did not close numeric editing')
     end
     -- AP has two mouse actions; both must also release their transport latch.
     for _,e in pairs(points)do

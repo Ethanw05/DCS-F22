@@ -20,10 +20,12 @@ for _,b in ipairs({1,2,3,4,5,6,7,8,9,11,12,14,15,16,17})do
  for _,a in ipairs(actions)do assert(a[1]==10742,'blank A/A key executed a strike action')end
 end
 put('HUD_MODE',7);put('F22_SMS_LABEL',2);update()
-assert(get('F22_SMS_AA_CONTEXT')==0 and get('F22_MFD_LMFD_KEY_7')=='PROG'
- and get('F22_MFD_LMFD_KEY_8')=='UFC')
+assert(get('F22_SMS_AA_CONTEXT')==0 and get('F22_MFD_LMFD_KEY_7')=='PROFILE'
+ and get('F22_MFD_LMFD_KEY_8')=='EDIT')
 actions={};key(8);assert(actions[2][1]==10989 and actions[2][2]==1 and actions[3][2]==0)
-put('HUD_MODE',1);update();assert(get('F22_MFD_LMFD_KEY_7')=='PROG','NAV lost strike preparation')
+assert(get('F22_LMFD_VIEW')==1 and get('F22_MFD_LMFD_KEY_14')=='QTY')
+key(12);assert(get('F22_LMFD_VIEW')==0)
+put('HUD_MODE',1);update();assert(get('F22_MFD_LMFD_KEY_7')=='PROFILE','NAV lost strike preparation')
 put('HUD_AG_SUBMODE',1);update()
 assert(get('F22_MFD_LMFD_KEY_7')==''and get('F22_MFD_LMFD_KEY_8')=='','GUN retained bomb programming')
 dofile(SCRIPT_ROOT..'MFD_COMMON/stores_page.lua')('LMFD_BAY_PAGE','F22_TEST_STORES','F22_SMS_UI_PAGE_LMFD')

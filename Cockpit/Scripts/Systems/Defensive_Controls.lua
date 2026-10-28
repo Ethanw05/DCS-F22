@@ -6,6 +6,10 @@ end
 local function primary(c, get)
     c[1] = command('PROG', 'EW_SYSTEM', 11105)
     c[2] = command('MODE', 'EW_SYSTEM', 11107)
+    c[6] = command('ECM','EW_SYSTEM',10842)
+    c[6].selected=get('F22_ECM_REQUESTED')==1
+    c[14] = {label = 'RNG+', action = 'def_range', value = 1}
+    c[15] = {label = 'RNG-', action = 'def_range', value = -1}
     c[10] = {label = 'SETUP', action = 'view', value = 1}
     c[18] = command('MUTE', 'RWR_SYSTEM', 10901)
     c[18].selected = get('F22_RWR_MUTE') > .5
@@ -21,21 +25,15 @@ local function primary(c, get)
         c[4] = command('STOP', 'EW_SYSTEM', 11113)
     end
 end
-local function setup(c, get)
+local function setup(c)
     for key, spec in ipairs({{'BANK', 10910}, {'CHAFF', 10911}, {'FLARE', 10912},
         {'INTVL', 10913}, {'CYCLES', 10914}}) do
         c[key] = command(spec[1], 'EW_SYSTEM', spec[2])
     end
-    for _, spec in ipairs({{8, 'SAVE', 11103}, {9, 'CANCEL', 11104}, {11, 'DIRECT', 11106},
-        {16, 'CM TEST', 11109}, {17, 'CM PWR', 11108}}) do
+    for _, spec in ipairs({{8, 'SAVE', 11103}, {9, 'REVERT', 11104}}) do
         c[spec[1]] = command(spec[2], 'EW_SYSTEM', spec[3])
     end
     c[12] = {label = 'RTN', action = 'view', value = 0}
-    c[14] = {label = 'RNG+', action = 'def_range', value = 1}
-    c[15] = {label = 'RNG-', action = 'def_range', value = -1}
-    c[19] = command('RWR PWR', 'RWR_SYSTEM', 10900)
-    c[19].selected = get('F22_RWR_POWER') > .5
-    c[20] = command(get('F22_RWR_FILTER') > .5 and 'THRT' or 'ALL', 'RWR_SYSTEM', 10902)
 end
 function M.for_page(view, get)
     local controls = {[13] = {label = 'MENU', action = 'menu'}}

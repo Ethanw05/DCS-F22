@@ -196,6 +196,23 @@ Box bounds(const Pose& pose, const Beam& beam) noexcept {
 }
 class Provider final : public Environment {
     void* own_{};
+    bool airborne(void* unit) const noexcept {
+        const auto type=api.type(unit);
+        return readable(type,2) && type[0]==1 && (type[1]==1 || type[1]==2);
+    }
+    int candidate(Scene& scene,std::span<Truth> out,std::size_t& count) noexcept {
+        void* unit=moving(scene);
+        if (!unit || unit==own_ || api.dead(unit)) return 0;
+        if (!airborne(unit)) return 0;
+        const auto velocity=api.velocity(unit);
+        if (!readable(velocity,sizeof(*velocity)) || count>=out.size()) return 1;
+        Truth truth{};truth.id=identity(scene);api.point(unit,&truth.position);
+        truth.velocity={velocity->n,velocity->u,velocity->e};
+        // Unknown type text is deliberately empty; it never gates sensing.
+        (void)scene_type(unit,truth.type_name);
+        if (truth.id && finite(truth.position) && finite(truth.velocity)) out[count++]=truth;
+        return 0;
+    }
     struct ReceiverQuery {
         Provider* self{}; const Pose* pose{}; const Beam* beam{};
         Interference* result{}; QueryStats* stats{};
@@ -282,18 +299,7 @@ public:
         // One pointer capture fits the inspected std::function small buffer.
         Query each = [c = &context](Scene& scene) {
             if (++c->stats->visited > maximum_candidates) { c->stats->truncated = true; return 1; }
-            void* unit = moving(scene);
-            if (!unit || unit == c->self->own_ || api.dead(unit)) return 0;
-            const auto type = api.type(unit);
-            if (!readable(type, 2) || type[0] != 1 || (type[1] != 1 && type[1] != 2)) return 0;
-            const auto velocity = api.velocity(unit);
-            if (!readable(velocity, sizeof(*velocity)) || *c->count >= c->out.size()) return 1;
-            Truth truth{}; truth.id = identity(scene); api.point(unit, &truth.position);
-            scene_type(unit,truth.type_name);
-            truth.velocity = {velocity->n, velocity->u, velocity->e};
-            // Shared object kinematics, no coalition/classification truth. RCS=1m2 is a declared game baseline.
-            if (truth.id && finite(truth.position) && finite(truth.velocity)) c->out[(*c->count)++] = truth;
-            return 0;
+            return c->self->candidate(scene,c->out,*c->count);
         };
         const auto box = bounds(pose, beam);
         search(manager, box, 32, each);

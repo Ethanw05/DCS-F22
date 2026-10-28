@@ -1,6 +1,9 @@
 -- GPL-3.0-or-later. Shared DCS receiver, independent of the attack radar.
 -- Config keys verified in CockpitBase avRWR/avSimpleRWR::initialize.
 dofile(LockOn_Options.common_script_path..'AN_ALR_SymbolsBase.lua')
+-- Extend DCS's name-based presentation metadata; no RF classification model.
+symbols_strings=symbols_strings or {}
+for _,name in ipairs({'F-22A','F-22','F22','F-22A_Raptor'})do symbols_strings[name]='22'end
 MaxThreats=16
 EmitterLiveTime=12
 RWR_detection_coeff=1.0

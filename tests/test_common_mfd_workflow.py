@@ -47,8 +47,8 @@ for panel=1,4 do
 end
 -- Mirrored Stores uses independent local data subpages.
 for panel=1,4 do key(panel,13);key(panel,3)end
-key(1,11);assert(get('F22_LMFD_VIEW')==1 and get('F22_CMFD_VIEW')==0)
-assert(get('F22_MFD_LMFD_KEY_12')=='RTN'and get('F22_MFD_CMFD_KEY_12')=='')
+key(1,8);assert(get('F22_LMFD_VIEW')==1 and get('F22_CMFD_VIEW')==0)
+assert(get('F22_MFD_LMFD_KEY_12')=='DONE'and get('F22_MFD_CMFD_KEY_12')=='')
 key(1,13);assert(get('F22_SMS_PROGRAM_PAGE')==1,'another visible Stores lost keypad ownership')
 key(1,12);assert(get('F22_LMFD_FORMAT')==6)
 -- A blank old system shortcut cannot operate another page.

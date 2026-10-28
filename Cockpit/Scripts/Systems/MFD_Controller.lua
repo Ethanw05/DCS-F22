@@ -39,6 +39,43 @@ function M.new(param,send,ground_override)
   for i,page in ipairs(R.order)do if page==current then self:select(panel,R.order[i%#R.order+1]);return end end
   self:select(panel,R.order[1])
  end
+ local actions={}
+ actions.menu=function(panel) s:select(panel,R.pages.menu)end
+ actions['return']=function(panel,p) s:select(panel,p.last)end
+ actions.page=function(panel,_,a) s:select(panel,a.value)end
+ actions.view=function(panel,p,a) s:release_panel(panel);p.view=a.view or a.value;s:publish()end
+ actions.ground_override=function()ground_override()end
+ actions.def_range=function(_,_,a)
+  local ranges={5,10,20,40,80,160};local value=get('F22_DEF_DISPLAY_RANGE_NM');local index=4
+  for i,n in ipairs(ranges)do if n==value then index=i end end
+  put('F22_DEF_DISPLAY_RANGE_NM',ranges[math.max(1,math.min(#ranges,index+a.value))])
+ end
+ actions.stores_edit=function(panel,p,a)
+  s:release_panel(panel);p.view=a.value;s:publish()
+  local open=get('F22_UFC_PAGE')=='STORES'
+  if open~=(a.value==1)then send('ICP_SYSTEM',10989,1);send('ICP_SYSTEM',10989,0)end
+ end
+ local function action_name(a)
+  if a.action then return a.action end
+  if a.page==0 then return 'menu' end
+  if a.view then return 'view' end
+ end
+ local function execute(panel,p,a,key)
+  local action=actions[action_name(a)]
+  if action then action(panel,p,a)
+  elseif a.device then
+   s.forwarded[key]=a;send(a.device,a.command,a.value or 1)
+   if a.home then p.view=0 end
+  end
+ end
+ local function trace_input(panel,p,b,a)
+  if log and log.write then
+   local label=tostring(a.label or a.parameter or '')
+   local command=tostring(a.command or a.action or a.page or a.view or '')
+   log.write('F22_MFD_INPUT',log.INFO,'panel='..R.panels[panel]..' format='..R.names[p.page]
+    ..' view='..p.view..' button='..b..' label='..label..' command='..command)
+  end
+ end
  function s:button(panel,b,down)
   local key=panel..':'..b
   if not down then
@@ -52,22 +89,8 @@ function M.new(param,send,ground_override)
   local p=self.panels[panel];local a=control(panel,b)
   if not a or a.condition and get(a.condition)<.5 then return end
   send('COMBAT_SYSTEM',10742,({3,4,5,2})[panel])
-  if log and log.write then
-   log.write('F22_MFD_INPUT',log.INFO,'panel='..R.panels[panel]..' format='..R.names[p.page]..' view='..p.view..' button='..b..' label='..tostring(a.label or a.parameter or '')..' command='..tostring(a.command or a.action or a.page or a.view or ''))
-  end
-  if a.action=='menu'or a.page==0 then self:select(panel,R.pages.menu)
-  elseif a.action=='return'then self:select(panel,p.last)
-  elseif a.action=='page'then self:select(panel,a.value)
-  elseif a.action=='view'or a.view~=nil then self:release_panel(panel);p.view=a.view or a.value;self:publish()
-  elseif a.action=='ground_override'then ground_override()
-  elseif a.action=='def_range'then
-   local ranges={5,10,20,40,80,160};local v=get('F22_DEF_DISPLAY_RANGE_NM');local index=4
-   for i,n in ipairs(ranges)do if n==v then index=i end end
-   put('F22_DEF_DISPLAY_RANGE_NM',ranges[math.max(1,math.min(#ranges,index+a.value))])
-  elseif a.device then
-   self.forwarded[key]=a;send(a.device,a.command,a.value or 1)
-   if a.home then p.view=0 end
-  end
+  trace_input(panel,p,b,a)
+  execute(panel,p,a,key)
   self:publish()
  end
  function s:publish()

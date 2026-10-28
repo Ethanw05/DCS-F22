@@ -5,6 +5,7 @@ local Geolocation=dofile(LockOn_Options.script_path..'Systems/EW_Geolocation.lua
 local Datalink=dofile(LockOn_Options.script_path..'Systems/Datalink_Tracks.lua')
 local Proximity=dofile(LockOn_Options.script_path..'Systems/RWR_Proximity.lua')
 local M={radius=.84}
+local Labels=dofile(LockOn_Options.script_path..'Systems/RWR_Computer.lua')
 local function finite(v)return type(v)=='number'and v==v and math.abs(v)<1e9 end
 function M.new(get,put,sensors)
  local s={}
@@ -81,6 +82,7 @@ function M.new(get,put,sensors)
    end
    put(p..'X',x);put(p..'Y',y);put(p..'ROT',rotation)
    put(p..'SOURCE',t and t.source or 0)
+   put(p..'LABEL_CODE',Labels.label_code(t and t.label or 'U'))
    put(p..'AFFILIATION',t and t.affiliation or -1)
    put(p..'IDENTITY_CONFLICT',t and t.identity_conflict and 1 or 0)
    local donor=t and t.datalink

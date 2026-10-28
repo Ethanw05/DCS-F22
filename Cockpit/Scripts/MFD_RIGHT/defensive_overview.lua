@@ -30,6 +30,7 @@ end
 local ecm_api={group=function(_,params,controllers,parent)return group(params,controllers,parent)end,
  line=line,text=function(value,x,y,param,color,parent,size)return D.text(value,x,y,param,color,size,parent)end}
 local coverage=dofile(LockOn_Options.script_path..'Systems/ECM_Coverage_Indicator.lua')
+local contact_label=dofile(LockOn_Options.script_path..'Systems/Contact_Label_Indicator.lua')
 dofile(LockOn_Options.script_path..'Systems/ECM_Indicator.lua')(
  ecm_api,.63,-.43,primary,prefix..'_OWN_ECM',.0032)
 local function circle(x,y,r,color,parent,width)
@@ -78,6 +79,8 @@ for i=1,16 do
  coverage(ecm_api,bearing,prefix..'_COVERAGE_'..i,1,{p..'RF_CURRENT'},{{'parameter_in_range',0,.9,1.1}})
  for _,aff in ipairs({{-1,'yellow'},{0,'red'},{1,'green'},{3,'cyan'}})do
   local colored=D.choice(p..'AFFILIATION',aff[1],bearing)
+  local label_color=D.choice(p..'AFFILIATION',aff[1],at)
+  contact_label(ecm_api,p,.11,.035,label_color,prefix..'_CONTACT_'..i..'_ID_'..aff[1],aff[2],.0030)
   -- A bearing stem does not assert target heading. Open outer-ring ticks have
   -- no measured range; measured contacts use the common track's radar range.
   local measured=D.choice(p..'RANGED',1,colored)
@@ -143,15 +146,6 @@ end
 D.text('UNSAVED',0,-.47,nil,'yellow',.0034,D.choice('F22_CM_DRAFT_DIRTY',1))
 D.text('SAVED',0,-.47,nil,'white',.0034,D.choice('F22_CM_DRAFT_DIRTY',0))
 D.text('INVALID DRAFT',0,-.55,nil,'yellow',.0034,D.choice('F22_CM_DRAFT_ERROR',1))
-D.text('NORMAL %.0f',-.40,-.65,'F22_CM_NORMAL_BANK','white',.0032)
-D.text('DIRECT %.0f',.40,-.65,'F22_CM_DIRECT_BANK','white',.0032)
-D.text('SCALE %.0f NM',-.48,-.84,'F22_DEF_DISPLAY_RANGE_NM','white',.0028)
-for state,label in pairs({[0]='OFF',[1]='STBY',[2]='ON'})do
- D.text(label,-.62,-.40,nil,'white',.0030,D.choice('F22_CM_SYSTEM',state))
-end
-local cm=dofile(LockOn_Options.script_path..'Systems/EW_Dispenser.lua')
-for status,label in pairs(cm.labels)do
- D.text(label,0,-.75,nil,'white',.0030,D.choice('F22_CM_STATUS',status))
-end
+D.text('EDIT PROGRAM / SAVE',0,-.68,nil,'blue',.0031)
 
 end

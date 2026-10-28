@@ -72,13 +72,22 @@ for _,station in ipairs(stations)do
 end
 
 -- Retained program readback stays visible while the UFC owns numeric entry.
-text('PROG %.0f',0,-.43,'F22_SMS_PROFILE','green',.0035,normal)
+text('PROFILE %.0f',0,-.43,'F22_SMS_PROFILE','green',.0035,home)
+text('EDIT PROFILE %.0f',0,-.40,'F22_SMS_PROFILE','blue',.0035,program)
+text('QTY %.0f',-.35,-.52,'F22_SMS_QUANTITY','white',.0036,program)
+text('MULT %.0f',.35,-.52,'F22_SMS_PAIR','white',.0036,program)
+text('INTERVAL %.0f MS',0,-.64,'F22_SMS_INTERVAL_MS','white',.0035,D.choice('F22_SMS_INTERVAL_MODE',0,program))
+text('SPACING %.0f FT',0,-.64,'F22_SMS_SPACING_FT','white',.0035,D.choice('F22_SMS_INTERVAL_MODE',1,program))
+local typing=D.group('F22_SMS_ENTRY_LENGTH',.5,8.5,program)
+text('INPUT %.0f',0,-.75,'F22_SMS_ENTRY_VALUE','green',.0035,typing)
+text('SELECT FIELD / TYPE ON ICP',0,-.75,nil,'blue',.0027,D.choice('F22_SMS_ENTRY_LENGTH',0,program))
+choice('CHECK VALUE',0,-.84,'F22_SMS_ENTRY_ERROR',1,'yellow',.0030,program)
+for _,field in ipairs({{1,-.35,-.52,.52},{5,.35,-.52,.52},{2,0,-.64,.95},{3,0,-.64,.95}})do
+ D.box(field[2],field[3],field[4],.085,'green',D.choice('F22_SMS_ENTRY_FIELD',field[1],program))
+end
 local noentry=D.choice('F22_SMS_ENTRY_FIELD',0,normal)
-text('STN %.0f',0,-.59,'F22_SMS_TARGET_STATION_DISPLAY','blue',.0032,D.choice(ui_parameter,1,noentry))
-text('PP %.0f',.56,-.59,'F22_SMS_MISSION_SLOT','blue',.0028,D.choice(ui_parameter,1,noentry))
-choice('NO TARGET',0,-.68,'F22_SMS_TARGET_VALID',0,'blue',.0032,D.choice(ui_parameter,1,noentry))
-choice('LIVE DESIGNATION',0,-.68,'F22_SMS_TARGET_SOURCE',1,'blue',.0032,D.choice(ui_parameter,1,noentry))
-choice('STORED COORDINATE',0,-.68,'F22_SMS_TARGET_SOURCE',2,'green',.0032,D.choice(ui_parameter,1,noentry))
+text('STN %.0f',-.48,-.35,'F22_SMS_TARGET_STATION_DISPLAY','blue',.0032,coordinates)
+text('PP %.0f',.48,-.35,'F22_SMS_MISSION_SLOT','blue',.0028,coordinates)
 text('LOCAL WORLD  NEU  METRES',0,-.43,nil,'blue',.0032,coordinates)
 text('N %.0f M',0,-.51,'F22_SMS_TARGET_N','white',.0032,coordinates)
 text('E %.0f M',0,-.59,'F22_SMS_TARGET_E','white',.0032,coordinates)
