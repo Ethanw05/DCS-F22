@@ -25,6 +25,8 @@ HOST = ["LockOn_Options", "GetSelf", "get_base_data", "get_param_handle", "make_
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--luacheck-src", type=Path, default=ROOT.parent / "DCS-F22-radar/build-radar/luacheck-1.2.0/src")
+    parser.add_argument("--base", default="f22-overhaul-start-2026-10-27")
+    parser.add_argument("--files", nargs="+", help="Explicit repository-relative Lua source paths")
     args = parser.parse_args()
     lua = LuaRuntime(unpack_returned_tuples=True)
     lua.globals().lint_path = args.luacheck_src.resolve().as_posix()
@@ -38,10 +40,10 @@ function lint(source)
 end
 ''')
     errors, legacy = 0, 0
-    for item in FILES:
-        relative = "Cockpit/Scripts/" + item
+    selected = args.files or ["Cockpit/Scripts/" + item for item in FILES]
+    for relative in selected:
         path = ROOT / relative
-        old = subprocess.run(["git", "show", "f22-overhaul-start-2026-10-27:" + relative],
+        old = subprocess.run(["git", "show", args.base + ":" + relative],
                              cwd=ROOT, capture_output=True)
         baseline = Counter()
         if old.returncode == 0:

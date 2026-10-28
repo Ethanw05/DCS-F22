@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "status": "actual unchanged shared-source pre-fix reproduction, not final acceptance oracle",
+  "recorded_utc": "2026-10-28T22:07:52.493063+00:00",
+  "source": "Cockpit/Scripts/Systems/AG_Mark_System.lua",
+  "source_sha256": "184c9fa74f9d35d35dd79d9625dc95d46a3d579fb7fb70ba262abc0201238391",
+  "events": [
+    "initialize coherent empty ground packet",
+    "publish writing/odd control3 with new logical1 but valid0",
+    "Mark activity enters while producer writing",
+    "commit even4 with same logical1 and valid1",
+    "Mark activity reads completed source"
+  ],
+  "observed": {
+    "source_logical": 1,
+    "source_valid": 1,
+    "HUD_AG_TARGET_VALID": 0
+  },
+  "requirement": "Uncommitted packet cannot consume a logical designation; completed same logical request must be recoverable.",
+  "result": "dropped completed logical1; actual old Mark consumes raw sequence during in-progress source",
+  "limits": [
+    "synthetic field-boundary schedule, not observed DCS concurrency",
+    "shared patch remains unapplied; no install/native/DCS operation"
+  ]
+}

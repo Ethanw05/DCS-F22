@@ -1,0 +1,11 @@
+{
+  "applied": false,
+  "path": "EFM/source/NativeSidewinder.cpp",
+  "baseline_sha256": "584d93372a88d5ccb46881e333285e16ab0959a9c6cbcb3000a99c7f4ff64380",
+  "patch_sha256": "428b9bc74807559bdc5d916dbdb65f95505280c6b74038c5ac859cd4e256a590",
+  "proposed_text_sha256": "02f8bf7abb80bd7eb73004fc68d87311ff0bfd4d0c1e520c0af99615fc595973",
+  "source_scope": "include; ground target preparation/callback helpers and fixed handle caches; reset invalidation only",
+  "preserved": "Existing parameter_epoch guards retained; IrControls and all code outside named ground/include/callback/reset hunks preserved; arm/WoW/station/mode/schema2/solution target identity+point+.2s leases+actual launch/type guards retained",
+  "permission_flags": "Exact0/1 consent/power/arm/guided andWoW0: rejects.5/negative/2 and preserves the already migrated strict preparation contract",
+  "unqualified": "Candidate external translation unit syntax/static analysis pending; actual callback lifetime/native effects unqualified"
+}

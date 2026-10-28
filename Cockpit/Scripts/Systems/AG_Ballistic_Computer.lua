@@ -3,6 +3,7 @@ local base = get_base_data()
 local dt = 0.05
 make_default_activity(dt)
 local geom = dofile(LockOn_Options.script_path .. "Systems/NavGeometry.lua")
+local target_snapshot=dofile(LockOn_Options.script_path..'Systems/AG_Target_Snapshot.lua')
 local delivery = dofile(LockOn_Options.script_path .. "Systems/AG_Delivery.lua")
 local handles = {}
 local function h(n)
@@ -95,7 +96,8 @@ function update()
 		pending=nil;put('F22_AG_BOMB_REQUEST_VALID',0)
 		return
 	end
-	local target_seq = get("F22_AG_TARGET_SEQUENCE")
+	local selected_target=target_snapshot.read_delivery(get,now)
+	local target_seq=selected_target and selected_target.sequence or 0
 	local changed = mode ~= last_mode
 		or get("F22_AG_WEAPON_TYPE4") ~= last_type
         or get("F22_AG_WEAPON_TYPE3") ~= last_type3
@@ -131,9 +133,10 @@ function update()
 		if get("F22_AG_BOMB_SELECTED") < 0.5 then
 			pending=nil;put('F22_AG_BOMB_REQUEST_VALID',0);return
 		end
-        local source=get('F22_AG_DELIVERY_TARGET_SOURCE')
-        local target=source>0 and get('F22_AG_DELIVERY_TARGET_VALID')>.5 or source==0 and get('HUD_AG_TARGET_VALID')>.5
-        local target_point={n=source>0 and get('F22_AG_DELIVERY_TARGET_N')or get('HUD_AG_MARK_NORTH'),u=source>0 and get('F22_AG_DELIVERY_TARGET_U')or get('HUD_AG_MARK_ALT'),e=source>0 and get('F22_AG_DELIVERY_TARGET_E')or get('HUD_AG_MARK_EAST')}
+        local checked=selected_target
+        local source=checked and checked.delivery_source or 0
+        local target=checked~=nil
+        local target_point=checked or {n=0,u=0,e=0}
         if mode==3 and not target then pending=nil;put('F22_AG_BOMB_REQUEST_VALID',0);return end
         local ground=mode==3 and target_point.u or last_ground or height(n,e)
 		if not ground then
@@ -163,8 +166,12 @@ function update()
         -- every bomb. Only guided AUTO uses the designated target's plane.
         local guided=mode==3 and (get('F22_AG_GUIDED_SELECTED')>.5 or get('F22_AG_WEAPON_TYPE3')==36)
         local context={mode=mode,station=get('F22_WEAPON_STATION'),type3=get('F22_AG_WEAPON_TYPE3'),type4=get('F22_AG_WEAPON_TYPE4'),
-            target_source=source,target_sequence=get('F22_AG_DELIVERY_TARGET_SEQUENCE'),target_valid=target and 1 or 0,
-            target_n=target_point.n,target_u=target_point.u,target_e=target_point.e}
+            target_source=source,target_sequence=checked and checked.sequence or 0,target_valid=target and 1 or 0,
+            target_n=target_point.n,target_u=target_point.u,target_e=target_point.e,
+            target_observation_known=checked and checked.observation_known or false,
+            target_observation_time=checked and checked.time or -100,
+            target_epoch=checked and checked.epoch or 0,target_request=checked and checked.request or 0,
+            target_kind=checked and checked.kind or 0}
         local q=pending;local consumed
         if q then
             local same=true;for key,value in pairs(context)do if q.context[key]~=value then same=false end end
@@ -284,8 +291,8 @@ function update()
     put("HUD_AG_DIL_X1",ccip_x)
     put("HUD_AG_DIL_Y1",ccip_y+optical)
     if mode==3 then
-        local source=get('F22_AG_DELIVERY_TARGET_SOURCE')
-        local target={n=source>0 and get('F22_AG_DELIVERY_TARGET_N')or get('HUD_AG_MARK_NORTH'),u=source>0 and get('F22_AG_DELIVERY_TARGET_U')or get('HUD_AG_MARK_ALT'),e=source>0 and get('F22_AG_DELIVERY_TARGET_E')or get('HUD_AG_MARK_EAST')}
+        local target=target_snapshot.read_delivery(get,now)
+        if not target then put('F22_AG_SOLUTION_VALID',0);put('F22_AG_BOMB_REQUEST_VALID',0);return end
         local guided=get('F22_AG_GUIDED_SELECTED')>.5 or get('F22_AG_WEAPON_TYPE3')==36
         local solution
         if guided then

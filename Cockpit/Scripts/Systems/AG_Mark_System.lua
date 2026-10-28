@@ -28,7 +28,34 @@ for _,name in ipairs({"HUD_AG_TGT_X_SLOPE","HUD_AG_TGT_Y_SLOPE",
 local function finite(v)
 	return type(v) == "number" and v == v and math.abs(v) < 1e7
 end
-local terrain, target, mark_sequence, radar_sequence, request, sequence = nil, nil, 0, 0, nil, 0
+local evidence=dofile(LockOn_Options.script_path.."Systems/AG_Target_Provenance.lua")
+local target_snapshot=dofile(LockOn_Options.script_path.."Systems/AG_Target_Snapshot.lua")
+local terrain, target, mark_sequence, radar_sequence, request, sequence = nil, nil, 0, nil, nil, 0
+local radar_epoch,packet_sequence,packet_epoch,last_clock=nil,0,1,nil
+local empty_target={n=0,u=0,e=0,source=0}
+local function model_clock()
+ local ok,now=pcall(get_model_time)
+ if ok and type(now)=="number" and now==now and now>=0 and now<1e9 then return now end
+end
+local function begin_packet()
+ packet_sequence=packet_sequence>=16777212 and 2 or packet_sequence+2
+ put("F22_AG_TARGET_PACKET_SEQUENCE",packet_sequence-1)
+ put("HUD_AG_TARGET_VALID",0);put("HUD_AG_CUE_VALID",0);put("HUD_AG_EDGE_VALID",0)
+end
+local function finish_packet(now,healthy)
+ local p=target or empty_target
+ if not healthy then put("HUD_AG_TARGET_VALID",0)end
+ put("F22_AG_TARGET_SOURCE",p.source)
+ put("F22_AG_TARGET_SEQUENCE",sequence)
+ put("HUD_AG_MARK_NORTH",p.n)
+ put("HUD_AG_MARK_ALT",p.u)
+ put("HUD_AG_MARK_EAST",p.e)
+ target_snapshot.publish_metadata(put,"F22_AG_TARGET_",target)
+ put("F22_AG_TARGET_PACKET_SCHEMA",1)
+ put("F22_AG_TARGET_PACKET_EPOCH",packet_epoch)
+ put("F22_AG_TARGET_PACKET_TIME",now or -100)
+ put("F22_AG_TARGET_PACKET_SEQUENCE",packet_sequence)
+end
 local waypoint_request
 -- A NAV designation captures the selected coordinates on the command edge.
 -- Display publications can still describe the previous waypoint for one tick.
@@ -56,19 +83,26 @@ local function height(n, e)
 end
 local function clear()
 	target = nil
-	sequence = sequence + 1
+	sequence = sequence>=16777215 and 1 or sequence+1
 	put("F22_AG_TARGET_SEQUENCE", sequence)
 	put("HUD_AG_TARGET_VALID", 0)
 	put("HUD_AG_CUE_VALID", 0)
 	put("HUD_AG_EDGE_VALID", 0)
 	put("HUD_AG_TGT_RANGE_NM", 0)
 end
-local function assign(n, u, e, source)
+local function assign(n, u, e, source, origin)
 	if not finite(n) or not finite(u) or not finite(e) then
 		return
 	end
-	target = { n = n, u = u, e = e, source = source }
-	sequence = sequence + 1
+	target = { n=n,u=u,e=e,source=source,time=-100,epoch=0,request=0,kind=0,live=false,
+        observation_known=false,observation_sequence=0 }
+    if source==2 then
+        if not origin then target=nil;return end
+        target.time,target.epoch,target.request=origin.time,origin.epoch,origin.request
+        target.kind,target.live=origin.kind,origin.live
+        target.observation_known,target.observation_sequence=true,origin.sequence
+    end
+	sequence = sequence>=16777215 and 1 or sequence+1
 	put("F22_AG_TARGET_SOURCE", source)
 	put("F22_AG_TARGET_SEQUENCE", sequence)
 end
@@ -108,6 +142,10 @@ local function designate_los()
 	end
 end
 function post_initialize()
+ begin_packet()
+ local previous=get("F22_AG_TARGET_PACKET_EPOCH")
+ packet_epoch=type(previous)=="number" and previous==previous and previous>=0
+  and previous<16777215 and previous%1==0 and previous+1 or 1
 	local ok, t = pcall(require, "terrain")
 	if ok and type(t) == "table" and type(t.GetHeight) == "function" then
 		terrain = t
@@ -120,7 +158,11 @@ function post_initialize()
 	put("F22_NAV_TARGET_ACK_TARGET_SEQUENCE", 0)
 	clear()
 	mark_sequence = get("HUD_AG_MARK_SEQUENCE")
-	radar_sequence = get("F22_AG_DESIGNATION_SEQUENCE")
+	local now=model_clock()
+ local packet=evidence.read(get,now)
+ radar_sequence,radar_epoch=packet and packet.sequence,packet and packet.epoch
+ last_clock=now
+ finish_packet(now,true)
 end
 function SetCommand(c, v)
 	if c ~= 10843 and (c < 10810 or c > 10812) then
@@ -140,31 +182,23 @@ function SetCommand(c, v)
 		request = c
 	end
 end
-function update()
+local function update_body(now)
 	local marks = get("HUD_AG_MARK_SEQUENCE")
-	local radar = get("F22_AG_DESIGNATION_SEQUENCE")
+	local radar = evidence.read(get,now)
 	if get("MAIN_POWER") < 0.5 then
 		clear()
 		acknowledge_waypoint(waypoint_request, 4)
 		waypoint_request = nil
 		request = nil
 		mark_sequence = marks
-		radar_sequence = radar
+		if radar then radar_sequence,radar_epoch=radar.sequence,radar.epoch end
 		return
 	end
-	if get("HUD_MODE") == 7 and radar ~= radar_sequence then
-		radar_sequence = radar
-		if get("F22_AG_DESIGNATION_VALID") > 0.5 then
-			assign(
-				get("F22_AG_DESIGNATION_NORTH"),
-				get("F22_AG_DESIGNATION_ALTITUDE"),
-				get("F22_AG_DESIGNATION_EAST"),
-				2
-			)
-		else
-			clear()
-		end
-	end
+	if get("HUD_MODE")==7 and radar and (radar.sequence~=radar_sequence or radar.epoch~=radar_epoch) then
+        radar_sequence,radar_epoch=radar.sequence,radar.epoch
+        if radar.valid then assign(radar.n,radar.u,radar.e,2,radar)else clear()end
+    end
+    if target and target.source==2 and not evidence.current(target,get,now) then clear()end
 	if get("HUD_MODE") == 7 and marks ~= mark_sequence then
 		mark_sequence = marks
 		request = target and 10811 or 10810
@@ -228,8 +262,25 @@ function update()
 	local cue=edge_projection(math.atan2(right,forward),math.atan2(up,math.sqrt(forward*forward+right*right)))
 	put("HUD_AG_CUE_VALID",az and el and cue.visible and 1 or 0)
 	put("HUD_AG_EDGE_X",cue.arrow_x);put("HUD_AG_EDGE_Y",cue.arrow_y)
-	local now=type(get_model_time)=="function" and get_model_time() or nil
 	put("HUD_AG_EDGE_FLASH",finite(now) and now%0.5<0.25 and 1 or 0)
 	put("HUD_AG_EDGE_VALID",not cue.visible and finite(now) and 1 or 0)
+end
+function update()
+ begin_packet()
+ local now=model_clock()
+ if now and last_clock and now<last_clock then
+  packet_epoch=packet_epoch>=16777215 and 1 or packet_epoch+1
+  clear();request=nil;waypoint_request=nil
+  -- Keep the seen radar packet: rewind cannot replay an old designation.
+ end
+ local healthy=now~=nil
+ if healthy then
+  local ok,message=pcall(update_body,now)
+  healthy=ok
+  if not ok and log and log.write then log.write("F22_AG_TARGET",log.ERROR or log.INFO,tostring(message))end
+ end
+ if not healthy then clear();request=nil;waypoint_request=nil end
+ last_clock=now
+ finish_packet(now,healthy)
 end
 need_to_be_closed = false

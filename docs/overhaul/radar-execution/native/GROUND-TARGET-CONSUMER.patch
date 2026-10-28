@@ -1,0 +1,168 @@
+diff --git a/EFM/source/NativeSidewinder.cpp b/EFM/source/NativeSidewinder.cpp
+--- a/EFM/source/NativeSidewinder.cpp
++++ b/EFM/source/NativeSidewinder.cpp
+@@ -4,6 +4,7 @@
+ #include "NativeSidewinder.h"
+ #include "NativeAesaRadar.h"
+ #include "WeaponFlightFrame.h"
++#include "GroundTargetPacket.h"
+ #include <Cockpit/CockpitAPI_Declare.h>
+ #include <Windows.h>
+ #include <array>
+@@ -353,34 +354,60 @@
+ void** payload_slot=nullptr;
+ void** payload_original=nullptr;
+ using PayloadLaunch=unsigned (__fastcall*)(void*,unsigned,unsigned,unsigned,const float*,bool);
+-constexpr std::array<const char*,24> ground_live_names={
++constexpr std::array<const char*,26> ground_live_names={
+     "F22_AG_RELEASE_CONSENT","MAIN_POWER","MASTER_ARM","WoW","HUD_MODE","HUD_AG_SUBMODE","F22_WEAPON_STATION",
+     "F22_AG_SOLUTION_VALID","F22_AG_SOLUTION_STATION","F22_AG_SOLUTION_SEQUENCE","F22_AG_SOLUTION_TIME",
+     "F22_AG_DELIVERY_TARGET_VALID","F22_AG_SOLUTION_TARGET_VALID","F22_AG_DELIVERY_TARGET_SOURCE","F22_AG_SOLUTION_TARGET_SOURCE",
+     "F22_AG_DELIVERY_TARGET_SEQUENCE","F22_AG_SOLUTION_TARGET_SEQUENCE","F22_AG_DELIVERY_TARGET_N","F22_AG_SOLUTION_TARGET_N",
+-    "F22_AG_DELIVERY_TARGET_U","F22_AG_SOLUTION_TARGET_U","F22_AG_DELIVERY_TARGET_E","F22_AG_SOLUTION_TARGET_E","F22_AG_SOLUTION_SCHEMA"};
++    "F22_AG_DELIVERY_TARGET_U","F22_AG_SOLUTION_TARGET_U","F22_AG_DELIVERY_TARGET_E","F22_AG_SOLUTION_TARGET_E","F22_AG_SOLUTION_SCHEMA",
++    "F22_IR_MODE","F22_AG_GUIDED_SELECTED"};
++struct GroundHandles {
++    EDPARAM* owner{};std::uint64_t context{};
++    std::array<void*,ground_live_names.size()> values{};
++    void invalidate(){owner=nullptr;context=0;values.fill(nullptr);}
++    bool bind(EDPARAM& p){
++        if(owner==&p&&context==p.epoch()&&p.numericReady())return true;
++        invalidate();const auto before=p.epoch();
++        if(!p.numericReady()||!GroundTargetPacket::bind_handles(p,values,ground_live_names)||before!=p.epoch())return false;
++        owner=&p;context=before;return true;
++    }
++} ground_handles;
++GroundTargetPacket::Reader ground_target_reader;
+ struct GroundRelease {
+     bool valid=false;unsigned station=0;double delivery_mode=0,stamp=-100,solution_time=0,solution_sequence=0,target_source=0,target_sequence=0;
+     std::array<float,3> point{};std::array<double,3> identity_point{};EDPARAM* parameters=nullptr;
+     std::array<void*,ground_live_names.size()> live_handles{};
+     std::uint64_t parameter_epoch=0;
++    GroundTargetPacket::Target target{};GroundTargetPacket::Binding target_binding{};
+ };
+-bool ground_identity_current(const GroundRelease& g) {
+-    if(!g.parameters || g.parameters->epoch()!=g.parameter_epoch)return false;
+-    // This payload callback must not traverse/insert into the update thread's
+-    // mutable handle map. Bind handles during preparation and copy with cache.
++bool ground_values(const GroundRelease& g,std::array<double,ground_live_names.size()>& live) {
++    if(!g.parameters||g.target_binding.port!=g.parameters||g.parameters->epoch()!=g.parameter_epoch||g.parameter_epoch!=g.target_binding.context)return false;
++    double sequence{},valid{},after{},after_valid{};
++    if(!g.parameters->getParamNumber(g.live_handles[9],sequence)||!g.parameters->getParamNumber(g.live_handles[7],valid))return false;
++    for(unsigned i=0;i<live.size();++i)if(!g.parameters->getParamNumber(g.live_handles[i],live[i]))return false;
++    if(!g.parameters->getParamNumber(g.live_handles[9],after)||!g.parameters->getParamNumber(g.live_handles[7],after_valid))return false;
++    return sequence==live[9]&&sequence==after&&valid==live[7]&&valid==after_valid&&g.parameters->epoch()==g.parameter_epoch;
++}
++bool ground_control_policy(const GroundRelease& g,const std::array<double,ground_live_names.size()>& v) {
++    return GroundTargetPacket::release_flags(v[0],v[1],v[2],v[3],v[25])&&v[4]==7&&v[5]==g.delivery_mode&&
++        v[6]==g.station&&v[24]==7;
++}
++bool ground_solution_policy(const GroundRelease& g,const std::array<double,ground_live_names.size()>& v) {
++    return v[7]==1&&v[8]==g.station&&v[9]==g.solution_sequence&&v[10]==g.solution_time&&v[11]==1&&v[12]==1&&v[23]==2;
++}
++bool ground_point_policy(const GroundRelease& g,const std::array<double,ground_live_names.size()>& v) {
++    if(v[13]!=g.target_source||v[14]!=g.target_source||v[15]!=g.target_sequence||v[16]!=g.target_sequence)return false;
++    for(unsigned i=0;i<3;++i)if(v[17+i*2]!=g.identity_point[i]||v[18+i*2]!=g.identity_point[i])return false;
++    return true;
++}
++bool ground_identity_current(const GroundRelease& g,double now) {
++    GroundTargetPacket::Target current;
++    if(!GroundTargetPacket::read(g.target_binding,now,current)||!GroundTargetPacket::current(g.target_binding,g.target,current,now))return false;
++    // Copied fixed handles only: no callback lookup or mutable map traversal.
+     std::array<double,ground_live_names.size()> live{};
+-    for(unsigned i=0;i<live.size();++i){
+-        if(!g.live_handles[i])return false;
+-        if(!g.parameters->getParamNumber(g.live_handles[i],live[i]))return false;
+-    }
+-    const auto value=[&live](unsigned i){return live[i];};
+-    if(value(0)<.5 || value(1)<.5 || value(2)<.5 || value(3)>.5 || value(4)!=7 || value(5)!=g.delivery_mode ||
+-       value(6)!=g.station || value(7)<.5 || value(8)!=g.station || value(9)!=g.solution_sequence ||
+-       value(10)!=g.solution_time || value(11)<.5 || value(12)<.5 || value(23)!=2)return false;
+-    if(value(13)!=g.target_source || value(14)!=g.target_source || value(15)!=g.target_sequence || value(16)!=g.target_sequence)return false;
+-    for(unsigned i=0;i<3;++i)if(value(17+i*2)!=g.identity_point[i] || value(18+i*2)!=g.identity_point[i])return false;
+-    return g.parameters->epoch()==g.parameter_epoch;
++    if(!ground_values(g,live))return false;
++    return ground_control_policy(g,live)&&ground_solution_policy(g,live)&&ground_point_policy(g,live)&&
++        GroundTargetPacket::current(g.target_binding,g.target,current,now);
+ }
+ SRWLOCK ground_release_lock=SRWLOCK_INIT;
+ GroundRelease ground_release{};
+@@ -388,41 +415,29 @@
+     return (mode==2 && source==3) || (mode==3 && (source==1 || source==2));
+ }
+ void update_ground_release(EDPARAM& p) {
+-    GroundRelease next;
+-    const double now=api.clock?api.clock():-100;
+-    constexpr std::array<const char*,17> names{{"F22_AG_SOLUTION_TIME","F22_WEAPON_STATION",
+-        "F22_AG_DELIVERY_TARGET_N","F22_AG_DELIVERY_TARGET_U","F22_AG_DELIVERY_TARGET_E","HUD_AG_SUBMODE",
+-        "F22_IR_MODE","F22_AG_DELIVERY_TARGET_VALID","F22_AG_GUIDED_SELECTED","MASTER_ARM","MAIN_POWER",
+-        "WoW","F22_AG_SOLUTION_VALID","F22_AG_SOLUTION_STATION","F22_AG_SOLUTION_SEQUENCE",
+-        "F22_AG_DELIVERY_TARGET_SOURCE","F22_AG_DELIVERY_TARGET_SEQUENCE"}};
+-    std::array<double,17> fields{};
+-    if(!read_fields(p,names,fields)) {
+-        write(p,"F22_AG_GUIDANCE_CACHE_VALID",0);
+-        AcquireSRWLockExclusive(&ground_release_lock);ground_release={};ReleaseSRWLockExclusive(&ground_release_lock);
+-        return;
+-    }
+-    const double stamp=fields[0],station=fields[1];
+-    // Weapon_System resolves live designation versus an explicit station target.
+-    const double n=fields[2],u=fields[3],e=fields[4];
+-    next.delivery_mode=fields[5];
+-    next.valid=fields[6]==7 && (next.delivery_mode==2 || next.delivery_mode==3) && fields[7]==1 &&
+-        fields[8]==1 && fields[9]==1 && fields[10]==1 && fields[11]==0 &&
+-        fields[12]==1 && fields[13]==station && std::isfinite(now) && stamp>=0 && now>=stamp && now-stamp<=.2 &&
+-        std::isfinite(station) && station>=0 && station<=10 && station==std::floor(station) &&
+-        std::isfinite(n) && std::isfinite(u) && std::isfinite(e) && std::abs(n)<1e7 && std::abs(e)<1e7 && u>=-1000 && u<20000;
+-    next.station=next.valid?static_cast<unsigned>(station):0;next.stamp=now;
+-    next.solution_time=stamp;next.solution_sequence=fields[14];
+-    next.target_source=fields[15];next.target_sequence=fields[16];
+-    next.identity_point={n,u,e};next.parameters=&p;next.parameter_epoch=p.epoch();
+-    for(unsigned i=0;i<ground_live_names.size();++i)next.live_handles[i]=p.getParamHandle(ground_live_names[i]);
+-    next.valid=next.valid && std::isfinite(next.solution_sequence) && next.solution_sequence>0 && next.solution_sequence==std::floor(next.solution_sequence) &&
+-        std::isfinite(next.target_sequence) && next.target_sequence>=0 && next.target_sequence==std::floor(next.target_sequence) &&
+-        ground_delivery_source(next.delivery_mode,next.target_source) && ground_identity_current(next);
+-    next.point={static_cast<float>(n),static_cast<float>(u),static_cast<float>(e)};
++    GroundRelease next;const double now=api.clock?api.clock():-100;
++    next.parameters=&p;next.parameter_epoch=p.epoch();next.stamp=now;
++    if(ground_target_reader.capture(p,now,next.target)&&ground_handles.bind(p)){
++        next.target_binding=ground_target_reader.binding();next.live_handles=ground_handles.values;
++        std::array<double,ground_live_names.size()> live{};
++        if(ground_values(next,live)){
++            const double station=live[6];const auto& point=next.target.identity.point;
++            next.delivery_mode=live[5];next.solution_time=live[10];next.solution_sequence=live[9];
++            next.target_source=next.target.identity.delivery_source;next.target_sequence=next.target.identity.sequence;
++            next.identity_point=point;
++            const bool station_valid=GroundTargetPacket::integer(station,0,10);
++            next.station=station_valid?static_cast<unsigned>(station):0;
++            next.valid=station_valid&&(next.delivery_mode==2||next.delivery_mode==3)&&GroundTargetPacket::fresh(now,next.solution_time,.2)&&
++                GroundTargetPacket::integer(next.solution_sequence,1,9007199254740991.0)&&
++                std::abs(point[0])<1e7&&std::abs(point[2])<1e7&&point[1]>=-1000&&point[1]<20000&&
++                ground_delivery_source(next.delivery_mode,next.target_source)&&ground_identity_current(next,now);
++            if(next.valid)next.point={static_cast<float>(point[0]),static_cast<float>(point[1]),static_cast<float>(point[2])};
++        }
++    }
+     write(p,"F22_AG_GUIDANCE_CACHE_VALID",next.valid?1:0);write(p,"F22_AG_GUIDANCE_CACHE_TIME",now);
+     write(p,"F22_AG_GUIDANCE_CACHE_STATION",next.station);write(p,"F22_AG_GUIDANCE_CACHE_SOLUTION_SEQUENCE",next.solution_sequence);
+     write(p,"F22_AG_GUIDANCE_CACHE_TARGET_SOURCE",next.target_source);write(p,"F22_AG_GUIDANCE_CACHE_TARGET_SEQUENCE",next.target_sequence);
+-    write(p,"F22_AG_GUIDANCE_CACHE_TARGET_N",n);write(p,"F22_AG_GUIDANCE_CACHE_TARGET_U",u);write(p,"F22_AG_GUIDANCE_CACHE_TARGET_E",e);
++    write(p,"F22_AG_GUIDANCE_CACHE_TARGET_N",next.identity_point[0]);write(p,"F22_AG_GUIDANCE_CACHE_TARGET_U",next.identity_point[1]);write(p,"F22_AG_GUIDANCE_CACHE_TARGET_E",next.identity_point[2]);
+     AcquireSRWLockExclusive(&ground_release_lock);ground_release=next;ReleaseSRWLockExclusive(&ground_release_lock);
+     write(p,"F22_AG_GUIDANCE_BACKEND_READY",api.profile_valid && payload_original?1:0);
+ }
+@@ -440,7 +455,7 @@
+         const double now=api.clock?api.clock():-100;
+         if(!ground.valid || ground.station!=station || !std::isfinite(now) || now<ground.stamp || now-ground.stamp>.2 ||
+            now<ground.solution_time || now-ground.solution_time>.2 ||
+-           !ground_identity_current(ground))return 0;
++           !ground_identity_current(ground,now))return 0;
+         point=ground.point.data();target=0;
+     }
+     const unsigned radar_track = (mode==2 || mode==3) ? NativeAesaRadar::track_for_host(target) : 0;
+@@ -762,6 +777,7 @@
+ void reset(EDPARAM* parameters) {
+     // Drain an in-flight IR update before invalidating/discarding its resources.
+     const FeedbackGuard use(FeedbackAccess::Lifecycle);
++    ground_target_reader.invalidate();ground_handles.invalidate();
+     if (parameters && parameters->ed_param_api.pfn_ed_cockpit_get_parameter_handle &&
+         parameters->ed_param_api.pfn_ed_cockpit_update_parameter_with_number) {
+         auto handle = parameters->getParamHandle("F22_IR_SAMPLE_VALID");

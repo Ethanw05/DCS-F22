@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "status": "new actual helper source; shared consumer patch UNAPPLIED, tested in memory over current actual files",
+  "recorded_utc": "2026-10-28T22:19:40.851996+00:00",
+  "head": "16d762585cc7e575a8fefbc7e4f7456e0989bfb9",
+  "requirements": [
+    "R-RAD-003",
+    "R-RAD-015",
+    "D-R-RAD-003",
+    "R-RAD-011"
+  ],
+  "observed_tests": {
+    "command_argv": [
+      ".venv/Scripts/python.exe",
+      "-c",
+      "import sys,unittest; sys.path.insert(0,\"tests\"); suite=unittest.defaultTestLoader.discover(\"tests/cases\",pattern=\"test_radar_target_handoff.py\"); result=unittest.TextTestRunner(verbosity=2).run(suite); raise SystemExit(not result.wasSuccessful())"
+    ],
+    "count": 17,
+    "passed": true,
+    "exit_code": 0,
+    "seconds": 0.272
+  },
+  "checks": {
+    "lua51_syntax": "all5 proposed shared sources and new helper compiled through actual Lua5.1 in case",
+    "patch_apply_check": "git apply --check --ignore-space-change SHARED.patch passed; patch not applied",
+    "whitespace": "git diff --check passed",
+    "new_helper_complexity": "25 functions, maximum CC10, no >15 exception"
+  },
+  "files": [
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Target_Snapshot.lua",
+      "sha256": "95bac2ce9f7e3218c22a5a727a783f4ea298f6bc69ac56dfa72a198d17ec997f"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Target_Provenance.lua",
+      "sha256": "50122a6be5ee0803f071a1ad00f99d184dfbcb26f63372a9a6e6526b69adb5b6"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Radar_Protocol.lua",
+      "sha256": "1b9104dcb2461d872df8dade08ae7a882f3ca9aec8f3b3d1149dfd4477d1e81e"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Radar_System.lua",
+      "sha256": "4321f7a428fc7b15d2c6a9cb0c5f8863ab28652c5e25b1e5c28f793c986e62ee"
+    },
+    {
+      "path": "tests/cases/test_radar_target_handoff.py",
+      "sha256": "1490ecc140988da46cb6c26cd720140aafbd88d96f8a7d564992b3c402c05e0b"
+    },
+    {
+      "path": "tests/host.py",
+      "sha256": "17d3d4283fba33d50048ecaba4415bbd75e59641fe1b5f14af461e457126ee41"
+    },
+    {
+      "path": "tests/host.lua",
+      "sha256": "2401d94118c44e109af7f7876c94b25ce1c779d359070477b41bfcea3cadf608"
+    },
+    {
+      "path": "tests/weapon_ports.py",
+      "sha256": "0e6a7f19ede4aa0a3dfb070d4ea48815da7bc91401659803530264eec28c6bb1"
+    },
+    {
+      "path": "EFM/source/NativeSidewinder.cpp",
+      "sha256": "547921ca1673e9838dc4fb880bb172f6e6bf61a9338f514754b56692f95bac01"
+    }
+  ],
+  "patch_sha256": "0b4ff4a72a96fd51544b1761bf709c004e365b4e0a237e8005987cb1e4aaf01a",
+  "expected_shared_sources": "EXPECTED-SOURCES.json",
+  "test_failure_correction": "Initial guided fixture replaced inventory but had not allowed the actual bounded inventory poll or selected AUTO. The final fixture advances20 real activities and selects AUTO through saved command10809; no acceptance predicate relaxed.",
+  "remaining_consumers": [
+    {
+      "owner": "root radar",
+      "path": "Cockpit/Scripts/Systems/AG_Radar_System.lua",
+      "region": "MAP target projection reading raw HUD_AG_MARK_NORTH/EAST"
+    },
+    {
+      "owner": "Chat4/Chat2 native shared region",
+      "path": "EFM/source/NativeSidewinder.cpp",
+      "regions": [
+        "ground_live_names",
+        "ground_identity_current",
+        "update_ground_release"
+      ],
+      "required": "checked conversion+complete packet/epoch/source lease+original provenance through actual native preparation/cache/launch comparison; no one-argument value-only reads"
+    }
+  ],
+  "untested": [
+    "Actual shared-file integration and after-integration regression",
+    "Native guided cache/launch consumer migration",
+    "Actual host callback order/lifetime/render/pilot/native effects",
+    "DCS installation/loaded identity/2D/VR/multiplayer"
+  ],
+  "operations": {
+    "shared_sources_edited": false,
+    "staged_or_committed": false,
+    "build_or_install": false,
+    "simulator_or_hook_operated": false
+  }
+}

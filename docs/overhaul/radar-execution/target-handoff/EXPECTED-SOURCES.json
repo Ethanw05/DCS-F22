@@ -1,0 +1,35 @@
+{
+  "status": "APPLIED by integrator; scoped lint corrections reviewed",
+  "files": [
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Mark_System.lua",
+      "expected_sha256": "184c9fa74f9d35d35dd79d9625dc95d46a3d579fb7fb70ba262abc0201238391",
+      "proposed_text_sha256": "4f2f8f1c1d1ab95ffded20e356b3cf49fb45f3e9689c69e03736b0c835672c01",
+      "review_proposed_text_sha256": "6038c06e965881bf21186ed00f5657c82aa6160abe452686fb2362e0ba86b670"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Stores.lua",
+      "expected_sha256": "41b883f7b6d90d8eb86038dd274397ad2c8aad06c0565930ef9a52c168276e97",
+      "proposed_text_sha256": "09284e69523c2d695a377a09a1e15583a7d430686662f6b52f82f460eff43886",
+      "review_proposed_text_sha256": "09284e69523c2d695a377a09a1e15583a7d430686662f6b52f82f460eff43886"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Weapon_System.lua",
+      "expected_sha256": "7eb9da1e57cff6a73a197be38d19dea115d65353defca9d251f01bd7bb50cce6",
+      "proposed_text_sha256": "becafff576718d8b2c108ebf5218b4d2c38597a8ee33e4562aef3ccbfb5dde8e",
+      "review_proposed_text_sha256": "96703e018ce916c5570d98d7751d74d4d01e6a0c2d3d5ba4b3eef1f7bc34d990"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Navigation_System.lua",
+      "expected_sha256": "1dda01ab55e5cf92c60c581fa5b21f21f832a796fee2674e8e6c9199f79b395c",
+      "proposed_text_sha256": "4a336fe165e35483751f76c93dd5170bbbbc3e1acf84ca353c10bdd05f7d576f",
+      "review_proposed_text_sha256": "4a336fe165e35483751f76c93dd5170bbbbc3e1acf84ca353c10bdd05f7d576f"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Ballistic_Computer.lua",
+      "expected_sha256": "1f4e2ca1aaf24efcc9048b5f43172bc246ba806f9e631c551d9246c3f87c0bf9",
+      "proposed_text_sha256": "1da75376d5a050a3dbe1db7b7f7546f96846065cf8ed623636de1d5126ec476f",
+      "review_proposed_text_sha256": "1da75376d5a050a3dbe1db7b7f7546f96846065cf8ed623636de1d5126ec476f"
+    }
+  ]
+}

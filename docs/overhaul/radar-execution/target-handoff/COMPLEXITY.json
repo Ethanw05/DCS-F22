@@ -1,0 +1,1097 @@
+{
+  "tool": "lizard1.17.31",
+  "new_helper_max_CC": 10,
+  "new_packet_helpers": "Mark finish4CC; Weapon stored5/selected6/CCIP4/candidate7/writer8/status9/publish1. No new helper exceeds10.",
+  "legacy_review_required": "Contended pre-existing Mark/Weapon/Nav/Stores controller bodies exceed15. Their broad unchanged behavior remains under domain review; this patch adds bounded checks and does not claim whole-file compliance. Root/region owner must accept the focused exception or schedule a serialized extraction before closure.",
+  "analyses": [
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Target_Snapshot.lua",
+      "scope": "actual new helper",
+      "functions": [
+        {
+          "name": "finite",
+          "CC": 3,
+          "nloc": 3,
+          "line": 4
+        },
+        {
+          "name": "integer",
+          "CC": 4,
+          "nloc": 3,
+          "line": 7
+        },
+        {
+          "name": "valid_clock",
+          "CC": 2,
+          "nloc": 3,
+          "line": 10
+        },
+        {
+          "name": "geometry",
+          "CC": 8,
+          "nloc": 4,
+          "line": 13
+        },
+        {
+          "name": "unmeasured",
+          "CC": 7,
+          "nloc": 4,
+          "line": 17
+        },
+        {
+          "name": "live_kind",
+          "CC": 2,
+          "nloc": 4,
+          "line": 21
+        },
+        {
+          "name": "measured",
+          "CC": 7,
+          "nloc": 6,
+          "line": 25
+        },
+        {
+          "name": "provenance",
+          "CC": 5,
+          "nloc": 6,
+          "line": 31
+        },
+        {
+          "name": "live_evidence",
+          "CC": 8,
+          "nloc": 5,
+          "line": 37
+        },
+        {
+          "name": "current_evidence",
+          "CC": 5,
+          "nloc": 6,
+          "line": 42
+        },
+        {
+          "name": "current",
+          "CC": 5,
+          "nloc": 5,
+          "line": 48
+        },
+        {
+          "name": "M.current",
+          "CC": 3,
+          "nloc": 5,
+          "line": 53
+        },
+        {
+          "name": "metadata",
+          "CC": 5,
+          "nloc": 11,
+          "line": 68
+        },
+        {
+          "name": "fresh",
+          "CC": 4,
+          "nloc": 3,
+          "line": 79
+        },
+        {
+          "name": "header",
+          "CC": 8,
+          "nloc": 11,
+          "line": 82
+        },
+        {
+          "name": "navigation_ack",
+          "CC": 3,
+          "nloc": 7,
+          "line": 93
+        },
+        {
+          "name": "payload",
+          "CC": 7,
+          "nloc": 13,
+          "line": 100
+        },
+        {
+          "name": "coherent",
+          "CC": 2,
+          "nloc": 4,
+          "line": 113
+        },
+        {
+          "name": "read",
+          "CC": 10,
+          "nloc": 10,
+          "line": 117
+        },
+        {
+          "name": "checked_read",
+          "CC": 2,
+          "nloc": 5,
+          "line": 127
+        },
+        {
+          "name": "M.read",
+          "CC": 1,
+          "nloc": 3,
+          "line": 132
+        },
+        {
+          "name": "M.read_delivery",
+          "CC": 1,
+          "nloc": 3,
+          "line": 135
+        },
+        {
+          "name": "M.read_packet",
+          "CC": 1,
+          "nloc": 3,
+          "line": 138
+        },
+        {
+          "name": "M.copy",
+          "CC": 3,
+          "nloc": 9,
+          "line": 143
+        },
+        {
+          "name": "M.publish_metadata",
+          "CC": 8,
+          "nloc": 12,
+          "line": 153
+        }
+      ]
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Mark_System.lua",
+      "scope": "unapplied proposed shared source",
+      "functions": [
+        {
+          "name": "h",
+          "CC": 2,
+          "nloc": 6,
+          "line": 12
+        },
+        {
+          "name": "get",
+          "CC": 1,
+          "nloc": 3,
+          "line": 18
+        },
+        {
+          "name": "put",
+          "CC": 1,
+          "nloc": 3,
+          "line": 21
+        },
+        {
+          "name": "finite",
+          "CC": 3,
+          "nloc": 3,
+          "line": 28
+        },
+        {
+          "name": "model_clock",
+          "CC": 6,
+          "nloc": 4,
+          "line": 36
+        },
+        {
+          "name": "begin_packet",
+          "CC": 3,
+          "nloc": 5,
+          "line": 40
+        },
+        {
+          "name": "finish_packet",
+          "CC": 4,
+          "nloc": 14,
+          "line": 45
+        },
+        {
+          "name": "acknowledge_waypoint",
+          "CC": 5,
+          "nloc": 6,
+          "line": 65
+        },
+        {
+          "name": "height",
+          "CC": 4,
+          "nloc": 9,
+          "line": 75
+        },
+        {
+          "name": "clear",
+          "CC": 3,
+          "nloc": 9,
+          "line": 84
+        },
+        {
+          "name": "assign",
+          "CC": 8,
+          "nloc": 16,
+          "line": 93
+        },
+        {
+          "name": "designate_los",
+          "CC": 10,
+          "nloc": 35,
+          "line": 109
+        },
+        {
+          "name": "post_initialize",
+          "CC": 12,
+          "nloc": 23,
+          "line": 144
+        },
+        {
+          "name": "SetCommand",
+          "CC": 19,
+          "nloc": 18,
+          "line": 167
+        },
+        {
+          "name": "update_body",
+          "CC": 52,
+          "nloc": 83,
+          "line": 185
+        },
+        {
+          "name": "update",
+          "CC": 12,
+          "nloc": 17,
+          "line": 269
+        }
+      ],
+      "inherited_actual_complexity": [
+        {
+          "name": "SetCommand",
+          "CC": 19,
+          "nloc": 18,
+          "line": 125
+        },
+        {
+          "name": "update",
+          "CC": 46,
+          "nloc": 91,
+          "line": 143
+        }
+      ]
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Stores.lua",
+      "scope": "unapplied proposed shared source",
+      "functions": [
+        {
+          "name": "M.new",
+          "CC": 1,
+          "nloc": 4,
+          "line": 6
+        },
+        {
+          "name": "valid_count",
+          "CC": 4,
+          "nloc": 3,
+          "line": 10
+        },
+        {
+          "name": "finite",
+          "CC": 3,
+          "nloc": 3,
+          "line": 13
+        },
+        {
+          "name": "shot_matches",
+          "CC": 13,
+          "nloc": 9,
+          "line": 16
+        },
+        {
+          "name": "M",
+          "CC": 15,
+          "nloc": 20,
+          "line": 25
+        },
+        {
+          "name": "M",
+          "CC": 3,
+          "nloc": 4,
+          "line": 45
+        },
+        {
+          "name": "M",
+          "CC": 4,
+          "nloc": 13,
+          "line": 49
+        },
+        {
+          "name": "M",
+          "CC": 3,
+          "nloc": 1,
+          "line": 62
+        },
+        {
+          "name": "M",
+          "CC": 3,
+          "nloc": 1,
+          "line": 63
+        },
+        {
+          "name": "M",
+          "CC": 9,
+          "nloc": 5,
+          "line": 64
+        },
+        {
+          "name": "M",
+          "CC": 7,
+          "nloc": 9,
+          "line": 88
+        },
+        {
+          "name": "M",
+          "CC": 2,
+          "nloc": 1,
+          "line": 97
+        },
+        {
+          "name": "M",
+          "CC": 20,
+          "nloc": 9,
+          "line": 102
+        },
+        {
+          "name": "M",
+          "CC": 14,
+          "nloc": 13,
+          "line": 111
+        },
+        {
+          "name": "M",
+          "CC": 7,
+          "nloc": 4,
+          "line": 124
+        },
+        {
+          "name": "M",
+          "CC": 16,
+          "nloc": 19,
+          "line": 128
+        },
+        {
+          "name": "M",
+          "CC": 1,
+          "nloc": 3,
+          "line": 147
+        },
+        {
+          "name": "M",
+          "CC": 2,
+          "nloc": 1,
+          "line": 150
+        },
+        {
+          "name": "M",
+          "CC": 10,
+          "nloc": 12,
+          "line": 151
+        },
+        {
+          "name": "M",
+          "CC": 6,
+          "nloc": 8,
+          "line": 163
+        },
+        {
+          "name": "M",
+          "CC": 12,
+          "nloc": 12,
+          "line": 171
+        },
+        {
+          "name": "M",
+          "CC": 10,
+          "nloc": 10,
+          "line": 183
+        },
+        {
+          "name": "M",
+          "CC": 19,
+          "nloc": 12,
+          "line": 193
+        },
+        {
+          "name": "M",
+          "CC": 10,
+          "nloc": 9,
+          "line": 205
+        },
+        {
+          "name": "M",
+          "CC": 16,
+          "nloc": 15,
+          "line": 214
+        },
+        {
+          "name": "M",
+          "CC": 7,
+          "nloc": 5,
+          "line": 231
+        },
+        {
+          "name": "M",
+          "CC": 2,
+          "nloc": 7,
+          "line": 236
+        },
+        {
+          "name": "M",
+          "CC": 6,
+          "nloc": 11,
+          "line": 243
+        },
+        {
+          "name": "M",
+          "CC": 1,
+          "nloc": 1,
+          "line": 255
+        },
+        {
+          "name": "M",
+          "CC": 2,
+          "nloc": 4,
+          "line": 256
+        },
+        {
+          "name": "M",
+          "CC": 2,
+          "nloc": 1,
+          "line": 267
+        },
+        {
+          "name": "M",
+          "CC": 26,
+          "nloc": 22,
+          "line": 268
+        },
+        {
+          "name": "M",
+          "CC": 23,
+          "nloc": 15,
+          "line": 290
+        },
+        {
+          "name": "M",
+          "CC": 2,
+          "nloc": 1,
+          "line": 305
+        }
+      ],
+      "inherited_actual_complexity": [
+        {
+          "name": "M",
+          "CC": 20,
+          "nloc": 9,
+          "line": 101
+        },
+        {
+          "name": "M",
+          "CC": 16,
+          "nloc": 16,
+          "line": 127
+        },
+        {
+          "name": "M",
+          "CC": 19,
+          "nloc": 12,
+          "line": 189
+        },
+        {
+          "name": "M",
+          "CC": 16,
+          "nloc": 15,
+          "line": 210
+        },
+        {
+          "name": "M",
+          "CC": 26,
+          "nloc": 22,
+          "line": 264
+        },
+        {
+          "name": "M",
+          "CC": 23,
+          "nloc": 15,
+          "line": 286
+        }
+      ]
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Weapon_System.lua",
+      "scope": "unapplied proposed shared source",
+      "functions": [
+        {
+          "name": "warning_audio_value",
+          "CC": 1,
+          "nloc": 1,
+          "line": 29
+        },
+        {
+          "name": "warning_audio_inhibit",
+          "CC": 4,
+          "nloc": 4,
+          "line": 30
+        },
+        {
+          "name": "ground_parameter",
+          "CC": 1,
+          "nloc": 1,
+          "line": 165
+        },
+        {
+          "name": "target_clock",
+          "CC": 6,
+          "nloc": 4,
+          "line": 168
+        },
+        {
+          "name": "guidance_target_matches",
+          "CC": 7,
+          "nloc": 7,
+          "line": 172
+        },
+        {
+          "name": "(anonymous)",
+          "CC": 1,
+          "nloc": 1,
+          "line": 193
+        },
+        {
+          "name": "reset_ir_feedback",
+          "CC": 9,
+          "nloc": 10,
+          "line": 199
+        },
+        {
+          "name": "ir_instance_generation",
+          "CC": 4,
+          "nloc": 11,
+          "line": 220
+        },
+        {
+          "name": "(anonymous)",
+          "CC": 1,
+          "nloc": 1,
+          "line": 233
+        },
+        {
+          "name": "(anonymous)",
+          "CC": 1,
+          "nloc": 1,
+          "line": 234
+        },
+        {
+          "name": "native_command",
+          "CC": 3,
+          "nloc": 5,
+          "line": 240
+        },
+        {
+          "name": "publish_control_state",
+          "CC": 16,
+          "nloc": 12,
+          "line": 246
+        },
+        {
+          "name": "store_kind",
+          "CC": 2,
+          "nloc": 1,
+          "line": 265
+        },
+        {
+          "name": "target_station",
+          "CC": 9,
+          "nloc": 6,
+          "line": 290
+        },
+        {
+          "name": "ground_output",
+          "CC": 1,
+          "nloc": 1,
+          "line": 297
+        },
+        {
+          "name": "delivery_output",
+          "CC": 1,
+          "nloc": 1,
+          "line": 298
+        },
+        {
+          "name": "stored_delivery",
+          "CC": 5,
+          "nloc": 5,
+          "line": 299
+        },
+        {
+          "name": "selected_delivery",
+          "CC": 6,
+          "nloc": 9,
+          "line": 304
+        },
+        {
+          "name": "ccip_delivery",
+          "CC": 4,
+          "nloc": 7,
+          "line": 313
+        },
+        {
+          "name": "delivery_candidate",
+          "CC": 7,
+          "nloc": 8,
+          "line": 320
+        },
+        {
+          "name": "write_delivery",
+          "CC": 8,
+          "nloc": 13,
+          "line": 328
+        },
+        {
+          "name": "publish_target_status",
+          "CC": 9,
+          "nloc": 11,
+          "line": 341
+        },
+        {
+          "name": "publish_delivery_target",
+          "CC": 1,
+          "nloc": 7,
+          "line": 352
+        },
+        {
+          "name": "put",
+          "CC": 1,
+          "nloc": 1,
+          "line": 363
+        },
+        {
+          "name": "publish_stores",
+          "CC": 81,
+          "nloc": 44,
+          "line": 359
+        },
+        {
+          "name": "r",
+          "CC": 1,
+          "nloc": 1,
+          "line": 408
+        },
+        {
+          "name": "newest_ground_shot",
+          "CC": 9,
+          "nloc": 13,
+          "line": 403
+        },
+        {
+          "name": "acknowledge_release",
+          "CC": 14,
+          "nloc": 15,
+          "line": 416
+        },
+        {
+          "name": "active_bay",
+          "CC": 5,
+          "nloc": 6,
+          "line": 433
+        },
+        {
+          "name": "(anonymous)",
+          "CC": 1,
+          "nloc": 1,
+          "line": 447
+        },
+        {
+          "name": "post_initialize",
+          "CC": 12,
+          "nloc": 36,
+          "line": 515
+        },
+        {
+          "name": "cancel_release",
+          "CC": 2,
+          "nloc": 12,
+          "line": 555
+        },
+        {
+          "name": "withdraw_native",
+          "CC": 6,
+          "nloc": 17,
+          "line": 567
+        },
+        {
+          "name": "native_device",
+          "CC": 12,
+          "nloc": 10,
+          "line": 584
+        },
+        {
+          "name": "withdraw_physical_consent",
+          "CC": 9,
+          "nloc": 16,
+          "line": 594
+        },
+        {
+          "name": "refresh_physical_supply",
+          "CC": 7,
+          "nloc": 14,
+          "line": 610
+        },
+        {
+          "name": "CockpitEvent",
+          "CC": 4,
+          "nloc": 13,
+          "line": 624
+        },
+        {
+          "name": "committed_entry_value",
+          "CC": 6,
+          "nloc": 8,
+          "line": 637
+        },
+        {
+          "name": "correlated_commit",
+          "CC": 13,
+          "nloc": 12,
+          "line": 645
+        },
+        {
+          "name": "SetCommand",
+          "CC": 15,
+          "nloc": 16,
+          "line": 868
+        },
+        {
+          "name": "r",
+          "CC": 1,
+          "nloc": 1,
+          "line": 893
+        },
+        {
+          "name": "stepDoor",
+          "CC": 4,
+          "nloc": 8,
+          "line": 1014
+        },
+        {
+          "name": "r",
+          "CC": 1,
+          "nloc": 1,
+          "line": 1089
+        },
+        {
+          "name": "r",
+          "CC": 1,
+          "nloc": 1,
+          "line": 1103
+        },
+        {
+          "name": "update",
+          "CC": 252,
+          "nloc": 288,
+          "line": 889
+        }
+      ],
+      "inherited_actual_complexity": [
+        {
+          "name": "publish_control_state",
+          "CC": 16,
+          "nloc": 12,
+          "line": 233
+        },
+        {
+          "name": "publish_delivery_target",
+          "CC": 42,
+          "nloc": 23,
+          "line": 283
+        },
+        {
+          "name": "publish_stores",
+          "CC": 81,
+          "nloc": 44,
+          "line": 306
+        },
+        {
+          "name": "update",
+          "CC": 246,
+          "nloc": 283,
+          "line": 836
+        }
+      ]
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Navigation_System.lua",
+      "scope": "unapplied proposed shared source",
+      "functions": [
+        {
+          "name": "get",
+          "CC": 2,
+          "nloc": 1,
+          "line": 16
+        },
+        {
+          "name": "set",
+          "CC": 2,
+          "nloc": 1,
+          "line": 17
+        },
+        {
+          "name": "designation_status",
+          "CC": 1,
+          "nloc": 3,
+          "line": 19
+        },
+        {
+          "name": "active_computer",
+          "CC": 3,
+          "nloc": 1,
+          "line": 64
+        },
+        {
+          "name": "active_waypoint",
+          "CC": 1,
+          "nloc": 4,
+          "line": 65
+        },
+        {
+          "name": "cancel_waypoint_request",
+          "CC": 1,
+          "nloc": 3,
+          "line": 80
+        },
+        {
+          "name": "quality",
+          "CC": 7,
+          "nloc": 6,
+          "line": 95
+        },
+        {
+          "name": "reference_estimates",
+          "CC": 15,
+          "nloc": 19,
+          "line": 104
+        },
+        {
+          "name": "host_observations",
+          "CC": 5,
+          "nloc": 7,
+          "line": 123
+        },
+        {
+          "name": "estimate_observations",
+          "CC": 6,
+          "nloc": 11,
+          "line": 130
+        },
+        {
+          "name": "navigation_reference",
+          "CC": 9,
+          "nloc": 11,
+          "line": 141
+        },
+        {
+          "name": "hud_projection_reference",
+          "CC": 4,
+          "nloc": 8,
+          "line": 152
+        },
+        {
+          "name": "ground_speed",
+          "CC": 4,
+          "nloc": 6,
+          "line": 160
+        },
+        {
+          "name": "ownship",
+          "CC": 6,
+          "nloc": 19,
+          "line": 166
+        },
+        {
+          "name": "height",
+          "CC": 5,
+          "nloc": 5,
+          "line": 186
+        },
+        {
+          "name": "load_route",
+          "CC": 8,
+          "nloc": 15,
+          "line": 191
+        },
+        {
+          "name": "apply_command",
+          "CC": 47,
+          "nloc": 62,
+          "line": 234
+        },
+        {
+          "name": "route_point",
+          "CC": 3,
+          "nloc": 4,
+          "line": 301
+        },
+        {
+          "name": "post_initialize",
+          "CC": 6,
+          "nloc": 19,
+          "line": 218
+        },
+        {
+          "name": "capture_mark",
+          "CC": 9,
+          "nloc": 13,
+          "line": 307
+        },
+        {
+          "name": "mark_direct",
+          "CC": 4,
+          "nloc": 14,
+          "line": 320
+        },
+        {
+          "name": "timing_command",
+          "CC": 7,
+          "nloc": 10,
+          "line": 334
+        },
+        {
+          "name": "mark_command",
+          "CC": 13,
+          "nloc": 15,
+          "line": 344
+        },
+        {
+          "name": "extra_command",
+          "CC": 3,
+          "nloc": 4,
+          "line": 359
+        },
+        {
+          "name": "is_extra",
+          "CC": 5,
+          "nloc": 4,
+          "line": 363
+        },
+        {
+          "name": "timing_distance",
+          "CC": 9,
+          "nloc": 13,
+          "line": 367
+        },
+        {
+          "name": "publish_extras",
+          "CC": 26,
+          "nloc": 33,
+          "line": 380
+        },
+        {
+          "name": "SetCommand",
+          "CC": 13,
+          "nloc": 27,
+          "line": 416
+        },
+        {
+          "name": "diagnostic",
+          "CC": 37,
+          "nloc": 14,
+          "line": 444
+        },
+        {
+          "name": "time_text",
+          "CC": 4,
+          "nloc": 5,
+          "line": 458
+        },
+        {
+          "name": "update",
+          "CC": 113,
+          "nloc": 102,
+          "line": 463
+        }
+      ],
+      "inherited_actual_complexity": [
+        {
+          "name": "apply_command",
+          "CC": 47,
+          "nloc": 62,
+          "line": 233
+        },
+        {
+          "name": "publish_extras",
+          "CC": 26,
+          "nloc": 33,
+          "line": 378
+        },
+        {
+          "name": "diagnostic",
+          "CC": 37,
+          "nloc": 14,
+          "line": 442
+        },
+        {
+          "name": "update",
+          "CC": 107,
+          "nloc": 100,
+          "line": 461
+        }
+      ]
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Ballistic_Computer.lua",
+      "scope": "unapplied proposed shared source",
+      "functions": [
+        {
+          "name": "h",
+          "CC": 2,
+          "nloc": 6,
+          "line": 9
+        },
+        {
+          "name": "get",
+          "CC": 1,
+          "nloc": 3,
+          "line": 15
+        },
+        {
+          "name": "put",
+          "CC": 1,
+          "nloc": 3,
+          "line": 18
+        },
+        {
+          "name": "finite",
+          "CC": 3,
+          "nloc": 3,
+          "line": 21
+        },
+        {
+          "name": "height",
+          "CC": 4,
+          "nloc": 9,
+          "line": 30
+        },
+        {
+          "name": "clear",
+          "CC": 2,
+          "nloc": 17,
+          "line": 39
+        },
+        {
+          "name": "post_initialize",
+          "CC": 4,
+          "nloc": 13,
+          "line": 73
+        }
+      ],
+      "inherited_actual_complexity": []
+    }
+  ]
+}

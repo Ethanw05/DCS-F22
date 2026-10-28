@@ -163,6 +163,19 @@ local hud_radar_request = 1 -- 1 RWS, 2 TWS request, 3 VS, 4 ACM, 5 FLOOD
 local ag_submode = 2 -- 1 ground gun, 2 CCIP, 3 AUTO
 local ccip_target = dofile(LockOn_Options.script_path .. 'Systems/AG_CCIP_Target.lua')
 local function ground_parameter(name) return get_param_handle(name):get() end
+local target_snapshot=dofile(LockOn_Options.script_path..'Systems/AG_Target_Snapshot.lua')
+local delivery_sequence,delivery_epoch=0,1
+local function target_clock()
+ local ok,now=pcall(get_model_time)
+ if ok and type(now)=='number' and now==now and now>=0 and now<1e9 then return now end
+end
+local function guidance_target_matches(read,target)
+ return target and read('F22_AG_GUIDANCE_CACHE_TARGET_SOURCE')==target.delivery_source
+  and read('F22_AG_GUIDANCE_CACHE_TARGET_SEQUENCE')==target.sequence
+  and read('F22_AG_GUIDANCE_CACHE_TARGET_N')==target.n
+  and read('F22_AG_GUIDANCE_CACHE_TARGET_U')==target.u
+  and read('F22_AG_GUIDANCE_CACHE_TARGET_E')==target.e or false
+end
 local ag_first_selection=true
 local ag_release_sequence=0
 local ag_consent_target=nil
@@ -280,28 +293,68 @@ local function target_station()
  for _,station in ipairs(g and g.stations or {})do if station==ag_program_station then return station end end
  return g and g.stations[1]or -1
 end
+local empty_ground_target={n=0,u=0,e=0,source=0,sequence=0}
+local function ground_output(name,value)get_param_handle(name):set(value)end
+local function delivery_output(name,value)ground_output('F22_AG_DELIVERY_TARGET_'..name,value)end
+local function stored_delivery(station,program)
+ local stored=program and program.targets[station]or ag_stores:target(station)
+ local point=stored or program and program.live_target
+ return point,stored~=nil
+end
+local function selected_delivery(station,program,now)
+ local point,assigned=stored_delivery(station,program)
+ if not point then
+  if program or ag_stores:mission_mode(station)~=1 then return nil,false end
+  point=target_snapshot.read(ground_parameter,now)
+ end
+ if not point or not target_snapshot.current(point,ground_parameter,now)then return nil,false end
+ return point,assigned
+end
+local function ccip_delivery(program,now)
+ local point=program and program.ccip_target
+ if not point then return end
+ local target={n=point.n,u=point.u,e=point.e,sequence=point.sequence,source=1,
+  time=-100,epoch=0,request=0,kind=0,live=false,observation_known=false,observation_sequence=0}
+ if target_snapshot.current(target,ground_parameter,now)then return target end
+end
+local function delivery_candidate(station,program,now)
+ local group=ag_stores:group()
+ if mode_state==7 and ag_submode==2 and group and group.guided then
+  return ccip_delivery(program,now),false,3
+ end
+ local point,assigned=selected_delivery(station,program,now)
+ return point,assigned,assigned and 2 or 1
+end
+local function write_delivery(point,route,now)
+ local p=point or empty_ground_target
+ if not point then route=0 end
+ delivery_sequence=delivery_sequence>=16777212 and 2 or delivery_sequence+2
+ delivery_output('PACKET_SEQUENCE',delivery_sequence-1)
+ delivery_output('VALID',0);delivery_output('SOURCE',route)
+ delivery_output('N',p.n);delivery_output('U',p.u);delivery_output('E',p.e)
+ delivery_output('SEQUENCE',p.sequence);delivery_output('ORIGIN_SOURCE',p.source)
+ target_snapshot.publish_metadata(ground_output,'F22_AG_DELIVERY_TARGET_',point)
+ delivery_output('PACKET_SCHEMA',1);delivery_output('PACKET_EPOCH',delivery_epoch)
+ delivery_output('PACKET_TIME',now or -100);delivery_output('VALID',point and 1 or 0)
+ delivery_output('PACKET_SEQUENCE',delivery_sequence)
+end
+local function publish_target_status(station,point,assigned)
+ local p=point or empty_ground_target
+ local source=0;if point then source=assigned and 2 or 1 end
+ ground_output('F22_SMS_TARGET_STATION',station)
+ ground_output('F22_SMS_TARGET_STATION_DISPLAY',station>=0 and station+1 or 0)
+ ground_output('F22_SMS_TARGET_VALID',point and 1 or 0)
+ ground_output('F22_SMS_TARGET_SOURCE',source)
+ ground_output('F22_SMS_MISSION_MODE',ag_stores:mission_mode(station))
+ ground_output('F22_SMS_TARGET_SEQUENCE',p.sequence)
+ ground_output('F22_SMS_TARGET_N',p.n);ground_output('F22_SMS_TARGET_U',p.u);ground_output('F22_SMS_TARGET_E',p.e)
+end
 local function publish_delivery_target()
- local station=target_station();local p=ag_stores.program
- local stored=p and p.targets[station]or ag_stores:target(station)
- local assigned=stored~=nil;local target=stored or p and p.live_target
- local live_allowed=ag_stores:mission_mode(station)==1
- local valid=assigned or live_allowed and get_param_handle('HUD_AG_TARGET_VALID'):get()>.5
-  and (not p or p.live_target~=nil)
- local guided_ccip=mode_state==7 and ag_submode==2 and ag_stores:group()and ag_stores:group().guided
- if guided_ccip then target=p and p.ccip_target;valid=target~=nil;assigned=false end
- local function put(n,v)get_param_handle('F22_AG_DELIVERY_TARGET_'..n):set(v)end
- put('VALID',valid and 1 or 0);put('SOURCE',valid and guided_ccip and 3 or assigned and 2 or valid and 1 or 0)
- put('N',target and target.n or get_param_handle('HUD_AG_MARK_NORTH'):get())
- put('U',target and target.u or get_param_handle('HUD_AG_MARK_ALT'):get())
- put('E',target and target.e or get_param_handle('HUD_AG_MARK_EAST'):get())
- put('SEQUENCE',target and target.sequence or get_param_handle('F22_AG_TARGET_SEQUENCE'):get())
- get_param_handle('F22_SMS_TARGET_STATION'):set(station)
- get_param_handle('F22_SMS_TARGET_STATION_DISPLAY'):set(station>=0 and station+1 or 0)
- get_param_handle('F22_SMS_TARGET_VALID'):set(valid and 1 or 0)
- get_param_handle('F22_SMS_TARGET_SOURCE'):set(assigned and 2 or valid and 1 or 0)
- get_param_handle('F22_SMS_MISSION_MODE'):set(ag_stores:mission_mode(station))
- get_param_handle('F22_SMS_TARGET_SEQUENCE'):set(target and target.sequence or get_param_handle('F22_AG_TARGET_SEQUENCE'):get())
- for _,axis in ipairs({'N','U','E'})do get_param_handle('F22_SMS_TARGET_'..axis):set(get_param_handle('F22_AG_DELIVERY_TARGET_'..axis):get())end
+ local now=target_clock()
+ local station=target_station()
+ local point,assigned,route=delivery_candidate(station,ag_stores.program,now)
+ write_delivery(point,route,now)
+ publish_target_status(station,point,assigned)
 end
 local function publish_stores()
  publish_delivery_target()
@@ -460,6 +513,8 @@ end
 ------------------------------------------------------------------FUNCTION-POSTINIT---------------------------------------------------------------------------------------------------
 
 function post_initialize()
+ local old=ground_parameter('F22_AG_DELIVERY_TARGET_PACKET_EPOCH')
+ delivery_epoch=type(old)=='number' and old==old and old>=0 and old<16777215 and old%1==0 and old+1 or 1
     reset_ir_feedback()
     trigger_input:reset()
     equipment_held={}
@@ -510,6 +565,7 @@ local function cancel_release()
     publish_control_state()
 end
 withdraw_native=function()
+    delivery_epoch=delivery_epoch>=16777215 and 1 or delivery_epoch+1
     if ag_stores.pending then ag_stores:fail_request() end
     cancel_release()
     native_ready=false
@@ -646,12 +702,9 @@ local function handle_command(command,value)
             local held=weapon_release_state==1;weapon_release_state=0;pickle_pos=0;pickle_consumed=held or pickle_consumed
             native_command(351);native_pickle_active=false
             if command==10988 then ag_stores:clear_target(station)
-            elseif get_param_handle('HUD_AG_TARGET_VALID'):get()>.5 then
-                ag_stores:capture_target(station,{n=get_param_handle('HUD_AG_MARK_NORTH'):get(),
-                    u=get_param_handle('HUD_AG_MARK_ALT'):get(),e=get_param_handle('HUD_AG_MARK_EAST'):get(),
-                    source=get_param_handle('F22_AG_TARGET_SOURCE'):get(),
-                    sequence=get_param_handle('F22_AG_TARGET_SEQUENCE'):get(),
-                    time=type(get_model_time)=='function'and get_model_time()or diagnostic_clock})
+            else
+                local point=target_snapshot.read(ground_parameter,target_clock())
+                if point then ag_stores:capture_target(station,point)end
             end
             get_param_handle('F22_AG_SOLUTION_VALID'):set(0);publish_stores()
         end
@@ -693,11 +746,11 @@ local function handle_command(command,value)
         if value<=0 then ag_stores:cancel(true);pickle_consumed=false;ag_consent_target=nil
         elseif weapon_release_state==0 and not pickle_consumed then
             release_baseline=get_param_handle('F22_WEAPON_CATEGORY_COUNT'):get()
-            ag_consent_target=mode_state==7 and ag_submode==3 and get_param_handle('F22_AG_TARGET_SEQUENCE'):get()or nil
+            ag_consent_target=nil
             if mode_state==7 then
                 local now=type(get_model_time)=='function' and get_model_time()or diagnostic_clock
-                local point
-                if get_param_handle('HUD_AG_TARGET_VALID'):get()>.5 then point={n=get_param_handle('HUD_AG_MARK_NORTH'):get(),u=get_param_handle('HUD_AG_MARK_ALT'):get(),e=get_param_handle('HUD_AG_MARK_EAST'):get(),sequence=get_param_handle('F22_AG_TARGET_SEQUENCE'):get()}end
+                local point=target_snapshot.read(ground_parameter,now)
+                ag_consent_target=ag_submode==3 and point and point.sequence or nil
                 local group=ag_stores:group()
                 local guided_ccip=ag_submode==2 and group and group.guided
                 local captured=guided_ccip and ccip_target.capture(ground_parameter,now,selected_station)
@@ -1011,8 +1064,13 @@ function update()
     get_param_handle('F22_MRM_RELEASE_INHIBIT'):set(mode_state==2 and not mrm_supported and 1 or 0)
     canCommandNativePickle=canCommandNativePickle and mode_state~=3 and (mode_state~=2 or mrm_supported)
     if mode_state==7 then
-        local live_sequence=get_param_handle('F22_AG_TARGET_SEQUENCE'):get()
-        if ag_stores.program and not ag_stores:consent_current(selected_station,live_sequence)then
+        local target_time=target_clock()
+        local live=target_snapshot.read(ground_parameter,target_time)
+        local live_sequence=live and live.sequence
+        local program=ag_stores.program
+        local chosen=program and (program.targets[selected_station]or program.live_target)
+        local source_current=not chosen or target_snapshot.current(chosen,ground_parameter,target_time)
+        if program and (not source_current or not ag_stores:consent_current(selected_station,live_sequence))then
             ag_stores:cancel();weapon_release_state=0;pickle_pos=0;pickle_consumed=true
         end
         local now=type(get_model_time)=='function'and get_model_time()or diagnostic_clock
@@ -1024,7 +1082,9 @@ function update()
             and get_param_handle('F22_AG_SOLUTION_STATION'):get()==selected_station
         local guided=get_param_handle('F22_AG_GUIDED_SELECTED'):get()>.5
         local auto_ready=ag_submode==3 and get_param_handle('F22_AG_AUTO_RELEASE'):get()>.5
+        local delivery_target=target_snapshot.read_delivery(ground_parameter,now)
         local permitted=solution and (ag_submode==2 or auto_ready)
+        if ag_submode==3 then permitted=permitted and delivery_target~=nil end
         if guided then
             local function r(n)return get_param_handle(n):get()end
             local cache_age=now-r('F22_AG_GUIDANCE_CACHE_TIME')
@@ -1032,10 +1092,8 @@ function update()
                 and r('F22_AG_GUIDANCE_CACHE_STATION')==selected_station
                 and r('F22_AG_SOLUTION_SEQUENCE')>0
                 and r('F22_AG_GUIDANCE_CACHE_SOLUTION_SEQUENCE')==r('F22_AG_SOLUTION_SEQUENCE')
-            for _,key in ipairs({'SOURCE','SEQUENCE','N','U','E'})do
-                if r('F22_AG_GUIDANCE_CACHE_TARGET_'..key)~=r('F22_AG_DELIVERY_TARGET_'..key)then cached=false end
-            end
-            permitted=permitted and cached and r('F22_AG_DELIVERY_TARGET_VALID')>.5 and r('F22_AG_GUIDANCE_BACKEND_READY')>.5
+            cached=cached and guidance_target_matches(r,delivery_target)
+            permitted=permitted and cached and delivery_target~=nil and r('F22_AG_GUIDANCE_BACKEND_READY')>.5
         end
         local impact={n=get_param_handle('F22_AG_SOLUTION_IMPACT_N'):get(),e=get_param_handle('F22_AG_SOLUTION_IMPACT_E'):get(),vn=get_param_handle('EFM_HUD_VN'):get(),ve=get_param_handle('EFM_HUD_VE'):get()}
         publish_control_state()

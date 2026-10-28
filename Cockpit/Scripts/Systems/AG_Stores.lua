@@ -1,5 +1,6 @@
 -- GPL-3.0-or-later. Store programs advance only on observed native releases.
 local caps=dofile(LockOn_Options.script_path..'Systems/Store_Capabilities.lua')
+local target_snapshot=dofile(LockOn_Options.script_path..'Systems/AG_Target_Snapshot.lua')
 local M={labels=caps.labels,short_labels=caps.short_labels,
  limits={quantity=8,interval_min_ms=50,interval_max_ms=2000,spacing_min_ft=10,spacing_max_ft=9999}}
 function M.new()
@@ -117,7 +118,7 @@ function M:start(now,target,live_point)
  self.program={key=g.key,remaining=p.quantity,quantity=p.quantity,interval=p.interval,interval_mode=p.interval_mode,spacing=p.spacing_ft*.3048,pair=p.pair,pulse_remaining=p.pair,next=now,target=target,last=now,targets=targets}
  self.program.generations={}
  for _,station in ipairs(g.stations)do self.program.generations[station]=self:generation(station) end
- if live_point then self.program.live_target={n=live_point.n,u=live_point.u,e=live_point.e,sequence=live_point.sequence}end
+ if live_point then self.program.live_target=target_snapshot.copy(live_point)end
  return true
 end
 function M:target(station)
@@ -133,7 +134,10 @@ function M:capture_target(station,point)
  local slot=self.mission_slots[station]or 1
  local target={n=point.n,u=point.u,e=point.e,key=cap.key,sequence=self.target_sequence,
   source=point.source or 0,source_sequence=point.sequence or 0,time=point.time,
-  generation=self:generation(station),slot=slot}
+  generation=self:generation(station),slot=slot,
+  epoch=point.epoch,request=point.request,kind=point.kind,live=point.live,
+  observation_known=point.observation_known,observation_sequence=point.observation_sequence,
+  packet_time=point.packet_time,packet_epoch=point.packet_epoch}
  self.targets[station]=target
  self.mission_modes[station]=2
  self.missions[station]=self.missions[station]or {}

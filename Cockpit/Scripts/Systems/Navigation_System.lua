@@ -8,6 +8,7 @@ local nav=dofile(LockOn_Options.script_path..'Systems/Nav_Computer.lua')
 local commands=dofile(LockOn_Options.script_path..'Systems/Nav_Commands.lua')
 local decode=dofile(LockOn_Options.script_path..'Systems/Input_Value.lua')
 local geom=dofile(LockOn_Options.script_path..'Systems/NavGeometry.lua')
+local target_snapshot=dofile(LockOn_Options.script_path..'Systems/AG_Target_Snapshot.lua')
 local entry_format=dofile(LockOn_Options.script_path..'Systems/Nav_Entry.lua')
 local project=dofile(LockOn_Options.script_path..'Systems/HUD_TargetMath.lua').new(dofile(LockOn_Options.script_path..'HUD/glass.lua'))
 make_default_activity(.05)
@@ -305,9 +306,10 @@ end
 local capture_point={}
 local function capture_mark(target)
  if target then
-  if get('HUD_AG_TARGET_VALID')<.5 then return false end
-  capture_point.n=get('HUD_AG_MARK_NORTH');capture_point.e=get('HUD_AG_MARK_EAST')
-  capture_point.alt=get('HUD_AG_MARK_ALT')
+  local now=type(get_model_time)=='function' and get_model_time()or nil
+  local point=target_snapshot.read(get,now)
+  if not point then return false end
+  capture_point.n,capture_point.e,capture_point.alt=point.n,point.e,point.u
  else
   local own=ownship()
   if not own or not own.position_valid then return false end
@@ -487,13 +489,15 @@ function update()
     set('F22_NAV_ARRIVED',s.arrived and 1 or 0)
     local d=selected_computer.designation
     if d then
-        local acknowledged=get('F22_NAV_TARGET_ACK_SEQUENCE')==d.request
-        local result=get('F22_NAV_TARGET_RESULT')
-        local same_target=get('HUD_AG_TARGET_VALID')>.5 and get('F22_AG_TARGET_SOURCE')==3 and
-            get('F22_AG_TARGET_SEQUENCE')==get('F22_NAV_TARGET_ACK_TARGET_SEQUENCE') and
-            math.abs(get('HUD_AG_MARK_NORTH')-d.n)<1 and math.abs(get('HUD_AG_MARK_EAST')-d.e)<1
+        local target_time=type(get_model_time)=='function' and get_model_time()or nil
+        local point=target_snapshot.read_packet(get,target_time)
+        local acknowledged=point and point.nav_request==d.request
+        local result=point and point.nav_result or 0
+        local same_target=point and point.valid and point.source==3 and
+            point.sequence==point.nav_target_sequence and
+            math.abs(point.n-d.n)<1 and math.abs(point.e-d.e)<1
         if acknowledged and result==1 and same_target then
-            d.waiting=false;s.designated=true;s.designation_alt=get('HUD_AG_MARK_ALT')
+            d.waiting=false;s.designated=true;s.designation_alt=point.u
             designation_status(2,'TARGET DESIGNATED')
         elseif acknowledged and result~=1 then
             selected_computer.designation=nil;set('F22_NAV_TARGET_REQUEST_VALID',0)
