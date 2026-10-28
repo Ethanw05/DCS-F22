@@ -1,6 +1,6 @@
 {
   "owner": "chat1",
-  "status": "requested; not a lease grant",
+  "status": "early_request_integrated; remaining_native_consumers_and_runtime_open",
   "shared_status": "docs/overhaul/integration/STATUS.json",
   "baseline_commit": "7513f931a8bf1016a72e8eb184a9c98074786e81",
   "requests": [
@@ -30,7 +30,7 @@
       ],
       "review_required": "Chat2 serialized provider/HUD integration; Chat4 native gun/AG admission checks",
       "release_commit": null,
-      "status": "lease granted; source applied; native32 + lifecycle18 + Lua3 passed; final reset recheck running"
+      "status": "integrated a21145f; source/HUD tests pass; native wind/TAS consumers pending Chat4"
     }
   ],
   "test_ownership": "16 artifacts pinned in baseline/VERIFICATION-SPEC; do not delete before current common-harness owner handoff",
@@ -41,6 +41,7 @@
     "fixture_source_owner": "chat1; three assigned legacy artifacts deleted/remade",
     "offline_native_build": "F22-Build/chat1-20261028/ports",
     "production_build": "F22-Build/chat1-20261028/aircraft",
-    "note": "Do not register legacy tests; no installation or runtime requested"
+    "note": "Do not register legacy tests; no installation or runtime requested",
+    "status": "integrated in a21145f"
   }
 }

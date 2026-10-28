@@ -8,8 +8,8 @@ all available package hashes match. Unrelated tool edits and ZIP files are retai
 ## Integration requests
 
 Chat 2 has published ADOPTED / HARNESS_READY / safe-build readiness and granted
-the `flight-early` lease. The early changes are applied under that lease; the
-focused commit and shared-region release are requested in `commit-request.json`.
+the `flight-early` lease. Chat 2 integrated the early changes in `a21145f` and
+released that lease. The separate helper cleanup is committed in `db8df9b`.
 No common harness, shared CMake, shared parameter wrapper or other owner's
 production region has been changed by Chat 1.
 
@@ -26,8 +26,7 @@ Requested early regions (expected RAPTOR SHA-256
   preserving geometry, styling and independently valid velocity/FPM.
 - `Cockpit/Scripts/mainpanel_init.lua`: later correct right/left lamp bindings.
 
-Proposed field contract for P-FLT-001 (requires integrator agreement before
-provider/consumer cutover):
+Accepted field contract for P-FLT-001 (integrator decision in STATUS.json):
 
 - Retain existing `EFM_HUD_VALID` as the conservative full legacy flight/wind
   group: atmospheric, body-motion and world-motion validity are all required.
@@ -65,3 +64,9 @@ aircraft calibration, installation, DCS, 2D/VR and multiplayer are unqualified;
 offline numerical results cannot close those gates.
 
 No simulator has been launched, stopped or taken over. No installation performed.
+
+The full eleven-package assignment remains incomplete at the native-consumer
+and runtime dependency gates. See `package-status.json` for each package,
+requirement/finding/cleanup mapping and precise remaining disposition. The
+remaining thirteen assigned legacy artifacts await their domain remakes; they
+are quarantined from acceptance by the common runner.

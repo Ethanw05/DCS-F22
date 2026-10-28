@@ -1,6 +1,6 @@
 {
   "owner": "chat1",
-  "status": "ready_for_integrator_review_and_focused_commit",
+  "status": "integrated",
   "packages": [
     "P-FLT-001 provider/HUD chain",
     "D-P-FLT-001 software fix"
@@ -40,14 +40,18 @@
     "Baseline actual DLL independently reproduces atmosphere defect and fails new yaw equivalence assertion",
     "Native ports /W4 /WX /analyze clean; DLL warning counts do not increase from common baseline"
   ],
-  "shared_region_release": "Early flight region modifications complete; please release after review/commit. No navigation/entry/refuel/light/NativeSidewinder/shared API edits.",
-  "cmake_request": "Include tests/native/flight.cmake in replacement tests/CMakeLists.txt; external fixture-only build already passes",
+  "shared_region_release": "Chat2 integrated/released flight-early lease; no outstanding Chat1 shared production edits",
+  "cmake_request": "Chat2 included tests/native/flight.cmake in a21145f",
   "remaining": "Native gun/AG full-group guards remain Chat4; include NativeSidewinder::update_time_estimate EFM_HUD_TAS consumption. No installation/runtime lease; no DCS/VR/MP claims.",
   "coding_exception": {
     "function": "CockpitManager::update",
     "legacy_complexity": 22,
     "current_complexity": 26,
     "reason": "Existing bounded publication callback retained in its shared region; four additional boolean decisions qualify source groups. No new allocation/loop/native indirection. Broader split requires integrator ownership; existing callback exception requested for this focused fix.",
-    "reviewer": "Chat2 integration review pending"
+    "reviewer": "Chat2 integrated bounded shared callback change in a21145f; no broader complexity claim"
+  },
+  "commits": {
+    "flight_validity_and_yaw": "a21145f7d03a7edbc111e9407138a198217b34c3",
+    "unused_helpers": "db8df9b2da87850baf82148cc28f8bf790ba7c58"
   }
 }

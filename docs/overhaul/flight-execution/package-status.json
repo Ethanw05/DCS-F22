@@ -22,8 +22,12 @@
       ],
       "blockers": [
         "Chat4 checked full-group admission for NativeGunSight three wind paths, NativeAGWeapons wind and NativeSidewinder TAS/cache; see native-consumer-review.md",
-        "Focused integrator commit/review; no installation/runtime lease"
-      ]
+        "Installation/runtime identity and DCS/2D/VR/MP qualification unperformed; exclusive runtime slot not granted"
+      ],
+      "commits": {
+        "flight_validity_and_yaw": "a21145f7d03a7edbc111e9407138a198217b34c3",
+        "unused_helpers": "db8df9b2da87850baf82148cc28f8bf790ba7c58"
+      }
     },
     {
       "id": "P-FLT-002",
@@ -270,14 +274,19 @@
         "P-INT-002"
       ],
       "blockers": [
-        "Focused integrator commit/review",
-        "Actual DCS multi-slot/re-slot callback order not observed;54actual-DLL history/spawn/request comparisons pass"
-      ]
+        "Actual DCS multi-slot/re-slot callback ordering remains unobserved;54actual-DLL equivalence comparisons and no-advance/large-dt checks pass"
+      ],
+      "commit": "a21145f7d03a7edbc111e9407138a198217b34c3"
     }
   ],
-  "source_commit": "pending integrator focused commit; see commit-request.json",
-  "tests": "3assignedlegacy artifacts deleted/remade; native32atmosphere/54history comparisons and3Lua tests pass",
+  "source_commit": {
+    "flight_validity_and_yaw": "a21145f7d03a7edbc111e9407138a198217b34c3",
+    "unused_helpers": "db8df9b2da87850baf82148cc28f8bf790ba7c58"
+  },
+  "tests": "3of16assignedlegacy artifacts independently remade;32atmosphere cases,54history/spawn comparisons,zero/invalid/10sbounded-dt and draw-only cases,3Lua HUD cases passed",
   "evidence": "early-evidence.json",
   "installed": false,
-  "runtime_qualified": false
+  "runtime_qualified": false,
+  "status": "assigned_work_incomplete_external_dependency_gates_open",
+  "current_dependency_check": "All three native weapon consumer files still lack EFM_HUD_VALID admission; shared integration runtime slot remains unclaimed. Early RAPTOR/HUD lease is integrated/released. No dependent physical cutover is claimed."
 }
