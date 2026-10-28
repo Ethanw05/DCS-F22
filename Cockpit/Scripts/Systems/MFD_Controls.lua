@@ -16,11 +16,7 @@ function M.for_page(page,view,get)
  elseif page==P.stores then
   local aa=get('HUD_MODE')>=2 and get('HUD_MODE')<=6
   if view>0 then c[12]=row('RTN','view',0)end
-  if view==5 then
-   for b,item in ipairs({{'NAV',10721},{'MRM',10730},{'SRM',10729},{'GUN',10728},{'A/G',10732}})do
-    c[b]={label=item[1],device='COMBAT_SYSTEM',command=item[2],home=true}
-   end
-  elseif view==4 then
+  if view==4 then
    if not aa and get('HUD_AG_SUBMODE')~=1 then
     for button,mode in ipairs({{3,'AUTO'},{2,'CCIP'}})do
      if get('F22_SMS_MODE_AVAILABLE_'..mode[1])>.5 then
@@ -45,8 +41,7 @@ function M.for_page(page,view,get)
    c[18]={label='ENTER',device='ICP_SYSTEM',command=10994}
    c[19]={label='CLEAR',device='ICP_SYSTEM',command=3026}
   else
-   c[20]=row('MASTER','view',5);c[10]=row('DOORS','view',2)
-   c[19]={label='SIM',device='WEAPON_SYSTEM',command=11120,selected=get('F22_SMS_SIM')>.5}
+   c[10]=row('DOORS','view',2)
    if aa then c[18]={label='STEP',device='WEAPON_SYSTEM',command=10804}
    else
     for b=1,5 do
@@ -56,7 +51,7 @@ function M.for_page(page,view,get)
      end
     end
     if get('HUD_MODE')==7 then
-     c[9]={label='GUN',device='WEAPON_SYSTEM',command=10807,selected=get('HUD_AG_SUBMODE')==1}
+     c[20]={label='GUN',device='WEAPON_SYSTEM',command=10807,selected=get('HUD_AG_SUBMODE')==1}
     end
     if get('HUD_AG_SUBMODE')~=1 and (get('F22_SMS_MODE_AVAILABLE_2')>.5 or get('F22_SMS_MODE_AVAILABLE_3')>.5)then
      c[6]=row('MODES','view',4)

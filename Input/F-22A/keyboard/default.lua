@@ -689,8 +689,6 @@ join(res.keyCommands,{
   name=_('IFF - Simulated Emergency ID Toggle'),category=_('F-22 Identification')},
  {down=11132,up=11132,value_down=1,value_up=0,cockpit_device_id=18,
   name=_('IFF - Neutral Game Interrogation (Test)'),category=_('F-22 Identification')},
- {down=11120,up=11120,value_down=1,value_up=0,cockpit_device_id=4,
-  name=_('Stores - Simulation Mode'),category=_('F-22 Weapons')},
 })
 
 -- Keep keyboard shortcuts on their single current control entry.

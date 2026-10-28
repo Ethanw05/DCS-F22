@@ -30,7 +30,7 @@ for _,b in ipairs(profile.keyCommands)do
  if b.name then names[b.name]=(names[b.name]or 0)+1 end
 end
 for _,old in ipairs({84,86,961,10007,10008,10021,10022,10026,10151,10152,10153,10154,
- 10600,10606,10607,10608,10609,10619,10842,11100,11101,11110,11130,11131,11132,11701})do
+ 10600,10606,10607,10608,10609,10619,10842,11100,11101,11110,11120,11130,11131,11132,11701})do
  assert(not commands[old],'obsolete visible command '..old)
 end
 for command=10700,10741 do

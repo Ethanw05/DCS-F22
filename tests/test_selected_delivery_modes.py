@@ -47,13 +47,14 @@ for panel,name in ipairs(panels)do
  assert(get('F22_MFD_'..name..'_KEY_1')=='GB32')
  key(panel,1)
  assert(get('F22_MFD_'..name..'_KEY_6')=='MODES')
- assert(get('F22_MFD_'..name..'_KEY_9')=='GUN')
+ assert(get('F22_MFD_'..name..'_KEY_20')=='GUN')
+ assert(get('F22_MFD_'..name..'_KEY_9')=='' and get('F22_MFD_'..name..'_KEY_19')=='')
  key(panel,6)
  assert(get('F22_MFD_'..name..'_KEY_1')=='AUTO')
  assert(get('F22_MFD_'..name..'_KEY_2')=='CCIP')
  for b=1,20 do assert(get('F22_MFD_'..name..'_KEY_'..b)~='GUN','cannon in bomb delivery modes')end
  key(panel,2);assert(get('HUD_AG_SUBMODE')==2)
- key(panel,9);assert(get('HUD_AG_SUBMODE')==1)
+ key(panel,20);assert(get('HUD_AG_SUBMODE')==1)
  assert(get('F22_MFD_'..name..'_KEY_6')=='','cannon exposes bomb delivery modes')
  assert(get('F22_SMS_STORE_1_SELECTED')==0,'bomb and cannon both selected')
  wc(10813,1);tick(1);assert(get('HUD_AG_SUBMODE')==1,'mode-cycle changed selected cannon')
@@ -62,7 +63,7 @@ end
 wc(10813,1);tick(1);assert(get('HUD_AG_SUBMODE')==3)
 wc(10813,1);tick(1);assert(get('HUD_AG_SUBMODE')==2,'mode-cycle includes cannon')
 wc(10800,1);tick(2)
-assert(get('F22_MFD_CMFD_KEY_9')=='','NAV offers ground cannon selection')
+assert(get('F22_MFD_CMFD_KEY_20')=='','NAV offers ground cannon selection')
 wc(10800,7);tick(20)
 
 local sequence=100

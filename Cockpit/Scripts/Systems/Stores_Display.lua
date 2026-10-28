@@ -46,7 +46,7 @@ function M:handle(button)
   local available=self.param('F22_SMS_MODE_AVAILABLE_2'):get()>.5
    or self.param('F22_SMS_MODE_AVAILABLE_3'):get()>.5
   if self.param('HUD_AG_SUBMODE'):get()~=1 and available then self:cancel();self:set(4)end
- elseif button==9 and mode==7 then self:cancel();self.send(10807,1)
+ elseif button==20 and mode==7 then self:cancel();self.send(10807,1)
  elseif button==7 then self:cancel();self.send(10982,1)
  elseif button==8 then
   if self.param('F22_SMS_LABEL'):get()>0 and self.hud then self.hud()end

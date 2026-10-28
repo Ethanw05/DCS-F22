@@ -166,7 +166,6 @@ local function ground_parameter(name) return get_param_handle(name):get() end
 local ag_first_selection=true
 local ag_release_sequence=0
 local ag_consent_target=nil
-local simulation=false
 local equipment_held={}
 local gun_command_active = false
 local native_pickle_active = false
@@ -228,13 +227,12 @@ local diagnostic_clock=0;local next_diagnostic=0;local next_telemetry=0;local ne
 local function native_command(c) dispatch_action(devices.WEAPON_NATIVE,c,1) end
 local function publish_control_state()
     parameters.MASTER_ARM:set(master_arm_state)
-    get_param_handle('F22_SMS_SIM'):set(simulation and 1 or 0)
     physical_outputs.OWNER:set(physical_supply.owned and 1 or 0)
     physical_outputs.VALID:set(physical_supply.valid and 1 or 0)
     physical_outputs.MISSION:set(physical_supply.mission and 1 or 0)
     physical_outputs.GENERATION:set(physical_supply.generation)
     physical_outputs.STAMP:set(physical_supply.stamp)
-    get_param_handle('F22_AG_RELEASE_CONSENT'):set(not simulation and not ag_stores.servicing
+    get_param_handle('F22_AG_RELEASE_CONSENT'):set(not ag_stores.servicing
         and mode_state==7 and master_arm_state==1
         and physical_supply.mission and parameters.WoW:get()<.5
         and weapon_release_state==1 and ag_stores.program~=nil and not pickle_consumed and 1 or 0)
@@ -249,7 +247,7 @@ for _,n in ipairs({'F22_WEAPON_COUNT','F22_WEAPON_CATEGORY_COUNT','F22_WEAPON_SE
 local function store_kind(info)local cap=store_caps.describe(info);return cap and cap.kind end
 for c=10970,10988 do dev:listen_command(c) end
 dev:listen_command(10990) -- Front keypad MULT field.
-for _,command in ipairs({11120,11121,11800})do dev:listen_command(command)end
+for _,command in ipairs({11121,11800})do dev:listen_command(command)end
 for _,event in ipairs({'WeaponRearmFirstStep','WeaponRearmComplete','UnlimitedWeaponStationRestore'})do
  dev:listen_event(event)
 end
@@ -441,7 +439,6 @@ end
 function post_initialize()
     reset_ir_feedback()
     trigger_input:reset()
-    simulation=false
     equipment_held={}
     ag_stores=dofile(LockOn_Options.script_path..'Systems/AG_Stores.lua').new()
     mode_state,master_arm_state=1,0
@@ -554,7 +551,7 @@ local function correlated_commit(sequence)
 end
 ------------------------------------------------------------------FUNCTION-SETCOMMAND---------------------------------------------------------------------------------------------------
 local function handle_command(command,value)
-    local trigger_permitted = not simulation and not ag_stores.servicing and physical_supply.mission
+    local trigger_permitted = not ag_stores.servicing and physical_supply.mission
         and master_arm_state == 1 and parameters.WoW:get() < .5
     if trigger_input:input(command, value, trigger_permitted) then
         first_state, fire_z_weapons = trigger_input:state()
@@ -565,18 +562,15 @@ local function handle_command(command,value)
         return
     end
     if command==11800 then correlated_commit(value);return end
-    if command==11120 or command==11121 then
+    if command==11121 then
         local down=dofile(LockOn_Options.script_path..'Systems/Input_Value.lua')(value,devices.WEAPON_SYSTEM)>.5
         local previous=equipment_held[command];equipment_held[command]=down
         if not down or previous or parameters.MAIN_POWER:get()<.5 then return end
         cancel_release()
-        if command==11120 then simulation=not simulation
-        else
-            local station=target_station()
-            local slot=(ag_stores.mission_slots[station]or 1)%4+1
-            ag_stores.mission_slots[station]=slot
-            ag_stores:select_mission(station,slot)
-        end
+        local station=target_station()
+        local slot=(ag_stores.mission_slots[station]or 1)%4+1
+        ag_stores.mission_slots[station]=slot
+        ag_stores:select_mission(station,slot)
         publish_control_state();publish_stores();return
     end
     if command==emer_jet or command==PlaneJettisonWeapons or command==PlaneJettisonFuelTanks then
@@ -773,7 +767,7 @@ function SetCommand(command,value)
     if not physical_supply.mission then withdraw_physical_consent() end
     -- Cancellation and SAFE must reach the native callback guard within this
     -- input call, rather than leaving old consent/arm visible for 20 ms.
-    if (master_arm_state==0 or simulation) and (weapon_release_state==1 or ag_stores.program
+    if master_arm_state==0 and (weapon_release_state==1 or ag_stores.program
         or ag_stores.pending or fire_z_weapons==1 or first_state==1 or gun_command_active)then
         local entry=ag_stores.entry
         cancel_release()
@@ -797,7 +791,7 @@ function update()
     if GetDevice then ok,native=pcall(GetDevice,devices.WEAPON_NATIVE) end
     native_ready=ok and native and type(native.get_station_info)=='function' or false
     get_param_handle('F22_WEAPON_BACKEND_READY'):set(native_ready and 1 or 0)
-    local native_permitted=not simulation and not ag_stores.servicing and native_ready
+    local native_permitted=not ag_stores.servicing and native_ready
         and master_arm_state==1 and physical_supply.mission and parameters.WoW:get()<.5
     if native_arm~=native_permitted then native_command(283);native_arm=native_permitted end
     station_refresh=station_refresh-update_time_step
@@ -858,7 +852,7 @@ function update()
     get_param_handle('HUD_IR_SEEKER_EL'):set(ir_el and math.atan2(math.sin(ir_el),math.cos(ir_el)*math.cos(ir_az)) or 0)
     -- Interlock all locally dispatched weapon requests on ground, power loss,
     -- and master-arm loss. Do not confuse gear-down with weight-on-wheels.
-    local ready_to_release = not simulation and not ag_stores.servicing and master_arm_state == 1
+    local ready_to_release = not ag_stores.servicing and master_arm_state == 1
         and physical_supply.mission
         and parameters.WoW:get() < 0.5
     if not ready_to_release then
@@ -949,7 +943,7 @@ function update()
     get_param_handle('F22_IR_EXPOSURE_TIME'):set(exposure_time)
     -- Native clear-ray origin, not recovered launcher geometry.
     get_param_handle('F22_IR_APERTURE_APPROXIMATION'):set(1)
-    local canCommandNativePickle = not simulation and not ag_stores.servicing and missionPower and not groundContact
+    local canCommandNativePickle = not ag_stores.servicing and missionPower and not groundContact
         and master_arm_state == 1 and weapon_release_state == 1
         and chosenBayReady and selected_station>=0 and mode_state ~= 5 and mode_state ~= 1
         and get_param_handle('F22_WEAPON_SUPPORTED'):get()>.5
@@ -1034,7 +1028,7 @@ function update()
 		--CANON FIRE
         -- Emit a trigger command only on an actual state transition.
         -- This also guarantees a release when power/ground/arm interlocks change.
-        local can_fire_gun = (not simulation and not ag_stores.servicing and native_ready
+        local can_fire_gun = (not ag_stores.servicing and native_ready
             and (mode_state == 5 or ground_gun) and master_arm_state == 1
             and missionPower and parameters.WoW:get() < 0.5
             and canon_door_pos >= 0.8 and actuatorAuthority>0)

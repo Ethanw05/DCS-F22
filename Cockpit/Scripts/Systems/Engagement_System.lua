@@ -130,7 +130,7 @@ function update()
         end
     end
     local friendly=get('F22_RADAR_SELECTED_FRIENDLY')>.5
-    local blocker=get('WoW')>.5 and 1 or get('F22_SMS_SIM')>.5 and 2
+    local blocker=get('WoW')>.5 and 1
         or physical_supply.utility<=0 and 3
         or get('F22_WEAPON_SELECTED_VALID')>.5 and get('F22_WEAPON_SUPPORTED')<.5 and 4
         or not physical_supply.mission and 5 or 0
