@@ -50,5 +50,8 @@
   },
   "tests": "Current183independentcases pass, including2registration and6passiveobservation cases.5nativeflight suites pass withachievedrefuel drawing. No actualDCS signature mutation orAI behavior observation.",
   "installed_mission_baseline": "gauntlet-baseline.json",
-  "registration_defect": "Chat2 applied exact3fieldWSTYPE_PLACEHOLDER fix under flight-registration-descriptor lease. Fresh/reloadactualLuacasesnowpass. ActualAIeffectunobserved."
+  "registration_defect": "Chat2 applied exact3fieldWSTYPE_PLACEHOLDER fix under flight-registration-descriptor lease. Fresh/reloadactualLuacasesnowpass. ActualAIeffectunobserved.",
+  "current_priority": "Dynamic ownship RCS with mandatory multiplayer; offline prebake requested as an option",
+  "geometry_source": "User has EDM only. Complete v10 parse/experimental8bay extraction and576sample PEC bake completed; see offline-bake.json. Native pose/calibration remain open.",
+  "multiplayer": "Bay600/601/602 already declared in net_animation. This is visual state declaration, not proof of native radar signature or remote/server effects. No qualified native signature setter/consumer."
 }

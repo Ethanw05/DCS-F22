@@ -1,0 +1,31 @@
+{
+  "owner": "chat1",
+  "status": "Approved exact serialized offline-tool commit; source limits retained",
+  "subject": "Add experimental EDM bay-pose extraction and bounded PEC RCS prebake",
+  "paths": [
+    "tools/rcs/edm_geometry.py",
+    "tools/rcs/bake_pec.py",
+    "tools/rcs/edm-reader.json",
+    "tools/rcs/README.md",
+    "tests/offline/test_rcs_prebake.py",
+    "docs/overhaul/flight-execution/rcs/README.md",
+    "docs/overhaul/flight-execution/rcs/feasibility.json",
+    "docs/overhaul/flight-execution/rcs/offline-bake.json"
+  ],
+  "sha256": {
+    "tools/rcs/edm_geometry.py": "7e1d31bdd0f59fc0a10ce8ac2231307d75e4a473db4215e8548e8bd3daec0e1c",
+    "tools/rcs/bake_pec.py": "ded3bdb011cc4f29c4da21a07e82658ba00616b51115e865b76de19428109f41",
+    "tools/rcs/edm-reader.json": "13809e3ba19ee33f17ceecfe5181a2b572b97c2728b1a2386824eed5c428d501",
+    "tools/rcs/README.md": "d014d36e3bbbc67244f9343d4c601bed4fff46860a7a9a777d67af90ade1fcc8",
+    "tests/offline/test_rcs_prebake.py": "6e670f0c1938357152b32fa650694ae251ac1cd16be7351221fd539a50fd2a01",
+    "docs/overhaul/flight-execution/rcs/README.md": "42648dc96676fef85e8d912e9b312acf6e656994d75d23e78f772be910680b65",
+    "docs/overhaul/flight-execution/rcs/feasibility.json": "57319c314a6e89ffecb7d53e2be779f37d5bababba496d8956c831c975b84655",
+    "docs/overhaul/flight-execution/rcs/offline-bake.json": "4cc14b9054d7115d8c2c76584e6fb7608f82c89d6a03e11875ec4b223698275c"
+  },
+  "tests": "7independent BlenderPython test methods pass; complete actualEDM parse/8state extraction and576sample/48,090,160ray bake completed. Nonbay geometry invariant.",
+  "limits": "Offline research only. OriginalEDM read-only. Candidate pose bounds mismatch/native pose, aircraftcalibration, ownshipnativebackend andmultiplayereffects remain unqualified. No productionRCS or install.",
+  "shared_source_edits": false,
+  "commit_slot_requested_from": "chat2",
+  "staging": "Only exact owned paths plus this commit-request. Preserve all other owners and preexisting index.",
+  "head_at_commit_claim": "ed26d635adb10a10fde396bf445ee38f230b9515"
+}

@@ -42,3 +42,14 @@ reload regression were applied by Chat2 under flight-registration-descriptor and
 submitted type schema; native database normalization and the actual consequence
 for AI target perception still require host observation. It is not proof that
 this alone explains the reported sortie, nor a dynamicRCS implementation.
+
+The user has made dynamic RCS the priority and requires multiplayer. They have
+only the public repository's EDM. A pinned external reader successfully parses
+the complete v10 aircraft file, including separate bay animations. New
+[offline geometry and PEC estimate tools](../../../../tools/rcs/README.md) use
+per-vertex parent selectors and generate eight bay configurations without
+changing the original asset. Seven independent mathematical/geometry tests pass.
+Candidate pose bounds differ from the root declaration and still need comparison
+with DCS; PEC estimates omit aircraft materials and cavity/multiple reflection.
+Neither this extraction nor a successful bake closes the native ownship response
+or multiplayer gate. See offline-bake.json for the measured run and limits.

@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/devozdemirhasancan/DCS-EDM-Blender-Importer",
+  "commit": "13cc40b32cd4a39d4337d7beb6e79365a8149770",
+  "sha256": {
+    "LICENSE": "c22759edfc16ebf0e2d27131c9672acbaa1054f2ca504cda5936dbfce273348b",
+    "edm/__init__.py": "5a62774df3de15353aa3d9c936e7534e09d927ab7ef815e2fb20f7304ba2e61f",
+    "edm/parser.py": "1936fae6f3a0b95d5db1e144dbdfbe69296894c8e33e66008a3fdce24a6d0ed6",
+    "edm/reader.py": "b124949cade10ed78f0a1c457995c95f84f01ee4f842af777adf2950455cb98a",
+    "edm/types.py": "18dbdab463792bf6ab67066adaf98600ce1b474a3c875aa0d8de7acc88c5079e"
+  }
+}

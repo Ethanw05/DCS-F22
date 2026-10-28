@@ -1,0 +1,193 @@
+{
+  "captured_at": "2026-10-28T23:33:37.273499+00:00",
+  "status": "offline experimental bake completed; native/MP incomplete",
+  "user_priority": "Dynamic ownship RCS including bays; multiplayer mandatory; user has only original public-repository EDM",
+  "source_edm_sha256": "1429462f21b3cfd79af144589980baa56b1f586f3bec09158b49a335c5f5d10e",
+  "original_edm_changed": false,
+  "parser": {
+    "repository": "https://github.com/devozdemirhasancan/DCS-EDM-Blender-Importer",
+    "commit": "13cc40b32cd4a39d4337d7beb6e79365a8149770",
+    "sha256": {
+      "LICENSE": "c22759edfc16ebf0e2d27131c9672acbaa1054f2ca504cda5936dbfce273348b",
+      "edm/__init__.py": "5a62774df3de15353aa3d9c936e7534e09d927ab7ef815e2fb20f7304ba2e61f",
+      "edm/parser.py": "1936fae6f3a0b95d5db1e144dbdfbe69296894c8e33e66008a3fdce24a6d0ed6",
+      "edm/reader.py": "b124949cade10ed78f0a1c457995c95f84f01ee4f842af777adf2950455cb98a",
+      "edm/types.py": "18dbdab463792bf6ab67066adaf98600ce1b474a3c875aa0d8de7acc88c5079e"
+    }
+  },
+  "runtime": {
+    "Blender": "5.1.2 ec6e62d40fa9",
+    "NumPy": "2.3.4",
+    "startup": "background/factory; no addon installed or live scene used"
+  },
+  "read_result": {
+    "EDM_version": 10,
+    "scene_nodes": 214,
+    "render_nodes": 89,
+    "unposed_render_vertices": 409768,
+    "unposed_render_triangles": 430476,
+    "parser_warnings": 0,
+    "parser_cursor_at_EOF": true
+  },
+  "candidate_config": {
+    "unlisted_arguments": 0,
+    "explicit_arguments": {
+      "309": 2,
+      "317": 2
+    },
+    "note": "Hypothetical hidden-pylon pose, not observed loadout; attached weapons absent",
+    "bays": "Eight binary combinations of main600/left601/right602; no partial-door samples",
+    "vertices_per_state": 322880,
+    "triangles_per_state": 336042
+  },
+  "pose_qualification": {
+    "native_DCS_pose_comparison": false,
+    "root_bounds_m": [
+      [
+        -7.807378768920898,
+        -2.015413522720337,
+        -6.808021068572998
+      ],
+      [
+        11.57210636138916,
+        3.4293808937072754,
+        6.808021068572998
+      ]
+    ],
+    "candidate_closed_bounds_m": [
+      [
+        -7.54878010258385,
+        -2.4190208778451976,
+        -6.672713756561279
+      ],
+      [
+        11.364402770996094,
+        3.6891494141121184,
+        7.590379218901056
+      ]
+    ],
+    "bounds_match": false,
+    "negative_determinant_nodes": [],
+    "bay_changes": [
+      {
+        "state": "bay-001",
+        "moved_triangles": 7936,
+        "maximum_vertex_displacement_m": 1.3073352268119502,
+        "nonbay_geometry_identical": true
+      },
+      {
+        "state": "bay-010",
+        "moved_triangles": 4664,
+        "maximum_vertex_displacement_m": 2.671312554201253,
+        "nonbay_geometry_identical": true
+      },
+      {
+        "state": "bay-011",
+        "moved_triangles": 12600,
+        "maximum_vertex_displacement_m": 2.671312554201253,
+        "nonbay_geometry_identical": true
+      },
+      {
+        "state": "bay-100",
+        "moved_triangles": 4664,
+        "maximum_vertex_displacement_m": 3.2899553095073624,
+        "nonbay_geometry_identical": true
+      },
+      {
+        "state": "bay-101",
+        "moved_triangles": 12600,
+        "maximum_vertex_displacement_m": 3.2899553095073624,
+        "nonbay_geometry_identical": true
+      },
+      {
+        "state": "bay-110",
+        "moved_triangles": 9328,
+        "maximum_vertex_displacement_m": 3.2899553095073624,
+        "nonbay_geometry_identical": true
+      },
+      {
+        "state": "bay-111",
+        "moved_triangles": 17264,
+        "maximum_vertex_displacement_m": 3.2899553095073624,
+        "nonbay_geometry_identical": true
+      }
+    ],
+    "nonbay_geometry_identical_between_states": true,
+    "renders_inspected": [
+      "bay-000.png",
+      "bay-111.png"
+    ]
+  },
+  "bake": {
+    "type": "PEC single-reflection coherent physical optics with centroid BVH shadow rays",
+    "samples": 576,
+    "rays": 48090160,
+    "azimuth_step_deg": 30,
+    "elevations_deg": [
+      -20,
+      0,
+      20
+    ],
+    "frequencies_ghz": [
+      3,
+      10
+    ],
+    "degenerate_facets_removed_per_state": 144,
+    "changes": [
+      {
+        "state": "bay-001",
+        "changed_samples": 70
+      },
+      {
+        "state": "bay-010",
+        "changed_samples": 60
+      },
+      {
+        "state": "bay-011",
+        "changed_samples": 70
+      },
+      {
+        "state": "bay-100",
+        "changed_samples": 72
+      },
+      {
+        "state": "bay-101",
+        "changed_samples": 72
+      },
+      {
+        "state": "bay-110",
+        "changed_samples": 72
+      },
+      {
+        "state": "bay-111",
+        "changed_samples": 72
+      }
+    ],
+    "output": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat1-20261028\\rcs-pec-candidate.json",
+    "sha256": "833a32de69f15df081a9dbe5b28e9db3248327c951e2886225787ace0d72cc4b",
+    "geometry_manifest_sha256": "3abbc02c7150e80181587fab90d18c4a20fdff5c4977f2216ec5cc1dcb51f101"
+  },
+  "verification": {
+    "test_file": "tests/offline/test_rcs_prebake.py",
+    "methods": 7,
+    "result": "passed",
+    "checks": "Analytic broadside/oblique rectangle over45 combinations; translation/subdivision invariance; two-plate occlusion; malformed/index/parent/cycle rejection; quaternion2 retention; slerp/endpoints",
+    "actual_asset_checks": "Same topology and owners across8states; every nonbay triangle unchanged; each nonzero bay combination moves geometry and changes the estimate"
+  },
+  "production_RCS_changed": false,
+  "simulator_operated": false,
+  "installed": false,
+  "multiplayer_connected": false,
+  "remaining": [
+    "EDM transform/visibility pose validation; candidate bounds differ from declared root",
+    "RAM/radome/material data and frequency/aspect calibration; cavity/multiple reflections/diffraction excluded",
+    "Shadow/mesh/angular convergence; coarse sweep is research only",
+    "Actual per-aircraft DCS signature backend; no setter in public EFM API",
+    "Dedicated-server and remote-player effects, independent aircraft, late join/respawn and receiving radars"
+  ],
+  "source_files_sha256": {
+    "tools/rcs/bake_pec.py": "ded3bdb011cc4f29c4da21a07e82658ba00616b51115e865b76de19428109f41",
+    "tools/rcs/edm_geometry.py": "7e1d31bdd0f59fc0a10ce8ac2231307d75e4a473db4215e8548e8bd3daec0e1c",
+    "tests/offline/test_rcs_prebake.py": "6e670f0c1938357152b32fa650694ae251ac1cd16be7351221fd539a50fd2a01"
+  }
+}
