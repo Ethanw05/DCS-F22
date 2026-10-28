@@ -6,6 +6,15 @@ local Datalink=dofile(LockOn_Options.script_path..'Systems/Datalink_Tracks.lua')
 local Proximity=dofile(LockOn_Options.script_path..'Systems/RWR_Proximity.lua')
 local M={radius=.84}
 local Labels=dofile(LockOn_Options.script_path..'Systems/RWR_Computer.lua')
+local function contact_kind(t)
+ if not t then return 0 end
+ if t.label=='SAM'then return 2 end
+ if t.label=='AAA'then return 3 end
+ local rf=t.observations and t.observations.rf
+ if rf and rf.general==3 then return 4 end
+ if t.optical and not (t.observations and t.observations.radar)then return 5 end
+ return 1
+end
 local function finite(v)return type(v)=='number'and v==v and math.abs(v)<1e9 end
 function M.new(get,put,sensors)
  local s={}
@@ -83,6 +92,7 @@ function M.new(get,put,sensors)
    put(p..'X',x);put(p..'Y',y);put(p..'ROT',rotation)
    put(p..'SOURCE',t and t.source or 0)
    put(p..'LABEL_CODE',Labels.label_code(t and t.label or 'U'))
+   put(p..'KIND',contact_kind(t))
    put(p..'AFFILIATION',t and t.affiliation or -1)
    put(p..'IDENTITY_CONFLICT',t and t.identity_conflict and 1 or 0)
    local donor=t and t.datalink
@@ -100,6 +110,7 @@ function M.new(get,put,sensors)
    put(p..'RF_CURRENT',signal>0 and 1 or 0)
    if donor and (donor.observation_known==false or now-donor.time>Datalink.coast)then coast=true end
    put(p..'COAST',coast and 1 or 0)
+   put(p..'ALPHA',coast and .4 or 1)
    put(p..'ALERT',(ir or signal>=3)and 1 or 0)
    put(p..'VALID',t and 1 or 0)
   end

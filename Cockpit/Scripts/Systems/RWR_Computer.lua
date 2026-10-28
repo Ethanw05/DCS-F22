@@ -4,7 +4,7 @@ local M = { lifetime = 12, search_coast = 6, warning_coast = 3.5 }
 function M.coasting(c)
 	return c.age > (c.signal > 1 and M.warning_coast or M.search_coast)
 end
-M.symbols = { "U", "M", "M2", "E3", "P", "S", "SAM" }
+M.symbols = { "U", "M", "M2", "E3", "P", "S", "SAM", "AAA" }
 function M.label_code(label)
 	local number = tonumber(label)
 	if number then
@@ -27,7 +27,10 @@ function M.label(name, general)
 	if general == 4 then
 		return "M"
 	end
-    if general == 2 then return "SAM" end
+    if general == 2 then
+        if s=='A' or s=='AAA' or s:find('SHILKA') or s:find('GEPARD') or s:find('VULCAN') then return 'AAA' end
+        return 'SAM'
+    end
 	local patterns = {
 		-- Shared DCS AN_ALR_SymbolsBase maps the stock J-11A emitter to29.
 		{ "^J11A$", "29" },

@@ -7,6 +7,7 @@ for name,wanted in pairs({['MiG-29S']='29',['FA-18C_hornet']='18',['F-22A']='22'
  assert(labels.label(name,1)==wanted)
 end
 assert(labels.label('Buk 9S18M1',2)=='SAM' and labels.label_code('SAM')==106)
+assert(labels.label('A',2)=='AAA' and labels.label_code('AAA')==107)
 assert(labels.label('unrecognized',1)=='U')
 -- Native metadata is copied by the actual radar metadata owner, not an ID
 -- lookup in a receiver cache. Geometry and type identification are separate.
@@ -27,6 +28,11 @@ values.F22_DEF_DISPLAY_RANGE_NM=40
 local sensors={getHeading=function()return 0 end,getPitch=function()return 0 end,getRoll=function()return 0 end}
 Overview.new(get,put,sensors):update(10,store.contacts,true,false)
 assert(values.F22_DEF_OV_01_LABEL_CODE==29 and values.F22_DEF_OV_01_AFFILIATION==-1)
+assert(values.F22_DEF_OV_01_KIND==1 and values.F22_DEF_OV_01_ALPHA==1)
+for label,kind in pairs({SAM=2,AAA=3})do
+ store.contacts[1].label=label;Overview.new(get,put,sensors):update(10,store.contacts,true,false)
+ assert(values.F22_DEF_OV_01_KIND==kind)
+end
 local metadata=dofile(SCRIPT_ROOT..'Systems/Radar_Contact_Metadata.lua')
 values.F22_TACTICAL_TIME=10;values.F22_TACTICAL_SEQUENCE=1
 for k,v in pairs({VALID=1,RADAR_SOURCE=9,LABEL_CODE=29,RF_SIGNAL=2,RF_AGE=0})do values['F22_TACTICAL_01_'..k]=v end

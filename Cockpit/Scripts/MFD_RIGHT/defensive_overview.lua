@@ -42,6 +42,8 @@ local function circle(x,y,r,color,parent,width)
  local e=CreateElement('ceSMultiLine');e.material=D.materials[color or 'blue'];e.vertices=vertices;e.indices=indices
  e.thickness=width or .8;e.fuzziness=.2;D.add(e,parent or D.root)
 end
+local class_marker=dofile(LockOn_Options.script_path..'Systems/Defensive_Contact_Indicator.lua')
+ecm_api.circle=circle
 local cy=.045
 -- Two fine blue rings and the compact central aircraft follow the public photo.
 circle(0,cy,.84,'blue');circle(0,cy,.40,'blue')
@@ -74,44 +76,19 @@ D.text('MUTE',.65,.84,nil,'yellow',.0028,D.choice('F22_RWR_MUTE',1,current))
 
 for i=1,16 do
  local p=string.format('F22_DEF_OV_%02d_',i)
- local at=group({p..'X',p..'Y',p..'VALID'},{{'move_left_right_using_parameter',0,1},{'move_up_down_using_parameter',1,1},{'parameter_in_range',2,.9,1.1}},current,0,cy)
+ local at=group({p..'X',p..'Y',p..'VALID',p..'ALPHA'},{{'move_left_right_using_parameter',0,1},{'move_up_down_using_parameter',1,1},{'parameter_in_range',2,.9,1.1},{'opacity_using_parameter',3}},current,0,cy)
  local bearing=group({p..'ROT'},{{'rotate_using_parameter',0,1}},at)
  coverage(ecm_api,bearing,prefix..'_COVERAGE_'..i,1,{p..'RF_CURRENT'},{{'parameter_in_range',0,.9,1.1}})
  for _,aff in ipairs({{-1,'yellow'},{0,'red'},{1,'green'},{3,'cyan'}})do
-  local colored=D.choice(p..'AFFILIATION',aff[1],bearing)
-  local label_color=D.choice(p..'AFFILIATION',aff[1],at)
-  contact_label(ecm_api,p,.11,.035,label_color,prefix..'_CONTACT_'..i..'_ID_'..aff[1],aff[2],.0030)
-  -- A bearing stem does not assert target heading. Open outer-ring ticks have
-  -- no measured range; measured contacts use the common track's radar range.
-  local measured=D.choice(p..'RANGED',1,colored)
-  circle(0,0,.018,aff[2],measured,1.2)
-  line(0,.018,0,.095,aff[2],measured,1.2)
-  line(-.020,.064,0,.037,aff[2],measured,1.2);line(.020,.064,0,.037,aff[2],measured,1.2)
-  local prox=D.choice(p..'PROXIMITY',1,colored)
-  circle(0,0,.018,aff[2],prox,1.2)
-  line(0,.018,0,.065,aff[2],prox,1.2)
-  local passive=D.choice(p..'PROXIMITY',0,D.choice(p..'GEO',0,D.choice(p..'RANGED',0,colored)))
-  line(-.030,0,.030,0,aff[2],passive,1.2)
-  line(0,0,0,-.085,aff[2],passive,1.2)
-  line(-.020,-.052,0,-.080,aff[2],passive,1.2);line(.020,-.052,0,-.080,aff[2],passive,1.2)
-  -- An open diamond with E is a conditional RF location, never radar range.
-  local estimate=D.choice(p..'GEO',1,colored)
-  line(0,.03,.03,0,aff[2],estimate,1.2);line(.03,0,0,-.03,aff[2],estimate,1.2)
-  line(0,-.03,-.03,0,aff[2],estimate,1.2);line(-.03,0,0,.03,aff[2],estimate,1.2)
-  D.text('E',.05,0,nil,aff[2],.0026,estimate)
+  local label_color=D.choice(p..'ALERT',0,D.choice(p..'AFFILIATION',aff[1],at))
+  contact_label(ecm_api,p,.075,.025,label_color,prefix..'_CONTACT_'..i..'_ID_'..aff[1],aff[2],.0030)
+  class_marker(ecm_api,label_color,prefix..'_CLASS_'..i..'_'..aff[1],p..'KIND',aff[2])
  end
- local alert=D.choice(p..'ALERT',1,at)
- line(-.046,-.035,-.046,.035,'red',alert,1.2);line(.046,-.035,.046,.035,'red',alert,1.2)
- local selected=D.choice(p..'SELECTED',1,at)
- for _,side in ipairs({-1,1})do
-  line(side*.06,-.05,side*.06,.05,'white',selected,1)
-  line(side*.06,.05,side*.04,.05,'white',selected,1)
-  line(side*.06,-.05,side*.04,-.05,'white',selected,1)
- end
- D.text('M',.06,-.05,nil,'white',.0026,D.choice(p..'OPTICAL',1,at))
- D.text('C',-.06,-.05,nil,'white',.0026,D.choice(p..'COAST',1,at))
- D.text('?',-.06,.05,nil,'yellow',.0028,D.choice(p..'IDENTITY_CONFLICT',1,at))
- for link,label in ipairs({'IFDL','L16'})do D.text(label,.08,.025,nil,'white',.0025,D.choice(p..'DATALINK',link,at))end
+ local warning=D.choice(p..'ALERT',1,at)
+ contact_label(ecm_api,p,.075,.025,warning,prefix..'_CONTACT_WARNING_'..i,'red',.0030)
+ class_marker(ecm_api,warning,prefix..'_WARNING_CLASS_'..i,p..'KIND','red')
+ -- A conditional passive location retains its estimate qualifier.
+ D.text('E',-.045,.025,nil,'blue',.0026,D.choice(p..'GEO',1,at))
 end
 
 -- Compact expendable readbacks occupy the same lower-right region as the photo.

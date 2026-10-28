@@ -132,6 +132,7 @@ assert(get('F22_DEF_OV_CURRENT')==1 and visible(named.F22_COMPAT_DEF_OV__BACKGRO
 assert(not text('DETAIL'),'retired hidden detail view returned')
 -- Latest human mapping: positive friendly green, unknown yellow, explicit hostile red; cyan requires wing membership.
 put('F22_DEF_OV_01_VALID',1);put('F22_DEF_OV_01_RANGED',1)
+put('F22_DEF_OV_01_KIND',1);put('F22_DEF_OV_01_ALPHA',1)
 local function hue(c)
  if not c then return end
  if c[1]<80 and c[2]>150 and c[3]<100 then return 'green' end
@@ -148,7 +149,10 @@ for _,case in ipairs({{1,'green'},{-1,'yellow'},{0,'red'}})do
 end
 put('F22_DEF_OV_01_AFFILIATION',-1);put('F22_DEF_OV_01_ALERT',1)
 local red_alert=0;for _,e in ipairs(elements)do local c=materials[e.material];if e.kind=='ceSMultiLine'and hue(c)=='red'and visible(e)then red_alert=red_alert+1 end end
-assert(red_alert>0,'fresh warning has no visible alert bracket')
+assert(red_alert>0,'fresh warning has no visible alert-colored contact')
+for _,e in ipairs(elements)do for _,p in ipairs(e.element_params or {})do
+ assert(p~='F22_DEF_OV_01_SELECTED','contact selection bracket returned')
+end end
 now=100.251;mfd_update();assert(get('F22_DEF_OV_CURRENT')==0 and text('NO DATA'))
 for _,e in ipairs(elements)do for _,p in ipairs(e.element_params or {})do if p=='F22_DEF_OV_01_VALID'then assert(not visible(e),'stalled overview retained its last threat glyph')end end end
 now=99.9;mfd_update();assert(get('F22_DEF_OV_CURRENT')==0,'future overview timestamp was accepted')

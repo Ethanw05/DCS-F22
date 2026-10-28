@@ -50,3 +50,11 @@ The modified MFD button dispatcher and provider query were split into bounded
 helpers. Existing untouched complexity debt remains in MFD publish/update and
 native bind_driver; this patch does not claim whole-project standard compliance.
 Type/arrow placement and complete RF effectiveness still need a native flight.
+
+Latest preview feedback removes all per-contact selection/warning brackets,
+bearing stems, source suffixes and coast letters from DEF. One class marker
+remains: circle for aircraft, triangle forSAM, square forAAA (DCS stockA or named
+gun radar), trapezoid forships andV for optical missile warnings. The DCS type
+label sits alongside. Warnings use red ink and coasts dim; the requested green
+ECM arrow still requires current RF and a qualified own effect. Conditional
+geolocation retains itsE qualifier so it cannot look like measured radar range.

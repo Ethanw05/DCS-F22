@@ -67,8 +67,9 @@ for name, stores, view in [('def', False, 0), ('def-setup', False, 1), ('stores'
                   F22_ECM_DISPLAY_STATE=3,F22_ECM_TRANSMITTING_VALID=1,F22_ECM_TRANSMITTING=1,
                   F22_ECM_REQUESTED=1,F22_DEF_OV_RANGE_VALID=1,F22_DEF_OV_RANGE_NM=40,
                   F22_DEF_OV_PROXIMITY_COUNT=2)
-    for i,(label,x,y,aff,rf,ranged) in enumerate([(29,.34,.46,-1,1,1),(106,-.54,.54,0,1,0),(22,-.26,-.05,-1,0,1),(18,.59,.12,-1,0,1)],1):
+    for i,(label,x,y,aff,rf,ranged) in enumerate([(29,.34,.46,-1,1,1),(106,-.54,.54,0,1,0),(22,-.26,-.05,-1,0,1),(18,.59,.12,-1,0,1),(107,-.5,-.3,0,0,0)],1):
         for k,v in dict(VALID=1,LABEL_CODE=label,X=x,Y=y,ROT=-math.atan2(x,y),AFFILIATION=aff,
+                        KIND=2 if label==106 else 3 if label==107 else 1,ALPHA=1,
                         RF_CURRENT=rf,RF=rf,RANGED=ranged,PROXIMITY=int(not ranged),SELECTED=int(i==1),ALERT=int(i==2)).items():
             params[f'F22_DEF_OV_{i:02d}_{k}']=v
     for i in [2,3,4,6]:
