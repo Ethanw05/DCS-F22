@@ -1,0 +1,46 @@
+{
+  "owner": "chat1",
+  "status": "requested; not a lease grant",
+  "shared_status": "docs/overhaul/integration/STATUS.json",
+  "baseline_commit": "7513f931a8bf1016a72e8eb184a9c98074786e81",
+  "requests": [
+    {
+      "id": "flight-early",
+      "packages": [
+        "P-FLT-001",
+        "D-P-FLT-001"
+      ],
+      "regions": [
+        "RAPTOR.cpp::reset_fm_state",
+        "RAPTOR.cpp::CockpitManager.initialize/update/invalidatePhysical/updateCombat",
+        "VehicleIntegration.h::vehicle_sample_environment",
+        "HUD_Flight_Data.lua::physical/update"
+      ],
+      "contract": "README.md field-group proposal",
+      "expected_raptor_sha256": "71d7660ce9b178295f033a1efbd0652d3b964ba501298545b4112888b0cc37a1",
+      "needed_gates": [
+        "P-INT-001 adopted",
+        "P-INT-003 safe build output",
+        "P-INT-002 HARNESS_READY"
+      ],
+      "test_ports": [
+        "actual EFM DLL plus checked cockpit parameter API and monotonic model clock",
+        "actual Lua 5.1 HUD source; retain independent GS/FPM",
+        "same-generation equivalence of achieved rudder after opposite released prior histories"
+      ],
+      "review_required": "Chat2 serialized provider/HUD integration; Chat4 native gun/AG admission checks",
+      "release_commit": null,
+      "status": "lease granted; source applied; native32 + lifecycle18 + Lua3 passed; final reset recheck running"
+    }
+  ],
+  "test_ownership": "16 artifacts pinned in baseline/VERIFICATION-SPEC; do not delete before current common-harness owner handoff",
+  "runtime_slot": "not requested yet; no DCS operation",
+  "cmake_request": {
+    "path": "tests/native/flight.cmake",
+    "action": "include from tests/CMakeLists.txt after integrator review",
+    "fixture_source_owner": "chat1; three assigned legacy artifacts deleted/remade",
+    "offline_native_build": "F22-Build/chat1-20261028/ports",
+    "production_build": "F22-Build/chat1-20261028/aircraft",
+    "note": "Do not register legacy tests; no installation or runtime requested"
+  }
+}

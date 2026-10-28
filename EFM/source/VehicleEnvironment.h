@@ -10,6 +10,8 @@ struct EnvironmentInputs {
     double internal_fuel_kg = 0.0;
     double canopy_position = 0.0; // native host position, not another actuator
     bool canopy_locked = true;
+    bool atmosphere_valid = false; // original host provenance, not fallback range
+    bool kinematics_valid = false;
     bool powered = false;
     bool left_bleed = false;
     bool right_bleed = false;
@@ -64,11 +66,12 @@ struct Environment {
         else if (equipment_c < 75.0) thermal_fault = false;
     }
     static bool valid_air_inputs(const EnvironmentInputs& input) {
-        return within(input.ambient_pa, 1.0, 2000000.0) &&
+        return input.atmosphere_valid && within(input.ambient_pa, 1.0, 2000000.0) &&
             within(input.ambient_k, 100.0, 1000.0);
     }
     static bool valid_inputs(const EnvironmentInputs& input) {
-        return valid_air_inputs(input) && within(input.canopy_position, 0.0, 1.0) &&
+        return valid_air_inputs(input) && input.kinematics_valid &&
+            within(input.canopy_position, 0.0, 1.0) &&
             within(input.tas_mps, 0.0, 5000.0) &&
             within(input.internal_fuel_kg, 0.0, 8200.0);
     }

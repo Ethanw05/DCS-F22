@@ -1,0 +1,53 @@
+{
+  "owner": "chat1",
+  "status": "ready_for_integrator_review_and_focused_commit",
+  "packages": [
+    "P-FLT-001 provider/HUD chain",
+    "D-P-FLT-001 software fix"
+  ],
+  "paths": [
+    "EFM/source/RAPTOR.cpp",
+    "EFM/source/VehicleEnvironment.h",
+    "EFM/source/VehicleIntegration.h",
+    "EFM/source/Utility.h",
+    "Cockpit/Scripts/Systems/HUD_Flight_Data.lua",
+    "tests/native/flight.cmake",
+    "tests/native/flight_callbacks.cpp",
+    "tests/native/flight_cockpit.cpp",
+    "tests/native/flight_world.cpp",
+    "tests/cases/test_flight_field_validity.py",
+    "tests/test_vehicle_efm.cpp",
+    "tests/vehicle_mock_cockpit.cpp",
+    "tests/vehicle_mock_world.cpp",
+    "docs/overhaul/flight-execution/"
+  ],
+  "expected_current_sha256": {
+    "EFM/source/RAPTOR.cpp": "eae7261db0a29a7b96fc5247a55e37809ec087842bd1ea41bd7a9109c51d8dd2",
+    "EFM/source/VehicleIntegration.h": "c1b4b3fd1da133d66d6caaacbaa2907f1483fbbd9dc8e9933d5f201733ed9e6c",
+    "EFM/source/VehicleEnvironment.h": "5a4c9268f3877f11e8c4d85a037c4e691719114583334abff9769ea9faec1b14",
+    "Cockpit/Scripts/Systems/HUD_Flight_Data.lua": "c96f70a64b0e211fd5e13a476913f1bb17a3d511c3f4e4b9d5e3cdc87917e0d0",
+    "tests/native/flight_callbacks.cpp": "51c1f032883d9842e4d8451cfd922dd18ff48201ccde84c587ea0daba2790f40",
+    "tests/native/flight_cockpit.cpp": "f0e1cea389972574860891e953953dece3c3639e30bdb73a559f7b188a9e1225",
+    "tests/native/flight_world.cpp": "50e994852775a55e084505296a01f65eaf7325305ec06ef68adf2d11cd410b72",
+    "tests/native/flight.cmake": "0ffd040452928eec8d42bbb5fd3f6cb3d396d83fe81d9228eba7109bc87b425a",
+    "tests/cases/test_flight_field_validity.py": "fbf6cf15ce3ab3a79764ae1c12fd1acfbdb9d1a6430a9d1dff2ff5dad7d18ad0",
+    "EFM/source/Utility.h": "e2a4bb1430c84ee9be65bf97de7c5c9e4e5384b20c8acce15004b27d0868544b"
+  },
+  "title": "Preserve flight source validity and reset generation-local yaw filtering",
+  "validation": [
+    "External Release actual DLL:32invalid atmosphere cases, ADC/backup/standby/recovery,54yaw history/spawn comparisons plus noadvance",
+    "Lua5.1 actual HUD3tests including motion/wind isolation",
+    "Baseline actual DLL independently reproduces atmosphere defect and fails new yaw equivalence assertion",
+    "Native ports /W4 /WX /analyze clean; DLL warning counts do not increase from common baseline"
+  ],
+  "shared_region_release": "Early flight region modifications complete; please release after review/commit. No navigation/entry/refuel/light/NativeSidewinder/shared API edits.",
+  "cmake_request": "Include tests/native/flight.cmake in replacement tests/CMakeLists.txt; external fixture-only build already passes",
+  "remaining": "Native gun/AG full-group guards remain Chat4; include NativeSidewinder::update_time_estimate EFM_HUD_TAS consumption. No installation/runtime lease; no DCS/VR/MP claims.",
+  "coding_exception": {
+    "function": "CockpitManager::update",
+    "legacy_complexity": 22,
+    "current_complexity": 26,
+    "reason": "Existing bounded publication callback retained in its shared region; four additional boolean decisions qualify source groups. No new allocation/loop/native indirection. Broader split requires integrator ownership; existing callback exception requested for this focused fix.",
+    "reviewer": "Chat2 integration review pending"
+  }
+}

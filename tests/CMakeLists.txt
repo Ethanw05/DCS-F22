@@ -19,3 +19,6 @@ if(MSVC)
     target_compile_options(f22_altimetry_requests PRIVATE /W4 /WX /analyze)
 endif()
 add_test(NAME replacement_altimetry_request_status COMMAND f22_altimetry_requests)
+
+# Reviewed Chat 1 replacement callback ports; no legacy fixture registration.
+include(native/flight.cmake)

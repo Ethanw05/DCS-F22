@@ -1,0 +1,258 @@
+{
+  "captured_at": "2026-10-28T20:55:32.688307+00:00",
+  "owner": "chat1",
+  "audit_package": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Deep-Audit-2026-10-28-1351",
+  "branch": "main",
+  "head": "7513f931a8bf1016a72e8eb184a9c98074786e81",
+  "status": "M tools/compose_ew_gauntlet.lua\n M tools/research_sar_point_targets.py\n?? Cockpit.zip\n?? EFM.zip",
+  "assigned_packages": [
+    "P-FLT-001",
+    "P-FLT-002",
+    "P-FLT-003",
+    "P-FLT-004",
+    "P-FLT-005",
+    "P-FLT-006",
+    "P-FLT-007",
+    "P-FLT-008",
+    "P-FLT-009",
+    "P-FLT-010",
+    "D-P-FLT-001"
+  ],
+  "files": [
+    {
+      "path": "Cockpit/Scripts/Systems/Electrical_System.lua",
+      "audit_sha256": "1a4823ef4cd598b8a0d83d670009ad899df50314bb4fedc41af7aa486a37c445",
+      "current_sha256": "1a4823ef4cd598b8a0d83d670009ad899df50314bb4fedc41af7aa486a37c445",
+      "drift": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Engine_Data.lua",
+      "audit_sha256": "d6a5b2b886a12dc594f4cf730b43c46a03f0bcbb8f67ad65ccd72208f4e75ef5",
+      "current_sha256": "d6a5b2b886a12dc594f4cf730b43c46a03f0bcbb8f67ad65ccd72208f4e75ef5",
+      "drift": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Engine_Indications.lua",
+      "audit_sha256": "3c414621b711b00e62e56ed8af273365989ace0f0eabd61d57457bd302484c77",
+      "current_sha256": "3c414621b711b00e62e56ed8af273365989ace0f0eabd61d57457bd302484c77",
+      "drift": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Engine_Status.lua",
+      "audit_sha256": "a0ad9ed7011ea3a8cd68bc9f2feae29310b44d5f58412e232cd18e2ac56bf008",
+      "current_sha256": "a0ad9ed7011ea3a8cd68bc9f2feae29310b44d5f58412e232cd18e2ac56bf008",
+      "drift": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Engine_System.lua",
+      "audit_sha256": "2d46e26456709c65cde4e070984af6455af11bda80f963e2ec04a94858f1bd3b",
+      "current_sha256": "2d46e26456709c65cde4e070984af6455af11bda80f963e2ec04a94858f1bd3b",
+      "drift": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Physical_Snapshot.lua",
+      "audit_sha256": "638ef7f4cf0d55a9a67c5cc6d2db5eca5e702802afe47ab125b87efb13a1f14b",
+      "current_sha256": "638ef7f4cf0d55a9a67c5cc6d2db5eca5e702802afe47ab125b87efb13a1f14b",
+      "drift": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Vehicle_Power_Adapter.lua",
+      "audit_sha256": "b1a222abe2056f5c5693c14ddbf7ba936707a2f02b2b5869a56cc60a85cf092a",
+      "current_sha256": "b1a222abe2056f5c5693c14ddbf7ba936707a2f02b2b5869a56cc60a85cf092a",
+      "drift": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Vehicle_Stores_Adapter.lua",
+      "audit_sha256": "9137d87a4888195c0f0bf4c4518b49967307b98171afc57b5b3cef44488f4c85",
+      "current_sha256": "9137d87a4888195c0f0bf4c4518b49967307b98171afc57b5b3cef44488f4c85",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/AirData.h",
+      "audit_sha256": "80cf9077c974478b25434806860b4cf738c4af59d5e49b381d980680fdff1ab0",
+      "current_sha256": "80cf9077c974478b25434806860b4cf738c4af59d5e49b381d980680fdff1ab0",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/Autopilot.h",
+      "audit_sha256": "104c6bd41bbb91359163ce8b775be7ebc1602512524d56434b425ae1572fdc06",
+      "current_sha256": "104c6bd41bbb91359163ce8b775be7ebc1602512524d56434b425ae1572fdc06",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/BrakeEnergy.h",
+      "audit_sha256": "a878221cb53f1711214d37996fad63bcf8e1764f59aeb51962c4557c63599395",
+      "current_sha256": "a878221cb53f1711214d37996fad63bcf8e1764f59aeb51962c4557c63599395",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/CniPower.h",
+      "audit_sha256": "2552258f32bedfda4c0aae02d9792a2e1646fc577fe721d5544d527c235f1bb7",
+      "current_sha256": "2552258f32bedfda4c0aae02d9792a2e1646fc577fe721d5544d527c235f1bb7",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/CommandRouting.h",
+      "audit_sha256": "a01f9e65a5869cff3f4ef594e890cffce834a6c9e37cf31374879bd37ceb9a01",
+      "current_sha256": "a01f9e65a5869cff3f4ef594e890cffce834a6c9e37cf31374879bd37ceb9a01",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/EngineController.h",
+      "audit_sha256": "313d7225efd32a26fb7eeee0f83c5cbe0e1ed05a6e6869254a3812899c58c49a",
+      "current_sha256": "313d7225efd32a26fb7eeee0f83c5cbe0e1ed05a6e6869254a3812899c58c49a",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/EngineStart.h",
+      "audit_sha256": "d4a29d662a84b570ee6c19a1278f13ca7fda4f31423ac9e0e87a5b372cd2ec6b",
+      "current_sha256": "d4a29d662a84b570ee6c19a1278f13ca7fda4f31423ac9e0e87a5b372cd2ec6b",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/FuelSystem.h",
+      "audit_sha256": "987075faaa08ab614f9b8d8822873335822ee53aeb519ce861ddfb7646260363",
+      "current_sha256": "987075faaa08ab614f9b8d8822873335822ee53aeb519ce861ddfb7646260363",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/GroundContact.h",
+      "audit_sha256": "62d0354a8df56de74c5faa084e96058da8f81b231a86e8ee936965227f4803f3",
+      "current_sha256": "62d0354a8df56de74c5faa084e96058da8f81b231a86e8ee936965227f4803f3",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/HighAlpha.h",
+      "audit_sha256": "c6ece10eedfa5d8ba5c1dde977230a2b40b7c15b6cb188afcdc2a5fa00961c86",
+      "current_sha256": "c6ece10eedfa5d8ba5c1dde977230a2b40b7c15b6cb188afcdc2a5fa00961c86",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/Inputs.h",
+      "audit_sha256": "1e952456657c01e0ca2efb7cbde2f7260815099f5ccdf76e5df01f9eb2a1dbbb",
+      "current_sha256": "1e952456657c01e0ca2efb7cbde2f7260815099f5ccdf76e5df01f9eb2a1dbbb",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/RAPTOR.cpp",
+      "audit_sha256": "71d7660ce9b178295f033a1efbd0652d3b964ba501298545b4112888b0cc37a1",
+      "current_sha256": "71d7660ce9b178295f033a1efbd0652d3b964ba501298545b4112888b0cc37a1",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/RAPTOR.h",
+      "audit_sha256": "e37076d9ec3021fa89edf41f172efd97309d07b5db0b1936d2a57696d26f17cb",
+      "current_sha256": "e37076d9ec3021fa89edf41f172efd97309d07b5db0b1936d2a57696d26f17cb",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/ThrustDeck.h",
+      "audit_sha256": "c121b1cd02ce144453e9a10d92f14d5aeabd26d31b2452e8b77f0c0e0d1c5b85",
+      "current_sha256": "c121b1cd02ce144453e9a10d92f14d5aeabd26d31b2452e8b77f0c0e0d1c5b85",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/TrimControl.h",
+      "audit_sha256": "4b85c198fa856b07c3020e0c6028c7c5a73234a352e33eb54d9af8a846876b91",
+      "current_sha256": "4b85c198fa856b07c3020e0c6028c7c5a73234a352e33eb54d9af8a846876b91",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/Utility.h",
+      "audit_sha256": "7b667024c1a394aa831ec176fa7cff795067b7146a6ee0bab21ef881e4fe92b0",
+      "current_sha256": "7b667024c1a394aa831ec176fa7cff795067b7146a6ee0bab21ef881e4fe92b0",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/VehicleConfiguration.h",
+      "audit_sha256": "46f5e49291994de6a102b9eae36b7867e49df79a5759f16e067666429fed121b",
+      "current_sha256": "46f5e49291994de6a102b9eae36b7867e49df79a5759f16e067666429fed121b",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/VehicleContext.h",
+      "audit_sha256": "af3c93936969e01a2623ed8d6991dd0c8ab6664a598f4d3d21a29e4cee738d71",
+      "current_sha256": "af3c93936969e01a2623ed8d6991dd0c8ab6664a598f4d3d21a29e4cee738d71",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/VehicleDemand.h",
+      "audit_sha256": "f3bfe78084362cae1664bccca71b9e6aa48759f84cf69fd5e3cd809efac53b87",
+      "current_sha256": "f3bfe78084362cae1664bccca71b9e6aa48759f84cf69fd5e3cd809efac53b87",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/VehicleEnvironment.h",
+      "audit_sha256": "dab51175908036d45df61d544fb14426f68164b202a606c49528102643bc9c2d",
+      "current_sha256": "dab51175908036d45df61d544fb14426f68164b202a606c49528102643bc9c2d",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/VehicleFaults.h",
+      "audit_sha256": "32afcbb9ced9450c92db22e5af770767e5aa45e12bd3f27e54af92f6ddf4717d",
+      "current_sha256": "32afcbb9ced9450c92db22e5af770767e5aa45e12bd3f27e54af92f6ddf4717d",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/VehicleIntegration.h",
+      "audit_sha256": "bd48d257f274309f0434ab3f18627ecbda813d1976b52e28ba0e68dae1431159",
+      "current_sha256": "bd48d257f274309f0434ab3f18627ecbda813d1976b52e28ba0e68dae1431159",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/VehicleLedger.h",
+      "audit_sha256": "73c35700b94708ebad99d7e7e528ecb8825d7258b46a21fd0dd3653f3ac5f5f2",
+      "current_sha256": "73c35700b94708ebad99d7e7e528ecb8825d7258b46a21fd0dd3653f3ac5f5f2",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/VehiclePower.h",
+      "audit_sha256": "ef1292c3ef18a38be37fcaf4ebdffea52168b6418c6f81a1117e1c4dae36f9f3",
+      "current_sha256": "ef1292c3ef18a38be37fcaf4ebdffea52168b6418c6f81a1117e1c4dae36f9f3",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/VehicleSignals.h",
+      "audit_sha256": "04ecfdfeefce37ebdddd24fe3e6b91151058d6109c37ecb0c9c07738478ab8d3",
+      "current_sha256": "04ecfdfeefce37ebdddd24fe3e6b91151058d6109c37ecb0c9c07738478ab8d3",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/VehicleSystems.h",
+      "audit_sha256": "125e7013dd89bc5682af4648671e30a99bb7c37e6f96a937f89399c7fd2fb603",
+      "current_sha256": "125e7013dd89bc5682af4648671e30a99bb7c37e6f96a937f89399c7fd2fb603",
+      "drift": false
+    },
+    {
+      "path": "EFM/source/dllmain.cpp",
+      "audit_sha256": "c1dd5b0ab9e692b5621bb06a5395c5a4a80452d3559a62435f84c9cb2cb10141",
+      "current_sha256": "c1dd5b0ab9e692b5621bb06a5395c5a4a80452d3559a62435f84c9cb2cb10141",
+      "drift": false
+    },
+    {
+      "path": "F-22A.lua",
+      "audit_sha256": "ccb122f14e28f17be47e8ef40e8f60ece45b2328d13293934fada3afc409e2f0",
+      "current_sha256": "ccb122f14e28f17be47e8ef40e8f60ece45b2328d13293934fada3afc409e2f0",
+      "drift": false
+    },
+    {
+      "path": "FM/config.lua",
+      "audit_sha256": "0b30049eb6658825be8a785fd2e8c3c95893e52ab22d052c7b4b26a3f7dbb195",
+      "current_sha256": "0b30049eb6658825be8a785fd2e8c3c95893e52ab22d052c7b4b26a3f7dbb195",
+      "drift": false
+    },
+    {
+      "path": "VLO Fuel Tank.lua",
+      "audit_sha256": "7907f769ffde8c943179a51678a4bb76d0662336bc1aa272b40d986b0f288384",
+      "current_sha256": "7907f769ffde8c943179a51678a4bb76d0662336bc1aa272b40d986b0f288384",
+      "drift": false
+    },
+    {
+      "path": "entry.lua",
+      "audit_sha256": "29f04d4d6e2efa03183e2f85d33f956186a6ef1405616a00aa08b0fb10181435",
+      "current_sha256": "29f04d4d6e2efa03183e2f85d33f956186a6ef1405616a00aa08b0fb10181435",
+      "drift": false
+    }
+  ],
+  "capture_atomic": false
+}

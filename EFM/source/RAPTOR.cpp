@@ -229,6 +229,7 @@ void reset_fm_state() {
     RAPTOR::last_pitch_input = 0.0;
     RAPTOR::smoothed_pitch_discrete = 0.0;
     RAPTOR::smoothed_roll_discrete = 0.0;
+    RAPTOR::smoothed_yaw_discrete = 0.0;
 
     RAPTOR::autotrim_elevator_cmd = 0.0;
     RAPTOR::is_destroyed = false;
@@ -1707,7 +1708,7 @@ void CockpitManager::initialize() {
     NativeGroundRadar::reset();
     NativeAGWeapons::reset();
     NativeGunSight::reset();
-    const char* hud_names[] = {"EFM_HUD_VALID", "EFM_HUD_VN", "EFM_HUD_VE", "EFM_HUD_VU",
+    const char* hud_names[] = {"EFM_HUD_VALID", "EFM_HUD_KINEMATICS_VALID", "EFM_HUD_VN", "EFM_HUD_VE", "EFM_HUD_VU",
         "EFM_HUD_WN", "EFM_HUD_WE", "EFM_HUD_WU", "EFM_HUD_TAS",
         "EFM_HUD_SOUND", "EFM_HUD_PRESSURE", "EFM_ENGINE_VALID",
         "EFM_ENGINE_LEFT_RPM_PCT", "EFM_ENGINE_RIGHT_RPM_PCT",
@@ -1727,6 +1728,8 @@ void CockpitManager::initialize() {
         "EFM_TRIM_VALID","EFM_TRIM_CLOCK","EFM_TRIM_IAS_KTS","EFM_TRIM_TAS_MPS","EFM_TRIM_MACH","EFM_TRIM_ALT_M","EFM_TRIM_AOA_DEG","EFM_TRIM_PITCH_DEG","EFM_TRIM_ROLL_DEG","EFM_TRIM_Q_DEGPS","EFM_TRIM_P_DEGPS","EFM_TRIM_NZ","EFM_TRIM_STICK","EFM_TRIM_PITCH","EFM_TRIM_ROLL","EFM_TRIM_YAW","EFM_TRIM_AUTO","EFM_TRIM_AUTO_ACTIVE","EFM_TRIM_AUTO_INHIBIT","EFM_TRIM_MANUAL","EFM_TRIM_TAKEOFF","EFM_TRIM_STICK_TERM","EFM_TRIM_DAMP_TERM","EFM_TRIM_RAW","EFM_TRIM_ELEVATOR","EFM_TRIM_LEFT_DEG","EFM_TRIM_RIGHT_DEG","EFM_TRIM_Q_PA","EFM_TRIM_EVENT_LEFT","EFM_TRIM_EVENT_RIGHT","EFM_TRIM_EVENT_UP","EFM_TRIM_EVENT_DOWN","EFM_TRIM_EVENT_RESET","EFM_TRIM_EVENT_RUDDER_LEFT","EFM_TRIM_EVENT_RUDDER_RIGHT","EFM_TRIM_EVENT_STOP","EFM_TRIM_LAST_COMMAND","EFM_TRIM_LAST_VALUE","EFM_TRIM_LAST_STAMP",
         "L_HYD_FAILURE", "R_HYD_FAILURE", "APU_RPM_STATE"};
     for (const char* name : hud_names) param_handles_[name] = param_api_.getParamHandle(name);
+    param_api_.setParamNumber(param_handles_["EFM_HUD_VALID"], 0.0);
+    param_api_.setParamNumber(param_handles_["EFM_HUD_KINEMATICS_VALID"], 0.0);
     param_api_.setParamNumber(param_handles_["EFM_FCS_INTEGRITY_VALID"],0);
     param_api_.setParamNumber(param_handles_["EFM_VEHICLE_VALID"],0);
     param_handles_["APU_POWER"] = param_api_.getParamHandle("APU_POWER");
@@ -1770,7 +1773,7 @@ void CockpitManager::invalidatePhysical() {
         VehicleSignal::FormationIntensity, VehicleSignal::RefuelIntensity};
     for (const auto signal : signals) vehicle_bus.write(signal, 0.0);
     constexpr const char* legacy[] = {
-        "EFM_HUD_VALID", "EFM_GROUND_VALID", "EFM_ENGINE_VALID",
+        "EFM_HUD_VALID", "EFM_HUD_KINEMATICS_VALID", "EFM_GROUND_VALID", "EFM_ENGINE_VALID",
         "EFM_VEHICLE_VALID", "EFM_TRIM_VALID", "EFM_FCS_INTEGRITY_VALID"};
     const auto write = param_api_.ed_param_api.pfn_ed_cockpit_update_parameter_with_number;
     if (!write) return;
@@ -1814,7 +1817,7 @@ void CockpitManager::updateCombat(double dt) {
     // Generic independently failed standby sensor shares the atmosphere, not
     // the primary ADC's failure state. This is a declared simulation backup.
     NativeAltimetry::update_standby(param_api_, RAPTOR::hud_static_pressure_pa,
-        RAPTOR::sim_initialised);
+        RAPTOR::sim_initialised && vehicle.atmosphere_valid);
     NativeSidewinder::update(param_api_, dt);
     NativeMWS::update(param_api_);
     NativeGroundRadar::update(param_api_);
@@ -1917,7 +1920,12 @@ void CockpitManager::update(double dt) {
     param_api_.setParamNumber(param_handles_["EFM_HUD_TAS"], RAPTOR::V_scalar);
     param_api_.setParamNumber(param_handles_["EFM_HUD_SOUND"], RAPTOR::speed_of_sound);
     param_api_.setParamNumber(param_handles_["EFM_HUD_PRESSURE"], RAPTOR::hud_static_pressure_pa);
-    param_api_.setParamNumber(param_handles_["EFM_HUD_VALID"], 1.0);
+    // Legacy flight/wind consumers require the complete source group. World
+    // velocity has an independent gate so GS/FPM survive an atmosphere fault.
+    param_api_.setParamNumber(param_handles_["EFM_HUD_VALID"],
+        vehicle.atmosphere_valid && vehicle.motion_valid && vehicle.world_motion_valid ? 1.0 : 0.0);
+    param_api_.setParamNumber(param_handles_["EFM_HUD_KINEMATICS_VALID"],
+        vehicle.world_motion_valid ? 1.0 : 0.0);
     // EFM is the authoritative source; no fabricated 'full internal' subtraction.
     param_api_.setParamNumber(param_handles_["EFM_INTERNAL_FUEL_KG"], RAPTOR::internal_fuel);
     param_api_.setParamNumber(param_handles_["EFM_EXTERNAL_FUEL_KG"], RAPTOR::external_fuel);

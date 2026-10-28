@@ -1,0 +1,124 @@
+--- a/EFM/source/VehicleEnvironment.h
++++ b/EFM/source/VehicleEnvironment.h
+@@ -10,6 +10,8 @@
+     double internal_fuel_kg = 0.0;
+     double canopy_position = 0.0; // native host position, not another actuator
+     bool canopy_locked = true;
++    bool atmosphere_valid = false; // original host provenance, not fallback range
++    bool kinematics_valid = false;
+     bool powered = false;
+     bool left_bleed = false;
+     bool right_bleed = false;
+@@ -64,11 +66,12 @@
+         else if (equipment_c < 75.0) thermal_fault = false;
+     }
+     static bool valid_air_inputs(const EnvironmentInputs& input) {
+-        return within(input.ambient_pa, 1.0, 2000000.0) &&
++        return input.atmosphere_valid && within(input.ambient_pa, 1.0, 2000000.0) &&
+             within(input.ambient_k, 100.0, 1000.0);
+     }
+     static bool valid_inputs(const EnvironmentInputs& input) {
+-        return valid_air_inputs(input) && within(input.canopy_position, 0.0, 1.0) &&
++        return valid_air_inputs(input) && input.kinematics_valid &&
++            within(input.canopy_position, 0.0, 1.0) &&
+             within(input.tas_mps, 0.0, 5000.0) &&
+             within(input.internal_fuel_kg, 0.0, 8200.0);
+     }
+--- a/EFM/source/VehicleIntegration.h
++++ b/EFM/source/VehicleIntegration.h
+@@ -322,6 +322,8 @@
+ 
+ void vehicle_sample_environment(double dt) {
+     RaptorVehicle::EnvironmentInputs input;
++    input.atmosphere_valid = vehicle.atmosphere_valid;
++    input.kinematics_valid = vehicle.motion_valid && vehicle.world_motion_valid;
+     input.ambient_pa = RAPTOR::hud_static_pressure_pa;
+     input.ambient_k = RAPTOR::atmosphere_temperature;
+     input.tas_mps = RAPTOR::V_scalar;
+--- a/EFM/source/RAPTOR.cpp
++++ b/EFM/source/RAPTOR.cpp
+@@ -229,6 +229,7 @@
+     RAPTOR::last_pitch_input = 0.0;
+     RAPTOR::smoothed_pitch_discrete = 0.0;
+     RAPTOR::smoothed_roll_discrete = 0.0;
++    RAPTOR::smoothed_yaw_discrete = 0.0;
+ 
+     RAPTOR::autotrim_elevator_cmd = 0.0;
+     RAPTOR::is_destroyed = false;
+@@ -1707,7 +1708,7 @@
+     NativeGroundRadar::reset();
+     NativeAGWeapons::reset();
+     NativeGunSight::reset();
+-    const char* hud_names[] = {"EFM_HUD_VALID", "EFM_HUD_VN", "EFM_HUD_VE", "EFM_HUD_VU",
++    const char* hud_names[] = {"EFM_HUD_VALID", "EFM_HUD_KINEMATICS_VALID", "EFM_HUD_VN", "EFM_HUD_VE", "EFM_HUD_VU",
+         "EFM_HUD_WN", "EFM_HUD_WE", "EFM_HUD_WU", "EFM_HUD_TAS",
+         "EFM_HUD_SOUND", "EFM_HUD_PRESSURE", "EFM_ENGINE_VALID",
+         "EFM_ENGINE_LEFT_RPM_PCT", "EFM_ENGINE_RIGHT_RPM_PCT",
+@@ -1770,7 +1771,7 @@
+         VehicleSignal::FormationIntensity, VehicleSignal::RefuelIntensity};
+     for (const auto signal : signals) vehicle_bus.write(signal, 0.0);
+     constexpr const char* legacy[] = {
+-        "EFM_HUD_VALID", "EFM_GROUND_VALID", "EFM_ENGINE_VALID",
++        "EFM_HUD_VALID", "EFM_HUD_KINEMATICS_VALID", "EFM_GROUND_VALID", "EFM_ENGINE_VALID",
+         "EFM_VEHICLE_VALID", "EFM_TRIM_VALID", "EFM_FCS_INTEGRITY_VALID"};
+     const auto write = param_api_.ed_param_api.pfn_ed_cockpit_update_parameter_with_number;
+     if (!write) return;
+@@ -1814,7 +1815,7 @@
+     // Generic independently failed standby sensor shares the atmosphere, not
+     // the primary ADC's failure state. This is a declared simulation backup.
+     NativeAltimetry::update_standby(param_api_, RAPTOR::hud_static_pressure_pa,
+-        RAPTOR::sim_initialised);
++        RAPTOR::sim_initialised && vehicle.atmosphere_valid);
+     NativeSidewinder::update(param_api_, dt);
+     NativeMWS::update(param_api_);
+     NativeGroundRadar::update(param_api_);
+@@ -1917,7 +1918,12 @@
+     param_api_.setParamNumber(param_handles_["EFM_HUD_TAS"], RAPTOR::V_scalar);
+     param_api_.setParamNumber(param_handles_["EFM_HUD_SOUND"], RAPTOR::speed_of_sound);
+     param_api_.setParamNumber(param_handles_["EFM_HUD_PRESSURE"], RAPTOR::hud_static_pressure_pa);
+-    param_api_.setParamNumber(param_handles_["EFM_HUD_VALID"], 1.0);
++    // Legacy flight/wind consumers require the complete source group. World
++    // velocity has an independent gate so GS/FPM survive an atmosphere fault.
++    param_api_.setParamNumber(param_handles_["EFM_HUD_VALID"],
++        vehicle.atmosphere_valid && vehicle.motion_valid && vehicle.world_motion_valid ? 1.0 : 0.0);
++    param_api_.setParamNumber(param_handles_["EFM_HUD_KINEMATICS_VALID"],
++        vehicle.world_motion_valid ? 1.0 : 0.0);
+     // EFM is the authoritative source; no fabricated 'full internal' subtraction.
+     param_api_.setParamNumber(param_handles_["EFM_INTERNAL_FUEL_KG"], RAPTOR::internal_fuel);
+     param_api_.setParamNumber(param_handles_["EFM_EXTERNAL_FUEL_KG"], RAPTOR::external_fuel);
+--- a/Cockpit/Scripts/Systems/HUD_Flight_Data.lua
++++ b/Cockpit/Scripts/Systems/HUD_Flight_Data.lua
+@@ -18,7 +18,7 @@
+ local envelope=dofile(LockOn_Options.script_path..'Systems/Physical_Snapshot.lua')
+ local physical=envelope.new(read,{
+     'MAIN_POWER',
+-    'EFM_HUD_VALID','EFM_HUD_VN','EFM_HUD_VE','EFM_HUD_VU','EFM_HUD_WN','EFM_HUD_WE',
++    'EFM_HUD_VALID','EFM_HUD_KINEMATICS_VALID','EFM_HUD_VN','EFM_HUD_VE','EFM_HUD_VU','EFM_HUD_WN','EFM_HUD_WE',
+     'EFM_GROUND_VALID','EFM_WEIGHT_ON_WHEELS','EFM_GEAR_DOWN_LOCKED','EFM_GEAR_UP_LOCKED',
+     'EFM_GEAR_UNSAFE','EFM_NWS_SELECTED','EFM_AIRDATA_VALID','EFM_AIRDATA_STAMP','EFM_AIRDATA_CAS_MPS',
+     'EFM_AIRDATA_TAS_MPS','EFM_AIRDATA_HEALTH',
+@@ -145,6 +145,7 @@
+ function update()
+     physical:update()
+     put('HUD_AIRDATA_DEGRADED',0)
++    put('HUD_WIND_ARROW_VALID',0)
+     put('HUD_FPM_COMPUTED_VALID',0);put('HUD_FPM_OFFGLASS',0);put('HUD_FPM_GHOST_VALID',0)
+     altitude()
+     if read('F22_ALT_BARO_VALID')~=1 or flight('EFM_HUD_VALID')~=1 then approach_pressure=false end
+@@ -207,7 +208,7 @@
+     put("HUD_VS_SIGN",vs>=0 and 1 or -1)
+     put("HUD_FPM_VALID",0); put("HUD_GS_VALID",0)
+     put("HUD_WIND_VALID",0); put("HUD_AIRDATA_VALID",0)
+-    if flight('EFM_HUD_VALID')~=1 then previous_cas=nil;return end
++    if flight('EFM_HUD_KINEMATICS_VALID')~=1 then previous_cas=nil;return end
+     local n,e,u=flight('EFM_HUD_VN'),flight('EFM_HUD_VE'),flight('EFM_HUD_VU')
+     if not (mathhud.finite(n) and mathhud.finite(e) and mathhud.finite(u)) then
+         previous_cas=nil;return
+@@ -244,6 +245,7 @@
+         previous_cas=nil;put('HUD_ACCEL_UP',0);put('HUD_ACCEL_DOWN',0)
+         approach_pressure=false;pressure_confirmation()
+     end
++    if flight('EFM_HUD_VALID')~=1 then return end
+     local wn,we=flight('EFM_HUD_WN'),flight('EFM_HUD_WE')
+     if not (mathhud.finite(wn) and mathhud.finite(we)) then return end
+     local windspeed=math.sqrt(wn*wn+we*we)*1.943844492

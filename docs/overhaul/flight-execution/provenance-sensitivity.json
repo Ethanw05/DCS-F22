@@ -1,0 +1,151 @@
+{
+  "origin": "Deep-Audit-2026-10-28-1351/reviews/physical/lane.json",
+  "adoption": "Prepared reference matrix; original tier/qualification limits retained. No new original aircraft passage access or flight/calibration result claimed.",
+  "families": [
+    {
+      "family": "Fuel topology",
+      "anchors": [
+        {
+          "path": "EFM/source/FuelSystem.h",
+          "line": 8,
+          "end_line": 35,
+          "sha256": "987075faaa08ab614f9b8d8822873335822ee53aeb519ce861ddfb7646260363"
+        }
+      ],
+      "current": "8200kg aggregate;8cells capacities1000/1500/1500/900/900/900/750/750;40kg/s transfer;locationsfixedbodymetres",
+      "tier": "Aggregate rounded public anchor inherited; cell split/location/threshold/rates explicit estimates, no new original-aircraft read claimed.",
+      "sensitivity": "Shift cell locations and capacities under fixed aggregate mass; observe first-moment/hostCG and feed-starvation while retaining source uncertainty.",
+      "qualification": "Pure ledger conservation passed; actual mass callback/CG/MOI ownership, SES bottle mass and native rearm/refuel scheduling unqualified."
+    },
+    {
+      "family": "Engine force/fuel/control deck",
+      "anchors": [
+        {
+          "path": "EFM/source/RAPTOR.h",
+          "line": 60,
+          "end_line": 79,
+          "sha256": "e37076d9ec3021fa89edf41f172efd97309d07b5db0b1936d2a57696d26f17cb"
+        },
+        {
+          "path": "EFM/source/RAPTOR.cpp",
+          "line": 754,
+          "end_line": 787,
+          "sha256": "71d7660ce9b178295f033a1efbd0652d3b964ba501298545b4112888b0cc37a1"
+        },
+        {
+          "path": "EFM/source/EngineController.h",
+          "line": 164,
+          "end_line": 174,
+          "sha256": "313d7225efd32a26fb7eeee0f83c5cbe0e1ed05a6e6869254a3812899c58c49a"
+        },
+        {
+          "path": "EFM/source/EngineController.h",
+          "line": 292,
+          "end_line": 305,
+          "sha256": "313d7225efd32a26fb7eeee0f83c5cbe0e1ed05a6e6869254a3812899c58c49a"
+        }
+      ],
+      "current": "Drytable peak330000N atMach1.6 declines230000N at1.8; tail exp to2.4, staticdry112654N/staticAB155688N blended by0..100mps; density andhealth multiply force. Fuel fullAB6.5kg/s atsea/Mach0 model.",
+      "tier": "Current source estimates; manufacturer static thrust class is not a dynamic deck or TSFC/aircraft envelope validation.",
+      "sensitivity": "Treat dry/AB anchors, density scaling, Mach fuel multiplier and spool/AB ramp as independent uncertain knobs. Compare held-out climb/specific-excess-power/trim/fuel over same atmosphere,mass,CG,stores.",
+      "measured": "At60s, five dt .002/.01/.02/.05/.1 reach spool1.1/augmentation1/6.5kg/s. Estimated drytail188308.073N atM2 and126226.676N atM2.4 before density/health; not flight results."
+    },
+    {
+      "family": "Aerodynamic/FCS/vector coefficients",
+      "anchors": [
+        {
+          "path": "EFM/source/RAPTOR.h",
+          "line": 34,
+          "end_line": 79,
+          "sha256": "e37076d9ec3021fa89edf41f172efd97309d07b5db0b1936d2a57696d26f17cb"
+        },
+        {
+          "path": "EFM/source/HighAlpha.h",
+          "line": 5,
+          "end_line": 24,
+          "sha256": "c6ece10eedfa5d8ba5c1dde977230a2b40b7c15b6cb188afcdc2a5fa00961c86"
+        },
+        {
+          "path": "EFM/source/VehicleSystems.h",
+          "line": 39,
+          "end_line": 50,
+          "sha256": "125e7013dd89bc5682af4648671e30a99bb7c37e6f96a937f89399c7fd2fb603"
+        }
+      ],
+      "current": "Mach/alpha/beta drag/lift/damping and20deg vector envelope; .72 Gaussian high-alpha proxy regularized15..20/60..65deg.",
+      "tier": "Source shape/regularization estimates; public pitch-vector limit does not authenticate gain/slew/authority schedules.",
+      "sensitivity": "Separate numerical endpoint continuity and force-moment frame transformations from trim, damping, departure/recovery and envelope calibration. Keep invalid-data/reversion and achieved-angle behavior fixed while assessing gains.",
+      "qualification": "No sustained supercruise/climb/range/closed-loop airborne/free-flight validation in this lane."
+    },
+    {
+      "family": "Battery/APU/SES/hydraulics",
+      "anchors": [
+        {
+          "path": "EFM/source/VehiclePower.h",
+          "line": 24,
+          "end_line": 39,
+          "sha256": "ef1292c3ef18a38be37fcaf4ebdffea52168b6418c6f81a1117e1c4dae36f9f3"
+        },
+        {
+          "path": "EFM/source/VehiclePower.h",
+          "line": 124,
+          "end_line": 156,
+          "sha256": "ef1292c3ef18a38be37fcaf4ebdffea52168b6418c6f81a1117e1c4dae36f9f3"
+        },
+        {
+          "path": "EFM/source/VehicleSystems.h",
+          "line": 96,
+          "end_line": 154,
+          "sha256": "125e7013dd89bc5682af4648671e30a99bb7c37e6f96a937f89399c7fd2fb603"
+        }
+      ],
+      "current": "12Ah battery,18A baseline+80Astart,8Acharge; SESair180s/startfuel120s normalized recharge; nominal3950psi and simplified pump/circuit feed.",
+      "tier": "Model/source estimates; measured power budgets and production topology absent.",
+      "sensitivity": "Vary capacity/source hysteresis/load coefficients separately; quantify source eligibility and depletion/order interactions. Never infer hydraulic EW generator or full mission power from generic MAIN_POWER.",
+      "qualification": "APU source loss/restoration and bounded finite state tested; actual native source performance/load/ratings and selected emergency topology unresolved."
+    },
+    {
+      "family": "Cabin/oxygen/thermal",
+      "anchors": [
+        {
+          "path": "EFM/source/VehicleEnvironment.h",
+          "line": 26,
+          "end_line": 116,
+          "sha256": "dab51175908036d45df61d544fb14426f68164b202a606c49528102643bc9c2d"
+        }
+      ],
+      "current": "75kPa cabin/35kPa max differential;8s/1slag; finite600s normalized oxygen estimate;150/250kJ/K thermal nodes and fuel50+2kg capacity; no fuel inlet enthalpy.",
+      "tier": "General reduced-order physics plus selected functional evidence inherited; not real F22 cabin/ABOS/OBOGS capacities or production thermal coefficients.",
+      "measured": "600s dt.002reference equipment35.9992936322C vs.02 35.9993822368C (8.86046e-5C delta), dt1 36.0042087315C (.0049151C delta).",
+      "sensitivity": "Perturb equipment/ram/refrigeration/fuel inventory; explicitly decide refuel inlet temperature/advective enthalpy and physical depletion-point semantics before expanding claimed energy closure.",
+      "qualification": "Native canopy, physiological oxygen and thermal failure effects remain separate actual-host work."
+    },
+    {
+      "family": "Brakes/ground contact",
+      "anchors": [
+        {
+          "path": "EFM/source/BrakeEnergy.h",
+          "line": 7,
+          "end_line": 68,
+          "sha256": "a878221cb53f1711214d37996fad63bcf8e1764f59aeb51962c4557c63599395"
+        },
+        {
+          "path": "EFM/source/GroundContact.h",
+          "line": 17,
+          "end_line": 48,
+          "sha256": "62d0354a8df56de74c5faa084e96058da8f81b231a86e8ee936965227f4803f3"
+        },
+        {
+          "path": "EFM/source/RAPTOR.cpp",
+          "line": 865,
+          "end_line": 882,
+          "sha256": "71d7660ce9b178295f033a1efbd0652d3b964ba501298545b4112888b0cc37a1"
+        }
+      ],
+      "current": "24000Nm/.605m,60/30kJ/K nodes,450..1000Cfade,200Ctire latch,.06 incremental resistance; full reaction magnitude and groundspeed boundwork.",
+      "tier": "Source explicitly estimated work upper envelope, not measured anti-skid heat; native wheel units/forcepoint frame undocumented in installed SDK.",
+      "sensitivity": "Wet/dry stopping, changing contact/rotation/speed and asymmetric failedtire force need direct native/runway measurement; avoid a second friction/slip controller.",
+      "qualification": "Stalecontact and hot-tire repair behavior verified in pureowners. No actual braking distance, native tire mesh/fuse pressure or qualified friction/thermal calibration."
+    }
+  ]
+}

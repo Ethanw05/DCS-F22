@@ -1,0 +1,17 @@
+{
+  "tests/test_vehicle_efm.cpp": {
+    "replacement": "tests/native/flight_callbacks.cpp",
+    "status": "deleted_and_independently_remade",
+    "source": "early-acceptance.md and local SDK ABI; no legacy assertions read/copied"
+  },
+  "tests/vehicle_mock_cockpit.cpp": {
+    "replacement": "tests/native/flight_cockpit.cpp",
+    "status": "deleted_and_independently_remade",
+    "source": "early-acceptance.md and local SDK ABI; no legacy assertions read/copied"
+  },
+  "tests/vehicle_mock_world.cpp": {
+    "replacement": "tests/native/flight_world.cpp",
+    "status": "deleted_and_independently_remade",
+    "source": "early-acceptance.md and local SDK ABI; no legacy assertions read/copied"
+  }
+}

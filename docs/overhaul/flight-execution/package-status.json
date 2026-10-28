@@ -1,0 +1,283 @@
+{
+  "owner": "chat1",
+  "profile": "public_f22_manual_recovery@1",
+  "common_gates": "P-INT-001 ADOPTED, P-INT-002 HARNESS_READY, P-INT-003 safe build; P-INT-008 checked port available but full migration incomplete",
+  "packages": [
+    {
+      "id": "P-FLT-001",
+      "status": "provider_and_HUD_software_verified_native_consumers_open",
+      "requirements": [
+        "R-FLT-001",
+        "R-FLT-013"
+      ],
+      "findings": [
+        "F-FLT-001"
+      ],
+      "cleanup": [
+        "C-FLT-001"
+      ],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "blockers": [
+        "Chat4 checked full-group admission for NativeGunSight three wind paths, NativeAGWeapons wind and NativeSidewinder TAS/cache; see native-consumer-review.md",
+        "Focused integrator commit/review; no installation/runtime lease"
+      ]
+    },
+    {
+      "id": "P-FLT-002",
+      "status": "prepared_waiting_actual_prerequisite",
+      "requirements": [
+        "R-FLT-004",
+        "R-FLT-006",
+        "R-FLT-007",
+        "D-R-FLT-002",
+        "D-R-FLT-003"
+      ],
+      "findings": [
+        "F-FLT-006"
+      ],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-001"
+      ],
+      "blockers": [
+        "P-FLT-001 complete software consumer chain",
+        "Mission/essential/utility consumer budget agreement and finite SES normalized-versus-kg/J definition; no new production capacity/topology assumed"
+      ]
+    },
+    {
+      "id": "P-FLT-003",
+      "status": "waiting_actual_prerequisite",
+      "requirements": [
+        "R-FLT-008",
+        "D-R-FLT-004"
+      ],
+      "findings": [],
+      "cleanup": [
+        "C-FLT-002"
+      ],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-002"
+      ],
+      "blockers": [
+        "P-FLT-002",
+        "Nozzle fueldraulic/supply and fire/relight evidence policy remains explicitly estimated/unresolved; no false F119 schedule claim"
+      ]
+    },
+    {
+      "id": "P-FLT-004",
+      "status": "waiting_actual_prerequisites",
+      "requirements": [
+        "R-FLT-009",
+        "D-R-INT-001",
+        "D-R-FLT-004"
+      ],
+      "findings": [
+        "D-INT-001"
+      ],
+      "cleanup": [
+        "C-DEEP-001",
+        "C-DEEP-002"
+      ],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-002",
+        "P-FLT-003",
+        "D-P-FLT-001"
+      ],
+      "blockers": [
+        "P-FLT-002 and P-FLT-003",
+        "Integrator-owned admitted native AFCS mode/axis policy; D-P-FLT-001 software reset supplied",
+        "Approach/refuel/single-engine law/calibration source limits remain explicit"
+      ]
+    },
+    {
+      "id": "P-FLT-005",
+      "status": "contract_prepared_waiting_actual_prerequisite",
+      "requirements": [
+        "R-FLT-002",
+        "R-FLT-011"
+      ],
+      "findings": [
+        "F-FLT-002"
+      ],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-002"
+      ],
+      "blockers": [
+        "P-FLT-002",
+        "gear-contract.md: per-leg producer + mainpanel cutover; structural8/15/16 versus suspension83/84/85host mapping/locks/arrestment not observed"
+      ]
+    },
+    {
+      "id": "P-FLT-006",
+      "status": "waiting_actual_prerequisites_and_native_contract",
+      "requirements": [
+        "R-FLT-003",
+        "R-FLT-005",
+        "D-R-FLT-001",
+        "D-R-FLT-004"
+      ],
+      "findings": [
+        "F-FLT-004"
+      ],
+      "cleanup": [
+        "C-FLT-004"
+      ],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-001",
+        "P-FLT-002",
+        "P-FLT-003"
+      ],
+      "blockers": [
+        "P-FLT-001/002/003",
+        "SDK oxygen pressure/physiology and native canopy/seal/escape unqualified; preserve fixed SDK baseline until probe",
+        "End-of-step versus preceding-interval oxygen output semantics unresolved; thermal fuel inlet enthalpy omitted, no energy-closure claim"
+      ]
+    },
+    {
+      "id": "P-FLT-007",
+      "status": "waiting_actual_prerequisites",
+      "requirements": [
+        "R-FLT-012"
+      ],
+      "findings": [],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-003",
+        "P-FLT-004",
+        "P-FLT-005",
+        "P-FLT-006"
+      ],
+      "blockers": [
+        "P-FLT-003/004/005/006",
+        "All registered damage/fault-to-native/physical/feedback outcomes require rebuilt cases and supported-host evidence; repair must retain fuel/heat/no-start boundaries"
+      ]
+    },
+    {
+      "id": "P-FLT-008",
+      "status": "provenance_preparation_only",
+      "requirements": [
+        "R-FLT-010",
+        "R-FLT-015",
+        "D-R-FLT-003",
+        "D-R-FLT-004"
+      ],
+      "findings": [
+        "F-FLT-005"
+      ],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-003",
+        "P-FLT-004",
+        "P-FLT-005"
+      ],
+      "blockers": [
+        "P-FLT-003/004/005",
+        "Native gravity/specific-force/inertia/store-drag/ground-effect ownership unqualified; no duplicate contribution",
+        "Matched independent holdout flight data unavailable: aircraft performance not assessable from imposed-motion grids"
+      ]
+    },
+    {
+      "id": "P-FLT-009",
+      "status": "waiting_actual_prerequisites",
+      "requirements": [
+        "R-FLT-004",
+        "R-FLT-014"
+      ],
+      "findings": [
+        "F-FLT-003"
+      ],
+      "cleanup": [
+        "C-FLT-003"
+      ],
+      "dependencies": [
+        "P-FLT-002",
+        "P-FLT-005",
+        "P-INT-001",
+        "P-INT-002",
+        "P-INT-008"
+      ],
+      "blockers": [
+        "P-FLT-002/005 and actual P-INT-008adapter cutover",
+        "Door/ready/contact/disconnect/native-emitter effects require integrator adapters and host observation; generic transfer is not tanker contact"
+      ]
+    },
+    {
+      "id": "P-FLT-010",
+      "status": "waiting_actual_prerequisites_and_runtime_slot",
+      "requirements": [
+        "R-FLT-001",
+        "R-FLT-002",
+        "R-FLT-003",
+        "R-FLT-004",
+        "R-FLT-005",
+        "R-FLT-006",
+        "R-FLT-007",
+        "R-FLT-008",
+        "R-FLT-009",
+        "R-FLT-010",
+        "R-FLT-011",
+        "R-FLT-012",
+        "R-FLT-013",
+        "R-FLT-014",
+        "R-FLT-015"
+      ],
+      "findings": [],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002",
+        "P-FLT-007",
+        "P-FLT-008",
+        "P-FLT-009",
+        "P-INT-003"
+      ],
+      "blockers": [
+        "P-FLT-007/008/009",
+        "Remaining13of16assigned legacy artifact remakes pending owning domain prerequisite work",
+        "No exclusive runtime slot/loaded identity or actual DCS/2D/VR/MP evidence yet"
+      ]
+    },
+    {
+      "id": "D-P-FLT-001",
+      "status": "software_verified_qualification_open",
+      "requirements": [
+        "D-R-INT-001"
+      ],
+      "findings": [
+        "D-INT-001"
+      ],
+      "cleanup": [],
+      "dependencies": [
+        "P-INT-001",
+        "P-INT-002"
+      ],
+      "blockers": [
+        "Focused integrator commit/review",
+        "Actual DCS multi-slot/re-slot callback order not observed;54actual-DLL history/spawn/request comparisons pass"
+      ]
+    }
+  ],
+  "source_commit": "pending integrator focused commit; see commit-request.json",
+  "tests": "3assignedlegacy artifacts deleted/remade; native32atmosphere/54history comparisons and3Lua tests pass",
+  "evidence": "early-evidence.json",
+  "installed": false,
+  "runtime_qualified": false
+}

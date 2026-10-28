@@ -322,6 +322,8 @@ void vehicle_sample_air() {
 
 void vehicle_sample_environment(double dt) {
     RaptorVehicle::EnvironmentInputs input;
+    input.atmosphere_valid = vehicle.atmosphere_valid;
+    input.kinematics_valid = vehicle.motion_valid && vehicle.world_motion_valid;
     input.ambient_pa = RAPTOR::hud_static_pressure_pa;
     input.ambient_k = RAPTOR::atmosphere_temperature;
     input.tas_mps = RAPTOR::V_scalar;

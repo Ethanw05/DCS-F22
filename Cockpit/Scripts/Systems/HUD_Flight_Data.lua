@@ -18,7 +18,7 @@ local function read(n) return h(n):get() end
 local envelope=dofile(LockOn_Options.script_path..'Systems/Physical_Snapshot.lua')
 local physical=envelope.new(read,{
     'MAIN_POWER',
-    'EFM_HUD_VALID','EFM_HUD_VN','EFM_HUD_VE','EFM_HUD_VU','EFM_HUD_WN','EFM_HUD_WE',
+    'EFM_HUD_VALID','EFM_HUD_KINEMATICS_VALID','EFM_HUD_VN','EFM_HUD_VE','EFM_HUD_VU','EFM_HUD_WN','EFM_HUD_WE',
     'EFM_GROUND_VALID','EFM_WEIGHT_ON_WHEELS','EFM_GEAR_DOWN_LOCKED','EFM_GEAR_UP_LOCKED',
     'EFM_GEAR_UNSAFE','EFM_NWS_SELECTED','EFM_AIRDATA_VALID','EFM_AIRDATA_STAMP','EFM_AIRDATA_CAS_MPS',
     'EFM_AIRDATA_TAS_MPS','EFM_AIRDATA_HEALTH',
@@ -145,6 +145,7 @@ end
 function update()
     physical:update()
     put('HUD_AIRDATA_DEGRADED',0)
+    put('HUD_WIND_ARROW_VALID',0)
     put('HUD_FPM_COMPUTED_VALID',0);put('HUD_FPM_OFFGLASS',0);put('HUD_FPM_GHOST_VALID',0)
     altitude()
     if read('F22_ALT_BARO_VALID')~=1 or flight('EFM_HUD_VALID')~=1 then approach_pressure=false end
@@ -207,7 +208,7 @@ function update()
     put("HUD_VS_SIGN",vs>=0 and 1 or -1)
     put("HUD_FPM_VALID",0); put("HUD_GS_VALID",0)
     put("HUD_WIND_VALID",0); put("HUD_AIRDATA_VALID",0)
-    if flight('EFM_HUD_VALID')~=1 then previous_cas=nil;return end
+    if flight('EFM_HUD_KINEMATICS_VALID')~=1 then previous_cas=nil;return end
     local n,e,u=flight('EFM_HUD_VN'),flight('EFM_HUD_VE'),flight('EFM_HUD_VU')
     if not (mathhud.finite(n) and mathhud.finite(e) and mathhud.finite(u)) then
         previous_cas=nil;return
@@ -244,6 +245,7 @@ function update()
         previous_cas=nil;put('HUD_ACCEL_UP',0);put('HUD_ACCEL_DOWN',0)
         approach_pressure=false;pressure_confirmation()
     end
+    if flight('EFM_HUD_VALID')~=1 then return end
     local wn,we=flight('EFM_HUD_WN'),flight('EFM_HUD_WE')
     if not (mathhud.finite(wn) and mathhud.finite(we)) then return end
     local windspeed=math.sqrt(wn*wn+we*we)*1.943844492
