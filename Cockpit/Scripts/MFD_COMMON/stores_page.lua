@@ -44,8 +44,8 @@ choice('NO A/G STORE',0,.51,'F22_SMS_LABEL',0,'blue',.004,nongun)
 text('CANNON 20 MM',0,.51,nil,'green',.0045,D.choice('HUD_AG_SUBMODE',1,strike))
 text('%s',0,.51,'F22_WEAPON_NAME','green',.0045,aa)
 D.box(0,.51,.79,.09,'green')
--- Only the current delivery mode appears in the normal format.
-for code,label in ipairs({'GUN','CCIP','AUTO'})do choice(label,0,.35,'HUD_AG_SUBMODE',code,'green',.0043,strike)end
+-- Cannon is a selected weapon. Only bomb delivery modes use this readback.
+for code,label in pairs({[2]='CCIP',[3]='AUTO'})do choice(label,0,.35,'HUD_AG_SUBMODE',code,'green',.0043,nongun)end
 text('LOAD %.0f',0,.35,'F22_WEAPON_COUNT','white',.0043,D.group('F22_WEAPON_KIND',-.1,4.9,aa))
 local aa_gun=D.choice('F22_WEAPON_KIND',5,aa)
 text('ROUNDS %.0f',0,.35,'F22_GUN_AMMO_COUNT','green',.0043,D.choice('F22_GUN_AMMO_VALID',1,aa_gun))
@@ -100,7 +100,7 @@ for code,label in pairs({[1]='RELEASING',[3]='CHECK PROGRAM',[4]='MODE UNAVAILAB
 end
 
 -- Alternatives appear only in the explicit MODE sublevel.
-text('DELIVERY MODE',0,-.43,nil,'blue',.0038,mode)
+text('DELIVERY MODES',0,-.43,nil,'blue',.0038,mode)
 
 text('BAY DOORS',0,-.43,nil,'blue',.0038,doors)
 for i,bay in ipairs({'L','C','R'})do

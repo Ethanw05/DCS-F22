@@ -161,6 +161,8 @@ local detent_pos			= 0
 local pickle_pos			= 0
 local hud_radar_request = 1 -- 1 RWS, 2 TWS request, 3 VS, 4 ACM, 5 FLOOD
 local ag_submode = 2 -- 1 ground gun, 2 CCIP, 3 AUTO
+local ccip_target = dofile(LockOn_Options.script_path .. 'Systems/AG_CCIP_Target.lua')
+local function ground_parameter(name) return get_param_handle(name):get() end
 local ag_first_selection=true
 local ag_release_sequence=0
 local ag_consent_target=nil
@@ -282,8 +284,10 @@ local function publish_delivery_target()
  local live_allowed=ag_stores:mission_mode(station)==1
  local valid=assigned or live_allowed and get_param_handle('HUD_AG_TARGET_VALID'):get()>.5
   and (not p or p.live_target~=nil)
+ local guided_ccip=mode_state==7 and ag_submode==2 and ag_stores:group()and ag_stores:group().guided
+ if guided_ccip then target=p and p.ccip_target;valid=target~=nil;assigned=false end
  local function put(n,v)get_param_handle('F22_AG_DELIVERY_TARGET_'..n):set(v)end
- put('VALID',valid and 1 or 0);put('SOURCE',assigned and 2 or valid and 1 or 0)
+ put('VALID',valid and 1 or 0);put('SOURCE',valid and guided_ccip and 3 or assigned and 2 or valid and 1 or 0)
  put('N',target and target.n or get_param_handle('HUD_AG_MARK_NORTH'):get())
  put('U',target and target.u or get_param_handle('HUD_AG_MARK_ALT'):get())
  put('E',target and target.e or get_param_handle('HUD_AG_MARK_EAST'):get())
@@ -325,7 +329,8 @@ local function publish_stores()
  for i=1,5 do
   local row=ag_stores.groups[first+i-1];local prefix='STORE_'..i..'_'
   put(prefix..'LABEL',row and row.label or 0);put(prefix..'COUNT',row and row.count or 0)
-  put(prefix..'INDEX',row and row.index or 0);put(prefix..'SELECTED',row and row.key==ag_stores.selected and 1 or 0)
+  put(prefix..'INDEX',row and row.index or 0)
+  put(prefix..'SELECTED',ag_submode~=1 and row and row.key==ag_stores.selected and 1 or 0)
  end
  for i=0,10 do
   local cap=store_caps.describe(station_infos[i]);local prefix=string.format('STATION_%02d_',i)
@@ -648,7 +653,13 @@ local function handle_command(command,value)
                 local now=type(get_model_time)=='function' and get_model_time()or diagnostic_clock
                 local point
                 if get_param_handle('HUD_AG_TARGET_VALID'):get()>.5 then point={n=get_param_handle('HUD_AG_MARK_NORTH'):get(),u=get_param_handle('HUD_AG_MARK_ALT'):get(),e=get_param_handle('HUD_AG_MARK_EAST'):get(),sequence=get_param_handle('F22_AG_TARGET_SEQUENCE'):get()}end
-                if not ag_stores:start(now,ag_consent_target,point)then pickle_consumed=true end
+                local group=ag_stores:group()
+                local guided_ccip=ag_submode==2 and group and group.guided
+                local captured=guided_ccip and ccip_target.capture(ground_parameter,now,selected_station)
+                if guided_ccip and not captured then pickle_consumed=true
+                elseif not ag_stores:start(now,ag_consent_target,point)then pickle_consumed=true
+                elseif guided_ccip then ag_stores.program.ccip_target=captured end
+                publish_delivery_target()
             end
         end
         weapon_release_state=value>0 and not pickle_consumed and 1 or 0;pickle_pos=weapon_release_state
@@ -673,9 +684,9 @@ local function handle_command(command,value)
     elseif command==10807 or command==10808 or command==10809 or command==10813 then
         local down=dofile(LockOn_Options.script_path..'Systems/Input_Value.lua')(value,devices.WEAPON_SYSTEM)>.5
         if down and (mode_state==7 or mode_state==1)then
-            local requested=command==10813 and ag_submode%3+1 or command-10806
-            if command==10813 then for _=1,3 do if store_caps.mode_available(ag_stores:group(),requested)then break end;requested=requested%3+1 end end
-            if not store_caps.mode_available(ag_stores:group(),requested)then return end
+            if command==10813 and ag_submode==1 then return end
+            local requested=command==10813 and (ag_submode==2 and 3 or 2)or command-10806
+            if requested~=1 and not store_caps.mode_available(ag_stores:group(),requested)then return end
             ag_submode=requested
             trigger_input:cancel()
             ag_stores:cancel();ag_first_selection=false;station_refresh=0;selected_station=-2
@@ -965,7 +976,7 @@ function update()
             and get_param_handle('F22_AG_SOLUTION_STATION'):get()==selected_station
         local guided=get_param_handle('F22_AG_GUIDED_SELECTED'):get()>.5
         local auto_ready=ag_submode==3 and get_param_handle('F22_AG_AUTO_RELEASE'):get()>.5
-        local permitted=solution and (ag_submode==2 and not guided or auto_ready)
+        local permitted=solution and (ag_submode==2 or auto_ready)
         if guided then
             local function r(n)return get_param_handle(n):get()end
             local cache_age=now-r('F22_AG_GUIDANCE_CACHE_TIME')

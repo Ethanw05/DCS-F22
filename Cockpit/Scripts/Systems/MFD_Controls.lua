@@ -21,8 +21,13 @@ function M.for_page(page,view,get)
     c[b]={label=item[1],device='COMBAT_SYSTEM',command=item[2],home=true}
    end
   elseif view==4 then
-   for code,label in ipairs({'GUN','CCIP','AUTO'})do
-    if get('F22_SMS_MODE_AVAILABLE_'..code)>.5 then c[code]={label=label,device='WEAPON_SYSTEM',command=10806+code,home=true}end
+   if not aa and get('HUD_AG_SUBMODE')~=1 then
+    for button,mode in ipairs({{3,'AUTO'},{2,'CCIP'}})do
+     if get('F22_SMS_MODE_AVAILABLE_'..mode[1])>.5 then
+      c[button]={label=mode[2],device='WEAPON_SYSTEM',command=10806+mode[1],home=true,
+       selected=get('HUD_AG_SUBMODE')==mode[1]}
+     end
+    end
    end
   elseif view==2 then
    if get('WoW')>.5 then c[10]=row('GND OVR','ground_override')end
@@ -50,7 +55,12 @@ function M.for_page(page,view,get)
       c[b]={label=caps.short_labels[code],device='WEAPON_SYSTEM',command=10981,value=index,selected=get(p..'SELECTED')>.5}
      end
     end
-    c[6]=row('MODE','view',4)
+    if get('HUD_MODE')==7 then
+     c[9]={label='GUN',device='WEAPON_SYSTEM',command=10807,selected=get('HUD_AG_SUBMODE')==1}
+    end
+    if get('HUD_AG_SUBMODE')~=1 and (get('F22_SMS_MODE_AVAILABLE_2')>.5 or get('F22_SMS_MODE_AVAILABLE_3')>.5)then
+     c[6]=row('MODES','view',4)
+    end
     if get('HUD_AG_SUBMODE')~=1 and get('F22_SMS_LABEL')>0 then
      c[7]={label='PROFILE',device='WEAPON_SYSTEM',command=10982}
      c[8]=row('EDIT','stores_edit',1)
@@ -102,6 +112,8 @@ function M.for_page(page,view,get)
      c[11]=row('DATA','view',2);radar(18,'EL UP',10614);radar(17,'EL DN',10615)
      if get('F22_AG_FAST_AVAILABLE')>.5 then
       radar(19,'FAST',10643);c[19].selected=get('F22_AG_FAST')>.5
+     elseif get('F22_AG_INTL_AVAILABLE')>.5 and get('F22_AG_EXP1_AVAILABLE')>.5 then
+      radar(19,'EXP1',10646)
      end
     end
    end

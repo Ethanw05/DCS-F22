@@ -159,7 +159,9 @@ function update()
             for _,axis in ipairs({'n','u','e'})do acceleration[axis]=math.max(-30,math.min(30,(velocity[axis]-last_motion[axis])/(now-last_motion.time)))end
         end
         last_motion={n=velocity.n,u=velocity.u,e=velocity.e,time=now}
-        local guided=get('F22_AG_GUIDED_SELECTED')>.5 or get('F22_AG_WEAPON_TYPE3')==36
+        -- CCIP needs the native trajectory's first terrain intersection for
+        -- every bomb. Only guided AUTO uses the designated target's plane.
+        local guided=mode==3 and (get('F22_AG_GUIDED_SELECTED')>.5 or get('F22_AG_WEAPON_TYPE3')==36)
         local context={mode=mode,station=get('F22_WEAPON_STATION'),type3=get('F22_AG_WEAPON_TYPE3'),type4=get('F22_AG_WEAPON_TYPE4'),
             target_source=source,target_sequence=get('F22_AG_DELIVERY_TARGET_SEQUENCE'),target_valid=target and 1 or 0,
             target_n=target_point.n,target_u=target_point.u,target_e=target_point.e}

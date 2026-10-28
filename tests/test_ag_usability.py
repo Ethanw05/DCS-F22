@@ -82,13 +82,14 @@ local function p(k,v)get_param_handle(k):set(v)end
 local function g(k)return get_param_handle(k):get()end
 local function key(b)SetCommand(10110+b,devices.MFD_SYSTEM+.375);SetCommand(10110+b,devices.MFD_SYSTEM+.25)end
 p('MAIN_POWER',1);p('HUD_MODE',7);update()
+p('HUD_AG_SUBMODE',3);p('F22_SMS_MODE_AVAILABLE_3',1)
 key(6);assert(g('F22_CMFD_VIEW')==4 and g('F22_MFD_CMFD_KEY_2')=='')
 p('F22_SMS_MODE_AVAILABLE_2',1);actions={};key(2)
 assert(g('F22_CMFD_VIEW')==0 and actions[2][1]==10808 and actions[2][2]==1 and actions[3][2]==0)
 p('F22_SMS_LABEL',1);actions={};key(8)
 assert(actions[2][1]==10989 and actions[2][2]==1 and actions[3][2]==0)
-actions={};key(9);assert(#actions==0,'blank key dispatched an action or changed focus')
-key(11);assert(g('F22_CMFD_VIEW')==1);key(12);assert(g('F22_CMFD_VIEW')==0)
+key(12);actions={};key(9);assert(actions[2][1]==10807,'A/G STORES cannon selection missing')
+key(11);assert(g('F22_CMFD_VIEW')==3);key(12);assert(g('F22_CMFD_VIEW')==0)
 key(13);assert(g('CMFD_MENU_PAGE')==1 and g('F22_SMS_PROGRAM_PAGE')==0)
 ''')
 for page in ['MFD_CENTER/stores_program.lua','MFD_CENTER/bay_page.lua','PMFD_CENTER/ag_radar_format.lua']:

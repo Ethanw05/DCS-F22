@@ -76,7 +76,6 @@ function M.selected(infos,station,mode,gun)
  cap.count=count;cap.category_count=category;return cap
 end
 function M.mode_available(cap,mode)
- if mode==1 then return true end -- aircraft cannon is independent of selected stores
- return cap and cap.supported and cap.bomb and (mode==3 or mode==2 and not cap.guided) or false
+ return cap and cap.supported and cap.bomb and (mode==3 or mode==2) or false
 end
 return M

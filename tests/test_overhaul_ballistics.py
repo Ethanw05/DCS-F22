@@ -81,6 +81,16 @@ ridge=false;valley=true;put('BAY_C_ARG',1);put('F22_WEAPON_STATION',4);tick();ti
 assert(val('F22_AG_SOLUTION_VALID')==0,'unbracketed endpoint above valley accepted')
 tick();assert(val('F22_AG_TERRAIN_PATH_VALID')==1 and val('F22_AG_SOLUTION_IMPACT_U')< -99.9,'queued terrain refinement failed')
 path_ready=false;tick();tick();assert(val('F22_AG_SOLUTION_VALID')==0,'missing path used endpoint-only CCIP')
+-- Guided CCIP still needs a first terrain intersection, without designation.
+guided=true;path_ready=true;valley=false;ridge=true;own_n=0
+put('F22_AG_GUIDED_SELECTED',1);put('F22_AG_WEAPON_TYPE3',36)
+put('F22_AG_DELIVERY_TARGET_SOURCE',0);put('F22_AG_DELIVERY_TARGET_VALID',0)
+put('HUD_AG_TARGET_VALID',0);tick();tick()
+assert(val('F22_AG_BOMB_REQUEST_TRAJECTORY')==1)
+assert(val('F22_AG_SOLUTION_VALID')==1 and val('F22_AG_TERRAIN_PATH_VALID')==1)
+assert(val('F22_AG_SOLUTION_IMPACT_N')>=450 and val('F22_AG_SOLUTION_IMPACT_N')<=650
+ and math.abs(val('F22_AG_SOLUTION_IMPACT_U')-900)<.01,'guided CCIP skipped intervening ridge')
+path_ready=false
 guided=true;valley=false;put('HUD_AG_SUBMODE',3);put('F22_AG_GUIDED_SELECTED',1);put('F22_AG_WEAPON_TYPE3',36)
 put('F22_AG_DELIVERY_TARGET_SOURCE',2);put('F22_AG_DELIVERY_TARGET_VALID',1);put('F22_AG_DELIVERY_TARGET_SEQUENCE',1)
 put('F22_AG_DELIVERY_TARGET_N',5500);put('F22_AG_DELIVERY_TARGET_U',0);put('F22_AG_DELIVERY_TARGET_E',500)

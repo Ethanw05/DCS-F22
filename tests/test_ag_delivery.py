@@ -69,9 +69,9 @@ for i=1,50 do update()end;assert(launches==1,'held consent caused repeated relea
 SetCommand(10803,0);SetCommand(10809,1);SetCommand(10803,1)
 for i=1,40 do update()end;assert(launches==1,'AUTO ignored release timing')
 put('F22_AG_SOLUTION_VALID',1);put('F22_AG_AUTO_RELEASE',1);for i=1,20 do update()end;assert(launches==2)
--- An unarmed or weight-on-wheels request must never fire a bomb or gun.
+-- Guided CCIP cannot release from an absent/unqualified pipper capture.
 count=2;guided=true;SetCommand(10803,0);SetCommand(10808,1)
-SetCommand(10803,1);for i=1,40 do update()end;assert(launches==2,'guided bomb released in CCIP')
+SetCommand(10803,1);for i=1,40 do update()end;assert(launches==2,'guided CCIP bypassed pipper qualification')
 SetCommand(10803,0);SetCommand(10809,1);put('HUD_AG_TARGET_VALID',1);put('F22_AG_GUIDANCE_BACKEND_READY',1)
 SetCommand(10803,1);update();put('F22_AG_SOLUTION_VALID',1);put('F22_AG_SOLUTION_SEQUENCE',1)
 put('F22_AG_GUIDANCE_CACHE_VALID',1);put('F22_AG_GUIDANCE_CACHE_TIME',10);put('F22_AG_GUIDANCE_CACHE_STATION',4);put('F22_AG_GUIDANCE_CACHE_SOLUTION_SEQUENCE',1)

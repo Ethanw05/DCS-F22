@@ -336,7 +336,7 @@ constexpr std::array<const char*,24> ground_live_names={
     "F22_AG_DELIVERY_TARGET_SEQUENCE","F22_AG_SOLUTION_TARGET_SEQUENCE","F22_AG_DELIVERY_TARGET_N","F22_AG_SOLUTION_TARGET_N",
     "F22_AG_DELIVERY_TARGET_U","F22_AG_SOLUTION_TARGET_U","F22_AG_DELIVERY_TARGET_E","F22_AG_SOLUTION_TARGET_E","F22_AG_SOLUTION_SCHEMA"};
 struct GroundRelease {
-    bool valid=false;unsigned station=0;double stamp=-100,solution_time=0,solution_sequence=0,target_source=0,target_sequence=0;
+    bool valid=false;unsigned station=0;double delivery_mode=0,stamp=-100,solution_time=0,solution_sequence=0,target_source=0,target_sequence=0;
     std::array<float,3> point{};std::array<double,3> identity_point{};EDPARAM* parameters=nullptr;
     std::array<void*,ground_live_names.size()> live_handles{};
 };
@@ -350,7 +350,7 @@ bool ground_identity_current(const GroundRelease& g) {
         live[i]=g.parameters->getParamNumber(g.live_handles[i]);if(!std::isfinite(live[i]))return false;
     }
     const auto value=[&live](unsigned i){return live[i];};
-    if(value(0)<.5 || value(1)<.5 || value(2)<.5 || value(3)>.5 || value(4)!=7 || value(5)!=3 ||
+    if(value(0)<.5 || value(1)<.5 || value(2)<.5 || value(3)>.5 || value(4)!=7 || value(5)!=g.delivery_mode ||
        value(6)!=g.station || value(7)<.5 || value(8)!=g.station || value(9)!=g.solution_sequence ||
        value(10)!=g.solution_time || value(11)<.5 || value(12)<.5 || value(23)!=2)return false;
     if(value(13)!=g.target_source || value(14)!=g.target_source || value(15)!=g.target_sequence || value(16)!=g.target_sequence)return false;
@@ -359,13 +359,17 @@ bool ground_identity_current(const GroundRelease& g) {
 }
 SRWLOCK ground_release_lock=SRWLOCK_INIT;
 GroundRelease ground_release{};
+bool ground_delivery_source(double mode,double source) {
+    return (mode==2 && source==3) || (mode==3 && (source==1 || source==2));
+}
 void update_ground_release(EDPARAM& p) {
     GroundRelease next;
     const double now=api.clock?api.clock():-100;
     const double stamp=read(p,"F22_AG_SOLUTION_TIME"),station=read(p,"F22_WEAPON_STATION");
     // Weapon_System resolves live designation versus an explicit station target.
     const double n=read(p,"F22_AG_DELIVERY_TARGET_N"),u=read(p,"F22_AG_DELIVERY_TARGET_U"),e=read(p,"F22_AG_DELIVERY_TARGET_E");
-    next.valid=read(p,"F22_IR_MODE")==7 && read(p,"HUD_AG_SUBMODE")==3 && read(p,"F22_AG_DELIVERY_TARGET_VALID")>.5 &&
+    next.delivery_mode=read(p,"HUD_AG_SUBMODE");
+    next.valid=read(p,"F22_IR_MODE")==7 && (next.delivery_mode==2 || next.delivery_mode==3) && read(p,"F22_AG_DELIVERY_TARGET_VALID")>.5 &&
         read(p,"F22_AG_GUIDED_SELECTED")>.5 && read(p,"MASTER_ARM")>.5 && read(p,"MAIN_POWER")>.5 && read(p,"WoW")<.5 &&
         read(p,"F22_AG_SOLUTION_VALID")>.5 && read(p,"F22_AG_SOLUTION_STATION")==station && std::isfinite(stamp) && now>=stamp && now-stamp<=.2 &&
         std::isfinite(station) && station>=0 && station<=10 && station==std::floor(station) &&
@@ -377,7 +381,7 @@ void update_ground_release(EDPARAM& p) {
     for(unsigned i=0;i<ground_live_names.size();++i)next.live_handles[i]=p.getParamHandle(ground_live_names[i]);
     next.valid=next.valid && std::isfinite(next.solution_sequence) && next.solution_sequence>0 && next.solution_sequence==std::floor(next.solution_sequence) &&
         std::isfinite(next.target_sequence) && next.target_sequence>=0 && next.target_sequence==std::floor(next.target_sequence) &&
-        (next.target_source==1 || next.target_source==2) && ground_identity_current(next);
+        ground_delivery_source(next.delivery_mode,next.target_source) && ground_identity_current(next);
     next.point={static_cast<float>(n),static_cast<float>(u),static_cast<float>(e)};
     write(p,"F22_AG_GUIDANCE_CACHE_VALID",next.valid?1:0);write(p,"F22_AG_GUIDANCE_CACHE_TIME",now);
     write(p,"F22_AG_GUIDANCE_CACHE_STATION",next.station);write(p,"F22_AG_GUIDANCE_CACHE_SOLUTION_SEQUENCE",next.solution_sequence);

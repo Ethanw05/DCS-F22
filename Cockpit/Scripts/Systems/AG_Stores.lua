@@ -154,6 +154,7 @@ end
 function M:consent_current(station,live_sequence)
  local program=self.program
  if not program or program.generations[station]~=self:generation(station)then return false end
+ if program.ccip_target then return true end -- frozen pipper, independent of PP/TOO edits
  local mission=program.targets[station]
  if mission then return self:target(station)==mission end
  return program.target==nil or program.target==live_sequence

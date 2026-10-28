@@ -22,8 +22,10 @@ function M:handle(button)
  end
  if sub==1 and button==18 then self:cancel();self.send(10804,1);return true end
  if sub==4 then
-  if button>=1 and button<=3 and self.param('F22_SMS_MODE_AVAILABLE_'..button):get()>.5 then
-   self:cancel();self.send(10806+button,1);self:set(0)
+  local delivery=({[1]=3,[2]=2})[button]
+  if self.param('HUD_AG_SUBMODE'):get()~=1 and delivery
+   and self.param('F22_SMS_MODE_AVAILABLE_'..delivery):get()>.5 then
+   self:cancel();self.send(10806+delivery,1);self:set(0)
   end
   return true
  elseif sub==2 then
@@ -40,7 +42,11 @@ function M:handle(button)
  if button>=1 and button<=5 then
   local index=self.param('F22_SMS_STORE_'..button..'_INDEX'):get()
   if index>0 then self:cancel();self.send(10981,index)end
- elseif button==6 then self:cancel();self:set(4)
+ elseif button==6 then
+  local available=self.param('F22_SMS_MODE_AVAILABLE_2'):get()>.5
+   or self.param('F22_SMS_MODE_AVAILABLE_3'):get()>.5
+  if self.param('HUD_AG_SUBMODE'):get()~=1 and available then self:cancel();self:set(4)end
+ elseif button==9 and mode==7 then self:cancel();self.send(10807,1)
  elseif button==7 then self:cancel();self.send(10982,1)
  elseif button==8 then
   if self.param('F22_SMS_LABEL'):get()>0 and self.hud then self.hud()end

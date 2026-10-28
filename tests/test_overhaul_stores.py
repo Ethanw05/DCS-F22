@@ -12,7 +12,8 @@ local function info(id,count,type3)return {CLSID=id,count=count,weapon={level1=4
 for _,r in ipairs({{'{AIM-260A}',2,9},{'{LAU_115_2xAIM-260A}',2,9},{'{MAKO_A2A_C}',2,10},{'{MAKO_A2G_C}',7,11},{'{F22_IRST}',false,13},{'CATM-9M',false,15}})do
  local cap=c.describe(info(r[1],1));assert(cap and cap.label==r[3] and (cap.kind or false)==r[2])
 end
-assert(not c.mode_available(c.describe(info('{GBU_32_V_2B}',1)),2))
+assert(c.mode_available(c.describe(info('{GBU_32_V_2B}',1)),2))
+assert(not c.mode_available(c.describe(info('{GBU_32_V_2B}',1)),1))
 assert(c.mode_available(c.describe(info('{GBU_32_V_2B}',1)),3))
 assert(not c.mode_available(c.describe(info('{MAKO_A2G_C}',1)),3))
 assert(not c.describe(info('{AIM-260A}',0)))

@@ -352,6 +352,18 @@ int scenarios() {
     launch_master_mode=7;CHECK(record_payload_launch(nullptr,4,0,0,original_point,true)==0);
     update_ground_release(p);launch_master_mode=7;CHECK(record_payload_launch(nullptr,4,0,0,original_point,true)==9876);
     CHECK(payload_point[0]==11000);
+    // CCIP must transfer its captured pipper point, never a retained PP/TOO.
+    values["HUD_AG_SUBMODE"]=2;update_ground_release(p);
+    CHECK(values["F22_AG_GUIDANCE_CACHE_VALID"]==0);
+    values["F22_AG_DELIVERY_TARGET_SOURCE"]=3;values["F22_AG_SOLUTION_TARGET_SOURCE"]=3;
+    update_ground_release(p);CHECK(values["F22_AG_GUIDANCE_CACHE_VALID"]==1);
+    launch_master_mode=7;CHECK(record_payload_launch(nullptr,4,0,0,original_point,true)==9876);
+    CHECK(payload_point[0]==11000&&payload_point[1]==300&&payload_point[2]==-2000);
+    values["HUD_AG_SUBMODE"]=3;launch_master_mode=7;
+    CHECK(record_payload_launch(nullptr,4,0,0,original_point,true)==0);
+    update_ground_release(p);CHECK(values["F22_AG_GUIDANCE_CACHE_VALID"]==0);
+    values["F22_AG_DELIVERY_TARGET_SOURCE"]=2;values["F22_AG_SOLUTION_TARGET_SOURCE"]=2;
+    update_ground_release(p);CHECK(values["F22_AG_GUIDANCE_CACHE_VALID"]==1);
     // Unarmed jettison bypasses target transfer/consent without generating a shot.
     const unsigned before_guided_jettison=launched_sequence;
     values["F22_AG_RELEASE_CONSENT"]=0;

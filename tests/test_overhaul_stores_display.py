@@ -27,9 +27,10 @@ p('F22_SMS_STORE_1_INDEX'):set(7);assert(display:handle(1))
 assert(sent[#sent][1]==10981 and sent[#sent][2]==7,'visible class row selected an absolute bezel number')
 local empty_count=#sent;p('F22_SMS_STORE_2_INDEX'):set(0);assert(display:handle(2));assert(#sent==empty_count)
 -- Only an explicitly available mode may leave the mode-selection popup.
+p('F22_SMS_MODE_AVAILABLE_3'):set(1)
 assert(display:handle(6));assert(p('F22_SMS_UI_PAGE'):get()==4)
 local n=#sent;assert(display:handle(2));assert(#sent==n and p('F22_SMS_UI_PAGE'):get()==4)
-p('F22_SMS_MODE_AVAILABLE_3'):set(1);assert(display:handle(3))
+assert(display:handle(1))
 assert(sent[#sent][1]==10809 and sent[#sent][2]==1 and p('F22_SMS_UI_PAGE'):get()==0)
 -- Returning from programming cancels the edit before going back home.
 assert(display:handle(12));assert(p('F22_SMS_UI_PAGE'):get()==1)
