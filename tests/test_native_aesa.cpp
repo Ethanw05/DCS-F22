@@ -50,6 +50,7 @@ std::array<void*,3> registry_methods{};
 Object registry{registry_methods.data()};
 void* registry_pointer = &registry;
 float load_x{}, load_y = 1, load_z{};
+bool invalidate_during_lookup{};
 struct SceneUnit { void** table{};std::array<std::byte,288> prefix{};TypeTextView type{}; };
 static_assert(offsetof(SceneUnit,type)==296);
 SceneUnit own_unit{},target_unit{target_methods.data()};
@@ -79,7 +80,10 @@ bool dead(const void*) { return false; }
 unsigned id(void*) { return 42; }
 void* registration(void*) { return &registered; }
 void* unit(void*) { return &target_unit; }
-void* lookup(void*, unsigned host) { return host == 42 ? &registered : nullptr; }
+void* lookup(void*, unsigned host) {
+    if (invalidate_during_lookup) epoch.fetch_add(1, std::memory_order_acq_rel);
+    return host == 42 ? &registered : nullptr;
+}
 float nx(const void*) { return load_x; }
 float ny(const void*) { return load_y; }
 float nz(const void*) { return load_z; }
@@ -186,6 +190,14 @@ void scenarios() {
     load_y = NAN; CHECK(!gun_motion(track, generation, motion)); load_y = 1; load_x = load_z = 0;
     CHECK(!gun_motion(track, generation + 1, motion));
     CHECK(!gun_motion(track + 1, generation, motion));
+    request.controls.emit = false; CHECK(!gun_motion(track, generation, motion));
+    request.controls.emit = true;
+    target_present = false; CHECK(!gun_motion(track, generation, motion)); target_present = true;
+    void* saved_load = target_methods[73]; target_methods[73] = nullptr;
+    CHECK(!gun_motion(track, generation, motion)); target_methods[73] = saved_load;
+    const auto original_epoch = epoch.load(); invalidate_during_lookup = true;
+    CHECK(!gun_motion(track, generation, motion) && motion.generation == 0);
+    invalidate_during_lookup = false; epoch.store(original_epoch);
     request.controls.gun_tracking = false; CHECK(!gun_motion(track, generation, motion));
     request.controls.gun_tracking = true;
     const auto measurement_time = snapshot.measurements[0].time;

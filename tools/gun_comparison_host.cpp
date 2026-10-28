@@ -67,6 +67,22 @@ int flight(void*,double altitude,double time,const V* velocity,NativeGunSight::W
     return 1;
 }
 }
+#if defined(F22_BENCH_NATIVE_MOTION)
+// The production adapter is unmodified; this replaces its DCS object API only.
+namespace NativeAesaRadar {
+bool gun_motion(unsigned track, std::uint64_t generation, GunMotion& out) noexcept {
+    if (track != 42 || generation != 1) return false;
+    const char* axes[] = {"N", "U", "E"};
+    for (unsigned axis = 0; axis < 3; ++axis) {
+        out.position[axis] = parameters[std::string("BENCH_TARGET_") + axes[axis]];
+        out.velocity[axis] = parameters[std::string("BENCH_V") + axes[axis]];
+        out.acceleration[axis] = parameters[std::string("BENCH_A") + axes[axis]];
+    }
+    out.time = model_time; out.generation = generation;
+    return true;
+}
+}
+#endif
 extern "C" __declspec(dllexport) void benchmark_reset() {
     using namespace NativeGunSight;
     reset();parameters.clear();model_time=0;
