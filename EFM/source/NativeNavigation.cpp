@@ -3,10 +3,12 @@
 #include "CniPower.h"
 #include <Cockpit/CockpitAPI_Declare.h>
 #include <Windows.h>
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <map>
+#include <limits>
 #include <string>
 namespace NativeNavigation {
 namespace {
@@ -177,11 +179,11 @@ void put(EDPARAM &p, const std::string &k, double v) {
     h = p.getParamHandle(k.c_str());
   p.setParamNumber(h, v);
 }
-double get(EDPARAM &p, const std::string &k) {
+bool get(EDPARAM &p, const std::string &k, double& value) {
   auto &h = handles[k];
   if (!h)
     h = p.getParamHandle(k.c_str());
-  return p.getParamNumber(h);
+  return p.getParamNumber(h,value);
 }
 void *tlast{}, *ilast{};
 int ch = -1, band = -1, mode = -1, freq = -1, power = -1;
@@ -192,12 +194,33 @@ void *owned(void *context, unsigned id, const void *table, std::size_t n) {
   void *v{};
   return readable(d, n) && load(d, v) && v == table ? d : nullptr;
 }
-int integer(double v, int fallback, int lo, int hi) {
-  return std::isfinite(v) && v >= lo && v <= hi ? int(std::lround(v))
-                                                : fallback;
+bool integer(double value, int& result, int lo, int hi) {
+  if (!std::isfinite(value) || value < lo || value > hi || value != std::floor(value)) return false;
+  result = static_cast<int>(value);
+  return true;
 }
 bool ils_frequency(int f) {
   return f >= 108100 && f <= 111950 && ((f % 200) == 100 || (f % 200) == 150);
+}
+struct Controls {
+  int channel = 0, band = 0, mode = 0, frequency_khz = 0;
+  bool tacan_valid = false, ils_valid = false;
+};
+bool requested_controls(EDPARAM& p, Controls& result) {
+  constexpr std::array<const char*,4> names{{"F22_TCN_CHANNEL","F22_TCN_BAND",
+      "F22_TCN_MODE","F22_ILS_FREQ_KHZ"}};
+  std::array<double,4> values{};
+  std::array<bool,4> complete{};
+  for (std::size_t i = 0; i < names.size(); ++i)
+    complete[i] = get(p,names[i],values[i]);
+  Controls candidate;
+  if (complete[0] && complete[1] && complete[2])
+    candidate.tacan_valid = integer(values[0],candidate.channel,1,126)
+        && integer(values[1],candidate.band,0,1) && integer(values[2],candidate.mode,0,4);
+  if (complete[3]) candidate.ils_valid = integer(values[3],candidate.frequency_khz,108100,111950)
+      && ils_frequency(candidate.frequency_khz);
+  result = candidate;
+  return candidate.tacan_valid && candidate.ils_valid;
 }
 bool configure_squelch(void *tacan, void *ils) {
   if (!api.receiver_squelch || !api.receiver_squelch_state)
@@ -309,12 +332,13 @@ void update(EDPARAM &p) {
     api.generator(electrical, feed.left, 1);
     api.generator(electrical, feed.right, 2);
   }
-  int wanted_ch = integer(get(p, "F22_TCN_CHANNEL"), 1, 1, 126),
-      wanted_band = integer(get(p, "F22_TCN_BAND"), 0, 0, 1);
-  int wanted_mode = on ? integer(get(p, "F22_TCN_MODE"), 2, 0, 4) : 0;
-  int wanted_freq = integer(get(p, "F22_ILS_FREQ_KHZ"), 110300, 108100, 111950);
-  if (!ils_frequency(wanted_freq))
-    wanted_freq = 110300;
+  Controls wanted;
+  if (!requested_controls(p,wanted)) {
+    put(p,"F22_RADIONAV_REASON",7); // Unavailable/malformed controls, not default tuning.
+  }
+  const int wanted_ch = wanted.channel, wanted_band = wanted.band;
+  const int wanted_mode = on && wanted.tacan_valid ? wanted.mode : 0;
+  const int wanted_freq = wanted.frequency_khz;
   if (t != tlast) {
     ch = band = mode = -1;
     tlast = t;
@@ -323,11 +347,11 @@ void update(EDPARAM &p) {
     freq = power = -1;
     ilast = i;
   }
-  if (ch != wanted_ch) {
+  if (wanted.tacan_valid && ch != wanted_ch) {
     api.channel(t, wanted_ch);
     ch = wanted_ch;
   }
-  if (band != wanted_band) {
+  if (wanted.tacan_valid && band != wanted_band) {
     api.xy(t, wanted_band);
     band = wanted_band;
   }
@@ -335,23 +359,25 @@ void update(EDPARAM &p) {
     api.mode(t, wanted_mode);
     mode = wanted_mode;
   }
-  if (freq != wanted_freq) {
+  if (wanted.ils_valid && freq != wanted_freq) {
     api.mhz(i, wanted_freq / 1000);
     api.khz(i, wanted_freq % 1000);
     freq = wanted_freq;
   }
-  if (power != on) {
-    api.ils_power(i, on != 0);
-    power = on;
+  const int ils_on = on && wanted.ils_valid ? 1 : 0;
+  if (power != ils_on) {
+    api.ils_power(i, ils_on != 0);
+    power = ils_on;
   }
   put(p, "F22_NAV_IDENT_MUTED", mute_identification(t, i) ? 1 : 0);
   put(p, "F22_TCN_POWER", api.tacan_power(t) ? 1 : 0);
   put(p, "F22_ILS_POWER", api.ils_power_state(i) ? 1 : 0);
   if (!on)
     return;
-  const bool b = api.bv(t), r = api.rv(t), l = api.lv(i), g = api.gv(i);
-  double bearing = api.bearing(t), range = api.range(t), loc = api.loc(i),
-         gs = api.gs(i);
+  const bool b = wanted.tacan_valid && api.bv(t), r = wanted.tacan_valid && api.rv(t);
+  const bool l = wanted.ils_valid && api.lv(i), g = wanted.ils_valid && api.gv(i);
+  const double bearing = b ? api.bearing(t) : NAN, range = r ? api.range(t) : NAN;
+  const double loc = l ? api.loc(i) : NAN, gs = g ? api.gs(i) : NAN;
   if (b && std::isfinite(bearing)) {
     put(p, "F22_TCN_BRG_MAG", bearing);
     put(p, "F22_TCN_BRG_VALID", 1);
@@ -368,12 +394,18 @@ void update(EDPARAM &p) {
     put(p, "F22_ILS_GS", gs);
     put(p, "F22_ILS_GS_VALID", 1);
   }
-  if (api.decl && api.coordinates && get(p, "F22_NAV_OWN_VALID") > .5) {
-    double latitude{}, longitude{};
-    api.coordinates(get(p, "F22_NAV_OWN_N"), get(p, "F22_NAV_OWN_E"), latitude,
-                    longitude);
+  double position_valid = 0, north = 0, east = 0;
+  if (api.decl && api.coordinates && get(p,"F22_NAV_OWN_VALID",position_valid)
+      && position_valid == 1 && get(p,"F22_NAV_OWN_N",north) && get(p,"F22_NAV_OWN_E",east)) {
+    double latitude = NAN, longitude = NAN;
+    api.coordinates(north,east,latitude,longitude);
+    constexpr double maximum = std::numeric_limits<float>::max();
+    if (!std::isfinite(latitude) || !std::isfinite(longitude)
+        || std::abs(latitude) > maximum || std::abs(longitude) > maximum) return;
+    const auto lat = static_cast<float>(latitude), lon = static_cast<float>(longitude);
+    if (!std::isfinite(lat) || !std::isfinite(lon)) return;
     const double d =
-        api.decl(static_cast<float>(latitude), static_cast<float>(longitude));
+        api.decl(lat,lon);
     if (std::isfinite(d) && std::abs(d) < 1.57) {
       put(p, "F22_MAG_DECL", d);
       put(p, "F22_MAG_VALID", 1);

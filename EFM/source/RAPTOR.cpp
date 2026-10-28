@@ -1142,6 +1142,7 @@ void ed_fm_set_draw_args_v2(float* data, size_t size) {
     data[17] = static_cast<float>(limit(RAPTOR::left_rudder_angle / RAPTOR::rad(30), -1, 1));
     data[18] = static_cast<float>(limit(RAPTOR::right_rudder_angle / RAPTOR::rad(30), -1, 1));
     data[25] = static_cast<float>(vehicle.configuration.hook_position);
+    data[22] = static_cast<float>(vehicle.configuration.refuel_door);
     data[21] = (float)limit(RAPTOR::airbrake_pos, 0, 1);
     data[182] = (float)limit(RAPTOR::airbrake_pos, 0, 1);
     data[184] = (float)limit(RAPTOR::airbrake_pos, 0, 1);
@@ -1664,6 +1665,12 @@ inline float limit(float value, float min_val, float max_val) {
     return value;
 }
 
+namespace {
+constexpr std::array<std::pair<int,const char*>,5> light_draw_fields{{
+    {709,"TAXI_SWITCH"},{712,"AAR"},{713,"AAR_KNOB"},
+    {714,"FORM_KNOB"},{715,"NAV_LIGHT_SWITCH"}}};
+}
+
 CockpitManager::CockpitManager() {
     draw_args_[709] = 0.0f;
     draw_args_[712] = 0.0f;
@@ -1673,7 +1680,11 @@ CockpitManager::CockpitManager() {
 }
 
 void CockpitManager::initialize() {
+    parameters_ready_ = false;
+    param_handles_.clear();
+    if (!param_api_.initialize()) return;
     navigation_snapshot_.initialize(param_api_);
+    altitude_snapshot_.initialize(param_api_);
     vehicle_bus.initialize(param_api_);
     vehicle_bus.write(VehicleSignal::Owner, 1.0);
     vehicle_bus.write(VehicleSignal::Valid, 0.0);
@@ -1730,15 +1741,17 @@ void CockpitManager::initialize() {
     param_handles_["EFM_EXTERNAL_FUEL_KG"] = param_api_.getParamHandle("EFM_EXTERNAL_FUEL_KG");
 
 
-    draw_args_[709] = static_cast<float>(getParameter("TAXI_SWITCH", 0.0));
-    draw_args_[712] = static_cast<float>(getParameter("AAR", 0.0));
-    draw_args_[713] = static_cast<float>(getParameter("AAR_KNOB", 0.0));
-    draw_args_[714] = static_cast<float>(getParameter("FORM_KNOB", 0.0));
-    draw_args_[715] = static_cast<float>(getParameter("NAV_LIGHT_SWITCH", 0.0));
+    for (const auto& field : light_draw_fields) {
+        double value = 0;
+        // A missing cosmetic switch request draws off, never a measured default.
+        (void)getParameter(field.second,value);
+        draw_args_[field.first] = static_cast<float>(value);
+    }
 
 
     param_api_.setParamNumber(param_handles_["MAIN_POWER"], (RAPTOR::left_engine_state == RAPTOR::RUNNING || RAPTOR::right_engine_state == RAPTOR::RUNNING) ? 1.0 : 0.0);
     param_api_.setParamNumber(param_handles_["BATTERY_POWER"], (RAPTOR::left_engine_switch || RAPTOR::right_engine_switch) ? 1.0 : 0.0);
+    parameters_ready_ = true;
 }
 
 void CockpitManager::invalidatePhysical() {
@@ -1769,29 +1782,36 @@ void CockpitManager::invalidatePhysical() {
 }
 
 void CockpitManager::navigationFrame(RaptorAP::Frame& f) {
+    if (!parameters_ready_) {
+        f.baro_valid = f.radar_valid = f.nav_valid = f.powered = false;
+        f.alt = f.agl = NAN;
+        return;
+    }
     double indicated = 0;
     f.baro_valid = NativeAltimetry::altitude(indicated);
     f.alt = f.baro_valid ? indicated : NAN;
     double model_time = 0;
-    const double radar_stamp = getParameter("F22_ALT_RADAR_STAMP");
-    const double radar_ft = getParameter("F22_ALT_RADAR_FT");
-    f.radar_valid = NativeAltimetry::model_time(model_time) &&
-        getParameter("F22_ALT_RADAR_VALID") > .5 && std::isfinite(radar_stamp) &&
-        model_time >= radar_stamp && model_time - radar_stamp <= .2 &&
-        std::isfinite(radar_ft) && radar_ft >= 0 && radar_ft < 65616.8;
-    f.agl = f.radar_valid ? radar_ft / 3.280839895 : NAN;
-    f.powered = f.powered && getParameter("MAIN_POWER") > .5;
+    const auto altitude = NativeAltimetry::model_time(model_time)
+        ? altitude_snapshot_.read(param_api_, vehicle.generation, model_time) : RaptorAltitudes::Frame{};
+    f.radar_valid = altitude.radar_valid;
+    f.agl = altitude.radar_valid ? altitude.radar_metres : NAN;
+    double power = 0;
+    const auto handle = param_handles_.find("MAIN_POWER");
+    f.powered = f.powered && handle != param_handles_.end()
+        && param_api_.getParamNumber(handle->second,power) && power == 1;
     const auto navigation=navigation_snapshot_.read(param_api_);
     f.nav_valid=navigation.valid;f.nav_track=navigation.track;
     f.nav_time=navigation.time;f.nav_arrived=navigation.terminal;
 }
 
 void CockpitManager::updateGun() {
+    if (!parameters_ready_) return;
     NativeGunSight::update(param_api_);
     NativeAGWeapons::update(param_api_);
 }
 
 void CockpitManager::updateCombat(double dt) {
+    if (!parameters_ready_) return;
     NativeContactIdentity::update(param_api_);
     NativeDatalink::update(param_api_);
     const auto& sensed = vehicle.air_sensor.measured;
@@ -1814,6 +1834,7 @@ void CockpitManager::resetWeaponFeedback() {
 }
 
 void CockpitManager::update(double dt) {
+    if (!parameters_ready_) return;
     vehicle_bus.write(VehicleSignal::Valid, 0.0);
     const std::pair<const char*,double> trim_parameters[]={
         {"EFM_TRIM_VALID",1.},
@@ -1923,77 +1944,65 @@ void CockpitManager::update(double dt) {
 }
 
 void CockpitManager::updateDrawArgs(float* data, size_t size) {
-    auto setArg = [&](int index, float value) {
-        if (index >= 0 && static_cast<size_t>(index) < size) {
-            data[index] = value;
-        }
-        };
-
-    setArg(709, static_cast<float>(getParameter("TAXI_SWITCH", 0.0)));
-    setArg(712, static_cast<float>(getParameter("AAR", 0.0)));
-    setArg(713, static_cast<float>(getParameter("AAR_KNOB", 0.0)));
-    setArg(714, static_cast<float>(getParameter("FORM_KNOB", 0.0)));
-    setArg(715, static_cast<float>(getParameter("NAV_LIGHT_SWITCH", 0.0)));
+    if (!data) return;
+    for (const auto& field : light_draw_fields) {
+        double value = 0;
+        if (parameters_ready_) (void)getParameter(field.second,value); // Cosmetic off on unavailable request.
+        if (static_cast<size_t>(field.first) < size) data[field.first] = static_cast<float>(value);
+    }
 }
 
-double CockpitManager::getParameter(const std::string& name, double fallback_value) {
-    if (!RAPTOR::sim_initialised) {
-        bool engines_on = (RAPTOR::left_engine_state == RAPTOR::RUNNING || RAPTOR::right_engine_state == RAPTOR::RUNNING);
-        if (name == "NAV_LIGHT_SWITCH") {
-            if (engines_on) {
-                if (name == "NAV_LIGHT_SWITCH") return 0.3;
-            }
-            return 0.0;
-        }
-        if (name == "TAXI_SWITCH") {
-            if (engines_on && RAPTOR::gear_pos == 1.0) {
-                if (name == "NAV_LIGHT_SWITCH") return 0.3;
-                if (name == "TAXI_SWITCH") return RAPTOR::gear_pos == 1.0 ? -1.0 : 0.0;
-            }
-            return 0.0;
-        }
-    }
+bool CockpitManager::getParameter(std::string_view name, double& value) {
     auto it = param_handles_.find(name);
-    if (it == param_handles_.end()) {
-        return fallback_value;
-    }
+    return it != param_handles_.end() && param_api_.getParamNumber(it->second,value);
+}
 
-    double result = param_api_.getParamNumber(it->second);
-    if (result != result) {
-        if (name == "WoW") {
-            return RAPTOR::on_ground ? 1.0 : 0.0;
-        }
-        else if (name == "MAIN_POWER" || name == "BATTERY_POWER") return 0.0;
-        return fallback_value;
+bool CockpitManager::guidanceEntryFields(double sequence, std::array<double,6>& values) {
+    constexpr std::array<const char*,6> names{{"F22_ENTRY_GUIDANCE_REQUEST",
+        "F22_ENTRY_GUIDANCE_ACTIVE","F22_ENTRY_GUIDANCE_ACK_REQUEST",
+        "F22_ENTRY_GUIDANCE_COMMAND","F22_ENTRY_GUIDANCE_VALUE","MAIN_POWER"}};
+    for (std::size_t i = 0; i < names.size(); ++i)
+        if (!getParameter(names[i],values[i])) return false;
+    double after = 0, active = 0;
+    return getParameter(names[0],after) && getParameter(names[1],active)
+        && after == sequence && active == 1 && values[0] == sequence
+        && values[1] == 1 && values[2] < sequence;
+}
+
+double CockpitManager::committedGuidanceValue(int command) const {
+    switch (command) {
+    case 11010: return autopilot.selected_heading / RaptorAP::rad;
+    case 11011: return autopilot.selected_alt * 3.280839895;
+    case 11012: return autopilot.selected_vs * 196.850394;
+    case 11013: return autopilot.selected_speed * 1.943844492;
+    case 11014: return autopilot.selected_mach;
+    case 11015: return autopilot.captured_agl * 3.280839895;
+    default: return 0;
     }
-    return result;
+}
+
+namespace {
+bool guidance_command(double requested, int& command) {
+    if (requested < 11010 || requested > 11015 || requested != std::floor(requested)) return false;
+    command = static_cast<int>(requested);
+    return true;
+}
 }
 
 void CockpitManager::commitGuidanceEntry(double sequence) {
+    if (!parameters_ready_) return;
     constexpr double maximum_sequence = 16777215.;
     if (!std::isfinite(sequence) || sequence < 1 || sequence > maximum_sequence ||
-        sequence != std::floor(sequence) || getParameter("F22_ENTRY_GUIDANCE_ACTIVE") != 1 ||
-        getParameter("F22_ENTRY_GUIDANCE_REQUEST") != sequence ||
-        getParameter("F22_ENTRY_GUIDANCE_ACK_REQUEST") >= sequence) return;
-    const double requested = getParameter("F22_ENTRY_GUIDANCE_COMMAND");
-    const double value = getParameter("F22_ENTRY_GUIDANCE_VALUE");
-    const bool valid_command = std::isfinite(requested) && requested >= 11010 &&
-        requested <= 11015 && requested == std::floor(requested);
-    const int command = valid_command ? static_cast<int>(requested) : 0;
-    const bool accepted = getParameter("MAIN_POWER") > .5 &&
-        RaptorCommands::target_valid(command, value);
+        sequence != std::floor(sequence)) return;
+    std::array<double,6> values{};
+    if (!guidanceEntryFields(sequence,values)) return;
+    int command = 0;
+    const bool accepted = guidance_command(values[3],command) && values[5] == 1
+        && RaptorCommands::target_valid(command, values[4]);
     double committed = 0;
     if (accepted) {
-        autopilot.command(11620 + command - 11010, ap_frame(), value);
-        switch (command) {
-        case 11010: committed = autopilot.selected_heading / RaptorAP::rad; break;
-        case 11011: committed = autopilot.selected_alt * 3.280839895; break;
-        case 11012: committed = autopilot.selected_vs * 196.850394; break;
-        case 11013: committed = autopilot.selected_speed * 1.943844492; break;
-        case 11014: committed = autopilot.selected_mach; break;
-        case 11015: committed = autopilot.captured_agl * 3.280839895; break;
-        default: break;
-        }
+        autopilot.command(11620 + command - 11010, ap_frame(), values[4]);
+        committed = committedGuidanceValue(command);
     }
     const auto ack_value = param_handles_.find("F22_ENTRY_GUIDANCE_ACK_VALUE");
     const auto result = param_handles_.find("F22_ENTRY_GUIDANCE_RESULT");
@@ -2006,12 +2015,12 @@ void CockpitManager::commitGuidanceEntry(double sequence) {
 }
 
 void CockpitManager::updateTaxiLandingLights(double dt) {
-    double taxi_switch = getParameter("TAXI_SWITCH");
-    double main_power = getParameter("MAIN_POWER");
+    double taxi_switch = 0, main_power = 0;
     double nose_gear = RAPTOR::gear_pos;
 
     RAPTOR::taxi_lights = false;
     RAPTOR::landing_lights = false;
+    if (!getParameter("TAXI_SWITCH",taxi_switch) || !getParameter("MAIN_POWER",main_power)) return;
 
     if (taxi_switch == -1.0 && main_power >= 1.0 && nose_gear >= 1.0) {
         RAPTOR::taxi_lights = true;
@@ -2022,24 +2031,25 @@ void CockpitManager::updateTaxiLandingLights(double dt) {
 }
 
 void CockpitManager::updateAARLight(double dt) {
-    double aar = getParameter("AAR");
-    double aar_knob = getParameter("AAR_KNOB");
-    double main_power = getParameter("MAIN_POWER");
-    double aar_ready = getParameter("AAR_READY");
+    double aar = 0, aar_knob = 0, main_power = 0, aar_ready = 0;
+    RAPTOR::aar_light = 0;
+    if (!getParameter("AAR",aar) || !getParameter("AAR_KNOB",aar_knob) ||
+        !getParameter("MAIN_POWER",main_power) || !getParameter("AAR_READY",aar_ready)) return;
 
     RAPTOR::aar_light = aar >= 1.0 && aar_ready >= 1.0 && main_power >= 1.0 ? RaptorVehicle::unit(aar_knob) : 0.0;
 }
 
 void CockpitManager::updateFormationLights(double dt) {
-    double form_knob = getParameter("FORM_KNOB");
-    double main_power = getParameter("MAIN_POWER");
+    double form_knob = 0, main_power = 0;
+    RAPTOR::form_light = 0;
+    if (!getParameter("FORM_KNOB",form_knob) || !getParameter("MAIN_POWER",main_power)) return;
 
     RAPTOR::form_light = main_power >= 1.0 ? RaptorVehicle::unit(form_knob) : 0.0;
 }
 
 void CockpitManager::updateNavAntiCollisionLights(double dt) {
-    double light_switch = getParameter("NAV_LIGHT_SWITCH");
-    double main_power = getParameter("MAIN_POWER");
+    double light_switch = 0, main_power = 0;
+    const bool controls = getParameter("NAV_LIGHT_SWITCH",light_switch) && getParameter("MAIN_POWER",main_power);
 
     static double flash_timer = 0.0;
     flash_timer += dt;
@@ -2055,7 +2065,7 @@ void CockpitManager::updateNavAntiCollisionLights(double dt) {
     RAPTOR::nav_white_blink = false;
     RAPTOR::anti_collision_blink = false;
 
-    if (main_power < 1.0 || light_switch <= 0.0) {
+    if (!controls || main_power < 1.0 || light_switch <= 0.0) {
         flash_timer = 0.0;
         RAPTOR::nav_white_timer = 0.0;
         RAPTOR::anti_collision_timer = 0.0;

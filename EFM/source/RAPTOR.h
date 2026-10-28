@@ -20,7 +20,10 @@
 #pragma once
 
 #include <unordered_map>
+#include "AltitudeSnapshot.h"
 #include <string>
+#include <string_view>
+#include <functional>
 #include <cstddef> 
 #include <array>
 #include <map>
@@ -385,14 +388,21 @@ public:
     void navigationFrame(RaptorAP::Frame& frame);
     void invalidatePhysical();
     void commitGuidanceEntry(double sequence);
-    double readVehicleParameter(const std::string& name) { return getParameter(name); }
 
     void updateDrawArgs(float* drawargs, size_t size);
 
 private:
     EDPARAM param_api_;
+    bool parameters_ready_ = false;
     RaptorNavigation::Snapshot navigation_snapshot_;
-    std::unordered_map<std::string, void*> param_handles_;
+    RaptorAltitudes::Snapshot altitude_snapshot_;
+    struct ParameterHash {
+        using is_transparent = void;
+        std::size_t operator()(std::string_view value) const noexcept {
+            return std::hash<std::string_view>{}(value);
+        }
+    };
+    std::unordered_map<std::string, void*, ParameterHash, std::equal_to<>> param_handles_;
     std::unordered_map<int, float> draw_args_;
 
     void updateTaxiLandingLights(double dt);
@@ -400,5 +410,7 @@ private:
     void updateFormationLights(double dt);
     void updateNavAntiCollisionLights(double dt);
 
-    double getParameter(const std::string& name, double fallback_value = 0.0);
+    bool getParameter(std::string_view name, double& value);
+    bool guidanceEntryFields(double sequence, std::array<double,6>& values);
+    double committedGuidanceValue(int command) const;
 };

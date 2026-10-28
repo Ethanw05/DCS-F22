@@ -6,11 +6,8 @@
 class EDPARAM
 {
 public:
-		EDPARAM()
-		{
-			ed_param_api = ed_get_cockpit_param_api();
-		}
-		cockpit_param_api ed_param_api;
+		EDPARAM() = default; // Host discovery belongs to explicit lifecycle initialization.
+		cockpit_param_api ed_param_api{};
 
         // Staged I-INT-003 port. Explicit initialization/invalidation is used by
         // migrated callers; legacy value-only callers remain tracked until cutover.
@@ -18,7 +15,7 @@ public:
         {
             invalidate();
             ed_param_api = ed_get_cockpit_param_api();
-            return numericReady();
+            return numericReady() && publicationReady();
         }
 
         void invalidate() noexcept
@@ -33,6 +30,11 @@ public:
         {
             return ed_param_api.pfn_ed_cockpit_get_parameter_handle &&
                 ed_param_api.pfn_ed_cockpit_parameter_value_to_number;
+        }
+        bool publicationReady() const noexcept
+        {
+            return ed_param_api.pfn_ed_cockpit_get_parameter_handle &&
+                ed_param_api.pfn_ed_cockpit_update_parameter_with_number;
         }
 
         bool getParamNumber(void* handle, double& value) const noexcept
@@ -85,9 +87,14 @@ public:
 			return true;
 		}
 
-		int compareParams(void* handle1, void* handle2)
+		bool compareParams(void* handle1, void* handle2, int& value) const noexcept
 		{
-			return ed_param_api.pfn_ed_cockpit_compare_parameters(handle1, handle2);
+			const auto compare = ed_param_api.pfn_ed_cockpit_compare_parameters;
+			if (!handle1 || !handle2 || !compare) return false;
+			const int candidate = compare(handle1,handle2);
+			if (candidate < -1 || candidate > 1) return false;
+			value = candidate;
+			return true;
 		}
 private:
         std::uint64_t epoch_ = 0;

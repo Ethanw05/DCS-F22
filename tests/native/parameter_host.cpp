@@ -18,6 +18,7 @@ bool convert(const void*, double& result, bool) {
 
 int main(int argc, char** argv) {
     EDPARAM actual;
+    if (actual.numericReady() || actual.publicationReady()) return 11;
     actual.ed_param_api.pfn_ed_cockpit_parameter_value_to_number = convert;
     int borrowed = 0;
     if (argc == 2 && std::string_view(argv[1]) == "--failed-read") {
@@ -54,6 +55,11 @@ int main(int argc, char** argv) {
     if (actual.getParamNumber(&borrowed, checked) || checked != -123) return 8;
     // This independent process has no CockpitBase module. Rediscovery is explicit.
     if (actual.initialize() || actual.epoch() != 2) return 9;
+    if (actual.setParamNumber(&borrowed,7) || actual.setParamString(&borrowed,"7")) return 12;
+    char text[8]{'x','\0'};
+    if (actual.getParamString(&borrowed,text,sizeof text) || text[0] != '\0') return 13;
+    int order = 99;
+    if (actual.compareParams(&borrowed,&borrowed,order) || order != 99) return 14;
     actual.ed_param_api.pfn_ed_cockpit_parameter_value_to_number = convert;
     payload = 0;
     if (!actual.getParamNumber(&borrowed, checked) || checked != 0) return 10;

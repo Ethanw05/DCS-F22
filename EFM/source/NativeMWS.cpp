@@ -142,11 +142,24 @@ void put(EDPARAM &p, const std::string &n, double value) {
         h = p.getParamHandle(n.c_str());
     p.setParamNumber(h, value);
 }
-double get(EDPARAM &p, const std::string &n) {
+bool get(EDPARAM &p, const std::string &n, double& value) {
     auto &h = handles[n];
     if (!h)
         h = p.getParamHandle(n.c_str());
-    return p.getParamNumber(h);
+    return p.getParamNumber(h,value);
+}
+bool read_inputs(EDPARAM& p, double& id, bool& powered) {
+    double device = 0, supply = 0;
+    if (!get(p,"F22_MWS_DEVICE_ID",device) || !get(p,"F22_MWS_SUPPLY",supply)) return false;
+    if (device < 1 || device > 255 || device != std::floor(device)
+        || (supply != 0 && supply != 1)) return false;
+    id = device;
+    powered = supply == 1;
+    return true;
+}
+double count_value(std::size_t count) {
+    constexpr std::size_t maximum_exact = 9007199254740991ULL;
+    return count <= maximum_exact ? static_cast<double>(count) : -1.0;
 }
 bool owned(const Api &a, std::uintptr_t object) {
     const void *table{};
@@ -287,9 +300,15 @@ void update(EDPARAM &p) {
         return;
     last = now;
     put(p, "F22_MWS_NATIVE_READY", 0);
+    double id = 0;
+    bool powered = false;
+    if (!read_inputs(p,id,powered)) {
+        approach.tracks.clear(); was_powered = false;
+        put(p,"F22_MWS_NATIVE_REASON",8);
+        return;
+    }
     auto context = api.context();
-    const double id = get(p, "F22_MWS_DEVICE_ID");
-    if (!context || !std::isfinite(id) || id < 1 || id > 255 || id != std::floor(id))
+    if (!context)
         return;
     auto object = reinterpret_cast<std::uintptr_t>(api.device(context, static_cast<unsigned>(id)));
     if (!owned(api, object)) {
@@ -302,7 +321,7 @@ void update(EDPARAM &p) {
     if (load(object + 184, eyes_begin) && load(object + 192, eyes_end) && eyes_end >= eyes_begin &&
         (eyes_end - eyes_begin) % 144 == 0 && eyes_end - eyes_begin <= 144 * 64) {
         eye_count = (eyes_end - eyes_begin) / 144;
-        put(p, "F22_MWS_NATIVE_EYE_COUNT", eye_count);
+        put(p, "F22_MWS_NATIVE_EYE_COUNT", count_value(eye_count));
     } else
         put(p, "F22_MWS_NATIVE_EYE_COUNT", -1);
     if (load(object + 1160, angular_limit))
@@ -317,7 +336,6 @@ void update(EDPARAM &p) {
         put(p, "F22_MWS_NATIVE_REASON", 7);
         return;
     }
-    const bool powered = get(p, "F22_MWS_SUPPLY") > .5;
     // The common optical computation has no electrical gate. Our powered bus
     // owns scheduling; no native voltage or detection flags are fabricated.
     std::vector<Contact> found;
@@ -339,8 +357,8 @@ void update(EDPARAM &p) {
     put(p, "F22_MWS_NATIVE_READY", 1);
     put(p, "F22_MWS_NATIVE_REASON", 0);
     put(p, "F22_MWS_NATIVE_TIME", now);
-    put(p, "F22_MWS_NATIVE_COUNT", found.size());
-    put(p, "F22_MWS_NATIVE_RAW_COUNT", raw_count);
+    put(p, "F22_MWS_NATIVE_COUNT", count_value(found.size()));
+    put(p, "F22_MWS_NATIVE_RAW_COUNT", count_value(raw_count));
     put(p, "F22_MWS_NATIVE_MAX_HITS", max_hits);
     put(p, "F22_MWS_NATIVE_THREAT_COUNT", threat_count);
     for (std::size_t i = 0; i < 16; ++i) {
