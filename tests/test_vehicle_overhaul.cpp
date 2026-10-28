@@ -6,6 +6,7 @@
 #include <iostream>
 #include <limits>
 #include "../EFM/include/FM/wHumanCustomPhysicsAPI.h"
+#include "../EFM/source/Inputs.h"
 
 namespace {
 template<typename T> T load(HMODULE module, const char* name) {
@@ -501,6 +502,68 @@ void held_roll_input_ownership(Fixture& f) {
     f.command(200,0); f.ticks(100); f.moment(x,y,z);
     assert(std::abs(x)<1.0);
 }
+
+struct AxisCommands {
+    int analog;
+    std::array<int,2> press;
+    std::array<int,2> release;
+    unsigned component;
+};
+constexpr AxisCommands pitch_axis{JoystickPitch, {PitchDown,PitchUp}, {PitchDownStop,PitchUpStop}, 2};
+constexpr AxisCommands yaw_axis{PedalYaw, {rudderright,rudderleft}, {rudderrightstop,rudderleftstop}, 1};
+
+double axis_moment(Fixture& fixture, unsigned component) {
+    assert(component < 3);
+    std::array<double,3> value{};
+    fixture.moment(value[0],value[1],value[2]);
+    return value[component];
+}
+
+void prepare_axis_fixture(Fixture& fixture) {
+    fixture.air(); fixture.fuel(5000); fixture.unlimited(true); fixture.conditions(200);
+    fixture.command(2004,1); // Fixed idle thrust: compare input ownership, not spool transients.
+    fixture.ticks(300);
+}
+
+void held_pitch_and_yaw_ownership(Fixture& fixture) {
+    for (const auto& axis : {pitch_axis,yaw_axis}) {
+        for (const float direction : {-1.0f,1.0f}) {
+            prepare_axis_fixture(fixture);
+            const double neutral = axis_moment(fixture,axis.component);
+            fixture.command(axis.press[0],1);
+            fixture.command(axis.analog,direction); // Real axis event takes over from a key.
+            fixture.ticks(200);
+            const double held = axis_moment(fixture,axis.component);
+            assert(std::abs(held-neutral)>1000);
+            for (const int release : {194,196,198,200,202,204}) {
+                fixture.command(release,0); fixture.ticks(100);
+                assert(std::abs(axis_moment(fixture,axis.component)-held)<1.0);
+            }
+            fixture.ticks(1000); // No artificial repeated joystick/pedal event.
+            assert(std::abs(axis_moment(fixture,axis.component)-held)<1.0);
+            fixture.command(axis.analog,0); fixture.ticks(300);
+            assert(std::abs(axis_moment(fixture,axis.component)-neutral)<1.0);
+        }
+    }
+}
+
+void pitch_and_yaw_keyboard_release(Fixture& fixture) {
+    for (const auto& axis : {pitch_axis,yaw_axis}) {
+        for (unsigned first = 0; first < 2; ++first) {
+            prepare_axis_fixture(fixture);
+            const double neutral = axis_moment(fixture,axis.component);
+            fixture.command(axis.press[first],1);
+            fixture.command(axis.press[1-first],1); fixture.ticks(200);
+            const double held = axis_moment(fixture,axis.component);
+            assert(std::abs(held-neutral)>1000);
+            fixture.command(axis.release[first],0); fixture.ticks(100);
+            assert(std::abs(axis_moment(fixture,axis.component)-held)<1.0);
+            fixture.command(axis.release[1-first],0); fixture.ticks(300);
+            fixture.command(axis.release[1-first],0); fixture.ticks(100);
+            assert(std::abs(axis_moment(fixture,axis.component)-neutral)<1.0);
+        }
+    }
+}
 } // namespace
 
 int main(int argc, char** argv) {
@@ -523,5 +586,7 @@ int main(int argc, char** argv) {
     manual_engine_and_unlit_fuel(fixture);
     engine_temperature_and_control_faults(fixture);
     held_roll_input_ownership(fixture);
+    held_pitch_and_yaw_ownership(fixture);
+    pitch_and_yaw_keyboard_release(fixture);
     std::cout << "vehicle DLL: cold/APU/start, burn/mass, feed/repair, sensor truth, limits and lifecycle OK\n";
 }

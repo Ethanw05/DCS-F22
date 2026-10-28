@@ -40,3 +40,14 @@ Default `Saved Games/DCS` DLL inspected during diagnosis was a 04:18 build
 not the new physical implementation. The radar chat's isolated profile points
 to its older branch; neither runtime can be assumed to contain today's source
 changes. Runtime qualification and the actual input-event cause remain open.
+
+The same release boundary now covers pitch commands 194/196 and yaw commands
+202/204. Before correction, the actual DLL tests reproduced loss of held pitch
+2001 on release 194 and held pedal 2003 on release 202, in both directions.
+Only a matching active keyboard request may now be released. A held analog
+owner, the opposite keyboard direction, and genuine axis centering retain
+their intended behavior. Held-force/moment comparisons cover all six axis
+release commands, keyboard-to-axis handoff, ten seconds without repeated axis
+events, both keyboard release orders, duplicate releases and neutral recovery.
+Debug and Release DLL checks pass after the correction. Control gains, damping,
+limits, surface allocation and aerodynamic forces are unchanged by this patch.

@@ -985,9 +985,13 @@ void ed_fm_set_command(int command, float value) {
         RAPTOR::pitch_discrete = 0;
         break;
     case PitchUp: RAPTOR::pitch_discrete = 1; RAPTOR::pitch_analog = false; break;
-    case PitchUpStop: RAPTOR::pitch_discrete = 0; RAPTOR::pitch_analog = false; break;
+    case PitchUpStop:
+        if (!RAPTOR::pitch_analog && RAPTOR::pitch_discrete > 0) RAPTOR::pitch_discrete = 0;
+        break;
     case PitchDown: RAPTOR::pitch_discrete = -1; RAPTOR::pitch_analog = false; break;
-    case PitchDownStop: RAPTOR::pitch_discrete = 0; RAPTOR::pitch_analog = false; break;
+    case PitchDownStop:
+        if (!RAPTOR::pitch_analog && RAPTOR::pitch_discrete < 0) RAPTOR::pitch_discrete = 0;
+        break;
     case trimUp:
     case trimDown:
     case trimStop:
@@ -1018,9 +1022,13 @@ void ed_fm_set_command(int command, float value) {
     case trimRight: trim_control.command(command); break;
     case PedalYaw: RAPTOR::yaw_input = limit(-value, -1, 1); RAPTOR::yaw_discrete = 0; RAPTOR::yaw_analog = true; break;
     case rudderleft: RAPTOR::yaw_discrete = 1; RAPTOR::yaw_analog = false; break;
-    case rudderleftstop: RAPTOR::yaw_discrete = 0; RAPTOR::yaw_analog = false; break;
+    case rudderleftstop:
+        if (!RAPTOR::yaw_analog && RAPTOR::yaw_discrete > 0) RAPTOR::yaw_discrete = 0;
+        break;
     case rudderright: RAPTOR::yaw_discrete = -1; RAPTOR::yaw_analog = false; break;
-    case rudderrightstop: RAPTOR::yaw_discrete = 0; RAPTOR::yaw_analog = false; break;
+    case rudderrightstop:
+        if (!RAPTOR::yaw_analog && RAPTOR::yaw_discrete < 0) RAPTOR::yaw_discrete = 0;
+        break;
     case ruddertrimLeft: trim_control.command(command); break;
     case ruddertrimRight: trim_control.command(command); break;
     case EnginesOn: vehicle_start_engine(true); vehicle_start_engine(false); break;

@@ -6,3 +6,4 @@
 - Work in a separate branch/worktree when other implementation chats are active. Preserve existing user changes, bindings, HUD styling and recorded audio.
 - Coordinate shared-file changes through `docs/handoffs/README.md`. Implement complete behavior chains with explicit physical/data ownership and focused commits.
 - Preserve original source references and evidence. Update the relevant work item after a change; keep documentation concise and useful to implementation.
+- Current user priority is airborne systems and handling. Complete validated fixes with installation into the normal DCS mod, using one coordinated installer, backups and verification; preserve other chats' updates and saved bindings. Do not leave completed fixes source-only.
