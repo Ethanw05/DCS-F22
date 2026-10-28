@@ -23,7 +23,8 @@ local function frame()
 end
 frame();values.F22_IR_SAMPLE_OWNER=0
 local sample=Feedback.new(get);sample:update(true,100)
-assert(sample.valid and sample.locked and not sample.owned,'older DLL compatibility changed')
+assert(not sample.valid and not sample.locked and not sample.owned,
+ 'unstamped raw feedback acquired authority before the current producer was available')
 frame();sample:update(true,100);assert(sample.valid and sample.owned and sample.locked)
 for _,case in ipairs({
  {'F22_IR_SAMPLE_OWNER',0},{'F22_IR_SAMPLE_SCHEMA',0},{'F22_IR_SAMPLE_SCHEMA',2},
@@ -100,6 +101,10 @@ local function frame(sequence)
  for name,value in pairs({AVAILABLE=1,LOCK=1,STRENGTH=2,WORLD_VALID=1,WORLD_FWD_N=1,
   WORLD_FWD_U=0,WORLD_FWD_E=0})do p('F22_IR_'..name,value)end
 end
+frame(2);p('F22_IR_SAMPLE_OWNER',0);update()
+assert(g('HUD_IR_SEEKER_AVAILABLE')==0 and g('HUD_IR_SEEKER_VALID')==0
+ and g('F22_IR_FEEDBACK_VALID')==0,'missing current producer substituted raw flags at startup')
+for _,sound in pairs(sounds)do assert(not sound.playing,'raw startup flags played seeker audio')end
 frame(2);update()
 assert(g('HUD_IR_SEEKER_AVAILABLE')==1 and g('HUD_IR_SEEKER_VALID')==1
  and g('F22_IR_FEEDBACK_LOCK')==1 and g('F22_RADAR_STT_VALID')==0,

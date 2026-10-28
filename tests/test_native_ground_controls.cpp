@@ -63,6 +63,13 @@ int scenarios(){
  CHECK(values["F22_AG_AGR_TIME"].value==coast_stamp);
  values["F22_AESA_SURFACE_SERVICE"].value=1;now+=.1;update(p);sample(reinterpret_cast<void*>(1));update(p);
  CHECK(std::abs(values["F22_AG_AGR_RANGE_FT"].value-3333.3333*3.280839895)<10);
+ // An actual surface look must survive the faster air-clock coast throttle.
+ values["F22_AESA_SURFACE_SERVICE"].value=0;now+=.02;update(p);sample(reinterpret_cast<void*>(1));
+ const auto coast_query=last_query;now+=.004;
+ const ArrayService grant{true,0,1,true};sample(reinterpret_cast<void*>(1),&grant);
+ CHECK(last_query==now && now-coast_query<.015);
+ bool sensed=false;for(const auto& report:range_pending)if(report.valid&&report.stamp==now)sensed=true;
+ CHECK(sensed);
  values["F22_AG_ACTIVE"].value=0;now+=.1;update(p);sample(reinterpret_cast<void*>(1));update(p);
  CHECK(values["F22_AG_AGR_VALID"].value==0);
  values["MAIN_POWER"].value=0;now+=.1;update(p);CHECK(!controls.active);

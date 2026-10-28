@@ -1,5 +1,6 @@
 -- GPL-3.0-or-later. Qualified native seeker feedback, never an acquisition model.
 -- Schema1 timestamps use absolute World model time, not F22_AP_CLOCK.
+-- Ownership history is diagnostic; every active sample requires this schema.
 local M = { maximum_age = .1, future_tolerance = .05 }
 M.__index = M
 local fields = {'F22_IR_SAMPLE_OWNER', 'F22_IR_SAMPLE_SCHEMA', 'F22_IR_SAMPLE_VALID',
@@ -74,7 +75,7 @@ function M:update(enabled, now)
     local owner_after = get('F22_IR_SAMPLE_OWNER')
     if owner_after == 1 then self.owned = true end
     if not enabled then return self end
-    if self.owned and not qualified(get, owner, owner_after, schema, valid, sequence,
+    if not qualified(get, owner, owner_after, schema, valid, sequence,
         time, station, generation, now) then return self end
     if not valid_signal(available, locked, strength) then return self end
     self.valid, self.available, self.locked = true, true, locked == 1

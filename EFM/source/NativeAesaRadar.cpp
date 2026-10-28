@@ -229,14 +229,16 @@ struct Parameters {
         "F22_AESA_CONTROL_RESOURCE", "F22_AESA_CONTROL_SURFACE", "F22_AESA_CONTROL_AZ", "F22_AESA_CONTROL_EL",
         "F22_AESA_CONTROL_HALF_AZ", "F22_AESA_CONTROL_HALF_EL", "F22_AESA_CONTROL_RANGE",
         "F22_AESA_CONTROL_CUE_VALID", "F22_AESA_CONTROL_CUE_AZ", "F22_AESA_CONTROL_CUE_EL",
-        "F22_AESA_CONTROL_TARGET", "F22_AESA_CONTROL_SURFACE_HALF_AZ"};
+        "F22_AESA_CONTROL_TARGET", "F22_AESA_CONTROL_SURFACE_HALF_AZ",
+        "F22_AESA_CONTROL_FC_TARGET", "F22_AESA_CONTROL_GUN_TRACK"};
     static constexpr std::array output_names{
         "F22_AESA_READY", "F22_AESA_REASON", "F22_AESA_TIME", "F22_AESA_SEQUENCE", "F22_AESA_COUNT",
         "F22_AESA_BEAM_AZ", "F22_AESA_BEAM_EL", "F22_AESA_DWELLS", "F22_AESA_SEARCH_DWELLS",
         "F22_AESA_TRACK_DWELLS", "F22_AESA_DETECTIONS", "F22_AESA_MISSES", "F22_AESA_PENDING",
         "F22_AESA_DROPS", "F22_AESA_TERRAIN_BLOCKED", "F22_AESA_OBJECT_BLOCKED", "F22_AESA_TRUNCATED",
         "F22_AESA_DRIVER_READY", "F22_TWS_GUIDANCE_BACKEND_READY", "F22_RADAR_WEAPON_TARGET_ID",
-        "F22_AESA_SURFACE_SERVICE", "F22_AESA_SURFACE_AZ", "F22_AESA_SURFACE_SEQUENCE", "F22_AESA_ARRAY_KNOWN", "F22_AESA_ARRAY_HEALTH", "F22_AESA_RESOURCE", "F22_AESA_PROCESSING_S", "F22_AESA_GENERATION"};
+        "F22_AESA_SURFACE_SERVICE", "F22_AESA_SURFACE_AZ", "F22_AESA_SURFACE_SEQUENCE", "F22_AESA_ARRAY_KNOWN", "F22_AESA_ARRAY_HEALTH", "F22_AESA_RESOURCE", "F22_AESA_PROCESSING_S", "F22_AESA_GENERATION",
+        "F22_AESA_FC_TARGET", "F22_AESA_FC_REVISIT_S", "F22_AESA_FC_LAST_LOOK", "F22_AESA_DEADLINE_MISSES"};
     static constexpr std::array fields{"VALID", "ID", "TIME", "N", "U", "E", "VN", "VU", "VE",
         "VELOCITY_VALID", "RANGE_SIGMA_M", "ANGLE_SIGMA_RAD", "HITS",
         "FILTER_VALID", "POSITION_SIGMA_M", "VELOCITY_SIGMA_MPS", "RAW_N", "RAW_U", "RAW_E",
@@ -277,13 +279,29 @@ struct Parameters {
             return std::numeric_limits<double>::quiet_NaN();
         return value;
     }
+    using CommandValues = std::array<double, input_names.size()>;
+    static bool command_clock(const CommandValues& values, double now) noexcept {
+        const double sequence = values[2], stamp = values[1];
+        return std::isfinite(now) && std::isfinite(sequence) && sequence >= 2 && std::fmod(sequence, 2) == 0
+            && std::isfinite(stamp) && now - stamp >= -.01 && now - stamp <= .5;
+    }
+    static bool identifier(double value, std::uint32_t& result) noexcept {
+        if (!std::isfinite(value) || value < 0 || value >= 4294967295.0 || value != std::floor(value)) return false;
+        result = static_cast<std::uint32_t>(value);
+        return true;
+    }
+    static bool focus(Controls& controls, const CommandValues& values) noexcept {
+        if (!identifier(values[16], controls.fire_control_id)) return false;
+        if (values[17] != 0 && values[17] != 1) return false;
+        controls.gun_tracking = values[17] == 1;
+        return !controls.gun_tracking || controls.fire_control_id != 0;
+    }
     Request controls(EDPARAM& p, double now) noexcept {
-        std::array<double, input_names.size()> values{};
+        CommandValues values{};
         for (std::size_t i = 0; i < values.size(); ++i) values[i] = read(p, inputs[i]);
         const double sequence = values[2];
         Request r{};
-        if (!std::isfinite(sequence) || sequence < 2 || std::fmod(sequence, 2) != 0
-            || !std::isfinite(values[1]) || now - values[1] < -.01 || now - values[1] > .5) return r;
+        if (!command_clock(values, now)) return r;
         r.controls.enabled = values[0] == 1; r.controls.emit = values[3] == 1;
         r.controls.resource = values[4]; r.controls.surface = values[5] == 1;
         r.controls.azimuth = values[6]; r.controls.elevation = values[7];
@@ -291,12 +309,12 @@ struct Parameters {
         r.controls.range_m = values[10]; r.controls.cue_valid = values[11] == 1;
         r.controls.cue_azimuth = values[12]; r.controls.cue_elevation = values[13];
         r.controls.surface_half_azimuth = values[15];
-        if (std::isfinite(values[14]) && values[14] > 0 && values[14] < 4294967295.0 && values[14] == std::floor(values[14]))
-            r.controls.selected_id = static_cast<std::uint32_t>(values[14]);
+        const bool selected_valid = identifier(values[14], r.controls.selected_id);
+        if (!selected_valid) r.controls.selected_id = 0;
+        if (!focus(r.controls, values)) return {};
         for (std::size_t i = 0; i < priorities.size(); ++i) {
-            const double id = read(p, priorities[i]);
-            if (std::isfinite(id) && id > 0 && id < 4294967295.0 && id == std::floor(id))
-                r.controls.priority_ids[i] = static_cast<std::uint32_t>(id);
+            const bool valid = identifier(read(p, priorities[i]), r.controls.priority_ids[i]);
+            if (!valid) r.controls.priority_ids[i] = 0;
         }
         if (sequence != read(p, inputs[2])) return {};
         r.stamp = now; r.controls.generation = epoch.load(std::memory_order_acquire); return r;
@@ -308,29 +326,38 @@ struct Parameters {
         const bool fresh = enabled && q.ready && s.epoch == epoch.load(std::memory_order_acquire)
             && now - q.time >= -.01 && now - q.time <= .5;
         unsigned count = 0;
-        for (std::size_t i = 0; i < s.measurements.size(); ++i) {
-            const auto& m = s.measurements[i];
-            const bool valid = fresh && m.valid;
-            p.setParamNumber(contacts[i][0], valid ? 1 : 0);
-            if (!valid) { published_id[i] = 0; continue; }
-            ++count;
-            // State and covariance change only on a completed measurement.
-            // Producer heartbeat/VALID still update when physics runs faster.
-            if (published_id[i] == m.id && published_time[i] == m.time) continue;
-            published_id[i] = m.id; published_time[i] = m.time;
-            const std::array values{valid ? 1.0 : 0.0, static_cast<double>(m.id), m.time,
-                m.position.n, m.position.u, m.position.e, m.velocity.n, m.velocity.u, m.velocity.e,
-                m.velocity_valid ? 1.0 : 0.0, m.range_sigma_m, m.angle_sigma_rad, static_cast<double>(m.hits),
-                m.filter_valid ? 1.0 : 0.0, m.position_sigma_m, m.velocity_sigma_mps,
-                m.raw_position.n, m.raw_position.u, m.raw_position.e, m.measured_range,
-                m.measured_azimuth, m.measured_elevation, m.measured_range_rate, m.rate_sigma_mps,
-                m.sensor_origin.n,m.sensor_origin.u,m.sensor_origin.e,m.sensor_velocity.n,m.sensor_velocity.u,m.sensor_velocity.e,
-                m.sensor_forward.n,m.sensor_forward.u,m.sensor_forward.e,m.sensor_up.n,m.sensor_up.u,m.sensor_up.e,
-                m.sensor_right.n,m.sensor_right.u,m.sensor_right.e};
-            for (std::size_t j = 0; j < values.size(); ++j) p.setParamNumber(contacts[i][j], values[j]);
-            for (std::size_t j = 0; j < m.covariance.size(); ++j)
-                p.setParamNumber(contacts[i][values.size()+j], m.covariance[j]);
-        }
+        for (std::size_t i = 0; i < s.measurements.size(); ++i)
+            if (publish_contact(p, i, s.measurements[i], fresh)) ++count;
+        publish_status(p, s, fresh, count);
+        p.setParamNumber(outputs[3], publication + 2);
+    }
+    bool publish_contact(EDPARAM& p, std::size_t i, const Measurement& m, bool fresh) noexcept {
+        const bool valid = fresh && m.valid;
+        p.setParamNumber(contacts[i][0], valid ? 1 : 0);
+        if (!valid) { published_id[i] = 0; return false; }
+        // State and covariance change only on a completed measurement.
+        // Producer heartbeat/VALID still update when physics runs faster.
+        if (published_id[i] == m.id && published_time[i] == m.time) return true;
+        published_id[i] = m.id; published_time[i] = m.time;
+        const std::array values{valid ? 1.0 : 0.0, static_cast<double>(m.id), m.time,
+            m.position.n, m.position.u, m.position.e, m.velocity.n, m.velocity.u, m.velocity.e,
+            m.velocity_valid ? 1.0 : 0.0, m.range_sigma_m, m.angle_sigma_rad, static_cast<double>(m.hits),
+            m.filter_valid ? 1.0 : 0.0, m.position_sigma_m, m.velocity_sigma_mps,
+            m.raw_position.n, m.raw_position.u, m.raw_position.e, m.measured_range,
+            m.measured_azimuth, m.measured_elevation, m.measured_range_rate, m.rate_sigma_mps,
+            m.sensor_origin.n,m.sensor_origin.u,m.sensor_origin.e,m.sensor_velocity.n,m.sensor_velocity.u,m.sensor_velocity.e,
+            m.sensor_forward.n,m.sensor_forward.u,m.sensor_forward.e,m.sensor_up.n,m.sensor_up.u,m.sensor_up.e,
+            m.sensor_right.n,m.sensor_right.u,m.sensor_right.e};
+        for (std::size_t j = 0; j < values.size(); ++j) p.setParamNumber(contacts[i][j], values[j]);
+        for (std::size_t j = 0; j < m.covariance.size(); ++j)
+            p.setParamNumber(contacts[i][values.size()+j], m.covariance[j]);
+        return true;
+    }
+    void gated(EDPARAM& p, std::size_t index, double value, bool valid) noexcept {
+        p.setParamNumber(outputs[index], valid ? value : 0);
+    }
+    void publish_status(EDPARAM& p, const Snapshot& s, bool fresh, unsigned count) noexcept {
+        const auto& q = s.status;
         const std::array values{fresh ? 1.0 : 0.0, fresh ? 0.0 : static_cast<double>(api.reason ? api.reason : 4),
             q.time, static_cast<double>(publication + 2), static_cast<double>(count), q.beam.azimuth, q.beam.elevation,
             static_cast<double>(q.dwells), static_cast<double>(q.search_dwells), static_cast<double>(q.track_dwells),
@@ -338,13 +365,16 @@ struct Parameters {
             static_cast<double>(q.queue_drops), static_cast<double>(q.terrain_blocked),
             static_cast<double>(q.object_blocked), q.truncated ? 1.0 : 0.0};
         for (std::size_t i = 0; i < values.size(); ++i) if (i != 3) p.setParamNumber(outputs[i], values[i]);
-        p.setParamNumber(outputs[20], fresh && q.surface_service ? 1 : 0);
+        gated(p, 20, q.surface_service ? 1 : 0, fresh);
         p.setParamNumber(outputs[21], q.surface_azimuth);
         p.setParamNumber(outputs[22], q.surface_sequence);
-        p.setParamNumber(outputs[25], fresh ? q.resource : 0);
-        p.setParamNumber(outputs[26], fresh ? q.processing_s : 0);
+        gated(p, 25, q.resource, fresh);
+        gated(p, 26, q.processing_s, fresh);
         p.setParamNumber(outputs[27], static_cast<double>(s.epoch));
-        p.setParamNumber(outputs[3], publication + 2);
+        gated(p, 28, q.fire_control_id, fresh);
+        gated(p, 29, q.fire_control_revisit_s, fresh);
+        p.setParamNumber(outputs[30], fresh ? q.fire_control_last_look : -100);
+        p.setParamNumber(outputs[31], q.deadline_misses);
     }
 } parameters;
 bool fresh(double now, double stamp, double age) noexcept {

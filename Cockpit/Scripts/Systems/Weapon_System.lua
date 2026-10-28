@@ -894,12 +894,15 @@ function update()
         and parameters.GROUND_ORIDE:get() >= 0.5
     local groundCrewLeft = groundContact and parameters.GROUND_POWER:get() >= 0.5
         and parameters.GROUND_ORIDE:get() < 0.5
-    local releaseRequest = not groundContact and missionPower and master_arm_state == 1
-        and (weapon_release_state == 1 or air_oride == 1 or (mode_state==3 and not caged and get_param_handle('F22_WEAPON_COUNT'):get()>0))
-    local openAll = groundOverride or (releaseRequest and selected == 4)
-    local openMain = openAll or (releaseRequest and selected == 2)
-    local openLeft = openAll or groundCrewLeft or (releaseRequest and selected == 1)
-    local openRight = openAll or (releaseRequest and selected == 3)
+    -- Mod workflow estimate: prepare the selected SRM before release consent.
+    -- Head cage controls seeker pointing, not whether its carrier is exposed.
+    local irPreparation = mode_state==3 and selected_station>=0 and get_param_handle('F22_WEAPON_COUNT'):get()>0
+    local bayRequest = not groundContact and missionPower and master_arm_state == 1
+        and (weapon_release_state == 1 or air_oride == 1 or irPreparation)
+    local openAll = groundOverride or (bayRequest and selected == 4)
+    local openMain = openAll or (bayRequest and selected == 2)
+    local openLeft = openAll or groundCrewLeft or (bayRequest and selected == 1)
+    local openRight = openAll or (bayRequest and selected == 3)
 
     -- Normal actuator model [normalized travel/second]. True real rates
     -- depend on hydraulics and are not available in the public documents.
