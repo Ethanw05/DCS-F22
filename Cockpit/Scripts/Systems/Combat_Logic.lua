@@ -58,8 +58,8 @@ function M.new(emit)
 			emit('station_step')
 		else
 			emit('undesignate')
+			-- Navigation also clears its shared ground mark through the mark owner.
 			emit('nav_undesignate')
-			if self.mode == 7 then emit('ag_clear') end
 		end
 	end
 	function s:act(n, long, c)
