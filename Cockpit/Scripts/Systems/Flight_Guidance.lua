@@ -2,11 +2,23 @@
 local dev=GetSelf()
 dofile(LockOn_Options.script_path..'devices.lua')
 local decode=dofile(LockOn_Options.script_path..'Systems/Input_Value.lua')
-make_default_activity(.05)
+-- Selected pose feeds the 50Hz HUD/ADIs; keep their observation cadence compatible.
+-- Requested 100Hz is a mod scheduling policy, not an F-22 gyro specification.
+make_default_activity(.01)
 local handles={}
 local function h(k)if not handles[k]then handles[k]=get_param_handle(k)end return handles[k]end
 local function get(k)return h(k):get()end
 local function set(k,v)h(k):set(v)end
+local status_clock,status_dirty=nil,true
+local function status_due()
+ local now=get('F22_AP_CLOCK')
+ if type(now)~='number' or now~=now or math.abs(now)>=1e9 then
+  status_clock,status_dirty=nil,true;return true
+ end
+ if not status_dirty and status_clock and now>=status_clock and now-status_clock<.049 then return false end
+ status_clock,status_dirty=now,false
+ return true
+end
 local references=dofile(LockOn_Options.script_path.."Systems/Gins_References.lua").new(get,set,get_base_data())
 for _,k in ipairs({'F22_AP_ACTIVE','F22_AP_ROLL_MODE','F22_AP_PITCH_MODE','F22_AP_AT','F22_AP_MACH_HOLD',
  'F22_AP_HEADING','F22_AP_ALT','F22_AP_VS','F22_AP_SPEED','F22_AP_MACH','F22_AP_REASON','F22_AP_OVERRIDE','F22_AP_READY','F22_AP_CLOCK',
@@ -42,6 +54,7 @@ for f=108100,111900,200 do frequencies[#frequencies+1]=f;frequencies[#frequencie
 local frequency_index=23 -- 110.30 MHz
 local names={[0]='OFF',[1]='REC',[2]='T/R',[3]='A/A REC',[4]='A/A T/R'}
 function post_initialize()
+ status_clock,status_dirty=nil,true
  set('F22_ENTRY_GUIDANCE_ACTIVE',0)
  set('F22_NAV_CONFIG_PATH',LockOn_Options.script_path..'Systems/TACAN_Native.lua')
  set('F22_TCN_CHANNEL',1);set('F22_TCN_BAND',0);set('F22_TCN_MODE',2)
@@ -114,6 +127,7 @@ end
 local transaction=dofile(LockOn_Options.script_path..'Systems/Entry_Transaction.lua').channel('GUIDANCE',get,set)
 dev:listen_command(11800)
 function SetCommand(command,value)
+ status_dirty=true
  if command~=11800 then apply_command(command,value);return end
  local requested,wanted=transaction:take(value)
  if not requested then return end
@@ -136,6 +150,8 @@ function update()
  references:update()
  local powered=get('MAIN_POWER')>.5
  if not powered then set('F22_ENTRY_GUIDANCE_ACTIVE',0)end
+ publish_course()
+ if not status_due()then return end
  local ready=get('F22_INS_READY')==1
  local text=not ready and get('F22_GINS_NAV_STATUS')or(
   get('F22_INS_ESTIMATE_VALID')<.5 and 'IRS POSITION INVALID'
@@ -165,7 +181,6 @@ function update()
  set('F22_TCN_TUNE_TEXT',string.format('TCN %03d%s %s',get('F22_TCN_CHANNEL'),get('F22_TCN_BAND')>.5 and 'Y' or 'X',names[get('F22_TCN_MODE')] or '?'))
  set('F22_ILS_TUNE_TEXT',string.format('ILS %.2f',get('F22_ILS_FREQ_KHZ')/1000))
  set('F22_NAV_SOURCE_TEXT',({'WPT','TCN','ILS'})[get('F22_NAV_SOURCE')+1] or 'WPT')
- publish_course()
  set('F22_NAV_CRS_TEXT',get('F22_NAV_COURSE_REF_VALID')>.5
   and string.format('CRS %03d%s',get('F22_NAV_COURSE'),mag and 'M' or 'T')or'CRS ---M')
 end

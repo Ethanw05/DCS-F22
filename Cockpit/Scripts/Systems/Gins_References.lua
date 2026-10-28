@@ -188,11 +188,13 @@ local function complete_frame(self)
     for index=1,#fields do self.values[fields[index]]=get(self.names[index])end
     if get('F22_GINS_VALID')~=1 or get('F22_GINS_SEQUENCE')~=sequence
         or get('F22_GINS_STAMP')~=stamp or get('F22_GINS_SCHEMA')~=1 then return false end
-    return frame_epoch(sequence,stamp,get) and frame_payload(self.values)
+    local valid=frame_epoch(sequence,stamp,get) and frame_payload(self.values)
+    if valid then self.stamp,self.sequence=stamp,sequence end
+    return valid
 end
 function Reader:update()
     local get=self.get
-    self.valid=false
+    self.valid=false;self.stamp,self.sequence=nil,nil
     local schema=get('F22_GINS_SCHEMA')
     if schema~=1 or get('F22_GINS_VALID')~=1 then return self end
     self.valid=complete_frame(self)
