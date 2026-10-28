@@ -89,6 +89,74 @@ Run the standalone executable against gpu-input-512-p1024.bin. The additional
 pulse positions densely sample the same250m aperture; they are not duplicated
 rows and do not claim eight times the aperture or resolving power.
 
+## Exact GPU optimizations and VR scheduling
+
+The new f22_sar_optimization_probe separates GPU dispatch, display-copy and
+validation-readback costs using timestamp queries inside a checked disjoint
+query. The earlier 2.13–2.68 ms figure included a blocking CPU readback; it
+was not pure shader time. Shaders/resources are initialized and warmed before
+measurement. Fifteen variants run in rotating order, eleven samples each.
+Three fresh processes on the RTX 4070 produced these results:
+
+| 512x512, 1,024 distinct histories | Observed time | Final image versus original GPU kernel |
+|---|---:|---|
+| Original structured-buffer kernel, full dispatch | 1.293–1.445 ms GPU median | Reference |
+| Texture Load with explicit unchanged interpolation, full dispatch | 1.125–1.235 ms GPU median | Bitwise identical |
+| Optimized 32-history batch | 0.0389 ms median per batch | Bitwise identical after all 32 batches |
+| All 32 optimized batches, sum of dispatch times | 1.250–1.256 ms median | Same 1,024 histories |
+| All batches queued together, including gaps between dispatches | 1.304–1.311 ms median | Same final image |
+| Display-only GPU copy | 0.0052–0.0054 ms median | Same texture contents |
+
+Paired full-dispatch medians improve 13.0–14.5 percent without changing
+resolution, interpolation, phase arithmetic or accumulation order. Changing
+thread layout, processing two pixels per thread and unrolling loops did not
+improve on the simple exact texture-load kernel. Hardware linear filtering
+changed every complex pixel in the nonempty cases and reduced CPU agreement
+from 87.77 to 79.97 dB in the large case; it is excluded from the exact path.
+
+Streaming stores the unnormalized FP32 complex sum in two alternating
+textures and divides once after the final history. It reduces work per
+dispatch; it does not eliminate the total work or shorten the physical
+aperture collection. All chunk sizes 16, 31, 32 and 64 produced identical
+final images, including partial final chunks. Two 512x512 complex-FP32
+accumulators need 4 MiB total, 2 MiB more than one accumulator. The completed
+display texture remains separate. The benchmark retains both input layouts
+for comparison; an integrated exact path needs only the selected layout.
+
+Additional checks cover 193x193/128, 512x512/128, a 193x193 image with 129
+positions following an irregular 3D trajectory and complex target amplitudes,
+and a blank 17x17 single-history collection. Exact kernels/chunks preserve
+every complex output bit in all seven recorded runs/cases. CPU agreement is
+79.31–88.22 dB for nonempty cases. The JSON uses 999 as an exact-equality
+sentinel, including the blank scene. Truncated, wrong-magic and zero-capacity
+inputs are rejected. MSVC /W4 /WX /analyze and HLSL strict compilation pass.
+
+The reported batch median is not a frame-time cap: the largest measured
+optimized 32-history batch was 0.285 ms, and other configurations also had
+occasional outliers. Measurements exclude readback and final display copy
+from dispatch costs. GPU clock changes affect absolute timings. These are
+standalone measurements with DCS closed; VR contention and a full EXP3
+terrain footprint remain unqualified.
+
+Integration should process newly granted histories during collection, retain
+the last complete image, share one reconstruction between VR eyes, and avoid
+blocking CPU readback. Cap work per frame and never drain the entire pending
+collection in one callback. Keep the image grid, collection/reference geometry,
+waveform and generation fixed for each accumulation; cancel/restart incompatible
+collections. Compile and warm shaders outside flight callbacks. The D3D11
+immediate context still requires the qualified host rendering phase and state
+restoration; batching does not establish free asynchronous compute overlap.
+This remains a research prototype; the installed radar was not replaced.
+
+Reproduce with the existing --gpu-load-case input, then run
+out/build/sar-research/Release/f22_sar_optimization_probe.exe against
+out/sar-research/gpu-input-512-p1024.bin. Generate the irregular and empty
+inputs with tools/research_sar_optimization_cases.py. Recorded summaries,
+input/shader hashes and rejected-input diagnostics:
+[optimization results](SEN-04-SAR-optimization-results.json).
+Timing API contracts: [D3D11 query types](https://learn.microsoft.com/en-us/windows/win32/api/d3d11/ne-d3d11-d3d11_query)
+and [GetData completion statuses](https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-getdata).
+
 ## Hex-Rays and original DCS source findings
 
 New decompilations use the installed DCS binaries, not aircraft radar calls.
