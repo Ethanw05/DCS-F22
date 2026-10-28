@@ -32,13 +32,11 @@ function M.new()
   antenna=0,data=false,declutter=false,expansion=0,pending=0,patch=nil,
   sweep=0,units=0,direction=1}
 end
-function M.advance(c, enabled, granted, cells)
- if not enabled or not granted then return false end
- if type(cells)~='number' or cells~=cells or cells<1 or cells>8192 or cells%1~=0 then return false end
- -- Collection advances only when the owned AESA completes a surface dwell.
- -- It is a finite image job count; electronic pointing has no traverse time.
- local increment=1/cells
- local next_units=c.units+increment
+function M.advance(c, enabled, credit)
+ if not enabled then return false end
+ if type(credit)~='number' or credit~=credit or credit<=0 or credit>128 then return false end
+ -- Credit is cumulative completed native RF work, never elapsed display time.
+ local next_units=c.units+credit
  local complete=c.active and c.active_end and next_units>=c.active_end
  if complete then next_units=c.active_end end
  c.units=next_units;c.sweep=next_units%1;c.direction=1

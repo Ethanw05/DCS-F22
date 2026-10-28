@@ -28,7 +28,10 @@ local grant=0
 local function tick()
  grant=grant+1;put('F22_AESA_SURFACE_SERVICE',1);put('F22_AESA_SURFACE_SEARCH',1);put('F22_AESA_SURFACE_CELLS',16);put('F22_AESA_SURFACE_SEQUENCE',grant)
  put('F22_AESA_SURFACE_AZ',math.sin(grant*.3)*.5)
- now=now+.05;radar_update();mark_update()
+ now=now+.05
+ put('F22_AESA_SEQUENCE',grant*2);put('F22_AESA_READY',1);put('F22_AESA_GENERATION',1);put('F22_AESA_TIME',now)
+ put('F22_AESA_SURFACE_DISCOVERY_SEQUENCE',grant);put('F22_AESA_SURFACE_DISCOVERY_WORK',grant/16)
+ radar_update();mark_update()
 end
 local function command(c)radar_command(c,1)end
 command(10601);tick();assert(val('F22_AG_MODE')==1 and val('F22_AG_RADAR_CANDIDATE')==1)

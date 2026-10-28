@@ -178,12 +178,10 @@ const void *__fastcall camera(void *object) {
     render.have_last=false;
   }
   if(safe.accepted) {
-    // Refresh the shared scene renderer on completed owned image collections
-    // and geometry changes. This renderer supplies pixels, never detections.
+    // Refresh on completed partial RF work. Camera motion and UI changes
+    // cannot independently manufacture a new image observation.
     const auto&v=safe.view;
-    if(!render.have_last || v.collection!=render.last.collection || v.scan_direction!=render.last.scan_direction ||
-       v.range_nm!=render.last.range_nm || (v.expansion==0&&v.width_deg!=render.last.width_deg) ||
-       v.erase_sequence!=render.last.erase_sequence || v.mode!=render.last.mode || v.expansion!=render.last.expansion) {
+    if(GroundVideoView::refresh(v,render.last,render.have_last)) {
       render.refresh=true;
       std::lock_guard<std::mutex>lock(view_mutex);map_reference=v;
       map_reference.heading=v.heading+v.scan_center;map_reference.scan_center=0;
@@ -217,7 +215,7 @@ void __fastcall parameters(void *object,void *buffer) {
   }
   const int key=render.current.mode*10+render.current.expansion;
   auto params=GroundVideoView::parameters(render.current,render.erased!=render.current.erase_sequence,!render.preset||render.preset_key!=key);
-  params[5].bits=render.refresh?1:0;render.refresh=false;render.preset_key=key;
+  params[5].bits=render.refresh&&!render.current.frozen?1:0;render.refresh=false;render.preset_key=key;
   std::memcpy(reinterpret_cast<void *>(data),params.data(),sizeof(params));
   if(params[6].bits)++erase_calls;
   if(params[7].text)++preset_calls;

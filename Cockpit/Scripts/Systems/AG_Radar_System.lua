@@ -2,6 +2,7 @@
 local Model = dofile(LockOn_Options.script_path .. "Systems/AG_Radar_Computer.lua")
 local Display = dofile(LockOn_Options.script_path .. "Systems/Radar_Display.lua")
 local Modes=dofile(LockOn_Options.script_path .. "Systems/AG_Radar_Modes.lua")
+local Collection=dofile(LockOn_Options.script_path .. "Systems/AG_Radar_Collection.lua")
 local M = {}
 local native_prefix="F22_AG_NATIVE_TRACK_"
 local function track_identity(get,now)
@@ -50,7 +51,7 @@ function M.new(get, put, native_command)
 	return setmetatable(
 		{ get = get, put = put, native_command = native_command, model = Model.new(), terrain = ok and terrain or nil,
 		  operating = false, video_gain = .5, video_erase = 1, interleave = false,
-		  sweep_phase=0, sweep_direction=1, track_sequence=0, controls=Modes.new() },
+          sweep_phase=0, sweep_direction=1, track_sequence=0, controls=Modes.new(), collection=Collection.new(get) },
 		{ __index = M }
 	)
 end
@@ -442,14 +443,10 @@ function M:update(pose, now, dt, powered, ready)
 	end
 	if pose then
 		-- Image hold retains its frame while the independent AESA still senses.
-		local service_sequence=self.get("F22_AESA_SURFACE_SEQUENCE")
-		local granted=self.get("F22_AESA_SURFACE_SERVICE")==1
-			and service_sequence~=(self.last_surface_sequence or -1)
-		self.last_surface_sequence=service_sequence
-		if operating and not acquiring and not selected then
+		local credit=self.collection:sample(now)
+		if operating then
 			local c=self.controls
-			if Modes.advance(c,not c.silent or c.active,granted and self.get("F22_AESA_SURFACE_SEARCH")==1,
-                self.get("F22_AESA_SURFACE_CELLS"))then
+			if Modes.advance(c,not c.silent or c.active,credit)then
 			 c.active=false;c.active_end=nil;self.video_frozen=true;self.frozen_pose=map_pose;self.frozen_view=m.exp_view;self.frozen_movers=m.movers;hold=true
 			end
 			self.sweep_phase=c.sweep;self.sweep_direction=c.direction
@@ -458,7 +455,9 @@ function M:update(pose, now, dt, powered, ready)
 		local width=ev and ev.fov or m.width
 		local angle=math.deg(self.get("F22_AESA_SURFACE_AZ"))
 		local progress=math.max(0,math.min(1,(angle-math.deg(video_scan.az))/width+.5))
-		put("F22_AG_VIDEO_COLLECTION",math.floor(self.controls.units))
+		-- Partial completed RF work refreshes the image. Flooring here retained
+		-- the old texture until an entire multi-axis volume had completed.
+		put("F22_AG_VIDEO_COLLECTION",self.controls.units)
 		put("F22_AG_SENSOR_SCAN_AZ_DEG",angle);put("F22_AG_SENSOR_SCAN_DIRECTION",direction)
 		local frame = self.video_frame
 		if not hold or not frame then

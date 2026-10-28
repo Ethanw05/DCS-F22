@@ -51,3 +51,7 @@ track, designation, unknown-motion and display-element paths. The renderer still
 supplies terrain imagery; this does not claim SAR reflectivity/signal processing,
 PRF ambiguity resolution, complete surface association or in-game qualification.
 DLL and matching A/G Lua/indicator changes must be packaged together.
+
+The subsequent [moving-image refresh regression](SEN-02-ground-refresh.md)
+replaces pulse-sampled image credit with cumulative completed native RF work and
+preserves its fractional progress through renderer cache invalidation.

@@ -238,9 +238,27 @@ void receiver_authority() {
     CHECK(values["F22_AESA_INTERFERENCE_VALID"]==1 && values["F22_AESA_READY"]==1);
     CHECK(values["F22_AESA_INTERFERENCE_JNR"]==0 && values["F22_AESA_INTERFERENCE_TIME"]<=now);
 }
+void surface_publication() {
+    fixture();EDPARAM p;
+    p.ed_param_api.pfn_ed_cockpit_get_parameter_handle=handle;
+    p.ed_param_api.pfn_ed_cockpit_update_parameter_with_number=put;
+    p.ed_param_api.pfn_ed_cockpit_parameter_value_to_number=get;
+    CHECK(parameters.bind(p));
+    static Snapshot state;state={};state.epoch=epoch.load();
+    auto& status=state.status;status.ready=true;status.time=now;status.interference.valid=true;
+    status.surface_sequence=9;status.surface_service=false;
+    status.surface_beam.surface_search=true;status.surface_beam.surface_cells=308;
+    status.surface_beam.completes=now-.01;
+    status.surface_discovery_sequence=7;status.surface_discovery_work=7.0/308;
+    parameters.publish(p,state,now,true);
+    CHECK(values["F22_AESA_SURFACE_SERVICE"]==0);
+    CHECK(values["F22_AESA_SURFACE_SEARCH"]==1);
+    CHECK(values["F22_AESA_SURFACE_DISCOVERY_SEQUENCE"]==7);
+    CHECK(values["F22_AESA_SURFACE_DISCOVERY_WORK"]==7.0/308);
+}
 }
 int main() {
-    try { scenarios(); receiver_scenarios(); receiver_authority(); std::cout << "Owned native AESA: scene provider, noisy reports, avLua clock lifetime, "
+    try { scenarios(); receiver_scenarios(); receiver_authority(); surface_publication(); std::cout << "Owned native AESA: scene provider, noisy reports, avLua clock lifetime, "
         "context responder registration, actual virtual target/support calls, expiry and teardown PASS\n"; return 0; }
     catch (const std::exception& error) { std::cerr<<error.what()<<'\n'; return 1; }
 }

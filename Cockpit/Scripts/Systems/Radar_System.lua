@@ -468,6 +468,7 @@ function update()
 		put("F22_RADAR_SUPPORT_ENABLED", requested_power and aesa.ready and 1 or 0)
 		put("F22_TWS_ACTIVE",0);put("F22_TWS_TARGET_ID",0)
 		tactical.publish(computer, put, powered and ready)
+		if telemetry then telemetry:sample(computer.clock,pose) end
 		return
 	end
 	put("F22_AG_RADAR_OPERATING", 0)

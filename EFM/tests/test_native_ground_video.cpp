@@ -139,6 +139,15 @@ int main() {
   v.scan_direction=1;p=parameters(v,false,false);assert(p[9].number==50);
   v.tracking=true;p=parameters(v,false,false);assert(p[8].number==0);
   v.gmt=false;v.tracking=false;v.interleave=false;
+  // A completed partial collection must refresh before one full volume.
+  View partial=v;partial.collection=v.collection+1.0/150;
+  assert(std::floor(partial.collection)==std::floor(v.collection));
+  assert(refresh(partial,v,true));
+  assert(!refresh(v,v,true)); // A faster graphics callback creates no RF work.
+  View geometry=v;geometry.range_nm=40;geometry.erase_sequence=v.erase_sequence+1;
+  assert(!refresh(geometry,v,true));
+  geometry.collection=0;assert(!refresh(geometry,v,false));
+  partial.frozen=true;assert(!refresh(partial,v,true));
   p=parameters(v,false,false);assert(p[6].bits==0 && p[7].bits==0);
   for (auto invalid : {std::numeric_limits<double>::quiet_NaN(),std::numeric_limits<double>::infinity()}) {
     v.range_nm=invalid;assert(!valid(v,5));

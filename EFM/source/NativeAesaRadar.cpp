@@ -338,7 +338,8 @@ struct Parameters {
         "F22_AESA_ASSOCIATION_AMBIGUOUS", "F22_AESA_ASSOCIATION_DROPPED",
         "F22_AESA_SURFACE_EL", "F22_AESA_SURFACE_HALF", "F22_AESA_SURFACE_RANGE", "F22_AESA_SURFACE_TIME",
         "F22_AESA_SURFACE_SEARCH", "F22_AESA_SURFACE_CELLS",
-        "F22_AESA_INTERFERENCE_VALID", "F22_AESA_INTERFERENCE_JNR", "F22_AESA_INTERFERENCE_TIME", "F22_AESA_INTERFERENCE_SOURCES"};
+        "F22_AESA_INTERFERENCE_VALID", "F22_AESA_INTERFERENCE_JNR", "F22_AESA_INTERFERENCE_TIME", "F22_AESA_INTERFERENCE_SOURCES",
+        "F22_AESA_SURFACE_DISCOVERY_SEQUENCE", "F22_AESA_SURFACE_DISCOVERY_WORK"};
     static constexpr std::array fields{"VALID", "ID", "TIME", "N", "U", "E", "VN", "VU", "VE",
         "VELOCITY_VALID", "RANGE_SIGMA_M", "ANGLE_SIGMA_RAD", "HITS",
         "FILTER_VALID", "POSITION_SIGMA_M", "VELOCITY_SIGMA_MPS", "RAW_N", "RAW_U", "RAW_E",
@@ -470,8 +471,10 @@ struct Parameters {
         const bool surface_known=fresh&&q.surface_sequence>0;
         gated(p,37,depression,surface_known);gated(p,38,beam.half_angle,surface_known);gated(p,39,beam.range_m,surface_known);
         p.setParamNumber(outputs[40],surface_known?beam.completes:-100);
-        gated(p,41,q.surface_service&&beam.surface_search?1:0,fresh);
+        gated(p,41,beam.surface_search?1:0,surface_known);
         gated(p,42,beam.surface_cells,surface_known);
+        gated(p,47,q.surface_discovery_sequence,surface_known);
+        gated(p,48,q.surface_discovery_work,surface_known);
     }
     void publish_interference(EDPARAM& p, const Status& q, bool fresh) noexcept {
         const bool known = fresh && q.interference.valid;

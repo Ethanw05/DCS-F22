@@ -53,6 +53,12 @@ struct View {
   double erase_sequence{};
   double probe_forward{},probe_right{},probe_up{};
 };
+inline bool refresh(const View& current, const View& previous, bool have_previous) {
+  // Geometry/UI changes can erase or reformat video; only completed RF work
+  // can authorize new scene pixels. Partial work must not be rounded away.
+  return !current.frozen && current.collection>0
+      && (!have_previous || current.collection!=previous.collection);
+}
 // Physics supplies this value snapshot. Render callbacks never read scene
 // objects or use the slower cockpit/INS coordinates as an antenna position.
 struct Aircraft {
@@ -116,7 +122,7 @@ inline View antenna(View v, const Aircraft &a, double now) {
 inline bool valid(const View &v, double now) {
   for (double x : {v.stamp, now, v.north, v.altitude, v.east, v.heading,
                    v.range_nm, v.width_deg, v.scan_direction, v.scan_fraction,
-                   v.gain, v.erase_sequence, v.center_m, v.span_m, v.antenna_offset, v.view_epoch,
+                   v.gain, v.collection, v.erase_sequence, v.center_m, v.span_m, v.antenna_offset, v.view_epoch,
                    v.patch_n,v.patch_u,v.patch_e,v.patch_az,v.patch_distance})
     if (!std::isfinite(x)) return false;
   return v.enabled && now >= v.stamp && now - v.stamp <= .5 &&

@@ -431,6 +431,10 @@ void Model::observe(double now, const Controls& c, const Pose& pose, Environment
         status_.surface_service = true;
         status_.surface_beam = status_.beam;
         status_.surface_beam.completes=now;
+        if (status_.beam.surface_search && status_.beam.surface_cells > 0) {
+            ++status_.surface_discovery_sequence;
+            status_.surface_discovery_work += 1.0 / status_.beam.surface_cells;
+        }
         const double heading=std::atan2(pose.forward.e,pose.forward.n);
         status_.surface_azimuth=std::remainder(std::atan2(status_.beam.direction.e,status_.beam.direction.n)-heading,2*pi);
         ++status_.surface_sequence; ++status_.dwells; status_.dwelling = false;

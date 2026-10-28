@@ -217,6 +217,7 @@ void surface_beams() {
         }
     }
     CHECK(received);
+    CHECK(radar.status().surface_discovery_sequence==0 && radar.status().surface_discovery_work==0);
     radar.reset();c.surface_request.point=false;
     double highest=-2,lowest=2;unsigned air=0,surface=0;
     for(unsigned tick=0;tick<15000;++tick){
@@ -232,6 +233,8 @@ void surface_beams() {
         CHECK(beam.surface_search && beam.surface_cells==308);
     }
     CHECK(surface>1000 && air>500 && highest>-5*degree && lowest<-55*degree);
+    CHECK(radar.status().surface_discovery_sequence==surface);
+    CHECK(std::abs(radar.status().surface_discovery_work-surface/308.0)<1e-9);
     radar.reset();c.surface_request.point=true;c.surface_request.routine=true;
     c.surface_request.direction={std::cos(17.5*degree)*std::cos(38.123*degree),
         -std::sin(17.5*degree),std::cos(17.5*degree)*std::sin(38.123*degree)};
@@ -245,6 +248,8 @@ void surface_beams() {
         }else{++search;CHECK(beam.surface_search && beam.surface_cells==308);}
     }
     CHECK(cues>20 && search>=3*cues-1 && search<=3*cues+3);
+    CHECK(radar.status().surface_discovery_sequence==search);
+    CHECK(std::abs(radar.status().surface_discovery_work-search/308.0)<1e-9);
 }
 }
 int main() {

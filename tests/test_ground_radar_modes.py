@@ -51,21 +51,24 @@ local before=s.model:point(s.pose,s.terrain)
 s:command('designate',1,true,10.1)
 close(g('F22_AG_DESIGNATION_NORTH'),before.north);close(g('F22_AG_DESIGNATION_EAST'),before.east)
 assert(s.model.range_nm==20,'designation did not fit a mode-valid range')
--- Collection counts only actual discovery jobs with a qualified volume size.
+-- Persistent RF work survives a missed pulse; pointed jobs add no work.
 do
  local values={F22_AG_RADAR_NATIVE_READY=1,F22_AG_GMT_READY=1}
  local function read(n)return values[n]or 0 end
  local function write(n,v)values[n]=v end
  local radar=dofile(SCRIPT_ROOT..'Systems/AG_Radar_System.lua').new(read,write,function()end)
- write('F22_AESA_SURFACE_SERVICE',1);write('F22_AESA_SURFACE_SEARCH',1)
- write('F22_AESA_SURFACE_SEQUENCE',1);radar:update(pose,10,.02,true,true)
- assert(radar.controls.units==0,'missing volume size created collection credit')
- write('F22_AESA_SURFACE_CELLS',16);write('F22_AESA_SURFACE_SEARCH',0)
- write('F22_AESA_SURFACE_SEQUENCE',2);radar:update(pose,10.02,.02,true,true)
+ local function sample(time,work,jobs)
+  write('F22_AESA_READY',1);write('F22_AESA_SEQUENCE',2);write('F22_AESA_GENERATION',1);write('F22_AESA_TIME',time)
+  write('F22_AESA_SURFACE_DISCOVERY_SEQUENCE',jobs);write('F22_AESA_SURFACE_DISCOVERY_WORK',work)
+  radar:update(pose,time,.02,true,true)
+ end
+ sample(10,0,0)
+ sample(10.02,0,0)
  assert(radar.controls.units==0,'a pointed ground job created discovery credit')
- write('F22_AESA_SURFACE_SEARCH',1);write('F22_AESA_SURFACE_SEQUENCE',3)
- radar:update(pose,10.04,.02,true,true);close(radar.controls.units,1/16)
- radar:update(pose,10.06,.02,true,true);close(radar.controls.units,1/16)
+ write('F22_AESA_SURFACE_SERVICE',0)
+ sample(10.04,3/308,3);close(radar.controls.units,3/308)
+ assert(read('F22_AG_VIDEO_COLLECTION')>0 and read('F22_AG_VIDEO_COLLECTION')<1,'partial RF work was rounded away')
+ sample(10.06,3/308,3);close(radar.controls.units,3/308)
 end
 -- Geometry readiness alone cannot authorize a pixel from the previous range.
 put('F22_AG_VIDEO_REFERENCE_SCHEMA',2);put('F22_AG_VIDEO_REFERENCE_VALID',1)
@@ -179,6 +182,7 @@ local function tick(time)
  p('F22_AESA_DRIVER_READY',1);p('F22_AESA_READY',1);p('F22_AESA_GENERATION',1)
  p('F22_AESA_TIME',now);p('F22_AESA_SEQUENCE',sequence*2)
  p('F22_AESA_SURFACE_SERVICE',1);p('F22_AESA_SURFACE_SEARCH',1);p('F22_AESA_SURFACE_CELLS',16);p('F22_AESA_SURFACE_SEQUENCE',sequence)
+ p('F22_AESA_SURFACE_DISCOVERY_SEQUENCE',sequence);p('F22_AESA_SURFACE_DISCOVERY_WORK',sequence/16)
  update()
 end
 SetCommand(10601,1);tick(10);assert(g('F22_AESA_CONTROL_EMIT')==1)

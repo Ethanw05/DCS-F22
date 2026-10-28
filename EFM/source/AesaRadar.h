@@ -120,6 +120,8 @@ struct Status {
     double cue_time = -100;
     std::uint32_t association_ambiguous{}, association_dropped{};
     Interference interference{};
+    std::uint32_t surface_discovery_sequence{};
+    double surface_discovery_work{};
 };
 class Model {
 public:
