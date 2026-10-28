@@ -8,7 +8,7 @@ file(GLOB_RECURSE f22_sources CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/sou
 file(GLOB_RECURSE f22_identity_headers CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/source/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
 set(f22_identity "${CMAKE_BINARY_DIR}/identity/$<CONFIG>/BuildIdentity.cpp")
-add_custom_command(OUTPUT "${f22_identity}"
+add_custom_target(f22_native_identity
     COMMAND "${CMAKE_COMMAND}"
         "-DNATIVE_ROOT=${CMAKE_CURRENT_SOURCE_DIR}"
         "-DOUTPUT=${f22_identity}"
@@ -16,11 +16,14 @@ add_custom_command(OUTPUT "${f22_identity}"
         "-DCOMPILER=${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}"
         "-DCONFIGURATION=$<CONFIG>"
         -P "${CMAKE_SOURCE_DIR}/tools/build_identity.cmake"
+    BYPRODUCTS "${f22_identity}"
     DEPENDS ${f22_sources} ${f22_identity_headers} "${CMAKE_CURRENT_LIST_FILE}"
         "${CMAKE_SOURCE_DIR}/tools/build_identity.cmake" "${CMAKE_BINARY_DIR}/CMakeCache.txt"
     VERBATIM)
 
+set_source_files_properties("${f22_identity}" PROPERTIES GENERATED TRUE)
 add_library(f22 SHARED ${f22_sources} "${f22_identity}")
+add_dependencies(f22 f22_native_identity)
 target_include_directories(f22 PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_compile_definitions(f22 PRIVATE _USE_MATH_DEFINES NOMINMAX)
 

@@ -1,6 +1,7 @@
 """Read exported identity as bounded PE data, without executing native code."""
 from pathlib import Path
 import struct
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -8,7 +9,7 @@ from host import ROOT
 
 sys.path.insert(0, str(ROOT / 'tools'))
 from native_identity import exported_identity
-from package_identity import identity_matches
+from package_identity import identity_matches, native_source_digest
 
 
 def image(token):
@@ -30,6 +31,32 @@ def image(token):
 
 
 class BuildIdentity(unittest.TestCase):
+    def test_cmake_and_independent_manifest_agree_on_exact_bytes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'EFM/source').mkdir(parents=True)
+            (root / 'EFM/include').mkdir()
+            (root / 'tools').mkdir()
+            generator = root / 'tools/build_identity.cmake'
+            generator.write_bytes((ROOT / 'tools/build_identity.cmake').read_bytes())
+            (root / 'EFM/CMakeLists.txt').write_bytes(b'# fixture\r\n')
+            source = root / 'EFM/source/owner.cpp'
+            source.write_bytes(b'int fixture;\r\n')
+            cache = root / 'cache'
+            cache.write_bytes(b'configuration=fixture\n')
+            output = root / 'identity.cpp'
+            def generate():
+                subprocess.run(['cmake', '-DNATIVE_ROOT=' + str(root / 'EFM'),
+                    '-DOUTPUT=' + str(output), '-DBUILD_CACHE=' + str(cache),
+                    '-DCOMPILER=fixture', '-DCONFIGURATION=Release', '-P', str(generator)],
+                    check=True, capture_output=True, timeout=30)
+                text = output.read_text()
+                self.assertIn('source=' + native_source_digest(root) + '|', text)
+                return text
+            first = generate()
+            source.write_bytes(b'int changed;\n')
+            self.assertNotEqual(generate(), first)
+
     def read(self, data):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'image.dll'
