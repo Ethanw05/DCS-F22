@@ -42,6 +42,9 @@ struct Fixture {
     void (*fuel)(double) = nullptr;
     void (*refuel)(double) = nullptr;
     double (*getfuel)() = nullptr;
+    void (*external)(int,double,double,double,double) = nullptr;
+    double (*getexternal)() = nullptr;
+    void (*suspension)(int,const ed_fm_suspension_info*) = nullptr;
     void (*unlimited)(bool) = nullptr;
     void (*atmosphere)(double,double,double,double,double,double,double,double) = nullptr;
     void (*surface)(double,double,unsigned,double,double,double) = nullptr;
@@ -79,6 +82,9 @@ struct Fixture {
         fuel = load<decltype(fuel)>(fm, "ed_fm_set_internal_fuel");
         refuel = load<decltype(refuel)>(fm, "ed_fm_refueling_add_fuel");
         getfuel = load<decltype(getfuel)>(fm, "ed_fm_get_internal_fuel");
+        external = load<decltype(external)>(fm, "ed_fm_set_external_fuel");
+        getexternal = load<decltype(getexternal)>(fm, "ed_fm_get_external_fuel");
+        suspension = load<decltype(suspension)>(fm, "ed_fm_suspension_feedback");
         unlimited = load<decltype(unlimited)>(fm, "ed_fm_unlimited_fuel");
         atmosphere = load<decltype(atmosphere)>(fm, "ed_fm_set_atmosphere");
         surface = load<decltype(surface)>(fm, "ed_fm_set_surface");
@@ -564,6 +570,80 @@ void pitch_and_yaw_keyboard_release(Fixture& fixture) {
         }
     }
 }
+
+void utility_frame(Fixture& f, double right, bool tank, double inventory_stamp) {
+    f.set("F22_HYD_DEMAND_VALID",0);
+    f.set("F22_HYD_DEMAND_SCHEMA",1);
+    f.set("F22_HYD_DEMAND_GENERATION",f.get("EFM_PHYSICAL_GENERATION"));
+    f.set("F22_HYD_DEMAND_STAMP",f.get("F22_AP_CLOCK"));
+    f.set("F22_HYD_DEMAND_SEQUENCE",f.get("F22_HYD_DEMAND_SEQUENCE")+1);
+    f.set("F22_L_HYD_LOAD",0); f.set("F22_R_HYD_LOAD",right);
+    f.set("F22_FUEL_INVENTORY_VALID",1); f.set("F22_FUEL_INVENTORY_STAMP",inventory_stamp);
+    f.set("F22_LEFT_TANK_INSTALLED",tank?1:0); f.set("F22_RIGHT_TANK_INSTALLED",0);
+    f.set("F22_HYD_DEMAND_VALID",1);
+}
+
+void tank_identity_and_demand(Fixture& f) {
+    f.release(); f.hot(); f.fuel(8200); f.unlimited(true); f.conditions(0); f.ticks(1);
+    f.external(2,0,-.21,-.9,-1.487); // empty-at-install is not removal
+    f.refuel(100); assert(f.getexternal()==0); // no invented installation identity
+    f.ticks(1);
+    utility_frame(f,0,true,f.get("F22_AP_CLOCK")); f.ticks(1);
+    f.refuel(100); assert(f.getexternal()==100);
+    assert(std::abs(f.drain_mass()+100)<1e-9);
+    f.external(2,0,0,0,0); // zero quantity does not discard the known tank
+    f.ticks(1); utility_frame(f,0,true,f.get("F22_AP_CLOCK")); f.ticks(1);
+    f.refuel(50); assert(f.getexternal()==50);
+    assert(std::abs(f.drain_mass()+50)<1e-9);
+    for (int index=0; index<100; ++index) {
+        utility_frame(f,1,true,f.get("F22_AP_CLOCK")); f.ticks(1);
+    }
+    const double loaded=f.get("EFM_HYD_RIGHT_PSI");
+    assert(loaded<3700 && f.get("EFM_HYD_LEFT_PSI")>3900);
+    f.ticks(150); assert(f.get("EFM_HYD_RIGHT_PSI")>3900); // stale demand expires
+    utility_frame(f,0,false,f.get("F22_AP_CLOCK")); f.ticks(1);
+    assert(f.getexternal()==0 && f.drain_mass()==0); // host owns jettison mass
+    f.refuel(100); assert(f.getexternal()==0 && f.drain_mass()==0);
+    f.external(2,100,-.21,-.9,-1.487); f.ticks(1);
+    assert(f.getexternal()==100); // old absent inventory cannot erase a new loadout
+    f.external(-1,100,0,0,-2); f.external(16,100,0,0,2);
+    assert(f.getexternal()==100);
+}
+
+void brake_force_and_thermal_path(Fixture& f) {
+    f.release(); f.hot(); f.fuel(5000); f.unlimited(true); f.conditions(70);
+    f.surface(3000,0,0,0,1,0);
+    f.ticks(1500); // settle engines/actuators before comparing pedal effects
+    ed_fm_suspension_info wheel{};
+    wheel.struct_compression=.1; wheel.acting_force[1]=150000;
+    wheel.acting_force_point[0]=-1; wheel.acting_force_point[1]=-2;
+    f.suspension(1,&wheel); f.suspension(2,&wheel); f.ticks(1);
+    double before=0,fy=0,fz=0,x=0,y=0,z=0,after=0;
+    f.force(before,fy,fz,x,y,z);
+    f.command(74,1); f.ticks(1); f.force(after,fy,fz,x,y,z);
+    assert(std::abs(after-before)<1); // braking cannot invent aerodynamic drag
+    assert(f.parameter(ED_FM_SUSPENSION_1_RELATIVE_BRAKE_MOMENT)>.99);
+    for (int index=0; index<3000; ++index) {
+        f.suspension(1,&wheel); f.suspension(2,&wheel); f.ticks(1);
+    }
+    assert(f.get("EFM_L_BRAKE_TEMP_EST_C")>450);
+    assert(f.parameter(ED_FM_SUSPENSION_1_RELATIVE_BRAKE_MOMENT)<.9);
+    const double work=f.get("EFM_L_BRAKE_WORK_UPPER_J");
+    f.ticks(100); // feedback loss cannot leave a wheel heater latched
+    assert(f.get("EFM_L_BRAKE_WORK_UPPER_J")>=work);
+    const double expired=f.get("EFM_L_BRAKE_WORK_UPPER_J");
+    f.ticks(100); assert(f.get("EFM_L_BRAKE_WORK_UPPER_J")==expired);
+    f.command(75,1); f.conditions(0); f.ticks(30000);
+    assert(f.get("EFM_L_TIRE_FAILED")==1 && f.needs_repair());
+    const double heat=f.get("EFM_L_BRAKE_TEMP_EST_C");
+    f.conditions(30); f.surface(3000,0,0,0,1,0); f.ticks(1);
+    f.force(before,fy,fz,x,y,z);
+    wheel.acting_force_point[2]=-1.5;
+    f.suspension(1,&wheel); f.ticks(1); f.force(after,fy,fz,x,y,z);
+    assert(after < before-8000); // failed tire adds a physical contact force
+    f.repair(); f.ticks(1);
+    assert(f.get("EFM_L_TIRE_FAILED")==0 && f.get("EFM_L_BRAKE_TEMP_EST_C")>heat-1);
+}
 } // namespace
 
 int main(int argc, char** argv) {
@@ -588,5 +668,7 @@ int main(int argc, char** argv) {
     held_roll_input_ownership(fixture);
     held_pitch_and_yaw_ownership(fixture);
     pitch_and_yaw_keyboard_release(fixture);
+    tank_identity_and_demand(fixture);
+    brake_force_and_thermal_path(fixture);
     std::cout << "vehicle DLL: cold/APU/start, burn/mass, feed/repair, sensor truth, limits and lifecycle OK\n";
 }

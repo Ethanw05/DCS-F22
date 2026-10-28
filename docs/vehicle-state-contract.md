@@ -25,14 +25,14 @@ are not counted as demonstrated errors.
 | --- | --- |
 | VEH-01 lifecycle | Single ownership and bounded updates; corrected release outputs/queue. Host ordering/thread behavior remains unqualified. |
 | VEH-02 air data | SFTE relationships and separate sensed health; Nz, probe heat and icing remain unconfirmed. |
-| VEH-03 fuel/mass | Feed/transfer roles and delivered-kg ledger; empty-at-install tanks, native MOI and SES bottle mass accounting remain incomplete. |
+| VEH-03 fuel/mass | Feed/transfer ledger and qualified native carriage adapter for empty/removed tanks; native callback ordering, MOI and SES bottle mass remain unqualified. |
 | VEH-04 power/APU/SES | Finite sources and analogue shutdown policy; corrected live GPU sampling. Full consumer loads, AC topology and APU-door integration remain incomplete. |
 | VEH-05 engines | Separate starter/fuel/ignition, dry crank, no-light/hot/hung protection, logical control failures and guarded recovery now implemented; production limits, fire isolation topology and nozzle supply remain open. See [engine profile](engine-start-profile.md). |
 | VEH-06 hydraulics | Four pumps, inventories, APU and tow-service abstractions; full consumer routing and bay/gun demand remain incomplete. |
 | VEH-07 FCS | Historical surface groups and pitch-priority allocation; selectable single-engine law, weight-aware bounds and resettable FCS faults remain incomplete. |
 | VEH-08 performance | Fixed force locations, wind invariance and table continuation; sustained calibration and native ground effect/store drag/MOI remain unqualified. |
 | VEH-09 gear/NWS/hook | Common guards and finite emergency/hook requests; scalar locks do not establish individual leg/door behavior or cable capture. |
-| VEH-10 brakes | Parking and pressure reserve; deceleration controller, stop-assist replacement, heat soak/fade and tire consequences are not implemented. |
+| VEH-10 brakes | Native wheel braking, estimated heat/soak/fade and persistent tire resistance replace artificial drag; native slip/deceleration and runway thermal calibration remain unqualified. |
 | VEH-11 ECS | Causal cooling/cabin/fog estimates; native seal/visibility and actual equipment loads remain incomplete. |
 | VEH-12 oxygen | Historical versus modern source behavior; corrected manual selection and independent backup. Capacity, production schedule and SDK response remain unqualified. |
 | VEH-13 canopy/escape | Native ownership preserved; hold/lock/no-power/escape behavior remains uncharacterized. |
@@ -127,10 +127,10 @@ array. The exact channel list is [VehicleSignals.h](../EFM/source/VehicleSignals
 | Mass properties | Host current-mass callback | `EFM_MASS_VALID`, `EFM_MASS_KG`, `EFM_CG_X_M/Y_M/Z_M`, `EFM_INERTIA_X_KGM2/Y_KGM2/Z_KGM2`; x forward/roll, y up/yaw, z right/pitch. Inertia is retained, not supplemented with an unqualified second contribution. |
 | Engines | Unified guarded start/stop commands | `EFM_L/R_ENGINE_PHASE`: 0 OFF, 1 CRANKING, 2 LIGHTING, 3 ACCELERATING, 4 RUNNING, 5 SHUTTING_DOWN, 6 WINDMILLING. `EFM_L/R_START_REJECTION`: 0 none, 1 fuel, 2 power, 3 starter, 4 damage, 5 isolation. Existing core/fan, oil, temperature, thrust and nozzle exports remain. |
 | Engine indications | Physical snapshot, `EFM_ENGINE_INDICATION_SCHEMA=1`, engine/vehicle validity | `EFM_ENGINE_LEFT/RIGHT_FLOW_KG_S` is actual delivered combustion flow, matching the SDK fuel-flow callbacks. `Engine_Data` admits each RPM/temperature/oil/nozzle/flow/circuit field independently; Avionics invokes the sole `Engine_Indications` UI producer. Unsupported, incomplete, stale or out-of-range data displays `---` and withdraws the corresponding gauge geometry. No base-engine substitution or RPM-derived pressure/nozzle model remains. |
-| Hydraulics | Four pump statuses, APU, circuit leak faults, local and declared bay/gun demand | Existing left/right psi and actuator authority; `EFM_L/R_HYD_PUMP_1/2`, `EFM_L/R_HYD_INVENTORY` normalized, `EFM_BRAKE_RESERVE` normalized stored pressure. `F22_HYD_DEMAND_VALID` qualifies `F22_L/R_HYD_LOAD` 0..1 from integration. Circuit inventories are independent. |
+| Hydraulics | Four pumps, APU, circuit leaks, gear and achieved bay/gun demand | Left/right psi, pump/inventory and reserve states. Schema 1 demand carries current generation, sequence, spawn-relative stamp and VALID; <=0.25 s age. Circuit inventories remain independent. See the profile below. |
 | FCS/configuration | Achieved gear and receptacle door; existing stick/trim | `EFM_FCS_CONFIGURATION`: 0 cruise, 1 approach, 2 refuel. `EFM_SINGLE_ENGINE_APPROACH` identifies one-engine approach eligibility, not adoption of the 1998 selectable law. `EFM_APPROACH_AOA_DEG=12` retains the normal reference. Trim remains dimensionless ±0.2; achieved surface/vector fields remain degrees. |
 | Gear/NWS/hook | Existing gear requests, new physical commands | `EFM_GEAR_REJECTION`: 0 accepted, 1 WOW, 2 estimated overspeed, 3 source, 4 alternate latched, 5 invalid air data; GEAR_UNSAFE, DOWN_LOCKED/UP_LOCKED scalar proxies, ALTERNATE_GEAR, NWS_SELECTED, HOOK_POSITION. Independent leg locks and cable arrestment remain unqualified. |
-| Brakes | Independent normalized wheel requests and native anti-skid | Actual relative brake moments remain pressure-qualified. `EFM_PARK_HELD` differs from `F22_PARK_REQUEST`; repeated set/release is idempotent. TEMP_EST_C and WORK_UPPER_J are diagnostic demand-based estimates, not measured work or qualified fade. Native wheel limiting remains sole anti-skid authority. |
+| Brakes | Independent pressure/thermal-qualified wheel requests and native anti-skid | `EFM_PARK_HELD` differs from `F22_PARK_REQUEST`. Estimated disc/tire temperatures, effectiveness and persistent tire failure now affect wheel torque/rolling resistance. WORK_UPPER_J remains an envelope, not measured anti-skid work. Native wheel limiting is sole anti-skid authority. |
 | ECS/oxygen | Selected engine bleed, ground APU, source faults, canopy provider | `EFM_ENVIRONMENT_VALID`, CABIN_ABSOLUTE_PA/OVERPRESSURE_PA, CONDITIONED_AIR_AVAILABLE, OBOGS_AVAILABLE, OXYGEN_BACKUP_ACTIVE/RESERVE/DELIVERY_PA, EQUIPMENT/COOLANT/FUEL_TEMP_C, THERMAL_FAULT, CANOPY_FOG. SDK cabin increment is withheld until native canopy validity exists. Healthy SDK oxygen baseline remains 101000 Pa pending host response characterization; source/reserve outputs do not claim clinical effects. |
 | Fire | Planned fire producer, isolation, separate discharge | `EFM_L/R_FIRE_DETECTED/ISOLATED`, FIRE_BOTTLE_AVAILABLE, FIRE_DISCHARGE_ATTEMPT. Isolation removes fuel, generator and bleed paths. Discharge consumes the estimated single inventory and does not prove extinction. |
 | AUX-01 | Integration: `F22_REFUEL_DOOR_REQUEST/DISCONNECT_REQUEST` | Achieved `EFM_REFUEL_DOOR_POSITION`, READY, TRANSFER. Transfer means an accepted host fuel delta in the last 0.5 s, including ground service; it never establishes tanker contact. Native contact/door argument mapping remains with integration. |
@@ -143,9 +143,11 @@ capacity is 8200 kg. The 1000/1500/1500/900/900/900/750/750 kg split, positions,
 40 kg/s transfer bound, normalized boost/pressurization and 100 kg feed-low
 threshold are **estimates**, not recovered hardware values. No inconsistent
 rescue-table capacity is adopted. External-first transfer is proportional across
-up to 16 host-reported installed stations. A zero station callback retains its
-legacy removal meaning; initially empty installation identity still requires a
-separate observed host adapter. A tank emptied by consumption remains installed.
+up to 16 host-reported stations. Zero contents preserve tank identity; current
+native wing inventory distinguishes empty carriage from explicit removal.
+Refill requires confirmed current installation. Stale pre-rearm observations
+cannot erase a new loadout. Details and calibration limits are in the
+[brake/fuel/hydraulic profile](brake-fuel-hydraulic-profile.md).
 
 Transfers atomically queue opposite fixed-position mass deltas; burn/refill queue
 only delivered/accepted mass. The fixed 64-slot ledger coalesces positions and

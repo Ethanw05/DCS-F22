@@ -4,7 +4,7 @@
   "base": "c5ebbcc309061b2edf0bed5e9df8678adf73684a",
   "contract": "../vehicle-state-contract.md",
   "release_qualified": false,
-  "runtime": "DCS flight tests excluded by the user's later instruction; installed mod and running simulator untouched",
+  "runtime": "DCS flight tests excluded by the user; completed changes require coordinated installation into the normal mod. Source/DLL checks do not qualify native runway behavior.",
   "packages": [
     {
       "id": "VEH-01",
@@ -72,7 +72,7 @@
     },
     {
       "id": "VEH-03",
-      "status": "estimated feed/transfer and conserved mass model implemented; host installation/MOI open",
+      "status": "fuel/mass boundaries and native tank-carriage adapter implemented; host ordering/MOI qualification open",
       "implemented": [
         "3 feed and 5 transfer cells with explicitly estimated splits and positions",
         "hydraulic boost and bleed/electrical transfer dependence",
@@ -80,10 +80,13 @@
         "atomic mass-neutral transfers and actual burn/refill ledger",
         "main-engine/start/augmentation/APU consumption",
         "unlimited-fuel current flow",
-        "independent feed low, availability and adjustable bingo"
+        "independent feed low, availability and adjustable bingo",
+        "finite nonnegative transaction guards, cancellation capacity reclamation and overflow refusal",
+        "initially empty versus removed tanks from fresh generation-qualified native wing inventory; physical-side SDK mapping",
+        "refill requires current confirmed carriage; older pre-rearm inventory cannot erase a new host callback; removal is not debited twice"
       ],
       "remaining": [
-        "initially empty installed tank versus zero removal host evidence",
+        "qualify actual DCS empty-at-install callbacks and store/refuel ordering; native MOI and source-supported geometry remain unresolved",
         "DCS inertia contribution and source-supported cell geometry",
         "cockpit warning/audio adoption",
         "SES bottle kg/capacity and recharge mass mapping; normalized start-fuel is not a separately balanced mass ledger"
@@ -98,7 +101,7 @@
           "VS18"
         ],
         "checked_paths": "FuelSystem/MassLedger, burn/refill/transfer callbacks",
-        "finding": "Cell roles and aggregate capacity have public anchors; splits/positions/rates are estimates. Burn/refill/transfer conserve modeled kg. Empty-at-install station identity, host MOI and SES bottle kg/recharge mass accounting remain incomplete.",
+        "finding": "Fuel callbacks/ledger now reject invalid mutations and track current tank carriage separately from contents. Estimated feed roles and fixed-position mass conservation remain; actual empty-at-install callback ordering, native MOI and SES bottle kg require host/source qualification.",
         "task_verdicts": {
           "VEH-03.01": "partial",
           "VEH-03.02": "partial",
@@ -215,17 +218,18 @@
     },
     {
       "id": "VEH-06",
-      "status": "four-pump and finite hydraulic abstractions implemented; schematic detail open",
+      "status": "achieved bay/gun demand connected to timed hydraulic capacity response; production routing incomplete",
       "implemented": [
         "four main pump statuses and lower-capacity APU source",
         "independent circuit pressure, inventory and demand response",
         "normal utility supply distinct from ground maintenance transfer",
-        "separate brake application reserve and tow/hand-pump service"
+        "separate brake application reserve and tow/hand-pump service",
+        "schema/generation/sequence/time-qualified weapon door travel and expended-round load; stale/rearm withdrawal and maintenance source routing"
       ],
       "remaining": [
         "complete production consumer routing",
-        "integrated bay/gun demand adapter",
-        "actual valve/flow and nozzle supply evidence"
+        "actual valve/flow and nozzle supply evidence",
+        "gun dry spin-up/coast-down is not measured; expended-round demand is a declared estimate"
       ],
       "resource_review": {
         "sources": [
@@ -234,7 +238,7 @@
           "VS18"
         ],
         "checked_paths": "Hydraulics and source/demand/utility adapters",
-        "finding": "Four pump statuses, two inventories, APU source and tow service follow the supported architecture. Logical side routing, flow response and shared FCS feed are estimates; bay/gun demand and full consumer routing are not connected.",
+        "finding": "Eaton hydraulic bay/gun and maintenance-switch passages re-read. Achieved motion and confirmed magazine decrements now load the selected utility circuit with timed capacity recovery. Flow weights, logical side mapping and complete production schematic remain estimates.",
         "task_verdicts": {
           "VEH-06.01": "implemented_source_limited",
           "VEH-06.02": "partial",
@@ -358,17 +362,18 @@
     },
     {
       "id": "VEH-10",
-      "status": "brake ownership/reserve corrections implemented; native controller/thermal replacement open",
+      "status": "artificial stopping drag replaced by native wheel torque with estimated heat/soak/fade and tire effects; runway calibration open",
       "implemented": [
         "independent pressure-qualified wheel requests",
         "idempotent parking set/release with distinct achieved hold",
         "application/leak reserve separated from rolling heat",
-        "bounded diagnostic work/temperature upper estimate and raw suspension wheel sample"
+        "estimated two-node disc/tire heat soak and cooling, continuous thermal torque fade, persistent tire damage with incremental contact resistance and heat-preserving repair",
+        "removed synthetic +0.60 aero stopping drag and hidden brake-assist draw override",
+        "fresh per-wheel contact loading bounds work; stale/unloaded/rest samples cannot heat brakes; native anti-skid remains sole slip owner"
       ],
       "remaining": [
-        "native wheel-speed units, anti-skid/deceleration and heat/fade ownership",
-        "validated torque/controller replacement before removal of legacy 0.60 stop assist",
-        "actual heat soak, fade and tire consequences"
+        "qualify native wheel-speed units, anti-skid/deceleration and hidden thermal behavior in DCS",
+        "DCS dry/wet stopping and thermal calibration; no native burst/mesh/pressure interface is claimed"
       ],
       "resource_review": {
         "sources": [
@@ -379,7 +384,7 @@
           "SDK"
         ],
         "checked_paths": "Hydraulic brake reserve, parking input, BrakeEnergy and SDK anti-skid",
-        "finding": "Application reserve and idempotent parking are implemented. Diagnostic heat adds no force. The deceleration/slip controller, replacement for legacy +0.60 stop assist, actual fade/heat soak and tire consequences are not implemented pending native characterization.",
+        "finding": "F-22 post-stop heat hazard, ED Hornet anti-skid/reserve and Viper taxi-heating passages rechecked. SDK exposes brake torque/contact and native anti-skid, no thermal/tire parameter. Implemented estimated disc/tire heat, fade and physical tire rolling consequence without a second slip controller; actual DCS stopping and heat calibration remain unqualified.",
         "task_verdicts": {
           "VEH-10.01": "host_qualification_pending",
           "VEH-10.02": "not_implemented",
@@ -703,5 +708,14 @@
     "physical_owner": "Power and engine indication substitutions/duplicate integrators removed. Continue the remaining fuel-quantity, FCS/cabin indication contracts and unfinished physical work items",
     "preserve": "Saved controls, preferred HUD, recorded audio, current DCS Lua5.1/ABI and native capability guards",
     "status": "Power and engine reader/indication/transport cutovers implemented in source; integration/runtime qualification and other assigned work remain"
+  },
+  "brake_fuel_hydraulic_followthrough": {
+    "profile": "../brake-fuel-hydraulic-profile.md",
+    "validation": [
+      "asserted Debug vehicle_physical_contract and actual DLL vehicle_overhaul_callbacks",
+      "Lua 5.1 Vehicle_Stores_Adapter and actual Weapon_System physical-consumer workflows",
+      "MSVC /W4 /analyze; Lua lint with no new findings"
+    ],
+    "host_runway_qualified": false
   }
 }

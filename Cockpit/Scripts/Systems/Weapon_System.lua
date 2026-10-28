@@ -200,6 +200,8 @@ local function reset_ir_feedback()
 end
 local ag_stores=dofile(LockOn_Options.script_path..'Systems/AG_Stores.lua').new()
 local physical_supply = dofile(LockOn_Options.script_path..'Systems/Weapon_Physical_State.lua').new()
+local vehicle_stores = dofile(LockOn_Options.script_path..'Systems/Vehicle_Stores_Adapter.lua').new()
+local vehicle_inventory_stamp = -1
 physical_supply:update()
 local physical_outputs = {}
 for _, name in ipairs({'OWNER', 'VALID', 'GENERATION', 'STAMP'}) do
@@ -369,6 +371,7 @@ local function choose_station(native,step)
         if ok then infos[i]=info end
     end
     station_infos=infos
+    vehicle_inventory_stamp = physical_supply.valid and physical_supply.stamp or -1
     ag_stores:refresh(infos)
     acknowledge_release(type(get_model_time)=='function'and get_model_time()or diagnostic_clock)
     local group=ag_stores:group()
@@ -1041,6 +1044,9 @@ function update()
         end
         parameters.HUD_GUN_READY:set(can_fire_gun and 1 or 0)
         parameters.HUD_GUN_TRIGGER:set(gun_command_active and 1 or 0)
+
+    vehicle_stores:update(physical_supply, update_time_step, station_infos,
+        native_ready, ag_stores.servicing, vehicle_inventory_stamp)
 
 	parameters.BAY_C_ARG:set(bay_door_pos)
 	parameters.BAY_L_ARG:set(left_door_pos)

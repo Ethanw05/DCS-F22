@@ -63,6 +63,7 @@ static RaptorVehicle::Hydraulics hydraulics;
 static double actuator_available = 0;
 static RaptorVehicle::VehicleContext vehicle;
 static RaptorVehicle::VehicleBus vehicle_bus;
+void add_local_force(const Vec3& force, const Vec3& position);
 #include "VehicleIntegration.h"
 // Read-only diagnostics: never used as flight-control inputs.
 struct TrimTelemetry {
@@ -163,6 +164,7 @@ void reset_fm_state() {
     RAPTOR::suspension_feedback_available = false;
     vehicle.mass.clear();
     vehicle.damage.clear();
+    for (auto& [station, stamp] : RAPTOR::external_fuel_callback_stamp) stamp = 0.0;
     // Host fuel callbacks may precede spawn callbacks; release owns removal.
     RAPTOR::total_fuel = RAPTOR::internal_fuel + RAPTOR::external_fuel;
     RAPTOR::left_fuel_rate = RAPTOR::right_fuel_rate = 0.0;
@@ -180,6 +182,7 @@ void reset_fm_state() {
     RAPTOR::left_brake_achieved = RAPTOR::right_brake_achieved = 0.0;
     RAPTOR::flap_override = -1;
     RAPTOR::body_air_velocity = Vec3();
+    RAPTOR::body_ground_velocity = Vec3();
     RAPTOR::airbrake_pos = RAPTOR::flaps_pos = RAPTOR::slats_pos = 0;
     RAPTOR::takeoff_trim_cmd = 0;
     hydraulics.reset(false);
@@ -293,8 +296,10 @@ static void simulate_vehicle_step(double dt) {
         brake_demand, std::hypot(RAPTOR::velocity_world.x, RAPTOR::velocity_world.z), dt);
     actuator_available = control_power && !RAPTOR::is_destroyed ? hydraulics.shared() : 0;
     vehicle_transfer_fuel(dt);
-    RAPTOR::left_brake_achieved = std::max(RAPTOR::wheel_brake, RAPTOR::left_brake_request) * hydraulics.brakes();
-    RAPTOR::right_brake_achieved = std::max(RAPTOR::wheel_brake, RAPTOR::right_brake_request) * hydraulics.brakes();
+    RAPTOR::left_brake_achieved = std::max(RAPTOR::wheel_brake, RAPTOR::left_brake_request) *
+        hydraulics.brakes() * vehicle.left_brake.effectiveness();
+    RAPTOR::right_brake_achieved = std::max(RAPTOR::wheel_brake, RAPTOR::right_brake_request) *
+        hydraulics.brakes() * vehicle.right_brake.effectiveness();
     trim_control.update(dt,control_power && !RAPTOR::is_destroyed);
     RAPTOR::pitch_trim=trim_control.pitch;
     RAPTOR::roll_trim=trim_control.roll;
@@ -410,14 +415,6 @@ static void simulate_vehicle_step(double dt) {
     double q = 0.5 * RAPTOR::atmosphere_density * RAPTOR::V_scalar * RAPTOR::V_scalar;
     double Lift = Cy + FM_DATA::Cy0 + (FM_DATA::cy_flap * RAPTOR::flaps_pos);
     double aos_effect = (fabs(RAPTOR::aos) < 0.05) ? 0 : sin(RAPTOR::aos / 2);
-
-    if (RAPTOR::on_ground && RAPTOR::ground_speed_knots > 30.0 && std::min(RAPTOR::left_brake_achieved, RAPTOR::right_brake_achieved) > 0.7) {
-        RAPTOR::landing_brake_assist = limit(actuator_timed(RAPTOR::landing_brake_assist, 1.0, -1.3333333333, 1.1666666667, dt), 0.0, 1.0);
-        Drag += 0.60;
-    }
-    else {
-        RAPTOR::landing_brake_assist = limit(actuator_timed(RAPTOR::landing_brake_assist, 0.0, -1.3333333333, 1.1666666667, dt), 0.0, 1.0);
-    }
 
     // Drag opposes the actual body-axis relative wind continuously, including
     // backward flight. Do not flip a scalar sign at an arbitrary AoA boundary.
@@ -876,6 +873,16 @@ void ed_fm_suspension_feedback(int idx, const ed_fm_suspension_info* info) {
         auto& brake = idx == 1 ? vehicle.left_brake : vehicle.right_brake;
         brake.wheel_sample_valid = std::isfinite(info->wheel_speed_X);
         brake.wheel_speed_raw = RaptorVehicle::finite(info->wheel_speed_X);
+        const bool contact_valid = RaptorVehicle::bounded_three(info->acting_force[0],
+            info->acting_force[1], info->acting_force[2], 2000000.0) &&
+            RaptorVehicle::bounded_three(info->acting_force_point[0],
+                info->acting_force_point[1], info->acting_force_point[2], 20.0);
+        brake.contact_stamp_s = contact_valid ? vehicle.time_s : -1.0;
+        // Reaction magnitude bounds the heat envelope; no undocumented wheel
+        // speed conversion or assumption about the force vector's frame.
+        brake.normal_force_n = contact_valid && info->struct_compression > 0.001 ?
+            std::hypot(info->acting_force[0], info->acting_force[1], info->acting_force[2]) : 0.0;
+        if (contact_valid) std::copy_n(info->acting_force_point, 3, brake.contact_m.begin());
     }
     RAPTOR::suspension_feedback_available = true;
     RAPTOR::suspension_compression[static_cast<size_t>(idx)] =
@@ -935,6 +942,8 @@ void ed_fm_set_current_state_body_axis(double ax, double ay, double az, double v
         return;
     }
     vehicle.raw_body_ay_mps2 = ay;
+    RAPTOR::body_ground_velocity = Vec3(RaptorVehicle::finite(vx),
+        RaptorVehicle::finite(vy), RaptorVehicle::finite(vz));
     RAPTOR::body_air_velocity = Vec3(RaptorVehicle::finite(vx - wind_vx),
         RaptorVehicle::finite(vy - wind_vy), RaptorVehicle::finite(vz - wind_vz));
     RAPTOR::aoa = RaptorVehicle::finite(common_angle_of_attack);
@@ -1090,7 +1099,8 @@ bool ed_fm_change_mass(double& delta_mass, double& delta_mass_pos_x, double& del
 }
 
 void ed_fm_set_internal_fuel(double fuel) {
-    vehicle.fuel.set_internal(std::clamp(RaptorVehicle::finite(fuel), 0.0, RAPTOR::max_internal_fuel));
+    if (!std::isfinite(fuel) || fuel < 0.0) return;
+    vehicle.fuel.set_internal(std::min(fuel, RAPTOR::max_internal_fuel));
     RAPTOR::internal_fuel = vehicle.fuel.internal_kg();
     RAPTOR::total_fuel = RAPTOR::internal_fuel + RAPTOR::external_fuel;
 }
@@ -1100,19 +1110,21 @@ double ed_fm_get_internal_fuel() {
 }
 
 void ed_fm_set_external_fuel(int station, double fuel, double x, double y, double z) {
-    // Zero means removal until the host adapter supplies distinct installation
-    // identity. Burning to empty never erases a tracked station.
-    if (!std::isfinite(fuel) || !std::isfinite(x) || !std::isfinite(y) || !std::isfinite(z)) return;
-    if (fuel > 0.0 && RAPTOR::external_fuel_stations.find(station) ==
+    // Quantity is not installation identity. Removal comes from current native
+    // wing inventory. The host owns absolute loadout mass changes, not this ledger.
+    if (station < 0 || station >= 16 || !std::isfinite(fuel) || fuel < 0.0 ||
+        !RaptorVehicle::bounded_three(x, y, z, 20.0)) return;
+    const bool known = RAPTOR::external_fuel_stations.contains(station);
+    if (!known && fuel == 0.0 && std::abs(z) < 0.1) return;
+    if (RAPTOR::external_fuel_stations.find(station) ==
         RAPTOR::external_fuel_stations.end() && RAPTOR::external_fuel_stations.size() >= 16) return;
     fuel = std::clamp(fuel, 0.0, RaptorVehicle::external_tank_capacity_kg);
-    if (fuel > 0.0) {
-        RAPTOR::external_fuel_stations[station] = fuel;
+    RAPTOR::external_fuel_stations[station] = fuel;
+    RAPTOR::external_fuel_callback_stamp[station] = vehicle.time_s;
+    if (!known || fuel > 0.0) {
         RAPTOR::external_fuel_positions[station] = Vec3(x, y, z);
-    } else {
-        RAPTOR::external_fuel_stations.erase(station);
-        RAPTOR::external_fuel_positions.erase(station);
     }
+    if (!known || fuel > 0.0) RAPTOR::external_tank_refill_allowed[station] = fuel > 0.0;
     RAPTOR::external_tanks_equipped = !RAPTOR::external_fuel_stations.empty();
     RAPTOR::external_fuel = 0.0;
     for (const auto& [station_id, quantity] : RAPTOR::external_fuel_stations)
@@ -1143,12 +1155,7 @@ void ed_fm_set_draw_args_v2(float* data, size_t size) {
     data[18] = static_cast<float>(limit(RAPTOR::right_rudder_angle / RAPTOR::rad(30), -1, 1));
     data[25] = static_cast<float>(vehicle.configuration.hook_position);
     data[21] = (float)limit(RAPTOR::airbrake_pos, 0, 1);
-    if (RAPTOR::landing_brake_assist >= 1.0f) {
-        data[182] = 0.0f;
-    }
-    else {
-        data[182] = (float)limit(RAPTOR::airbrake_pos, 0, 1);
-    }
+    data[182] = (float)limit(RAPTOR::airbrake_pos, 0, 1);
     data[184] = (float)limit(RAPTOR::airbrake_pos, 0, 1);
 
     // Render achieved states. Draw frequency is not an actuator timestep.
@@ -1340,7 +1347,8 @@ double ed_fm_get_param(unsigned index) {
     case ED_FM_CAN_ACCEPT_FUEL_FROM_TANKER: {
         double space = std::max(0.0, RAPTOR::max_internal_fuel - RAPTOR::internal_fuel);
         for (const auto& [station, quantity] : RAPTOR::external_fuel_stations)
-            space += std::max(0.0, RaptorVehicle::external_tank_capacity_kg - quantity);
+            if (vehicle_tank_refill_allowed(station))
+                space += std::max(0.0, RaptorVehicle::external_tank_capacity_kg - quantity);
         return space > .01 ? 1.0 : 0.0;
     }
     }
@@ -1353,8 +1361,9 @@ void ed_fm_refueling_add_fuel(double fuel) {
     const double accepted = vehicle.fuel.accept_internal(fuel, vehicle.mass);
     RAPTOR::internal_fuel = vehicle.fuel.internal_kg();
     accepted_total += accepted;
-    double remainder = fuel - accepted_total;
+    double remainder = std::max(0.0, fuel - accepted_total);
     for (auto& [station, quantity] : RAPTOR::external_fuel_stations) {
+        if (!vehicle_tank_refill_allowed(station)) continue;
         const double added = std::min(remainder,
             std::max(0.0, RaptorVehicle::external_tank_capacity_kg - quantity));
         const auto position = RAPTOR::external_fuel_positions.find(station);
@@ -1425,6 +1434,7 @@ void ed_fm_on_planned_failure(const char* failure) {
 }
 
 bool ed_fm_need_to_be_repaired() {
+    if (vehicle.left_brake.tire_failed || vehicle.right_brake.tire_failed) return true;
     if (vehicle.left_fire_isolated || vehicle.right_fire_isolated || RAPTOR::is_destroyed) return true;
     for (const double integrity : RAPTOR::element_integrity)
         if (integrity < 0.999) return true;
@@ -1570,6 +1580,8 @@ void ed_fm_release() {
     cockpit_manager.invalidatePhysical();
     RAPTOR::external_fuel_stations.clear();
     RAPTOR::external_fuel_positions.clear();
+    RAPTOR::external_tank_refill_allowed.clear();
+    RAPTOR::external_fuel_callback_stamp.clear();
     RAPTOR::external_fuel = 0.0;
     RAPTOR::internal_fuel = RAPTOR::total_fuel = 0.0;
     vehicle.fuel.set_internal(0.0);

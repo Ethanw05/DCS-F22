@@ -35,6 +35,7 @@ struct FuelSystem {
     double pressurization = 0.0;
 
     void set_internal(double quantity_kg) {
+        if (!std::isfinite(quantity_kg) || quantity_kg < 0.0) return;
         const double fraction = unit(quantity_kg / capacity_kg);
         for (auto& cell : cells) cell.quantity_kg = cell.capacity_kg * fraction;
     }
@@ -52,9 +53,10 @@ struct FuelSystem {
         return !isolated && cell.quantity_kg > unusable_feed_kg && boost > 0.05;
     }
     double accept_internal(double requested_kg, MassLedger& ledger) {
+        if (!std::isfinite(requested_kg) || requested_kg <= 0.0) return 0.0;
         double accepted = 0.0;
         for (auto& cell : cells) {
-            const double addition = std::min(requested_kg - accepted,
+            const double addition = std::min(std::max(0.0, requested_kg - accepted),
                 std::max(0.0, cell.capacity_kg - cell.quantity_kg));
             const auto& pos = cell.position_m;
             if (ledger.add(-addition, pos[0], pos[1], pos[2])) {
@@ -69,6 +71,8 @@ struct FuelSystem {
     }
     double transfer_external(double available_kg, const std::array<double, 3>& source,
                              double maximum_kg, MassLedger& ledger) {
+        if (!std::isfinite(available_kg) || available_kg <= 0.0 ||
+            !std::isfinite(maximum_kg) || maximum_kg <= 0.0) return 0.0;
         double moved = 0.0;
         const double limit_kg = std::min(available_kg, maximum_kg);
         // Equal normalized fill deficit avoids exhausting the first station or
@@ -87,6 +91,7 @@ struct FuelSystem {
         return moved;
     }
     void transfer_internal(double maximum_kg, MassLedger& ledger) {
+        if (!std::isfinite(maximum_kg) || maximum_kg <= 0.0) return;
         double stored = 0.0;
         for (std::size_t index = 3; index < cells.size(); ++index) stored += cells[index].quantity_kg;
         if (stored <= 0.0) return;

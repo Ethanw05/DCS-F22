@@ -151,7 +151,39 @@ void vehicle_sample_power(double dt) {
     vehicle_bus.write(VehicleSignal::BatteryPower, vehicle.power.battery ? 1.0 : 0.0);
 }
 
+void vehicle_sample_utility_demand() {
+    vehicle.utility_demand = {};
+    if (vehicle_bus.read(VehicleSignal::HydraulicDemandValid) != 1.0) return;
+    const double sequence = vehicle_bus.read(VehicleSignal::HydraulicDemandSequence);
+    const double schema = vehicle_bus.read(VehicleSignal::HydraulicDemandSchema);
+    const double generation = vehicle_bus.read(VehicleSignal::HydraulicDemandGeneration);
+    const double stamp = vehicle_bus.read(VehicleSignal::HydraulicDemandStamp);
+    const double left = vehicle_bus.read(VehicleSignal::LeftHydraulicLoad);
+    const double right = vehicle_bus.read(VehicleSignal::RightHydraulicLoad);
+    const double inventory = vehicle_bus.read(VehicleSignal::FuelInventoryValid);
+    const double left_tank = vehicle_bus.read(VehicleSignal::LeftTankInstalled);
+    const double right_tank = vehicle_bus.read(VehicleSignal::RightTankInstalled);
+    const double inventory_stamp = vehicle_bus.read(VehicleSignal::FuelInventoryStamp);
+    if (vehicle_bus.read(VehicleSignal::HydraulicDemandValid) != 1.0 ||
+        !RaptorVehicle::UtilityDemand::sequence_valid(sequence,
+            vehicle_bus.read(VehicleSignal::HydraulicDemandSequence))) return;
+    if (!RaptorVehicle::UtilityDemand::epoch_valid(schema, generation,
+            vehicle.generation, stamp, vehicle.time_s) ||
+        !RaptorVehicle::within(left, 0.0, 1.0) || !RaptorVehicle::within(right, 0.0, 1.0)) return;
+    auto& demand = vehicle.utility_demand;
+    demand.left = left;
+    demand.right = right;
+    demand.inventory_valid = inventory == 1.0 &&
+        RaptorVehicle::within(inventory_stamp, 0.0, vehicle.time_s + 0.05) &&
+        vehicle.time_s - inventory_stamp <= 0.5 &&
+        (left_tank == 0.0 || left_tank == 1.0) && (right_tank == 0.0 || right_tank == 1.0);
+    demand.inventory_stamp_s = inventory_stamp;
+    demand.left_tank = left_tank == 1.0;
+    demand.right_tank = right_tank == 1.0;
+}
+
 void vehicle_sample_hydraulic_sources() {
+    vehicle_sample_utility_demand();
     const bool left_one = !vehicle_fault(VehicleSignal::LeftPumpOneFault);
     const bool left_two = !vehicle_fault(VehicleSignal::LeftPumpTwoFault);
     const bool right_one = !vehicle_fault(VehicleSignal::RightPumpOneFault);
@@ -164,10 +196,10 @@ void vehicle_sample_hydraulic_sources() {
     const double local_load = (std::abs(RAPTOR::gear_pos - (RAPTOR::gear_switch ? 1.0 : 0.0)) > 0.01 ? 0.2 : 0.0);
     hydraulics.left_load = local_load;
     hydraulics.right_load = local_load;
-    if (vehicle_on(VehicleSignal::HydraulicDemandValid)) {
-        hydraulics.left_load += RaptorVehicle::unit(vehicle_bus.read(VehicleSignal::LeftHydraulicLoad));
-        hydraulics.right_load += RaptorVehicle::unit(vehicle_bus.read(VehicleSignal::RightHydraulicLoad));
-    }
+    const bool maintenance = vehicle.configuration.hydraulic_maintenance_transfer &&
+        RAPTOR::on_ground && hydraulics.left() > hydraulics.right();
+    hydraulics.left_load += vehicle.utility_demand.left + (maintenance ? vehicle.utility_demand.right : 0.0);
+    hydraulics.right_load += maintenance ? 0.0 : vehicle.utility_demand.right;
     const double left_pump = RaptorVehicle::unit((left_engine_instruments.core - 0.2) / 0.4);
     const double right_pump = RaptorVehicle::unit((right_engine_instruments.core - 0.2) / 0.4);
     vehicle_bus.write(VehicleSignal::LeftPumpOne, left_one ? left_pump : 0.0);
@@ -192,7 +224,53 @@ void vehicle_qualify_fuel_delivery(bool left, double requested_kg, double delive
     }
 }
 
+void vehicle_reconcile_external_tanks() {
+    // Map known wing inventory by physical side, not by guessing whether the
+    // SDK station identifier uses Lua's zero-based or database's one-based IDs.
+    if (!vehicle.utility_demand.inventory_valid) return;
+    for (auto it = RAPTOR::external_fuel_stations.begin(); it != RAPTOR::external_fuel_stations.end();) {
+        const auto position = RAPTOR::external_fuel_positions.find(it->first);
+        const auto callback = RAPTOR::external_fuel_callback_stamp.find(it->first);
+        const bool observation_current = callback != RAPTOR::external_fuel_callback_stamp.end() &&
+            vehicle.utility_demand.inventory_stamp_s > callback->second;
+        if (!observation_current || position == RAPTOR::external_fuel_positions.end() || std::abs(position->second.z) < 0.1) {
+            ++it;
+            continue;
+        }
+        const bool installed = position->second.z < 0.0 ?
+            vehicle.utility_demand.left_tank : vehicle.utility_demand.right_tank;
+        if (installed) {
+            RAPTOR::external_tank_refill_allowed[it->first] = true;
+            ++it;
+        } else {
+            // Store removal mass belongs to DCS. Never queue its fuel a second time.
+            RAPTOR::external_fuel -= it->second;
+            RAPTOR::external_tank_refill_allowed.erase(it->first);
+            RAPTOR::external_fuel_callback_stamp.erase(it->first);
+            RAPTOR::external_fuel_positions.erase(it->first);
+            it = RAPTOR::external_fuel_stations.erase(it);
+        }
+    }
+    RAPTOR::external_fuel = std::max(0.0, RAPTOR::external_fuel);
+    RAPTOR::external_tanks_equipped = !RAPTOR::external_fuel_stations.empty();
+    RAPTOR::total_fuel = RAPTOR::internal_fuel + RAPTOR::external_fuel;
+}
+
+bool vehicle_tank_refill_allowed(int station) {
+    const auto found = RAPTOR::external_tank_refill_allowed.find(station);
+    if (found == RAPTOR::external_tank_refill_allowed.end() || !found->second ||
+        !vehicle.utility_demand.inventory_valid) return false;
+    const auto position = RAPTOR::external_fuel_positions.find(station);
+    const auto callback = RAPTOR::external_fuel_callback_stamp.find(station);
+    if (position == RAPTOR::external_fuel_positions.end() ||
+        callback == RAPTOR::external_fuel_callback_stamp.end() ||
+        vehicle.utility_demand.inventory_stamp_s <= callback->second) return false;
+    return position->second.z < -0.1 ? vehicle.utility_demand.left_tank :
+        position->second.z > 0.1 && vehicle.utility_demand.right_tank;
+}
+
 void vehicle_transfer_fuel(double dt) {
+    vehicle_reconcile_external_tanks();
     const bool bleed = vehicle.left_engine.burning || vehicle.right_engine.burning ||
         vehicle.power.conditioned_air;
     vehicle.fuel.update_supply(hydraulics.shared(), bleed, vehicle.power.essential, dt);
@@ -522,6 +600,12 @@ void vehicle_publish_services() {
         {VehicleSignal::LeftWheelSpeedRaw, vehicle.left_brake.wheel_speed_raw},
         {VehicleSignal::RightWheelSpeedRaw, vehicle.right_brake.wheel_speed_raw},
         {VehicleSignal::BrakeEnergyEstimated, 1.0},
+        {VehicleSignal::LeftBrakeEffectiveness, vehicle.left_brake.effectiveness()},
+        {VehicleSignal::RightBrakeEffectiveness, vehicle.right_brake.effectiveness()},
+        {VehicleSignal::LeftTireTemperature, vehicle.left_brake.tire_temperature_c},
+        {VehicleSignal::RightTireTemperature, vehicle.right_brake.tire_temperature_c},
+        {VehicleSignal::LeftTireFailed, vehicle_status(vehicle.left_brake.tire_failed)},
+        {VehicleSignal::RightTireFailed, vehicle_status(vehicle.right_brake.tire_failed)},
         {VehicleSignal::LeftFireDetected, vehicle_status(vehicle.left_fire)},
         {VehicleSignal::RightFireDetected, vehicle_status(vehicle.right_fire)},
         {VehicleSignal::FireDischarge, vehicle_status(vehicle.extinguishing_attempt)}};
@@ -604,10 +688,18 @@ void vehicle_publish_mass() {
 void vehicle_update_brake_energy(double dt) {
     const double speed = RAPTOR::ground_speed_knots / 1.943844492;
     const double ambient_c = RAPTOR::atmosphere_temperature - 273.15;
-    vehicle.left_brake.update(RAPTOR::left_brake_achieved, speed, ambient_c,
-        RAPTOR::on_ground, dt);
-    vehicle.right_brake.update(RAPTOR::right_brake_achieved, speed, ambient_c,
-        RAPTOR::on_ground, dt);
+    const auto update = [speed, ambient_c, dt](RaptorVehicle::BrakeEnergy& brake, double demand) {
+        const bool loaded = RAPTOR::on_ground && brake.contact_fresh(vehicle.time_s);
+        brake.update(demand, speed, ambient_c, loaded, dt);
+        const auto& point = brake.contact_m;
+        const double longitudinal = RAPTOR::body_ground_velocity.x +
+            RAPTOR::yaw_rate * (point[2] - RAPTOR::center_of_mass.z) -
+            RAPTOR::pitch_rate * (point[1] - RAPTOR::center_of_mass.y);
+        const double resistance = brake.extra_rolling_force(longitudinal, loaded);
+        add_local_force(Vec3(resistance, 0.0, 0.0), Vec3(point[0], point[1], point[2]));
+    };
+    update(vehicle.left_brake, RAPTOR::left_brake_achieved);
+    update(vehicle.right_brake, RAPTOR::right_brake_achieved);
     vehicle.left_fire = vehicle_on(VehicleSignal::LeftFireFault);
     vehicle.right_fire = vehicle_on(VehicleSignal::RightFireFault);
 }
