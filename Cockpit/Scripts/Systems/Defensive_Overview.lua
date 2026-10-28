@@ -8,7 +8,7 @@ local M={radius=.84}
 local Labels=dofile(LockOn_Options.script_path..'Systems/RWR_Computer.lua')
 local function contact_kind(t)
  if not t then return 0 end
- if t.label=='SAM'then return 2 end
+ if t.label=='SAM' or t.label=='EWR'then return 2 end
  if t.label=='AAA'then return 3 end
  local rf=t.observations and t.observations.rf
  if rf and rf.general==3 then return 4 end

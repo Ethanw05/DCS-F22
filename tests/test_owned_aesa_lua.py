@@ -99,9 +99,14 @@ f.measure(42);f.put('F22A_01_COV_00',111);f.put('F22A_01_MEASURED_RANGE',10023);
 assert(f.get('F22_RADAR_TACTICAL_01_MEASURED_RANGE')==10023,'filtered geometry overwrote raw radar range')
 f.measure(84,12000);f.put('F22A_02_COV_00',222);f.tick()
 assert(f.get('F22_RADAR_TACTICAL_01_COV_00')==111)
-f.put('F22A_01_VALID',0);f.now=f.now+.1;f.measure(84,11990);f.tick()
+-- Coast is represented by a valid native file with an aging measurement.
+f.now=f.now+.1;f.measure(84,11990);f.tick()
 assert(f.get('F22_RADAR_TACTICAL_01_COV_00')==111,'reused sample table changed a coasting track covariance')
 assert(f.get('F22_RADAR_TACTICAL_01_MEASURED_RANGE')==10023)
+-- VALID0 in the next coherent native snapshot is explicit retirement.
+f.put('F22A_01_VALID',0);f.now=f.now+.1;f.measure(84,11980);f.tick()
+assert(f.get('F22_RADAR_TRACK_COUNT')==1 and f.get('F22_RADAR_TACTICAL_01_SOURCE')==84,
+ 'retired native file was kept as a duplicate Lua coast')
 f.generation=2;f.tick()
 assert(f.get('F22_RADAR_TRACK_COUNT')==1 and f.get('F22_RADAR_TACTICAL_01_SOURCE')==84,
  'producer generation retained an old authoritative track')

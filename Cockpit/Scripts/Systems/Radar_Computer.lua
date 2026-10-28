@@ -7,6 +7,7 @@ local metadata_fields = {"association_valid","filter_valid","position_sigma_m","
     "angle_sigma_rad","raw_north","raw_altitude","raw_east","measured_range","measured_azimuth",
     "measured_elevation","range_rate","rate_sigma_mps"}
 local function copy_metadata(target, observation)
+    target.type_name = observation.type_name
     for i = 1, #metadata_fields do target[metadata_fields[i]] = observation[metadata_fields[i]] end
     target.covariance = target.covariance or {}
     for i = 1, 21 do target.covariance[i] = observation.covariance and observation.covariance[i] or 0 end
@@ -86,6 +87,22 @@ function M.new()
 			if t.native_id == id then
 				return t
 			end
+		end
+	end
+	function r:forget(id)
+		self.tracks[id] = nil
+		if self.secondary == id then self.secondary = nil end
+		if self.acquire_id == id then self.acquire, self.acquire_id = false, nil end
+		if self.selected == id then self.selected, self.secondary = self.secondary, nil end
+	end
+	function r:retire_owned(observations)
+		local active = {}
+		for i = 1, math.min(M.maximum_tracks, #observations) do
+			local o = observations[i]
+			if o.measurement_source == 2 and o.native_id then active[o.native_id] = true end
+		end
+		for id, t in pairs(self.tracks) do
+			if t.measurement_source == 2 and not active[t.native_id] then self:forget(id) end
 		end
 	end
 	-- Enclose every designation and missile-support obligation in one achievable
@@ -486,13 +503,16 @@ function M.new()
 		end
 		return math.abs(o.az) <= rad(self.azimuth) and math.abs(o.el - self.elevation) <= rad(self.vertical_span / 2)
 	end
-	function r:update(dt, observations, native_mode)
+	function r:update(dt, observations, native_mode, owned_snapshot)
 		self.clock = self.clock + dt
 		self.native_mode = native_mode
 		if not self.power then
 			self:reset()
 			return
 		end
+		-- A coherent owned snapshot already includes native coasted files.
+		-- Its missing IDs are retired, not a second independent Lua memory.
+		if owned_snapshot then self:retire_owned(observations) end
 		if self.locked and native_mode ~= 3 then
 			self.acquire = false
 			self.locked = false
@@ -670,18 +690,7 @@ function M.new()
 			t.iff = (t.friend_until and self.clock < t.friend_until) and 1
 				or (t.hostile_until and self.clock < t.hostile_until) and 0 or -1
 			if self.clock - t.observed > self:memory_time() then
-				self.tracks[id] = nil
-				if self.secondary == id then
-					self.secondary = nil
-				end
-				if self.acquire_id == id then
-					self.acquire = false
-					self.acquire_id = nil
-				end
-				if self.selected == id then
-					self.selected = self.secondary
-					self.secondary = nil
-				end
+				self:forget(id)
 			end
 		end
 		if

@@ -48,6 +48,7 @@ Policy checked(Policy p) noexcept {
     p.fire_control_revisit_s = bounded(p.fire_control_revisit_s, .008, 6, defaults.fire_control_revisit_s);
     p.gun_revisit_s = bounded(p.gun_revisit_s, .008, 6, defaults.gun_revisit_s);
     p.support_revisit_s = bounded(p.support_revisit_s, .008, 6, defaults.support_revisit_s);
+    p.maintenance_revisit_s = bounded(p.maintenance_revisit_s, .02, 6, defaults.maintenance_revisit_s);
     return p;
 }
 Vector direction(const Pose& p, double azimuth, double elevation) noexcept {
@@ -132,7 +133,7 @@ Measurement* Model::find(std::uint32_t id) noexcept {
 void Model::age(double now) noexcept {
     status_.tracks = 0;
     for (auto& t : tracks_) {
-        if (t.valid && now - t.time > policy_.track_memory_s) {
+        if (t.valid && now - t.time > std::min(policy_.track_memory_s, AesaTrackFilter::maximum_memory_s)) {
             bindings_[static_cast<std::size_t>(&t-tracks_.data())] = {};
             t = {};
         }
@@ -315,6 +316,27 @@ Model::Task Model::priority_task(double now, const Controls& c, const Pose& pose
         // start. Service slightly early instead of inserting a second wait.
         if (now + search_duration < deadline - dwell) continue;
         if (!next.track || deadline < next.deadline) next = {target, dwell, deadline};
+    }
+    return next.track ? next : maintenance_task(now, c, pose);
+}
+Model::Task Model::maintenance_task(double now, const Controls& c, const Pose& pose) noexcept {
+    Task next{};
+    const double search_duration = policy_.dwell_s / c.resource;
+    for (std::size_t index = 0; index < tracks_.size(); ++index) {
+        auto& target = tracks_[index];
+        if (!target.valid) continue;
+        // Existing explicit acquisition/support requests retain first claim.
+        // Every other detection still needs confirmation and maintenance;
+        // waiting for a complete search raster allowed tentative files to
+        // drift for seconds before the next observation.
+        if (std::find(c.priority_ids.begin(), c.priority_ids.end(), target.id) != c.priority_ids.end()) continue;
+        double azimuth = 0, elevation = 0;
+        if (!priority_angles(target, pose, now, azimuth, elevation)) continue;
+        const double interval = target.velocity_valid ? policy_.maintenance_revisit_s : policy_.track_revisit_s;
+        const double deadline = std::max(target.time, last_priority_look_[index]) + interval;
+        const double dwell = track_dwell(target, pose) / c.resource;
+        if (priority_run_s_ + dwell > 3 * search_duration || now + search_duration < deadline - dwell) continue;
+        if (!next.track || deadline < next.deadline) next = {&target, dwell, deadline};
     }
     return next;
 }

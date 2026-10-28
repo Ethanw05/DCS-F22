@@ -81,7 +81,9 @@ function M.new()
         advance(self.lead,now)
         return apply(los,self.lead.filtered,0,self.aim)
     end
-    function state:maneuver(now, cues)
+    function state:maneuver(now, cues, native_motion)
+        self.references.minimum = native_motion and 8 or 1.2
+        self.references.maximum = native_motion and 24 or 8
         for index,name in ipairs(names) do
             if not rotation(cues.base,cues[name],self.references.raw,(index-1)*3) then return end
         end

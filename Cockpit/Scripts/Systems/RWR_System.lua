@@ -1,6 +1,7 @@
 -- GPL-3.0-or-later. Native receiver owner and presentation exporter.
 dofile(LockOn_Options.script_path .. "devices.lua")
 local library = dofile(LockOn_Options.script_path .. "Systems/RWR_Computer.lua")
+local affiliation_library = dofile(LockOn_Options.script_path .. "Systems/RWR_Affiliation.lua")
 local receiver = library.new()
 local proximity = dofile(LockOn_Options.script_path .. 'Systems/RWR_Proximity.lua')
 local bearing_library = dofile(LockOn_Options.script_path .. "Systems/RWR_Bearings.lua")
@@ -183,8 +184,9 @@ function update()
             identity_count=identity_count-1
 		end
 	end
+    local affiliations=affiliation_library.read(get,clock)
 	for _, c in ipairs(receiver.contacts) do
-		local id = identity_memory[c.source]
+		local id = affiliations[c.source] or identity_memory[c.source]
         c.hostile_act=c.signal==3 and not library.coasting(c)
 		if c.hostile_act and not(id and id.class == 1) then
 			-- A fresh launch/illumination warning is itself hostile-act evidence.

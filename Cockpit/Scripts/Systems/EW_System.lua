@@ -12,6 +12,9 @@ local runner = dispenser.new(programs)
 local requested, applied, set_failed = false, nil, false
 local clock, next_retry, test_until = 0, 0, nil
 local clock_valid = true
+-- 10840-10842 belong to NAV undo/designate/undesignate. DCS listeners also
+-- receive other devices' commands, so cockpit_device_id cannot isolate them.
+local direct_flare, direct_chaff, ecm_toggle = 11114, 11115, 11116
 local update_clock
 local system, ready = 2, false -- OFF/STBY/ON; hot-start ON.
 local inventory_valid = false
@@ -131,8 +134,7 @@ end
 function SetCommand(command, value)
     update_clock(false)
     refresh_supply()
-    if command >= 10910 and command <= 10914 or command >= 11100 and command <= 11113
-        or command >= 10840 and command <= 10842 then
+    if command >= 10910 and command <= 10914 or command >= 11100 and command <= ecm_toggle then
         local down = decode(value, devices.EW_SYSTEM) > 0.5
         local previous = held[command]
         held[command] = down
@@ -143,9 +145,9 @@ function SetCommand(command, value)
     if command >= 10910 and command <= 10914 then
         programs:command(command); publish_control()
     elseif command >= 11100 and command <= 11113 then cm_command(command)
-    elseif command == 10842 or command == 136 then
+    elseif command == ecm_toggle or command == 136 then
         if supply.mission then requested = not requested end
-    else single((command == 357 or command == 10840) and 0 or 1) end
+    else single((command == 357 or command == direct_flare) and 0 or 1) end
     publish_control()
 end
 update_clock = function(advance)
@@ -226,7 +228,7 @@ for _, name in ipairs(status_outputs) do
     publish(name, 0)
 end
 publish_control() -- Producer handles must exist before native indicator binding.
-for _, command in ipairs({357, 358, 136, 10840, 10841, 10842,
+for _, command in ipairs({357, 358, 136, direct_flare, direct_chaff, ecm_toggle,
     10910, 10911, 10912, 10913, 10914}) do dev:listen_command(command) end
 for command = 11100, 11113 do dev:listen_command(command) end
 make_default_activity(0.05)

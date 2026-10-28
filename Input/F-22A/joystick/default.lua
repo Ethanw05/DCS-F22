@@ -503,9 +503,9 @@ join(res.keyCommands,{
 -- Preserve the base command names/default key combinations, but own routing.
 for _, binding in ipairs(res.keyCommands) do
  local command
- if iCommandPlaneDropFlareOnce and binding.down==iCommandPlaneDropFlareOnce then command=10840
- elseif iCommandPlaneDropChaffOnce and binding.down==iCommandPlaneDropChaffOnce then command=10841
- elseif iCommandActiveJamming and binding.down==iCommandActiveJamming then command=10842 end
+ if iCommandPlaneDropFlareOnce and binding.down==iCommandPlaneDropFlareOnce then command=11114
+ elseif iCommandPlaneDropChaffOnce and binding.down==iCommandPlaneDropChaffOnce then command=11115
+ elseif iCommandActiveJamming and binding.down==iCommandActiveJamming then command=11116 end
  if command then
   binding.down=command;binding.up=command;binding.value_down=1;binding.value_up=0
   binding.cockpit_device_id=20

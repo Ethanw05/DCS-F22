@@ -16,14 +16,14 @@ function GetDevice(id)assert(id==15);if available then return native end end
 dofile(SCRIPT_ROOT..'Systems/EW_System.lua');post_initialize()
 get_param_handle('MAIN_POWER'):set(1);get_param_handle('MASTER_ARM'):set(0);update()
 assert(get_param_handle('F22_EW_BACKEND_READY'):get()==1)
-SetCommand(10840,20.375);SetCommand(10840,20.375);SetCommand(10840,20.25)
+SetCommand(11114,20.375);SetCommand(11114,20.375);SetCommand(11114,20.25)
 assert(flare==119,'held private binding must dispense once')
-SetCommand(10840,1);SetCommand(10840,0);assert(flare==118)
+SetCommand(11114,1);SetCommand(11114,0);assert(flare==118)
 SetCommand(357,1);SetCommand(357,0);assert(flare==117)
 SetCommand(358,1);SetCommand(358,0);assert(chaff==119)
-SetCommand(10841,1);SetCommand(10841,1);SetCommand(10841,0);assert(chaff==118)
+SetCommand(11115,1);SetCommand(11115,1);SetCommand(11115,0);assert(chaff==118)
 update();assert(get_param_handle('F22_CHAFF_COUNT'):get()==118)
-SetCommand(10842,1);SetCommand(10842,1);SetCommand(10842,0);update()
+SetCommand(11116,1);SetCommand(11116,1);SetCommand(11116,0);update()
 assert(ecm and get_param_handle('ECM_ARG'):get()==1)
 assert(get_param_handle('F22_ECM_REQUESTED'):get()==1)
 ecm=false;update();assert(get_param_handle('F22_ECM_ACTIVE'):get()==0,
@@ -55,7 +55,7 @@ for kind in ('keyboard','joystick'):
     lua.execute(binding_code)
     lua.execute('''
     for i=1,3 do local b=res.keyCommands[i]
-     assert(b.down==10839+i and b.up==b.down and b.value_down==1 and b.value_up==0)
+     assert(b.down==11113+i and b.up==b.down and b.value_down==1 and b.value_up==0)
      assert(b.cockpit_device_id==20)
     end
     assert(res.keyCommands[2].combos[1]==original_combo and res.keyCommands[4].down==999)

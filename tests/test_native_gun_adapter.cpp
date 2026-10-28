@@ -3,6 +3,13 @@
 #include <iostream>
 #include <stdexcept>
 using namespace NativeGunSight;
+namespace { NativeAesaRadar::GunMotion native_motion{}; bool native_available = true; }
+namespace NativeAesaRadar {
+bool gun_motion(unsigned track, std::uint64_t generation, GunMotion& out) noexcept {
+ if (!native_available || track != 42 || generation != 7) return false;
+ out = native_motion; out.generation = generation; out.time = NativeGunSight::api.clock(); return true;
+}
+}
 #define CHECK(x) do{if(!(x))throw std::runtime_error(#x);}while(0)
 namespace {
 std::map<std::string,double> values;
@@ -41,6 +48,8 @@ int main(){
  human_table[40]=reinterpret_cast<void*>(&aircraft_get);aircraft_table[51]=reinterpret_cast<void*>(&pose);
  double speed=1030;std::memcpy(descriptor.data()+176,&speed,8);
  values["F22_GUN_REQUEST_VALID"]=1;values["F22_GUN_DEVICE_ID"]=15;values["F22_GUN_REQUEST_SEQUENCE"]=17;values["F22_GUN_TRACK_ID"]=42;
+ values["F22_GUN_INPUT_SOURCE"]=2;values["F22_GUN_REQUEST_GENERATION"]=7;
+ native_motion.position={801,5000.5,30};native_motion.velocity={220,0,0};native_motion.acceleration={30,0,0};
  values["F22_GUN_OWN_U"]=5000;values["F22_GUN_TARGET_N"]=801;values["F22_GUN_TARGET_U"]=5000.5;values["F22_GUN_TARGET_E"]=30;
  values["F22_GUN_VN"]=220;values["F22_GUN_VE"]=0;values["F22_GUN_AN"]=30;values["EFM_HUD_VN"]=220;values["EFM_HUD_WE"]=12;
  update(p);CHECK(values["F22_GUN_SOLUTION_VALID"]==1);CHECK(values["F22_GUN_SOLUTION_SEQUENCE"]==17);
@@ -57,25 +66,30 @@ int main(){
  update(p);CHECK(values["F22_GUN_SOLUTION_VALID"]==1);
  t=values["F22_GUN_TOF"];dir={values["F22_GUN_AIM_N"],values["F22_GUN_AIM_U"],values["F22_GUN_AIM_E"]};
  bullet=V{1,5000.5,0}+(dir*1030+V{220,0,0})*t+V{0,-4.9*t*t,0};
- double horizon=t+.12;target=V{801,5000.5,30}+V{220,0,0}*horizon+V{15*horizon*horizon,0,0};
- CHECK((bullet-target).norm()<.25);CHECK(std::abs(values["F22_GUN_CURRENT_N"]-827.616)<1e-6);
+ double horizon=t;target=V{801,5000.5,30}+V{220,0,0}*horizon+V{15*horizon*horizon,0,0};
+ CHECK((bullet-target).norm()<.25);CHECK(values["F22_GUN_CURRENT_N"]==801);
  CHECK(values["F22_GUN_RESULT_TIME"]==.02&&values["F22_GUN_RESULT_TRACK_ID"]==42);
- CHECK(std::abs(values["F22_GUN_CURRENT_VN"]-223.6)<1e-9&&values["F22_GUN_CURRENT_AN"]==30);
+ CHECK(values["F22_GUN_CURRENT_VN"]==220&&values["F22_GUN_CURRENT_AN"]==30);
 
  CHECK(values["F22_GUN_ACTUAL_ENDPOINT_VALID"]==1);
  CHECK(values["F22_GUN_RESPONSE_SEQUENCE"]==17);
  queue_delay=.02;values["F22_GUN_MEASUREMENT_AGE"]=.03;values["F22_GUN_REQUEST_TIME"]=.1;
  values["F22_GUN_REQUEST_SEQUENCE"]=18;update(p);CHECK(values["F22_GUN_SOLUTION_VALID"]==1);
  CHECK(values["F22_GUN_RESPONSE_SEQUENCE"]==18);CHECK(std::abs(values["F22_GUN_RESULT_TIME"]-.12)<1e-9);
- CHECK(std::abs(values["F22_GUN_CURRENT_N"]-(801+220*.05+15*.05*.05))<1e-6);
- // Owned AESA observations arrive at a finite interleaved cadence. Queue
- // latency remains independently bounded, and the actual sample age is kept.
+ CHECK(values["F22_GUN_CURRENT_N"]==801);
+ // Old noisy AESA P/V/A are never reused as the native weapon state. Queue
+ // freshness remains independently bounded even when the native input is current.
  values["F22_GUN_MEASUREMENT_AGE"]=.306;values["F22_GUN_REQUEST_SEQUENCE"]=20;
  update(p);CHECK(values["F22_GUN_SOLUTION_VALID"]==1);
- CHECK(std::abs(values["F22_GUN_CURRENT_N"]-(801+220*.326+15*.326*.326))<1e-6);
+ CHECK(values["F22_GUN_CURRENT_N"]==801);
  values["F22_GUN_MEASUREMENT_AGE"]=.49;update(p);
- CHECK(values["F22_GUN_SOLUTION_VALID"]==0&&values["F22_GUN_SOLVER_REASON"]==8);
- values["F22_GUN_MEASUREMENT_AGE"]=.03;
+ CHECK(values["F22_GUN_SOLUTION_VALID"]==1); // Native state is sampled now, independently of old radar epoch.
+ CHECK(values["F22_GUN_RESULT_SOURCE"]==2 && values["F22_GUN_RESULT_GENERATION"]==7);
+ values["F22_GUN_TARGET_N"]=NAN;values["F22_GUN_VE"]=NAN;values["F22_GUN_AU"]=NAN;
+ update(p);CHECK(values["F22_GUN_SOLUTION_VALID"]==1 && values["F22_GUN_CURRENT_N"]==801);
+ native_available=false;update(p);CHECK(values["F22_GUN_SOLUTION_VALID"]==0 && values["F22_GUN_SOLVER_REASON"]==9);
+ native_available=true;values["F22_GUN_REQUEST_GENERATION"]=8;update(p);CHECK(values["F22_GUN_SOLUTION_VALID"]==0);
+ values["F22_GUN_REQUEST_GENERATION"]=7;values["F22_GUN_MEASUREMENT_AGE"]=.03;
  queue_delay=.3;values["F22_GUN_REQUEST_SEQUENCE"]=19;update(p);
  CHECK(values["F22_GUN_SOLUTION_VALID"]==0&&values["F22_GUN_RESPONSE_SEQUENCE"]==19&&values["F22_GUN_SOLVER_REASON"]==8);
  queue_delay=0;

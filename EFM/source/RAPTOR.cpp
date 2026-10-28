@@ -44,6 +44,7 @@
 #include "NativeAGWeapons.h"
 #include "NativeAltimetry.h"
 #include "NativeDatalink.h"
+#include "NativeContactIdentity.h"
 #include "Inputs.h"
 #include "VehicleSystems.h"
 #include "TrimControl.h"
@@ -1587,6 +1588,7 @@ void ed_fm_release() {
     RAPTOR::internal_fuel = RAPTOR::total_fuel = 0.0;
     vehicle.fuel.set_internal(0.0);
     RAPTOR::external_tanks_equipped = false;
+    NativeContactIdentity::reset();
     NativeDatalink::reset();
     NativeAltimetry::reset();
     NativeNavigation::reset();
@@ -1698,6 +1700,7 @@ void CockpitManager::initialize() {
     vehicle_bus.write(VehicleSignal::RequestValid, 0.0);
     vehicle_repair_injected_faults();
     NativeSidewinder::start_feedback();
+    NativeContactIdentity::reset();
     NativeDatalink::reset();
     NativeAltimetry::reset();
     NativeNavigation::reset();
@@ -1709,7 +1712,7 @@ void CockpitManager::initialize() {
         "EFM_HUD_WN", "EFM_HUD_WE", "EFM_HUD_WU", "EFM_HUD_TAS",
         "EFM_HUD_SOUND", "EFM_HUD_PRESSURE", "EFM_ENGINE_VALID",
         "EFM_ENGINE_LEFT_RPM_PCT", "EFM_ENGINE_RIGHT_RPM_PCT",
-        "EFM_GROUND_VALID", "EFM_WEIGHT_ON_WHEELS", "F22_AP_ACTIVE", "F22_AP_ROLL_MODE", "F22_AP_PITCH_MODE", "F22_AP_AT",
+        "EFM_GROUND_VALID", "EFM_WEIGHT_ON_WHEELS", "F22_AP_ACTIVE", "F22_AP_ROLL_MODE", "F22_AP_PITCH_MODE", "F22_AP_AT", "F22_AP_OFF_SEQUENCE",
         "F22_AP_MACH_HOLD", "F22_AP_HEADING", "F22_AP_ALT", "F22_AP_VS", "F22_AP_SPEED", "F22_AP_MACH",
         "F22_ENTRY_GUIDANCE_REQUEST", "F22_ENTRY_GUIDANCE_ACTIVE",
         "F22_ENTRY_GUIDANCE_COMMAND", "F22_ENTRY_GUIDANCE_VALUE",
@@ -1802,6 +1805,7 @@ void CockpitManager::updateGun() {
 }
 
 void CockpitManager::updateCombat(double dt) {
+    NativeContactIdentity::update(param_api_);
     NativeDatalink::update(param_api_);
     const auto& sensed = vehicle.air_sensor.measured;
     const double sensed_age = RAPTOR::fm_clock - sensed.stamp_s;
@@ -1878,6 +1882,7 @@ void CockpitManager::update(double dt) {
         {"F22_AP_LIMITED",(autopilot.pitch_limited||autopilot.roll_limited||autopilot.at_limited)?1.:0.},
         {"F22_AT_REASON",double(autopilot.at_reason)},{"F22_AT_FEEDBACK_UNTIL",autopilot.at_feedback_until},
         {"F22_AP_READY",frame.eligible()?1.:0.},{"F22_AP_CLOCK",RAPTOR::fm_clock},
+        {"F22_AP_OFF_SEQUENCE",double(autopilot.off_sequence)},
         {"F22_AP_RALT",autopilot.captured_agl*3.280839895},
         {"EFM_FCS_INTEGRITY_VALID",1.},
         {"EFM_FCS_DAMAGED",(!RAPTOR::is_destroyed&&(RAPTOR::tail_integrity<=.5||RAPTOR::left_wing_integrity<=.5||RAPTOR::right_wing_integrity<=.5))?1.:0.}};

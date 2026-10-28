@@ -27,7 +27,7 @@ function SetCommand(c,v)
  if v<=0 then held[c]=nil;return end
  -- Historical keyboard/joystick aliases are down-only impulses.
  if not(c>=10041 and c<=10053)then if held[c]then return end;held[c]=true end
- if c==3035 or c==10993 then send('FLIGHT_GUIDANCE',10953,1);ui.status='AP / AT OFF';ui:update(0);return end
+ if c==3035 or c==10993 then ui:ap_off();ui:update(0);return end
  if get('MAIN_POWER')<.5 then return end
  if c==10989 then
   if get('F22_SMS_PROGRAM_PAGE')>.5 and get('F22_SMS_LABEL')>0 and get('HUD_AG_SUBMODE')~=1 then ui:open('STORES')end

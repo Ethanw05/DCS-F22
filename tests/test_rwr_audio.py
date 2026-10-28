@@ -37,6 +37,18 @@ assert(a:update(.05,{c(5,0,3)},true,true,3).loop==nil)
 assert(a:update(.05,{c(5,0,3)},true,false,3).loop=='launch')
 assert(a:update(.05,{},false,false,0).event==nil)
 assert(a:update(.05,{c(5)},true,false,1).event=='new_contact')
+-- A persistent early-warning radar must not beep at every routine sweep.
+a=m.new()
+local ewr=c(7);ewr.label='EWR'
+assert(a:update(.05,{ewr},true,false,1).event=='new_contact')
+for i=1,120 do
+ ewr.age=(i*.05)%3
+ assert(a:update(.05,{ewr},true,false,1).event==nil)
+end
+ewr.signal=2
+assert(a:update(.05,{ewr},true,false,2).loop=='lock')
+ewr.signal=3
+assert(a:update(.05,{ewr},true,false,3).loop=='launch')
 ''')
 print('RWR audio: five distinct states; stable source IDs; RF revisit pings; loss debounce; missile priority; mute/power OK')
 for name in ['ping','new_contact','contact_lost','lock','launch']:

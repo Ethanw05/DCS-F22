@@ -9,7 +9,7 @@ lua.execute(r'''
 LockOn_Options={script_path=ROOT}
 local Director=dofile(ROOT..'Systems/Gun_Director.lua')
 local display=dofile(ROOT..'Systems/Radar_Display.lua')
-local values={F22_RADAR_STT_VALID=1,F22_STT_MOTION_VALID=1,F22_STT_VELOCITY_SIGMA_MPS=.4,EFM_HUD_VALID=1,
+local values={F22_AESA_GENERATION=7,F22_RADAR_STT_VALID=1,F22_STT_MOTION_VALID=1,F22_STT_VELOCITY_SIGMA_MPS=.4,EFM_HUD_VALID=1,
  F22_STT_ID=42,EFM_HUD_VN=220,F22_STT_VN=220,F22_STT_VU=10,F22_STT_VE=80}
 local now, stamp, calls, solutions = 10.1, 10, 0, 0
 local function get(k)return values[k]or 0 end
@@ -25,11 +25,11 @@ local function dispatch(_,command)
  for prefix,vector in pairs({AIM={1,0,.1},BORE={1,0,0}})do
   for k,axis in ipairs({'N','U','E'})do put('F22_GUN_'..prefix..'_'..axis,vector[k])end
  end
- put('F22_GUN_RESULT_SCHEMA',2)
+ put('F22_GUN_RESULT_SCHEMA',2);put('F22_GUN_RESULT_SOURCE',2);put('F22_GUN_RESULT_GENERATION',7)
  for _,axis in ipairs({'N','U','E'})do
   local age=now-get('F22_STT_TIME')
-  put('F22_GUN_CURRENT_'..axis,get('F22_GUN_TARGET_'..axis)+get('F22_GUN_V'..axis)*age)
-  put('F22_GUN_CURRENT_V'..axis,get('F22_GUN_V'..axis));put('F22_GUN_CURRENT_A'..axis,0)
+  put('F22_GUN_CURRENT_'..axis,get('F22_STT_P'..axis)+get('F22_STT_V'..axis)*age)
+  put('F22_GUN_CURRENT_V'..axis,get('F22_STT_V'..axis));put('F22_GUN_CURRENT_A'..axis,0)
  end
  put('F22_GUN_SOLUTION_VALID',1);put('F22_GUN_SOLUTION_SEQUENCE',get('F22_GUN_REQUEST_SEQUENCE'))
  put('F22_GUN_RESPONSE_SEQUENCE',get('F22_GUN_REQUEST_SEQUENCE'))

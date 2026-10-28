@@ -196,6 +196,71 @@ int main() {
   CHECK(arrival.lateral==Heading && arrival.vertical==Altitude && arrival.reason==0);
   CHECK(arrival.selected_heading==independent.heading);
   independent.nav_arrived=false;arrival.update(independent,.01);CHECK(arrival.lateral==Heading);
+  // Every selected mode is a toggle; release preserves the independent axis.
+  independent.nav_track = .3;
+  for (int vertical : {11600, 11610, 11619}) {
+    Controller toggle;
+    toggle.command(11605, independent);
+    toggle.command(vertical, independent);
+    CHECK(toggle.lateral == Navigation && toggle.vertical != Off);
+    toggle.command(vertical, independent);
+    CHECK(toggle.vertical == Off && toggle.lateral == Navigation);
+    toggle.command(11605, independent);
+    CHECK(!toggle.active() && !toggle.nav_override);
+    for (int tick = 0; tick < 50; ++tick) {
+      const auto released = toggle.update(independent, .01);
+      CHECK(!toggle.active() && released.aileron == 0 && released.elevator == 0);
+    }
+  }
+  for (int lateral : {11604, 11605}) {
+    Controller toggle;
+    toggle.command(11600, independent);
+    toggle.command(lateral, independent);
+    CHECK(toggle.lateral != Manual && toggle.vertical == Altitude);
+    toggle.command(lateral, independent);
+    CHECK(toggle.lateral == Manual && toggle.vertical == Altitude && !toggle.nav_override);
+    CHECK(toggle.update(independent, .01).aileron == 0);
+    toggle.command(11600, independent);
+    CHECK(!toggle.active());
+  }
+  for (int command : {11600, 11604, 11605, 11610, 11619, 11601, 11602, 11618}) {
+    Controller toggle;
+    toggle.command(command, independent);
+    CHECK(toggle.active() || toggle.at);
+    Frame unavailable = independent;
+    unavailable.powered = unavailable.nav_valid = unavailable.radar_valid = unavailable.baro_valid = false;
+    toggle.command(command, unavailable);
+    CHECK(!toggle.active() && !toggle.at);
+  }
+  Controller partial_attitude;
+  partial_attitude.command(11601, independent);
+  partial_attitude.command(11600, independent);
+  CHECK(partial_attitude.lateral == Attitude && partial_attitude.vertical == Altitude);
+  partial_attitude.command(11601, independent);
+  CHECK(partial_attitude.lateral == Manual && partial_attitude.vertical == Altitude);
+  partial_attitude.command(11601, independent);
+  partial_attitude.command(11605, independent);
+  CHECK(partial_attitude.lateral == Navigation && partial_attitude.vertical == Att);
+  partial_attitude.command(11601, independent);
+  CHECK(partial_attitude.lateral == Navigation && partial_attitude.vertical == Off);
+  partial_attitude.command(11605, independent);
+  CHECK(!partial_attitude.active());
+  for (int off : {408, 538, 11603}) {
+    Controller toggle;
+    toggle.command(11600, independent); toggle.command(11605, independent);
+    toggle.command(11602, independent);
+    toggle.override_held = toggle.nav_override = true;
+    toggle.pitch_limited = toggle.roll_limited = toggle.at_limited = true;
+    CHECK(toggle.off_sequence == 0);
+    toggle.command(off, independent);
+    CHECK(!toggle.active() && !toggle.at && !toggle.override_held && !toggle.nav_override);
+    CHECK(!toggle.pitch_limited && !toggle.roll_limited && !toggle.at_limited && toggle.off_sequence == 1);
+    toggle.command(off, independent); CHECK(toggle.off_sequence == 2);
+    toggle.off_sequence = 999999999u;
+    toggle.command(off, independent); CHECK(toggle.off_sequence == 1);
+    const auto released = toggle.update(independent, .01);
+    CHECK(released.aileron == 0 && released.elevator == 0 && !released.throttle_active);
+  }
   std::cout << "AFCS holds, wrap, navigation age, pilot takeover, paddle, "
                "limits, A/T and fault gates PASS\n";
 }

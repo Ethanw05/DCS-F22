@@ -14,7 +14,7 @@ for cross in (0,80):
     LockOn_Options={script_path=ROOT}
     local Director=dofile(ROOT..'Systems/Gun_Director.lua')
     local Display=dofile(ROOT..'Systems/Radar_Display.lua')
-    local values={EFM_HUD_VALID=1,EFM_HUD_VN=220,F22_RADAR_STT_VALID=1,
+    local values={EFM_HUD_VALID=1,EFM_HUD_VN=220,F22_AESA_GENERATION=7,F22_RADAR_STT_VALID=1,
      F22_STT_MOTION_VALID=1,F22_STT_ID=42,F22_STT_VN=220,F22_STT_VU=0,F22_STT_VE=cross_speed,
      F22_STT_VELOCITY_SIGMA_MPS=.4}
     local now,queue=10,nil
@@ -28,14 +28,14 @@ for cross in (0,80):
     local function dispatch(_,command)
      assert(command==10851 and not queue)
      queue={time=now+.002,sequence=get('F22_GUN_REQUEST_SEQUENCE'),id=get('F22_GUN_TRACK_ID'),
-      east=get('F22_GUN_TARGET_E'),stamp=now-get('F22_GUN_MEASUREMENT_AGE')}
+      east=cross_speed*(now-10),stamp=now}
     end
     local function deliver()
      if not queue or queue.time>now then return end
      local east=queue.east+cross_speed*(queue.time-queue.stamp)
      local los=math.atan2(east,400)
      put('F22_GUN_RESPONSE_SEQUENCE',queue.sequence);put('F22_GUN_SOLUTION_SEQUENCE',queue.sequence)
-     put('F22_GUN_SOLUTION_VALID',1);put('F22_GUN_RESULT_SCHEMA',schema)
+     put('F22_GUN_SOLUTION_VALID',1);put('F22_GUN_RESULT_SCHEMA',schema);put('F22_GUN_RESULT_SOURCE',2);put('F22_GUN_RESULT_GENERATION',7)
      put('F22_GUN_RESULT_TIME',queue.time);put('F22_GUN_RESULT_TRACK_ID',queue.id)
      put('F22_GUN_AIM_N',math.cos(los+lead));put('F22_GUN_AIM_U',0);put('F22_GUN_AIM_E',math.sin(los+lead))
      put('F22_GUN_BORE_N',1);put('F22_GUN_BORE_U',0);put('F22_GUN_BORE_E',0)

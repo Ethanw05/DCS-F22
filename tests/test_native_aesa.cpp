@@ -44,13 +44,19 @@ std::array<void*, 8> scene_methods{}, registered_methods{};
 Object driver{driver_methods.data()+1}, la{la_methods.data()}, manager{manager_methods.data()},
     land{land_methods.data()}, scene{scene_methods.data()}, registered{registered_methods.data()};
 void* driver_pointer=&driver;
-std::array<void*,58> target_methods{};
+std::array<void*,76> target_methods{};
+std::array<void*,4> orientation_methods{};
+std::array<void*,3> registry_methods{};
+Object registry{registry_methods.data()};
+void* registry_pointer = &registry;
+float load_x{}, load_y = 1, load_z{};
+bool invalidate_during_lookup{};
 struct SceneUnit { void** table{};std::array<std::byte,288> prefix{};TypeTextView type{}; };
 static_assert(offsetof(SceneUnit,type)==296);
 SceneUnit own_unit{},target_unit{target_methods.data()};
 std::array<void*,5> ecm_methods{};
 EcmView target_ecm{ecm_methods.data(),&target_unit,1};
-bool ecm_on{}, own_ecm_on{};
+bool ecm_on{}, own_ecm_on{}, target_present = true;
 EcmView own_ecm{ecm_methods.data(),&own_unit,1};
 void* borrowed_ecm = &target_ecm;
 unsigned receiver_visits = 1, ecm_reads{};
@@ -74,7 +80,17 @@ bool dead(const void*) { return false; }
 unsigned id(void*) { return 42; }
 void* registration(void*) { return &registered; }
 void* unit(void*) { return &target_unit; }
-bool flag(const void* object, int mask) { return mask==8 && ((object==&target_unit && ecm_on) || (object==&own_unit && own_ecm_on)); }
+void* lookup(void*, unsigned host) {
+    if (invalidate_during_lookup) epoch.fetch_add(1, std::memory_order_acq_rel);
+    return host == 42 ? &registered : nullptr;
+}
+float nx(const void*) { return load_x; }
+float ny(const void*) { return load_y; }
+float nz(const void*) { return load_z; }
+bool flag(const void* object, int mask) {
+    if (mask == 32) return object != &target_unit || target_present;
+    return mask==8 && ((object==&target_unit && ecm_on) || (object==&own_unit && own_ecm_on));
+}
 void* get_ecm(void* object) { ++ecm_reads; return object==&own_unit ? &own_ecm : borrowed_ecm; }
 void query(void*, const Box&, unsigned, const Query& visitor) {
     ++queries;
@@ -91,7 +107,7 @@ void fixture() {
     for (std::size_t i=0;i<names.size();++i) effect_handles[i]=handle(names[i]);
     target_unit.type={};std::memcpy(target_unit.type.inline_text,"MiG-29S",8);
     target_unit.type.size=7;target_unit.type.capacity=15;
-    ecm_on=false;own_ecm_on=false;own_unit.table=target_methods.data();own_ecm={ecm_methods.data(),&own_unit,1};
+    ecm_on=false;own_ecm_on=false;target_present=true;own_unit.table=target_methods.data();own_ecm={ecm_methods.data(),&own_unit,1};
     for (auto& function : driver_methods) function = reinterpret_cast<void*>(&nothing);
     driver_methods[0] = nullptr; driver_methods[1] = reinterpret_cast<void*>(&destroy);
     driver_methods[7] = reinterpret_cast<void*>(&tick); driver_methods[16] = nullptr;
@@ -99,11 +115,21 @@ void fixture() {
     la_methods[40] = reinterpret_cast<void*>(&own);
     scene_methods[1] = reinterpret_cast<void*>(&id); scene_methods[6] = reinterpret_cast<void*>(&registration);
     registered_methods[7] = reinterpret_cast<void*>(&unit);
+    registry_methods[2] = reinterpret_cast<void*>(&lookup);
+    orientation_methods[3] = reinterpret_cast<void*>(&basis);
+    void* orientation_table = orientation_methods.data();
+    std::memcpy(reinterpret_cast<std::byte*>(&target_unit) + 48, &orientation_table, sizeof(void*));
+    target_methods[38] = reinterpret_cast<void*>(&velocity);
+    target_methods[73] = reinterpret_cast<void*>(&nx);
+    target_methods[74] = reinterpret_cast<void*>(&ny);
+    target_methods[75] = reinterpret_cast<void*>(&nz);
+    load_x = load_z = 0; load_y = 1;
     manager_methods[20] = reinterpret_cast<void*>(&query); manager_methods[24] = reinterpret_cast<void*>(&segment);
     land_methods[15] = reinterpret_cast<void*>(&terrain);
     api.clock=clock_value; api.aircraft=aircraft; api.context=cockpit; api.device=device;
     api.point=point; api.velocity=velocity; api.position=basis; api.type=type; api.dead=dead;
     api.manager=&manager_pointer; api.land=&land_pointer; api.intersect=intersection;
+    api.registry=&registry_pointer;
     api.flag=flag; target_methods[57]=reinterpret_cast<void*>(&get_ecm);
     ecm_methods[1]=reinterpret_cast<void*>(&flag); ecm_methods[4]=reinterpret_cast<void*>(&get_ecm);
     api.ecm_vtable=ecm_methods.data(); api.ecm_active=ecm_methods[1]; api.ecm_strength=ecm_methods[4];
@@ -144,6 +170,41 @@ void scenarios() {
     const auto track=static_cast<unsigned>(values["F22A_01_ID"]);
     CHECK(track>0 && track!=42 && values["F22A_01_HITS"]>=3);
     CHECK(host_for_track(track)==42 && track_for_host(42)==track);
+    GunMotion motion{};
+    const auto generation = static_cast<std::uint64_t>(values["F22_AESA_GENERATION"]);
+    AllocationProbe::enabled = true;
+    const auto allocations = AllocationProbe::count;
+    const bool motion_valid = gun_motion(track, generation, motion);
+    AllocationProbe::enabled = false;
+    CHECK(motion_valid && AllocationProbe::count == allocations);
+    CHECK(motion.generation == generation && motion.time == now && motion.velocity[0] == 250);
+    CHECK(motion.acceleration[0] == 0 && motion.acceleration[1] == 0 && motion.acceleration[2] == 0);
+    CHECK(motion.position[0] == 20000 + 250 * (now - 10));
+    // Native weapon state is not the noisy radar posterior, nor a derivative
+    // of it. Forward/right load and gravity are transformed in world axes.
+    load_x = 2; load_y = 4; load_z = -1;
+    CHECK(gun_motion(track, generation, motion));
+    CHECK(std::abs(motion.acceleration[0] - 19.6) < 1e-9);
+    CHECK(std::abs(motion.acceleration[1] - 29.4) < 1e-9);
+    CHECK(std::abs(motion.acceleration[2] + 9.8) < 1e-9);
+    load_y = NAN; CHECK(!gun_motion(track, generation, motion)); load_y = 1; load_x = load_z = 0;
+    CHECK(!gun_motion(track, generation + 1, motion));
+    CHECK(!gun_motion(track + 1, generation, motion));
+    request.controls.emit = false; CHECK(!gun_motion(track, generation, motion));
+    request.controls.emit = true;
+    target_present = false; CHECK(!gun_motion(track, generation, motion)); target_present = true;
+    void* saved_load = target_methods[73]; target_methods[73] = nullptr;
+    CHECK(!gun_motion(track, generation, motion)); target_methods[73] = saved_load;
+    const auto original_epoch = epoch.load(); invalidate_during_lookup = true;
+    CHECK(!gun_motion(track, generation, motion) && motion.generation == 0);
+    invalidate_during_lookup = false; epoch.store(original_epoch);
+    request.controls.gun_tracking = false; CHECK(!gun_motion(track, generation, motion));
+    request.controls.gun_tracking = true;
+    const auto measurement_time = snapshot.measurements[0].time;
+    snapshot.measurements[0].time = now - .501; CHECK(!gun_motion(track, generation, motion));
+    snapshot.measurements[0].time = measurement_time;
+    void* saved_registry = registry_pointer; registry_pointer = nullptr;
+    CHECK(!gun_motion(track, generation, motion)); registry_pointer = saved_registry;
     CHECK(values["F22A_01_FILTER_VALID"]==1 && values["F22A_01_COV_00"]>0 && values["F22A_01_COV_55"]>0);
     CHECK(values["F22A_01_OWN_VN"]==250 && values["F22A_01_FORWARD_N"]==1);
     CHECK(std::abs(values["F22A_01_RANGE_RATE"])<3*values["F22A_01_RATE_SIGMA_MPS"]);
@@ -167,10 +228,12 @@ void scenarios() {
     CHECK(values["F22A_01_TIME"]==saved.time && values["F22A_01_VELOCITY_VALID"]==0);
     CHECK(values["F22A_01_ASSOCIATION_VALID"]==0 && !responder.tracking(42,9001));
     CHECK(!host_for_track(track) && !track_for_host(42));
+    CHECK(!gun_motion(track, generation, motion));
     snapshot.measurements[0]=saved;
     snapshot.measurements[1]=saved;snapshot.measurements[1].id=track+100;
     snapshot.bindings[1]=snapshot.bindings[0];snapshot.bindings[1].track=track+100;
     CHECK(!host_for_track(track) && !track_for_host(42));
+    CHECK(!gun_motion(track, generation, motion));
     snapshot.measurements[1]={};snapshot.bindings[1]={};
     update(parameters_api);
     CHECK(values["F22A_01_VELOCITY_VALID"]==1 && responder.target()==42);
@@ -305,9 +368,25 @@ void type_metadata() {
     target_unit.type.size=17;target_unit.type.pointer=nullptr;CHECK(!scene_type(&target_unit,name));
     CHECK(!scene_type(nullptr,name));
 }
+void dormant_units() {
+    fixture();Provider provider;Pose pose{};CHECK(provider.pose(pose));
+    static std::array<Truth,maximum_candidates> reports{};
+    Beam beam{};beam.direction={1,0,0};beam.half_angle=degree;beam.range_m=80000;
+    std::size_t count=0;QueryStats stats{};
+    // DCS keeps a dormant aircraft's spawn position and initial velocity in
+    // the common scene. Neither is an actual present radar/jammer target.
+    target_present=false;ecm_on=true;Interference noise{};
+    CHECK(provider.query(pose,beam,reports,count,stats) && count==0);
+    CHECK(provider.interference(now,pose,beam,noise,stats) && noise.sources==0 && noise.noise_ratio==0);
+    target_present=true;count=0;stats={};
+    CHECK(provider.query(pose,beam,reports,count,stats) && count==1);
+    CHECK(reports[0].id==42 && reports[0].velocity.n==250);
+    target_present=false;count=0;stats={};
+    CHECK(provider.query(pose,beam,reports,count,stats) && count==0);
+}
 }
 int main() {
-    try { scenarios(); receiver_scenarios(); receiver_authority(); surface_publication(); own_effect_publication(); type_metadata(); std::cout << "Owned native AESA: scene provider, noisy reports, avLua clock lifetime, "
+    try { scenarios(); receiver_scenarios(); receiver_authority(); surface_publication(); own_effect_publication(); type_metadata(); dormant_units(); std::cout << "Owned native AESA: scene presence/activation, noisy reports, avLua clock lifetime, "
         "context responder registration, actual virtual target/support calls, expiry and teardown PASS\n"; return 0; }
     catch (const std::exception& error) { std::cerr<<error.what()<<'\n'; return 1; }
 }

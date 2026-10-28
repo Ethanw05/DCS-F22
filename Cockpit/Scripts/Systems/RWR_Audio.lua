@@ -16,7 +16,10 @@ function M.new()
             local old=self.known[c.source]
             if not old then added=true;old={stamp=stamp};self.known[c.source]=old
             elseif stamp>old.stamp+.1 then
-                if c.signal==1 then return_seen=true end
+                -- A persistent background EWR is shown continuously; each
+                -- routine sweep is not another pilot warning. Acquisition,
+                -- lock and launch cues still follow their normal owners.
+                if c.signal==1 and c.label~='EWR' then return_seen=true end
                 old.stamp=stamp
             end
             old.seen=self.clock
