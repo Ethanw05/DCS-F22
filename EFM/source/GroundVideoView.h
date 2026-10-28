@@ -146,30 +146,42 @@ inline View antenna(View v, const Aircraft &a, double now) {
   v.stamp=now;
   return v;
 }
-inline bool valid(const View &v, double now) {
+inline bool finite_view(const View &v, double now) {
   for (double x : {v.stamp, now, v.north, v.altitude, v.east, v.heading,
                    v.range_nm, v.width_deg, v.scan_direction, v.scan_fraction,
                    v.gain, v.collection, v.erase_sequence, v.center_m, v.span_m, v.antenna_offset, v.view_epoch,
-                   v.patch_n,v.patch_u,v.patch_e,v.patch_az,v.patch_distance})
+                   v.patch_n,v.patch_u,v.patch_e,v.patch_az,v.patch_distance,
+                   v.scan_center,v.antenna_elevation,v.probe_forward,v.probe_right,v.probe_up,
+                   v.heading+v.scan_center})
     if (!std::isfinite(x)) return false;
-  return v.enabled && now >= v.stamp && now - v.stamp <= .5 &&
-      std::abs(v.north) < 3e7 && std::abs(v.east) < 3e7 &&
-      v.altitude > -500 && v.altitude < 100000 &&
-      v.mode>=1 && v.mode<=7 && v.expansion>=0 && v.expansion<=3 &&
-      v.range_nm >= 5 && v.range_nm <= ((v.mode==2||v.mode==3)?40:(v.mode==4||v.mode==5)?80:v.mode==6?10:v.mode==7?5:160) &&
-      v.width_deg >= (v.expansion>0?.01:20) && v.width_deg <= 120 &&
-      (v.expansion==0||(v.center_m>10&&v.span_m>0&&v.span_m<148160)) &&
-      (v.scan_direction == 1 || v.scan_direction == -1) &&
-      v.scan_fraction >= 0 && v.scan_fraction <= 1 && v.gain >= 0 && v.gain <= 1;
+  return true;
+}
+inline bool position_valid(const View& v) {
+  return std::abs(v.north)<3e7 && std::abs(v.east)<3e7
+      && v.altitude>-500 && v.altitude<100000;
+}
+inline bool mode_geometry_valid(const View& v) {
+  if (v.mode<1 || v.mode>7 || v.expansion<0 || v.expansion>3) return false;
+  constexpr std::array<double,8> maximum_nm{0,160,40,40,80,80,10,5};
+  return v.range_nm>=5 && v.range_nm<=maximum_nm[static_cast<std::size_t>(v.mode)]
+      && v.width_deg>=(v.expansion>0?.01:20) && v.width_deg<=120;
+}
+inline bool expansion_valid(const View& v) {
+  return v.expansion==0 || (v.center_m>10 && v.span_m>0 && v.span_m<148160);
+}
+inline bool scan_valid(const View& v) {
+  return (v.scan_direction==1 || v.scan_direction==-1)
+      && v.scan_fraction>=0 && v.scan_fraction<=1 && v.gain>=0 && v.gain<=1;
+}
+inline bool valid(const View& v,double now) {
+  return v.enabled && finite_view(v,now) && now>=v.stamp && now-v.stamp<=.5
+      && position_valid(v) && mode_geometry_valid(v) && expansion_valid(v) && scan_valid(v);
 }
 struct Prepared {
   View view;
   bool accepted{};
 };
-inline Prepared prepare(const View &v, double now, bool ownership = true) {
-  const bool accepted = ownership && valid(v, now);
-  return {accepted ? v : View{}, accepted};
-}
+inline Prepared prepare(const View &v, double now, bool ownership = true);
 // Graphics::Camera::getProjectionDesc confirms these fields at+688..704.
 // The native ABI uses near before far, in this exact order.
 struct Projection { float fov_x{}, fov_y{}, aspect{}, near_clip{}, far_clip{}; };
@@ -205,6 +217,22 @@ inline std::array<float, 12> position(const Prepared &frame) {
   // common renderer still builds its own orthographic map from heading/range.
   return {c*level,-down,s*level, c*down,level,s*down, -s,0,c,
           static_cast<float>(v.north),static_cast<float>(v.altitude),static_cast<float>(v.east)};
+}
+inline bool finite_camera(const Prepared &frame) {
+  if (!frame.accepted) return false;
+  for (const auto value : position(frame)) if (!std::isfinite(value)) return false;
+  for (const auto value : point(frame)) if (!std::isfinite(value)) return false;
+  const auto p = projection(frame);
+  for (const auto value : {p.fov_x,p.fov_y,p.aspect,p.near_clip,p.far_clip})
+    if (!std::isfinite(value)) return false;
+  return p.fov_x > 0 && p.fov_x < pi && p.fov_y > 0 && p.fov_y < pi
+      && p.aspect > 0 && p.near_clip > 0 && p.far_clip > p.near_clip;
+}
+inline Prepared prepare(const View &v, double now, bool ownership) {
+  Prepared result{v, ownership && valid(v,now)};
+  result.accepted = result.accepted && finite_camera(result);
+  if (!result.accepted) result.view = {};
+  return result;
 }
 union Param { std::uint64_t bits; float number; const char *text; };
 static_assert(sizeof(Param) == 8);

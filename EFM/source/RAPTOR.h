@@ -383,7 +383,7 @@ public:
 
     void update(double dt);
     void updateCombat(double dt);
-    void resetWeaponFeedback();
+    void retireParameters();
     void updateGun();
     void navigationFrame(RaptorAP::Frame& frame);
     void invalidatePhysical();

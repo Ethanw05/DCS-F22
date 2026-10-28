@@ -1,6 +1,7 @@
 // GPL-3.0-or-later. Independent terminal over the audited shared DCS radio ABI.
 // No aircraft-module dependency, mission scripts, export truth or world scans.
 #include "NativeDatalink.h"
+#include "RadarTacticalPacket.h"
 #include <Cockpit/CockpitAPI_Declare.h>
 #include <Windows.h>
 #include <array>
@@ -59,7 +60,28 @@ ReportKey report_key(const Report& report) { return {report.link,report.reporter
 std::map<ReportKey,Report> reports;
 std::map<unsigned,Report> participants;
 std::map<std::string,void*> handles;
-double get(EDPARAM &p,const std::string &n) {auto &h=handles[n];if(!h)h=p.getParamHandle(n.c_str());return p.getParamNumber(h);}
+RadarTacticalPacket::Reader tactical_reader;
+RadarTacticalPacket::Packet tactical_packet;
+bool get(EDPARAM &p,const std::string &n,double& value) {
+  auto &h=handles[n];if(!h)h=p.getParamHandle(n.c_str());return p.getParamNumber(h,value);
+}
+bool read_flag(EDPARAM& p,const char* name,bool& value) {
+  double candidate=0;
+  if(!get(p,name,candidate) || (candidate!=0 && candidate!=1))return false;
+  value=candidate==1;return true;
+}
+struct Controls {
+  bool power=false,ifdl=false,complete=false;
+  void load(EDPARAM& p) {
+    bool main=false,enabled=false,transmit=false;
+    const bool main_valid=read_flag(p,"MAIN_POWER",main);
+    const bool enabled_valid=read_flag(p,"F22_DATALINK_ENABLE",enabled);
+    const bool transmit_valid=read_flag(p,"F22_IFDL_ENABLE",transmit);
+    power=main_valid && enabled_valid && main && enabled;
+    ifdl=power && transmit_valid && transmit;
+    complete=main_valid && enabled_valid && transmit_valid;
+  }
+};
 void put(EDPARAM &p,const std::string &n,double v) {auto &h=handles[n];if(!h)h=p.getParamHandle(n.c_str());p.setParamNumber(h,v);}
 
 struct API {
@@ -304,35 +326,38 @@ bool start(void *aircraft) {
   return true;
 }
 void transmit(EDPARAM &p,double now) {
+  if(!finite(now)||now<0)return;
   if(last_send>=0&&now-last_send<1)return;
   last_send=now;
+  const bool current=tactical_reader.capture(p,now,tactical_packet);
   std::ostringstream text;text.precision(15);text<<"F22IFDL1;";
   Vec position{};api.point(owner,&position);const float *velocity=api.velocity(owner);
   if(!valid(position)||!readable(velocity,12))return;
-  text<<own_id<<','<<now<<','<<position.n<<','<<position.u<<','<<position.e<<','<<velocity[0]<<','<<velocity[1]<<','<<velocity[2]<<",1,1;";
-  const auto seq=get(p,"F22_RADAR_TACTICAL_SEQUENCE"),stamp=get(p,"F22_RADAR_TACTICAL_TIME");
-  if(finite(stamp)&&now-stamp>=-.05&&now-stamp<=.25) {
-    unsigned count=0;
-    for(unsigned i=1;i<=64&&count<32;++i) {
-      char prefix[64];std::snprintf(prefix,sizeof prefix,"F22_RADAR_TACTICAL_%02u_",i);std::string s=prefix;
-      if(get(p,s+"VALID")<.5||get(p,s+"POSITION_VALID")<.5)continue;
-      const double age=get(p,s+"AGE");if(!finite(age)||age<0||age>6)continue;
-      const int affiliation=get(p,s+"FRIENDLY")>.5?1:get(p,s+"HOSTILE")>.5?0:-1;
-      text<<static_cast<unsigned>(get(p,s+"SOURCE"))<<','<<stamp-age;
-      for(auto field:{"N","U","E","VN","VU","VE"})text<<','<<get(p,s+field);
-      text<<','<<affiliation<<",0;";++count;
-    }
-    if(seq!=get(p,"F22_RADAR_TACTICAL_SEQUENCE"))return;
+  const Vec motion{velocity[0],velocity[1],velocity[2]};
+  if(!valid(motion)||std::hypot(motion.n,motion.u,motion.e)>1500)return;
+  text<<own_id<<','<<now<<','<<position.n<<','<<position.u<<','<<position.e<<','
+      <<motion.n<<','<<motion.u<<','<<motion.e<<",1,1;";
+  if(current)for(std::size_t i=0;i<tactical_packet.count;++i) {
+    const auto& report=tactical_packet.reports[i];
+    // The current v1 wire has no velocity-valid or independent identity clock.
+    // Never turn unavailable velocity into healthy zero or renew old identity.
+    if(!report.association_valid||!report.velocity_valid)continue;
+    text<<report.source<<','<<report.observation_time;
+    for(const double value:report.position)text<<','<<value;
+    for(const double value:report.velocity)text<<','<<value;
+    text<<",-1,0;"; // Unknown identity until Chat4 qualifies its versioned wire.
   }
+  if(current&&tactical_packet.parameter_epoch!=p.epoch())return;
   auto payload=text.str();alignas(8) std::array<std::byte,160> message{};
   std::memcpy(message.data(),&own_id,4);message[117]=std::byte{1};
   StringView v{};v.pointer=payload.data();v.size=payload.size();v.capacity=payload.size();
   std::memcpy(message.data()+120,&v,sizeof v);
-  // Only our own PPLI and genuine onboard radar reports; never relay remote tracks.
+  // Only our own PPLI and complete onboard measured snapshots, never relays.
   api.send(terminal.data(),message.data());++sent;
 }
 } // namespace
 void reset() {
+  tactical_reader.invalidate();tactical_packet={};
   if(constructed) {
     if(radio)api.receiver(radio,false);
     using Register=void(__fastcall*)(void*,unsigned char,void*);
@@ -353,25 +378,27 @@ void update(EDPARAM &p) {
   auto own_get=method<Own>(la,40);auto aircraft=own_get?own_get(la):nullptr;const double now=api.clock();
   if(!finite(now)||!readable(aircraft,640))return;
   if((previous>=0&&now<previous)||(owner&&owner!=aircraft))reset();previous=now;
-  const bool power=get(p,"MAIN_POWER")>.5&&get(p,"F22_DATALINK_ENABLE")>.5;
+  Controls controls;controls.load(p);
+  const bool power=controls.power;
+  if(!controls.complete)put(p,"F22_DATALINK_NATIVE_REASON",5);
   if(power&&!constructed&&!start(aircraft)){put(p,"F22_DATALINK_NATIVE_REASON",4);return;}
   if(constructed) {
     api.receiver(radio,power);api.radio_update(radio);drain();
-    const bool tx=power&&get(p,"F22_IFDL_ENABLE")>.5;
+    const bool tx=controls.ifdl;
     api.transmitter(radio,tx);
     if(published_rx!=int(power)) {const unsigned bits=power?1:0;api.receivers(terminal.data(),bits);published_rx=int(power);}
     if(published_tx!=int(tx)) {
       const unsigned value=tx?1:0;api.defaults(api.communicator(terminal.data()),value);
       published_tx=int(tx);
     }
-    if(power&&get(p,"F22_IFDL_ENABLE")>.5)transmit(p,now);
+    if(controls.ifdl)transmit(p,now);
   }
   if(!power){reports.clear();participants.clear();}
   for(auto i=participants.begin();i!=participants.end();) {
     if(now-i->second.time>26||now<i->second.time-.05)i=participants.erase(i);else ++i;
   }
   for(auto i=reports.begin();i!=reports.end();) {
-    if(now-i->second.time>lifetime(i->second)||now<i->second.time-.05||(i->second.link==1&&get(p,"F22_IFDL_ENABLE")<.5))i=reports.erase(i);
+    if(now-i->second.time>lifetime(i->second)||now<i->second.time-.05||(i->second.link==1&&!controls.ifdl))i=reports.erase(i);
     else ++i;
   }
   put(p,"F22_DL_RX_SEQUENCE",0);unsigned index=0;

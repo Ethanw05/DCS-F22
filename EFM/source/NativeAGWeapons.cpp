@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <map>
+#include <limits>
 #include <string>
 
 namespace NativeAGWeapons { namespace {
@@ -21,8 +22,31 @@ FloatVec* wind_at(Wind* w,FloatVec* out,const float*) {*out=w->value;return out;
 void* wind_methods[]={reinterpret_cast<void*>(&destroy_wind),reinterpret_cast<void*>(&wind_at)};
 std::map<std::string,void*> handles;
 void* handle(EDPARAM& p,const char* n) {auto& h=handles[n];if(!h)h=p.getParamHandle(n);return h;}
-double get(EDPARAM& p,const char* n) {return p.getParamNumber(handle(p,n));}
+bool get(EDPARAM& p,const char* n,double& value) {return p.getParamNumber(handle(p,n),value);}
 void put(EDPARAM& p,const char* n,double v) {p.setParamNumber(handle(p,n),v);}
+struct Request {
+ enum Field : std::size_t { Sequence,Valid,Schema,Time,Station,Type3,Type4,N,U,E,VN,VU,VE,WN,WU,WE,Ground,Trajectory,Count };
+ static constexpr std::array<const char*,Count> names{{
+  "F22_AG_BOMB_REQUEST_SEQUENCE","F22_AG_BOMB_REQUEST_VALID","F22_AG_BOMB_REQUEST_SCHEMA",
+  "F22_AG_BOMB_REQUEST_TIME","F22_AG_BOMB_REQUEST_STATION","F22_AG_BOMB_REQUEST_TYPE3",
+  "F22_AG_BOMB_REQUEST_TYPE4","F22_AG_BOMB_REQUEST_N","F22_AG_BOMB_REQUEST_U","F22_AG_BOMB_REQUEST_E",
+  "F22_AG_BOMB_REQUEST_VN","F22_AG_BOMB_REQUEST_VU","F22_AG_BOMB_REQUEST_VE",
+  "F22_AG_BOMB_REQUEST_WN","F22_AG_BOMB_REQUEST_WU","F22_AG_BOMB_REQUEST_WE",
+  "F22_AG_BOMB_REQUEST_GROUND_LEVEL","F22_AG_BOMB_REQUEST_TRAJECTORY"}};
+ std::array<double,Count> value{};
+ std::uint64_t epoch=0;
+ bool current(EDPARAM& p) const {
+  double sequence=0,valid=0;
+  return epoch==p.epoch() && get(p,names[Sequence],sequence) && sequence==value[Sequence]
+   && get(p,names[Valid],valid) && valid==1 && epoch==p.epoch();
+ }
+ bool load(EDPARAM& p,double sequence) {
+  epoch=p.epoch();
+  for(std::size_t i=0;i<Count;++i)if(!get(p,names[i],value[i]))return false;
+  return value[Sequence]==sequence && sequence>=1 && sequence<=16777215 && sequence==std::floor(sequence)
+   && value[Valid]==1 && value[Schema]==2 && (value[Trajectory]==0 || value[Trajectory]==1) && current(p);
+ }
+};
 bool failed=false;
 struct Api {
  using Ctor=void*(__fastcall*)(void*,const void*);
@@ -52,31 +76,33 @@ void solve(EDPARAM& p,double request_sequence) {
  put(p,"F22_AG_BOMB_ASYNC_SUPPORTED",2);put(p,"F22_AG_BOMB_RESPONSE_SCHEMA",0);
  put(p,"F22_AG_BOMB_NATIVE_VALID",0);put(p,"F22_AG_BOMB_NATIVE_REASON",1);
  put(p,"F22_AG_BOMB_TRAJECTORY_SUPPORTED",1);put(p,"F22_AG_BOMB_TRAJECTORY_READY",0);put(p,"F22_AG_BOMB_POINT_COUNT",0);
- if(failed || get(p,"F22_AG_BOMB_REQUEST_VALID")<.5)return;
+ Request request;
+ if(failed || !request.load(p,request_sequence))return;
+ const auto& input=request.value;
  WeaponFlightFrame::Snapshot<6> flight;
  if(!flight.load(p,WeaponFlightFrame::motion_names))return;
  if(!api.resolve()){put(p,"F22_AG_BOMB_NATIVE_REASON",2);return;}
- double now=api.clock(),stamp=get(p,"F22_AG_BOMB_REQUEST_TIME");
- if(!std::isfinite(now)||!std::isfinite(stamp)||now-stamp<-.01||now-stamp>.2)return;
- const bool frozen=get(p,"F22_AG_BOMB_REQUEST_SCHEMA")==2;
- const double station=frozen?get(p,"F22_AG_BOMB_REQUEST_STATION"):-1;
- if(frozen && (!std::isfinite(station)||station<0||station>10||station!=std::floor(station)))return;
- const double third=get(p,frozen?"F22_AG_BOMB_REQUEST_TYPE3":"F22_AG_WEAPON_TYPE3"),fourth=get(p,frozen?"F22_AG_BOMB_REQUEST_TYPE4":"F22_AG_WEAPON_TYPE4");
+ const double now=api.clock(),stamp=input[Request::Time];
+ if(!std::isfinite(now)||now<0||stamp<0||now-stamp<-.01||now-stamp>.2)return;
+ const double station=input[Request::Station];
+ if(station<0||station>10||station!=std::floor(station))return;
+ const double third=input[Request::Type3],fourth=input[Request::Type4];
  if(!std::isfinite(third)||!std::isfinite(fourth)||third<0||third>255||third!=std::floor(third)||fourth<=0||fourth>4294967295.0||fourth!=std::floor(fourth))return;
  Type type{4,5,static_cast<std::uint8_t>(third),0,static_cast<std::uint32_t>(fourth)};
  if((type.three!=9&&type.three!=36)||type.four==0)return;
- FloatVec pos{static_cast<float>(get(p,frozen?"F22_AG_BOMB_REQUEST_N":"F22_AG_OWN_N")),static_cast<float>(get(p,frozen?"F22_AG_BOMB_REQUEST_U":"F22_AG_OWN_U")),static_cast<float>(get(p,frozen?"F22_AG_BOMB_REQUEST_E":"F22_AG_OWN_E"))};
- FloatVec velocity{static_cast<float>(flight.values[0]),static_cast<float>(flight.values[1]),static_cast<float>(flight.values[2])};
- if(get(p,"F22_AG_RELEASE_VELOCITY_VALID")>.5)velocity={static_cast<float>(get(p,"F22_AG_RELEASE_VN")),static_cast<float>(get(p,"F22_AG_RELEASE_VU")),static_cast<float>(get(p,"F22_AG_RELEASE_VE"))};
- if(frozen)velocity={static_cast<float>(get(p,"F22_AG_BOMB_REQUEST_VN")),static_cast<float>(get(p,"F22_AG_BOMB_REQUEST_VU")),static_cast<float>(get(p,"F22_AG_BOMB_REQUEST_VE"))};
- double level=get(p,frozen?"F22_AG_BOMB_REQUEST_GROUND_LEVEL":"F22_AG_BOMB_GROUND_LEVEL");
+ for(std::size_t i=Request::N;i<=Request::E;++i)
+  if(std::abs(input[i])>std::numeric_limits<float>::max())return;
+ if(std::hypot(input[Request::VN],input[Request::VU],input[Request::VE])>1200
+    || std::hypot(input[Request::WN],input[Request::WU],input[Request::WE])>300)return;
+ const FloatVec pos{static_cast<float>(input[Request::N]),static_cast<float>(input[Request::U]),static_cast<float>(input[Request::E])};
+ const FloatVec velocity{static_cast<float>(input[Request::VN]),static_cast<float>(input[Request::VU]),static_cast<float>(input[Request::VE])};
+ const double level=input[Request::Ground];
  if(!std::isfinite(pos.n)||!std::isfinite(pos.u)||!std::isfinite(pos.e)||!std::isfinite(level)||pos.u-level<5 || pos.u-level>18000)return;
  if(!std::isfinite(std::hypot(velocity.n,velocity.u,velocity.e))||std::hypot(velocity.n,velocity.u,velocity.e)>1200)return;
- Wind wind{wind_methods,{static_cast<float>(flight.values[3]),static_cast<float>(flight.values[4]),static_cast<float>(flight.values[5])}};
- if(frozen)wind.value={static_cast<float>(get(p,"F22_AG_BOMB_REQUEST_WN")),static_cast<float>(get(p,"F22_AG_BOMB_REQUEST_WU")),static_cast<float>(get(p,"F22_AG_BOMB_REQUEST_WE"))};
+ Wind wind{wind_methods,{static_cast<float>(input[Request::WN]),static_cast<float>(input[Request::WU]),static_cast<float>(input[Request::WE])}};
  if(!std::isfinite(std::hypot(wind.value.n,wind.value.u,wind.value.e))||std::hypot(wind.value.n,wind.value.u,wind.value.e)>300)return;
  Wind* proxy=&wind;
- const bool path_requested=get(p,frozen?"F22_AG_BOMB_REQUEST_TRAJECTORY":"F22_AG_BOMB_TRAJECTORY_REQUEST")>.5;
+ const bool path_requested=input[Request::Trajectory]==1;
  alignas(16) std::array<std::byte,512> sight{};
  api.ctor(sight.data(),&proxy);api.type(sight.data(),&type);
  double fall=0;Vec point{};
@@ -99,7 +125,7 @@ void solve(EDPARAM& p,double request_sequence) {
  if(!flight.current(p))return;
  // Lua publishes VALID last and clears it before changing frozen inputs.
  // A cancellation/replacement during solver work cannot validate mixed input.
- if(get(p,"F22_AG_BOMB_REQUEST_VALID")<.5 || get(p,"F22_AG_BOMB_REQUEST_SEQUENCE")!=request_sequence)return;
+ if(!request.current(p))return;
  if(path){
   char key[64];
   for(unsigned i=0;i<17;++i){
@@ -112,7 +138,7 @@ void solve(EDPARAM& p,double request_sequence) {
  put(p,"F22_AG_BOMB_IMPACT_N",point.n);put(p,"F22_AG_BOMB_IMPACT_U",point.u);put(p,"F22_AG_BOMB_IMPACT_E",point.e);
  put(p,"F22_AG_BOMB_FALL_TIME",fall);put(p,"F22_AG_BOMB_RESULT_TIME",now);
  put(p,"F22_AG_BOMB_NATIVE_REASON",0);put(p,"F22_AG_BOMB_NATIVE_VALID",1);
- if(frozen){
+ {
   put(p,"F22_AG_BOMB_RESPONSE_SCHEMA",2);put(p,"F22_AG_BOMB_RESPONSE_REQUEST_TIME",stamp);
   put(p,"F22_AG_BOMB_RESPONSE_STATION",station);
   put(p,"F22_AG_BOMB_RESPONSE_TYPE3",third);put(p,"F22_AG_BOMB_RESPONSE_TYPE4",fourth);
@@ -122,7 +148,13 @@ void solve(EDPARAM& p,double request_sequence) {
 void reset(){handles.clear();failed=false;}
 void update(EDPARAM& p){
  double sequence=0;
- __try {sequence=get(p,"F22_AG_BOMB_REQUEST_SEQUENCE");solve(p,sequence);}
+ __try {
+  if(!get(p,"F22_AG_BOMB_REQUEST_SEQUENCE",sequence)) {
+   put(p,"F22_AG_BOMB_NATIVE_VALID",0);put(p,"F22_AG_BOMB_TRAJECTORY_READY",0);
+   put(p,"F22_AG_BOMB_POINT_COUNT",0);return;
+  }
+  solve(p,sequence);
+ }
  __except(EXCEPTION_EXECUTE_HANDLER){failed=true;put(p,"F22_AG_BOMB_NATIVE_VALID",0);put(p,"F22_AG_BOMB_NATIVE_REASON",4);}
  put(p,"F22_AG_BOMB_RESPONSE_SEQUENCE",sequence);
 }

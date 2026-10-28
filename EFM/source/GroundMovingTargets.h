@@ -1,160 +1,298 @@
-// GPL-3.0-or-later. Independent ground-contact geometry and scan history.
+// GPL-3.0-or-later. Bounded measured ground tracks; no scene-ID association.
 #pragma once
 #include <algorithm>
-#include <cmath>
-#include <cstdint>
 #include <array>
+#include <cmath>
 #include <cstddef>
+#include <cstdint>
+#include "AesaAssociation.h"
 #include "AesaTrackFilter.h"
+
 namespace GroundMovingTargets {
-inline constexpr double memory_s=30; // Coasting SA covers a finite wide surface scan; never refreshes an observation.
-constexpr double pi=3.14159265358979323846, knot=1.943844492440605;
-struct Vec {double n{},u{},e{};};
-inline double length(Vec v){return std::hypot(v.n,v.u,v.e);}
-inline Vec operator-(Vec a,Vec b){return {a.n-b.n,a.u-b.u,a.e-b.e};}
-inline double bearing(Vec v){return std::atan2(v.e,v.n);}
-inline double difference(double a,double b){return std::remainder(a-b,2*pi);}
-struct Contact {
-  unsigned id{};Vec point{},velocity{};double stamp{};unsigned hits{};
-  double observed_az{},horizontal_range{};
-  bool velocity_valid{};
-  bool filter_valid{};
-  double position_sigma_m{},velocity_sigma_mps{},range_rate{},rate_sigma_mps{};
+inline constexpr double memory_s = 30; // Retained SA, not association authority.
+inline constexpr double pi = 3.14159265358979323846;
+inline constexpr double knot = 1.943844492440605;
+inline constexpr std::size_t maximum_tracks = 64;
+inline constexpr std::size_t maximum_pending = 32;
+inline constexpr std::size_t maximum_returns = 8;
+inline constexpr unsigned maximum_token = 16000000;
+struct Vec { double n{}, u{}, e{}; };
+inline double length(Vec v) { return std::hypot(v.n, v.u, v.e); }
+inline Vec operator-(Vec a, Vec b) { return {a.n-b.n, a.u-b.u, a.e-b.e}; }
+inline double bearing(Vec v) { return std::atan2(v.e, v.n); }
+inline double difference(double a, double b) { return std::remainder(a-b, 2*pi); }
+struct RequestIdentity {
+    std::uint64_t epoch{};
+    double sequence = -1;
+    bool operator==(const RequestIdentity&) const = default;
 };
-// Recovered APG-73 simulation predicate (FA18C 0x1804A0210), not an APG-77
-// specification: ordinary GMT uses 8..55kt movers; an acquired track may stop.
-inline bool moving(Vec v){const double k=length(v)*knot;return std::isfinite(k)&&k>=8&&k<=55;}
-inline bool illuminated(Vec relative,double heading,double az,double half,double range) {
-  const double r=length(relative);
-  return std::isfinite(r)&&r>=100&&r<=range&&relative.u<0&&
-      std::abs(difference(bearing(relative),heading+az))<=half;
+struct RawReturn {
+    // Used only to suppress duplicate raw scene callbacks, never for matching.
+    unsigned private_source{};
+    Vec point{}, velocity{};
+    double stamp{};
+};
+struct Contact {
+    unsigned id{}; // Owned token; no simulator object ID is published.
+    Vec point{}, velocity{};
+    double stamp{};
+    unsigned hits{};
+    double observed_az{}, horizontal_range{};
+    bool velocity_valid{}, filter_valid{};
+    double position_sigma_m{}, velocity_sigma_mps{}, range_rate{}, rate_sigma_mps{};
+    bool association_valid{};
+};
+// Adopted APG-73 game predicate, not an APG-77 specification.
+inline bool moving(Vec v) {
+    const double speed = length(v)*knot;
+    return std::isfinite(speed) && speed >= 8 && speed <= 55;
+}
+inline bool illuminated(Vec relative, double heading, double az, double half, double range) {
+    const double distance = length(relative);
+    return std::isfinite(distance) && distance >= 100 && distance <= range && relative.u < 0
+        && std::abs(difference(bearing(relative), heading+az)) <= half;
 }
 class Contacts {
-    std::array<Contact, 64> values_{};
+    std::array<Contact, maximum_tracks> values_{};
     std::size_t size_{};
 public:
     void clear() noexcept { size_ = 0; }
     bool empty() const noexcept { return size_ == 0; }
     std::size_t size() const noexcept { return size_; }
     auto begin() noexcept { return values_.begin(); }
-    auto end() noexcept { return values_.begin() + size_; }
+    auto end() noexcept { return values_.begin()+size_; }
     auto begin() const noexcept { return values_.begin(); }
-    auto end() const noexcept { return values_.begin() + size_; }
+    auto end() const noexcept { return values_.begin()+size_; }
     const Contact& operator[](std::size_t i) const noexcept { return values_[i]; }
-    void push(Contact c) noexcept { if (size_ < values_.size()) values_[size_++] = c; }
+    void push(Contact value) noexcept { if (size_ < values_.size()) values_[size_++] = value; }
 };
-class Tracks {
-    std::array<Contact, 64> tracks_{};
-    double clock_ = -1;
-public:
-    void clear() noexcept { tracks_ = {}; clock_ = -1; }
-    void advance(double now) noexcept {
-        if (now < clock_ || now - clock_ > 10) clear();
-        clock_ = now;
-        for (auto& t : tracks_) if (t.id && now - t.stamp > memory_s) t = {};
-    }
-    void observe(Contact c) noexcept {
-        if (!c.id || !std::isfinite(c.stamp) || !std::isfinite(length(c.point))
-            || !std::isfinite(length(c.velocity))) return;
-        Contact* slot = nullptr;
-        for (auto& t : tracks_) {
-            if (t.id == c.id) { slot = &t; break; }
-            if (!t.id && !slot) slot = &t;
-        }
-        if (slot && (!slot->id || c.stamp > slot->stamp)) *slot = c;
-    }
-    const Contact* find(unsigned id) const noexcept {
-        for (const auto& t : tracks_) if (t.id == id) return &t;
-        return nullptr;
-    }
-    Contacts contacts() const noexcept {
-        Contacts out;
-        for (const auto& t : tracks_) if (t.id) out.push(t);
-        std::sort(out.begin(), out.end(), [](const auto& a, const auto& b) { return a.stamp > b.stamp; });
-        return out;
-    }
+enum class ClockState { current, discontinuity, unavailable };
+struct Statistics {
+    unsigned pending{}, tracks{}, dropped{}, ambiguous{}, token_exhausted{};
 };
-// Owned surface measurement pipeline. Dwell permission comes from the shared
-// AESA scheduler. All noise, delay and velocity-fit values are game estimates.
+// The single owner of ground EKFs, tokens and latest measured contacts.
+// NativeGroundSensor coordinates an entire source-epoch retirement whenever
+// advance() reports a discontinuity; this class never invents a source epoch.
 class Measurements {
-public:
-    struct Report { Contact value{}; double release{}; bool tracking{}, occupied{}; };
-private:
-    std::array<Report, 32> pending_{};
-    struct TrackFilter { unsigned id{}; double time=-100; AesaTrackFilter::Filter value; };
-    std::array<TrackFilter,64> filters_{};
+    struct Report {
+        AesaTrackFilter::Sample sample{};
+        unsigned private_source{};
+        double release{};
+        RequestIdentity request{};
+        bool tracking{}, occupied{};
+    };
+    struct Track {
+        Contact value{};
+        AesaTrackFilter::Filter filter;
+        RequestIdentity request{};
+        bool tracking{};
+    };
+    std::array<Report, maximum_pending> pending_{};
+    std::array<Track, maximum_tracks> tracks_{};
+    unsigned next_token_ = 1;
+    std::uint64_t epoch_{};
     std::uint32_t random_ = 0x768fbcda;
+    double clock_ = -1;
+    Statistics stats_{};
+
     double jitter(double scale) noexcept {
-        random_ ^= random_ << 13; random_ ^= random_ >> 17; random_ ^= random_ << 5;
-        return (static_cast<double>(random_) / 4294967296.0 - .5) * 2 * scale;
+        random_ ^= random_ << 13;
+        random_ ^= random_ >> 17;
+        random_ ^= random_ << 5;
+        return (static_cast<double>(random_)/4294967296.0-.5)*2*scale;
     }
     double error(double sigma) noexcept { return jitter(sigma)+jitter(sigma)+jitter(sigma); }
-    TrackFilter* filter(unsigned id,double now) noexcept {
-        TrackFilter* available=nullptr;
-        for(auto& f:filters_) {
-            if(f.id && (now<f.time || now-f.time>6)) {f.id=0;f.value.reset();}
-            if(f.id==id)return &f;
-            if(!f.id && !available)available=&f;
+    AesaTrackFilter::Sample sample(const RawReturn& raw, Vec origin, Vec velocity, double heading) noexcept {
+        const Vec delta = raw.point-origin, relative = raw.velocity-velocity;
+        const double distance = length(delta);
+        AesaTrackFilter::Sample value{};
+        value.origin = {origin.n, origin.u, origin.e};
+        value.own_velocity = {velocity.n, velocity.u, velocity.e};
+        value.forward = {std::cos(heading), 0, std::sin(heading)};
+        value.right = {-std::sin(heading), 0, std::cos(heading)};
+        value.time = raw.stamp;
+        value.range_sigma = 2+distance*.0001;
+        value.angle_sigma = .005*pi/180;
+        value.rate_sigma = .5;
+        value.range = std::max(40.0, distance+error(value.range_sigma));
+        value.azimuth = difference(bearing(delta), heading)+error(value.angle_sigma);
+        value.elevation = std::atan2(delta.u, std::hypot(delta.n, delta.e))+error(value.angle_sigma);
+        value.range_rate = (relative.n*delta.n+relative.u*delta.u+relative.e*delta.e)
+            / std::max(1.0, distance)+error(value.rate_sigma);
+        return value;
+    }
+    void refresh_statistics() noexcept {
+        stats_.pending = 0;
+        stats_.tracks = 0;
+        for (const auto& report : pending_) if (report.occupied) ++stats_.pending;
+        for (const auto& track : tracks_) if (track.value.id) ++stats_.tracks;
+    }
+    bool commit(const Report& report, std::size_t index) noexcept {
+        auto& track = tracks_[index];
+        const bool born = !track.value.id;
+        if (born && next_token_ >= maximum_token) { ++stats_.token_exhausted; return false; }
+        if (!track.filter.observe(report.sample)) { track.value.association_valid = false; return false; }
+        const auto& state = track.filter.state();
+        Contact value{};
+        value.id = born ? next_token_++ : track.value.id;
+        value.point = {state.position[0], state.position[1], state.position[2]};
+        value.velocity = {state.velocity[0], state.velocity[1], state.velocity[2]};
+        value.stamp = state.time;
+        value.hits = state.hits;
+        value.observed_az = report.sample.azimuth;
+        value.horizontal_range = std::hypot(value.point.n-report.sample.origin[0], value.point.e-report.sample.origin[2]);
+        value.velocity_valid = state.velocity_valid;
+        value.filter_valid = state.valid;
+        double position = 0, velocity = 0;
+        for (std::size_t i = 0; i < 3; ++i) {
+            position = std::max(position, state.covariance[i][i]);
+            velocity = std::max(velocity, state.covariance[i+3][i+3]);
         }
-        if(available)available->id=id;
-        return available;
-    }
-    AesaTrackFilter::Sample sample(const Contact& truth,Vec origin,Vec own_velocity,double heading) noexcept {
-        const Vec d=truth.point-origin, relative_velocity=truth.velocity-own_velocity;
-        const double range=length(d);
-        AesaTrackFilter::Sample s{};
-        s.origin={origin.n,origin.u,origin.e};s.own_velocity={own_velocity.n,own_velocity.u,own_velocity.e};
-        s.forward={std::cos(heading),0,std::sin(heading)};s.right={-std::sin(heading),0,std::cos(heading)};
-        s.time=truth.stamp;s.range_sigma=2+range*.0001;s.angle_sigma=.005*pi/180;s.rate_sigma=.5;
-        s.range=std::max(40.0,range+error(s.range_sigma));
-        s.azimuth=difference(bearing(d),heading)+error(s.angle_sigma);
-        s.elevation=std::atan2(d.u,std::hypot(d.n,d.e))+error(s.angle_sigma);
-        s.range_rate=(relative_velocity.n*d.n+relative_velocity.u*d.u+relative_velocity.e*d.e)/std::max(1.0,range)
-            +error(s.rate_sigma);
-        return s;
-    }
-public:
-    void discard_search() noexcept {
-        for (auto& report : pending_) if (!report.tracking) report = {};
-    }
-    void clear() noexcept {
-        pending_ = {};
-        for(auto& f:filters_){f.id=0;f.time=-100;f.value.reset();}
-        random_ = 0x768fbcda;
-    }
-    bool queue(Contact truth, Vec origin, double heading, double resource, bool tracking, Vec own_velocity={}) noexcept {
-        if (!std::isfinite(resource) || resource < .1 || resource > 1 || !truth.id) return false;
-        if (!std::isfinite(length(truth.point)) || !std::isfinite(length(origin))
-            || !std::isfinite(truth.stamp) || !std::isfinite(heading)) return false;
-        Report* slot = nullptr;
-        for (auto& p : pending_) {
-            if (p.occupied && p.value.id == truth.id) return false;
-            if (!p.occupied && !slot) slot = &p;
-        }
-        if (!slot) return false;
-        auto* track=filter(truth.id,truth.stamp);
-        if(!track)return false;
-        const auto measurement=sample(truth,origin,own_velocity,heading);
-        if(!track->value.observe(measurement))return false;
-        track->time=truth.stamp;
-        const auto& state=track->value.state();
-        Contact measured = truth;
-        measured.point={state.position[0],state.position[1],state.position[2]};
-        measured.velocity={state.velocity[0],state.velocity[1],state.velocity[2]};
-        measured.velocity_valid=state.velocity_valid;measured.filter_valid=state.valid;measured.hits=state.hits;
-        measured.observed_az=measurement.azimuth;
-        measured.horizontal_range=std::hypot(measured.point.n-origin.n,measured.point.e-origin.e);
-        double p=0,v=0;
-        for(std::size_t i=0;i<3;++i){p=std::max(p,state.covariance[i][i]);v=std::max(v,state.covariance[i+3][i+3]);}
-        measured.position_sigma_m=std::sqrt(p);measured.velocity_sigma_mps=std::sqrt(v);
-        measured.range_rate=measurement.range_rate;measured.rate_sigma_mps=measurement.rate_sigma;
-        *slot = {measured, truth.stamp + .06 / resource, tracking, true};
+        value.position_sigma_m = std::sqrt(position);
+        value.velocity_sigma_mps = std::sqrt(velocity);
+        value.range_rate = report.sample.range_rate;
+        value.rate_sigma_mps = report.sample.rate_sigma;
+        value.association_valid = true;
+        track.value = value;
+        track.tracking = report.tracking;
+        track.request = report.request;
         return true;
     }
-    template<class Consumer> void release(double now, Consumer consume) noexcept {
-        for (auto& p : pending_) if (p.occupied && now >= p.release) {
-            consume(p.value, p.tracking); p.occupied = false;
+    void birth(const Report& report) noexcept {
+        bool overlap = false;
+        for (auto& track : tracks_) {
+            if (!track.value.id || track.value.stamp != report.sample.time) continue;
+            if (track.filter.association_score(report.sample) > AesaAssociation::gate) continue;
+            track.value.association_valid = false;
+            overlap = true;
+        }
+        if (overlap) { ++stats_.ambiguous; return; }
+        for (std::size_t i = 0; i < tracks_.size(); ++i) {
+            if (tracks_[i].value.id) continue;
+            if (!commit(report, i)) ++stats_.dropped;
+            return;
+        }
+        ++stats_.dropped;
+    }
+    void associate(const std::array<Report*, maximum_returns>& reports, std::size_t count) noexcept {
+        AesaAssociation::Assignment match{};
+        std::array<bool, maximum_tracks> assigned{};
+        for (std::size_t row = 0; row < count; ++row)
+            for (std::size_t column = 0; column < tracks_.size(); ++column)
+                if (tracks_[column].value.id)
+                    match.offer(row, column, tracks_[column].filter.association_score(reports[row]->sample));
+        for (std::size_t row = 0; row < count; ++row) {
+            const auto selected = match.selected(row);
+            if (selected == AesaAssociation::none) continue;
+            assigned[selected] = commit(*reports[row], selected);
+        }
+        for (std::size_t column = 0; column < tracks_.size(); ++column)
+            if (!assigned[column] && match.tracks[column].index != AesaAssociation::none)
+                tracks_[column].value.association_valid = false;
+        for (std::size_t row = 0; row < count; ++row) {
+            if (match.selected(row) != AesaAssociation::none) continue;
+            if (match.reports[row].index != AesaAssociation::none) { ++stats_.ambiguous; continue; }
+            birth(*reports[row]);
         }
     }
+    Report* next_report(double now) noexcept {
+        Report* first = nullptr;
+        for (auto& report : pending_)
+            if (report.occupied && report.release <= now && (!first || report.sample.time < first->sample.time))
+                first = &report;
+        return first;
+    }
+    std::size_t batch(Report& first, double now, std::array<Report*, maximum_returns>& reports) noexcept {
+        std::size_t count = 0;
+        for (auto& report : pending_)
+            if (report.occupied && report.sample.time == first.sample.time && report.release <= now && count < reports.size())
+                reports[count++] = &report;
+        return count;
+    }
+public:
+    void clear() noexcept {
+        pending_ = {};
+        for(auto& track:tracks_) {
+            track.value={};track.filter.reset();track.request={};track.tracking=false;
+        }
+        random_ = 0x768fbcda;
+        refresh_statistics();
+    }
+    void reset(std::uint64_t generation) noexcept {
+        clear();
+        if (generation != epoch_) { next_token_ = 1; stats_ = {}; }
+        epoch_ = generation;
+        clock_ = -1;
+    }
+    ClockState advance(double now) noexcept {
+        if (!std::isfinite(now) || now < 0) { clear(); clock_ = -1; return ClockState::unavailable; }
+        const bool changed = clock_ >= 0 && (now < clock_ || now-clock_ > 10);
+        if (changed) clear();
+        clock_ = now;
+        for (auto& track : tracks_)
+            if (track.value.id && now-track.value.stamp > memory_s) track = {};
+        refresh_statistics();
+        return changed ? ClockState::discontinuity : ClockState::current;
+    }
+    void discard_search() noexcept {
+        for (auto& report : pending_) if (!report.tracking) report = {};
+        for (auto& track : tracks_) if (!track.tracking) track = {};
+        refresh_statistics();
+    }
+    bool queue(RawReturn raw, Vec origin, double heading, double resource, bool tracking,
+               Vec own_velocity = {}, RequestIdentity request = {}) noexcept {
+        if (!std::isfinite(resource) || resource < .1 || resource > 1 || !raw.private_source) return false;
+        if (tracking && (request.epoch != epoch_ || !std::isfinite(request.sequence)
+            || request.sequence < 0 || request.sequence > 16777215
+            || std::floor(request.sequence) != request.sequence)) return false;
+        if (!std::isfinite(length(raw.point)) || !std::isfinite(length(raw.velocity))
+            || !std::isfinite(length(origin)) || !std::isfinite(length(own_velocity))
+            || !std::isfinite(raw.stamp) || raw.stamp < 0 || !std::isfinite(heading)) return false;
+        if (clock_ < 0 || raw.stamp != clock_) return false;
+        Report* available = nullptr;
+        std::size_t same_dwell = 0;
+        for (auto& report : pending_) {
+            if (report.occupied && report.sample.time == raw.stamp) {
+                ++same_dwell;
+                if (report.private_source == raw.private_source) return false;
+            }
+            if (!report.occupied && !available) available = &report;
+        }
+        if (!available || same_dwell >= maximum_returns) { ++stats_.dropped; return false; }
+        const auto measured = sample(raw, origin, own_velocity, heading);
+        if (!AesaTrackFilter::valid_sample(measured)) return false;
+        *available = {measured, raw.private_source, raw.stamp+.06/resource, request, tracking, true};
+        refresh_statistics();
+        return true;
+    }
+    void release(double now) noexcept {
+        if (advance(now) != ClockState::current) return;
+        for (std::size_t i = 0; i < maximum_pending; ++i) {
+            auto* first = next_report(now);
+            if (!first) break;
+            std::array<Report*, maximum_returns> reports{};
+            const auto count = batch(*first, now, reports);
+            associate(reports, count);
+            for (std::size_t row = 0; row < count; ++row) reports[row]->occupied = false;
+        }
+        refresh_statistics();
+    }
+    const Contact* find(unsigned token) const noexcept {
+        for (const auto& track : tracks_) if (track.value.id == token && token) return &track.value;
+        return nullptr;
+    }
+    bool belongs_to(unsigned token, RequestIdentity request) const noexcept {
+        for (const auto& track : tracks_)
+            if (track.value.id == token && token) return track.tracking && track.request == request;
+        return false;
+    }
+    Contacts contacts(bool include_tracking = false) const noexcept {
+        Contacts values;
+        for (const auto& track : tracks_)
+            if (track.value.id && (include_tracking || !track.tracking)) values.push(track.value);
+        std::sort(values.begin(), values.end(), [](const auto& a, const auto& b) { return a.stamp > b.stamp; });
+        return values;
+    }
+    const Statistics& statistics() const noexcept { return stats_; }
 };
 }

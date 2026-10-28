@@ -401,8 +401,17 @@ struct Parameters {
     std::array<double, maximum_tracks> published_time{};
     std::array<unsigned, maximum_tracks> published_id{};
     std::atomic<bool> bound{};
+    const EDPARAM* parameter_owner{};
+    std::uint64_t parameter_epoch{};
+    bool current_context(const EDPARAM& p) const noexcept {
+        return bound && parameter_owner==&p && parameter_epoch==p.epoch() && p.numericReady()
+            && p.ed_param_api.pfn_ed_cockpit_update_parameter_with_number;
+    }
     bool bind(EDPARAM& p) noexcept {
-        if (bound) return true;
+        if (current_context(p)) return true;
+        bound = false;
+        published_id.fill(0);
+        published_type_valid.fill(false);
         if (!p.ed_param_api.pfn_ed_cockpit_get_parameter_handle
             || !p.ed_param_api.pfn_ed_cockpit_update_parameter_with_number
             || !p.ed_param_api.pfn_ed_cockpit_parameter_value_to_number) return false;
@@ -421,11 +430,14 @@ struct Parameters {
             std::snprintf(name,sizeof(name),"F22A_%02u_TYPE_NAME",static_cast<unsigned>(i+1));
             type_names[i]=p.getParamHandle(name);
         }
+        parameter_owner = &p;
+        parameter_epoch = p.epoch();
         bound = true; return true;
     }
     double read(EDPARAM& p, void* handle) noexcept {
         double value = std::numeric_limits<double>::quiet_NaN();
-        if (!p.ed_param_api.pfn_ed_cockpit_parameter_value_to_number(handle, value, false))
+        const auto convert = p.ed_param_api.pfn_ed_cockpit_parameter_value_to_number;
+        if (!handle || !convert || !convert(handle, value, false))
             return std::numeric_limits<double>::quiet_NaN();
         return value;
     }
@@ -446,10 +458,24 @@ struct Parameters {
         controls.gun_tracking = values[17] == 1;
         return !controls.gun_tracking || controls.fire_control_id != 0;
     }
+    bool copy_values(EDPARAM& p,CommandValues& values,double sequence) noexcept {
+        values[2]=sequence;
+        for (std::size_t i=0;i<values.size();++i) {
+            if (i==2) continue;
+            values[i]=read(p,inputs[i]);
+            if (!std::isfinite(values[i])) return false;
+        }
+        for (const auto i : {0,3,5,11,17}) if (values[i]!=0 && values[i]!=1) return false;
+        return true;
+    }
     Request controls(EDPARAM& p, double now) noexcept {
+        const auto generation = epoch.load(std::memory_order_acquire);
+        const auto context_epoch = p.epoch();
+        const double sequence = read(p, inputs[2]);
+        if (!std::isfinite(sequence) || sequence < 2 || sequence >= 16000002
+            || std::fmod(sequence,2) != 0) return {};
         CommandValues values{};
-        for (std::size_t i = 0; i < values.size(); ++i) values[i] = read(p, inputs[i]);
-        const double sequence = values[2];
+        if (!copy_values(p,values,sequence)) return {};
         Request r{};
         if (!command_clock(values, now)) return r;
         r.controls.enabled = values[0] == 1; r.controls.emit = values[3] == 1;
@@ -461,16 +487,17 @@ struct Parameters {
         r.controls.surface_half_azimuth = values[15];
         r.controls.cue_half_azimuth = values[18]; r.controls.cue_half_elevation = values[19];
         r.controls.cue_range_m = values[21];
-        if (!identifier(values[20], r.controls.cue_request)) r.controls.cue_valid = false;
+        if (!identifier(values[20], r.controls.cue_request)) return {};
         const bool selected_valid = identifier(values[14], r.controls.selected_id);
-        if (!selected_valid) r.controls.selected_id = 0;
+        if (!selected_valid) return {};
         if (!focus(r.controls, values)) return {};
         for (std::size_t i = 0; i < priorities.size(); ++i) {
             const bool valid = identifier(read(p, priorities[i]), r.controls.priority_ids[i]);
-            if (!valid) r.controls.priority_ids[i] = 0;
+            if (!valid) return {};
         }
-        if (sequence != read(p, inputs[2])) return {};
-        r.stamp = now; r.controls.generation = epoch.load(std::memory_order_acquire); return r;
+        if (sequence != read(p, inputs[2]) || generation != epoch.load(std::memory_order_acquire)
+            || context_epoch != p.epoch()) return {};
+        r.stamp = values[1]; r.controls.generation = generation; return r;
     }
     void publish(EDPARAM& p, const Snapshot& s, double now, bool enabled) noexcept {
         publication = (publication + 2) % 16000000;
@@ -582,9 +609,14 @@ struct Parameters {
 bool fresh(double now, double stamp, double age) noexcept {
     return std::isfinite(now) && std::isfinite(stamp) && now >= stamp && now - stamp <= age;
 }
+bool request_current(const Request& value,double now,std::uint64_t generation) noexcept {
+    return std::isfinite(now) && std::isfinite(value.stamp)
+        && now-value.stamp>=-.01 && now-value.stamp<=.5 && value.controls.generation==generation;
+}
 bool bridge_ready(double now) noexcept {
     return request.controls.enabled && request.controls.emit && snapshot.status.ready && snapshot.status.interference.valid
         && snapshot.epoch == epoch.load(std::memory_order_acquire)
+        && request.controls.generation == snapshot.epoch
         && fresh(now,request.stamp,.5) && fresh(now,snapshot.status.time,.5);
 }
 bool eligible(std::size_t index, double now) noexcept {
@@ -816,7 +848,7 @@ void sample(void* radar) noexcept {
     if (sampled_epoch != generation) { model.reset(generation); sampled_epoch = generation; }
     AcquireSRWLockShared(&state_lock); Request r = request; ReleaseSRWLockShared(&state_lock);
     const double now = api.clock();
-    if (!std::isfinite(now) || now - r.stamp < -.01 || now - r.stamp > .5) r.controls.enabled = false;
+    if (!request_current(r,now,generation)) r.controls.enabled = false;
     Provider provider; Pose pose{};
     const bool pose_valid=provider.pose(pose);
     NativeGroundVideo::set_aircraft(pose_valid?&pose:nullptr,now);
@@ -839,7 +871,12 @@ void sample(void* radar) noexcept {
     NativeGroundSensor::sample(radar, service);
 }
 void update(EDPARAM& p) noexcept {
-    if (!parameters.bind(p)) return;
+    if (!parameters.bind(p)) {
+        AcquireSRWLockExclusive(&state_lock);
+        request={};snapshot.status.ready=false;
+        ReleaseSRWLockExclusive(&state_lock);
+        return;
+    }
     api.initialize();
     const bool available = api.ready.load(std::memory_order_acquire);
     const bool driver_ready = available && bind_driver();

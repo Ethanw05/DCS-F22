@@ -1577,7 +1577,8 @@ void ed_fm_release() {
     NativeMWS::reset();
     NativeGroundRadar::reset();
     NativeAGWeapons::reset();
-    cockpit_manager.resetWeaponFeedback();
+    NativeGunSight::reset();
+    cockpit_manager.retireParameters();
     RAPTOR::fm_clock = 0;
     RAPTOR::sim_initialised = false;
     ed_fm_repair();
@@ -1755,6 +1756,7 @@ void CockpitManager::initialize() {
 }
 
 void CockpitManager::invalidatePhysical() {
+    parameters_ready_ = false; // Stop subsequent cockpit producers before release/reset.
     constexpr VehicleSignal signals[] = {
         VehicleSignal::Valid, VehicleSignal::AirValid, VehicleSignal::ElectricalValid,
         VehicleSignal::EnvironmentValid, VehicleSignal::MassValid, VehicleSignal::ForceValid,
@@ -1829,8 +1831,11 @@ void CockpitManager::updateCombat(double dt) {
     NativeNavigation::update(param_api_);
 }
 
-void CockpitManager::resetWeaponFeedback() {
+void CockpitManager::retireParameters() {
     NativeSidewinder::reset(&param_api_);
+    parameters_ready_ = false;
+    param_api_.invalidate();
+    param_handles_.clear();
 }
 
 void CockpitManager::update(double dt) {

@@ -36,9 +36,18 @@ nonfinite/string/null, initial missing module then explicit rediscovery,
 invalidation/reacquisition and reused context addresses. Real DCS callback
 ordering, handle lifetime and concurrent use remain a separate native gate.
 
-The checked numeric overload, guarded resolve/writes and bounded bool string read
-are implemented and tested. NativeAltimetry pressure-request admission uses the
-checked overload; its safe direct standby reader is retained. The pre-existing
-one-argument getter and constructor capture are transitional, still known-failing
-and inventoried in NATIVE-CALLERS.json. P-INT-008 remains open until all callers,
-initialization and handle epochs are migrated; port readiness is not that closure.
+The checked numeric port, guarded resolve/writes and bounded bool string read
+are implemented. The constructor is inert and the value-only getter is removed;
+the entire native DLL compiles against checked reads. NativeAltimetry retains
+its safe direct standby reader. Gun/bomb/IR/datalink adapters capture required
+fields with conversion status, then reject incomplete requests before their
+dependent native work. Bomb requests require the actual schema2 producer;
+the obsolete live-field fallback is retired.
+
+Explicit startup discovers exports; release withdraws cockpit production,
+resets native owners and invalidates its parameter port. Actual-DLL fixtures
+exercise initial host absence, startup rediscovery, release, late callbacks and
+new startup. Existing domain packet readers retain original source leases and
+context epochs. P-INT-008 still requires supported DCS context/allocator lifetime
+and producer-drain qualification; sequential software fixtures do not establish
+native concurrency or safety after a host module disappears.

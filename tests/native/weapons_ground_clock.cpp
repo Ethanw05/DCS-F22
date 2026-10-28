@@ -242,6 +242,31 @@ int main() {
     failures+=!expect(values["F22_AG_GUN_NATIVE_VALID"].value==1 &&
                       values["F22_AG_GUN_RESULT_TIME"].value==21,
                        "Fresh full group did not restore native ground result");
+    for(const char* name:{"F22_AG_GUN_REQUEST_VALID","F22_AG_GUN_REQUEST_TIME",
+                         "F22_AG_OWN_N","F22_AG_OWN_U","F22_AG_OWN_E"}) {
+        input(30,30);values[name].success=false;
+        NativeGunSight::calculate_ground(parameters);
+        failures+=!expect(context_calls==0 && values["F22_AG_GUN_NATIVE_VALID"].value==0,
+                           "Failed ground request read reached native context");
+    }
+    for(const char* name:{"F22_FUNNEL_REQUEST_VALID","F22_FUNNEL_REQUEST_TIME","F22_GUN_DEVICE_ID",
+                         "F22_FUNNEL_OWN_N","F22_FUNNEL_OWN_U","F22_FUNNEL_OWN_E","F22_RADAR_STT_VALID"}) {
+        input(30,30);values["F22_FUNNEL_REQUEST_VALID"].value=1;
+        values["F22_FUNNEL_REQUEST_TIME"].value=30;values[name].success=false;
+        NativeGunSight::calculate_funnel(parameters);
+        failures+=!expect(context_calls==0 && NativeGunSight::funnel_history.empty(),
+                           "Failed funnel request read reached native context or kept history");
+    }
+    for(const char* name:{"F22_GUN_REQUEST_SEQUENCE","F22_GUN_REQUEST_VALID","F22_GUN_DEVICE_ID",
+                         "F22_GUN_OWN_N","F22_GUN_OWN_U","F22_GUN_OWN_E","F22_GUN_TRACK_ID",
+                         "F22_GUN_REQUEST_GENERATION","F22_GUN_INPUT_SOURCE","F22_GUN_REQUEST_TIME"}) {
+        input(30,30);values["F22_GUN_REQUEST_VALID"].value=1;values[name].success=false;
+        NativeGunSight::calculate(parameters);
+        failures+=!expect(context_calls==0 && values["F22_GUN_SOLUTION_VALID"].value==0,
+                           "Failed source2 gun request read reached native context");
+    }
+    input(31,31);NativeGunSight::calculate_ground(parameters);
+    failures+=!expect(values["F22_AG_GUN_NATIVE_VALID"].value==1,"Checked request did not recover");
     std::cout << "{\"clock_cases\":" << cases << ",\"recovery_cases\":1,\"failures\":"
               << failures << ",\"flight_cases\":" << flight_cases+8
               << ",\"actual_DCS_effect\":false}\n";

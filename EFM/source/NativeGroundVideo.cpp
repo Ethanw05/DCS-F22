@@ -10,6 +10,7 @@
 #include <atomic>
 #include <cstring>
 #include <map>
+#include <limits>
 #include <mutex>
 #include <string>
 #include <tuple>
@@ -125,7 +126,7 @@ bool live(const View &v) {
       while (lead>previous && !max_clock_lead_ms.compare_exchange_weak(previous,lead,std::memory_order_relaxed)) {}
     } else if (delta>.5) stale_rejects.fetch_add(1,std::memory_order_relaxed);
   }
-  return GroundVideoView::valid(v,now);
+  return GroundVideoView::prepare(v,now).accepted;
 }
 struct RenderFrame {
   alignas(16) std::array<std::byte,784> camera{};
@@ -162,7 +163,7 @@ int __fastcall condition(void *object) {
 bool __fastcall always(void *object) { return condition(object)!=0; }
 GroundVideoView::Prepared capture_image(void *object,const View& control,
                                        const GroundVideoView::Aircraft& motion,double now) {
-  const bool current=GroundVideoView::valid(control,now) && object==owned.load() && guard.available();
+  const bool current=GroundVideoView::prepare(control,now).accepted && object==owned.load() && guard.available();
   if (!current) return {};
   if (render.owner!=object || render.generation!=epoch.load()) {
     // Camera has a native constructor and remains alive on this render
@@ -177,7 +178,7 @@ GroundVideoView::Prepared capture_image(void *object,const View& control,
   if (image_state.owner!=object || image_state.generation!=render.generation) {
     image_state={};image_state.owner=object;image_state.generation=render.generation;
   }
-  if (GroundVideoView::valid(candidate,now) && image_state.cycle.capture(candidate)) {
+  if (GroundVideoView::prepare(candidate,now).accepted && image_state.cycle.capture(candidate)) {
     image_state.refresh=true;++image_state.serial;++image_captures;
     map_reference=candidate;
     reference_generation=render.generation;
@@ -297,11 +298,136 @@ bool install(void *context) {
   api.reason=0;return true;
 }
 std::map<std::string,void *> handles;
+const EDPARAM* parameter_owner{};
+std::uint64_t parameter_epoch{};
+void* parameter(EDPARAM& p,const std::string& name) {
+  if (parameter_owner != &p || parameter_epoch != p.epoch()) {
+    handles.clear();parameter_owner=&p;parameter_epoch=p.epoch();
+  }
+  auto& handle=handles[name];
+  if (!handle) handle=p.getParamHandle(name.c_str());
+  return handle;
+}
 double get(EDPARAM &p,const std::string &name) {
-  auto &h=handles[name];if (!h) h=p.getParamHandle(name.c_str());return p.getParamNumber(h);
+  double value = std::numeric_limits<double>::quiet_NaN();
+  if (!p.getParamNumber(parameter(p,name),value)) return std::numeric_limits<double>::quiet_NaN();
+  return value;
 }
 void put(EDPARAM &p,const std::string &name,double value) {
-  auto &h=handles[name];if (!h) h=p.getParamHandle(name.c_str());p.setParamNumber(h,value);
+  const bool dispatched=p.setParamNumber(parameter(p,name),value);
+  (void)dispatched; // Telemetry dispatch grants no rendering or target authority.
+}
+bool integer(double raw,int minimum,int maximum,int& result) {
+  if (!std::isfinite(raw) || raw<minimum || raw>maximum || raw!=std::floor(raw)) return false;
+  result=static_cast<int>(raw);
+  return true;
+}
+bool flag(EDPARAM& p,const char* name,bool& valid) {
+  const double raw=get(p,name);
+  if (raw!=0 && raw!=1) valid=false;
+  return raw==1;
+}
+bool committed(double sequence) {
+  return std::isfinite(sequence) && sequence>=2 && sequence<=16777214
+      && std::fmod(sequence,2)==0;
+}
+bool source_epoch_valid(double value) {
+  return std::isfinite(value) && value>=1 && value<=16777215
+      && value==std::floor(value);
+}
+bool source_recent(double now,double stamp) {
+  return std::isfinite(now) && std::isfinite(stamp) && now>=stamp && now-stamp<=.5;
+}
+struct Tracking { bool current{}, active{};double source_epoch{},stamp{}; };
+Tracking tracking(EDPARAM& p,double now) {
+  const auto context=p.epoch();
+  const double sequence=get(p,"F22_AG_NATIVE_SEQUENCE");
+  if (!committed(sequence)) return {};
+  const double schema=get(p,"F22_AG_NATIVE_SCHEMA");
+  const double source_epoch=get(p,"F22_AG_NATIVE_SOURCE_EPOCH");
+  const double stamp=get(p,"F22_AG_GMT_LAST_TIME");
+  bool valid=true;
+  const bool ready=flag(p,"F22_AG_GMT_READY",valid);
+  const bool selected=flag(p,"F22_AG_NATIVE_TRACK_VALID",valid);
+  const bool acquiring=flag(p,"F22_AG_NATIVE_TRACK_ACQUIRING",valid);
+  if (!valid || schema!=1 || !source_epoch_valid(source_epoch) || !source_recent(now,stamp)) return {};
+  if (source_epoch!=get(p,"F22_AG_NATIVE_SOURCE_EPOCH")
+      || sequence!=get(p,"F22_AG_NATIVE_SEQUENCE") || context!=p.epoch()) return {};
+  return {ready,ready && (selected || acquiring),source_epoch,stamp};
+}
+bool apply_probe(EDPARAM& p,View& next) {
+  // Controlled self-occlusion experiment. These default-zero diagnostic
+  // offsets affect only this renderer view, never ownship or sensor truth.
+  std::array<double,3> probe{get(p,"F22_AG_VIDEO_PROBE_FORWARD_M"),get(p,"F22_AG_VIDEO_PROBE_RIGHT_M"),get(p,"F22_AG_VIDEO_PROBE_UP_M")};
+  bool probe_valid=true;
+  for(auto &v:probe) if(!std::isfinite(v)||std::abs(v)>100) { probe_valid=false;v=0; }
+  if(probe!=previous_probe){previous_probe=probe;++probe_erase;}
+  next.probe_forward=probe[0];next.probe_right=probe[1];next.probe_up=probe[2];
+  next.north+=std::cos(next.heading)*probe[0]-std::sin(next.heading)*probe[1];
+  next.east+=std::sin(next.heading)*probe[0]+std::cos(next.heading)*probe[1];
+  next.altitude+=probe[2];next.erase_sequence+=probe_erase*1000000;
+  return probe_valid;
+}
+bool video_requested(EDPARAM& p,bool ready,bool& valid) {
+  const bool enabled=flag(p,"F22_AG_VIDEO_ENABLE",valid);
+  const bool supply=flag(p,"MAIN_POWER",valid);
+  const bool radar_power=flag(p,"RADAR_PWR",valid);
+  const double master_mode=get(p,"HUD_MODE");
+  if (!std::isfinite(master_mode)) valid=false;
+  return ready && enabled && master_mode==7 && supply && radar_power;
+}
+View read_view(EDPARAM& p,bool ready,bool& malformed) {
+  View next;
+  bool geometry_flags_valid=true;
+  next.enabled=video_requested(p,ready,geometry_flags_valid);
+  const bool frozen=flag(p,"F22_AG_VIDEO_FROZEN",geometry_flags_valid);
+  const bool hold=flag(p,"F22_AG_VIDEO_HOLD",geometry_flags_valid);
+  next.frozen=frozen||hold;
+  next.stamp=get(p,"F22_AG_VIDEO_TIME");
+  next.north=get(p,"F22_AG_VIDEO_NORTH"); next.altitude=get(p,"F22_AG_VIDEO_ALTITUDE");
+  next.east=get(p,"F22_AG_VIDEO_EAST"); next.heading=get(p,"F22_AG_VIDEO_HEADING");
+  next.range_nm=get(p,"F22_AG_RADAR_RANGE_NM");next.width_deg=get(p,"F22_AG_VIDEO_FOV_DEG");
+  next.collection=get(p,"F22_AG_VIDEO_COLLECTION");
+  next.scan_direction=get(p,"F22_AG_VIDEO_SCAN_DIRECTION");next.scan_fraction=get(p,"F22_AG_VIDEO_SCAN_FRACTION");
+  next.gain=get(p,"F22_AG_VIDEO_GAIN");next.erase_sequence=get(p,"F22_AG_VIDEO_ERASE_SEQUENCE");
+  const bool mode_valid=integer(get(p,"F22_AG_MODE"),1,7,next.mode);
+  next.gmt=next.mode==2||next.mode==3||next.mode==4||next.mode==5;
+  const bool expansion_valid=integer(get(p,"F22_AG_VIDEO_EXPANSION"),0,3,next.expansion);
+  next.enabled=next.enabled && mode_valid && expansion_valid;
+  next.center_m=get(p,"F22_AG_VIDEO_CENTER_M");next.span_m=get(p,"F22_AG_VIDEO_SPAN_M");
+  next.antenna_offset=get(p,"F22_AG_VIDEO_ANTENNA_DEG")*GroundVideoView::pi/180;
+  next.fast=flag(p,"F22_AG_FAST",geometry_flags_valid);next.fan=flag(p,"F22_AG_VIDEO_FAN",geometry_flags_valid);
+  next.view_epoch=get(p,"F22_AG_VIDEO_EPOCH");
+  next.stabilized=flag(p,"F22_AG_VIDEO_STABILIZED",geometry_flags_valid);
+  next.patch_n=get(p,"F22_AG_VIDEO_PATCH_N");next.patch_u=get(p,"F22_AG_VIDEO_PATCH_U");next.patch_e=get(p,"F22_AG_VIDEO_PATCH_E");
+  next.patch_az=get(p,"F22_AG_VIDEO_PATCH_AZ");next.patch_distance=get(p,"F22_AG_VIDEO_PATCH_DISTANCE");next.interleave=flag(p,"F22_AG_INTERLEAVE",geometry_flags_valid);
+  const auto observed=tracking(p,api.clock?api.clock():-1);
+  next.tracking=observed.current && observed.active;
+  next.scan_center=get(p,"F22_AG_RADAR_SCAN_CENTER_AZ_DEG")*GroundVideoView::pi/180;
+  const bool probe_valid=apply_probe(p,next);
+  malformed=!mode_valid || !expansion_valid || !geometry_flags_valid || !probe_valid;
+  next.enabled=next.enabled && !malformed;
+  return next;
+}
+void publish_reference(EDPARAM& p,bool frame_available) {
+  View reference;std::uint64_t reference_epoch{};
+  {std::lock_guard<std::mutex>lock(view_mutex);reference=map_reference;reference_epoch=reference_generation;}
+  put(p,"F22_AG_VIDEO_REFERENCE_VALID",frame_available&&reference.enabled&&reference_epoch==epoch.load()?1:0);
+  put(p,"F22_AG_VIDEO_REFERENCE_NORTH",reference.north);put(p,"F22_AG_VIDEO_REFERENCE_ALTITUDE",reference.altitude);
+  put(p,"F22_AG_VIDEO_REFERENCE_EAST",reference.east);put(p,"F22_AG_VIDEO_REFERENCE_HEADING",reference.heading);
+  put(p,"F22_AG_VIDEO_REFERENCE_TIME",reference.stamp);
+  put(p,"F22_AG_VIDEO_REFERENCE_SCHEMA",2);
+  put(p,"F22_AG_VIDEO_REFERENCE_RANGE_NM",reference.range_nm);
+  put(p,"F22_AG_VIDEO_REFERENCE_MODE",reference.mode);
+  put(p,"F22_AG_VIDEO_REFERENCE_EXPANSION",reference.expansion);
+  put(p,"F22_AG_VIDEO_REFERENCE_CENTER_M",reference.center_m);put(p,"F22_AG_VIDEO_REFERENCE_SPAN_M",reference.span_m);
+  put(p,"F22_AG_VIDEO_REFERENCE_EPOCH",reference.view_epoch);
+}
+int availability_reason(bool ready,bool malformed,bool enabled,bool frame_available) {
+  if (guard.reason()) return guard.reason();
+  if (!ready) return api.reason?api.reason:5;
+  if (malformed || (enabled && !frame_available)) return 7;
+  return 0;
 }
 }
 void reset() {
@@ -336,59 +462,23 @@ void update(EDPARAM &p) {
   }
   guard.verify(ready);
   ready=guard.available();
-  View next;
-  next.enabled=ready && get(p,"F22_AG_VIDEO_ENABLE")>.5 && get(p,"HUD_MODE")==7 &&
-      get(p,"MAIN_POWER")>.5 && get(p,"RADAR_PWR")>.5;
-  next.frozen=get(p,"F22_AG_VIDEO_FROZEN")>.5||get(p,"F22_AG_VIDEO_HOLD")>.5;
-  next.stamp=get(p,"F22_AG_VIDEO_TIME");
-  next.north=get(p,"F22_AG_VIDEO_NORTH"); next.altitude=get(p,"F22_AG_VIDEO_ALTITUDE");
-  next.east=get(p,"F22_AG_VIDEO_EAST"); next.heading=get(p,"F22_AG_VIDEO_HEADING");
-  next.range_nm=get(p,"F22_AG_RADAR_RANGE_NM");next.width_deg=get(p,"F22_AG_VIDEO_FOV_DEG");
-  next.collection=get(p,"F22_AG_VIDEO_COLLECTION");
-  next.scan_direction=get(p,"F22_AG_VIDEO_SCAN_DIRECTION");next.scan_fraction=get(p,"F22_AG_VIDEO_SCAN_FRACTION");
-  next.gain=get(p,"F22_AG_VIDEO_GAIN");next.erase_sequence=get(p,"F22_AG_VIDEO_ERASE_SEQUENCE");
-  next.mode=static_cast<int>(get(p,"F22_AG_MODE"));
-  next.gmt=next.mode==2||next.mode==3||next.mode==4||next.mode==5;
-  next.expansion=static_cast<int>(get(p,"F22_AG_VIDEO_EXPANSION"));
-  next.center_m=get(p,"F22_AG_VIDEO_CENTER_M");next.span_m=get(p,"F22_AG_VIDEO_SPAN_M");
-  next.antenna_offset=get(p,"F22_AG_VIDEO_ANTENNA_DEG")*GroundVideoView::pi/180;
-  next.fast=get(p,"F22_AG_FAST")>.5;next.fan=get(p,"F22_AG_VIDEO_FAN")>.5;
-  next.view_epoch=get(p,"F22_AG_VIDEO_EPOCH");
-  next.stabilized=get(p,"F22_AG_VIDEO_STABILIZED")>.5;
-  next.patch_n=get(p,"F22_AG_VIDEO_PATCH_N");next.patch_u=get(p,"F22_AG_VIDEO_PATCH_U");next.patch_e=get(p,"F22_AG_VIDEO_PATCH_E");
-  next.patch_az=get(p,"F22_AG_VIDEO_PATCH_AZ");next.patch_distance=get(p,"F22_AG_VIDEO_PATCH_DISTANCE");next.interleave=get(p,"F22_AG_INTERLEAVE")>.5;
-  next.tracking=get(p,"F22_AG_NATIVE_TRACK_VALID")>.5||get(p,"F22_AG_NATIVE_TRACK_ACQUIRING")>.5;
-  next.scan_center=get(p,"F22_AG_RADAR_SCAN_CENTER_AZ_DEG")*GroundVideoView::pi/180;
-  // Controlled self-occlusion experiment. These default-zero diagnostic
-  // offsets affect only this renderer view, never ownship or sensor truth.
-  std::array<double,3> probe{get(p,"F22_AG_VIDEO_PROBE_FORWARD_M"),get(p,"F22_AG_VIDEO_PROBE_RIGHT_M"),get(p,"F22_AG_VIDEO_PROBE_UP_M")};
-  for(auto &v:probe)if(!std::isfinite(v)||std::abs(v)>100)v=0;
-  if(probe!=previous_probe){previous_probe=probe;++probe_erase;}
-  next.probe_forward=probe[0];next.probe_right=probe[1];next.probe_up=probe[2];
-  next.north+=std::cos(next.heading)*probe[0]-std::sin(next.heading)*probe[1];
-  next.east+=std::sin(next.heading)*probe[0]+std::cos(next.heading)*probe[1];
-  next.altitude+=probe[2];next.erase_sequence+=probe_erase*1000000;
+  bool malformed=false;
+  const View next=read_view(p,ready,malformed);
   put(p,"F22_AG_VIDEO_RENDER_NORTH",rendered_n);put(p,"F22_AG_VIDEO_RENDER_ALTITUDE",rendered_u);put(p,"F22_AG_VIDEO_RENDER_EAST",rendered_e);
   put(p,"F22_AG_VIDEO_RENDER_HEADING",rendered_heading);put(p,"F22_AG_VIDEO_MOTION_AGE_MS",motion_age_ms);
   put(p,"F22_AG_VIDEO_PROBE_EPOCH",probe_erase);
   timing_enabled=get(p,"F22_AG_VIDEO_TIMING_DIAGNOSTIC")>.5;
   gpu_probe_enabled=get(p,"F22_AG_VIDEO_GPU_DIAGNOSTIC")>.5;
-  GroundVideoProbe::selected_target=static_cast<int>(std::clamp(get(p,"F22_AG_VIDEO_PROBE_TEXTURE"),0.,6.));
+  int probe_target=0;
+  const bool probe_target_valid=integer(get(p,"F22_AG_VIDEO_PROBE_TEXTURE"),0,6,probe_target);
+  gpu_probe_enabled=gpu_probe_enabled.load() && probe_target_valid;
+  GroundVideoProbe::selected_target=probe_target;
+  const double now=api.clock?api.clock():-1;
+  const bool frame_available=GroundVideoView::prepare(next,now).accepted;
   {std::lock_guard<std::mutex> lock(view_mutex);view=next;}
-  View reference;std::uint64_t reference_epoch{};
-  {std::lock_guard<std::mutex>lock(view_mutex);reference=map_reference;reference_epoch=reference_generation;}
-  put(p,"F22_AG_VIDEO_REFERENCE_VALID",ready&&next.enabled&&reference.enabled&&reference_epoch==epoch.load()?1:0);
-  put(p,"F22_AG_VIDEO_REFERENCE_NORTH",reference.north);put(p,"F22_AG_VIDEO_REFERENCE_ALTITUDE",reference.altitude);
-  put(p,"F22_AG_VIDEO_REFERENCE_EAST",reference.east);put(p,"F22_AG_VIDEO_REFERENCE_HEADING",reference.heading);
-  put(p,"F22_AG_VIDEO_REFERENCE_TIME",reference.stamp);
-  put(p,"F22_AG_VIDEO_REFERENCE_SCHEMA",2);
-  put(p,"F22_AG_VIDEO_REFERENCE_RANGE_NM",reference.range_nm);
-  put(p,"F22_AG_VIDEO_REFERENCE_MODE",reference.mode);
-  put(p,"F22_AG_VIDEO_REFERENCE_EXPANSION",reference.expansion);
-  put(p,"F22_AG_VIDEO_REFERENCE_CENTER_M",reference.center_m);put(p,"F22_AG_VIDEO_REFERENCE_SPAN_M",reference.span_m);
-  put(p,"F22_AG_VIDEO_REFERENCE_EPOCH",reference.view_epoch);
+  publish_reference(p,frame_available);
   put(p,"F22_AG_VIDEO_READY",ready?1:0);
-  put(p,"F22_AG_VIDEO_REASON",guard.reason()?guard.reason():ready?0:api.reason?api.reason:5);
+  put(p,"F22_AG_VIDEO_REASON",availability_reason(ready,malformed,next.enabled,frame_available));
   put(p,"F22_AG_VIDEO_FRAMES",static_cast<double>(frames.load()));
   put(p,"F22_AG_VIDEO_CLOCK_CHECKS",static_cast<double>(clock_checks.load()));
   put(p,"F22_AG_VIDEO_FUTURE_REJECTS",static_cast<double>(future_rejects.load()));

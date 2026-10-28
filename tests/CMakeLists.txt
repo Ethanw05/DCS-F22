@@ -53,3 +53,18 @@ if(MSVC)
     target_compile_options(f22_native_control_reads PRIVATE /W4 /WX /analyze)
 endif()
 add_test(NAME replacement_native_control_read_status COMMAND f22_native_control_reads)
+
+add_executable(f22_datalink_controls native/datalink_controls.cpp)
+target_compile_features(f22_datalink_controls PRIVATE cxx_std_23)
+target_include_directories(f22_datalink_controls PRIVATE "${PROJECT_SOURCE_DIR}/EFM/include")
+target_compile_definitions(f22_datalink_controls PRIVATE NOMINMAX)
+if(MSVC)
+    target_compile_options(f22_datalink_controls PRIVATE /W4 /WX /analyze)
+endif()
+add_test(NAME replacement_datalink_control_status COMMAND f22_datalink_controls)
+
+# Reviewed independently rebuilt owner tests. No installed simulator operation.
+include(native/radar_admission.cmake)
+include(native/radar_ground.cmake)
+include(native/radar_model.cmake)
+include(native/radar_coordination.cmake)

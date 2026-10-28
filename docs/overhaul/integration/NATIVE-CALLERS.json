@@ -1,113 +1,161 @@
 {
-  "policy": "Transitional inventory; cannot close P-INT-008 until actual legacy calls/caches and initialization are migrated. Preserve existing safe direct bool readers.",
+  "policy": "Compiler-enforced two-argument checked numeric API; full DLL build required. Line inventory alone does not establish lifetime or semantic qualification.",
+  "value_only_getter_present": false,
   "callers": [
     {
       "path": "EFM/source/NativeAGWeapons.cpp",
-      "line": 23,
-      "source": "double get(EDPARAM& p,const char* n) {return p.getParamNumber(handle(p,n));}",
-      "migration": "review argument count and migrate legacy use"
+      "line": 25,
+      "source": "bool get(EDPARAM& p,const char* n,double& value) {return p.getParamNumber(handle(p,n),value);}"
     },
     {
       "path": "EFM/source/NativeAltimetry.cpp",
       "line": 28,
-      "source": "if (!p.getParamNumber(handle(p, \"F22_ALT_PRESSURE_REQUEST_VALID\"), active)) return false;",
-      "migration": "checked or declaration"
+      "source": "if (!p.getParamNumber(handle(p, \"F22_ALT_PRESSURE_REQUEST_VALID\"), active)) return false;"
     },
     {
       "path": "EFM/source/NativeAltimetry.cpp",
       "line": 30,
-      "source": "if (active != 1 || !p.getParamNumber(handle(p, \"F22_ALT_PRESSURE_MMHG\"), request)",
-      "migration": "checked or declaration"
+      "source": "if (active != 1 || !p.getParamNumber(handle(p, \"F22_ALT_PRESSURE_MMHG\"), request)"
     },
     {
       "path": "EFM/source/NativeAltimetry.cpp",
       "line": 31,
-      "source": "|| !p.getParamNumber(handle(p, \"F22_ALT_PRESSURE_REQUEST_TIME\"), time)) return false;",
-      "migration": "checked or declaration"
+      "source": "|| !p.getParamNumber(handle(p, \"F22_ALT_PRESSURE_REQUEST_TIME\"), time)) return false;"
     },
     {
       "path": "EFM/source/NativeDatalink.cpp",
-      "line": 62,
-      "source": "double get(EDPARAM &p,const std::string &n) {auto &h=handles[n];if(!h)h=p.getParamHandle(n.c_str());return p.getParamNumber(h);}",
-      "migration": "review argument count and migrate legacy use"
+      "line": 66,
+      "source": "auto &h=handles[n];if(!h)h=p.getParamHandle(n.c_str());return p.getParamNumber(h,value);"
     },
     {
       "path": "EFM/source/NativeGroundRadar.cpp",
-      "line": 14,
-      "source": "const bool driver = p.getParamNumber(p.getParamHandle(\"F22_AESA_DRIVER_READY\")) == 1;",
-      "migration": "review argument count and migrate legacy use"
-    },
-    {
-      "path": "EFM/source/NativeGroundRadar.cpp",
-      "line": 15,
-      "source": "const bool ready = driver && p.getParamNumber(p.getParamHandle(\"F22_AG_GMT_READY\")) == 1;",
-      "migration": "review argument count and migrate legacy use"
-    },
-    {
-      "path": "EFM/source/NativeGroundRadar.cpp",
-      "line": 17,
-      "source": "p.setParamNumber(p.getParamHandle(\"F22_AG_RADAR_NATIVE_REASON\"), ready ? 0 : driver ? p.getParamNumber(p.getParamHandle(\"F22_AG_GMT_REASON\")) : 4);",
-      "migration": "review argument count and migrate legacy use"
+      "line": 10,
+      "source": "return p.getParamNumber(p.getParamHandle(name),value);"
     },
     {
       "path": "EFM/source/NativeGroundSensor.cpp",
-      "line": 108,
-      "source": "double get(EDPARAM&p,const std::string&n){auto&h=handles[n];if(!h)h=p.getParamHandle(n.c_str());return p.getParamNumber(h);}",
-      "migration": "review argument count and migrate legacy use"
+      "line": 126,
+      "source": "if (!p.getParamNumber(handle,value)) return unavailable;"
     },
     {
       "path": "EFM/source/NativeGroundVideo.cpp",
-      "line": 301,
-      "source": "auto &h=handles[name];if (!h) h=p.getParamHandle(name.c_str());return p.getParamNumber(h);",
-      "migration": "review argument count and migrate legacy use"
+      "line": 313,
+      "source": "if (!p.getParamNumber(parameter(p,name),value)) return std::numeric_limits<double>::quiet_NaN();"
     },
     {
       "path": "EFM/source/NativeGunSight.cpp",
-      "line": 28,
-      "source": "return p.getParamNumber(handle(p, n));",
-      "migration": "checked or declaration"
+      "line": 29,
+      "source": "return p.getParamNumber(handle(p, n),value);"
     },
     {
       "path": "EFM/source/NativeMWS.cpp",
       "line": 149,
-      "source": "return p.getParamNumber(h);",
-      "migration": "review argument count and migrate legacy use"
+      "source": "return p.getParamNumber(h,value);"
     },
     {
       "path": "EFM/source/NativeNavigation.cpp",
-      "line": 184,
-      "source": "return p.getParamNumber(h);",
-      "migration": "review argument count and migrate legacy use"
+      "line": 186,
+      "source": "return p.getParamNumber(h,value);"
     },
     {
       "path": "EFM/source/NativeSidewinder.cpp",
-      "line": 288,
-      "source": "return p.getParamNumber(h);",
-      "migration": "review argument count and migrate legacy use"
+      "line": 289,
+      "source": "return p.getParamNumber(h,value);"
     },
     {
       "path": "EFM/source/NativeSidewinder.cpp",
-      "line": 350,
-      "source": "live[i]=g.parameters->getParamNumber(g.live_handles[i]);if(!std::isfinite(live[i]))return false;",
-      "migration": "review argument count and migrate legacy use"
+      "line": 375,
+      "source": "if(!g.parameters->getParamNumber(g.live_handles[i],live[i]))return false;"
+    },
+    {
+      "path": "EFM/source/NativeSidewinder.cpp",
+      "line": 626,
+      "source": "if(!p.getParamNumber(p.getParamHandle(names[i]),value[i]))return false;"
     },
     {
       "path": "EFM/source/RAPTOR.cpp",
-      "line": 1977,
-      "source": "double result = param_api_.getParamNumber(it->second);",
-      "migration": "review argument count and migrate legacy use"
+      "line": 1803,
+      "source": "&& param_api_.getParamNumber(handle->second,power) && power == 1;"
+    },
+    {
+      "path": "EFM/source/RAPTOR.cpp",
+      "line": 1962,
+      "source": "return it != param_handles_.end() && param_api_.getParamNumber(it->second,value);"
+    },
+    {
+      "path": "EFM/source/AltitudeSnapshot.h",
+      "line": 47,
+      "source": "if (!api.getParamNumber(handles_[0],values[0]) || !marker(values[0])) return result;"
+    },
+    {
+      "path": "EFM/source/AltitudeSnapshot.h",
+      "line": 49,
+      "source": "if (!api.getParamNumber(handles_[i],values[i])) return result;"
+    },
+    {
+      "path": "EFM/source/AltitudeSnapshot.h",
+      "line": 51,
+      "source": "if (!api.getParamNumber(handles_[0],after) || values[0] != after) return result;"
+    },
+    {
+      "path": "EFM/source/GroundTargetPacket.h",
+      "line": 45,
+      "source": "return b.port && b.port->epoch()==b.context && b.port->getParamNumber(handle,value);"
+    },
+    {
+      "path": "EFM/source/RadarTacticalPacket.h",
+      "line": 86,
+      "source": "if (!port.getParamNumber(slots_[index][0],values[0]) || !flag(values[0])) return Slot::malformed;"
+    },
+    {
+      "path": "EFM/source/RadarTacticalPacket.h",
+      "line": 89,
+      "source": "if (!port.getParamNumber(slots_[index][field],values[field])) return Slot::malformed;"
+    },
+    {
+      "path": "EFM/source/RadarTacticalPacket.h",
+      "line": 103,
+      "source": "if (!port.getParamNumber(group_[0],result.sequence) || !integer(result.sequence,2,16777214)"
+    },
+    {
+      "path": "EFM/source/RadarTacticalPacket.h",
+      "line": 106,
+      "source": "return port.getParamNumber(group_[1],schema) && schema==1"
+    },
+    {
+      "path": "EFM/source/RadarTacticalPacket.h",
+      "line": 107,
+      "source": "&& port.getParamNumber(group_[2],result.epoch) && epoch_valid(result.epoch)"
+    },
+    {
+      "path": "EFM/source/RadarTacticalPacket.h",
+      "line": 108,
+      "source": "&& port.getParamNumber(group_[3],result.stamp) && clock_valid(now,result.stamp);"
+    },
+    {
+      "path": "EFM/source/RadarTacticalPacket.h",
+      "line": 112,
+      "source": "return port.getParamNumber(group_[2],epoch) && epoch==group.epoch"
+    },
+    {
+      "path": "EFM/source/RadarTacticalPacket.h",
+      "line": 113,
+      "source": "&& port.getParamNumber(group_[0],sequence) && sequence==group.sequence"
+    },
+    {
+      "path": "EFM/source/WeaponFlightFrame.h",
+      "line": 23,
+      "source": "if (!parameters.getParamNumber(parameters.getParamHandle(header_names[i]),header[i])) return false;"
+    },
+    {
+      "path": "EFM/source/WeaponFlightFrame.h",
+      "line": 55,
+      "source": "if (!parameters.getParamNumber(parameters.getParamHandle(names[i]),values[i])) return false;"
     },
     {
       "path": "EFM/include/Cockpit/CockpitAPI_Declare.h",
-      "line": 38,
-      "source": "bool getParamNumber(void* handle, double& value) const noexcept",
-      "migration": "checked or declaration"
-    },
-    {
-      "path": "EFM/include/Cockpit/CockpitAPI_Declare.h",
-      "line": 68,
-      "source": "double getParamNumber(void* handle)",
-      "migration": "review argument count and migrate legacy use"
+      "line": 40,
+      "source": "bool getParamNumber(void* handle, double& value) const noexcept"
     }
   ]
 }

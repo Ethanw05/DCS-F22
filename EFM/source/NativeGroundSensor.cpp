@@ -12,6 +12,7 @@
 #include <mutex>
 #include <string>
 #include <cstring>
+#include <limits>
 namespace NativeGroundSensor { namespace {
 using namespace GroundMovingTargets;
 struct VecF {float n,u,e;};
@@ -80,9 +81,10 @@ struct Controls {
   bool active{},array_active{},search{},request{},sea{},ranging{},fan{},illuminated{},map{};
   double resource{},elevation{},stamp=-100,range{},az{},request_sequence{};
   Vec request_point{};
+  std::uint64_t source_epoch{};
 };
 struct Output {
-  bool ready{},map{},sea{};int reason=4;double stamp{};unsigned queries{},candidates{},terrain_rejects{},object_rejects{},speed_rejects{},ground_candidates{},truncated{};
+  bool ready{},map{},sea{};int reason=4;double stamp{};std::uint64_t generation{};unsigned queries{},candidates{},terrain_rejects{},object_rejects{},speed_rejects{},ground_candidates{},truncated{};
   unsigned motion_unavailable{},slow_rejects{},fast_rejects{};
   Vec origin{};double heading{},az{},dt{},aspect{};Contacts contacts;
   bool agr_valid{};double agr_range{},agr_rate{},agr_stamp=-100;Vec agr_point{};
@@ -92,7 +94,6 @@ std::mutex state_mutex;
 Controls controls;
 Output output;
 std::atomic<std::uint64_t> epoch{1};
-Tracks tracks;
 Measurements measurements;
 struct RangeReport { double stamp=-100, release{}, range{}, rate{};bool valid{}; };
 std::array<RangeReport, 4> range_pending{};
@@ -104,9 +105,49 @@ unsigned selected_type{};
 double request_sequence=-1,acquisition_time{};
 std::uint64_t sampled_epoch{};
 double last_query=-1;
+double last_job_started=-1,last_job_completed=-1;
+bool source_faulted{},previous_active{};
+unsigned publication_sequence{};
 std::map<std::string,void*> handles;
-double get(EDPARAM&p,const std::string&n){auto&h=handles[n];if(!h)h=p.getParamHandle(n.c_str());return p.getParamNumber(h);}
-void put(EDPARAM&p,const std::string&n,double v){auto&h=handles[n];if(!h)h=p.getParamHandle(n.c_str());p.setParamNumber(h,v);}
+EDPARAM* parameter_owner{};
+std::uint64_t parameter_epoch{};
+void bind_context(EDPARAM& p) {
+  if(parameter_owner!=&p||parameter_epoch!=p.epoch()) {
+    handles.clear();parameter_owner=&p;parameter_epoch=p.epoch();
+  }
+}
+double get(EDPARAM& p, const std::string& name) {
+  const double unavailable = std::numeric_limits<double>::quiet_NaN();
+  bind_context(p);
+  if (!p.numericReady()) return unavailable;
+  auto& handle = handles[name];
+  if (!handle) handle = p.getParamHandle(name.c_str());
+  double value{};
+  if (!p.getParamNumber(handle,value)) return unavailable;
+  return value;
+}
+struct Publication {
+  EDPARAM& parameters;
+  std::uint64_t context_epoch{};
+  bool healthy = true;
+  void put(const std::string& name, double value) {
+    if (parameters.epoch() != context_epoch) {
+      healthy = false;
+      return;
+    }
+    bind_context(parameters);
+    if (!parameters.publicationReady()) {
+      healthy = false;
+      return;
+    }
+    auto& handle = handles[name];
+    if (!handle) handle = parameters.getParamHandle(name.c_str());
+    if (parameters.epoch() != context_epoch || !parameters.setParamNumber(handle, value)) healthy = false;
+  }
+  bool current() const noexcept {
+    return healthy && parameters.epoch() == context_epoch;
+  }
+};
 void *moving(Scene &s) {
   using Registered=void*(__fastcall*)(void*);auto reg=method<Registered>(&s,6);
   void *r=reg?reg(&s):nullptr;
@@ -118,7 +159,7 @@ bool motion(void *unit, Vec& result) {
   // The shared scene contract and Hornet GMT predicate call virtual slot38.
   const auto get_velocity = method<Api::Velocity>(unit,38);
   const auto value = get_velocity ? get_velocity(unit) : nullptr;
-  if (!readable(reinterpret_cast<std::uintptr_t>(value),sizeof(VecF))) return false;
+  if (!value || !readable(reinterpret_cast<std::uintptr_t>(value),sizeof(VecF))) return false;
   result = {value->n,value->u,value->e};
   return std::isfinite(length(result)) && length(result)<=1500;
 }
@@ -163,29 +204,80 @@ bool positive_response(void *unit) {
   using RCS=float(__fastcall*)(void*,float,const VecF&);
   auto getter=method<Response>(unit,59);void *response=getter?getter(unit):nullptr;
   auto value=method<RCS>(response,6);
-  return value&&value(response,0.f,VecF{1,0,0})>0;
+  if(!value)return false;
+  const float cross_section=value(response,0.f,VecF{1,0,0});
+  return std::isfinite(cross_section)&&cross_section>0;
 }
 // Graphics::Camera::getClipVolume builds ClipVolumeCamera using the SAME
 // shared constructor as the Hornet's 5DEBD0. Query manager+152, not an AABB.
 const void *volume(Vec origin,double heading,double elevation,double half_az,double half_el,double range) {
+  for(double value:{origin.n,origin.u,origin.e,heading,elevation,half_az,half_el,range})
+    if(!std::isfinite(value))return nullptr;
+  if(std::abs(origin.n)>3e7||std::abs(origin.e)>3e7||std::abs(origin.u)>1e5||
+      half_az<=0||half_el<=0||half_az>pi/3||half_el>pi/3||range<40||range>160*1852)return nullptr;
   struct CameraState {alignas(16) std::array<std::byte,784> data{};bool initialized{};};
   thread_local CameraState c;
-  if(!c.initialized){api.camera(c.data.data(),0);c.initialized=true;}
   const float h=static_cast<float>(heading),el=static_cast<float>(elevation),ch=std::cos(h),sh=std::sin(h),ce=std::cos(el),se=std::sin(el);
   const std::array<float,12> pose{ch*ce,se,sh*ce,-ch*se,ce,-sh*se,-sh,0,ch,
     static_cast<float>(origin.n),static_cast<float>(origin.u),static_cast<float>(origin.e)};
-  for(unsigned row=0;row<4;++row)std::memcpy(c.data.data()+560+16*row,pose.data()+row*3,12);
   // Native ClipVolumeCamera aspect is half-angle ratio, not tangent ratio.
   const std::array<float,5> projection{static_cast<float>(2*half_az),static_cast<float>(2*half_el),
     static_cast<float>(half_az/half_el),0,static_cast<float>(range)};
+  for(float value:pose)if(!std::isfinite(value))return nullptr;
+  for(float value:projection)if(!std::isfinite(value))return nullptr;
+  if(!c.initialized){api.camera(c.data.data(),0);c.initialized=true;}
+  for(unsigned row=0;row<4;++row)std::memcpy(c.data.data()+560+16*row,pose.data()+row*3,12);
   std::memcpy(c.data.data()+688,projection.data(),sizeof(projection));c.data[776]=std::byte{1};
   return api.clip(c.data.data());
 }
 }
 void reset(){epoch.fetch_add(1);std::lock_guard<std::mutex>lock(state_mutex);controls={};output={};handles.clear();}
 namespace {
+void retire_sampler(std::uint64_t generation) {
+  measurements.reset(generation);
+  range_pending={};range_report={};selected={};selected_type=0;
+  acquiring=false;fixed=false;request_sequence=-1;
+  acquisition_point={};acquisition_time=0;last_query=-1;
+  last_job_started=-1;last_job_completed=-1;
+  previous_active=false;
+  sampled_epoch=generation;
+}
+void retire_source(double now, int reason) {
+  const auto generation=epoch.fetch_add(1)+1;
+  retire_sampler(generation);
+  Output unavailable;unavailable.stamp=std::isfinite(now)?now:0;unavailable.generation=generation;unavailable.reason=reason;
+  std::lock_guard<std::mutex> lock(state_mutex);
+  controls={};output=unavailable;
+}
+void accept_reports(const Controls& c, double now) {
+  measurements.release(now);
+  const RequestIdentity request{c.source_epoch,c.request_sequence};
+  if (selected.id) {
+    const auto* measured=measurements.find(selected.id);
+    if (measured && measurements.belongs_to(selected.id,request) &&
+        now>=measured->stamp && now-measured->stamp<=5) {
+      selected=*measured;
+      if(selected.association_valid)selected_type=selected.velocity_valid&&length(selected.velocity)>3?2:1;
+    }
+    return;
+  }
+  if (!acquiring || !c.request) return;
+  const auto values=measurements.contacts(true);
+  const Contact* candidate=nullptr;
+  for (const auto& measured:values) {
+    if (!measured.association_valid || !measurements.belongs_to(measured.id,request) ||
+        measured.stamp<acquisition_time || measured.stamp>now) continue;
+    const auto delta=measured.point-acquisition_point;
+    if (std::abs(delta.n)>500 || std::abs(delta.u)>500 || std::abs(delta.e)>500) continue;
+    if (candidate) return; // Competing measured candidates do not grant perfect identity.
+    candidate=&measured;
+  }
+  if (!candidate) return;
+  selected=*candidate;acquiring=false;fixed=false;
+  selected_type=selected.velocity_valid&&length(selected.velocity)>3?2:1;
+}
 bool pointing_clock(const Controls& c,double now) {
-  return api.ready&&c.array_active&&std::isfinite(now)&&now>=c.stamp&&now-c.stamp<=.5;
+  return api.ready&&c.array_active&&c.source_epoch==epoch.load()&&std::isfinite(now)&&now>=c.stamp&&now-c.stamp<=.5;
 }
 bool pointing_geometry(const Controls& c) {
   return std::isfinite(c.range)&&c.range>=40&&c.range<=160*1852&&std::isfinite(c.elevation);
@@ -259,38 +351,50 @@ AesaRadar::SurfaceRequest pointing(double now,const AesaRadar::Pose& pose) noexc
 }
 void sample(void *owned_radar, const ArrayService& service) {
   if(!owned_radar||!api.ready.load(std::memory_order_acquire))return;
-  const auto generation=epoch.load();
-  if(generation!=sampled_epoch){range_pending={};range_report={};measurements.clear();tracks.clear();selected={};selected_type=0;acquiring=false;fixed=false;request_sequence=-1;last_query=-1;sampled_epoch=generation;}
+  auto generation=epoch.load();
+  if(generation!=sampled_epoch)retire_sampler(generation);
+  const double now=api.clock();
+  const auto clock_state=measurements.advance(now);
+  if(clock_state==ClockState::unavailable) {
+    if(!source_faulted)retire_source(now,6);
+    source_faulted=true;return;
+  }
+  if(clock_state==ClockState::discontinuity) {
+    retire_source(now,7);source_faulted=false;previous_active=false;return;
+  }
+  source_faulted=false;
   Controls c;Output stats;
   {std::lock_guard<std::mutex>lock(state_mutex);c=controls;stats=output;}
-  const double now=api.clock();
-  c.illuminated=valid_job(service,now);c.az=service.azimuth;c.resource=service.resource;c.active=c.active&&service.active;
-  stats.ready=true;stats.reason=0;stats.stamp=now;
+  const bool command_current=std::isfinite(c.stamp)&&now>=c.stamp&&now-c.stamp<=.5;
+  c.active=c.active&&c.source_epoch==generation&&command_current&&service.active;
+  c.request=c.request&&c.active;
+  if(previous_active&&!c.active) {
+    retire_source(now,8);previous_active=false;return;
+  }
+  previous_active=c.active;
+  c.illuminated=valid_job(service,now)&&
+    (service.beam.started!=last_job_started||service.beam.completes!=last_job_completed);
+  c.az=service.azimuth;c.resource=service.resource;
+  stats.ready=true;stats.reason=0;stats.stamp=now;stats.generation=generation;
   if(stats.map!=c.map||stats.sea!=c.sea) {
     // Search returns belong to their detection mode. A MAP stationary hit
     // cannot become a GMT mover merely by changing the page. Keep acquired
     // track measurements and their filter across that same view change.
-    tracks.clear();measurements.discard_search();stats.contacts.clear();
+    measurements.discard_search();stats.contacts.clear();
   }
   stats.map=c.map;stats.sea=c.sea;
   // FRZ holds pixels, not the transmitter. MAP uses the same beam-gated
   // surface returns without GMT's moving-speed rejection.
   if(!std::isfinite(now)||!c.active||now-c.stamp<-.05||now-c.stamp>.5) {
-    if(!c.active){range_pending={};range_report={};measurements.clear();tracks.clear();selected={};acquiring=false;fixed=false;}stats.agr_valid=false;stats.contacts.clear();stats.selected={};stats.fixed=false;
+    if(!c.active){retire_sampler(generation);stats.selected_type=0;stats.acquiring=false;stats.memory=false;}stats.agr_valid=false;stats.contacts.clear();stats.selected={};stats.fixed=false;
     std::lock_guard<std::mutex>lock(state_mutex);if(epoch.load()==generation)output=stats;return;
   }
   // A completed array grant is an RF event, not an optional coast refresh.
   if(!c.illuminated&&now>=last_query&&now-last_query<.015)return;
+  if(c.illuminated){last_job_started=service.beam.started;last_job_completed=service.beam.completes;}
   const double dt=last_query<0?.02:std::clamp(now-last_query,0.,.1);
-  last_query=now;tracks.advance(now);
-  measurements.release(now,[&](const Contact& measured,bool for_track) {
-    if(for_track){
-      if(acquiring||selected.id==measured.id){
-        selected=measured;acquiring=false;fixed=false;
-        selected_type=measured.velocity_valid&&length(measured.velocity)>3?2:1;tracks.clear();
-      }
-    }else tracks.observe(measured);
-  });
+  last_query=now;
+  accept_reports(c,now);
   for(auto& report:range_pending)if(report.valid&&now>=report.release){range_report=report;report.valid=false;}
   stats.agr_valid=c.ranging&&range_report.valid&&now>=range_report.stamp&&now-range_report.stamp<=.5;
   stats.agr_stamp=range_report.stamp;stats.agr_range=range_report.range;stats.agr_rate=range_report.rate;
@@ -298,7 +402,7 @@ void sample(void *owned_radar, const ArrayService& service) {
     // Background air jobs own these intervals. Acquisition, tracking and
     // ranging cannot bypass the common array service budget.
     if((selected.id||fixed)&&now-selected.stamp>5){selected={};fixed=false;}
-    stats.contacts=tracks.contacts();stats.selected=selected;stats.selected_type=selected_type;
+    stats.contacts=measurements.contacts();stats.selected=selected;stats.selected_type=selected_type;
     stats.fixed=fixed;stats.memory=selected.id||fixed;stats.acquiring=acquiring;
     std::lock_guard<std::mutex>lock(state_mutex);if(epoch.load()==generation)output=std::move(stats);return;
   }
@@ -306,10 +410,13 @@ void sample(void *owned_radar, const ArrayService& service) {
   void *own=own_get?own_get(la):nullptr;
   const auto basis=own?api.position(own):nullptr;
   if(!own||!readable(reinterpret_cast<std::uintptr_t>(basis),64))return;
-  Vec origin{};api.point(own,&origin);
+  Vec origin{};
+  if(!api.point(own,&origin)||!std::isfinite(length(origin))||
+    std::abs(origin.n)>3e7||std::abs(origin.e)>3e7||std::abs(origin.u)>1e5)return;
   Vec own_velocity{};
   if(!motion(own,own_velocity))return;
   const double heading=std::atan2(basis[2],basis[0]);
+  if(!std::isfinite(heading)||std::hypot(basis[2],basis[0])<.001)return;
   if(c.ranging) {
     // Native beam/terrain measurement. This is independent of the bomb
     // ballistic trajectory and is invalid when the beam does not hit ground.
@@ -337,7 +444,7 @@ void sample(void *owned_radar, const ArrayService& service) {
   auto own_id_get=method<ID>(own_vi,1);const unsigned own_id=own_id_get?own_id_get(own_vi):0;
   if(c.request_sequence!=request_sequence){
     request_sequence=c.request_sequence;measurements.clear();selected={};selected_type=0;fixed=false;acquiring=c.request;
-    acquisition_point=c.request_point;acquisition_time=now;tracks.clear();
+    acquisition_point=c.request_point;acquisition_time=now;
   }
   stats.request_sequence=request_sequence;
   if(fixed){
@@ -364,19 +471,19 @@ void sample(void *owned_radar, const ArrayService& service) {
   const void *clip=volume(origin,beam_heading,elevation,half,half,service.beam.range_m);
   if(!clip)return;
   struct SearchState { Controls* controls;Output* stats;Vec origin,own_velocity;double heading{};unsigned own_id{},visited{},visibility{};double now{};bool tracking{};
-    double nearest=1e6;Contact candidate{};const AesaRadar::Beam* beam{}; };
-  SearchState context{&c,&stats,origin,own_velocity,heading,own_id,0,0,now,tracking,1e6,{},&service.beam};
+    unsigned returns{};const AesaRadar::Beam* beam{}; };
+  SearchState context{&c,&stats,origin,own_velocity,heading,own_id,0,0,now,tracking,0,&service.beam};
   Query each=[state=&context](Scene& object) {
     auto& c=*state->controls;auto& stats=*state->stats;
     const auto& origin=state->origin;const double heading=state->heading;
     const unsigned own_id=state->own_id;const double now=state->now;const bool tracking=state->tracking;
-    auto& candidate=state->candidate;auto& nearest=state->nearest;
+    if(state->returns>=maximum_returns){++stats.truncated;return 0;}
     if(++state->visited>128){++stats.truncated;return 1;}
     ++stats.candidates;const auto object_id=id(object);
     if(!object_id||object_id==own_id)return 0;
     void *unit=moving(object);if(!unit||api.dead(unit))return 0;
-    const auto type=api.type(unit);if(!type)return 0;
-    if(acquiring||tracking){if(type[0]<1||type[0]>3||tracking&&object_id!=selected.id)return 0;}
+    const auto type=api.type(unit);if(!readable(reinterpret_cast<std::uintptr_t>(type),3))return 0;
+    if(acquiring||tracking){if(type[0]<1||type[0]>3)return 0;}
     else if(c.sea?(type[0]!=3):(type[0]<1||type[0]>2||!api.flag(unit,32)))return 0;
     if(c.map&&!acquiring&&!tracking&&type[0]!=2)return 0;
     ++stats.ground_candidates;
@@ -387,89 +494,146 @@ void sample(void *owned_radar, const ArrayService& service) {
       if(length(velocity)*knot<8)++stats.slow_rejects;else ++stats.fast_rejects;
       return 0;
     }
-    Vec point{};api.point(unit,&point);
+    Vec point{};if(!api.point(unit,&point))return 0;
     const auto relative=point-origin;
     if(!in_job(origin,point,*state->beam))return 0;
     if(!acquiring&&!tracking&&std::hypot(relative.n,relative.e)>c.range)return 0;
     // Native callback rejects contacts at/above -1deg even inside the frustum.
     if(std::atan2(relative.u,std::hypot(relative.n,relative.e))>=-pi/180)return 0;
-    if(acquiring){const auto d=point-acquisition_point;if(std::abs(d.n)>500||std::abs(d.u)>500||std::abs(d.e)>500||length(d)>=nearest)return 0;}
+    if(acquiring){const auto d=point-acquisition_point;if(std::abs(d.n)>500||std::abs(d.u)>500||std::abs(d.e)>500)return 0;}
     if(state->visibility>=16){++stats.truncated;return 0;}
     ++state->visibility;
     if(!visible(origin,point,object_id,own_id,stats))return 0;
-    Contact hit{object_id,point,velocity,now,1,difference(bearing(relative),heading),std::hypot(relative.n,relative.e)};
-    if(acquiring||tracking){if(!positive_response(unit)){++stats.rcs_rejects;return 0;}candidate=hit;nearest=length(point-acquisition_point);}
-    else (void)measurements.queue(hit,origin,heading,c.resource,false,state->own_velocity);
+    if((acquiring||tracking)&&!positive_response(unit)){++stats.rcs_rejects;return 0;}
+    const RawReturn hit{object_id,point,velocity,now};
+    const RequestIdentity request{c.source_epoch,c.request_sequence};
+    if(measurements.queue(hit,origin,heading,c.resource,acquiring||tracking,state->own_velocity,request))++state->returns;
     return 0;
   };
   using VolumeQuery=void(__fastcall*)(void*,const void*,unsigned,const Query&);
   void *manager=*api.manager;auto query=method<VolumeQuery>(manager,19);
   if(!query){stats.ready=false;stats.reason=5;return;}
   ++stats.queries;query(manager,clip,c.sea?34:32,each);
-  if(context.candidate.id)(void)measurements.queue(context.candidate,origin,heading,c.resource,true,own_velocity);
   // 4A4B80 initializes the acquisition timer to 3 seconds; 4A02E0 falls
   // back to a fixed terrain designation only if the same terrain LOS passes.
   if(acquiring&&now-acquisition_time>=3){
     acquiring=false;fixed=in_job(origin,acquisition_point,service.beam)&&terrain_visible(origin,acquisition_point);
     if(fixed){selected={0,acquisition_point,{},now};selected_type=3;}
   }
-  stats.origin=origin;stats.heading=heading;stats.az=az;stats.dt=dt;stats.contacts=tracks.contacts();
+  stats.origin=origin;stats.heading=heading;stats.az=az;stats.dt=dt;stats.contacts=measurements.contacts();
   stats.aspect=selected.velocity_valid?difference(bearing(selected.velocity),heading):0;
-  stats.selected=selected;stats.selected_type=selected_type;stats.memory=selected.id&&now-selected.stamp>=2*dt;stats.acquiring=acquiring;stats.fixed=fixed;
+  stats.selected=selected;stats.selected_type=selected_type;stats.memory=selected.id&&(!selected.association_valid||now-selected.stamp>=2*dt);stats.acquiring=acquiring;stats.fixed=fixed;
   std::lock_guard<std::mutex>lock(state_mutex);if(epoch.load()==generation)output=std::move(stats);
 }
-void update(EDPARAM &p) {
-  api.initialize();const double now=api.ready?api.clock():-1;
-  Controls c;const int mode=static_cast<int>(get(p,"F22_AG_MODE"));
+namespace {
+bool committed(double value) {
+  return std::isfinite(value)&&value>=2&&value<=16777214&&std::fmod(value,2)==0;
+}
+bool flag(EDPARAM& p,const char* name,bool& value) {
+  const double raw=get(p,name);
+  if(raw!=0&&raw!=1)return false;
+  value=raw==1;return true;
+}
+Controls read_controls(EDPARAM& p,double now) {
+  Controls c;
+  const auto context_epoch=p.epoch();
+  const double before=get(p,"F22_AG_NATIVE_CONTROL_SEQUENCE");
+  if(!committed(before)||get(p,"F22_AG_NATIVE_CONTROL_SCHEMA")!=1)return c;
+  c.stamp=get(p,"F22_AG_NATIVE_CONTROL_TIME");
+  const double source_epoch=get(p,"F22_AG_NATIVE_CONTROL_EPOCH");
+  const double raw_mode=get(p,"F22_AG_MODE");
+  if(!std::isfinite(raw_mode)||raw_mode<1||raw_mode>7||std::floor(raw_mode)!=raw_mode)return {};
+  const int mode=static_cast<int>(raw_mode);
   c.map=mode==1;c.search=c.map||mode==2||mode==3||mode==4||mode==5;c.sea=mode==4||mode==5;c.ranging=mode==7;
-  c.elevation=get(p,"F22_AG_VIDEO_ANTENNA_DEG")*pi/180;c.fan=get(p,"F22_AG_VIDEO_FAN")>.5;
-  c.resource=get(p,"F22_AESA_CONTROL_RESOURCE");
-  c.request=get(p,"F22_AG_TRACK_REQUEST_ACTIVE")>.5;
-  c.array_active=get(p,"HUD_MODE")==7&&get(p,"MAIN_POWER")>.5&&get(p,"RADAR_PWR")>.5&&
-    get(p,"F22_AG_RADAR_OPERATING")>.5&&(get(p,"F22_AG_SILENT")<.5||get(p,"F22_AG_ACTIVE")>.5);
+  c.elevation=get(p,"F22_AG_VIDEO_ANTENNA_DEG")*pi/180;
+  bool operating{},silent{},active{},power{},radar_power{};
+  if(!flag(p,"F22_AG_VIDEO_FAN",c.fan)||!flag(p,"F22_AG_TRACK_REQUEST_ACTIVE",c.request)||
+    !flag(p,"F22_AG_RADAR_OPERATING",operating)||!flag(p,"F22_AG_SILENT",silent)||
+    !flag(p,"F22_AG_ACTIVE",active)||!flag(p,"MAIN_POWER",power)||!flag(p,"RADAR_PWR",radar_power))return {};
+  c.array_active=get(p,"HUD_MODE")==7&&power&&radar_power&&operating&&(!silent||active);
   c.active=c.array_active&&(c.search||c.request||c.ranging);
-  c.stamp=now;c.range=get(p,"F22_AG_RADAR_RANGE_NM")*1852;
-  c.request_sequence=get(p,"F22_AG_TRACK_REQUEST_SEQUENCE");c.request=get(p,"F22_AG_TRACK_REQUEST_ACTIVE")>.5;
+  c.range=get(p,"F22_AG_RADAR_RANGE_NM")*1852;
+  c.request_sequence=get(p,"F22_AG_TRACK_REQUEST_SEQUENCE");
   c.request_point={get(p,"F22_AG_TRACK_REQUEST_NORTH"),get(p,"F22_AG_TRACK_REQUEST_ALTITUDE"),get(p,"F22_AG_TRACK_REQUEST_EAST")};
+  const bool source_known=std::isfinite(source_epoch)&&source_epoch>=1&&source_epoch<=16777215&&std::floor(source_epoch)==source_epoch;
+  const bool request_known=std::isfinite(c.request_sequence)&&c.request_sequence>=0&&c.request_sequence<=16777215&&std::floor(c.request_sequence)==c.request_sequence;
+  const bool fresh=std::isfinite(now)&&std::isfinite(c.stamp)&&now>=c.stamp&&now-c.stamp<=.5;
+  if(!source_known||!request_known||!fresh||!std::isfinite(c.elevation)||!std::isfinite(c.range)||
+      c.range<40||c.range>160*1852||
+      (c.request&&!std::isfinite(length(c.request_point)))||
+      before!=get(p,"F22_AG_NATIVE_CONTROL_SEQUENCE")||context_epoch!=p.epoch())return {};
+  c.source_epoch=static_cast<std::uint64_t>(source_epoch);
+  if(c.source_epoch!=epoch.load())return {};
+  return c;
+}
+}
+void update(EDPARAM &p) {
+  if(!p.publicationReady()) {
+    std::lock_guard<std::mutex>lock(state_mutex);controls={};return;
+  }
+  api.initialize();const double now=api.ready?api.clock():-1;
+  const Controls c=read_controls(p,now);
   Output result;{std::lock_guard<std::mutex>lock(state_mutex);controls=c;result=output;}
-  const bool fresh=api.ready&&result.ready&&now-result.stamp>=-.05&&now-result.stamp<.5;
-  put(p,"F22_AG_AGR_VALID",fresh&&c.active&&result.agr_valid?1:0);
-  put(p,"F22_AG_AGR_RANGE_FT",result.agr_range*3.280839895);put(p,"F22_AG_AGR_VELOCITY_KT",result.agr_rate*1.94384449);
-  put(p,"F22_AG_AGR_TIME",result.agr_stamp);
-  put(p,"F22_AG_GMT_READY",fresh?1:0);put(p,"F22_AG_GMT_REASON",fresh?0:api.reason?api.reason:4);
+  const auto generation=epoch.load();
+  const bool fresh=p.numericReady()&&api.ready&&result.ready&&result.generation==generation&&std::isfinite(now)&&
+    std::isfinite(result.stamp)&&now>=result.stamp&&now-result.stamp<=.5;
+  Publication publication{p,p.epoch()};
+  publication_sequence=publication_sequence>=16777212?2:publication_sequence+2;
+  publication.put("F22_AG_NATIVE_SEQUENCE",publication_sequence-1);
+  if (!publication.current()) {
+    std::lock_guard<std::mutex> lock(state_mutex);
+    controls = {};
+    return; // Without the odd marker, preserve the prior payload and its source lease.
+  }
+  publication.put("F22_AG_NATIVE_SCHEMA",1);publication.put("F22_AG_NATIVE_SOURCE_EPOCH",static_cast<double>(generation));
+  publication.put("F22_AG_NATIVE_MAP",result.map?1:0);publication.put("F22_AG_NATIVE_SEA",result.sea?1:0);
+  publication.put("F22_AG_AGR_VALID",fresh&&c.active&&result.agr_valid&&std::isfinite(result.agr_stamp)&&now>=result.agr_stamp&&now-result.agr_stamp<=.5?1:0);
+  publication.put("F22_AG_AGR_RANGE_FT",result.agr_range*3.280839895);publication.put("F22_AG_AGR_VELOCITY_KT",result.agr_rate*1.94384449);
+  publication.put("F22_AG_AGR_TIME",result.agr_stamp);
+  publication.put("F22_AG_GMT_READY",fresh?1:0);publication.put("F22_AG_GMT_REASON",fresh?0:result.reason?result.reason:api.reason?api.reason:4);
   const bool search_current=result.map==c.map&&result.sea==c.sea;
-  put(p,"F22_AG_GMT_LAST_TIME",result.stamp);put(p,"F22_AG_GMT_COUNT",fresh&&c.active&&search_current?static_cast<double>(result.contacts.size()):0);
-  put(p,"F22_AG_GMT_QUERY_COUNT",result.queries);put(p,"F22_AG_GMT_CANDIDATES",result.candidates);
-  put(p,"F22_AG_GMT_GROUND_CANDIDATES",result.ground_candidates);put(p,"F22_AG_GMT_TRUNCATED",result.truncated);
-  put(p,"F22_AG_GMT_TERRAIN_REJECTS",result.terrain_rejects);put(p,"F22_AG_GMT_OBJECT_REJECTS",result.object_rejects);put(p,"F22_AG_GMT_SPEED_REJECTS",result.speed_rejects);
-  put(p,"F22_AG_GMT_MOTION_UNAVAILABLE",result.motion_unavailable);
-  put(p,"F22_AG_GMT_SLOW_REJECTS",result.slow_rejects);put(p,"F22_AG_GMT_FAST_REJECTS",result.fast_rejects);
-  put(p,"F22_AG_GMT_RCS_REJECTS",result.rcs_rejects);put(p,"F22_AG_GMT_ACTIVITY_DT",result.dt);
-  const auto&t=result.selected;const bool tracked=fresh&&c.active&&(t.id||result.fixed);
-  put(p,"F22_AG_NATIVE_TRACK_VALID",tracked?1:0);put(p,"F22_AG_NATIVE_TRACK_ID",tracked?t.id:0);
-  put(p,"F22_AG_NATIVE_TRACK_REQUEST_SEQUENCE",fresh?result.request_sequence:-1);
-  put(p,"F22_AG_NATIVE_TRACK_ACQUIRING",fresh&&c.active&&result.acquiring?1:0);
-  put(p,"F22_AG_NATIVE_TRACK_MEMORY",tracked&&result.memory?1:0);
-  put(p,"F22_AG_NATIVE_TRACK_TYPE",tracked?result.selected_type:0);
-  put(p,"F22_AG_NATIVE_TRACK_TIME",t.stamp);
-  put(p,"F22_AG_NATIVE_TRACK_MEASUREMENT_SOURCE",2);
-  put(p,"F22_AG_NATIVE_TRACK_VELOCITY_VALID",tracked&&t.velocity_valid?1:0);
-  put(p,"F22_AG_NATIVE_TRACK_FILTER_VALID",tracked&&t.filter_valid?1:0);
-  put(p,"F22_AG_NATIVE_TRACK_POSITION_SIGMA_M",t.position_sigma_m);
-  put(p,"F22_AG_NATIVE_TRACK_VELOCITY_SIGMA_MPS",t.velocity_sigma_mps);
-  put(p,"F22_AG_NATIVE_TRACK_RANGE_RATE",t.range_rate);
-  put(p,"F22_AG_NATIVE_TRACK_RATE_SIGMA_MPS",t.rate_sigma_mps);
-  put(p,"F22_AG_NATIVE_TRACK_ASPECT",result.aspect);
+  publication.put("F22_AG_GMT_LAST_TIME",result.stamp);publication.put("F22_AG_GMT_COUNT",fresh&&c.active&&search_current?static_cast<double>(result.contacts.size()):0);
+  publication.put("F22_AG_GMT_QUERY_COUNT",result.queries);publication.put("F22_AG_GMT_CANDIDATES",result.candidates);
+  publication.put("F22_AG_GMT_GROUND_CANDIDATES",result.ground_candidates);publication.put("F22_AG_GMT_TRUNCATED",result.truncated);
+  publication.put("F22_AG_GMT_TERRAIN_REJECTS",result.terrain_rejects);publication.put("F22_AG_GMT_OBJECT_REJECTS",result.object_rejects);publication.put("F22_AG_GMT_SPEED_REJECTS",result.speed_rejects);
+  publication.put("F22_AG_GMT_MOTION_UNAVAILABLE",result.motion_unavailable);
+  publication.put("F22_AG_GMT_SLOW_REJECTS",result.slow_rejects);publication.put("F22_AG_GMT_FAST_REJECTS",result.fast_rejects);
+  publication.put("F22_AG_GMT_RCS_REJECTS",result.rcs_rejects);publication.put("F22_AG_GMT_ACTIVITY_DT",result.dt);
+  const auto&t=result.selected;const bool measured_age=std::isfinite(t.stamp)&&now>=t.stamp&&now-t.stamp<=5;
+  const bool tracked=fresh&&c.active&&measured_age&&(t.id||result.fixed);
+  publication.put("F22_AG_NATIVE_TRACK_VALID",tracked?1:0);publication.put("F22_AG_NATIVE_TRACK_ID",tracked?t.id:0);
+  publication.put("F22_AG_NATIVE_TRACK_REQUEST_SEQUENCE",fresh?result.request_sequence:-1);
+  publication.put("F22_AG_NATIVE_TRACK_ACQUIRING",fresh&&c.active&&result.acquiring?1:0);
+  publication.put("F22_AG_NATIVE_TRACK_MEMORY",tracked&&result.memory?1:0);
+  publication.put("F22_AG_NATIVE_TRACK_TYPE",tracked?result.selected_type:0);
+  publication.put("F22_AG_NATIVE_TRACK_TIME",t.stamp);
+  publication.put("F22_AG_NATIVE_TRACK_MEASUREMENT_SOURCE",2);
+  publication.put("F22_AG_NATIVE_TRACK_VELOCITY_VALID",tracked&&t.velocity_valid?1:0);
+  publication.put("F22_AG_NATIVE_TRACK_FILTER_VALID",tracked&&t.filter_valid?1:0);
+  publication.put("F22_AG_NATIVE_TRACK_ASSOCIATION_VALID",tracked&&t.association_valid?1:0);
+  publication.put("F22_AG_NATIVE_TRACK_POSITION_SIGMA_M",t.position_sigma_m);
+  publication.put("F22_AG_NATIVE_TRACK_VELOCITY_SIGMA_MPS",t.velocity_sigma_mps);
+  publication.put("F22_AG_NATIVE_TRACK_RANGE_RATE",t.range_rate);
+  publication.put("F22_AG_NATIVE_TRACK_RATE_SIGMA_MPS",t.rate_sigma_mps);
+  publication.put("F22_AG_NATIVE_TRACK_ASPECT",result.aspect);
   const double tv[]={t.point.n,t.point.u,t.point.e,t.velocity.n,t.velocity.u,t.velocity.e};
   const char*tn[]={"N","U","E","VN","VU","VE"};
-  for(unsigned j=0;j<6;++j)put(p,std::string("F22_AG_NATIVE_TRACK_")+tn[j],tv[j]);
+  for(unsigned j=0;j<6;++j)publication.put(std::string("F22_AG_NATIVE_TRACK_")+tn[j],tv[j]);
   for(std::size_t i=0;i<result.contacts.size()&&fresh&&c.active;++i) {
     const auto&contact=result.contacts[i];const auto prefix="F22_AG_GMT_"+std::to_string(i+1)+"_";
-    put(p,prefix+"ID",contact.id);put(p,prefix+"TIME",contact.stamp);
-    put(p,prefix+"AZ",contact.observed_az);put(p,prefix+"RANGE",contact.horizontal_range);
+    publication.put(prefix+"ID",contact.id);publication.put(prefix+"TIME",contact.stamp);
+    publication.put(prefix+"ASSOCIATION_VALID",contact.association_valid?1:0);
+    publication.put(prefix+"AZ",contact.observed_az);publication.put(prefix+"RANGE",contact.horizontal_range);
     const double values[]={contact.point.n,contact.point.u,contact.point.e,contact.velocity.n,contact.velocity.u,contact.velocity.e};
     const char*names[]={"N","U","E","VN","VU","VE"};
-    for(unsigned j=0;j<6;++j)put(p,prefix+names[j],values[j]);
+    for(unsigned j=0;j<6;++j)publication.put(prefix+names[j],values[j]);
   }
+  if(!publication.current()||epoch.load()!=generation) {
+    {std::lock_guard<std::mutex>lock(state_mutex);controls={};}
+    publication.put("F22_AG_NATIVE_TRACK_VALID",0);publication.put("F22_AG_GMT_READY",0);
+    publication.put("F22_AG_GMT_COUNT",0);publication.put("F22_AG_AGR_VALID",0);
+    return; // Keep the packet odd; consumers must withdraw this interrupted copy.
+  }
+  publication.put("F22_AG_NATIVE_SEQUENCE",publication_sequence);
 }
 }

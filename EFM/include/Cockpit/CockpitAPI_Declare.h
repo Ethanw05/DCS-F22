@@ -67,13 +67,6 @@ public:
 			return true;
 		}
 
-		double getParamNumber(void* handle)
-		{
-			double res = 0;
-			ed_param_api.pfn_ed_cockpit_parameter_value_to_number(handle, res, false);
-			return res;
-		}
-
 		inline bool getParamString(void* ptr, char* buffer, unsigned int bufferSize) const
 		{
 			if (!buffer || bufferSize == 0) return false;

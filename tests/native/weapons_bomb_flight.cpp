@@ -81,6 +81,13 @@ int main() {
     input();NativeAGWeapons::solve(parameters,7);++cases;
     failures+=!require(cells["F22_AG_BOMB_NATIVE_VALID"].value==1 &&
         std::abs(cells["F22_AG_BOMB_FALL_TIME"].value-std::sqrt(2000/9.81))<1e-6,"Fresh bomb recovery/oracle failed");
+    for(const char* name:NativeAGWeapons::Request::names) {
+        input();cells[name].success=false;NativeAGWeapons::solve(parameters,7);++cases;
+        failures+=!require(cells["F22_AG_BOMB_NATIVE_VALID"].value==0 && aim_calls==0,
+                           "Failed request conversion reached native bomb solver");
+    }
+    input();cells["F22_AG_BOMB_REQUEST_SCHEMA"].value=0;NativeAGWeapons::solve(parameters,7);++cases;
+    failures+=!require(aim_calls==0,"Unversioned request fell through to legacy live values");
     input();NativeAGWeapons::api.ready=false;NativeAGWeapons::solve(parameters,7);++cases;
     failures+=!require(cells["F22_AG_BOMB_NATIVE_VALID"].value==0 && aim_calls==0,
                        "Absent actual CockpitBase module was reported as a working bomb backend");

@@ -24,13 +24,14 @@ int main(int argc, char** argv) {
     if (argc == 2 && std::string_view(argv[1]) == "--failed-read") {
         conversion_success = false;
         payload = 7.0;
-        const double exposed = actual.getParamNumber(&borrowed);
-        std::cout << "{\"conversion_status\":false,\"exposed_value\":" << exposed << "}\n";
+        double exposed = -123;
+        const bool success = actual.getParamNumber(&borrowed,exposed);
+        std::cout << "{\"conversion_status\":false,\"read_success\":" << (success?"true":"false")
+                  << ",\"exposed_value\":" << exposed << "}\n";
         return 0;
     }
     for (double sample : {0.0, -19.5, 23.75}) {
         payload = sample;
-        if (actual.getParamNumber(&borrowed) != sample) return 1;
         double checked = 99;
         if (!actual.getParamNumber(&borrowed, checked) || checked != sample) return 2;
     }

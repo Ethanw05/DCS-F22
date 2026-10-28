@@ -73,6 +73,8 @@ def native_read(executable):
     if result.returncode != 0:
         raise RuntimeError(result.stderr or result.stdout)
     data = json.loads(result.stdout)
-    data.update(id='F-INT-003',status='known_failure' if data['exposed_value'] == 7
-                else 'changed_requires_review',expected='failed conversion cannot be a successful value')
+    resolved = data.get('read_success') is False and data['exposed_value'] == -123
+    data.update(id='F-INT-003',status='resolved' if resolved else 'known_failure'
+                if data['exposed_value'] == 7 else 'changed_requires_review',
+                expected='failed conversion returns false and preserves caller output')
     return data

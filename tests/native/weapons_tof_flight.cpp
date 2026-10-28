@@ -82,6 +82,25 @@ int main() {
     input();now=0;NativeSidewinder::publish_time_estimate(parameters);++cases;
     failures+=!require(cells["F22_TOF_NATIVE_VALID"].value==1 && calls==1,
                        "Valid zero World clock was rejected");
+    for(const char* name:NativeSidewinder::IrControls::names)cells[name]={0,true};
+    NativeSidewinder::IrControls controls;
+    failures+=!require(controls.load(parameters),"Valid zero IR controls were rejected");
+    for(const char* name:NativeSidewinder::IrControls::names) {
+        cells[name].success=false;
+        failures+=!require(!controls.load(parameters),"Failed IR control conversion was accepted");
+        cells[name].success=true;
+    }
+    cells["F22_IR_STATION"]={2,true};cells["F22_IR_TYPE1"]={4,true};
+    cells["F22_IR_TYPE2"]={4,true};cells["F22_IR_TYPE3"]={7,true};cells["F22_IR_TYPE4"]={136,true};
+    int station=-1;NativeSidewinder::WeaponType store{};
+    failures+=!require(NativeSidewinder::read_store_configuration(parameters,station,store) && station==2,
+                       "Valid store configuration rejected");
+    for(const char* name:{"F22_IR_STATION","F22_IR_TYPE1","F22_IR_TYPE2","F22_IR_TYPE3","F22_IR_TYPE4"}) {
+        cells[name].success=false;
+        failures+=!require(!NativeSidewinder::read_store_configuration(parameters,station,store),
+                           "Failed store conversion was accepted");
+        cells[name].success=true;
+    }
     std::cout<<"{\"tof_flight_cases\":"<<cases<<",\"failures\":"<<failures<<",\"DCS_qualified\":false}\n";
     return failures?1:0;
 }

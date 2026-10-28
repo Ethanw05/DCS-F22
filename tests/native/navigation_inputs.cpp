@@ -75,6 +75,14 @@ void check(const Module& cockpit, const Module& aircraft) {
     require(draw[714] == .75f,"Fresh draw request did not recover");
     cockpit_draw(nullptr,0);
     aircraft.symbol<void(*)()>("ed_fm_release")();
+    put("FORM_KNOB",.9);cockpit_draw(draw.data(),draw.size());
+    require(draw[714]==0,"Released parameter context was still used by drawing");
+    request(put,3,180);command(11800,3);
+    require(get("F22_ENTRY_GUIDANCE_ACK_REQUEST")!=3,"Released owner accepted a late command");
+    aircraft.symbol<void(*)()>("ed_fm_hot_start_in_air")();
+    request(put,3,180);command(11800,3);
+    require(get("F22_ENTRY_GUIDANCE_ACK_REQUEST")==3,"Explicit new startup did not reacquire context");
+    aircraft.symbol<void(*)()>("ed_fm_release")();
 }
 }
 int main(int argc, char** argv) {

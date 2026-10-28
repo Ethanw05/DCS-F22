@@ -284,10 +284,30 @@ struct IrFeedbackPublication {
 };
 IrFeedbackPublication ir_feedback;
 std::map<std::string,void*> handles;
-double read(EDPARAM& p,const char* name) {
+bool read(EDPARAM& p,const char* name,double& value) {
     auto& h=handles[name];if (!h) h=p.getParamHandle(name);
-    return p.getParamNumber(h);
+    return p.getParamNumber(h,value);
 }
+template<std::size_t N>
+bool read_fields(EDPARAM& p,const std::array<const char*,N>& names,std::array<double,N>& values) {
+    const auto epoch=p.epoch();
+    for(std::size_t i=0;i<N;++i)if(!read(p,names[i],values[i]))return false;
+    return epoch==p.epoch();
+}
+struct IrControls {
+    enum Field : std::size_t { Mode,Power,ExposureTime,ExposureValid,Exposed,Generation,Aim9x,
+        Release,Caged,MasterArm,WoW,Count };
+    static constexpr std::array<const char*,Count> names{{"F22_IR_MODE","MAIN_POWER",
+        "F22_IR_EXPOSURE_TIME","F22_IR_EXPOSURE_VALID","F22_IR_EXPOSED","F22_IR_STORE_GENERATION",
+        "F22_IR_AIM9X_PROFILE","F22_IR_RELEASE_REQUEST","F22_IR_CAGED","MASTER_ARM","WoW"}};
+    std::array<double,Count> value{};
+    bool load(EDPARAM& p) {
+        if(!read_fields(p,names,value))return false;
+        for(const auto field:{Power,ExposureValid,Exposed,Aim9x,Release,Caged,MasterArm,WoW})
+            if(value[field]!=0 && value[field]!=1)return false;
+        return value[Mode]>=0 && value[Mode]<=10 && value[Mode]==std::floor(value[Mode]);
+    }
+};
 void write(EDPARAM& p,const char* name,double value) {
     auto& h=handles[name];if (!h) h=p.getParamHandle(name);
     p.setParamNumber(h,value);
@@ -308,6 +328,9 @@ struct TimeEstimate {
     double stamp=0,tof=0,act=0;
     bool valid=false,act_valid=false;
     unsigned source=0,mode=0;double life=1000;
+    double physical_generation=0;
+    const EDPARAM* parameter_owner=nullptr;
+    std::uint64_t parameter_epoch=0;
 };
 SRWLOCK time_estimate_lock=SRWLOCK_INIT;
 TimeEstimate time_estimate{};
@@ -340,15 +363,16 @@ struct GroundRelease {
     bool valid=false;unsigned station=0;double delivery_mode=0,stamp=-100,solution_time=0,solution_sequence=0,target_source=0,target_sequence=0;
     std::array<float,3> point{};std::array<double,3> identity_point{};EDPARAM* parameters=nullptr;
     std::array<void*,ground_live_names.size()> live_handles{};
+    std::uint64_t parameter_epoch=0;
 };
 bool ground_identity_current(const GroundRelease& g) {
-    if(!g.parameters)return false;
+    if(!g.parameters || g.parameters->epoch()!=g.parameter_epoch)return false;
     // This payload callback must not traverse/insert into the update thread's
     // mutable handle map. Bind handles during preparation and copy with cache.
     std::array<double,ground_live_names.size()> live{};
     for(unsigned i=0;i<live.size();++i){
         if(!g.live_handles[i])return false;
-        live[i]=g.parameters->getParamNumber(g.live_handles[i]);if(!std::isfinite(live[i]))return false;
+        if(!g.parameters->getParamNumber(g.live_handles[i],live[i]))return false;
     }
     const auto value=[&live](unsigned i){return live[i];};
     if(value(0)<.5 || value(1)<.5 || value(2)<.5 || value(3)>.5 || value(4)!=7 || value(5)!=g.delivery_mode ||
@@ -356,7 +380,7 @@ bool ground_identity_current(const GroundRelease& g) {
        value(10)!=g.solution_time || value(11)<.5 || value(12)<.5 || value(23)!=2)return false;
     if(value(13)!=g.target_source || value(14)!=g.target_source || value(15)!=g.target_sequence || value(16)!=g.target_sequence)return false;
     for(unsigned i=0;i<3;++i)if(value(17+i*2)!=g.identity_point[i] || value(18+i*2)!=g.identity_point[i])return false;
-    return true;
+    return g.parameters->epoch()==g.parameter_epoch;
 }
 SRWLOCK ground_release_lock=SRWLOCK_INIT;
 GroundRelease ground_release{};
@@ -366,19 +390,30 @@ bool ground_delivery_source(double mode,double source) {
 void update_ground_release(EDPARAM& p) {
     GroundRelease next;
     const double now=api.clock?api.clock():-100;
-    const double stamp=read(p,"F22_AG_SOLUTION_TIME"),station=read(p,"F22_WEAPON_STATION");
+    constexpr std::array<const char*,17> names{{"F22_AG_SOLUTION_TIME","F22_WEAPON_STATION",
+        "F22_AG_DELIVERY_TARGET_N","F22_AG_DELIVERY_TARGET_U","F22_AG_DELIVERY_TARGET_E","HUD_AG_SUBMODE",
+        "F22_IR_MODE","F22_AG_DELIVERY_TARGET_VALID","F22_AG_GUIDED_SELECTED","MASTER_ARM","MAIN_POWER",
+        "WoW","F22_AG_SOLUTION_VALID","F22_AG_SOLUTION_STATION","F22_AG_SOLUTION_SEQUENCE",
+        "F22_AG_DELIVERY_TARGET_SOURCE","F22_AG_DELIVERY_TARGET_SEQUENCE"}};
+    std::array<double,17> fields{};
+    if(!read_fields(p,names,fields)) {
+        write(p,"F22_AG_GUIDANCE_CACHE_VALID",0);
+        AcquireSRWLockExclusive(&ground_release_lock);ground_release={};ReleaseSRWLockExclusive(&ground_release_lock);
+        return;
+    }
+    const double stamp=fields[0],station=fields[1];
     // Weapon_System resolves live designation versus an explicit station target.
-    const double n=read(p,"F22_AG_DELIVERY_TARGET_N"),u=read(p,"F22_AG_DELIVERY_TARGET_U"),e=read(p,"F22_AG_DELIVERY_TARGET_E");
-    next.delivery_mode=read(p,"HUD_AG_SUBMODE");
-    next.valid=read(p,"F22_IR_MODE")==7 && (next.delivery_mode==2 || next.delivery_mode==3) && read(p,"F22_AG_DELIVERY_TARGET_VALID")>.5 &&
-        read(p,"F22_AG_GUIDED_SELECTED")>.5 && read(p,"MASTER_ARM")>.5 && read(p,"MAIN_POWER")>.5 && read(p,"WoW")<.5 &&
-        read(p,"F22_AG_SOLUTION_VALID")>.5 && read(p,"F22_AG_SOLUTION_STATION")==station && std::isfinite(stamp) && now>=stamp && now-stamp<=.2 &&
+    const double n=fields[2],u=fields[3],e=fields[4];
+    next.delivery_mode=fields[5];
+    next.valid=fields[6]==7 && (next.delivery_mode==2 || next.delivery_mode==3) && fields[7]==1 &&
+        fields[8]==1 && fields[9]==1 && fields[10]==1 && fields[11]==0 &&
+        fields[12]==1 && fields[13]==station && std::isfinite(now) && stamp>=0 && now>=stamp && now-stamp<=.2 &&
         std::isfinite(station) && station>=0 && station<=10 && station==std::floor(station) &&
         std::isfinite(n) && std::isfinite(u) && std::isfinite(e) && std::abs(n)<1e7 && std::abs(e)<1e7 && u>=-1000 && u<20000;
     next.station=next.valid?static_cast<unsigned>(station):0;next.stamp=now;
-    next.solution_time=stamp;next.solution_sequence=read(p,"F22_AG_SOLUTION_SEQUENCE");
-    next.target_source=read(p,"F22_AG_DELIVERY_TARGET_SOURCE");next.target_sequence=read(p,"F22_AG_DELIVERY_TARGET_SEQUENCE");
-    next.identity_point={n,u,e};next.parameters=&p;
+    next.solution_time=stamp;next.solution_sequence=fields[14];
+    next.target_source=fields[15];next.target_sequence=fields[16];
+    next.identity_point={n,u,e};next.parameters=&p;next.parameter_epoch=p.epoch();
     for(unsigned i=0;i<ground_live_names.size();++i)next.live_handles[i]=p.getParamHandle(ground_live_names[i]);
     next.valid=next.valid && std::isfinite(next.solution_sequence) && next.solution_sequence>0 && next.solution_sequence==std::floor(next.solution_sequence) &&
         std::isfinite(next.target_sequence) && next.target_sequence>=0 && next.target_sequence==std::floor(next.target_sequence) &&
@@ -518,7 +553,9 @@ void publish_missile_data(EDPARAM& p) {
     if (!readable(descriptor,324)) return;
     const auto type=*reinterpret_cast<const unsigned*>(descriptor+168);
     write(p,"F22_MISSILE_DESCRIPTOR_TYPE",type);
-    if (type!=static_cast<unsigned>(read(p,"F22_WEAPON_TYPE4"))) return;
+    double requested_type=0;
+    if (!read(p,"F22_WEAPON_TYPE4",requested_type) || requested_type<1 || requested_type>UINT_MAX
+        || requested_type!=std::floor(requested_type) || type!=static_cast<unsigned>(requested_type)) return;
     const double minimum=*reinterpret_cast<const double*>(weapon+832);
     const double maximum=*reinterpret_cast<const double*>(weapon+840);
     const double speed=*reinterpret_cast<const float*>(descriptor+292);
@@ -532,22 +569,33 @@ void publish_missile_data(EDPARAM& p) {
     // Same exported DLZ used by the Hornet (FA18C 0x180426a5d): own altitude,
     // two unused scalars, target height minus own height, own/target velocity,
     // relative target position; returns RMAX, turn-away range, aerodynamic max.
-    if (api.dlz && readable(descriptor,632) && *reinterpret_cast<const float*>(descriptor+584)>1 && read(p,"F22_FC_TARGET_INPUT_VALID")>.5) {
+    double target_valid=0;
+    if (api.dlz && readable(descriptor,632) && *reinterpret_cast<const float*>(descriptor+584)>1
+        && read(p,"F22_FC_TARGET_INPUT_VALID",target_valid) && target_valid==1) {
+        WeaponFlightFrame::Snapshot<6> flight;
+        if(!flight.load(p,WeaponFlightFrame::motion_names))return;
         float own[3],target[3],relative[3];char key[64];bool valid=true;
         const char* axes[]={"N","U","E"};
         for (unsigned i=0;i<3;++i) {
-            std::snprintf(key,sizeof(key),"EFM_HUD_V%s",axes[i]);own[i]=static_cast<float>(read(p,key));
-            std::snprintf(key,sizeof(key),"F22_FC_TARGET_V%s",axes[i]);target[i]=static_cast<float>(read(p,key));
-            std::snprintf(key,sizeof(key),"F22_FC_TARGET_D%s",axes[i]);relative[i]=static_cast<float>(read(p,key));
+            own[i]=static_cast<float>(flight.values[i]);
+            double velocity=0,position=0;
+            std::snprintf(key,sizeof(key),"F22_FC_TARGET_V%s",axes[i]);
+            if(!read(p,key,velocity) || std::abs(velocity)>1500)return;
+            std::snprintf(key,sizeof(key),"F22_FC_TARGET_D%s",axes[i]);
+            if(!read(p,key,position) || std::abs(position)>1e7)return;
+            target[i]=static_cast<float>(velocity);relative[i]=static_cast<float>(position);
             valid=valid && std::isfinite(own[i]) && std::isfinite(target[i]) && std::isfinite(relative[i]);
         }
-        const auto altitude=read(p,"F22_FC_OWN_ALTITUDE");
+        double altitude=0,target_id=0;
+        if(!read(p,"F22_FC_OWN_ALTITUDE",altitude) || altitude< -500 || altitude>30000
+            || !read(p,"F22_FC_TARGET_INPUT_ID",target_id) || target_id<1 || target_id>UINT_MAX
+            || target_id!=std::floor(target_id))return;
         if (valid && std::isfinite(altitude)) {
             float maximum=0,turn=0,aero=0;
             api.dlz(reinterpret_cast<const void*>(descriptor),static_cast<float>(altitude),0,0,relative[1],own,target,relative,&maximum,&turn,&aero);
-            if (std::isfinite(maximum) && std::isfinite(turn) && std::isfinite(aero) && maximum>minimum && turn>=minimum && turn<=maximum && aero>=maximum && aero<600000) {
+            if (flight.current(p) && std::isfinite(maximum) && std::isfinite(turn) && std::isfinite(aero) && maximum>minimum && turn>=minimum && turn<=maximum && aero>=maximum && aero<600000) {
                 write(p,"F22_DLZ_RMAX",maximum);write(p,"F22_DLZ_RTR",turn);write(p,"F22_DLZ_RAERO",aero);
-                write(p,"F22_DLZ_RMIN",minimum);write(p,"F22_DLZ_TARGET_ID",read(p,"F22_FC_TARGET_INPUT_ID"));write(p,"F22_DLZ_NATIVE_VALID",1);
+                write(p,"F22_DLZ_RMIN",minimum);write(p,"F22_DLZ_TARGET_ID",target_id);write(p,"F22_DLZ_NATIVE_VALID",1);
             }
         }
     }
@@ -594,19 +642,12 @@ void retire_time_estimate() {
     last_tof_attempt=-1e9;last_tof_target=last_tof_type=0;
 }
 void publish_time_estimate(EDPARAM& p) {
-    static double physical_generation=0;
-    static const EDPARAM* parameter_owner=nullptr;
-    static std::uint64_t parameter_epoch=0;
     write(p,"F22_TOF_NATIVE_VALID",0);write(p,"F22_TOF_ACT_VALID",0);write(p,"F22_TOF_SOURCE",0);
     WeaponFlightFrame::Snapshot<1> flight;
     TofInputs input;
     if(!flight.load(p,WeaponFlightFrame::speed_names) || !input.load(p) || !input.eligible()) {
-        retire_time_estimate();physical_generation=0;parameter_owner=nullptr;parameter_epoch=0;return;
+        retire_time_estimate();return;
     }
-    if(physical_generation!=flight.generation() || parameter_owner!=&p
-        || parameter_epoch!=flight.parameter_epoch)retire_time_estimate();
-    physical_generation=flight.generation();
-    parameter_owner=&p;parameter_epoch=flight.parameter_epoch;
     api.resolve_tof();write(p,"F22_TOF_BACKEND_READY",api.aam_tof || api.descriptor_flight?1:0);
     const auto type=static_cast<unsigned>(input.value[TofInputs::Type]);
     const auto target_id=static_cast<unsigned>(input.value[TofInputs::Target]);
@@ -619,9 +660,13 @@ void publish_time_estimate(EDPARAM& p) {
     TimeEstimate value{};
     if (eligible) {
         AcquireSRWLockShared(&time_estimate_lock);value=time_estimate;ReleaseSRWLockShared(&time_estimate_lock);
-        if (target_id!=last_tof_target || type!=last_tof_type || value.mode!=mode || now<last_tof_attempt || now-last_tof_attempt>=.2) {
+        const bool source_changed=value.physical_generation!=flight.generation()
+            || value.parameter_owner!=&p || value.parameter_epoch!=flight.parameter_epoch;
+        if (source_changed || target_id!=last_tof_target || type!=last_tof_type || value.mode!=mode || now<last_tof_attempt || now-last_tof_attempt>=.2) {
             last_tof_attempt=now;last_tof_target=target_id;last_tof_type=type;
             value={};value.target=target_id;value.type=type;value.mode=static_cast<unsigned>(mode);value.stamp=now;
+            value.physical_generation=flight.generation();value.parameter_owner=&p;
+            value.parameter_epoch=flight.parameter_epoch;
             value.life=input.value[TofInputs::Life];
             Direction relative{input.value[TofInputs::DN],input.value[TofInputs::DU],input.value[TofInputs::DE]};
             Direction velocity{input.value[TofInputs::VN],input.value[TofInputs::VU],input.value[TofInputs::VE]};
@@ -730,8 +775,10 @@ void reset(EDPARAM* parameters) {
 }
 
 bool read_store_configuration(EDPARAM& p,int& selected,WeaponType& type) {
-    const std::array<double,5> values={read(p,"F22_IR_STATION"),read(p,"F22_IR_TYPE1"),
-        read(p,"F22_IR_TYPE2"),read(p,"F22_IR_TYPE3"),read(p,"F22_IR_TYPE4")};
+    constexpr std::array<const char*,5> names{{"F22_IR_STATION","F22_IR_TYPE1",
+        "F22_IR_TYPE2","F22_IR_TYPE3","F22_IR_TYPE4"}};
+    std::array<double,5> values{};
+    if(!read_fields(p,names,values))return false;
     constexpr std::array<double,5> maximum={10,255,255,255,4294967295.0};
     for (unsigned i=0;i<values.size();++i) {
         if (!std::isfinite(values[i]) || values[i]<0 || values[i]>maximum[i] ||
@@ -754,10 +801,10 @@ void update(EDPARAM& p,double dt) {
     if (!feedback_ready) return; // Release retires late callbacks until explicit spawn initialization.
     write(p,"F22_COMBAT_NATIVE_TICKS",++tick_sequence);
     api.resolve();
-    const double requested_mode=read(p,"F22_IR_MODE");
-    const bool valid_mode=std::isfinite(requested_mode) && requested_mode>=0 &&
-        requested_mode<=10 && requested_mode==std::floor(requested_mode);
-    launch_master_mode=valid_mode ? static_cast<unsigned>(requested_mode) : 0;
+    IrControls controls;
+    const bool controls_valid=controls.load(p);
+    const auto& input=controls.value;
+    launch_master_mode=controls_valid ? static_cast<unsigned>(input[IrControls::Mode]) : 0;
     publish_launch_events(p);
     update_ground_release(p);
     publish_missile_data(p);
@@ -771,24 +818,25 @@ void update(EDPARAM& p,double dt) {
     write(p,"F22_IR_HEAD_RELEASED",0);
     write(p,"F22_IR_LAUNCH_SEQUENCE",launch_sequence);
     write(p,"F22_IR_LAUNCH_ID",launch_id);
+    if (!controls_valid) {dispose();return;}
     if (!api.ready || !std::isfinite(dt) || dt<=0 || dt>.1) return;
     void** context=*api.contexts;
     void* plane=context ? context[2] : nullptr;
     void* aircraft=api.aircraft();
     if (!plane || !aircraft) { dispose();return; }
-    bool enabled=read(p,"F22_IR_MODE")==3 && read(p,"MAIN_POWER")>.5;
+    const bool enabled=input[IrControls::Mode]==3 && input[IrControls::Power]==1;
     int selected=-1;
     WeaponType type{};
     const bool loaded=read_store_configuration(p,selected,type);
-    const double exposure_time=read(p,"F22_IR_EXPOSURE_TIME");
+    const double exposure_time=input[IrControls::ExposureTime];
     const double now=api.clock ? api.clock() : -100;
-    const bool exposed=read(p,"F22_IR_EXPOSURE_VALID")>.5 && read(p,"F22_IR_EXPOSED")>.5 &&
+    const bool exposed=input[IrControls::ExposureValid]==1 && input[IrControls::Exposed]==1 &&
         std::isfinite(exposure_time) && std::isfinite(now) && now>=exposure_time-.05 && now-exposure_time<=.1;
-    const double store_generation=read(p,"F22_IR_STORE_GENERATION");
+    const double store_generation=input[IrControls::Generation];
     const bool generation_valid=std::isfinite(store_generation) && store_generation>=0 &&
         store_generation<=16777215 && store_generation==std::floor(store_generation);
     if (!enabled || !loaded || !exposed || !generation_valid) { dispose();return; }
-    const bool aim9x=type.level4==136 || read(p,"F22_IR_AIM9X_PROFILE")>.5;
+    const bool aim9x=type.level4==136 || input[IrControls::Aim9x]==1;
     if (!constructed || selected!=current_station || !(type==current_type) || aim9x!=current_aim9x ||
         store_generation!=current_store_generation) {
         dispose();
@@ -820,9 +868,9 @@ void update(EDPARAM& p,double dt) {
         current_type=type;current_station=selected;current_aim9x=aim9x;
         current_store_generation=store_generation;
         // A held release is not a new press when stepping/changing stations.
-        was_release=read(p,"F22_IR_RELEASE_REQUEST")>.5;
+        was_release=input[IrControls::Release]==1;
     }
-    bool caged=read(p,"F22_IR_CAGED")>.5;
+    const bool caged=input[IrControls::Caged]==1;
     if (caged && !was_caged) {
         api.to_boresight(object.data());head_released=false;
     }
@@ -838,9 +886,10 @@ void update(EDPARAM& p,double dt) {
     }
     // Re-slaving an acquired seeker clears its track. Leave it autonomous once
     // tracking; radar cueing and IR acquisition are different states.
-    if (!caged && !api.tracking(object.data()) && read(p,"F22_RADAR_STT_VALID")>.5) {
-        double az=read(p,"F22N_RADAR_STT_AZIMUTH"),el=read(p,"F22N_RADAR_STT_ELEVATION");
-        if (std::isfinite(az) && std::isfinite(el)) {
+    double radar_valid=0;
+    if (!caged && !api.tracking(object.data()) && read(p,"F22_RADAR_STT_VALID",radar_valid) && radar_valid==1) {
+        double az=0,el=0;
+        if (read(p,"F22N_RADAR_STT_AZIMUTH",az) && read(p,"F22N_RADAR_STT_ELEVATION",el)) {
             Direction direction{std::cos(el)*std::cos(az),std::sin(el),std::cos(el)*std::sin(az)};
             api.slave(object.data(),&direction);
             head_released=true;
@@ -886,8 +935,8 @@ void update(EDPARAM& p,double dt) {
         }
     }
     write(p,"F22_IR_AZ",az);write(p,"F22_IR_EL",el);
-    bool release=read(p,"F22_IR_RELEASE_REQUEST")>.5;
-    if (release && !was_release && locked && read(p,"MASTER_ARM")>.5 && read(p,"WoW")<.5) {
+    const bool release=input[IrControls::Release]==1;
+    if (release && !was_release && locked && input[IrControls::MasterArm]==1 && input[IrControls::WoW]==0) {
         auto id=api.launch(object.data(),plane);
         if (id) { launch_id=id;++launch_sequence; }
     }

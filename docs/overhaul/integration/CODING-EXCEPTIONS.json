@@ -1,0 +1,16 @@
+{
+  "scope": "Chat2 focused native caller cutover; no blanket standards compliance claim",
+  "legacy_bodies": [
+    "CockpitManager::initialize/update retain bounded existing publication tables; split ownership is deferred until field migration settles",
+    "NativeNavigation::update and NativeMWS::update retain private ABI callbacks pending supported-host lifetime qualification",
+    "NativeGunSight::calculate/calculate_funnel/calculate_ground retain existing solver bodies and fixed 7/81 point limits; new checked capture helpers are small",
+    "NativeAGWeapons::solve retains fixed 17-plane native trajectory; Request capture replaces implicit failed-read defaults",
+    "NativeSidewinder::update/publish_missile_data retain existing ABI geometry and release bodies; no new supported-host lifetime claim"
+  ],
+  "controls": [
+    "New numeric capture loops are bounded by compile-time arrays; no recursion, new callback waits or file IO",
+    "Existing private native SEH guards remain defensive only; they do not qualify an ABI or lifetime",
+    "Strong warnings and analysis apply to replacement fixtures; existing native private-adapter warnings remain recorded externally",
+    "Complete callback branch coverage, DCS allocation/GC and runtime budgets remain unmeasured"
+  ]
+}

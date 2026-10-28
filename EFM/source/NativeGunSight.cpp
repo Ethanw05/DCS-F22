@@ -25,8 +25,18 @@ void *handle(EDPARAM &p, const char *n) {
         h = p.getParamHandle(n);
     return h;
 }
-double get(EDPARAM &p, const char *n) {
-    return p.getParamNumber(handle(p, n));
+bool get(EDPARAM &p, const char *n, double& value) {
+    return p.getParamNumber(handle(p, n),value);
+}
+template<std::size_t N>
+bool read_fields(EDPARAM& p, const std::array<const char*,N>& names, std::array<double,N>& values) {
+    const auto epoch=p.epoch();
+    for (std::size_t i=0;i<N;++i) if (!get(p,names[i],values[i])) return false;
+    return epoch==p.epoch();
+}
+bool request_current(EDPARAM& p,const char* flag,const char* marker,double expected) {
+    double valid=0,after=0;
+    return get(p,flag,valid) && valid==1 && get(p,marker,after) && after==expected;
 }
 void put(EDPARAM &p, const char *n, double v) {
     p.setParamNumber(handle(p, n), v);
@@ -195,13 +205,17 @@ void calculate_funnel(EDPARAM &p) {
     }
     WeaponFlightFrame::Snapshot<6> flight;
     if (!flight_input(p,flight)) return;
-    if (failed || get(p,"F22_FUNNEL_REQUEST_VALID")<.5) {funnel_history.clear();return;}
+    constexpr std::array<const char*,7> names{{"F22_FUNNEL_REQUEST_VALID","F22_FUNNEL_REQUEST_TIME",
+        "F22_GUN_DEVICE_ID","F22_FUNNEL_OWN_N","F22_FUNNEL_OWN_U","F22_FUNNEL_OWN_E",
+        "F22_RADAR_STT_VALID"}};
+    std::array<double,7> fields{};
+    if (failed || !read_fields(p,names,fields) || fields[0]!=1) {funnel_history.clear();return;}
     if (!api.resolve()) return;
-    const double now=api.clock(),requested=get(p,"F22_FUNNEL_REQUEST_TIME");
+    const double now=api.clock(),requested=fields[1];
     if (!std::isfinite(now) || !std::isfinite(requested) || now-requested<-.01 || now-requested>.15) return;
     auto ctx=api.context();
-    const double id=get(p,"F22_GUN_DEVICE_ID");
-    if (!ctx || !std::isfinite(id) || id<1 || id>255) return;
+    const double id=fields[2];
+    if (!ctx || id<1 || id>255 || id!=std::floor(id)) return;
     auto device=api.device(ctx,static_cast<unsigned>(id));
     if (!readable(device,32) || *reinterpret_cast<const void **>(device)!=api.vtable) return;
     const auto shell=api.shell(device);
@@ -210,7 +224,7 @@ void calculate_funnel(EDPARAM &p) {
     if (!std::isfinite(speed) || speed<100 || speed>2000) return;
     V muzzle,bore;
     if (!gun_pose(device,muzzle,bore)) return;
-    const V own_position{get(p,"F22_FUNNEL_OWN_N"),get(p,"F22_FUNNEL_OWN_U"),get(p,"F22_FUNNEL_OWN_E")};
+    const V own_position{fields[3],fields[4],fields[5]};
     const V velocity{flight.values[0],flight.values[1],flight.values[2]};
     const V air{flight.values[3],flight.values[4],flight.values[5]};
     if (!std::isfinite(own_position.norm()) || (muzzle-own_position).norm()>30 ||
@@ -226,7 +240,7 @@ void calculate_funnel(EDPARAM &p) {
     while (funnel_history.size()>2 && now-funnel_history[1].time>1.4)
         funnel_history.erase(funnel_history.begin());
     // Keep history through STT, so a genuine lock loss restores the funnel.
-    if (get(p,"F22_RADAR_STT_VALID")>.5) return;
+    if (fields[6]!=0) return;
     alignas(16) std::array<std::byte,80> sight{};api.ctor(sight.data(),shell);
     unsigned count=0;
     for (unsigned i=0;i<7;++i) {
@@ -246,7 +260,7 @@ void calculate_funnel(EDPARAM &p) {
         std::snprintf(key,sizeof(key),"F22_FUNNEL_%02u_VALID",i+1);put(p,key,1);++count;
     }
     api.dtor(sight.data());
-    if (!flight.current(p)) {retire_flight(p);return;}
+    if (!flight.current(p) || !request_current(p,names[0],names[1],requested)) {retire_flight(p);return;}
     put(p,"F22_FUNNEL_RESULT_TIME",now);put(p,"F22_FUNNEL_NATIVE_VALID",count>=2 ? 1 : 0);
 }
 void calculate(EDPARAM &p) {
@@ -257,15 +271,20 @@ void calculate(EDPARAM &p) {
     put(p, "F22_GUN_SOLVER_REASON", 1);
     WeaponFlightFrame::Snapshot<6> flight;
     if (!flight_input(p,flight)) return;
-    if (failed || get(p, "F22_GUN_REQUEST_VALID") < .5)
+    constexpr std::array<const char*,10> request_names{{"F22_GUN_REQUEST_SEQUENCE","F22_GUN_REQUEST_VALID",
+        "F22_GUN_DEVICE_ID","F22_GUN_OWN_N","F22_GUN_OWN_U","F22_GUN_OWN_E",
+        "F22_GUN_TRACK_ID","F22_GUN_REQUEST_GENERATION","F22_GUN_INPUT_SOURCE","F22_GUN_REQUEST_TIME"}};
+    std::array<double,10> fields{};
+    if (failed || !read_fields(p,request_names,fields) || fields[1]!=1
+        || !request_current(p,request_names[1],request_names[0],fields[0]))
         return;
     if (!api.resolve()) {
         put(p, "F22_GUN_SOLVER_REASON", 2);
         return;
     }
     auto context = api.context();
-    auto id = get(p, "F22_GUN_DEVICE_ID");
-    if (!context || !std::isfinite(id) || id < 1 || id > 255)
+    const double id = fields[2];
+    if (!context || id < 1 || id > 255 || id!=std::floor(id))
         return;
     auto device = api.device(context, static_cast<unsigned>(id));
     put(p, "F22_GUN_SOLVER_REASON", 3);
@@ -282,14 +301,14 @@ void calculate(EDPARAM &p) {
     put(p, "F22_GUN_SOLVER_REASON", 5);
     if (!gun_pose(device, muzzle, bore))
         return;
-    V own_position{get(p, "F22_GUN_OWN_N"), get(p, "F22_GUN_OWN_U"), get(p, "F22_GUN_OWN_E")};
+    V own_position{fields[3],fields[4],fields[5]};
     if ((muzzle - own_position).norm() > 30)
         return;
-    const double identity = get(p, "F22_GUN_TRACK_ID");
-    const double generation = get(p, "F22_GUN_REQUEST_GENERATION");
+    const double identity = fields[6];
+    const double generation = fields[7];
     NativeAesaRadar::GunMotion input{};
     put(p, "F22_GUN_SOLVER_REASON", 9);
-    if (get(p, "F22_GUN_INPUT_SOURCE") != 2 || !std::isfinite(identity)
+    if (fields[8] != 2 || !std::isfinite(identity)
         || identity < 1 || identity > UINT_MAX || std::floor(identity) != identity
         || !std::isfinite(generation) || generation < 1 || generation > 9007199254740991.0
         || std::floor(generation) != generation
@@ -319,7 +338,7 @@ void calculate(EDPARAM &p) {
         out.y -= muzzle.y;
         return ok != 0 && std::isfinite(out.norm());
     };
-    const double requested = get(p, "F22_GUN_REQUEST_TIME"), now = api.clock();
+    const double requested = fields[9], now = api.clock();
     const double delay = now - requested;
     const double age = now - input.time;
     put(p, "F22_GUN_QUEUE_DELAY", delay);
@@ -367,7 +386,7 @@ void calculate(EDPARAM &p) {
     }
 
     api.dtor(sight.data());
-    if (!flight.current(p)) {retire_flight(p);return;}
+    if (!flight.current(p) || !request_current(p,request_names[1],request_names[0],fields[0])) {retire_flight(p);return;}
     previous = result;
     previous_time = now;
     previous_id = identity;
@@ -412,7 +431,7 @@ void calculate(EDPARAM &p) {
     put(p, "F22_GUN_TOF", result.time);
     put(p, "F22_GUN_RESIDUAL", result.miss);
     put(p, "F22_GUN_MUZZLE_SPEED", speed);
-    put(p, "F22_GUN_SOLUTION_SEQUENCE", get(p, "F22_GUN_REQUEST_SEQUENCE"));
+    put(p, "F22_GUN_SOLUTION_SEQUENCE", fields[0]);
     put(p, "F22_GUN_RESULT_TIME", now);
     put(p, "F22_GUN_RESULT_TRACK_ID", identity);
     put(p, "F22_GUN_RESULT_GENERATION", static_cast<double>(input.generation));
@@ -449,8 +468,11 @@ void calculate_ground(EDPARAM& p) {
     put(p,"F22_AG_GUN_POINT_COUNT",0);
     WeaponFlightFrame::Snapshot<6> flight;
     if (!flight_input(p,flight)) return;
-    if(failed || get(p,"F22_AG_GUN_REQUEST_VALID")<.5 || !api.resolve())return;
-    const double now=api.clock(),stamp=get(p,"F22_AG_GUN_REQUEST_TIME");
+    constexpr std::array<const char*,5> names{{"F22_AG_GUN_REQUEST_VALID","F22_AG_GUN_REQUEST_TIME",
+        "F22_AG_OWN_N","F22_AG_OWN_U","F22_AG_OWN_E"}};
+    std::array<double,5> fields{};
+    if(failed || !read_fields(p,names,fields) || fields[0]!=1 || !api.resolve())return;
+    const double now=api.clock(),stamp=fields[1];
     if(!std::isfinite(now)||now<0||!std::isfinite(stamp)||stamp<0
        ||now-stamp<-.01||now-stamp>.2)return;
     auto ctx=api.context();if(!ctx)return;
@@ -459,7 +481,7 @@ void calculate_ground(EDPARAM& p) {
     auto shell=api.shell(device);if(!readable(shell,184))return;
     const double speed=*reinterpret_cast<const double*>(static_cast<const std::byte*>(shell)+176);
     V muzzle,bore;if(!std::isfinite(speed)||speed<100||speed>2000||!gun_pose(device,muzzle,bore))return;
-    const V own{get(p,"F22_AG_OWN_N"),get(p,"F22_AG_OWN_U"),get(p,"F22_AG_OWN_E")};
+    const V own{fields[2],fields[3],fields[4]};
     const V velocity{flight.values[0],flight.values[1],flight.values[2]};
     const V air{flight.values[3],flight.values[4],flight.values[5]};
     if(!std::isfinite(own.norm())||(muzzle-own).norm()>30||!std::isfinite(velocity.norm())||velocity.norm()>1500||!std::isfinite(air.norm())||air.norm()>300)return;
@@ -475,7 +497,7 @@ void calculate_ground(EDPARAM& p) {
         ++count;
     }
     api.dtor(sight.data());
-    if (!flight.current(p)) {retire_flight(p);return;}
+    if (!flight.current(p) || !request_current(p,names[0],names[1],stamp)) {retire_flight(p);return;}
     put(p,"F22_AG_GUN_POINT_COUNT",count);put(p,"F22_AG_GUN_RESULT_TIME",now);
     put(p,"F22_AG_GUN_NATIVE_VALID",count>1?1:0);
 }
@@ -495,7 +517,9 @@ void reset() {
 void update(EDPARAM &p) {
     double sequence = 0;
     __try {
-        sequence = get(p, "F22_GUN_REQUEST_SEQUENCE");
+        if (!get(p, "F22_GUN_REQUEST_SEQUENCE",sequence)) {
+            retire_flight(p);return;
+        }
         calculate_funnel(p);
         calculate(p);
         calculate_ground(p);
