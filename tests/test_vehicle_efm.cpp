@@ -171,9 +171,9 @@ int main(int argc,char** argv) {
 
     // At the same speed/spool, toggling only wheel contact must not jump thrust.
     setup(false);body(80);cmd(2004,-.6511628f);ticks(1500);
-    ed_fm_suspension_info contact{};contact.struct_compression=.1;
+    ed_fm_suspension_info contact{};contact.struct_compression=.1;contact.acting_force[1]=100000;
     suspension(0,&contact);ticks(1);const double ground_thrust=param(ED_FM_ENGINE_1_THRUST);
-    contact.struct_compression=0;suspension(0,&contact);ticks(1);
+    contact.struct_compression=0;contact.acting_force[1]=0;suspension(0,&contact);ticks(1);
     assert(std::abs(param(ED_FM_ENGINE_1_THRUST)-ground_thrust)<1e-5);
     assert(param(ED_FM_ENGINE_1_OIL_PRESSURE)>1e6); // Pa, not psi
 

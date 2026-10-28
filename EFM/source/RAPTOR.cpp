@@ -159,9 +159,7 @@ void reset_fm_state() {
     vehicle.fuel.set_internal(RAPTOR::internal_fuel);
     trim_telemetry = {};
     trim_control = {};
-    RAPTOR::suspension_compression.fill(0.0);
     autopilot.reset(); ap_output={};
-    RAPTOR::suspension_feedback_available = false;
     vehicle.mass.clear();
     vehicle.damage.clear();
     for (auto& [station, stamp] : RAPTOR::external_fuel_callback_stamp) stamp = 0.0;
@@ -309,14 +307,11 @@ static void simulate_vehicle_step(double dt) {
 
     RAPTOR::gear_pos = limit(actuator_timed(RAPTOR::gear_pos, RAPTOR::gear_switch, -0.25, 0.25,
         dt * (vehicle.configuration.alternate_gear ? 1.0 : vehicle_utility_supply())), 0, 1);
-    // Primary contact signal is DCS suspension feedback, not gear/height alone.
-    // The 2-m fallback is only for versions where feedback is not supplied.
-    bool wheels_loaded = false;
-    for (double compression : RAPTOR::suspension_compression)
-        wheels_loaded = wheels_loaded || compression > 0.001;
-    RAPTOR::on_ground = RAPTOR::gear_pos > 0.5 &&
-        (RAPTOR::suspension_feedback_available ? wheels_loaded :
-         (RAPTOR::altitude_AGL < 2.0 && RAPTOR::mach < 0.3));
+    vehicle.ground_contact.update(RAPTOR::gear_pos, RAPTOR::altitude_AGL,
+        vehicle.surface_valid && vehicle.atmosphere_valid, vehicle.time_s);
+    // Keep the prior internal interlock on unknown near-ground feedback;
+    // consumers see GROUND_VALID=0, never a fabricated contact measurement.
+    if (vehicle.ground_contact.valid) RAPTOR::on_ground = vehicle.ground_contact.loaded;
     RAPTOR::ground_speed_knots =
         std::hypot(RAPTOR::velocity_world.x, RAPTOR::velocity_world.z) * 1.943844492;
     RAPTOR::airbrake_pos = limit(actuator_timed(RAPTOR::airbrake_pos, RAPTOR::airbrake_switch, -0.6666666667, 0.6666666667, dt * actuator_available), 0, 1);
@@ -868,29 +863,31 @@ void ed_fm_set_atmosphere(double h, double t, double a, double ro, double p, dou
 
 void ed_fm_suspension_feedback(int idx, const ed_fm_suspension_info* info) {
     if (info == nullptr || idx < 0 || idx >= 3) return;
-    if (!std::isfinite(info->struct_compression)) return;
+    vehicle.ground_contact.sample(static_cast<std::size_t>(idx), info->struct_compression,
+        info->acting_force[0], info->acting_force[1], info->acting_force[2], vehicle.time_s);
     if (idx == 1 || idx == 2) {
         auto& brake = idx == 1 ? vehicle.left_brake : vehicle.right_brake;
+        const auto& contact = vehicle.ground_contact.wheels[static_cast<std::size_t>(idx)];
         brake.wheel_sample_valid = std::isfinite(info->wheel_speed_X);
         brake.wheel_speed_raw = RaptorVehicle::finite(info->wheel_speed_X);
-        const bool contact_valid = RaptorVehicle::bounded_three(info->acting_force[0],
-            info->acting_force[1], info->acting_force[2], 2000000.0) &&
+        const bool contact_valid = contact.stamp_s >= 0.0 &&
             RaptorVehicle::bounded_three(info->acting_force_point[0],
                 info->acting_force_point[1], info->acting_force_point[2], 20.0);
         brake.contact_stamp_s = contact_valid ? vehicle.time_s : -1.0;
         // Reaction magnitude bounds the heat envelope; no undocumented wheel
         // speed conversion or assumption about the force vector's frame.
-        brake.normal_force_n = contact_valid && info->struct_compression > 0.001 ?
-            std::hypot(info->acting_force[0], info->acting_force[1], info->acting_force[2]) : 0.0;
+        brake.normal_force_n = contact_valid ? contact.reaction_n : 0.0;
         if (contact_valid) std::copy_n(info->acting_force_point, 3, brake.contact_m.begin());
     }
-    RAPTOR::suspension_feedback_available = true;
-    RAPTOR::suspension_compression[static_cast<size_t>(idx)] =
-        std::max(0.0, info->struct_compression);
 }
 
 void ed_fm_set_surface(double h, double h_obj, unsigned surface_type, double normal_x, double normal_y, double normal_z) {
-    RAPTOR::altitude_AGL = RAPTOR::altitude_ASL - (h + h_obj * 0.5);
+    vehicle.surface_valid = RaptorVehicle::within(h, -10000.0, 100000.0) &&
+        RaptorVehicle::within(h_obj, -10000.0, 100000.0);
+    if (!vehicle.surface_valid) return;
+    // Both SDK arguments are absolute surface elevations, not an object height
+    // to add to terrain. The old sum double-counted elevated terrain.
+    RAPTOR::altitude_AGL = RAPTOR::altitude_ASL - std::max(h, h_obj);
 }
 
 void ed_fm_set_current_mass_state(double mass, double center_of_mass_x, double center_of_mass_y, double center_of_mass_z, double moment_of_inertia_x, double moment_of_inertia_y, double moment_of_inertia_z)
@@ -1884,7 +1881,7 @@ void CockpitManager::update(double dt) {
     // Shared base-sensor WOW does not reflect this custom FM reliably.
     // Publish suspension-derived contact separately; Lua owns the legacy WoW bus.
     param_api_.setParamNumber(param_handles_["EFM_WEIGHT_ON_WHEELS"], RAPTOR::on_ground ? 1.0 : 0.0);
-    param_api_.setParamNumber(param_handles_["EFM_GROUND_VALID"], 1.0);
+    param_api_.setParamNumber(param_handles_["EFM_GROUND_VALID"], vehicle.ground_contact.valid ? 1.0 : 0.0);
     // Explicit percent units for our electrical system, independent of the
     // inherited aircraft's base-sensor RPM interpretation.
     param_api_.setParamNumber(param_handles_["EFM_ENGINE_LEFT_RPM_PCT"], left_engine_instruments.core * 100.0);

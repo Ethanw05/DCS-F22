@@ -644,6 +644,35 @@ void brake_force_and_thermal_path(Fixture& f) {
     f.repair(); f.ticks(1);
     assert(f.get("EFM_L_TIRE_FAILED")==0 && f.get("EFM_L_BRAKE_TEMP_EST_C")>heat-1);
 }
+
+void actual_approach_contact_rejection(Fixture& f) {
+    f.release(); f.hot(); f.fuel(5000); f.unlimited(true); f.conditions(72);
+    // User trace: gear extended at 2230 m MSL, runway about 241 m. Positive
+    // strut travel must not hide the landing cue throughout that descent.
+    f.atmosphere(2230,288.15,340,1.225,101325,0,0,0);
+    f.surface(241,241,0,0,1,0);
+    ed_fm_suspension_info wheel{};
+    wheel.struct_compression=.3;
+    for (int index=0;index<3;++index) f.suspension(index,&wheel);
+    f.ticks(1);
+    assert(f.get("EFM_GEAR_DOWN_LOCKED")==1 && f.get("EFM_GROUND_VALID")==1);
+    assert(f.get("EFM_WEIGHT_ON_WHEELS")==0);
+    assert(f.get("EFM_GROUND_CLEARANCE_M")==1989); // elevations, not h + h_obj/2
+    // At flare height, unloaded positive strut travel still is not contact.
+    f.atmosphere(243,288.15,340,1.225,101325,0,0,0);f.surface(241,241,0,0,1,0);
+    for (int index=0;index<3;++index) f.suspension(index,&wheel);
+    f.ticks(1);assert(f.get("EFM_WEIGHT_ON_WHEELS")==0);
+    wheel.acting_force[1]=120000;f.suspension(1,&wheel);f.ticks(1);
+    assert(f.get("EFM_WEIGHT_ON_WHEELS")==1 && f.get("EFM_GROUND_VALID")==1);
+    wheel.acting_force[1]=0;f.suspension(1,&wheel);f.ticks(1);
+    assert(f.get("EFM_WEIGHT_ON_WHEELS")==0); // bounce / unload, same travel
+    wheel.acting_force[1]=120000;f.suspension(1,&wheel);f.ticks(1);
+    f.ticks(20);assert(f.get("EFM_GROUND_VALID")==0); // no latched stale evidence
+    // An erroneous/stale loaded sample cannot establish contact at altitude.
+    f.atmosphere(2230,288.15,340,1.225,101325,0,0,0);f.surface(241,241,0,0,1,0);
+    f.suspension(1,&wheel);f.ticks(1);
+    assert(f.get("EFM_GROUND_VALID")==1 && f.get("EFM_WEIGHT_ON_WHEELS")==0);
+}
 } // namespace
 
 int main(int argc, char** argv) {
@@ -670,5 +699,6 @@ int main(int argc, char** argv) {
     pitch_and_yaw_keyboard_release(fixture);
     tank_identity_and_demand(fixture);
     brake_force_and_thermal_path(fixture);
+    actual_approach_contact_rejection(fixture);
     std::cout << "vehicle DLL: cold/APU/start, burn/mass, feed/repair, sensor truth, limits and lifecycle OK\n";
 }

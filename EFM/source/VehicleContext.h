@@ -8,6 +8,7 @@
 #include "BrakeEnergy.h"
 #include "FuelSystem.h"
 #include "VehicleDemand.h"
+#include "GroundContact.h"
 
 namespace RaptorVehicle {
 // One object per EFM instance. Producer: ed_fm_simulate, simulation thread.
@@ -26,6 +27,7 @@ struct VehicleContext {
     DamageLedger damage;
     FuelSystem fuel;
     UtilityDemand utility_demand;
+    GroundContact ground_contact;
     BrakeEnergy left_brake;
     BrakeEnergy right_brake;
     double raw_body_ay_mps2 = 0.0;
@@ -40,6 +42,7 @@ struct VehicleContext {
     double wing_reference_y_m = 0.0;
     unsigned generation = 0;
     bool atmosphere_valid = false;
+    bool surface_valid = false;
     bool motion_valid = false;
     bool world_motion_valid = false;
     bool mass_valid = false;

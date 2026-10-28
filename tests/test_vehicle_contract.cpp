@@ -275,6 +275,21 @@ void fuel_transaction_boundaries() {
     ledger.clear();
     assert(fuel.accept_internal(100,ledger) == 100 && fuel.internal_kg() == 4100);
 }
+
+void wheel_contact_evidence() {
+    RaptorVehicle::GroundContact contact;
+    contact.sample(1,.3,0,0,0,10);
+    contact.update(1,2,true,10.01);
+    assert(contact.valid && !contact.loaded);
+    contact.sample(1,.3,0,120000,0,10.02);
+    contact.update(1,2,true,10.03);assert(contact.valid && contact.loaded);
+    contact.update(1,100,true,10.04);assert(contact.valid && !contact.loaded);
+    contact.update(1,2,true,10.2);assert(!contact.valid && !contact.loaded);
+    contact.sample(1,.3,0,std::numeric_limits<double>::quiet_NaN(),0,10.21);
+    contact.update(1,2,true,10.22);assert(!contact.valid);
+    contact.update(0,2,false,10.22);assert(contact.valid && !contact.loaded);
+    contact.update(1,2,false,10.22);assert(!contact.valid);
+}
 } // namespace
 
 int main() {
@@ -289,5 +304,6 @@ int main() {
     independent_oxygen_sources();
     brake_heat_fade_and_tires();
     fuel_transaction_boundaries();
+    wheel_contact_evidence();
     std::cout << "physical contract: SI air data, bounded conservation, causal start, finite supplies, repair scopes OK\n";
 }

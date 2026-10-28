@@ -138,6 +138,12 @@ array. The exact channel list is [VehicleSignals.h](../EFM/source/VehicleSignals
 
 ## Fuel and physical budgets
 
+Wheel contact uses fresh native reaction loads; strut travel alone does not set
+weight-on-wheels. Unknown near-surface feedback clears `EFM_GROUND_VALID`.
+Surface clearance uses the greater of the SDK's terrain/object elevations.
+The [contact correction](overhaul/VEH-09-contact.md) records the actual airborne
+false-contact trace, bounded contact policy and read-only wheel diagnostics.
+
 The fuel owner has three feed roles and five transfer roles. Total internal
 capacity is 8200 kg. The 1000/1500/1500/900/900/900/750/750 kg split, positions,
 40 kg/s transfer bound, normalized boost/pressurization and 100 kg feed-low

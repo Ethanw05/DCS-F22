@@ -15,6 +15,7 @@ HEADERS = (
     "VehicleEnvironment.h", "BrakeEnergy.h", "VehicleContext.h",
     "VehicleSignals.h", "VehicleFaults.h", "VehicleIntegration.h", "ThrustDeck.h",
     "VehicleDemand.h",
+    "GroundContact.h",
 )
 
 

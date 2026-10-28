@@ -60,7 +60,10 @@ enum class Signal : std::size_t {
     HydraulicDemandSchema, HydraulicDemandGeneration, HydraulicDemandStamp,
     HydraulicDemandSequence, FuelInventoryValid, LeftTankInstalled, RightTankInstalled,
     LeftBrakeEffectiveness, RightBrakeEffectiveness, LeftTireTemperature,
-    RightTireTemperature, LeftTireFailed, RightTireFailed, FuelInventoryStamp, Count
+    RightTireTemperature, LeftTireFailed, RightTireFailed, FuelInventoryStamp,
+    GroundClearance, SurfaceValid, WheelZeroCompression, WheelOneCompression,
+    WheelTwoCompression, WheelZeroReaction, WheelOneReaction, WheelTwoReaction,
+    WheelZeroAge, WheelOneAge, WheelTwoAge, Count
 };
 
 inline constexpr std::array<const char*, static_cast<std::size_t>(Signal::Count)> signal_names = {
@@ -126,7 +129,10 @@ inline constexpr std::array<const char*, static_cast<std::size_t>(Signal::Count)
     "F22_HYD_DEMAND_SEQUENCE", "F22_FUEL_INVENTORY_VALID", "F22_LEFT_TANK_INSTALLED",
     "F22_RIGHT_TANK_INSTALLED", "EFM_L_BRAKE_EFFECTIVENESS", "EFM_R_BRAKE_EFFECTIVENESS",
     "EFM_L_TIRE_TEMP_EST_C", "EFM_R_TIRE_TEMP_EST_C", "EFM_L_TIRE_FAILED", "EFM_R_TIRE_FAILED",
-    "F22_FUEL_INVENTORY_STAMP"
+    "F22_FUEL_INVENTORY_STAMP", "EFM_GROUND_CLEARANCE_M", "EFM_SURFACE_VALID",
+    "EFM_WHEEL_0_COMPRESSION", "EFM_WHEEL_1_COMPRESSION", "EFM_WHEEL_2_COMPRESSION",
+    "EFM_WHEEL_0_REACTION_N", "EFM_WHEEL_1_REACTION_N", "EFM_WHEEL_2_REACTION_N",
+    "EFM_WHEEL_0_FEEDBACK_AGE_S", "EFM_WHEEL_1_FEEDBACK_AGE_S", "EFM_WHEEL_2_FEEDBACK_AGE_S"
 };
 static_assert([] {
     for (const auto* name : signal_names) if (name == nullptr) return false;

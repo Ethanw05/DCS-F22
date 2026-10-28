@@ -524,9 +524,24 @@ void vehicle_publish_environment() {
 
 void vehicle_publish_configuration() {
     const auto& config = vehicle.configuration;
+    const auto& wheels = vehicle.ground_contact.wheels;
+    const auto age = [](const RaptorVehicle::GroundContact::Wheel& wheel) {
+        return wheel.stamp_s < 0.0 ? -1.0 : vehicle.time_s - wheel.stamp_s;
+    };
     const bool gear_damaged = RAPTOR::element_integrity[8] <= 0.5 ||
         RAPTOR::element_integrity[15] <= 0.5 || RAPTOR::element_integrity[16] <= 0.5;
     const std::pair<VehicleSignal, double> values[] = {
+        {VehicleSignal::GroundClearance, RAPTOR::altitude_AGL},
+        {VehicleSignal::SurfaceValid, vehicle_status(vehicle.surface_valid)},
+        {VehicleSignal::WheelZeroCompression, wheels[0].compression},
+        {VehicleSignal::WheelOneCompression, wheels[1].compression},
+        {VehicleSignal::WheelTwoCompression, wheels[2].compression},
+        {VehicleSignal::WheelZeroReaction, wheels[0].reaction_n},
+        {VehicleSignal::WheelOneReaction, wheels[1].reaction_n},
+        {VehicleSignal::WheelTwoReaction, wheels[2].reaction_n},
+        {VehicleSignal::WheelZeroAge, age(wheels[0])},
+        {VehicleSignal::WheelOneAge, age(wheels[1])},
+        {VehicleSignal::WheelTwoAge, age(wheels[2])},
         {VehicleSignal::FcsMode, static_cast<double>(config.mode)},
         {VehicleSignal::SingleEngineApproach, vehicle_status(config.single_engine_approach)},
         {VehicleSignal::ApproachAoa, 12.0}, // retained historical reference; single-engine value unresolved
