@@ -237,7 +237,7 @@ local dot_vertices={{0,0}}
 local dot_indices={}
 for i=0,11 do
     local angle=i*2*pi/12
-    dot_vertices[#dot_vertices+1]={.003*math.cos(angle)*drawing_scale,.003*math.sin(angle)*drawing_scale}
+    dot_vertices[#dot_vertices+1]={.009*math.cos(angle)*drawing_scale,.009*math.sin(angle)*drawing_scale}
     dot_indices[#dot_indices+1]=0;dot_indices[#dot_indices+1]=i+1;dot_indices[#dot_indices+1]=(i+1)%12+1
 end
 focus_dot.primitivetype='triangles';focus_dot.vertices=dot_vertices;focus_dot.indices=dot_indices
