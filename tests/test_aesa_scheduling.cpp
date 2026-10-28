@@ -12,6 +12,9 @@ struct Scene final : Environment {
     std::array<Truth, 10> objects{};
     std::size_t count = 1;
     bool blocked{};
+    bool interference(double now, const Pose&, const Beam&, Interference& result, QueryStats&) noexcept override {
+        result = {true,0,now,0}; return true;
+    }
     Scene() {
         for (std::size_t i = 0; i < objects.size(); ++i) {
             const double angle = (-45 + 10 * static_cast<double>(i)) * degree;

@@ -405,6 +405,7 @@ void Model::detect(double now, const Controls& c, const Pose& pose, const Truth&
     const double target_rate = dot(truth.velocity - pose.velocity, delta) / range;
     const double clutter_rate = -dot(pose.velocity, delta) / range;
     if (delta.u < 0 && std::abs(target_rate-clutter_rate) < 35) signal *= .15;
+    signal /= 1 + status_.interference.noise_ratio;
     if (signal < .2) { ++status_.misses; return; }
     if (stats.visibility_queries >= maximum_visibility_queries) { stats.truncated = true; return; }
     ++stats.visibility_queries;
@@ -437,6 +438,16 @@ void Model::observe(double now, const Controls& c, const Pose& pose, Environment
     }
     std::size_t count = 0;
     QueryStats stats{};
+    status_.interference = {};
+    auto& interference = status_.interference;
+    if (!environment.interference(now, pose, status_.beam, interference, stats)
+        || !interference.valid || interference.time != now
+        || !std::isfinite(interference.noise_ratio) || interference.noise_ratio < 0) {
+        interference.valid = false;
+        status_.truncated = stats.truncated;
+        status_.ready = false; status_.dwelling = false; ++status_.invalid;
+        return;
+    }
     if (!environment.query(pose, status_.beam, candidates_, count, stats) || count > candidates_.size()) {
         status_.ready = false; status_.dwelling = false; return;
     }

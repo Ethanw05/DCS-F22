@@ -36,7 +36,13 @@ std::array<void*, 8> scene_methods{}, registered_methods{};
 Object driver{driver_methods.data()+1}, la{la_methods.data()}, manager{manager_methods.data()},
     land{land_methods.data()}, scene{scene_methods.data()}, registered{registered_methods.data()};
 void* driver_pointer=&driver;
-int own_unit{}, target_unit{};
+std::array<void*,58> target_methods{};
+Object own_unit{}, target_unit{target_methods.data()};
+std::array<void*,5> ecm_methods{};
+EcmView target_ecm{ecm_methods.data(),&target_unit,1};
+bool ecm_on{};
+void* borrowed_ecm = &target_ecm;
+unsigned receiver_visits = 1, ecm_reads{};
 void* manager_pointer = &manager;
 void* land_pointer = &land;
 alignas(8) std::array<std::byte, 272> context{};
@@ -57,7 +63,12 @@ bool dead(const void*) { return false; }
 unsigned id(void*) { return 42; }
 void* registration(void*) { return &registered; }
 void* unit(void*) { return &target_unit; }
-void query(void*, const Box&, unsigned, const Query& visitor) { ++queries; visitor(*reinterpret_cast<Scene*>(&scene)); }
+bool flag(const void* object, int mask) { return object==&target_unit && mask==8 && ecm_on; }
+void* get_ecm(void*) { ++ecm_reads; return borrowed_ecm; }
+void query(void*, const Box&, unsigned, const Query& visitor) {
+    ++queries;
+    for(unsigned i=0;i<receiver_visits;++i)if(visitor(*reinterpret_cast<Scene*>(&scene)))break;
+}
 void segment(void*, const Vector&, const Vector&, unsigned, const Query&) {}
 bool terrain(void*, const FloatVector&, const FloatVector&) { return terrain_clear; }
 const char* intersection(const Scene&, const Vector&, const Vector&, Vector&, double&, Vector&) { return nullptr; }
@@ -76,6 +87,9 @@ void fixture() {
     api.clock=clock_value; api.aircraft=aircraft; api.context=cockpit; api.device=device;
     api.point=point; api.velocity=velocity; api.position=basis; api.type=type; api.dead=dead;
     api.manager=&manager_pointer; api.land=&land_pointer; api.intersect=intersection;
+    api.flag=flag; target_methods[57]=reinterpret_cast<void*>(&get_ecm);
+    ecm_methods[1]=reinterpret_cast<void*>(&flag); ecm_methods[4]=reinterpret_cast<void*>(&get_ecm);
+    api.ecm_vtable=ecm_methods.data(); api.ecm_active=ecm_methods[1]; api.ecm_strength=ecm_methods[4];
     api.lua_vtable=driver.table; api.lua_update=reinterpret_cast<void*>(&tick); api.emitter=emitter;
     api.reason=0; api.ready=true;
     for (auto name : {"F22_AESA_REQUEST","F22_AESA_CONTROL_EMIT","F22_AESA_CONTROL_RESOURCE"}) values[name]=1;
@@ -172,9 +186,61 @@ void scenarios() {
     driver_pointer=read_only;CHECK(!bind_driver());driver_pointer=&driver;
     CHECK(VirtualFree(read_only,0,MEM_RELEASE));
 }
+void receiver_scenarios() {
+    fixture(); Provider provider;Pose p{};CHECK(provider.pose(p));Beam beam{};
+    Interference noise{};QueryStats stats{};
+    CHECK(provider.interference(now,p,beam,noise,stats));
+    CHECK(noise.valid && noise.noise_ratio==0 && ecm_reads==0);
+    ecm_on=true;stats={};
+    const auto allocations=AllocationProbe::count;
+    AllocationProbe::enabled=true;
+    const bool received=provider.interference(now,p,beam,noise,stats);
+    AllocationProbe::enabled=false;
+    CHECK(received && AllocationProbe::count==allocations);
+    CHECK(noise.valid && noise.sources==1 && std::abs(noise.noise_ratio-64)<1e-10);
+    CHECK(stats.visibility_queries==1);
+    terrain_clear=false;stats={};CHECK(provider.interference(now,p,beam,noise,stats));
+    CHECK(noise.valid && noise.noise_ratio==0 && noise.sources==0);
+    terrain_clear=true;target_ecm.owner=&own_unit;stats={};
+    CHECK(!provider.interference(now,p,beam,noise,stats) && !noise.valid);
+    target_ecm.owner=&target_unit;target_ecm.strength=NAN;stats={};
+    CHECK(!provider.interference(now,p,beam,noise,stats));target_ecm.strength=1;
+    borrowed_ecm=nullptr;stats={};CHECK(!provider.interference(now,p,beam,noise,stats));
+    borrowed_ecm=&target_ecm;target_ecm.table=nullptr;stats={};
+    CHECK(!provider.interference(now,p,beam,noise,stats));
+    // Unsupported inactive instances are known to have no common ECM effect.
+    ecm_on=false;stats={};CHECK(provider.interference(now,p,beam,noise,stats));
+    CHECK(noise.valid && noise.noise_ratio==0);
+    target_ecm.table=ecm_methods.data();ecm_on=true;receiver_visits=9;stats={};
+    CHECK(!provider.interference(now,p,beam,noise,stats) && stats.truncated);
+    CHECK(stats.visibility_queries==AesaReceiver::maximum_sources);
+    ecm_on=false;receiver_visits=AesaReceiver::maximum_visits+1;stats={};
+    CHECK(!provider.interference(now,p,beam,noise,stats) && stats.truncated);
+    receiver_visits=1;
+}
+void receiver_authority() {
+    fixture();EDPARAM p;
+    p.ed_param_api.pfn_ed_cockpit_get_parameter_handle=handle;
+    p.ed_param_api.pfn_ed_cockpit_update_parameter_with_number=put;
+    p.ed_param_api.pfn_ed_cockpit_parameter_value_to_number=get;
+    update(p);ecm_on=true;borrowed_ecm=nullptr;
+    for(unsigned tick=0;tick<20;++tick) {
+        now+=.005;values["F22_AESA_CONTROL_TIME"]=now;
+        update(p);driver_update(&driver);update(p);
+    }
+    CHECK(values["F22_AESA_INTERFERENCE_VALID"]==0 && values["F22_AESA_COUNT"]==0);
+    CHECK(values["F22_AESA_READY"]==0 && emitting && !responder.target());
+    borrowed_ecm=&target_ecm;ecm_on=false;
+    for(unsigned tick=0;tick<20;++tick) {
+        now+=.005;values["F22_AESA_CONTROL_TIME"]=now;
+        update(p);driver_update(&driver);update(p);
+    }
+    CHECK(values["F22_AESA_INTERFERENCE_VALID"]==1 && values["F22_AESA_READY"]==1);
+    CHECK(values["F22_AESA_INTERFERENCE_JNR"]==0 && values["F22_AESA_INTERFERENCE_TIME"]<=now);
+}
 }
 int main() {
-    try { scenarios(); std::cout << "Owned native AESA: scene provider, noisy reports, avLua clock lifetime, "
+    try { scenarios(); receiver_scenarios(); receiver_authority(); std::cout << "Owned native AESA: scene provider, noisy reports, avLua clock lifetime, "
         "context responder registration, actual virtual target/support calls, expiry and teardown PASS\n"; return 0; }
     catch (const std::exception& error) { std::cerr<<error.what()<<'\n'; return 1; }
 }

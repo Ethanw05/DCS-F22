@@ -47,9 +47,16 @@ struct QueryStats {
     std::uint32_t visited{}, terrain_blocked{}, object_blocked{}, visibility_queries{};
     bool truncated{};
 };
+// Receiver environment at a completed air dwell, not a detected emitter track.
+struct Interference {
+    bool valid{};
+    double noise_ratio{}, time = -100; // J/N (linear), absolute model seconds.
+    std::uint32_t sources{};
+};
 class Environment {
 public:
     virtual ~Environment() = default;
+    virtual bool interference(double, const Pose&, const Beam&, Interference&, QueryStats&) noexcept = 0;
     virtual bool query(const Pose&, const Beam&, std::span<Truth>, std::size_t&, QueryStats&) noexcept = 0;
     virtual bool visible(const Pose&, const Truth&, QueryStats&) noexcept = 0;
 };
@@ -112,6 +119,7 @@ struct Status {
     std::uint32_t cue_request{}, cue_dwells{};
     double cue_time = -100;
     std::uint32_t association_ambiguous{}, association_dropped{};
+    Interference interference{};
 };
 class Model {
 public:
