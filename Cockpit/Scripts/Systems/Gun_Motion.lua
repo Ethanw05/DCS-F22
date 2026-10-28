@@ -106,7 +106,28 @@ local function rotation(self)
     omega[3] = (mean[1]*slope[2] - mean[2]*slope[1]) / square
 end
 
-local function acceleration(self, velocity, speed, tangent)
+-- The fitted velocity belongs to sample_time, just like its maneuver rate.
+-- Rotate it to the report epoch with that same estimated turn. Passing the
+-- raw radar velocity beside a filtered acceleration bypasses this estimate.
+local function current_velocity(self, mean_speed)
+    local w, mean, velocity = self.turn, self.mean, self.velocity
+    for axis = 1, 3 do w[axis] = self.observer:integral(axis, self.t) end
+    local angle = norm(w)
+    local sinc = math.abs(angle) < 1e-5 and 1 - angle^2 / 6 or math.sin(angle) / angle
+    local cosc = math.abs(angle) < 1e-5 and .5 - angle^2 / 24 or (1 - math.cos(angle)) / angle^2
+    local along = w[1]*mean[1] + w[2]*mean[2] + w[3]*mean[3]
+    velocity[1] = mean[1]*math.cos(angle) + (w[2]*mean[3]-w[3]*mean[2])*sinc + w[1]*along*cosc
+    velocity[2] = mean[2]*math.cos(angle) + (w[3]*mean[1]-w[1]*mean[3])*sinc + w[2]*along*cosc
+    velocity[3] = mean[3]*math.cos(angle) + (w[1]*mean[2]-w[2]*mean[1])*sinc + w[3]*along*cosc
+    local length = norm(velocity)
+    if length > 1e-6 then
+        local speed = math.max(0, mean_speed + self.observer:integral(4, self.t))
+        for axis = 1, 3 do velocity[axis] = velocity[axis] * speed / length end
+    end
+    return norm(velocity)
+end
+
+local function acceleration(self, mean_speed, tangent)
     rotation(self)
     for axis = 1, 3 do
         self.omega[axis] = self.observer:update(axis, self.raw_omega[axis], self.variance[axis],
@@ -114,7 +135,8 @@ local function acceleration(self, velocity, speed, tangent)
     end
     self.tangent = self.observer:update(4, tangent, self.speed_error, self.sample_time, self.t, M.window)
     self.warmed = true
-    local w, a = self.omega, self.a
+    local speed = current_velocity(self, mean_speed)
+    local w, a, velocity = self.omega, self.a, self.velocity
     a[1] = w[2]*velocity[3] - w[3]*velocity[2]
     a[2] = w[3]*velocity[1] - w[1]*velocity[3]
     a[3] = w[1]*velocity[2] - w[2]*velocity[1]
@@ -127,7 +149,7 @@ end
 function M.new()
     local state = {observer = Observer.new(), error = {0,0,0}, variance = {0,0,0}, samples = {},
         first = 1, count = 0, tangent = 0, warmed = false, mean = {0,0,0}, slope = {0,0,0},
-        raw_omega = {0,0,0}, omega = {0,0,0}, a = {0,0,0}}
+        raw_omega = {0,0,0}, omega = {0,0,0}, a = {0,0,0}, velocity = {0,0,0}, turn = {0,0,0}}
     for index = 1, M.capacity do state.samples[index] = {time = 0, speed = 0, sigma = 0, v = {0,0,0}} end
     function state:reset()
         self.t, self.count, self.first = nil, 0, 1
@@ -149,7 +171,9 @@ function M.new()
         if self.count < 2 then return end
         local tangent = fit(self, time)
         if not tangent then self:reset(); return end
-        local value = acceleration(self, velocity, speed, tangent)
+        local mean_speed = 0
+        for index = 0, self.count - 1 do mean_speed = mean_speed + slot(self, index).speed end
+        local value = acceleration(self, mean_speed / self.count, tangent)
         if norm(value) > 150 then self:reset(); return end
         return value
     end

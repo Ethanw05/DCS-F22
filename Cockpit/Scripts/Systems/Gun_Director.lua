@@ -237,6 +237,9 @@ function M.new(sensors, get, put, dispatch, display, device_id)
         if self.stable < 0.1 then
             return
         end
+        -- Use one maneuver estimate for both terms of the native prediction.
+        -- A raw velocity correction must not bypass the fitted motion state.
+        velocity = self.motion.velocity
         age = math.max(0, age)
         local measured = vector("F22_STT_P")
         local position = {}

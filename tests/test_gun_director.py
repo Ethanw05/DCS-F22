@@ -21,7 +21,8 @@ local sensors={getSelfCoordinates=function()return unpack(position)end,getHeadin
  getPitch=function()return pitch end,getRoll=function()return roll end}
 local function dispatch(_,command)
  assert(command==10851);calls=calls+1
- assert(values.F22_GUN_VE==80 and values.F22_GUN_VU==10,'native world velocity retained')
+ assert(math.abs(values.F22_GUN_VE-80)<1e-9 and math.abs(values.F22_GUN_VU-10)<1e-9,
+  'constant world velocity retained through the motion fit')
  put('F22_GUN_AIM_N',1);put('F22_GUN_AIM_U',0);put('F22_GUN_AIM_E',.1)
  put('F22_GUN_BORE_N',1);put('F22_GUN_BORE_U',0);put('F22_GUN_BORE_E',0)
  put('F22_GUN_RESULT_SCHEMA',2)

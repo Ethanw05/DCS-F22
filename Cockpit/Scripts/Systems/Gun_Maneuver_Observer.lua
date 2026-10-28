@@ -18,6 +18,14 @@ function M:reset()
     for index = 1, 4 do self.filters[index].valid = false end
 end
 
+-- Integrate from the fitted window's epoch, rather than applying the final
+-- rate throughout that interval when a maneuver is changing.
+function M:integral(index, now)
+    local filter = self.filters[index]
+    local age = now - filter.time
+    return filter.value * age + .5 * filter.rate * age^2
+end
+
 function M:update(index, observed, error, stamp, now, window)
     local filter = self.filters[index]
     local process = index == 4 and M.tangent_driving_variance or M.rotation_driving_variance

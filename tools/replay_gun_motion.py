@@ -29,12 +29,14 @@ def replay(source=None, native=None):
     state = module.new()
     rows = [{k: float(v) for k,v in r.items()} for r in csv.DictReader(FIXTURE.open())]
     last_stamp, identity, acceleration, previous = None, None, None, None
-    steps, errors = [], []
+    steps, errors, raw_steps, fitted_steps = [], [], [], []
+    prior_velocity, prior_fitted = None, None
     accepted, rejected = 0, 0
     for row in rows:
         if row['track_id'] != identity:
             state.reset(state)
             last_stamp, previous, identity = None, None, row['track_id']
+            prior_velocity, prior_fitted = None, None
         stamp = row['observed_time']
         assert 0 <= stamp-row['sigma_time'] <= .5
         velocity = [row['v'+axis] for axis in ('n','u','e')]
@@ -47,18 +49,26 @@ def replay(source=None, native=None):
                 previous = None
             else:
                 accepted += 1
+                fitted = [state.velocity[k] for k in (1,2,3)] if state.velocity is not None else velocity
                 if previous and row['range_m'] <= 2000:
                     steps.append(math.dist(acceleration, previous))
+                if prior_velocity is not None and row['range_m'] <= 2000:
+                    raw_steps.append(math.dist(velocity, prior_velocity))
+                    fitted_steps.append(math.dist(fitted, prior_fitted))
                 previous = acceleration
+                prior_velocity, prior_fitted = velocity, fitted
         if native and acceleration and row['future_observed'] == 1:
             position = [row['p'+axis] for axis in ('n','u','e')]
             result = (C.c_double*3)()
-            native(*[(C.c_double*3)(*vector) for vector in (position,velocity,acceleration)],
+            fitted = [state.velocity[k] for k in (1,2,3)] if state.velocity is not None else velocity
+            native(*[(C.c_double*3)(*vector) for vector in (position,fitted,acceleration)],
                    row['horizon_s'], result)
             errors.append(math.dist(result, [row['future_'+axis] for axis in ('n','u','e')]))
     return {'accepted_reports': accepted, 'initial_or_invalid_reports': rejected,
             'acceleration_step_rms_mps2': math.sqrt(statistics.mean(x*x for x in steps)),
             'acceleration_step_p95_mps2': sorted(steps)[int(.95*len(steps))],
+            'raw_velocity_step_rms_mps': math.sqrt(statistics.mean(x*x for x in raw_steps)),
+            'solver_velocity_step_rms_mps': math.sqrt(statistics.mean(x*x for x in fitted_steps)),
             'forecast_comparisons': len(errors),
             'forecast_consistency_rms_m': math.sqrt(statistics.mean(x*x for x in errors)) if errors else None}
 

@@ -7,5 +7,6 @@ result=replay()
 assert result['accepted_reports']==179 and result['initial_or_invalid_reports']==3,result
 assert result['acceleration_step_rms_mps2']<4.1,result
 assert result['acceleration_step_p95_mps2']<8,result
+assert result['solver_velocity_step_rms_mps']<.8*result['raw_velocity_step_rms_mps'],result
 print('Sampled player flight: unchanged report acceptance; acceleration step RMS '
       f"{result['acceleration_step_rms_mps2']:.3f}m/s2, p95 {result['acceleration_step_p95_mps2']:.3f} PASS")
