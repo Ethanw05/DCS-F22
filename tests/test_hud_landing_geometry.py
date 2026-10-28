@@ -1,4 +1,4 @@
-"""Match installed Hornet proportions in native angular/controller units."""
+"""Check the native Hornet cue direction/scale with the F-22 normal reference."""
 from pathlib import Path
 import math
 ROOT=Path(__file__).resolve().parents[1]
@@ -10,6 +10,10 @@ for scale in (.001,.00055):
  elements={e['name']:e for _,e in lua.globals().elements.items()}
  assert 'HUD_ILS_LOCALIZER'not in elements and 'HUD_ILS_GLIDESLOPE'not in elements,'unrequested ILS cross returned'
  assert elements['HUD_EBRACKET']['parent_element']=='HUD_FPM'
+ bracket=elements['HUD_EBRACKET']
+ assert math.isclose(bracket['init_pos'][1],-20.4,abs_tol=1e-9)
+ # Positive owner output must move up, matching the native local-Y translation.
+ assert math.isclose(bracket['controllers'][1][3],1000*scale,abs_tol=1e-9)
  assert 'HUD_APPROACH_LOW'not in elements and 'HUD_APPROACH_HIGH'not in elements
  spine=elements['HUD_EBRACKET_SPINE'];ys=[v[2]for _,v in spine['vertices'].items()]
  assert math.isclose(max(ys)-min(ys),100*1.2*.34,abs_tol=1e-9)
@@ -21,6 +25,20 @@ for scale in (.001,.00055):
  assert elements['HUD_NAV_STEER_DOTS']['controllers'][1][3]==1.2499
  assert all('HUD_EW_CONTACT_'+str(i)in elements for i in range(1,7)),'HUD RWR repeater removed'
  print('E-bracket only, source-scaled Hornet NAV steering and intact HUD RWR at native scale',scale,'PASS')
+math_lua=ns['runtime']().execute((ROOT/'Cockpit/Scripts/Systems/HUD_FlightMath.lua').read_text())
+# Recovered native chain: producer 3E4D00 -> bus70 -> HUD35 -> 4E0220.
+# Native 8.1-degree reference is used only as a comparison vector, never for F-22.
+for aoa,reference,expected in ((6.1,8.1,.03490658503988659),
+                              (8.1,8.1,0),(10.1,8.1,-.03490658503988659),
+                              (10,12,.03490658503988659),(12,12,0),
+                              (14,12,-.03490658503988659)):
+ assert math.isclose(math_lua.approach_offset(aoa,reference),expected,abs_tol=1e-12)
+for aoa,sign in ((-60,1),(90,-1)):
+ offset=math_lua.approach_offset(aoa,12)
+ assert offset*sign>0
+ assert math.isclose(math.hypot(.0204,offset),math.radians(10),abs_tol=1e-12)
+assert math_lua.approach_offset(float('nan'),12) is None
+assert math_lua.approach_offset(12,float('inf')) is None
 lua=ns['runtime']()
 lua.execute('''
 sample={aoa=12,gear=1,wow=0}
@@ -37,8 +55,16 @@ local physical=dofile(SCRIPT_ROOT..'../../tests/physical_frame_fixture.lua')({
 update=physical:wrap(update)
 
 update();assert(g('HUD_EBRACKET_VALID')==1 and g('HUD_EBRACKET_OFFSET')==0,'on-speed bracket disappeared')
-sample.aoa=14;update();assert(math.abs(g('HUD_EBRACKET_OFFSET')-math.tan(math.rad(2)))<1e-9)
-sample.aoa=10;update();assert(g('HUD_EBRACKET_OFFSET')<0)
+sample.aoa=14;update();assert(math.abs(g('HUD_EBRACKET_OFFSET')+.03490658503988659)<1e-9,
+ 'high AoA must place the bracket below the velocity vector')
+sample.aoa=10;update();assert(math.abs(g('HUD_EBRACKET_OFFSET')-.03490658503988659)<1e-9,
+ 'low AoA must place the bracket above the velocity vector')
+local before=g('HUD_EBRACKET_OFFSET');sample.aoa=10.1;update()
+assert(g('HUD_EBRACKET_OFFSET')<before,'small continuous AoA changes did not move the bracket')
+physical.values.EFM_GEAR_UNSAFE=1;update();assert(g('HUD_EBRACKET_VALID')==0)
+physical.values.EFM_GEAR_UNSAFE=0;physical.values.EFM_AIRDATA_STAMP=-1;update()
+assert(g('HUD_EBRACKET_VALID')==0 and g('HUD_EBRACKET_OFFSET')==0,'stale ADC retained approach guidance')
+physical.values.EFM_AIRDATA_STAMP=0;update();assert(g('HUD_EBRACKET_VALID')==1)
 sample.wow=1;physical.values.EFM_WEIGHT_ON_WHEELS=1;update();assert(g('HUD_EBRACKET_VALID')==0)
 sample.wow=0;sample.gear=0;physical.values.EFM_WEIGHT_ON_WHEELS=0;physical.values.EFM_GEAR_DOWN_LOCKED=0;physical.values.EFM_GEAR_UP_LOCKED=1;update();assert(g('HUD_EBRACKET_VALID')==0)
 sample.gear=1;sample.aoa=0/0;physical.values.EFM_GEAR_DOWN_LOCKED=1;physical.values.EFM_GEAR_UP_LOCKED=0;update();assert(g('HUD_EBRACKET_VALID')==0)
@@ -47,4 +73,4 @@ assert(g('HUD_EBRACKET_VALID')==1,'generic base WOW overrode native airborne sus
 physical.values.EFM_WEIGHT_ON_WHEELS=1;sample.wow=0;update()
 assert(g('HUD_EBRACKET_VALID')==0,'generic airborne sensor overrode native ground contact')
 ''')
-print('Landing E-bracket: persistent on-speed cue, continuous AOA error, authoritative contact and gear/data gates PASS')
+print('Landing E-bracket: native sign/linear gain/radial limit, F-22 center, continuous motion and gear/contact/data gates PASS')

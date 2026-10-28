@@ -188,11 +188,12 @@ function update()
     -- Pilot-requested selection cue, not a claim of measured actuator authority.
     put('HUD_NWS_ACTIVE',gear_down and contact==1 and flight('EFM_NWS_SELECTED')==1
         and flight('MAIN_POWER')==1 and 1 or 0)
-    -- Hornet presentation, this aircraft's existing 12-degree approach target.
-    -- AOA error moves the complete bracket relative to the velocity vector.
-    local bracket_valid=gear_down and contact==0 and aoa_valid
+    -- Native Hornet direction/scale, retaining the historical F-22 normal target.
+    -- Above-target AoA places the center prong below the velocity vector.
+    local bracket_offset = aoa_valid and mathhud.approach_offset(aoa, 12) or nil
+    local bracket_valid=gear_down and contact==0 and bracket_offset~=nil
     put('HUD_EBRACKET_VALID',bracket_valid and 1 or 0)
-    put('HUD_EBRACKET_OFFSET',bracket_valid and math.tan(math.rad(mathhud.clamp(aoa-12,-10,10))) or 0)
+    put('HUD_EBRACKET_OFFSET',bracket_valid and bracket_offset or 0)
     put("HUD_APPROACH_LOW",(bracket_valid and aoa<11.5) and 1 or 0)
     put("HUD_APPROACH_HIGH",(bracket_valid and aoa>12.5) and 1 or 0)
     local now=type(get_model_time)=='function'and get_model_time()or diagnostic_frames*dt

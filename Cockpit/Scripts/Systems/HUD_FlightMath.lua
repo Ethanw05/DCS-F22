@@ -9,6 +9,16 @@ function M.atan2(y,x)
     return 0
 end
 function M.clamp(x,a,b) return math.max(a,math.min(b,x)) end
+-- Adopted Hornet E-bracket presentation: linear target-minus-measured AoA.
+-- Its 10-degree radial limit includes the fixed 60-DI lateral spacing
+-- (1 DI = 0.34 mrad); landing.lua owns the matching glyph geometry.
+local bracket_lateral_rad = 60 * 0.00034
+local bracket_vertical_limit_rad = math.sqrt(math.rad(10)^2 - bracket_lateral_rad^2)
+function M.approach_offset(aoa_deg, reference_deg)
+    if not M.finite(aoa_deg) or not M.finite(reference_deg) then return nil end
+    local error_rad = math.rad(reference_deg - aoa_deg)
+    return M.clamp(error_rad, -bracket_vertical_limit_rad, bracket_vertical_limit_rad)
+end
 function M.project(n,e,u,heading,pitch,roll)
     if not (M.finite(n) and M.finite(e) and M.finite(u)) then return nil end
     local forward=n*math.cos(heading)+e*math.sin(heading)

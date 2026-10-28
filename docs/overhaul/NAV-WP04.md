@@ -4,6 +4,32 @@ The HUD consumes the owned measured CAS/TAS sample after EFM_POWER_OWNER latches
 
 Landing cues consume coherent achieved down/up/unsafe scalar proxies and suspension WOW. These proxies are not independent leg-lock sensors. A conservative shared-ADC dependency withdraws AoA bracket/indexer cues when air data is degraded; an independent production AoA health model remains unqualified. Historical normal center remains12 degrees;11.5/12.5 edges remain estimates. Existing HUD geometry, styling and recorded audio are preserved.
 
+The E-bracket now uses linear reference-minus-measured AoA, correcting the former
+reversed `tan(AoA-12)` displacement. Its center prong is above FPM below12° AoA,
+aligned at12°, and below FPM above12°. Sideways spacing stays fixed; moving AoA
+continuously moves the complete bracket vertically. Put FPM on the intended
+flight path and adjust toward center-prong alignment for on-speed AoA. This cue
+does not measure runway alignment or glideslope.
+
+Native comparison,28October2026: IDA MCP inspected `FA18C-unpacked.dll`, image
+base0x180000000, SHA256
+`0bd15061bdb6b126c87b51a7a0baa4d4ad3c9f3da7985a9539ec2b9b58ce7baa`.
+Producer0x1803E4D00 computes8.1-minus-AoA and publishes bus69/70; constructor
+0x1804665F0 at0x18046721D/0x18046723E binds those to HUD34/35. Transfer
+0x1804793D0 uses the HUD accessor0x180477D40 and setter0x1804641B0.
+Registered `HUD_E_bracket` callback0x1804E0220 reads34/35 and translates along
+local Y with51.33321329395087 DI/degree. Callback0x1804E0360 applies the
+10-degree radial displacement limit declared in installed Hornet `HUD_common.lua`.
+The adopted limit accounts for the existing60-DI lateral offset,1DI=0.34mrad.
+These are Hornet presentation analogues; the F-22 target remains12°, supported
+for the historical normal EMD configuration by the
+[Rainey/Kohn flight-test account](https://man.fas.org/dod-101/sys/ac/docs/f-22-emd-paper.htm).
+Neither Hornet8.1° nor a selected single-engine EMD test law is imposed here.
+Focused actual Lua tests check recovered comparison vectors, both native unit
+scales, center alignment, direction, continuous motion, saturation and invalid/
+stale ADC/gear/contact withdrawal. Post-install DCS flight appearance remains
+unverified; existing logs contain no valid airborne gear-down approach sample.
+
 Actual Lua owner tests exercise biased/frozen/invalid samples, gear transit/unsafe, publication epoch changes, stale frames, restoration and independent barometry. 2D/VR angular calibration, dedicated AoA health, native cage/ghost appearance remain separate qualification work.
 
 NAV-mode10723 now routes only to HUD11840; weapon master modes retain only seeker10805. The existing held-input owner suppresses duplicate presses. Computed FPM validity, drawing validity and off-glass status are distinct. Caged lateral FPM retains a compact uncaged ghost on the same existing plane; an off-glass measurement displays FPM LIMIT, not a sensor failure. Geometry and ghost dimensions are mod presentation estimates; flight glyph/font/green/projection and recordings are retained. Actual Combat_Logic and HUD owner tests cover exclusive routing, repeated-down, computed/off-glass distinction and cage/ghost behavior.
