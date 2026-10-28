@@ -64,6 +64,7 @@ function ignore_features()end
 function join(destination,items)for i=1,#items do destination[#destination+1]=items[i]end end
 local profiles={}
 for _,kind in ipairs({'joystick','keyboard'})do
+ folder=SCRIPT_ROOT..'../../Input/F-22A/'..kind..'/'
  profiles[#profiles+1]=dofile(SCRIPT_ROOT..'../../Input/F-22A/'..kind..'/default.lua')
 end
 dofile(SCRIPT_ROOT..'devices.lua')

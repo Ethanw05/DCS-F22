@@ -708,4 +708,6 @@ join(res.keyCommands,{
         {down = 11726, value_down = 1, name = _('Right Engine Start Fault Reset'), category = _('F-22A Engine Start')},
 })
 
+-- folder is the device directory supplied by DCS Scripts/Input/Data.lua.
+dofile(folder..'../control_cleanup.lua')(res,getfenv(1),false)
 return res

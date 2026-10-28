@@ -17,15 +17,18 @@ local function binding(profile,id)
 end
 local profiles={}
 for _,kind in ipairs({'joystick','keyboard'})do
+ folder=SCRIPT_ROOT..'../../Input/F-22A/'..kind..'/'
  local profile=dofile(SCRIPT_ROOT..'../../Input/F-22A/'..kind..'/default.lua')
- for _,id in ipairs({10021,10022,10716,10717,10718})do
+ for _,id in ipairs({10716,10717,10718})do
   local b=binding(profile,id)
   assert(b.up==id and b.value_down==1 and b.value_up==0,'ambiguous momentary descriptor '..id)
  end
  profiles[kind]=profile
 end
-local detent=binding(profiles.joystick,10022)
-local first=binding(profiles.keyboard,10021)
+-- Historical detent descriptors still exercise the internal owner below;
+-- only the canonical HOTAS descriptors remain in the options catalog.
+local detent={down=10022,up=10022,value_down=1,value_up=0}
+local first={down=10021,up=10021,value_down=1,value_up=0}
 local hotas=binding(profiles.joystick,10717)
 local pickle=binding(profiles.joystick,10718)
 function get_aircraft_property()return 1 end
