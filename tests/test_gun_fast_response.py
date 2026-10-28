@@ -23,6 +23,11 @@ local function deliver()
  if not queued or queued.time>now then return end
  p('F22_GUN_RESPONSE_SEQUENCE',queued.sequence);p('F22_GUN_SOLUTION_SEQUENCE',queued.sequence)
  p('F22_GUN_SOLUTION_VALID',1);p('F22_GUN_RESULT_TIME',queued.time);p('F22_GUN_RESULT_TRACK_ID',queued.id)
+ p('F22_GUN_RESULT_SCHEMA',2)
+ p('F22_GUN_CURRENT_N',220*queued.time+800);p('F22_GUN_CURRENT_U',5000);p('F22_GUN_CURRENT_E',0)
+ for _,axis in ipairs({'N','U','E'})do
+  p('F22_GUN_CURRENT_V'..axis,axis=='N'and 220 or 0);p('F22_GUN_CURRENT_A'..axis,0)
+ end
  p('F22_GUN_AIM_N',math.cos(lead));p('F22_GUN_AIM_U',0);p('F22_GUN_AIM_E',math.sin(lead))
  p('F22_GUN_BORE_N',1);p('F22_GUN_BORE_U',0);p('F22_GUN_BORE_E',0)
  queued=nil

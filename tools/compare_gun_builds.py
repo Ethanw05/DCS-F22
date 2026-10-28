@@ -20,7 +20,7 @@ from lupa.lua51 import LuaRuntime
 ROOT = Path(__file__).resolve().parents[1]
 AXES = ('N', 'U', 'E')
 OLD = 'b2650c945dbec6bd355f43d0c3695abbb9b6ab6e'
-CURRENT = '9fa5fc210d1b67352a7f1e590fffcdf5539b5275'
+CURRENT = '75ee2ba'
 DT = .02
 TRUTH_DT = .002
 WIND = (12., 0., 15.)
@@ -29,7 +29,7 @@ WIND = (12., 0., 15.)
 @lru_cache(maxsize=128)
 def source(revision, path):
     if revision == 'candidate':
-        return (ROOT/path).read_bytes() if path.rsplit('/',1)[-1] in ('Gun_Motion.lua','Gun_Maneuver_Observer.lua','Gun_Director.lua') else source(CURRENT, path)
+        return (ROOT/path).read_bytes() if path.rsplit('/',1)[-1] in ('Gun_Motion.lua','Gun_Maneuver_Observer.lua','Gun_Director.lua','NativeGunSight.cpp') else source(CURRENT, path)
     return subprocess.check_output(['git', 'show', f'{revision}:{path}'], cwd=ROOT)
 
 
@@ -40,7 +40,7 @@ def build(output):
     native = ['NativeGunSight.cpp', 'NativeGunSight.h', 'GunIntercept.h',
               'GunTargetMotion.h', 'GunManeuver.h']
     cmake = ['cmake_minimum_required(VERSION 3.20)', 'project(GunComparison LANGUAGES CXX)']
-    for label, revision in [('old', OLD), ('current', CURRENT), ('candidate', CURRENT), ('oracle', CURRENT)]:
+    for label, revision in [('old', OLD), ('current', CURRENT), ('candidate', 'candidate'), ('oracle', CURRENT)]:
         snapshot = host/label
         snapshot.mkdir(exist_ok=True)
         for name in native:
@@ -137,6 +137,9 @@ class Truth:
 
 OUTPUTS = ['F22_GUN_RESPONSE_SEQUENCE', 'F22_GUN_SOLUTION_VALID',
            'F22_GUN_SOLUTION_SEQUENCE', 'F22_GUN_RESULT_TRACK_ID', 'F22_GUN_RESULT_TIME']
+OUTPUTS += ['F22_GUN_RESULT_SCHEMA']
+for prefix in ('CURRENT_', 'CURRENT_V', 'CURRENT_A'):
+    OUTPUTS += ['F22_GUN_'+prefix+axis for axis in AXES]
 for name in ('AIM', 'BORE'):
     OUTPUTS += ['F22_GUN_'+name+'_'+axis for axis in AXES]
 
@@ -148,7 +151,8 @@ class Pipeline:
         self.lua = LuaRuntime(unpack_returned_tuples=True)
         scripts = 'Cockpit/Scripts/Systems/'
         names = ['Gun_Motion', 'Gun_Frames', 'Radar_Display']
-        if revision == 'candidate': names.append('Gun_Maneuver_Observer')
+        if 'Gun_Maneuver_Observer' in source(revision, scripts+'Gun_Motion.lua').decode():
+            names.append('Gun_Maneuver_Observer')
         modules = self.lua.table_from({name: source(revision, scripts+name+'.lua').decode() for name in names})
         self.lua.globals().modules = modules
         self.lua.execute('''
@@ -358,6 +362,7 @@ def main():
                   'candidate_motion_sha256': hashlib.sha256(source('candidate','Cockpit/Scripts/Systems/Gun_Motion.lua')).hexdigest(),
                   'candidate_observer_sha256': hashlib.sha256(source('candidate','Cockpit/Scripts/Systems/Gun_Maneuver_Observer.lua')).hexdigest(),
                   'candidate_director_sha256': hashlib.sha256(source('candidate','Cockpit/Scripts/Systems/Gun_Director.lua')).hexdigest(),
+                  'candidate_native_sha256': hashlib.sha256(source('candidate','EFM/source/NativeGunSight.cpp')).hexdigest(),
                   'duration_s': time.monotonic()-began, 'rows': rows}
     (output/'comparison.json').write_text(json.dumps(provenance, indent=2)+'\n')
     for noise in noises:

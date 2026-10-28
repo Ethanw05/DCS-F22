@@ -44,6 +44,9 @@ int main(){
  values["F22_GUN_OWN_U"]=5000;values["F22_GUN_TARGET_N"]=801;values["F22_GUN_TARGET_U"]=5000.5;values["F22_GUN_TARGET_E"]=30;
  values["F22_GUN_VN"]=220;values["F22_GUN_VE"]=0;values["F22_GUN_AN"]=30;values["EFM_HUD_VN"]=220;values["EFM_HUD_WE"]=12;
  update(p);CHECK(values["F22_GUN_SOLUTION_VALID"]==1);CHECK(values["F22_GUN_SOLUTION_SEQUENCE"]==17);
+ CHECK(values["F22_GUN_RESULT_SCHEMA"]==2);
+ CHECK(values["F22_GUN_CURRENT_N"]==801&&values["F22_GUN_CURRENT_VN"]==220&&values["F22_GUN_CURRENT_AN"]==30);
+
  CHECK(values["F22_GUN_MNV_VALID"]==1&&values["F22_GUN_MNV_ID"]==42);
  CHECK(std::isfinite(values["F22_GUN_MNV_LOW_N"])&&std::isfinite(values["F22_GUN_MNV_LEFT_E"]));
  double t=values["F22_GUN_TOF"];CHECK(t>.5&&t<1.5);CHECK(values["F22_GUN_MUZZLE_U"]==5000.5);
@@ -57,6 +60,8 @@ int main(){
  double horizon=t+.12;target=V{801,5000.5,30}+V{220,0,0}*horizon+V{15*horizon*horizon,0,0};
  CHECK((bullet-target).norm()<.25);CHECK(std::abs(values["F22_GUN_CURRENT_N"]-827.616)<1e-6);
  CHECK(values["F22_GUN_RESULT_TIME"]==.02&&values["F22_GUN_RESULT_TRACK_ID"]==42);
+ CHECK(std::abs(values["F22_GUN_CURRENT_VN"]-223.6)<1e-9&&values["F22_GUN_CURRENT_AN"]==30);
+
  CHECK(values["F22_GUN_ACTUAL_ENDPOINT_VALID"]==1);
  CHECK(values["F22_GUN_RESPONSE_SEQUENCE"]==17);
  queue_delay=.02;values["F22_GUN_MEASUREMENT_AGE"]=.03;values["F22_GUN_REQUEST_TIME"]=.1;
@@ -74,7 +79,7 @@ int main(){
  queue_delay=.3;values["F22_GUN_REQUEST_SEQUENCE"]=19;update(p);
  CHECK(values["F22_GUN_SOLUTION_VALID"]==0&&values["F22_GUN_RESPONSE_SEQUENCE"]==19&&values["F22_GUN_SOLVER_REASON"]==8);
  queue_delay=0;
- values["F22_GUN_REQUEST_VALID"]=0;update(p);CHECK(values["F22_GUN_SOLUTION_VALID"]==0);
+ values["F22_GUN_REQUEST_VALID"]=0;update(p);CHECK(values["F22_GUN_SOLUTION_VALID"]==0&&values["F22_GUN_RESULT_SCHEMA"]==0);
  values["F22_GUN_REQUEST_VALID"]=1;double bad=NAN;std::memcpy(descriptor.data()+176,&bad,8);update(p);CHECK(values["F22_GUN_SOLUTION_VALID"]==0&&values["F22_GUN_SOLVER_REASON"]==4);CHECK(values["F22_GUN_RESPONSE_SEQUENCE"]==19);
  failed=true;NativeGunSight::reset();CHECK(!failed&&handles.empty()&&!previous.valid);
  // No-lock funnel uses actual shell service, historical muzzle/velocity/wind.

@@ -10,6 +10,22 @@ end
 local function norm(v)
     return math.sqrt(v[1] ^ 2 + v[2] ^ 2 + v[3] ^ 2)
 end
+local function finite_vector(vector)
+    for axis = 1, 3 do if not finite(vector[axis]) then return false end end
+    return true
+end
+-- Short display coast of one native result, bounded by the result-age gate.
+-- The latest radar state still supplies the NEXT solve, never half of a cue.
+local function solution_los(solution, now, north, altitude, east)
+    local elapsed = now - solution.time
+    local own = {north, altitude, east}
+    local los = {}
+    for axis = 1, 3 do
+        los[axis] = solution.position[axis] + solution.velocity[axis] * elapsed
+            + .5 * solution.acceleration[axis] * elapsed^2 - own[axis]
+    end
+    return los
+end
 local function dot(a, b)
     return a[1] * b[1] + a[2] * b[2] + a[3] * b[3]
 end
@@ -92,44 +108,44 @@ function M.new(sensors, get, put, dispatch, display, device_id)
     end
     -- The command queue can deliver results after this Lua update has returned.
     -- Publish one request at a time; consume its acknowledged result before sending another.
+    local function qualified_result(pending, id, time, now)
+        return get("F22_GUN_SOLUTION_VALID") > .5 and get("F22_GUN_RESULT_SCHEMA") == 2
+            and get("F22_GUN_SOLUTION_SEQUENCE") == pending.sequence
+            and get("F22_GUN_RESULT_TRACK_ID") == id and pending.id == id
+            and get("F22_GUN_RESULT_TIME") == time and finite(time)
+            and time <= now + .01 and now - time <= .1
+    end
+    local function read_solution(pending, id, now)
+        local time = get("F22_GUN_RESULT_TIME")
+        if not qualified_result(pending, id, time, now) then return end
+        local frame = Frames.at(self.history, time)
+        local position, velocity = vector("F22_GUN_CURRENT_"), vector("F22_GUN_CURRENT_V")
+        local acceleration = vector("F22_GUN_CURRENT_A")
+        local aim, bore = vector("F22_GUN_AIM_"), vector("F22_GUN_BORE_")
+        if not frame or not finite_vector(position) or not finite_vector(velocity)
+            or not finite_vector(acceleration) or not finite_vector(aim) or not finite_vector(bore)
+            or not qualified_result(pending, id, time, now) then return end
+        return {time = time, id = id, sequence = pending.sequence, position = position,
+            velocity = velocity, acceleration = acceleration, aim = aim, bore = Frames.body(frame, bore)}
+    end
+    local function read_cues(solution)
+        local time = get("F22_GUN_MNV_TIME")
+        if get("F22_GUN_MNV_VALID") <= .5 or get("F22_GUN_MNV_ID") ~= solution.id
+            or not finite(time) or time > solution.time + .01 or solution.time - time > .2 then return end
+        local cues = {time = time, base = vector("F22_GUN_MNV_BASE_")}
+        for _, name in ipairs({"LOW", "HIGH", "LEFT", "RIGHT"}) do
+            cues[name] = vector("F22_GUN_MNV_"..name.."_")
+        end
+        solution.cues = cues
+    end
     local function consume(now, id)
         local pending = self.pending
-        if not pending then
-            return
-        end
+        if not pending then return end
         if get("F22_GUN_RESPONSE_SEQUENCE") == pending.sequence then
             self.pending = nil
-            self.solution = nil
-            local time = get("F22_GUN_RESULT_TIME")
-            if
-                get("F22_GUN_SOLUTION_VALID") > 0.5
-                and get("F22_GUN_SOLUTION_SEQUENCE") == pending.sequence
-                and get("F22_GUN_RESULT_TRACK_ID") == id
-                and pending.id == id
-                and finite(time)
-                and time <= now + 0.01
-                and now - time <= 0.1
-            then
-                local frame = Frames.at(self.history, time)
-                if frame then
-                    self.solution = {
-                        time = time,
-                        id = id,
-                        aim = vector("F22_GUN_AIM_"),
-                        bore = Frames.body(frame, vector("F22_GUN_BORE_")),
-                    }
-                local cue_time = get("F22_GUN_MNV_TIME")
-                if get("F22_GUN_MNV_VALID")>.5 and get("F22_GUN_MNV_ID")==id and
-                    finite(cue_time) and cue_time<=time+.01 and time-cue_time<=.2 then
-                    local cues = {time=cue_time,base=vector("F22_GUN_MNV_BASE_")}
-                    for _,name in ipairs({"LOW","HIGH","LEFT","RIGHT"}) do
-                        cues[name]=vector("F22_GUN_MNV_"..name.."_")
-                    end
-                    self.solution.cues=cues
-                end
-                end
-            end
-        elseif now - pending.time > 0.15 then
+            self.solution = read_solution(pending, id, now)
+            if self.solution then read_cues(self.solution) end
+        elseif now - pending.time > .15 then
             self.pending = nil
             self.solution = nil
         end
@@ -308,8 +324,8 @@ function M.new(sensors, get, put, dispatch, display, device_id)
             return
         end
         local bore = Frames.world(frame, solution.bore)
-        local p =
-            M.pipper(solution.aim, bore, { position[1] - n, position[2] - u, position[3] - e })
+        local los = solution_los(solution, now, n, u, e)
+        local p = M.pipper(solution.aim, bore, los)
         if not p then
             return
         end
@@ -323,11 +339,12 @@ function M.new(sensors, get, put, dispatch, display, device_id)
         put("F22_GUN_MOTION_SOURCE", 1)
         put("F22_GUN_DISPLAY_REASON", 0)
         put("F22_GUN_RESPONSE_AGE", now - solution.time)
+        put("F22_GUN_DISPLAY_SEQUENCE", solution.sequence)
+        put("F22_GUN_DISPLAY_SAMPLE_TIME", solution.time)
         put("F22_GUN_DIRECTOR_AZ", pa)
         put("F22_GUN_DIRECTOR_EL", projected)
         if solution.cues and now-solution.cues.time<=.2 then
-            local points=M.project_maneuver(solution.cues,solution.aim,bore,
-                {position[1]-n,position[2]-u,position[3]-e},frame)
+            local points=M.project_maneuver(solution.cues,solution.aim,bore,los,frame)
             if points then
                 for name,point in pairs(points) do
                     put("F22_GUN_MNV_"..name.."_AZ",point[1]);put("F22_GUN_MNV_"..name.."_EL",point[2])

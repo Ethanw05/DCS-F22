@@ -222,6 +222,7 @@ void calculate_funnel(EDPARAM &p) {
 }
 void calculate(EDPARAM &p) {
     put(p, "F22_GUN_SOLUTION_VALID", 0);
+    put(p, "F22_GUN_RESULT_SCHEMA", 0);
     put(p, "F22_GUN_MNV_VALID", 0);
     put(p, "F22_GUN_SOLVER_REASON", 1);
     if (failed || get(p, "F22_GUN_REQUEST_VALID") < .5)
@@ -337,6 +338,14 @@ void calculate(EDPARAM &p) {
         put(p, "F22_GUN_CURRENT_N", current.x);
         put(p, "F22_GUN_CURRENT_U", current.y);
         put(p, "F22_GUN_CURRENT_E", current.z);
+        // Render LOS must use this solve's state, not the next radar report.
+        const V current_acceleration = motion.acceleration(age);
+        put(p, "F22_GUN_CURRENT_VN", current_velocity.x);
+        put(p, "F22_GUN_CURRENT_VU", current_velocity.y);
+        put(p, "F22_GUN_CURRENT_VE", current_velocity.z);
+        put(p, "F22_GUN_CURRENT_AN", current_acceleration.x);
+        put(p, "F22_GUN_CURRENT_AU", current_acceleration.y);
+        put(p, "F22_GUN_CURRENT_AE", current_acceleration.z);
     }
 
     put(p, "F22_GUN_SOLVER_REASON", 6);
@@ -378,6 +387,7 @@ void calculate(EDPARAM &p) {
         put(p, "F22_GUN_MNV_COST_MS", maneuver_cues.cost_ms);
         put(p, "F22_GUN_MNV_VALID", 1);
     }
+    put(p, "F22_GUN_RESULT_SCHEMA", 2);
     put(p, "F22_GUN_SOLVER_REASON", 0);
     put(p, "F22_GUN_SOLUTION_VALID", 1);
 }

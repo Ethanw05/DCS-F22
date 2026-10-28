@@ -1,6 +1,7 @@
-"""Replay the recorded close pursuit that produced no pipper before the handoff fix.
-This checks transport/rendering with captured native outputs, not live ballistic accuracy.
-The historical fixture predates covariance export; .4m/s is a declared harness value.
+"""Historical native results lack the paired v2 target-state packet.
+The fixture remains original evidence; a new consumer must reject its missing
+state rather than invent a matching target from the next radar report.
+The .4m/s uncertainty is a declared harness value, not historical sensor data.
 """
 import csv
 from pathlib import Path
@@ -36,5 +37,5 @@ for row in rows:
  for key,value in row.items():lua.globals()["values"][key]=float(value)
  lua.globals().now=float(row['t_model_s'])
  valid,reason=lua.globals().step();count+=valid;reasons[reason]=reasons.get(reason,0)+1
-assert count>=len(rows)-5,(count,len(rows),reasons)
-print(f'Recorded pursuit replay: pipper accepted on {count}/{len(rows)} samples, including deferred responses')
+assert count==0,(count,len(rows),reasons)
+print(f'Historical pursuit: {len(rows)} schema1/unversioned native results cannot invent a schema2 target packet PASS')

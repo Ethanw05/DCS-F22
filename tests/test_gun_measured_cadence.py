@@ -25,6 +25,12 @@ local function dispatch(_,command)
  for prefix,vector in pairs({AIM={1,0,.1},BORE={1,0,0}})do
   for k,axis in ipairs({'N','U','E'})do put('F22_GUN_'..prefix..'_'..axis,vector[k])end
  end
+ put('F22_GUN_RESULT_SCHEMA',2)
+ for _,axis in ipairs({'N','U','E'})do
+  local age=now-get('F22_STT_TIME')
+  put('F22_GUN_CURRENT_'..axis,get('F22_GUN_TARGET_'..axis)+get('F22_GUN_V'..axis)*age)
+  put('F22_GUN_CURRENT_V'..axis,get('F22_GUN_V'..axis));put('F22_GUN_CURRENT_A'..axis,0)
+ end
  put('F22_GUN_SOLUTION_VALID',1);put('F22_GUN_SOLUTION_SEQUENCE',get('F22_GUN_REQUEST_SEQUENCE'))
  put('F22_GUN_RESPONSE_SEQUENCE',get('F22_GUN_REQUEST_SEQUENCE'))
  put('F22_GUN_RESULT_TRACK_ID',get('F22_STT_ID'));put('F22_GUN_RESULT_TIME',now)

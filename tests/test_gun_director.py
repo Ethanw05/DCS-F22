@@ -24,7 +24,12 @@ local function dispatch(_,command)
  assert(values.F22_GUN_VE==80 and values.F22_GUN_VU==10,'native world velocity retained')
  put('F22_GUN_AIM_N',1);put('F22_GUN_AIM_U',0);put('F22_GUN_AIM_E',.1)
  put('F22_GUN_BORE_N',1);put('F22_GUN_BORE_U',0);put('F22_GUN_BORE_E',0)
- for _,axis in ipairs({'N','U','E'})do put('F22_GUN_CURRENT_'..axis,get('F22_GUN_TARGET_'..axis))end
+ put('F22_GUN_RESULT_SCHEMA',2)
+ for _,axis in ipairs({'N','U','E'})do
+  put('F22_GUN_CURRENT_'..axis,get('F22_GUN_TARGET_'..axis))
+  put('F22_GUN_CURRENT_V'..axis,get('F22_GUN_V'..axis))
+  put('F22_GUN_CURRENT_A'..axis,get('F22_GUN_A'..axis))
+ end
  put('F22_GUN_SOLUTION_VALID',1);put('F22_GUN_SOLUTION_SEQUENCE',get('F22_GUN_REQUEST_SEQUENCE'))
  put('F22_GUN_RESPONSE_SEQUENCE',get('F22_GUN_REQUEST_SEQUENCE'));put('F22_GUN_RESULT_TIME',now);put('F22_GUN_RESULT_TRACK_ID',get('F22_GUN_TRACK_ID'))
 end
