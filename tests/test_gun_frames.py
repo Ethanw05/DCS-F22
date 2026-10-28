@@ -16,5 +16,13 @@ local a=f.from_pose({heading=6.28,pitch=.2,roll=3.13});local b=f.from_pose({head
 local mid=f.at({{time=1,frame=a},{time=1.02,frame=b}},1.01);assert(mid)
 local v={1,.2,-.4};local round=f.body(mid,f.world(mid,v));for k=1,3 do assert(math.abs(round[k]-v[k])<1e-10)end
 assert(not f.at({{time=1,frame=a},{time=1.02,frame=b}},.9))
+local history={{time=1,position={100,5000,20}},{time=1.02,position={104,5001,18}}}
+local point=f.position_at(history,1.01)
+assert(math.abs(point[1]-102)<1e-10 and math.abs(point[2]-5000.5)<1e-10)
+point=f.position_at(history,1.025)
+assert(math.abs(point[1]-105)<1e-10 and math.abs(point[3]-17.5)<1e-10)
+assert(not f.position_at(history,.99) and not f.position_at(history,1.031))
+assert(not f.position_at({{time=1},{time=1.02}},1.01),'missing position history fabricated a pose')
+
 ''')
 print('Gun frames: radar-axis agreement, rigid transport, bank/heading wrap and interpolation OK')

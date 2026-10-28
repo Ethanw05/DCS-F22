@@ -29,7 +29,7 @@ WIND = (12., 0., 15.)
 @lru_cache(maxsize=128)
 def source(revision, path):
     if revision == 'candidate':
-        return (ROOT/path).read_bytes() if path.rsplit('/',1)[-1] in ('Gun_Motion.lua','Gun_Maneuver_Observer.lua','Gun_Director.lua','NativeGunSight.cpp') else source(CURRENT, path)
+        return (ROOT/path).read_bytes() if path.rsplit('/',1)[-1] in ('Gun_Motion.lua','Gun_Maneuver_Observer.lua','Gun_Director.lua','Gun_Frames.lua','NativeGunSight.cpp') else source(CURRENT, path)
     return subprocess.check_output(['git', 'show', f'{revision}:{path}'], cwd=ROOT)
 
 
@@ -363,6 +363,7 @@ def main():
                   'candidate_observer_sha256': hashlib.sha256(source('candidate','Cockpit/Scripts/Systems/Gun_Maneuver_Observer.lua')).hexdigest(),
                   'candidate_director_sha256': hashlib.sha256(source('candidate','Cockpit/Scripts/Systems/Gun_Director.lua')).hexdigest(),
                   'candidate_native_sha256': hashlib.sha256(source('candidate','EFM/source/NativeGunSight.cpp')).hexdigest(),
+                  'candidate_frames_sha256': hashlib.sha256(source('candidate','Cockpit/Scripts/Systems/Gun_Frames.lua')).hexdigest(),
                   'duration_s': time.monotonic()-began, 'rows': rows}
     (output/'comparison.json').write_text(json.dumps(provenance, indent=2)+'\n')
     for noise in noises:

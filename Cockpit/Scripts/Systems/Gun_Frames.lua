@@ -33,6 +33,26 @@ function M.world(frame, body)
     end
     return out
 end
+local function position_between(a, b, time)
+    if not a.position or not b.position or b.time <= a.time then return end
+    local fraction = (time - a.time) / (b.time - a.time)
+    local out = {}
+    for axis = 1, 3 do
+        out[axis] = a.position[axis] + (b.position[axis] - a.position[axis]) * fraction
+    end
+    return out
+end
+function M.position_at(history, time)
+    for index = 1, #history - 1 do
+        local a, b = history[index], history[index + 1]
+        if time >= a.time and time <= b.time then return position_between(a, b, time) end
+    end
+    local last, previous = history[#history], history[#history - 1]
+    if last and time == last.time then return last.position end
+    if last and previous and time > last.time and time - last.time <= .01 then
+        return position_between(previous, last, time)
+    end
+end
 function M.at(history, time)
     for i = 1, #history - 1 do
         local a, b = history[i], history[i + 1]

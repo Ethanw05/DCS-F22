@@ -14,18 +14,6 @@ local function finite_vector(vector)
     for axis = 1, 3 do if not finite(vector[axis]) then return false end end
     return true
 end
--- Short display coast of one native result, bounded by the result-age gate.
--- The latest radar state still supplies the NEXT solve, never half of a cue.
-local function solution_los(solution, now, north, altitude, east)
-    local elapsed = now - solution.time
-    local own = {north, altitude, east}
-    local los = {}
-    for axis = 1, 3 do
-        los[axis] = solution.position[axis] + solution.velocity[axis] * elapsed
-            + .5 * solution.acceleration[axis] * elapsed^2 - own[axis]
-    end
-    return los
-end
 local function dot(a, b)
     return a[1] * b[1] + a[2] * b[2] + a[3] * b[3]
 end
@@ -119,14 +107,18 @@ function M.new(sensors, get, put, dispatch, display, device_id)
         local time = get("F22_GUN_RESULT_TIME")
         if not qualified_result(pending, id, time, now) then return end
         local frame = Frames.at(self.history, time)
+        local own = Frames.position_at(self.history, time)
         local position, velocity = vector("F22_GUN_CURRENT_"), vector("F22_GUN_CURRENT_V")
         local acceleration = vector("F22_GUN_CURRENT_A")
         local aim, bore = vector("F22_GUN_AIM_"), vector("F22_GUN_BORE_")
-        if not frame or not finite_vector(position) or not finite_vector(velocity)
+        if not frame or not own or not finite_vector(position) or not finite_vector(velocity)
             or not finite_vector(acceleration) or not finite_vector(aim) or not finite_vector(bore)
             or not qualified_result(pending, id, time, now) then return end
-        return {time = time, id = id, sequence = pending.sequence, position = position,
-            velocity = velocity, acceleration = acceleration, aim = aim, bore = Frames.body(frame, bore)}
+        -- Both directions belong to the native solve epoch. Advancing only
+        -- target LOS would itself create a crossing-target sawtooth.
+        local los = {position[1] - own[1], position[2] - own[2], position[3] - own[3]}
+        return {time = time, id = id, sequence = pending.sequence, los = los,
+            aim = aim, bore = Frames.body(frame, bore)}
     end
     local function read_cues(solution)
         local time = get("F22_GUN_MNV_TIME")
@@ -207,7 +199,7 @@ function M.new(sensors, get, put, dispatch, display, device_id)
         local frame = Frames.from_pose(pose)
         local last = self.history[#self.history]
         if not last or last.time ~= now then
-            self.history[#self.history + 1] = { time = now, frame = frame }
+            self.history[#self.history + 1] = { time = now, frame = frame, position = {n, u, e} }
         end
         while #self.history > 2 and now - self.history[1].time > 0.3 do
             table.remove(self.history, 1)
@@ -324,7 +316,7 @@ function M.new(sensors, get, put, dispatch, display, device_id)
             return
         end
         local bore = Frames.world(frame, solution.bore)
-        local los = solution_los(solution, now, n, u, e)
+        local los = solution.los
         local p = M.pipper(solution.aim, bore, los)
         if not p then
             return
