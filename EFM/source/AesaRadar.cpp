@@ -366,9 +366,12 @@ void Model::detect(double now, const Controls& c, const Pose& pose, const Truth&
     const double ratio = policy_.reference_range_m / range;
     double signal = ratio * ratio * ratio * ratio * std::clamp(truth.cross_section_m2, .01, 100.0)
         * gain * gain * c.resource * status_.beam.integration_s / policy_.dwell_s;
-    // A simple, declared game look-down slow-target penalty, not recovered RF processing.
-    const double radial = dot(truth.velocity - pose.velocity, delta) / range;
-    if (delta.u < 0 && std::abs(radial) < 35) signal *= .15;
+    // Ground clutter shares the platform's Doppler shift. Compare the target
+    // with the stationary surface centroid, not with zero relative velocity.
+    // Width35m/s and attenuation0.15 remain declared game estimates.
+    const double target_rate = dot(truth.velocity - pose.velocity, delta) / range;
+    const double clutter_rate = -dot(pose.velocity, delta) / range;
+    if (delta.u < 0 && std::abs(target_rate-clutter_rate) < 35) signal *= .15;
     if (signal < .2) { ++status_.misses; return; }
     if (stats.visibility_queries >= maximum_visibility_queries) { stats.truncated = true; return; }
     ++stats.visibility_queries;

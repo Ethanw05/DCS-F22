@@ -114,7 +114,33 @@ int scenarios() {
         "resource loss, search/track service, generations, pause and bounded work PASS\n";
     return 0;
 }
+void clutter_reference() {
+    static std::array<Model,3> radars;
+    World world;
+    Pose pose{};pose.position.u=3000;pose.velocity.n=300;
+    Controls controls{};controls.enabled=true;
+    controls.half_azimuth=degree;controls.half_elevation=degree;
+    std::array<unsigned,3> detections{};
+    for (unsigned seed=1;seed<=512;++seed) {
+        controls.generation=seed*0x9e3779b9ull;
+        for (std::size_t scenario=0;scenario<radars.size();++scenario) {
+            // Same range and seed: co-speed lookdown, ground-notched lookdown,
+            // and clear-sky stationary target. Hidden identity is immaterial.
+            world.objects[0].position={60000,scenario==2 ? 5000.0 : 1000.0,0};
+            world.objects[0].velocity={scenario==0 ? 300.0 : 0,0,0};
+            controls.elevation=std::atan2(world.objects[0].position.u-pose.position.u,60000);
+            auto& radar=radars[scenario];radar.reset(controls.generation);
+            CHECK(radar.update(0,controls,pose,world));
+            CHECK(radar.update(.021,controls,pose,world));
+            detections[scenario]+=radar.status().detections;
+        }
+    }
+    std::cout<<"Clutter frame: co-speed="<<detections[0]<<" ground-notch="<<detections[1]
+        <<" lookup="<<detections[2]<<" /512 seeded dwells\n";
+    CHECK(detections[0]==detections[2]);
+    CHECK(detections[0]>2*detections[1] && detections[1]>0);
+}
 int main() {
-    try { return scenarios(); }
+    try { const auto result=scenarios();clutter_reference();return result; }
     catch (const std::exception& error) { std::cerr << error.what() << "\n"; return 1; }
 }

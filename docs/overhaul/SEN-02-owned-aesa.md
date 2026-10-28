@@ -34,13 +34,16 @@ These work items remain partial pending the qualification limits below.
   array-effectiveness estimate. Repair retires generation without reviving a
   released native owner. The integrated physical owner remains authoritative.
 
-All numerical policies are estimates: 20ms dwell, 60ms processing, 3deg beam
-half-angle, 250ms priority revisit, reference80km at1mÃ‚Â², noise laws and continuous
-acceleration intensity100mÃ‚Â²/sÃ‚Â³. Callback cadence quantizes these requested times.
-The ground 8..55kt discovery predicate is an APG-73 game analogue. Exact RCS,
-waveforms/PRFs, ambiguity resolution, ECM/CFAR, false alarms and crossing-target
-association ambiguity are not modeled. Simulator IDs correlate reports/native
-weapons; this is not authenticated APG-77 processing or performance.
+All numerical policies are estimates:20ms search dwell,4..20ms tracking dwell,
+12ms processing,3deg beam half-angle, requested25ms gun/50ms fire-control or
+missile-support/100ms routine revisit, reference80km at1m2, noise laws and
+continuous acceleration intensity100m2/s3. Callback cadence quantizes these
+requested times. The ground8..55kt discovery predicate is an APG-73 game analogue.
+Air association now uses measured innovations/covariance; its simulator-object
+binding is private to the weapon boundary. Ground association still needs the
+same migration. Exact aspect-dependent RCS, waveforms/PRFs, ambiguity resolution,
+ECM/CFAR and false-alarm simulation remain open. These are not authenticated
+APG-77 processing or performance.
 
 Sources consulted: [Brower, 2001, ch32 Ã‚Â§32.3.2 p8](https://www.helitavia.com/avionics/TheAvionicsHandbook_Cap_32.pdf)
 for interleaved electronic service; [NOAA PAR](https://www.nssl.noaa.gov/tools/radar/par/)
@@ -147,3 +150,13 @@ finite native cue-area search; see [the donor cue contract](SEN-02-donor-cue.md)
 Owned measurement association and tactical source namespace migration are
 covered in [SEN-02-association](SEN-02-association.md); simulator IDs no longer
 select air-track associations or establish cross-sensor identity matches.
+
+The look-down estimate now compares target Doppler with the stationary-ground
+clutter centroid, including ownship motion. The old zero-relative-rate notch
+wrongly suppressed a co-speed target while sparing a stationary ground-radial
+target. Width35m/s and attenuation0.15 remain explicit estimates; this correction
+is not a complete terrain-clutter/CFAR model. A512-seed actual-detector replay
+compares co-speed lookdown, stationary lookdown and equal-range lookup.
+Reference: MIT Lincoln Laboratory, Introduction to Radar Systems, lecture7,
+Attributes of Ground Clutter (platform motion shifts clutter Doppler):
+https://www.ll.mit.edu/sites/default/files/outreach/doc/2018-07/lecture%207.pdf
