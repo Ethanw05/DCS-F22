@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.30)
+project(f22_sar_research LANGUAGES CXX)
+add_executable(f22_sar_gpu_probe ../research_sar_gpu.cpp)
+target_compile_features(f22_sar_gpu_probe PRIVATE cxx_std_20)
+target_compile_definitions(f22_sar_gpu_probe PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN)
+target_compile_options(f22_sar_gpu_probe PRIVATE /W4 /WX /analyze /EHsc)
+target_link_libraries(f22_sar_gpu_probe PRIVATE d3d11 d3dcompiler dxgi)
