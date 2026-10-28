@@ -60,6 +60,6 @@ s:update(pose,17.5,1/60,false,true);assert(get('F22_AG_GMT_DISPLAY_1_VALID')==0)
 ''')
 ui=ns['runtime']();ui.execute("dofile(SCRIPT_ROOT..'PMFD_CENTER/ag_radar_format.lua')('PMFD_RDR_PAGE','TEST_AG_')")
 els=ui.globals().elements
-assert sum(e.kind=='ceTexPoly' for _,e in els.items())==1
+assert sum(e.kind=='ceTexPoly' for _,e in els.items())==2
 assert sum('F22_AG_GMT_BRICK_' in str(e.name) for _,e in els.items())==64
-print('GMT transport/designation/coast/expiry, MAP reference/inhibit, freeze continuity, interleave and one texture plus 64 bricks PASS')
+print('GMT transport/designation/coast/expiry, MAP reference/inhibit, freeze continuity, interleave and shared texture plus 64 bricks PASS')

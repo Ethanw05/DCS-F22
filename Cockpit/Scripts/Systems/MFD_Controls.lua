@@ -87,16 +87,22 @@ function M.for_page(page,view,get)
     c[12]=row('RTN','view',0)
     for b,spec in ipairs({{'MAP',10601},{'GMT',10602},{'SEA',10649},{'TA',10650},{'AGR',10651}})do radar(b,spec[1],spec[2]);c[b].home=true end
    else
-    c[1]=row(({'MAP','GMT','GMTT','SEA','SEAT','TA','AGR'})[get('F22_AG_MODE')]or'MODE','view',3)
+    if get('F22_AG_EXPANSION')>0 then radar(1,'MAP',10601)
+    else c[1]=row(({'MAP','GMT','GMTT','SEA','SEAT','TA','AGR'})[get('F22_AG_MODE')]or'MODE','view',3)end
     if get('F22_AG_INTL_AVAILABLE')>.5 then radar(2,'INTL',10619)
     elseif get('F22_AG_EXP1_AVAILABLE')>.5 then radar(2,'EXP1',10646)end
     if get('F22_AG_OPTIONS_AVAILABLE')>.5 then radar(3,'EXP2',10647);radar(4,'EXP3',10648)end
+    for button,level in pairs({[2]=1,[3]=2,[4]=3})do
+     if c[button]and c[button].label=='EXP'..level then c[button].selected=get('F22_AG_EXPANSION')==level end
+    end
     if get('F22_AG_BEAM_AVAILABLE')>.5 then radar(5,get('F22_AG_VIDEO_FAN')>.5 and'FAN'or'PEN',10644)end
     if view==2 then
      c[12]=row('RTN','view',0);radar(18,'GAIN+',10641);radar(17,'GAIN-',10642);radar(16,'DCLTR',10652)
     else
      c[11]=row('DATA','view',2);radar(18,'EL UP',10614);radar(17,'EL DN',10615)
-     if get('F22_AG_FAST_AVAILABLE')>.5 then radar(19,'FAST',10643)end
+     if get('F22_AG_FAST_AVAILABLE')>.5 then
+      radar(19,'FAST',10643);c[19].selected=get('F22_AG_FAST')>.5
+     end
     end
    end
   elseif ag then

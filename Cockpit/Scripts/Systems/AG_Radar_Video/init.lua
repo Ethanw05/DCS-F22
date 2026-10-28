@@ -14,7 +14,8 @@ get_param_handle("F22_AG_VIDEO_SOURCE_PRESENT"):set(1)
 -- texture-registration measurements in moving flight. Native ABI/ownership,
 -- source readiness and fresh command-time snapshots remain separate gates.
 get_param_handle("F22_AG_VIDEO_GEOMETRY_QUALIFIED"):set(1)
-get_param_handle("F22_AG_VIDEO_TIMING_DIAGNOSTIC"):set(1)
-get_param_handle("F22_AG_VIDEO_GPU_DIAGNOSTIC"):set(1)
+get_param_handle("F22_AG_VIDEO_TIMING_DIAGNOSTIC"):set(0)
+-- GPU staging/readback stalls are for an explicitly requested qualification run.
+get_param_handle("F22_AG_VIDEO_GPU_DIAGNOSTIC"):set(0)
 for _,axis in ipairs({'FORWARD','RIGHT','UP'})do get_param_handle('F22_AG_VIDEO_PROBE_'..axis..'_M'):set(0)end
 get_param_handle('F22_AG_VIDEO_PROBE_TEXTURE'):set(0)

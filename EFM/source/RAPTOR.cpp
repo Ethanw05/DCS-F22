@@ -920,7 +920,6 @@ void ed_fm_set_current_state(double ax, double ay, double az, double vx, double 
     }
     RAPTOR::velocity_world = Vec3(RaptorVehicle::finite(vx), RaptorVehicle::finite(vy),
         RaptorVehicle::finite(vz));
-    NativeGroundVideo::set_aircraft(px,py,pz,vx,vy,vz,quaternion_x,quaternion_y,quaternion_z,quaternion_w);
 }
 
 void ed_fm_set_current_state_body_axis(double ax, double ay, double az, double vx, double vy, double vz, double wind_vx, double wind_vy, double wind_vz,

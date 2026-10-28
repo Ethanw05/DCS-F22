@@ -206,6 +206,11 @@ void rejection_and_track() {
   for (unsigned i = 0; i < 10; ++i)
     step();
   CHECK(output.selected.id == 42 && output.selected.velocity_valid && output.selected_type == 2);
+  controls.search = false; // MAP keeps the same acquisition request and sensor owner.
+  for (unsigned i = 0; i < 5; ++i)
+    step();
+  CHECK(output.selected.id == 42 && now - output.selected.stamp < .3);
+  controls.search = true;
   speed = {0, 0, 0};
   for (unsigned i = 0; i < 10; ++i)
     step();
@@ -220,7 +225,7 @@ int main() {
     detection_and_memory();
     rejection_and_track();
     std::cout << "Actual GMT: scene detection, finite processing, measured motion, completed-grant gating, "
-                 "coast/expiry, terrain/speed/cone/presence rejection and acquired stopping target PASS\n";
+                 "coast/expiry, terrain/speed/cone/presence rejection, MAP handoff and acquired stopping target PASS\n";
     return 0;
   } catch (const std::exception &error) {
     std::cerr << error.what() << '\n';

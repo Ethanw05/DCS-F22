@@ -1,9 +1,10 @@
 // GPL-3.0-or-later. Own cockpit source for the shared DCS radar image renderer.
 #pragma once
 class EDPARAM;
+namespace AesaRadar { struct Pose; }
 namespace NativeGroundVideo {
-void set_aircraft(double n,double u,double e,double vn,double vu,double ve,
-                  double qx,double qy,double qz,double qw);
+// Value copy from the owned scene sampler; null explicitly withdraws motion.
+void set_aircraft(const AesaRadar::Pose*, double stamp) noexcept;
 void update(EDPARAM &);
 void reset();
 }

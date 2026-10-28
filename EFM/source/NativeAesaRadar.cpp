@@ -4,6 +4,7 @@
 #include "AesaRadar.h"
 #include "AesaReceiver.h"
 #include "NativeGroundSensor.h"
+#include "NativeGroundVideo.h"
 #include <Cockpit/CockpitAPI_Declare.h>
 #include <Windows.h>
 #include <algorithm>
@@ -818,6 +819,7 @@ void sample(void* radar) noexcept {
     if (!std::isfinite(now) || now - r.stamp < -.01 || now - r.stamp > .5) r.controls.enabled = false;
     Provider provider; Pose pose{};
     const bool pose_valid=provider.pose(pose);
+    NativeGroundVideo::set_aircraft(pose_valid?&pose:nullptr,now);
     if (!pose_valid) r.controls.enabled = false;
     if(r.controls.surface)r.controls.surface_request=NativeGroundSensor::pointing(now,pose);
     const bool updated = model.update(now, r.controls, pose, provider);

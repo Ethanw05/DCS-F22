@@ -3,6 +3,7 @@
 // existing radar-video camera/parameters through its normal virtual interface.
 #include "NativeGroundVideo.h"
 #include "GroundVideoView.h"
+#include "AesaRadar.h"
 #include "GroundVideoProbe.h"
 #include <Cockpit/CockpitAPI_Declare.h>
 #include <Windows.h>
@@ -100,6 +101,12 @@ std::atomic<std::uint64_t> clock_checks{}, future_rejects{}, stale_rejects{};
 std::atomic<double> last_clock_delta_ms{}, max_clock_lead_ms{};
 std::atomic<double> rendered_n{}, rendered_u{}, rendered_e{}, motion_age_ms{}, rendered_heading{};
 GroundVideoView::Guard guard;
+struct ImageState {
+  GroundVideoView::ImageCycle cycle;
+  std::uint64_t generation{}, serial{};
+  void* owner{};
+  bool refresh{};
+} image_state; // Protected by view_mutex; camera getters may use different threads.
 using Release = void(__fastcall *)(void *);
 using Destroy = void *(__fastcall *)(void *,unsigned);
 Release original_release{}; Destroy original_destroy{};
@@ -123,8 +130,9 @@ bool live(const View &v) {
 struct RenderFrame {
   alignas(16) std::array<std::byte,784> camera{};
   View current{};
-  GroundVideoView::ImageCycle cycle{};
-  bool constructed{}, preset{}, valid{},refresh{};
+  std::uint64_t image_serial{};
+  int direction=1;
+  bool constructed{}, preset{}, valid{};
   int preset_key=-1;
   double erased = -1;
   std::uint64_t generation{};
@@ -159,23 +167,27 @@ GroundVideoView::Prepared capture_image(void *object,const View& control,
   if (render.owner!=object || render.generation!=epoch.load()) {
     // Camera has a native constructor and remains alive on this render
     // thread. Reset only our transaction state, never overwrite that object.
-    render.cycle={};render.preset=false;render.preset_key=-1;
-    render.erased=-1;render.refresh=false;
+    render.preset=false;render.preset_key=-1;
+    render.erased=-1;
     render.owner=object;render.generation=epoch.load();
   }
   const auto candidate=GroundVideoView::antenna(control,motion,now);
-  if (GroundVideoView::valid(candidate,now) && render.cycle.capture(candidate)) {
-    render.refresh=true;++image_captures;
-    std::lock_guard<std::mutex> lock(view_mutex);
-    if (render.generation!=epoch.load() || object!=owned.load() || !guard.available()) return {};
+  std::lock_guard<std::mutex> lock(view_mutex);
+  if (render.generation!=epoch.load() || object!=owned.load() || !guard.available()) return {};
+  if (image_state.owner!=object || image_state.generation!=render.generation) {
+    image_state={};image_state.owner=object;image_state.generation=render.generation;
+  }
+  if (GroundVideoView::valid(candidate,now) && image_state.cycle.capture(candidate)) {
+    image_state.refresh=true;++image_state.serial;++image_captures;
     map_reference=candidate;
     reference_generation=render.generation;
     map_reference.heading=candidate.heading+candidate.scan_center;map_reference.scan_center=0;
   }
-  if (!render.cycle.available()) return {};
+  if (!image_state.cycle.available()) return {};
   // An image retained between RF updates keeps its actual capture epoch.
   // Fresh control/ownership admits its display, never a fresh sensor report.
-  const auto& image=render.cycle.image();
+  const auto& image=image_state.cycle.image();
+  render.image_serial=image_state.serial;render.direction=image_state.cycle.direction();
   return GroundVideoView::prepare(image,image.stamp,current);
 }
 const void *__fastcall camera(void *object) {
@@ -186,11 +198,7 @@ const void *__fastcall camera(void *object) {
   const auto safe=capture_image(object,control,motion,now);
   if(safe.accepted)++camera_accepted;
   render.current=safe.view; render.valid=safe.accepted;
-  if(safe.accepted) {
-    const auto& current=safe.view;
-    rendered_n=current.north;rendered_u=current.altitude;rendered_e=current.east;
-    rendered_heading=current.heading;motion_age_ms=(now-motion.stamp)*1000;
-  }
+  if(safe.accepted) motion_age_ms=(now-motion.stamp)*1000;
   if (!render.constructed) { api.camera(render.camera.data(),0); render.constructed=true; }
   const auto p=GroundVideoView::position(safe);
   for (unsigned row=0;row<4;++row)
@@ -209,6 +217,17 @@ void *__fastcall point(void *object,void *out) {
   if (out) std::memcpy(out,p.data(),sizeof(p));
   return out;
 }
+bool submit_parameters(std::array<GroundVideoView::Param,18>& params,std::uintptr_t data,bool& refresh) {
+  std::lock_guard<std::mutex> lock(view_mutex);
+  if (image_state.generation!=render.generation || image_state.serial!=render.image_serial) return false;
+  refresh=image_state.refresh;
+  params[0].number=static_cast<float>(render.direction);
+  params[5].bits=refresh&&render.current.expansion>0?1:0;
+  std::memcpy(reinterpret_cast<void *>(data),params.data(),sizeof(params));
+  image_state.refresh=false;
+  image_state.cycle.submitted();
+  return true;
+}
 void __fastcall parameters(void *object,void *buffer) {
   ++parameter_calls;
   if (!guard.available() || object!=owned.load() || !render.valid || object!=render.owner || render.generation!=epoch.load() || !live(snapshot())) {++parameter_rejected;return;}
@@ -220,18 +239,18 @@ void __fastcall parameters(void *object,void *buffer) {
   }
   const int key=render.current.mode*10+render.current.expansion;
   auto params=GroundVideoView::parameters(render.current,render.erased!=render.current.erase_sequence,!render.preset||render.preset_key!=key);
-  params[0].number=static_cast<float>(render.cycle.direction());
+  bool refresh{};
   // DynamicParam5 requests DBS work. MAP cache renewal uses parameter0;
   // retain one captured camera/point/parameter set for the entire pipeline.
-  params[5].bits=render.refresh&&render.current.expansion>0?1:0;
+  if (!submit_parameters(params,data,refresh)) {++parameter_rejected;return;}
   if(params[5].bits)++dbs_requests;
-  if(render.refresh && render.current.expansion==0)++rbm_restarts;
-  render.refresh=false;render.preset_key=key;
-  std::memcpy(reinterpret_cast<void *>(data),params.data(),sizeof(params));
+  if(refresh && render.current.expansion==0)++rbm_restarts;
+  render.preset_key=key;
   if(params[6].bits)++erase_calls;
   if(params[7].text)++preset_calls;
   render.erased=render.current.erase_sequence;render.preset=true;
-  render.cycle.submitted();
+  rendered_n=render.current.north;rendered_u=render.current.altitude;rendered_e=render.current.east;
+  rendered_heading=render.current.heading;
   frames.fetch_add(1,std::memory_order_relaxed);
   if(gpu_probe_enabled.load()){
     View ref;{std::lock_guard<std::mutex>lock(view_mutex);ref=map_reference;}
@@ -289,22 +308,23 @@ void reset() {
   timing_enabled=false;
   gpu_probe_enabled=false;
   previous_probe={};probe_erase=0;
-  {std::lock_guard<std::mutex> lock(view_mutex);view={};map_reference={};reference_generation=0;aircraft={};}
+  {std::lock_guard<std::mutex> lock(view_mutex);view={};map_reference={};reference_generation=0;aircraft={};image_state={};}
   restore(owned.load());handles.clear();frames=0;guard.reset();epoch.fetch_add(1);
   clock_checks=0;future_rejects=0;stale_rejects=0;last_clock_delta_ms=0;max_clock_lead_ms=0;
   condition_calls=0;condition_accepted=0;camera_calls=0;camera_accepted=0;parameter_calls=0;parameter_rejected=0;erase_calls=0;preset_calls=0;
   image_captures=0;rbm_restarts=0;dbs_requests=0;
 }
-void set_aircraft(double n,double u,double e,double vn,double vu,double ve,
-                  double qx,double qy,double qz,double qw) {
-  const double norm=std::sqrt(qx*qx+qy*qy+qz*qz+qw*qw);
-  if (!api.clock || !std::isfinite(norm) || norm<.9 || norm>1.1) return;
-  for(double x:{n,u,e,vn,vu,ve})if(!std::isfinite(x))return;
-  qx/=norm;qy/=norm;qz/=norm;qw/=norm;
+void set_aircraft(const AesaRadar::Pose* pose,double stamp) noexcept {
   GroundVideoView::Aircraft a;
-  a.valid=true;a.stamp=api.clock();a.north=n;a.altitude=u;a.east=e;
-  a.vn=vn;a.vu=vu;a.ve=ve;
-  a.fn=1-2*(qy*qy+qz*qz);a.fu=2*(qx*qy+qw*qz);a.fe=2*(qx*qz-qw*qy);
+  if (pose && std::isfinite(stamp)) {
+    a={true,stamp,pose->position.n,pose->position.u,pose->position.e,
+       pose->velocity.n,pose->velocity.u,pose->velocity.e,
+       pose->forward.n,pose->forward.u,pose->forward.e};
+    for (double value:{a.north,a.altitude,a.east,a.vn,a.vu,a.ve,a.fn,a.fu,a.fe})
+      if (!std::isfinite(value)) a.valid=false;
+    const double norm=std::hypot(a.fn,a.fu,a.fe);
+    a.valid=a.valid && norm>.99 && norm<1.01;
+  }
   std::lock_guard<std::mutex> lock(view_mutex);aircraft=a;
 }
 void update(EDPARAM &p) {
