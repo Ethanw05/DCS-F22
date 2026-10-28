@@ -16,9 +16,9 @@ conditions are read from achieved physical causes; their 100 psi oil /
 The aircraft provider remains responsible for source, supply, isolation and
 recovery. Individual indications remain independent of display brightness.
 
-`F22_MASTER_ATTENTION` is the published attention owner. Avionics retains its
-legacy fallback only until `F22_FAULT_REGISTRY_READY` is published; it then reads
-the registry instead of forcibly reasserting acknowledged aggregate caution.
+`F22_MASTER_ATTENTION` is the published attention owner. Avionics requires
+`F22_FAULT_REGISTRY_READY` from startup; missing or withdrawn readiness cannot
+substitute aggregate display flags or cockpit animation for registry attention.
 Each `F22_FAULT_<id>_` record publishes VALID/ACTIVE/OCCURRENCE/ACK/ONSET/CLEARED.
 Active/unknown/unacknowledged counts and selected fault/reference are separate.
 The existing ACK also clears a latched AFCS loss without engaging a mode.
@@ -34,4 +34,4 @@ Physical integration: the registry now reads coherent EFM generator, hydraulic, 
 
 Power transitions preserve fault occurrence/history and held physical ACK latches. Audio/pending crossings stop on loss; repeated down events after restoration cannot acknowledge a newly attended condition. Mission initialization/time reversal clears the history. Actual owner tests exercise these transitions.
 
-Current-contract cleanup removes the pre-owner display-color/loose-power condition adapter. Missing physical ownership leaves all eight source-valid flags false from startup; colors and old aggregate flags cannot manufacture fault authority. Actual warning/replay fixtures publish coherent physical samples and low oil pressure, including a new fault after a display-power outage while ACK remains held. The independent source history and actual generator redundancy are preserved. The separate master-attention startup consumer migration remains open.
+Current-contract cleanup removes the pre-owner display-color/loose-power condition adapter. Missing physical ownership leaves all eight source-valid flags false from startup; colors and old aggregate flags cannot manufacture fault authority. Warning input/control power and master-attention consumption now follow the current owners from startup as well. Actual warning/replay fixtures publish coherent physical samples and low oil pressure, including a new fault after a display-power outage while ACK remains held. Independent source history, completed recordings, expiring audio leases and actual generator redundancy are preserved.

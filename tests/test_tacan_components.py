@@ -14,6 +14,7 @@ local radio=dofile(SCRIPT_ROOT..'Systems/Radio_Navigation.lua')
 local own={x=0,y=0,alt=1000,heading=0,gs=200}
 put('MAIN_POWER',1);put('F22_INS_READY',1);put('HUD_MODE',1);put('HUD_FPM_VALID',1)
 put('F22_NAV_SOURCE',1);put('F22_NAV_OBS',1);put('F22_MAG_VALID',1)
+put('F22_NAV_COURSE_SCHEMA',1);put('F22_NAV_COURSE_TRUE',0)
 put('F22_TCN_BRG_VALID',1);put('F22_TCN_RANGE_VALID',1)
 put('F22_TCN_BRG_MAG',math.rad(4));put('F22_TCN_MODE',2)
 for _,range in ipairs({1852,18520,185200})do
@@ -59,5 +60,23 @@ put('F22_NAV_SOURCE',0);put('F22_NAV_OBS',0)
 local route={bearing=0,course=0,cross=-1852,distance=18520,waypoint={id=2}}
 guide(get,put,own,route)
 assert(get('F22_NAV_CDI_SCALE_TEXT')=='CDI 2NM' and get('F22_NAV_CDI')==.5)
+
+-- Only the current canonical true-course contract can authorize OBS steering.
+put('F22_NAV_SOURCE',1);put('F22_NAV_OBS',1);put('F22_TCN_MODE',2)
+put('F22_MAG_VALID',1);put('F22_MAG_DECL',0);put('F22_TCN_BRG_VALID',1)
+put('F22_TCN_RANGE_VALID',1);put('F22_TCN_RANGE_M',18520);put('F22_TCN_BRG_MAG',math.rad(4))
+put('F22_NAV_COURSE_SCHEMA',0);put('F22_NAV_COURSE',0);guide(get,put,own,nil)
+assert(get('F22_NAV_STEER_VALID')==0 and get('F22_NAV_CDI_VALID')==0,
+ 'missing canonical course used the deprecated raw course for OBS')
+put('F22_NAV_COURSE_SCHEMA',1);put('F22_NAV_COURSE_TRUE',0);guide(get,put,own,nil)
+assert(get('F22_NAV_STEER_VALID')==1 and get('F22_NAV_CDI_VALID')==1)
+for _,course in ipairs({-1,360,0/0})do
+ put('F22_NAV_COURSE_TRUE',course);guide(get,put,own,nil)
+ assert(get('F22_NAV_STEER_VALID')==0 and get('HUD_NAV_STEER_VALID')==0 and get('F22_NAV_CDI_VALID')==0,
+  'invalid canonical course acquired OBS authority')
+end
+put('F22_NAV_SOURCE',0);guide(get,put,own,route)
+assert(get('F22_NAV_STEER_VALID')==0 and get('HUD_NAV_STEER_VALID')==0 and get('F22_NAV_CDI_VALID')==0,
+ 'invalid selected OBS course silently reverted to waypoint direct steering')
 ''')
 print('TACAN: angular/range independence, TO/FROM, REC/TR/A-A, range-only data, reference loss, invalid inputs and separate waypoint scale PASS')
