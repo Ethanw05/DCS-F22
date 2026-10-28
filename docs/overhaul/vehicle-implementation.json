@@ -255,7 +255,8 @@
         "pitch-priority finite collective/differential allocation",
         "single-engine approach eligibility output",
         "manual trim preserved and degraded scheduling bounded",
-        "held joystick roll ownership survives unrelated/opposite keyboard releases; actual DLL regression failed before correction and passes after"
+        "held joystick roll ownership survives unrelated/opposite keyboard releases; actual DLL regression failed before correction and passes after",
+        "matching keyboard releases preserve held pitch/roll/pedal authority and ignore opposite-key releases; actual DLL before/after regression"
       ],
       "remaining": [
         "independent EDM surface-angle qualification",
@@ -282,7 +283,8 @@
         },
         "all_acceptance_confirmed": false
       },
-      "input_release_regression": "../roll-input-ownership.md"
+      "input_release_regression": "../roll-input-ownership.md",
+      "current_priority": "User prioritizes airborne systems and handling; refine the existing estimated flight-control law in separately verified steps. Ground-system additions are deferred."
     },
     {
       "id": "VEH-08",
