@@ -40,7 +40,8 @@ std::array<void*,58> target_methods{};
 Object own_unit{}, target_unit{target_methods.data()};
 std::array<void*,5> ecm_methods{};
 EcmView target_ecm{ecm_methods.data(),&target_unit,1};
-bool ecm_on{};
+bool ecm_on{}, own_ecm_on{};
+EcmView own_ecm{ecm_methods.data(),&own_unit,1};
 void* borrowed_ecm = &target_ecm;
 unsigned receiver_visits = 1, ecm_reads{};
 void* manager_pointer = &manager;
@@ -63,8 +64,8 @@ bool dead(const void*) { return false; }
 unsigned id(void*) { return 42; }
 void* registration(void*) { return &registered; }
 void* unit(void*) { return &target_unit; }
-bool flag(const void* object, int mask) { return object==&target_unit && mask==8 && ecm_on; }
-void* get_ecm(void*) { ++ecm_reads; return borrowed_ecm; }
+bool flag(const void* object, int mask) { return mask==8 && ((object==&target_unit && ecm_on) || (object==&own_unit && own_ecm_on)); }
+void* get_ecm(void* object) { ++ecm_reads; return object==&own_unit ? &own_ecm : borrowed_ecm; }
 void query(void*, const Box&, unsigned, const Query& visitor) {
     ++queries;
     for(unsigned i=0;i<receiver_visits;++i)if(visitor(*reinterpret_cast<Scene*>(&scene)))break;
@@ -75,6 +76,7 @@ const char* intersection(const Scene&, const Vector&, const Vector&, Vector&, do
 void emitter(bool value) { emitting = value; }
 void fixture() {
     reset(); repair(); values.clear();
+    ecm_on=false;own_ecm_on=false;own_unit.table=target_methods.data();own_ecm={ecm_methods.data(),&own_unit,1};
     for (auto& function : driver_methods) function = reinterpret_cast<void*>(&nothing);
     driver_methods[0] = nullptr; driver_methods[1] = reinterpret_cast<void*>(&destroy);
     driver_methods[7] = reinterpret_cast<void*>(&tick); driver_methods[16] = nullptr;
@@ -244,7 +246,7 @@ void surface_publication() {
     p.ed_param_api.pfn_ed_cockpit_update_parameter_with_number=put;
     p.ed_param_api.pfn_ed_cockpit_parameter_value_to_number=get;
     CHECK(parameters.bind(p));
-    static Snapshot state;state={};state.epoch=epoch.load();
+    static Snapshot state;state.status={};state.epoch=epoch.load();state.own_effect={};
     auto& status=state.status;status.ready=true;status.time=now;status.interference.valid=true;
     status.surface_sequence=9;status.surface_service=false;
     status.surface_beam.surface_search=true;status.surface_beam.surface_cells=308;
@@ -256,9 +258,28 @@ void surface_publication() {
     CHECK(values["F22_AESA_SURFACE_DISCOVERY_SEQUENCE"]==7);
     CHECK(values["F22_AESA_SURFACE_DISCOVERY_WORK"]==7.0/308);
 }
+void own_effect_publication() {
+    fixture();static EDPARAM p;
+    p.ed_param_api.pfn_ed_cockpit_get_parameter_handle=handle;
+    p.ed_param_api.pfn_ed_cockpit_update_parameter_with_number=put;
+    p.ed_param_api.pfn_ed_cockpit_parameter_value_to_number=get;
+    values["F22_AESA_REQUEST"]=0;values["F22_AESA_CONTROL_EMIT"]=0;
+    update(p);driver_update(&driver);update(p);
+    CHECK(values["F22_AESA_READY"]==0 && values["F22_NATIVE_ECM_VALID"]==1);
+    CHECK(values["F22_NATIVE_ECM_ACTIVE"]==0 && values["F22_NATIVE_ECM_TIME"]==now);
+    own_ecm_on=true;now+=.01;driver_update(&driver);update(p);
+    CHECK(values["F22_NATIVE_ECM_VALID"]==1 && values["F22_NATIVE_ECM_ACTIVE"]==1);
+    CHECK(!emitting); // Own ECM effect is independent of radar emission.
+    now+=.3;update(p);CHECK(values["F22_NATIVE_ECM_VALID"]==0);
+    own_ecm.owner=&target_unit;driver_update(&driver);update(p);
+    CHECK(values["F22_NATIVE_ECM_VALID"]==0 && values["F22_NATIVE_ECM_ACTIVE"]==0);
+    own_ecm.owner=&own_unit;own_ecm_on=false;now+=.01;driver_update(&driver);update(p);
+    CHECK(values["F22_NATIVE_ECM_VALID"]==1 && values["F22_NATIVE_ECM_ACTIVE"]==0);
+    reset();update(p);CHECK(values["F22_NATIVE_ECM_VALID"]==0);
+}
 }
 int main() {
-    try { scenarios(); receiver_scenarios(); receiver_authority(); surface_publication(); std::cout << "Owned native AESA: scene provider, noisy reports, avLua clock lifetime, "
+    try { scenarios(); receiver_scenarios(); receiver_authority(); surface_publication(); own_effect_publication(); std::cout << "Owned native AESA: scene provider, noisy reports, avLua clock lifetime, "
         "context responder registration, actual virtual target/support calls, expiry and teardown PASS\n"; return 0; }
     catch (const std::exception& error) { std::cerr<<error.what()<<'\n'; return 1; }
 }

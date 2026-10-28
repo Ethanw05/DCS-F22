@@ -95,6 +95,7 @@ function M.new(get,put,sensors)
    put(p..'RF',t and t.observations and t.observations.rf and 1 or 0)
    local ir,signal,coast=false,0,false
    if t then ir,signal,coast=warning(t)end
+   put(p..'RF_CURRENT',signal>0 and 1 or 0)
    if donor and (donor.observation_known==false or now-donor.time>Datalink.coast)then coast=true end
    put(p..'COAST',coast and 1 or 0)
    put(p..'ALERT',(ir or signal>=3)and 1 or 0)

@@ -1,5 +1,7 @@
 -- GPL-3.0-or-later. Awareness association; never grants radar or weapon authority.
 local M = { maximum = 160 }
+local RF=dofile(LockOn_Options.script_path..'Systems/Tactical_RF_Association.lua')
+local History=dofile(LockOn_Options.script_path..'Systems/Tactical_Radar_History.lua')
 local axes = {'n','u','e','vn','vu','ve'}
 local order = {'radar','rf','mws','datalink'}
 local function finite(v) return type(v)=='number' and v==v and math.abs(v)<1e9 end
@@ -25,8 +27,13 @@ local function current(entry,now)
     return now-entry.observation.time <= (entry.sensor=='datalink' and 13 or 1)
 end
 local function compatible(a,b,now)
-    if a.sensor==b.sensor or not current(a,now) or not current(b,now) then return false end
+    if a.sensor==b.sensor then return false end
     local x,y=a.observation,b.observation
+    local matched
+    if a.sensor=='radar' and b.sensor=='rf' then matched=RF.match(x,y,now,a.history)
+    elseif b.sensor=='radar' and a.sensor=='rf' then matched=RF.match(y,x,now,b.history) end
+    if matched~=nil then return matched end
+    if not current(a,now) or not current(b,now) then return false end
     if math.abs(angular(x.az,y.az))>math.rad(3) or math.abs(x.el-y.el)>math.rad(3) then return false end
     local an,au,ae=a.n,a.u,a.e
     local bn,bu,be=b.n,b.u,b.e
@@ -60,9 +67,10 @@ local function prepare_entry(entry,o,sensor,id,index,now)
     entry.n,entry.u,entry.e=known_position(o,now)
 end
 function M.new()
-    local state={entries={},identities={},scratch={},next_id=1}
-    function state:reset() clear(self.identities);clear(self.scratch) end
+    local state={entries={},identities={},scratch={},next_id=1,history=History.new()}
+    function state:reset() clear(self.identities);clear(self.scratch);clear(self.history.tracks) end
     function state:prepare(batches,now,limits)
+        self.history:update(batches.radar,now)
         local count,active=0,self.scratch
         clear(active)
         for _,sensor in ipairs(order) do
@@ -80,6 +88,7 @@ function M.new()
                         self.entries[count]=entry
                     end
                     prepare_entry(entry,o,sensor,id,count,now)
+                    entry.history=sensor=='radar' and self.history.tracks[o.source] or nil
                 end
             end
         end

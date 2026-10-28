@@ -4,6 +4,8 @@ return function(api, layout, gain, root)
 	local identity=dofile(LockOn_Options.script_path..'Systems/Tactical_Identity.lua')
 	group("F22_TSD_OVERLAY", { "F22_TSD_VALID" }, { { "parameter_in_range", 0, 0.9, 1.1 } }, root)
 	local parent = "F22_TSD_OVERLAY"
+    dofile(LockOn_Options.script_path..'Systems/ECM_Indicator.lua')(
+        api,.68,-.82,parent,'F22_TSD_OWN_ECM',.0033)
 	-- Both pictures are published by the RWR owner. Its independent MFD
 	-- watchdog also withdraws these estimates if that owner stops updating.
 	group("F22_TSD_GEO_CURRENT", { "F22_DEF_OV_CURRENT" }, { { "parameter_in_range", 0, .9, 1.1 } }, parent)

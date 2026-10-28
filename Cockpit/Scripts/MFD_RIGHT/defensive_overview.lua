@@ -27,6 +27,11 @@ local function line(x,y,u,v,color,parent,width)
  e.vertices={{x*D.scale,y*D.scale},{u*D.scale,v*D.scale}};e.indices={0,1};e.thickness=width or .8;e.fuzziness=.2
  return D.add(e,parent or D.root)
 end
+local ecm_api={group=function(_,params,controllers,parent)return group(params,controllers,parent)end,
+ line=line,text=function(value,x,y,param,color,parent,size)return D.text(value,x,y,param,color,size,parent)end}
+local coverage=dofile(LockOn_Options.script_path..'Systems/ECM_Coverage_Indicator.lua')
+dofile(LockOn_Options.script_path..'Systems/ECM_Indicator.lua')(
+ ecm_api,.63,-.43,primary,prefix..'_OWN_ECM',.0032)
 local function circle(x,y,r,color,parent,width)
  local vertices,indices={},{}
  for i=0,72 do
@@ -70,6 +75,7 @@ for i=1,16 do
  local p=string.format('F22_DEF_OV_%02d_',i)
  local at=group({p..'X',p..'Y',p..'VALID'},{{'move_left_right_using_parameter',0,1},{'move_up_down_using_parameter',1,1},{'parameter_in_range',2,.9,1.1}},current,0,cy)
  local bearing=group({p..'ROT'},{{'rotate_using_parameter',0,1}},at)
+ coverage(ecm_api,bearing,prefix..'_COVERAGE_'..i,1,{p..'RF_CURRENT'},{{'parameter_in_range',0,.9,1.1}})
  for _,aff in ipairs({{-1,'yellow'},{0,'red'},{1,'green'},{3,'cyan'}})do
   local colored=D.choice(p..'AFFILIATION',aff[1],bearing)
   -- A bearing stem does not assert target heading. Open outer-ring ticks have

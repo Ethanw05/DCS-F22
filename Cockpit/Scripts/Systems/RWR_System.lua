@@ -173,7 +173,8 @@ function update()
 		end
 	end
 	receiver:update(observations, ready and powered)
-	bearings:update(clock, bearing_library.frame(sensors), receiver.contacts, ready and powered)
+	bearings:update(clock, bearing_library.frame(sensors), receiver.contacts, ready and powered,
+        geolocation_library.position(sensors))
     -- Radar track numbers and RF source numbers are separate namespaces.
     -- Radar/donor identification belongs to geometry-qualified tactical fusion.
 	for source, id in pairs(identity_memory) do

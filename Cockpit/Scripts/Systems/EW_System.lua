@@ -4,6 +4,7 @@ dofile(LockOn_Options.script_path .. 'devices.lua')
 local decode = dofile(LockOn_Options.script_path .. 'Systems/Input_Value.lua')
 local library = dofile(LockOn_Options.script_path .. 'Systems/EW_Programs.lua')
 local dispenser = dofile(LockOn_Options.script_path .. 'Systems/EW_Dispenser.lua')
+local ecm_status = dofile(LockOn_Options.script_path .. 'Systems/ECM_Status.lua')
 local dispenser_methods = {'drop_flare','drop_chaff','get_flare_count','get_chaff_count'}
 local handles, held = {}, {}
 local programs = library.new()
@@ -17,7 +18,8 @@ local inventory_valid = false
 local status_outputs = {'F22_EW_BACKEND_READY', 'F22_CM_INVENTORY_VALID', 'F22_CHAFF_COUNT',
     'F22_FLARE_COUNT', 'CHAFF_LIGHT', 'FLARE_LIGHT', 'F22_CM_LOW', 'F22_CM_FAILURE', 'ECM_ARG',
     'F22_ECM_REQUESTED', 'F22_ECM_ACTIVE', 'F22_ECM_HOST_VALID', 'F22_ECM_TRANSMITTING_VALID',
-    'F22_ECM_TRANSMITTING', 'F22_ECM_FAILED', 'F22_ECM_PENDING', 'F22_ECM_CONTROL_READY'}
+    'F22_ECM_TRANSMITTING', 'F22_ECM_FAILED', 'F22_ECM_PENDING', 'F22_ECM_CONTROL_READY',
+    'F22_ECM_DISPLAY_STATE', 'F22_ECM_EFFECT_TIME'}
 local function read(name)
     if not handles[name] then handles[name] = get_param_handle(name) end
     return handles[name]:get()
@@ -200,8 +202,13 @@ local function update_ecm(device)
     publish('F22_ECM_REQUESTED', requested and 1 or 0)
     publish('F22_ECM_ACTIVE', valid and actual and 1 or 0) -- Host enabled, not radiation proof.
     publish('F22_ECM_HOST_VALID', valid and 1 or 0)
-    publish('F22_ECM_TRANSMITTING_VALID', 0) -- Host flag supplies no radiation observation.
-    publish('F22_ECM_TRANSMITTING', 0)
+    local effect_valid,transmitting,stamp=ecm_status.effect(read,clock_valid and clock or nil)
+    -- This is the qualified common simulator effect, not RF watts or a
+    -- claim that another aircraft's receiver has been affected.
+    publish('F22_ECM_TRANSMITTING_VALID', effect_valid and 1 or 0)
+    publish('F22_ECM_TRANSMITTING', transmitting and 1 or 0)
+    publish('F22_ECM_EFFECT_TIME',stamp)
+    publish('F22_ECM_DISPLAY_STATE',ecm_status.state(requested,valid,actual,set_failed,effect_valid,transmitting))
     publish('F22_ECM_FAILED', set_failed and 1 or 0)
     publish('F22_ECM_PENDING', (not valid and requested or valid and actual ~= requested) and 1 or 0)
     publish('F22_ECM_CONTROL_READY', supply.mission and valid and control and not set_failed and 1 or 0)

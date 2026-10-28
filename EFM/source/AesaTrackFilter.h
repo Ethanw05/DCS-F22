@@ -60,7 +60,6 @@ inline bool valid_sample(const Sample& s) noexcept {
         && s.rate_sigma >= .01 && s.rate_sigma <= 1000 && (!s.rate_valid || std::abs(s.range_rate) <= 4000);
 }
 class Filter {
-    enum class Kind { range, azimuth, elevation, rate };
     struct Linearization { Jacobian h{};double residual{}, variance{};bool valid{}; };
     Estimate state_{};
     void initialize(const Sample& s) noexcept {
@@ -94,25 +93,53 @@ class Filter {
         }
         return p;
     }
-    static Linearization geometry(const Estimate& p, const Sample& s, Kind kind) noexcept {
-        const auto d = difference(p.position,s.origin);
-        const double f = dot(d,s.forward), u = dot(d,s.up), r = dot(d,s.right);
-        const double horizontal2 = f*f+r*r, range2 = horizontal2+u*u;
-        if (horizontal2 < 1 || range2 < 1) return {};
-        const double range = std::sqrt(range2), horizontal = std::sqrt(horizontal2);
-        Linearization m{};m.valid = true;
-        if (kind == Kind::range) {
-            m.residual = s.range-range;m.variance = s.range_sigma*s.range_sigma;
-            for (std::size_t i=0;i<3;++i) m.h[i]=d[i]/range;
-        } else if (kind == Kind::azimuth) {
-            m.residual = std::remainder(s.azimuth-std::atan2(r,f),2*pi);m.variance=s.angle_sigma*s.angle_sigma;
-            for (std::size_t i=0;i<3;++i) m.h[i]=(f*s.right[i]-r*s.forward[i])/horizontal2;
-        } else {
-            m.residual=s.elevation-std::atan2(u,horizontal);m.variance=s.angle_sigma*s.angle_sigma;
-            for (std::size_t i=0;i<3;++i)
-                m.h[i]=(horizontal*s.up[i]-u*(f*s.forward[i]+r*s.right[i])/horizontal)/range2;
+    using PositionMatrix = std::array<Vector,3>;
+    static PositionMatrix position_noise(const Sample& s) noexcept {
+        const auto radial = measured_direction(s);
+        Vector azimuth{}, elevation{};
+        for (std::size_t i=0;i<3;++i) {
+            azimuth[i]=s.range*std::cos(s.elevation)*(-s.forward[i]*std::sin(s.azimuth)+s.right[i]*std::cos(s.azimuth));
+            elevation[i]=s.range*(-s.forward[i]*std::sin(s.elevation)*std::cos(s.azimuth)
+                -s.right[i]*std::sin(s.elevation)*std::sin(s.azimuth)+s.up[i]*std::cos(s.elevation));
         }
-        return m;
+        PositionMatrix result{};
+        for (std::size_t i=0;i<3;++i) for (std::size_t j=0;j<3;++j)
+            result[i][j]=radial[i]*radial[j]*s.range_sigma*s.range_sigma
+                +(azimuth[i]*azimuth[j]+elevation[i]*elevation[j])*s.angle_sigma*s.angle_sigma;
+        return result;
+    }
+    static bool whiten(const PositionMatrix& covariance, PositionMatrix& inverse) noexcept {
+        PositionMatrix lower{};
+        for (std::size_t i=0;i<3;++i) for (std::size_t j=0;j<=i;++j) {
+            double value=covariance[i][j];
+            for (std::size_t k=0;k<j;++k) value-=lower[i][k]*lower[j][k];
+            if (i==j && (!std::isfinite(value) || value<=0)) return false;
+            lower[i][j]=i==j ? std::sqrt(value) : value/lower[j][j];
+        }
+        for (std::size_t column=0;column<3;++column) for (std::size_t i=0;i<3;++i) {
+            double value=i==column ? 1.0 : 0.0;
+            for (std::size_t k=0;k<i;++k) value-=lower[i][k]*inverse[k][column];
+            inverse[i][column]=value/lower[i][i];
+        }
+        return true;
+    }
+    static bool position_update(Estimate& p,const Sample& s,double& score) noexcept {
+        PositionMatrix inverse{};
+        if (!whiten(position_noise(s),inverse)) return false;
+        auto measured=measured_direction(s);
+        for (std::size_t i=0;i<3;++i) measured[i]=s.origin[i]+s.range*measured[i];
+        // Convert the measured angles, not the uncertain prediction. Whiten
+        // their full correlated Cartesian noise before linear corrections.
+        // This avoids angular EKF linearization collapse on tentative revisits.
+        for (std::size_t row=0;row<3;++row) {
+            Linearization m{};m.valid=true;m.variance=1;
+            for (std::size_t i=0;i<3;++i) {
+                m.h[i]=inverse[row][i];
+                m.residual+=m.h[i]*(measured[i]-p.position[i]);
+            }
+            if (!correct(p,m,score)) return false;
+        }
+        return true;
     }
     static Linearization doppler(const Estimate& p,const Sample& s) noexcept {
         const auto d=difference(p.position,s.origin), v=difference(p.velocity,s.own_velocity);
@@ -143,8 +170,7 @@ class Filter {
         return true;
     }
     bool update(Estimate& p,const Sample& s,double& score) const noexcept {
-        for(const auto kind:{Kind::range,Kind::azimuth,Kind::elevation})
-            if (!correct(p,geometry(p,s,kind),score)) return false;
+        if (!position_update(p,s,score)) return false;
         return !s.rate_valid || correct(p,doppler(p,s),score);
     }
     static bool usable(const Estimate& p) noexcept {

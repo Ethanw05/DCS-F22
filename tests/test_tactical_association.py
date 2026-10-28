@@ -40,5 +40,47 @@ store=Tracks.new()
 store:update(30,{datalink=batch(1,30,{donor(100,20000,true),donor(101,40000,true)})},true)
 assert(#store.contacts==2,'different reporters sharing track1 overwrote each other')
 assert(store.contacts[1].datalink.reporter~=store.contacts[2].datalink.reporter)
+-- An RF bearing belongs to its measured origin and epoch. A close moving
+-- contact has changed body bearing by 22 degrees two seconds later.
+local function moving(time,source)
+ local east=(time-30)*200
+ return {source=source or 71,age=0,az=math.atan2(east,1000),el=0,range=math.sqrt(1e6+east^2),
+  n=1000,u=0,e=east,vn=0,vu=0,ve=200,velocity_valid=true,position_sigma_m=2,velocity_sigma_mps=2}
+end
+local function passive(time,source)
+ return {source=source or 70001,age=time-30,az=0,el=0,signal=1,world={1,0,0},
+  bearing_origin={n=0,u=0,e=0,time=30}}
+end
+store=Tracks.new()
+for tick=0,40 do
+ local now=30+tick*.05
+ store:update(now,{radar=batch(tick+1,now,{moving(now)}),rf=batch(tick+1,now,{passive(now)})},true)
+ assert(#store.contacts==1 and store.contacts[1].mask==3,'delayed RF split the measured moving aircraft')
+end
+-- Measured history also survives a later maneuver; no backwards straight-line
+-- velocity is substituted for an available observation at RF reception time.
+local r=moving(32.05);r.ve=-300;r.n=800;r.az=.6
+store:update(32.05,{radar=batch(42,32.05,{r}),rf=batch(42,32.05,{passive(32.05)})},true)
+assert(#store.contacts==1)
+-- Two candidates at the old RF epoch remain ambiguous despite different IDs.
+store=Tracks.new()
+store:update(32,{radar=batch(1,32,{moving(32,10),moving(32,11)}),
+ rf=batch(1,32,{passive(32)})},true)
+assert(#store.contacts==3)
+-- Missing epoch/origin or uncertain velocity never invents a delayed match.
+store=Tracks.new();local rf=passive(32);rf.bearing_origin=nil
+store:update(32,{radar=batch(1,32,{moving(32)}),rf=batch(1,32,{rf})},true)
+assert(#store.contacts==2)
+store=Tracks.new();r=moving(32);r.velocity_valid=false
+store:update(32,{radar=batch(1,32,{r}),rf=batch(1,32,{passive(32)})},true)
+assert(#store.contacts==2)
+local History=dofile(SCRIPT_ROOT..'Systems/Tactical_Radar_History.lua')
+local history=History.new()
+for tick=0,300 do local t=30+tick*.05;local p=moving(t);p.time=t
+ history:update({contacts={[71]=p}},t)end
+assert(history.tracks[71].count==128 and #history.tracks[71].samples==128)
+assert(not History.at(history.tracks[71],30))
+assert(History.at(history.tracks[71],44.975))
+history:update({contacts={}},45.1);assert(next(history.tracks)==nil)
 ''')
 print('Tactical association: different/equal IDs, geometry divergence, ambiguous bearing, qualified/unknown donor and reporter namespaces PASS')

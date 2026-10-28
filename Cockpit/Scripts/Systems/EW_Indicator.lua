@@ -1,7 +1,10 @@
 -- GPL-3.0-or-later. Shared original bearing-only threat symbology.
 return function(api, cx, cy, scale, parent, compact)
 	local line, text, group = api.line, api.text, api.group
+	dofile(LockOn_Options.script_path..'Systems/ECM_Indicator.lua')(
+        api,cx,cy-.98*scale,parent,parent..'_OWN_ECM',compact and .0027 or .0038)
 	local symbols = dofile(LockOn_Options.script_path .. "Systems/RWR_Computer.lua").symbols
+    local coverage=dofile(LockOn_Options.script_path..'Systems/ECM_Coverage_Indicator.lua')
 	local function segment(x, y, u, v, c, p)
 		line(cx + x * scale, cy + y * scale, cx + u * scale, cy + v * scale, c, p or parent)
 	end
@@ -34,6 +37,8 @@ return function(api, cx, cy, scale, parent, compact)
 			cx,
 			cy
 		)
+		coverage(api,name,name..'_ECM_COVERAGE',scale,{p..'AZ',p..'COAST'},
+            {{'rotate_using_parameter',0,1},{'parameter_in_range',1,-.1,.1}})
 		for signal, color in ipairs({ "yellow", "red", "red" }) do
 			local sym = name .. "_STATE_" .. signal
 			group(sym, { p .. "SIGNAL" }, { { "parameter_in_range", 0, signal - 0.1, signal + 0.1 } }, name)

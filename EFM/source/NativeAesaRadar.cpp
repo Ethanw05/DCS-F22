@@ -209,6 +209,9 @@ class Provider final : public Environment {
         return query.known ? 0 : 1;
     }
 public:
+    bool own_effect(bool& active, double& strength) const noexcept {
+        return own_ && effect_strength(own_,active,strength);
+    }
     bool interference(double now, const Pose& pose, const Beam& beam,
                       Interference& result, QueryStats& stats) noexcept override {
         using Search = void(__fastcall*)(void*, const Box&, unsigned, const Query&);
@@ -304,7 +307,8 @@ public:
     }
 };
 struct Request { Controls controls{}; double stamp = -100; };
-struct Snapshot { Status status{}; std::array<Measurement, maximum_tracks> measurements{}; std::array<Binding, maximum_tracks> bindings{}; std::uint64_t epoch{}; };
+struct OwnEffect { bool valid{}, active{}; double time = -100; };
+struct Snapshot { Status status{}; std::array<Measurement, maximum_tracks> measurements{}; std::array<Binding, maximum_tracks> bindings{}; std::uint64_t epoch{}; OwnEffect own_effect{}; };
 SRWLOCK state_lock = SRWLOCK_INIT;
 Request request;
 Snapshot snapshot;
@@ -339,7 +343,8 @@ struct Parameters {
         "F22_AESA_SURFACE_EL", "F22_AESA_SURFACE_HALF", "F22_AESA_SURFACE_RANGE", "F22_AESA_SURFACE_TIME",
         "F22_AESA_SURFACE_SEARCH", "F22_AESA_SURFACE_CELLS",
         "F22_AESA_INTERFERENCE_VALID", "F22_AESA_INTERFERENCE_JNR", "F22_AESA_INTERFERENCE_TIME", "F22_AESA_INTERFERENCE_SOURCES",
-        "F22_AESA_SURFACE_DISCOVERY_SEQUENCE", "F22_AESA_SURFACE_DISCOVERY_WORK"};
+        "F22_AESA_SURFACE_DISCOVERY_SEQUENCE", "F22_AESA_SURFACE_DISCOVERY_WORK",
+        "F22_NATIVE_ECM_VALID", "F22_NATIVE_ECM_ACTIVE", "F22_NATIVE_ECM_TIME", "F22_NATIVE_ECM_GENERATION"};
     static constexpr std::array fields{"VALID", "ID", "TIME", "N", "U", "E", "VN", "VU", "VE",
         "VELOCITY_VALID", "RANGE_SIGMA_M", "ANGLE_SIGMA_RAD", "HITS",
         "FILTER_VALID", "POSITION_SIGMA_M", "VELOCITY_SIGMA_MPS", "RAW_N", "RAW_U", "RAW_E",
@@ -481,6 +486,16 @@ struct Parameters {
         gated(p,43,1,known);gated(p,44,q.interference.noise_ratio,known);
         p.setParamNumber(outputs[45],known?q.interference.time:-100);
         gated(p,46,q.interference.sources,known);
+    }
+    void publish_own_effect(EDPARAM& p, const Snapshot& s, double now) noexcept {
+        // The shared native callback samples ECM even with radar OFF. Never
+        // infer an effect from the cockpit switch or our receiver's readiness.
+        const auto& effect=s.own_effect;
+        const bool known=effect.valid && s.epoch==epoch.load(std::memory_order_acquire)
+            && std::isfinite(now) && now>=effect.time && now-effect.time<=.25;
+        gated(p,49,1,known);gated(p,50,effect.active ? 1 : 0,known);
+        p.setParamNumber(outputs[51],known ? effect.time : -100);
+        p.setParamNumber(outputs[52],static_cast<double>(s.epoch));
     }
     void publish_status(EDPARAM& p, const Snapshot& s, bool fresh, unsigned count) noexcept {
         const auto& q = s.status;
@@ -649,7 +664,7 @@ void reset() noexcept {
     if (responder_slot && readable(responder_slot, sizeof(void*)) && *responder_slot == &responder)
         InterlockedCompareExchangePointer(reinterpret_cast<PVOID volatile*>(responder_slot), nullptr, &responder);
     driver_slot = nullptr; driver_original = nullptr; responder_slot = nullptr;
-    AcquireSRWLockExclusive(&state_lock); request = {}; snapshot.status = {}; snapshot.epoch = 0;
+    AcquireSRWLockExclusive(&state_lock); request = {}; snapshot.status = {}; snapshot.epoch = 0; snapshot.own_effect = {};
     for (auto& measurement : snapshot.measurements) measurement = {};
     parameters.published_id.fill(0);
     parameters.bound = false;
@@ -663,12 +678,17 @@ void sample(void* radar) noexcept {
     const double now = api.clock();
     if (!std::isfinite(now) || now - r.stamp < -.01 || now - r.stamp > .5) r.controls.enabled = false;
     Provider provider; Pose pose{};
-    if (!provider.pose(pose)) r.controls.enabled = false;
+    const bool pose_valid=provider.pose(pose);
+    if (!pose_valid) r.controls.enabled = false;
     if(r.controls.surface)r.controls.surface_request=NativeGroundSensor::pointing(now,pose);
     const bool updated = model.update(now, r.controls, pose, provider);
     // Receiver qualification loss does not stop an otherwise commanded RF dwell.
     api.emitter(model.status().emitting && r.controls.emit);
     auto& next = sensor_scratch;
+    next.own_effect={};
+    double strength=0;
+    next.own_effect.valid=pose_valid && std::isfinite(now) && provider.own_effect(next.own_effect.active,strength);
+    next.own_effect.time=now;
     next.status = model.status(); next.measurements = model.measurements();
     next.bindings = model.bindings(); next.epoch = generation;
     if (!updated) next.status.ready = false;
@@ -692,6 +712,7 @@ void update(EDPARAM& p) noexcept {
     AcquireSRWLockExclusive(&state_lock); request = next; publication_scratch = snapshot;
     ReleaseSRWLockExclusive(&state_lock);
     parameters.publish(p, publication_scratch, now, available && next.controls.enabled);
+    parameters.publish_own_effect(p,publication_scratch,now);
     // These are shared compatibility endpoints backed entirely by our provider.
     p.setParamNumber(parameters.outputs[17], driver_ready ? 1 : 0);
     p.setParamNumber(parameters.outputs[18], support_ready ? 1 : 0);

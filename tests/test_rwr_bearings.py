@@ -72,6 +72,14 @@ c=observation(3,1,.5);b:update(0,frame(1),{c},true)
 assert(not c.bearing_compensated,'rewind retained a previous mission direction')
 b:update(.05,nil,{c},true);assert(next(b.tracks)==nil)
 assert(Bearings.frame({getHeading=function()return 0/0 end})==nil)
+-- Ownship origin is retained at the same RF measurement epoch as its world
+-- direction, including a late read and subsequent compensated display turns.
+b=Bearings.new()
+for tick=0,40 do local t=tick*.05;b:update(t,frame(0),{},true,{n=t*200,u=3000,e=t*50})end
+c=observation(88,1,.3,.1);b:update(2,frame(0),{c},true,{n=400,u=3000,e=100})
+assert(c.bearing_origin and c.bearing_origin.time==1 and c.bearing_origin.n==200 and c.bearing_origin.e==50)
+c=observation(88,1.05,.3,.1);b:update(2.05,frame(.5),{c},true,{n=410,u=3000,e=102.5})
+assert(c.bearing_origin.time==1 and c.bearing_origin.n==200)
 ''')
 print('RWR bearing compensation: 2,400 combined attitude cases, age skew, late receptions, wrap, identity and lifecycle PASS')
 

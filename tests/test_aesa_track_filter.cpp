@@ -117,8 +117,49 @@ void replay(const char* path) {
     std::cout<<"Archived position-only replay: "<<accepted<<"/"<<count<<" reports accepted, mean velocity step "
         <<filtered_steps/(count-21)<<" m/s (raw "<<raw_steps/(count-21)<<"). No recorded Doppler exists.\n";
 }
+void tentative_revisit() {
+    Filter filter;
+    // One nose observation leaves transverse motion unobserved. Three seconds
+    // later a close crossing has moved far from that weak prior's mean.
+    const Vector velocity{-150,5,-75};
+    auto s=measure(0,{1690,3000,500},velocity);
+    s.range_sigma=7.6;s.angle_sigma=.00035;s.rate_sigma=.25;
+    CHECK(filter.observe(s) && !filter.state().velocity_valid);
+    auto revisit=measure(3.3,{1195,3016.5,252.5},velocity,.25);
+    revisit.range_sigma=7.6;revisit.angle_sigma=.00035;revisit.rate_sigma=.25;
+    CHECK(filter.association_score(revisit)<36 && filter.observe(revisit));
+    CHECK(length(difference(filter.state().position,{1195,3016.5,252.5}))<20);
+    revisit=measure(3.34,{1189,3016.7,249.5},velocity,.3);
+    revisit.range_sigma=7.6;revisit.angle_sigma=.00035;revisit.rate_sigma=1.25;
+    CHECK(filter.association_score(revisit)<36 && filter.observe(revisit));
+    CHECK(filter.state().hits==3);
+    covariance(filter.state());
+}
+void recorded_tentative_revisit() {
+    // Three actual measured packets from the reported Oct27 flight. The old
+    // angular update accepted packet2, then spawned another track at packet3.
+    const std::array samples{
+        Sample{{-248077.344,2798.5918,729305.375},{200.917679,-6.02442503,90.7735748},
+            {.911207438,-.0148753859,.411679119},{.0135567393,.999889374,.00612306548},
+            {-.411724657,.00000164378434,.911308289},
+            1.09,1756.17234,-.129725556,.0146295965,-386.377674,7.58814259,.00034906585,.25},
+        Sample{{-247391.375,2775.35156,729613.938},{214.128738,1.46931612,93.2825165},
+            {.915663242,.0652515888,.396614432},{.0194715448,.978375554,-.205917731},
+            {-.401474357,.196273997,.894592047},
+            4.41,480.456957,-.45453305,.156413221,-357.109678,7.52468958,.00034906585,.25},
+        Sample{{-247382.812,2775.41919,729617.625},{214.319305,1.9152503,93.1936264},
+            {.915810943,.0667359754,.396026105},{.0182748288,.978150606,-.207092732},
+            {-.401193708,.196895093,.894581437},
+            4.45,489.17492,-.467675646,.163932653,-354.402904,7.52397747,.00034906585,.25}};
+    Filter filter;
+    for (const auto& sample:samples) {
+        CHECK(!filter.state().valid || filter.association_score(sample)<36);
+        CHECK(filter.observe(sample));covariance(filter.state());
+    }
+    CHECK(filter.state().hits==3);
+}
 }
 int main(int argc,char** argv) {
-    try {moving_and_maneuver();authority_and_outliers();if(argc>1)replay(argv[1]);return 0;}
+    try {moving_and_maneuver();authority_and_outliers();tentative_revisit();recorded_tentative_revisit();if(argc>1)replay(argv[1]);return 0;}
     catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}
 }

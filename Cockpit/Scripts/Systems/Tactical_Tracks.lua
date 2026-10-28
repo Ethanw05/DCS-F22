@@ -84,7 +84,8 @@ function M.new()
 						}
 						if sensor == 'datalink' or sensor == 'radar' then
 							for _,k in ipairs({'n','u','e','vn','vu','ve','link','reporter','flight','ppli',
-                                'received','observation_known','observation_time','epoch'}) do c[k]=o[k] end
+                                'received','observation_known','observation_time','epoch','velocity_valid',
+                                'position_sigma_m','velocity_sigma_mps'}) do c[k]=o[k] end
 						end
 						if sensor=="rf" then
 							c.power=finite(o.power) and o.power>=0 and o.power<=1 and o.power or nil
@@ -94,6 +95,11 @@ function M.new()
 								and math.abs(w[1]^2+w[2]^2+w[3]^2-1)<=.005 then
 								c.world={w[1],w[2],w[3]}
 							end
+                            local origin=o.bearing_origin
+                            if type(origin)=='table' and finite(origin.n) and finite(origin.u) and finite(origin.e)
+                                and finite(origin.time) and math.abs(origin.time-c.time)<=.1 then
+                                c.bearing_origin={n=origin.n,u=origin.u,e=origin.e,time=origin.time}
+                            end
 							if o.general==2 and c.world then
 								c.geolocation_status=({[1]=true,[2]=true,[3]=true,[4]=true})[o.geolocation_status] and o.geolocation_status or 0
 								if Geolocation.current(o.geolocation,batch.time)then
