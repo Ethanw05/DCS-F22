@@ -161,21 +161,22 @@ function M:update(s, height, visible)
 		and ((priority == 3 and self.spoken ~= selected) or now - (self.last[selected] or -100) > repeat_time)
 	then
 		event = selected
-		-- The audio owner confirms actual playback. Pure policy callers retain
-		-- the immediate event contract unless they explicitly defer this commit.
-		if not s.defer_audio_commit then self:played(selected, now, altitude_ticket) end
 	end
 	return { text = text, priority = priority or 0, event = event, impact = impact, terrain = terrain,
         altitude_ticket = altitude_ticket, altitude_label = self.altitude.label }
 end
 function M:played(name, now, ticket)
 	if not name or not finite(now) then return end
-	self.last[name] = now
-	self.spoken = name
 	if name == "altitude" then
-        self.altitude:played(ticket or self.altitude_ticket)
+        if not finite(ticket) or ticket<1 or ticket>16777215 or ticket%1~=0 then return end
+        self.altitude:played(ticket)
+        -- A late confirmation belongs to its original occurrence. It cannot
+        -- consume or rate-limit a different event selected while speech started.
+        if ticket~=self.altitude_ticket then return end
         self.altitude_visual_until = now + 3
     end
+	self.last[name] = now
+	self.spoken = name
 end
 function M:acknowledge()
     self.faults:acknowledge()

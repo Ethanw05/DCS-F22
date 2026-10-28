@@ -464,7 +464,6 @@ function update()
 		radar_floor = get("F22_ALT_RADAR_FLOOR"),
 		missile_warning = get("F22_MWS_ALERT") > 0.5 or get("F22_RWR_ALERT") >= 3,
 		audio_busy = playing ~= nil or muted or volume <= 0.01 or not audio_ok or not host,
-		defer_audio_commit = true,
 	}
     qualify_flight(state)
 	put('F22_TAWS_IAS_MPS',state.cas or 0)
