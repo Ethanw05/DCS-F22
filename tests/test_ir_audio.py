@@ -44,5 +44,24 @@ audio:update(true,10042,2,0,0,true)
 assert(sources.track.playing and not sources.high.playing)
 audio:update(true,10042,2,0,0,true,true)
 for _,s in pairs(sources) do assert(not s.playing) end
+-- A continuing loop is owned by requested start/stop edges. A lagging native
+-- playback-status result must not restart that same loop every cockpit tick.
+local starts,stops=0,0
+for _,s in pairs(sources)do
+ function s:is_playing()return 0 end
+ function s:play_continue()starts=starts+1;self.playing=true end
+ function s:stop()if self.playing then stops=stops+1 end;self.playing=false end
+end
+for i=1,150 do audio:update(true,136,0,0,0)end
+assert(starts==1 and sources.search.playing,'steady search loop repeatedly restarted')
+audio:update(true,136,2,0,0)
+for i=1,150 do audio:update(true,136,2,0,0)end
+assert(starts==2 and stops==1 and sources.track.playing,'steady locked loop repeatedly restarted')
+audio:update(true,136,2,0,0,false,true)
+assert(stops==2 and not sources.track.playing,'warning preemption retained seeker audio')
+audio:update(true,136,2,0,0)
+assert(starts==3,'current lock tone failed to resume after warning')
+audio:update(false,136,2,0,0)
+assert(stops==3)
 ''')
 print('IR audio: search/detect/FOV/track, HOBS verification, legacy strength mix, power-off silence OK')

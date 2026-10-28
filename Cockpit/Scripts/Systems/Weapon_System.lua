@@ -825,10 +825,11 @@ function update()
     ir_feedback_outputs.AVAILABLE:set(ir_available and 1 or 0)
     ir_feedback_outputs.LOCK:set(ir_locked and 1 or 0)
     ir_feedback_outputs.CUE_VALID:set(ir_az and ir_el and 1 or 0)
+    local ir_inhibit=warning_audio_inhibit()
     local audio_ok,audio_error=pcall(ir_audio.update,ir_audio,mode_state==3 and ir_available,
         get_param_handle('F22_IR_TYPE4'):get(),ir_feedback.strength,
         ir_az or 0,ir_el or 0,get_param_handle('F22_IR_AIM9X_PROFILE'):get()>.5,
-        warning_audio_inhibit())
+        ir_inhibit)
     get_param_handle('F22_IR_AUDIO_READY'):set(audio_ok and 1 or 0)
     -- An unavailable sound resource must not stop stores, sensors, or displays.
     if not audio_ok and not ir_audio.reported then
@@ -1077,6 +1078,10 @@ function update()
                 get_param_handle('F22_RADAR_NATIVE_CONFIG_REASON'):get(),get_param_handle('F22_RADAR_NATIVE_MIN_METRES'):get(),
                 get_param_handle('F22_RADAR_NATIVE_EL_LIMIT'):get(),
                 get_param_handle('F22_IR_LAUNCH_SEQUENCE'):get(),get_param_handle('F22_IR_LAUNCH_ID'):get()))
+            log.write('F22_IR_AUDIO_STATE',log.INFO,string.format(
+                'valid=%d available=%d age=%.3f inhibit=%d on=%d starts=%d stops=%d',
+                ir_feedback.valid and 1 or 0,ir_available and 1 or 0,ir_now-ir_feedback.time,
+                ir_inhibit and 1 or 0,ir_audio.on and 1 or 0,ir_audio.starts,ir_audio.stops))
             if ir_available then
                 log.write('F22_IR_DIAG',log.INFO,string.format('search=%.0f sensor_mode=%.0f parent=%.0f target=%.0f sun=%.0f electric=%.0f world=(%.1f,%.1f,%.1f)',
                     get_param_handle('F22_IR_SEARCH_ACTIVE'):get(),get_param_handle('F22_IR_SENSOR_MODE'):get(),

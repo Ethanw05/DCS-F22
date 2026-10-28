@@ -2,10 +2,6 @@
 -- See Standalone-F22-IDA-Research.md: FA18C 0x18031CA50.
 -- A seeker tone indicates IR acquisition; it is not a computed launch envelope.
 local M={}
-local function playing(source)
-    local ok, value = pcall(source.is_playing, source)
-    return ok and (value == true or value == 1)
-end
 function M.levels(enabled,kind,strength,az,el,aim9x,inhibit)
     local v={search=0,detect=0,fov=0,track=0,verify=0,quiet=0,low=0,high=0,pitch=1}
     if not enabled or inhibit then return v end
@@ -28,7 +24,9 @@ end
 function M.new()
     local host,sources
     local names={'search','detect','fov','track','verify','quiet','low','high'}
-    return {update=function(self,enabled,kind,strength,az,el,aim9x,inhibit)
+    local active={}
+    local audio={starts=0,stops=0,on=false}
+    function audio:update(enabled,kind,strength,az,el,aim9x,inhibit)
         local v=M.levels(enabled,kind,strength,az,el,aim9x,inhibit)
         if not host and create_sound_host then
             host=create_sound_host('COCKPIT_ARMS','HEADPHONES',0,0,0)
@@ -36,13 +34,22 @@ function M.new()
             for _,name in ipairs(names) do sources[name]=host:create_sound('Aircrafts/F-22A/IR/'..name) end
         end
         if not sources then return end
+        self.on=false
         for _,name in ipairs(names) do
             local source=sources[name]
             if v[name]>0 then
                 source:update(name=='low' and math.max(.05,v.pitch) or 1,v[name])
-                if not playing(source) then source:play_continue() end
-            else source:stop() end
+                -- play_continue owns a loop. Reissuing it on a transient
+                -- is_playing result can restart its waveform every update.
+                if not active[name] then
+                    source:play_continue();active[name]=true;self.starts=self.starts+1
+                end
+                self.on=true
+            elseif active[name] then
+                source:stop();active[name]=false;self.stops=self.stops+1
+            end
         end
-    end}
+    end
+    return audio
 end
 return M

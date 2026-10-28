@@ -6,7 +6,9 @@ from pathlib import Path
 from lupa.lua51 import LuaRuntime
 ROOT=Path(__file__).resolve().parents[1]
 def main():
- ap=argparse.ArgumentParser();ap.add_argument('--output',type=Path,required=True);args=ap.parse_args();args.output.mkdir(parents=True,exist_ok=True)
+ ap=argparse.ArgumentParser();ap.add_argument('--output',type=Path,required=True)
+ ap.add_argument('--simulator',type=Path,default=ROOT/'out/build/local-release/efm/Release/f22_gun_simulation.exe')
+ args=ap.parse_args();args.output.mkdir(parents=True,exist_ok=True)
  lua=LuaRuntime(unpack_returned_tuples=True);module=lua.eval('dofile')(str(ROOT/'Cockpit/Scripts/Systems/Gun_Motion.lua'))
  rng=random.Random(20261025);inputs=args.output/'simulation-inputs.csv'
  with inputs.open('w',newline='')as f:
@@ -31,7 +33,7 @@ def main():
          if acc is None:raise RuntimeError('Estimator rejected synthetic bounded maneuver')
          point=[distance+rng.gauss(0,.25 if noise else 0),30+rng.gauss(0,.25 if noise else 0),80+rng.gauss(0,.25 if noise else 0)]
          writer.writerow([scenario,noise,age,distance,speed,rate,heading,bank,*point,*measured,*[acc[k]for k in (1,2,3)],*old])
- exe=ROOT/'out/build/local-release/efm/Release/f22_gun_simulation.exe';results=args.output/'simulation-results.csv'
+ exe=args.simulator;results=args.output/'simulation-results.csv'
  subprocess.run([str(exe),str(inputs),str(results)],check=True)
  rows=list(csv.DictReader(results.open()))
  def describe(selected):
