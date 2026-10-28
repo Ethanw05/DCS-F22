@@ -36,7 +36,7 @@ s.ground=false;s.valid=false;assert(not R.update(s,get,put))
 -- The active UFC page sends accepted intent changes to the actual ALT owner.
 function get_model_time()return 0 end
 function get_base_data()return {getRadarAltitude=function()return 100 end}end
-put('MAIN_POWER',1);dofile(SCRIPT_ROOT..'Systems/Altitude_System.lua');post_initialize()
+put('MAIN_POWER',1);local altitude_physical=dofile(SCRIPT_ROOT..'../../tests/physical_frame_fixture.lua')({F22_ESSENTIAL_POWER=1});altitude_physical:publish(get_param_handle('F22_AP_CLOCK'):get());dofile(SCRIPT_ROOT..'Systems/Altitude_System.lua');post_initialize()
 local owner=SetCommand
 local ui=dofile(SCRIPT_ROOT..'Systems/UFC_Controller.lua').new(get,put,function(device,c,v)
  assert(device=='ALTITUDE_SYSTEM');owner(c,v)

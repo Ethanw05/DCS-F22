@@ -17,6 +17,7 @@ local function put(n,v) h(n):set(v) end
 local function read(n) return h(n):get() end
 local envelope=dofile(LockOn_Options.script_path..'Systems/Physical_Snapshot.lua')
 local physical=envelope.new(read,{
+    'MAIN_POWER',
     'EFM_HUD_VALID','EFM_HUD_VN','EFM_HUD_VE','EFM_HUD_VU','EFM_HUD_WN','EFM_HUD_WE',
     'EFM_GROUND_VALID','EFM_WEIGHT_ON_WHEELS','EFM_GEAR_DOWN_LOCKED','EFM_GEAR_UP_LOCKED',
     'EFM_GEAR_UNSAFE','EFM_AIRDATA_VALID','EFM_AIRDATA_STAMP','EFM_AIRDATA_CAS_MPS',
@@ -25,25 +26,14 @@ local physical=envelope.new(read,{
 local reference=dofile(LockOn_Options.script_path..'Systems/Gins_References.lua').reader(read,'HUD')
 local function reference_pose()
     reference:update()
-    if reference.present then
-        if not reference.valid then return 0,0,0,false,false end
-        local v=reference.values
-        return v.PITCH or 0,v.ROLL or 0,v.HEADING or 0,
-            reference.valid and v.ATTITUDE_VALID==1,reference.valid and v.HEADING_VALID==1
-    end
-    local pitch,roll=data.getPitch(),data.getRoll()
-    local heading=(2*math.pi-data.getHeading())%(2*math.pi)
-    return pitch,roll,heading,mathhud.finite(pitch)and mathhud.finite(roll),mathhud.finite(heading)
+    if not reference.valid then return 0,0,0,false,false end
+    local v=reference.values
+    return v.PITCH,v.ROLL,v.HEADING,v.ATTITUDE_VALID==1,v.HEADING_VALID==1
 end
 local function flight(key)
-    if not physical.owned then return read(key) end
     return physical.valid and physical.values[key] or nil
 end
 local function sensed_speed()
-    if not physical.owned then
-        local tas=read('EFM_HUD_TAS')
-        return mathhud.cas(tas,read('EFM_HUD_SOUND'),read('EFM_HUD_PRESSURE')),tas
-    end
     local health=flight('EFM_AIRDATA_HEALTH')
     put('HUD_AIRDATA_DEGRADED',health and health~=0 and 1 or 0)
     if flight('EFM_AIRDATA_VALID')~=1 or not envelope.fresh(flight('EFM_AIRDATA_STAMP'),physical.clock)
@@ -68,7 +58,9 @@ local high_fast=false
 local approach_pressure=false
 dev:listen_command(11840)
 function SetCommand(command,value)
-    if command==11840 and decode(value,devices.HUD_FLIGHT_DATA)>0 and read('MAIN_POWER')==1 then
+    if command~=11840 or decode(value,devices.HUD_FLIGHT_DATA)<=0 then return end
+    physical:update()
+    if physical.valid and physical.values.MAIN_POWER==1 then
         caged=not caged
         put('HUD_FPM_CAGED',caged and 1 or 0)
     end
@@ -135,8 +127,8 @@ function update()
     local pitch,roll,heading,attitude_valid,heading_valid=reference_pose()
     put('HUD_REFERENCE_ATTITUDE_VALID',attitude_valid and 1 or 0)
     put('HUD_REFERENCE_HEADING_VALID',heading_valid and 1 or 0)
-    -- The existing UFD/MFD ADIs use raw getRoll() with rotation gain +1.
-    -- Keep the HUD in that same frame; negating roll mirrors the ladder.
+    -- Selected references preserve the host's roll convention and gain +1.
+    -- Negating roll here would mirror the ladder relative to the ADIs.
     put("HUD_PITCH",pitch); put("HUD_ROLL",roll)
     -- Keep attitude strokes out of the fixed heading/data/roll-scale zones.
     local function inside(center,halfwidth)
@@ -157,29 +149,20 @@ function update()
     if mathhud.finite(g) then peak_g=math.max(peak_g,g) end
     put("HUD_G_MAX",peak_g)
     local aoa=data.getAngleOfAttack()*180/math.pi
-    put("HUD_AOA_DEG",aoa)
+    put("HUD_AOA_DEG",mathhud.finite(aoa)and aoa or 0)
     local aoa_valid=mathhud.finite(aoa)
-    if physical.owned then
-        -- Conservative shared-ADC policy; independent production AoA health is unknown.
-        aoa_valid=aoa_valid and flight('EFM_AIRDATA_VALID')==1 and flight('EFM_AIRDATA_HEALTH')==0
-            and envelope.fresh(flight('EFM_AIRDATA_STAMP'),physical.clock)
-    end
+    -- Conservative shared-ADC policy; independent production AoA health is unknown.
+    aoa_valid=aoa_valid and flight('EFM_AIRDATA_VALID')==1 and flight('EFM_AIRDATA_HEALTH')==0
+        and envelope.fresh(flight('EFM_AIRDATA_STAMP'),physical.clock)
     put('HUD_AOA_VALID',aoa_valid and 1 or 0)
-    local base_wow=data.getWOW_NoseLandingGear()
-    local own_contact=flight('EFM_GROUND_VALID')==1
-    local gear=own_contact and flight('EFM_WEIGHT_ON_WHEELS') or base_wow
-    local gear_down=get_aircraft_draw_argument_value(0)>0.95
-    if physical.owned then
-        local down,up,unsafe=flight('EFM_GEAR_DOWN_LOCKED'),flight('EFM_GEAR_UP_LOCKED'),flight('EFM_GEAR_UNSAFE')
-        local contact=flight('EFM_WEIGHT_ON_WHEELS')
-        own_contact=own_contact and envelope.boolean(contact)
-        gear=own_contact and contact or 1
-        gear_down=down==1 and up==0 and unsafe==0 and own_contact
-    end
+    local down,up,unsafe=flight('EFM_GEAR_DOWN_LOCKED'),flight('EFM_GEAR_UP_LOCKED'),flight('EFM_GEAR_UNSAFE')
+    local contact=flight('EFM_WEIGHT_ON_WHEELS')
+    local own_contact=flight('EFM_GROUND_VALID')==1 and envelope.boolean(contact)
+    local gear_down=down==1 and up==0 and unsafe==0 and own_contact
     put("HUD_LANDING_CONFIG",gear_down and 1 or 0)
     -- Hornet presentation, this aircraft's existing 12-degree approach target.
     -- AOA error moves the complete bracket relative to the velocity vector.
-    local bracket_valid=gear_down and gear<.5 and aoa_valid
+    local bracket_valid=gear_down and contact==0 and aoa_valid
     put('HUD_EBRACKET_VALID',bracket_valid and 1 or 0)
     put('HUD_EBRACKET_OFFSET',bracket_valid and math.tan(math.rad(mathhud.clamp(aoa-12,-10,10))) or 0)
     put("HUD_APPROACH_LOW",(bracket_valid and aoa<11.5) and 1 or 0)
@@ -187,8 +170,8 @@ function update()
     local now=type(get_model_time)=='function'and get_model_time()or diagnostic_frames*dt
     if gear_down and now>=next_landing_log and log and log.write then
         next_landing_log=now+1
-        log.write('F22_LANDING',log.INFO,string.format('t=%.3f gear_down=1 wow_base=%.0f contact=%.0f contact_native=%s aoa=%.3f bracket=%s offset=%.5f fpm=%.0f loc=%.0f gs=%.0f',
-            now,base_wow,gear,tostring(own_contact),aoa,tostring(bracket_valid),read('HUD_EBRACKET_OFFSET'),read('HUD_FPM_VALID'),read('HUD_ILS_LOC_VALID'),read('HUD_ILS_GS_VALID')))
+        log.write('F22_LANDING',log.INFO,string.format('t=%.3f gear_down=1 contact=%.0f contact_native=%s aoa=%.3f bracket=%s offset=%.5f fpm=%.0f loc=%.0f gs=%.0f',
+            now,contact,tostring(own_contact),aoa,tostring(bracket_valid),read('HUD_EBRACKET_OFFSET'),read('HUD_FPM_VALID'),read('HUD_ILS_LOC_VALID'),read('HUD_ILS_GS_VALID')))
     end
     local vs=data.getVerticalVelocity()*196.850394
     put("HUD_VS_ARC_COUNT",math.floor(mathhud.clamp(math.abs(vs)/38000,0,1)*32+0.5))

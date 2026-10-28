@@ -92,6 +92,6 @@ for _,e in ipairs(elements) do
     assert(e.kind~='ceStringPoly','LCD page retained the bitmap lettering')
 end
 local config=dofile(SCRIPT_ROOT..'Systems/Radar_Config.lua')
-assert(config.model_version=='owned-aesa-scene-v1' and config.service_enabled==false,'owned sensor replaced or duplicated by retired service')
+assert(config.model_version=='owned-aesa-scene-v1','owned sensor replaced or duplicated by retired service')
 ''')
 print('Actual Lua format: identity geometry, dedicated native LCD stroke fonts and LCD clipping level OK')

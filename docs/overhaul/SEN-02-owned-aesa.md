@@ -61,6 +61,16 @@ The shared scene query/object conversion and terrain/object LOS are independent
 of the retired radar. Research databases/decompilation remain outside commits.
 The common radar-video renderer supplies pixels, not detections or scan authority.
 
+`Radar_Resource` requires the coherent current physical envelope (mission power,
+electrical validity, environmental validity, temperature and thermal fault) and
+owned array health. Missing owners remain unavailable. World elapsed time checks
+physical publication progress without comparing World time to spawn-relative
+stamps; a >250ms stall withdraws resource. Clock loss or rewind retires authority
+until fresh physical progress. No optional loose resource schema or pre-owner
+MAIN POWER shortcut remains. The retired Lua processing queue/adapter and unused
+mechanical STT decoder/test are removed; C++ owns sensing and processing once.
+Required DCS scene, visibility and weapon services retain their current guards.
+
 Control and measurement snapshots use odd/even sequences, absolute World/model
 time and generation. Producer/request age >0.5s withdraws authority. Gun aliases,
 Engagement and the shared native weapon responder use owned measurements only.
@@ -90,14 +100,18 @@ queue depth, and actual sensor degradation retains its warning.
 The historical qualification below predates the service-deadline correction.
 See [current scheduler verification](SEN-02-revisit.md) for its tests and limits.
 
-- MSVC19.51 / VS18 Release DLL build and **23/23 CTests pass**. New model/provider
+- MSVC19.51 / VS18 Release DLL build and **28/28 CTests pass** (unused decoder test retired). New model/provider
   tests use `/W4 /WX /analyze`. Mocked native sensor callbacks allocate no C++ heap
   memory after initialization; this does not measure internal DCS allocations.
   Fixed bounds:64 tracks,32 pending reports,128 scene candidates,8 returns and
   16 visibility calls per air dwell. Snapshot scratch storage is preallocated.
 - Lua5.1/Lupa2.6, Luacheck1.2.0:0 new findings,69 retained baseline findings.
-  Full suite **111/135 passes**,24 retained baseline failures; launch-zone geometry
-  now passes. Existing UI-test migrations are coordinated with the flight lane.
+  Full suite **158/158 passes** on the combined-source cleanup branch. Workflow
+  fixtures publish explicit current physical/array inputs. Fault cases cover
+  absent/torn/invalid/stopped owners, World/spawn epochs, clock loss, thermal/
+  array degradation and fresh recovery through the actual radar controller.
+  New resource helpers: maximum CCN9 and17 statement/declaration lines with
+  Lizard1.17.31; retained large radar/ground callbacks are not certified by this.
 - Synthetic moving/rotating-observer, irregular-revisit and maneuver test:
   position RMS16.8m and velocity RMS13.9m/s versus1642m/s raw derivative RMS.
   All160 archived position-only reports pass the replay; mean velocity step
@@ -114,7 +128,9 @@ See [current scheduler verification](SEN-02-revisit.md) for its tests and limits
   at34.068s. The graph tests confirm no queue debug element. This run ended before
   a fresh visual capture; no claim of screenshot verification for that UI patch.
 - `tools/analyze_owned_aesa.py` reproduces these bounded telemetry summaries.
-  Closed logs remain in ignored build-radar. User installed mod was untouched.
+  Closed logs remain in ignored build-radar. These qualification runs used the
+  isolated profile. The later combined301b4c2 playtest was installed separately;
+  this resource/retired-owner cleanup is source-only and has not been flown.
 
 Outstanding: actual missile-in-flight multi-target support, surface/imagery and
 physical-failure runtime qualification on the integrated flight/weapon build,

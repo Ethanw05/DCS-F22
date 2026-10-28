@@ -3,7 +3,7 @@ local N=dofile(LockOn_Options.script_path..'Systems/Nav_Computer.lua')
 local Radio=dofile(LockOn_Options.script_path..'Systems/Radio_Navigation.lua')
 local function clamp(v,a,b)return math.max(a,math.min(b,v))end
 return function(get,set,own,s)
- local ready=get('F22_INS_MODEL_ENABLED')<.5 or get('F22_INS_READY')>.5
+ local ready=get('F22_INS_READY')==1
  local mag=get('F22_NAV_REFERENCE')>.5 and get('F22_MAG_VALID')>.5
  local variation=get('F22_MAG_VALID')>.5 and get('F22_MAG_DECL') or 0
  local reference=mag and variation or 0;local suffix=mag and 'M' or 'T'

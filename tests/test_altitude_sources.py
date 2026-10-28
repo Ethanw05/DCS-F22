@@ -19,7 +19,7 @@ put('F22_ALTIMETER_NATIVE_READY',1);put('F22_ALTIMETER_NATIVE_VALID',1)
 put('F22_ALTIMETER_RESULT_TIME',now);put('F22_ALT_NATIVE_BARO_M',1000)
 put('F22_ALT_STANDBY_NATIVE_VALID',1);put('F22_ALT_STANDBY_NATIVE_STAMP',now)
 put('F22_ALT_STANDBY_NATIVE_M',1100)
-dofile(SCRIPT_ROOT..'Systems/Altitude_System.lua');post_initialize()
+local altitude_physical=dofile(SCRIPT_ROOT..'../../tests/physical_frame_fixture.lua')({F22_ESSENTIAL_POWER=1});altitude_physical:publish(get_param_handle('F22_AP_CLOCK'):get());dofile(SCRIPT_ROOT..'Systems/Altitude_System.lua');post_initialize()
 local altitude_update,altitude_command=update,SetCommand
 altitude_update()
 local ui=dofile(SCRIPT_ROOT..'Systems/UFC_Controller.lua').new(get,put,function(owner,c,v)
@@ -27,7 +27,7 @@ local ui=dofile(SCRIPT_ROOT..'Systems/UFC_Controller.lua').new(get,put,function(
 end)
 ui:open('ALT',true);ui:page_step(1);assert(ui.page=='ALT DISPLAY')
 ui:option(1);ui:update(0);assert(not ui.pending and get('F22_ALT_SELECTION')==1)
-dofile(SCRIPT_ROOT..'Systems/HUD_Flight_Data.lua');post_initialize()
+dofile(SCRIPT_ROOT..'Systems/HUD_Flight_Data.lua');update=dofile(SCRIPT_ROOT..'../../tests/reference_frame_fixture.lua')():wrap(update);post_initialize()
 local hud_update=update
 hud_update();assert(get('HUD_ALT_SOURCE_TEXT')=='RDR' and math.abs(get('HUD_ALT_FT')-328.0839895)<.01)
 assert(get('HUD_QNH_VISIBLE')==1)

@@ -3,6 +3,7 @@ local R=dofile(LockOn_Options.script_path..'Systems/Display_Routing.lua')
 local P=R.pages
 local caps=dofile(LockOn_Options.script_path..'Systems/Store_Capabilities.lua')
 local nav=dofile(LockOn_Options.script_path..'Systems/Nav_Display_Controls.lua')
+local defensive=dofile(LockOn_Options.script_path..'Systems/Defensive_Controls.lua')
 local M={}
 local function row(label,action,value)return {label=label,action=action,value=value}end
 function M.for_page(page,view,get)
@@ -115,21 +116,7 @@ function M.for_page(page,view,get)
    if view==6 then c[12]=row('RTN','view',5)end
   end
  elseif page==P.def then
-  -- One defensive picture. Its receiver and expendable controls stay here.
-  c[20]={label=get('F22_RWR_FILTER')>.5 and'THRT'or'ALL',device='RWR_SYSTEM',command=10902}
-  c[19]={label='PWR',device='RWR_SYSTEM',command=10900,selected=get('F22_RWR_POWER')>.5}
-  c[18]={label='MUTE',device='RWR_SYSTEM',command=10901,selected=get('F22_RWR_MUTE')>.5}
-  c[6]={label='PREV',device='RWR_SYSTEM',command=10907}
-  c[7]={label='NEXT',device='RWR_SYSTEM',command=10906}
-  c[15]=row('RNG-','def_range',-1);c[14]=row('RNG+','def_range',1)
-  for i,spec in ipairs({{'EDIT',10910},{'CHAFF',10911},{'FLARE',10912},{'INTVL',10913},{'CYCLES',10914}})do
-   c[i]={label=spec[1],device='EW_SYSTEM',command=spec[2]}
-  end
-  for _,spec in ipairs({{8,'SAVE',11103},{9,'CANCEL',11104},{10,'NORMAL',11105},
-   {11,'DIRECT',11106},{12,'CM MODE',11107},
-   {16,'CM STOP',11113},{17,'CM PWR',11108}})do
-   c[spec[1]]={label=spec[2],device='EW_SYSTEM',command=spec[3]}
-  end
+  return defensive.for_page(view,get)
  end
  return c
 end

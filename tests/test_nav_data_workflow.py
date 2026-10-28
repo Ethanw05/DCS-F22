@@ -21,6 +21,8 @@ local function p(k,v)get_param_handle(k):set(v)end
 local function g(k)return get_param_handle(k):get()end
 p('MAIN_POWER',1);p('F22_AP_CLOCK',now)
 dofile(SCRIPT_ROOT..'Systems/Navigation_System.lua');post_initialize();local nav_command,nav_update=SetCommand,update
+local guidance_physical=dofile(SCRIPT_ROOT..'../../tests/physical_frame_fixture.lua')({F22_ESSENTIAL_POWER=1})
+guidance_physical:publish(get_param_handle('F22_AP_CLOCK'):get())
 dofile(SCRIPT_ROOT..'Systems/Flight_Guidance.lua');post_initialize();local guidance_command,guidance_update=SetCommand,update
 dofile(SCRIPT_ROOT..'Systems/MFD_System.lua');post_initialize();local mfd_command,mfd_update=SetCommand,update
 dofile(SCRIPT_ROOT..'Systems/ICP_System.lua');post_initialize();local icp_command,icp_update=SetCommand,update
@@ -32,7 +34,7 @@ function dispatch_action(device,command,value)
  elseif device==devices.ICP_SYSTEM then icp_command(command,value)end
 end
 local function tick()
- now=now+.05;p('F22_AP_CLOCK',now);guidance_update()
+ now=now+.05;guidance_physical:publish(now);guidance_update()
  -- Declared receiver observations for this DATA/entry fixture.
  p('F22_TCN_MODE',2);p('F22_TCN_BRG_VALID',1);p('F22_TCN_BRG_MAG',.5)
  p('F22_TCN_RANGE_VALID',1);p('F22_TCN_RANGE_M',12345)

@@ -148,6 +148,26 @@ now=99.9;mfd_update();assert(get('F22_DEF_OV_CURRENT')==0,'future overview times
 now=100.1;put('MAIN_POWER',0);mfd_update();assert(get('F22_DEF_OV_CURRENT')==0)
 put('MAIN_POWER',1);put('F22_DEF_OV_TIME',100.1);mfd_update();put('F22_DEFENSIVE_DETAIL',1)
 assert(visible(named.F22_COMPAT_DEF_OV__BACKGROUND),'retired detail selector displaced unified overview')
+put('F22_CM_DRAFT_DIRTY',1)
+assert(not text('BANK %.0f')and not text('UNSAVED'),'programming leaked into normal DEF')
+assert(not text('SIM ID STBY'),'ownship IFF state cluttered the defensive picture')
+put('F22_DEF_DETAIL_RMFD',1)
+assert(text('DEF SETUP')and text('BANK %.0f')and text('UNSAVED'))
+for _,e in ipairs(elements)do for _,p in ipairs(e.element_params or {})do
+ if p=='F22_DEF_OV_01_VALID'then assert(not visible(e),'setup retained the threat drawing underneath')end
+end end
+put('F22_DEF_DETAIL_RMFD',0)
+assert(not text('DEF SETUP')and not text('UNSAVED'))
+-- The EW owner permits a self-test while OFF/STBY. One status slot must not
+-- draw its normal power state and the test message on top of each other.
+for _,system in ipairs({0,1,2})do
+ put('F22_CM_SYSTEM',system);put('F22_CM_SELF_TEST',1)
+ assert(text('CM TEST')and not text('CM OFF')and not text('CM STBY'))
+end
+put('F22_CM_SELF_TEST',0);put('F22_CM_FAILURE',1)
+assert(text('CM FAIL')and not text('CM TEST'))
+put('F22_CM_FAILURE',0);put('F22_CM_SYSTEM',1)
+assert(text('CM STBY')and not text('CM FAIL')and not text('CM TEST'))
 ''')
 print('Defensive native wrapper: construction bindings, exclusive formats, visible overview controls and independent MFD freshness PASS')
 
@@ -168,7 +188,18 @@ local function tick()ru();mu()end
 local function edge(b,down)mc(10090+b,devices.MFD_SYSTEM+(down and .375 or .25))end
 local function key(b)edge(b,true);edge(b,false);tick()end
 put('MAIN_POWER',1);tick();assert(get('F22_DEFENSIVE_DETAIL')==0)
-key(20);assert(get('F22_RWR_FILTER')==1,'THRT filter missed receiver')
+local active=0
+for b=1,20 do if get('F22_MFD_RMFD_KEY_'..b)~=''then active=active+1 end end
+assert(active==5,'normal DEF needs exactly five routine controls')
+events={};key(20)
+assert(#events==0 and get('F22_RWR_FILTER')==0,'blank DEF key changed focus or receiver state')
+local edit_before=get('F22_CM_PROGRAM_SELECTED')
+local normal_before=get('F22_CM_NORMAL_BANK')
+key(1)
+assert(get('F22_CM_NORMAL_BANK')==normal_before%3+1 and get('F22_CM_PROGRAM_SELECTED')==edit_before,
+ 'normal program selection required/mutated programming')
+key(10);assert(get('F22_DEF_DETAIL_RMFD')==1 and get('F22_MFD_RMFD_KEY_12')=='RTN')
+key(20);assert(get('F22_RWR_FILTER')==1,'setup filter missed receiver')
 local before=get('F22_CM_PROGRAM_SELECTED');events={}
 edge(1,true);edge(1,true);assert(get('F22_CM_PROGRAM_SELECTED')==before%3+1)
 key(13);edge(1,false);edge(1,false)
@@ -177,7 +208,29 @@ for _,e in ipairs(events)do if e[1]==devices.EW_SYSTEM and e[2]==10910 then
  if e[3]==1 then downs=downs+1 elseif e[3]==0 then ups=ups+1 end
 end end
 assert(downs==1 and ups==1,'page change lost/duplicated original CM release')
-key(4);key(1);assert(get('F22_CM_PROGRAM_SELECTED')==(before%3+1)%3+1)
-assert(get('F22_DEF_DETAIL_RMFD')==0,'CM editing created a hidden display mode')
+key(4);assert(get('F22_DEF_DETAIL_RMFD')==0)
+key(10);key(1);assert(get('F22_CM_PROGRAM_SELECTED')==(before%3+1)%3+1)
+key(12);assert(get('F22_DEF_DETAIL_RMFD')==0 and get('F22_MFD_RMFD_KEY_10')=='SETUP')
+local controls=dofile(SCRIPT_ROOT..'Systems/Defensive_Controls.lua')
+put('F22_CM_READY',1);put('F22_CM_MODE',3);put('F22_CM_AUTHORIZED',0)
+assert(controls.for_page(0,get)[3].command==11111,'AUTO has no actionable consent control')
+put('F22_CM_AUTHORIZED',1)
+assert(controls.for_page(0,get)[3].command==11112)
+put('F22_CM_PROGRAM_RUNNING',1)
+assert(controls.for_page(0,get)[4].command==11113)
+put('F22_CM_READY',0);assert(controls.for_page(0,get)[3]==nil)
+-- An inactive key's physical down latch cannot become a new action when a
+-- conditional STOP label appears underneath the still-held button.
+put('F22_CM_MODE',1);put('F22_CM_PROGRAM_RUNNING',0);put('F22_CM_AWAITING_CONSENT',0);mu()
+events={};edge(4,true);assert(#events==0)
+put('F22_CM_PROGRAM_RUNNING',1);mu();edge(4,true)
+assert(#events==0,'new STOP action inherited an earlier blank-key press')
+edge(4,false);key(4)
+local stop_down,stop_up=0,0
+for _,e in ipairs(events)do if e[1]==devices.EW_SYSTEM and e[2]==11113 then
+ if e[3]==1 then stop_down=stop_down+1 elseif e[3]==0 then stop_up=stop_up+1 end
+end end
+assert(stop_down==1 and stop_up==1)
 ''')
-print('Actual unified DEF owners: filter, repeated-down suppression, page release and CM latch recovery PASS')
+print('Actual DEF owners: five routine keys, inert blanks, direct normal selection, explicit setup, '
+      'actionable consent/stop, repeated-down and captured release recovery PASS')

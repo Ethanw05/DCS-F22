@@ -87,16 +87,30 @@ local function p(k,v)get_param_handle(k):set(v)end
 local function g(k)return get_param_handle(k):get()end
 local function advance(seconds)for i=1,math.ceil(seconds/.05)do now=now+.05;update()end end
 dofile(SCRIPT_ROOT..'Systems/Pilot_Warning_System.lua');post_initialize()
-p('MAIN_POWER',1);p('EFM_HUD_VALID',1);p('EFM_GROUND_VALID',1);p('EFM_HUD_VN',200)
+-- The physical producer supplies fault authority; display colors do not.
+for key,value in pairs({EFM_POWER_OWNER=1,EFM_PHYSICAL_VALID=1,EFM_PHYSICAL_GENERATION=1,
+ EFM_PHYSICAL_CLOCK_KIND=1,MAIN_POWER=1,EFM_HUD_VALID=1,EFM_GROUND_VALID=1,
+ EFM_WEIGHT_ON_WHEELS=0,EFM_HUD_VN=200,EFM_HUD_VE=0,EFM_HUD_VU=0,
+ EFM_GEAR_DOWN_LOCKED=0,EFM_GEAR_UP_LOCKED=1,EFM_GEAR_UNSAFE=0,
+ EFM_AIRDATA_VALID=1,EFM_AIRDATA_HEALTH=0,EFM_AIRDATA_CAS_MPS=200,
+ EFM_FCS_INTEGRITY_VALID=1,EFM_FCS_DAMAGED=0,F22_ELECTRICAL_VALID=1,
+ L_GEN_POWER=1,R_GEN_POWER=1,EFM_HYD_LEFT_PSI=4000,EFM_HYD_RIGHT_PSI=4000,
+ EFM_ENGINE_VALID=1,EFM_ENGINE_LEFT_OIL_PSI=200,EFM_ENGINE_RIGHT_OIL_PSI=200})do p(key,value)end
+local warning_update=update
+function update()
+ p('EFM_PHYSICAL_STAMP',now);p('F22_AP_CLOCK',now);p('EFM_AIRDATA_STAMP',now)
+ p('EFM_PHYSICAL_GENERATION',g('EFM_PHYSICAL_GENERATION')+1)
+ warning_update()
+end
 p('F22_ALT_RADAR_VALID',1);p('F22_ALT_RADAR_FT',700);p('F22_ALT_RADAR_FLOOR',500);update()
 p('F22_ALT_RADAR_FT',400);advance(2.5)
 assert(events[1]=='altitude','silent initial start consumed the actual altitude crossing')
 p('F22_ALT_RADAR_FT',700) -- Reset repeating radar-low before the independent FCS/caution sequence.
 p('EFM_FCS_INTEGRITY_VALID',1);p('EFM_FCS_DAMAGED',1);advance(3)
 assert(events[2]=='flight_controls','second real warning remained silent')
-p('EFM_FCS_DAMAGED',0);p('F22_ALT_RADAR_FT',700);p('OIL_LIGHT',1);p('EFM_VEHICLE_VALID',1);p('L_OIL_COLOR',1);advance(4)
+p('EFM_FCS_DAMAGED',0);p('F22_ALT_RADAR_FT',700);p('OIL_LIGHT',1);p('EFM_ENGINE_LEFT_OIL_PSI',50);advance(4)
 assert(events[3]=='caution','third real warning remained silent')
-p('OIL_LIGHT',0);p('L_OIL_COLOR',0);p('F22_ALT_RADAR_FT',400);advance(1.95)
+p('OIL_LIGHT',0);p('EFM_ENGINE_LEFT_OIL_PSI',200);p('F22_ALT_RADAR_FT',400);advance(1.95)
 assert(#events==4 and events[4]=='altitude','previously used source failed to replay')
 assert(g('F22_PILOT_AUDIO_PLAYING')==0)
 ''')

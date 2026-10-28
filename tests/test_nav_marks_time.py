@@ -31,11 +31,11 @@ package.preload.terrain=function()return {GetHeight=function()return 0 end,
  convertMetersToLatLon=function(n,e)return 41+n/100000,42+e/100000 end}end
 local function get(k)return get_param_handle(k):get()end
 local function put(k,v)get_param_handle(k):set(v)end
-dofile(SCRIPT_ROOT..'Systems/Navigation_System.lua');post_initialize();local nc,nu=SetCommand,update
+dofile(SCRIPT_ROOT..'Systems/Navigation_System.lua');local reference_fixture=dofile(SCRIPT_ROOT..'../../tests/navigation_reference_fixture.lua')();update=reference_fixture:wrap(update);post_initialize();local nc,nu=SetCommand,update
 function dispatch_action(device,command)
  if device==devices.FLIGHT_GUIDANCE and command==11830 then put('F22_NAV_SOURCE',0)end
 end
-put('MAIN_POWER',1);put('F22_INS_MODEL_ENABLED',0);put('F22_AP_CLOCK',now)
+put('MAIN_POWER',1);put('F22_GPS_AID',1);put('F22_AP_CLOCK',now)
 put('EFM_HUD_VALID',1);put('EFM_HUD_VN',100);nu()
 local waypoint=get('HUD_WP_INDEX')
 nc(10838,1);nu()

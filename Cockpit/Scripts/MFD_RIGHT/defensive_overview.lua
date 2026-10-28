@@ -6,6 +6,11 @@ D.materials.blue=MakeMaterial(nil,{12,46,185,255})
 D.materials.cyan=MakeMaterial(nil,{0,255,255,255})
 D.materials.red=MakeMaterial(nil,{255,78,78,255})
 D.fonts.cyan="F22_LCD_FONT_TEAL"
+local page_root=D.root
+local view=detail_parameter or 'F22_DEF_DETAIL_RMFD'
+local primary=D.choice(view,0,page_root)
+local setup=D.choice(view,1,page_root)
+D.root=primary
 local seq=0
 local function group(params,controllers,parent,x,y)
  local e=CreateElement('ceSimple');local converted={}
@@ -53,7 +58,9 @@ ownship.thickness=1.15;ownship.fuzziness=.2;D.add(ownship,D.root,'OWNSHIP_F22')
 local current=D.choice('F22_DEF_OV_CURRENT',1)
 local ranged=D.choice('F22_DEF_OV_RANGE_VALID',1,current)
 D.text('%.0f NM',.42,.88,'F22_DEF_OV_RANGE_NM','white',.0034,ranged)
-D.text('REL RF',-.48,.88,nil,'blue',.0028,group({'F22_DEF_OV_PROXIMITY_COUNT'},{{'parameter_in_range',0,.5,16.5}},current))
+D.text('REL RF',-.48,.88,nil,'blue',.0028,D.choice('F22_RWR_FILTER',0,
+ group({'F22_DEF_OV_PROXIMITY_COUNT'},{{'parameter_in_range',0,.5,16.5}},current)))
+D.text('THRT',-.48,.88,nil,'white',.0028,D.choice('F22_RWR_FILTER',1,current))
 D.text('PRI',.42,.88,nil,'white',.0034,D.choice('F22_DEF_OV_RANGE_VALID',0,current))
 D.text('NO DATA',0,.84,nil,'yellow',.0034,D.choice('F22_DEF_OV_CURRENT',0))
 D.text('RF OFF',0,.84,nil,'white',.0030,D.choice('F22_RWR_POWER',0,current))
@@ -104,36 +111,41 @@ D.text('CHAFF %.0f',.63,-.61,'F22_CHAFF_COUNT','white',.0032,counts)
 D.text('FLARE %.0f',.63,-.69,'F22_FLARE_COUNT','white',.0032,counts)
 D.text('CHAFF --',.63,-.61,nil,'white',.0032,D.choice('F22_EW_BACKEND_READY',0))
 D.text('FLARE --',.63,-.69,nil,'white',.0032,D.choice('F22_EW_BACKEND_READY',0))
--- Draft values follow the five edit keys. Execution uses only saved banks.
-for _,item in ipairs({{'EDIT %.0f',-.66,'SELECTED'},{'C %.0f',-.33,'CHAFF'},
- {'F %.0f',0,'FLARE'},{'%.2fS',.33,'INTERVAL'},{'CYC %.0f',.66,'CYCLES'}})do
- D.text(item[1],item[2],-.84,'F22_CM_PROGRAM_'..item[3],'white',.0032)
-end
-D.text('UNSAVED',-.48,-.75,nil,'yellow',.0028,D.choice('F22_CM_DRAFT_DIRTY',1))
-D.text('INVALID DRAFT',-.48,-.68,nil,'yellow',.0028,D.choice('F22_CM_DRAFT_ERROR',1))
-D.text('NORMAL %.0f',-.45,-.60,'F22_CM_NORMAL_BANK','white',.0028)
-D.text('DIRECT %.0f',-.12,-.60,'F22_CM_DIRECT_BANK','white',.0028)
-D.text('RUN %.0f',.18,-.60,'F22_CM_RUNNING_BANK','white',.0028)
 for mode,label in ipairs({'MAN','SEMI','AUTO'})do
- D.text(label,.63,-.38,nil,'white',.0028,D.choice('F22_CM_MODE',mode))
+ D.text(label..' P%.0f',-.56,-.64,'F22_CM_NORMAL_BANK','white',.0032,D.choice('F22_CM_MODE',mode))
 end
+local not_testing=D.choice('F22_CM_SELF_TEST',0)
+local healthy=D.choice('F22_CM_FAILURE',0,not_testing)
+local operating=D.choice('F22_CM_SYSTEM',2,healthy)
 for state,label in pairs({[0]='CM OFF',[1]='CM STBY',[2]='CM ON'})do
- D.text(label,.63,-.45,nil,'white',.0028,D.choice('F22_CM_SYSTEM',state))
+ if state~=2 then D.text(label,-.56,-.72,nil,'yellow',.0030,D.choice('F22_CM_SYSTEM',state,healthy))end
 end
-D.text('CM TEST',.63,-.52,nil,'yellow',.0028,D.choice('F22_CM_SELF_TEST',1))
-D.text('CM FAIL',.63,-.52,nil,'yellow',.0028,D.choice('F22_CM_FAILURE',1))
-D.text('CM LOW',.63,-.31,nil,'yellow',.0028,D.choice('F22_CM_LOW',1))
-D.text('CONSENT?',-.48,-.52,nil,'yellow',.0028,D.choice('F22_CM_AWAITING_CONSENT',1))
-D.text('AUTO AUTH',-.12,-.52,nil,'yellow',.0028,D.choice('F22_CM_AUTHORIZED',1))
-for status,label in pairs({[0]='SIM ID STBY',[1]='SIM ID READY',[2]='SIM ID NO PWR',
- [3]='SIM ID UNAVAIL',[4]='SIM ID CLOCK'})do
- D.text(label,-.63,-.38,nil,'white',.0028,D.choice('F22_IFF_RESPONDER_STATUS',status))
+D.text('CM TEST',-.56,-.72,nil,'yellow',.0030,D.choice('F22_CM_SELF_TEST',1))
+D.text('CM FAIL',-.56,-.72,nil,'yellow',.0030,D.choice('F22_CM_FAILURE',1,not_testing))
+D.text('CM LOW',.63,-.52,nil,'yellow',.0030,D.choice('F22_CM_LOW',1))
+D.text('CONSENT?',-.56,-.72,nil,'yellow',.0030,D.choice('F22_CM_AWAITING_CONSENT',1,operating))
+D.text('RUN P%.0f',-.56,-.72,'F22_CM_RUNNING_BANK','white',.0030,D.choice('F22_CM_EXECUTING',1,operating))
+local waiting=D.choice('F22_CM_EXECUTING',0,D.choice('F22_CM_PROGRAM_RUNNING',1,operating))
+D.text('REQUESTED',-.56,-.72,nil,'white',.0030,waiting)
+-- Programming has one explicit entry/return; no draft or IFF table on DEF.
+D.root=setup
+D.text('DEF SETUP',0,.73,nil,'blue',.0048)
+for _,item in ipairs({{'BANK %.0f',.48,'SELECTED'},{'CHAFF %.0f',.28,'CHAFF'},
+ {'FLARE %.0f',.08,'FLARE'},{'INTERVAL %.2f S',-.12,'INTERVAL'},{'CYCLES %.0f',-.32,'CYCLES'}})do
+ D.text(item[1],0,item[2],'F22_CM_PROGRAM_'..item[3],'white',.0043)
 end
-D.text('SIM REPLY',-.63,-.45,nil,'white',.0028,D.choice('F22_IFF_REPLY_RECENT',1))
-D.text('SIM EMER',-.63,-.31,nil,'yellow',.0028,D.choice('F22_IFF_RESPONDER_EMERGENCY',1))
+D.text('UNSAVED',0,-.47,nil,'yellow',.0034,D.choice('F22_CM_DRAFT_DIRTY',1))
+D.text('SAVED',0,-.47,nil,'white',.0034,D.choice('F22_CM_DRAFT_DIRTY',0))
+D.text('INVALID DRAFT',0,-.55,nil,'yellow',.0034,D.choice('F22_CM_DRAFT_ERROR',1))
+D.text('NORMAL %.0f',-.40,-.65,'F22_CM_NORMAL_BANK','white',.0032)
+D.text('DIRECT %.0f',.40,-.65,'F22_CM_DIRECT_BANK','white',.0032)
+D.text('SCALE %.0f NM',-.48,-.84,'F22_DEF_DISPLAY_RANGE_NM','white',.0028)
+for state,label in pairs({[0]='OFF',[1]='STBY',[2]='ON'})do
+ D.text(label,-.62,-.40,nil,'white',.0030,D.choice('F22_CM_SYSTEM',state))
+end
 local cm=dofile(LockOn_Options.script_path..'Systems/EW_Dispenser.lua')
 for status,label in pairs(cm.labels)do
- D.text(label,.18,-.68,nil,'white',.0028,D.choice('F22_CM_STATUS',status))
+ D.text(label,0,-.75,nil,'white',.0030,D.choice('F22_CM_STATUS',status))
 end
 
 end

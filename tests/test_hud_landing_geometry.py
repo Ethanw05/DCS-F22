@@ -29,17 +29,22 @@ function get_base_data()return setmetatable({getAngleOfAttack=function()return m
 getWOW_NoseLandingGear=function()return sample.wow end},{__index=function()return function()return 0 end end})end
 local function p(n,v)get_param_handle(n):set(v)end
 local function g(n)return get_param_handle(n):get()end
-dofile(SCRIPT_ROOT..'Systems/HUD_Flight_Data.lua');post_initialize()
+dofile(SCRIPT_ROOT..'Systems/HUD_Flight_Data.lua');update=dofile(SCRIPT_ROOT..'../../tests/reference_frame_fixture.lua')():wrap(update);post_initialize()
 p('EFM_HUD_VALID',1);p('EFM_HUD_VN',100);p('EFM_HUD_TAS',100);p('EFM_HUD_SOUND',340);p('EFM_HUD_PRESSURE',101325)
+local physical=dofile(SCRIPT_ROOT..'../../tests/physical_frame_fixture.lua')({
+ EFM_GROUND_VALID=1,EFM_WEIGHT_ON_WHEELS=0,EFM_GEAR_DOWN_LOCKED=1,EFM_GEAR_UP_LOCKED=0,EFM_GEAR_UNSAFE=0,
+ EFM_AIRDATA_VALID=1,EFM_AIRDATA_HEALTH=0,EFM_AIRDATA_STAMP=0,EFM_AIRDATA_CAS_MPS=100,EFM_AIRDATA_TAS_MPS=100})
+update=physical:wrap(update)
+
 update();assert(g('HUD_EBRACKET_VALID')==1 and g('HUD_EBRACKET_OFFSET')==0,'on-speed bracket disappeared')
 sample.aoa=14;update();assert(math.abs(g('HUD_EBRACKET_OFFSET')-math.tan(math.rad(2)))<1e-9)
 sample.aoa=10;update();assert(g('HUD_EBRACKET_OFFSET')<0)
-sample.wow=1;update();assert(g('HUD_EBRACKET_VALID')==0)
-sample.wow=0;sample.gear=0;update();assert(g('HUD_EBRACKET_VALID')==0)
-sample.gear=1;sample.aoa=0/0;update();assert(g('HUD_EBRACKET_VALID')==0)
+sample.wow=1;physical.values.EFM_WEIGHT_ON_WHEELS=1;update();assert(g('HUD_EBRACKET_VALID')==0)
+sample.wow=0;sample.gear=0;physical.values.EFM_WEIGHT_ON_WHEELS=0;physical.values.EFM_GEAR_DOWN_LOCKED=0;physical.values.EFM_GEAR_UP_LOCKED=1;update();assert(g('HUD_EBRACKET_VALID')==0)
+sample.gear=1;sample.aoa=0/0;physical.values.EFM_GEAR_DOWN_LOCKED=1;physical.values.EFM_GEAR_UP_LOCKED=0;update();assert(g('HUD_EBRACKET_VALID')==0)
 sample.aoa=12;sample.wow=1;p('EFM_GROUND_VALID',1);p('EFM_WEIGHT_ON_WHEELS',0);update()
 assert(g('HUD_EBRACKET_VALID')==1,'generic base WOW overrode native airborne suspension contact')
-p('EFM_WEIGHT_ON_WHEELS',1);sample.wow=0;update()
+physical.values.EFM_WEIGHT_ON_WHEELS=1;sample.wow=0;update()
 assert(g('HUD_EBRACKET_VALID')==0,'generic airborne sensor overrode native ground contact')
 ''')
 print('Landing E-bracket: persistent on-speed cue, continuous AOA error, authoritative contact and gear/data gates PASS')

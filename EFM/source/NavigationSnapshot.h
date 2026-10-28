@@ -6,12 +6,11 @@
 
 namespace RaptorNavigation {
 struct Frame {
-    bool present = true, valid = false, terminal = false;
+    bool valid = false, terminal = false;
     double track = 0, time = 0;
 };
 class Snapshot {
     std::array<void*,10> handles_{};
-    bool observed_schema_ = false;
     static bool number(EDPARAM& api, void* handle, double& value) noexcept {
         const auto read = api.ed_param_api.pfn_ed_cockpit_parameter_value_to_number;
         return handle && read && read(handle,value,false) && std::isfinite(value);
@@ -38,14 +37,11 @@ public:
             "F22_NAV_SNAPSHOT_1_TIME", "F22_NAV_SNAPSHOT_1_TERMINAL"};
         const auto get = api.ed_param_api.pfn_ed_cockpit_get_parameter_handle;
         for (std::size_t index=0;index<names.size();++index) handles_[index]=get ? get(names[index]) : nullptr;
-        observed_schema_=false;
     }
     Frame read(EDPARAM& api) noexcept {
         Frame result;
         double schema=0;
         if (!number(api,handles_[0],schema)) return result;
-        if (schema==0 && !observed_schema_) { result.present=false;return result; }
-        observed_schema_=true;
         if (schema!=1) return result;
         for (unsigned attempt=0;attempt<2;++attempt) {
             double before=0,after=0;
@@ -55,7 +51,8 @@ public:
             const bool complete=fields(api,slot,values);
             if (!number(api,handles_[1],after) || before!=after) continue;
             if (!complete) return result;
-            result.valid=values[0]==1;
+            constexpr double two_pi = 6.28318530717958647692;
+            result.valid=values[0]==1 && values[1]>=0 && values[1]<two_pi && values[2]>=0;
             result.track=values[1];result.time=values[2];result.terminal=values[3]==1;
             return result;
         }

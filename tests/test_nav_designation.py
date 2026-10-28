@@ -9,10 +9,10 @@ function get_base_data()return {getSelfCoordinates=function()return own.n,own.al
 function get_mission_route()return {{x=0,y=0,alt=100},{x=20000,y=0,alt=100},{x=20000,y=5000,alt=100}}end
 local function p(k,v)get_param_handle(k):set(v)end
 local function g(k)return get_param_handle(k):get()end
-dofile(SCRIPT_ROOT..'Systems/Navigation_System.lua');post_initialize();local nav_update,nav_set=update,SetCommand
+dofile(SCRIPT_ROOT..'Systems/Navigation_System.lua');local reference_fixture=dofile(SCRIPT_ROOT..'../../tests/navigation_reference_fixture.lua')();update=reference_fixture:wrap(update);post_initialize();local nav_update,nav_set=update,SetCommand
 dofile(SCRIPT_ROOT..'Systems/AG_Mark_System.lua');post_initialize();local ag_update,ag_set=update,SetCommand
 function dispatch_action(device,command,value)if device==9 then ag_set(command,value)end end
-p('MAIN_POWER',1);p('HUD_GS_VALID',1);p('HUD_GS_MPS',200);p('F22_AP_CLOCK',1)
+p('MAIN_POWER',1);p('F22_GPS_AID',1);p('EFM_HUD_VALID',1);p('EFM_HUD_VN',200);p('HUD_GS_VALID',1);p('HUD_GS_MPS',200);p('F22_AP_CLOCK',1)
 nav_update();assert(g('HUD_WP_VALID')==1 and g('HUD_NAV_BUG_VALID')==1)
 assert(g('HUD_WP_CUE_VALID')==0 and g('HUD_WP_OFFSCREEN')==0 and g('F22_NAV_DESIGNATED')==0)
 assert(type(g('HUD_NAV_BUG_LABEL'))=='string' and tonumber(g('HUD_NAV_BUG_LABEL'))==nil,'numeric-only strings are coerced by native parameter API')
@@ -25,6 +25,8 @@ assert(g('F22_NAV_DESIGNATED')==0 and g('HUD_WP_CUE_VALID')==0 and g('HUD_AG_TAR
 """)
 sim=runtime()
 sim.execute("""
+local guidance_physical=dofile(SCRIPT_ROOT..'../../tests/physical_frame_fixture.lua')({F22_ESSENTIAL_POWER=1})
+guidance_physical:publish(get_param_handle('F22_AP_CLOCK'):get())
 dofile(SCRIPT_ROOT..'Systems/Flight_Guidance.lua');post_initialize();local guidance=SetCommand
 dofile(SCRIPT_ROOT..'Systems/ICP_System.lua');post_initialize()
 get_param_handle('MAIN_POWER'):set(1)
@@ -54,13 +56,13 @@ function get_base_data()return {getSelfCoordinates=function()return 0,100,0 end,
 function get_mission_route()return {{x=0,y=0,alt=100},{x=20000,y=0,alt=100},{x=30000,y=5000,alt=100}}end
 local function p(k,v)get_param_handle(k):set(v)end
 local function g(k)return get_param_handle(k):get()end
-dofile(SCRIPT_ROOT..'Systems/Navigation_System.lua');post_initialize();local nav_update,nav_set=update,SetCommand
+dofile(SCRIPT_ROOT..'Systems/Navigation_System.lua');local reference_fixture=dofile(SCRIPT_ROOT..'../../tests/navigation_reference_fixture.lua')();update=reference_fixture:wrap(update);post_initialize();local nav_update,nav_set=update,SetCommand
 dofile(SCRIPT_ROOT..'Systems/AG_Mark_System.lua');post_initialize();local ag_update,ag_set=update,SetCommand
 function dispatch_action(device,command,value)
  assert(device==9 and (command==10811 or command==10843),'planning dispatched an arm/fire action')
  ag_set(command,value)
 end
-p('MAIN_POWER',1);p('F22_AP_CLOCK',1);p('HUD_MODE',1);p('MASTER_ARM',0)
+p('MAIN_POWER',1);p('F22_GPS_AID',1);p('EFM_HUD_VALID',1);p('EFM_HUD_VN',200);p('F22_AP_CLOCK',1);p('HUD_MODE',1);p('MASTER_ARM',0)
 nav_update();assert(g('F22_NAV_TARGET_N')==20000)
 nav_set(10830,1);nav_set(10841,1)
 assert(g('F22_NAV_TARGET_N')==20000,'fixture must retain the previous display snapshot')

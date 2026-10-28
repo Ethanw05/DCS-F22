@@ -12,9 +12,10 @@ lua.execute('''
             {__index=function() return function() return 0 end end})
     end
     dofile(SCRIPT_ROOT..'Systems/Avionics.lua'); post_initialize()
-    adi_update=update
+    local reference=dofile(SCRIPT_ROOT..'../../tests/reference_frame_fixture.lua')()
+    adi_update=reference:wrap(update)
     dofile(SCRIPT_ROOT..'Systems/HUD_Flight_Data.lua'); post_initialize()
-    hud_update=update
+    hud_update=reference:wrap(update)
     dofile(SCRIPT_ROOT..'HUD/page.lua')
 ''')
 elements={e['name']:e for _,e in lua.globals().elements.items()}

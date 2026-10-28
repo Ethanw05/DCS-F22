@@ -1,8 +1,6 @@
 -- GPL-3.0-or-later. Fault causes from physical outputs, independent of display colors.
 local Envelope = dofile(LockOn_Options.script_path .. 'Systems/Physical_Snapshot.lua')
 local M = {}
-local legacy_fields={ 'L_GEN_OUT', 'R_GEN_OUT', 'L_HYD_COLOR',
-    'R_HYD_COLOR', 'L_OIL_COLOR', 'R_OIL_COLOR', 'CANOPY_LIGHT' }
 function M.new(get, conditions)
     local frame = Envelope.new(get, {
         'EFM_FCS_INTEGRITY_VALID', 'EFM_FCS_DAMAGED', 'F22_ELECTRICAL_VALID',
@@ -17,18 +15,9 @@ function M.new(get, conditions)
         condition(index, valid and Envelope.finite(value) and value >= 0 and value <= 10000,
             Envelope.finite(value) and value <= limit)
     end
-    local function legacy()
-        local valid = get('EFM_VEHICLE_VALID') == 1 and get('MAIN_POWER') == 1
-        condition(1, get('MAIN_POWER') == 1 and get('EFM_FCS_INTEGRITY_VALID') == 1,
-            get('EFM_FCS_DAMAGED') == 1)
-        for index, key in ipairs(legacy_fields) do
-            condition(index + 1, valid, get(key) > .5)
-        end
-    end
     local instance = {}
     function instance.update()
         frame:update()
-        if not frame.owned then legacy(); return end
         local v, valid = frame.values, frame.valid
         condition(1, valid and v.EFM_FCS_INTEGRITY_VALID == 1 and Envelope.boolean(v.EFM_FCS_DAMAGED),
             v.EFM_FCS_DAMAGED == 1)

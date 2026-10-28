@@ -47,21 +47,29 @@ for _,panel in ipairs(panels)do
   click(stem,13);assert(get('F22_'..name..'_FORMAT')==0)
  end
  click(stem,4)
- -- DEF has one picture; former DATA/RTN buttons cannot open a hidden view.
+ -- Unlabeled primary buttons are inert; setup needs its explicit entry.
  click(stem,11);click(stem,12)
  assert(get('F22_'..name..'_VIEW')==0 and get('F22_DEF_DETAIL_'..name)==0)
- assert(get('F22_MFD_'..name..'_KEY_11')=='DIRECT'and get('F22_MFD_'..name..'_KEY_12')=='CM MODE')
- local selected=get('F22_CM_PROGRAM_SELECTED')
+ assert(get('F22_MFD_'..name..'_KEY_11')==''and get('F22_MFD_'..name..'_KEY_12')=='')
+ local selected=get('F22_CM_NORMAL_BANK')
+ local edit_bank=get('F22_CM_PROGRAM_SELECTED')
  events={};click(stem,1);click(stem,1)
  local downs,ups=0,0
  for _,e in ipairs(events)do
-  if e.d==devices.EW_SYSTEM and e.c==10910 then
+  if e.d==devices.EW_SYSTEM and e.c==11105 then
    if e.v==1 then downs=downs+1 else ups=ups+1 end
   end
  end
  assert(downs==2 and ups==2,'countermeasure program button stayed latched on '..name)
- assert(get('F22_CM_PROGRAM_SELECTED')==(selected-1+2)%3+1,'PROG sent a command without changing the EW program')
- -- Verify every other visible edit reaches the real EW owner as well.
+ assert(get('F22_CM_NORMAL_BANK')==(selected-1+2)%3+1,'PROG did not change the normal dispense bank')
+ assert(get('F22_CM_PROGRAM_SELECTED')==edit_bank,'normal selection changed the draft bank')
+ click(stem,10)
+ assert(get('F22_'..name..'_VIEW')==1 and get('F22_DEF_DETAIL_'..name)==1)
+ assert(get('F22_MFD_'..name..'_KEY_12')=='RTN')
+ local normal=get('F22_CM_NORMAL_BANK')
+ click(stem,1)
+ assert(get('F22_CM_PROGRAM_SELECTED')==edit_bank%3+1 and get('F22_CM_NORMAL_BANK')==normal)
+ -- Visible setup edits reach the real EW owner.
  local p='F22_CM_PROGRAM_'
  local chaff,flare=get(p..'CHAFF'),get(p..'FLARE')
  local interval,reps=get(p..'INTERVAL'),get(p..'REPETITIONS')
@@ -73,6 +81,8 @@ for _,panel in ipairs(panels)do
  click(stem,8);assert(get('F22_CM_DRAFT_DIRTY')==0,'SAVE did not commit the draft')
  local bank='F22_CM_PROGRAM_'..get('F22_CM_PROGRAM_SELECTED')..'_'
  assert(get(bank..'CHAFF')==get(p..'CHAFF')and get(bank..'FLARE')==get(p..'FLARE'))
+ click(stem,12)
+ assert(get('F22_'..name..'_VIEW')==0 and get('F22_DEF_DETAIL_'..name)==0)
  for b=1,20 do
   local e=clickable[stem..b..'_PNT']
   assert(e.use_release_message[1]and e.stop_action[1]==e.action[1],'missing physical button release')
@@ -80,7 +90,7 @@ for _,panel in ipairs(panels)do
 end
 ''')
 print('Real clickable descriptor path: repeated mouse MENU/RTN, DEF and all 4 x 9 formats, all 80 physical releases PASS')
-print('Actual mouse -> MFD -> EW owner: PROG selection, chaff/flare quantities, interval and repetitions change their displayed parameters on all four screens PASS')
+print('Actual mouse -> MFD -> EW owner: independent normal selection, explicit setup edits/save and RTN on all four screens PASS')
 
 for panel in ('LMFD','RMFD','CMFD','PMFD'):
     lua=ns['runtime']();lua.globals().panel=panel
@@ -94,7 +104,7 @@ for panel in ('LMFD','RMFD','CMFD','PMFD'):
     assert(not detail_loaded,'retired DEF detail format still registered')
     local lookup={};for _,e in ipairs(elements)do lookup[e.name]=e end
     local root=assert(lookup['F22_COMMON_'..panel..'_DEF_OV__ROOT'])
-    assert(#root.element_params==2,'DEF still depends on a hidden detail-view selector')
+    assert(#root.element_params==2,'common DEF power/format root changed')
     local readouts={}
     for _,e in ipairs(elements)do
      for _,p in ipairs(e.element_params or{})do
@@ -102,7 +112,7 @@ for panel in ('LMFD','RMFD','CMFD','PMFD'):
      end
     end
     for _,field in ipairs({'SELECTED','CHAFF','FLARE','INTERVAL','CYCLES'})do
-     assert(readouts['F22_CM_PROGRAM_'..field],'main DEF omitted program readback '..field)
+     assert(readouts['F22_CM_PROGRAM_'..field],'DEF setup omitted program readback '..field)
     end
     ''')
-print('All four real common formats load a single DEF picture with five current-program readbacks PASS')
+print('All four common formats use the shared DEF factory with setup program readbacks PASS')

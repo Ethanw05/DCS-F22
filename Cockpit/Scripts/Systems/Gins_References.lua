@@ -29,11 +29,6 @@ local function owned_stationary(physical)
     return physical.valid and v.EFM_GROUND_VALID == 1 and v.EFM_WEIGHT_ON_WHEELS == 1
         and v.EFM_HUD_VALID == 1 and speed < 1
 end
-local function legacy_stationary(get)
-    local speed=get('HUD_GS_MPS')
-    return get('EFM_GROUND_VALID')==1 and get('EFM_WEIGHT_ON_WHEELS')==1 and get('HUD_GS_VALID')==1
-        and Envelope.finite(speed) and speed>=0 and speed<1
-end
 local function inputs(self)
     local input, base, get, physical = self.input, self.base, self.get, self.physical
     physical:update()
@@ -44,12 +39,8 @@ local function inputs(self)
     local ok, n, _, e = false, nil, nil, nil
     if type(base.getSelfCoordinates) == 'function' then ok, n, _, e = pcall(base.getSelfCoordinates) end
     input.n, input.e = ok and n or nil, ok and e or nil
-    input.powered = get('MAIN_POWER') == 1
-    input.stationary = legacy_stationary(get)
-    if physical.owned then
-        input.powered = physical.valid and physical.values.F22_ESSENTIAL_POWER == 1
-        input.stationary = owned_stationary(physical)
-    end
+    input.powered = physical.valid and physical.values.F22_ESSENTIAL_POWER == 1
+    input.stationary = owned_stationary(physical)
     return input
 end
 local function channel_input(self, channel, shared)
@@ -175,7 +166,7 @@ function M.reader(get, role)
     end
     for _, key in ipairs({ 'F22_GINS_SCHEMA', 'F22_GINS_VALID', 'F22_GINS_SEQUENCE',
         'F22_GINS_STAMP', 'F22_AP_CLOCK' }) do get(key) end
-    return setmetatable({ get = get, names = names, values = values, present = false, valid = false }, Reader)
+    return setmetatable({ get = get, names = names, values = values, valid = false }, Reader)
 end
 local function frame_epoch(sequence, stamp, get)
     return Envelope.finite(sequence) and sequence>=1 and sequence<=16777215 and sequence%1==0
@@ -184,6 +175,9 @@ end
 local function frame_payload(values)
     if values.SOURCE~=1 and values.SOURCE~=2 then return false end
     for index=2,5 do if not Envelope.boolean(values[fields[index]])then return false end end
+    if values.POWER==0 and (values.ATTITUDE_VALID~=0 or values.HEADING_VALID~=0 or values.POSITION_READY~=0)then
+        return false
+    end
     for index=6,#fields do if not Envelope.finite(values[fields[index]])then return false end end
     return math.abs(values.PITCH)<=4*math.pi and math.abs(values.ROLL)<=4*math.pi
         and values.HEADING>=0 and values.HEADING<2*math.pi
@@ -200,8 +194,6 @@ function Reader:update()
     local get=self.get
     self.valid=false
     local schema=get('F22_GINS_SCHEMA')
-    if schema==0 and not self.present then return self end
-    self.present=true
     if schema~=1 or get('F22_GINS_VALID')~=1 then return self end
     self.valid=complete_frame(self)
     return self

@@ -8,9 +8,10 @@ readable. Page rendering does not produce navigation data.
 
 The native consumer prebinds ten borrowed parameter handles, checks both API
 conversion status and finite values, and retries a changed sequence at most once.
-After seeing the new schema it never revives legacy authority on a missing/unknown
-schema. Ordinary old-Lua compatibility is possible only before that ownership
-latch. Navigation freshness still uses the declared F22_AP_CLOCK epoch and 0.35 s
+The current schema is mandatory from startup. Missing or unknown schema never
+admits the old unsequenced steering parameters. Track radians must be canonical
+and sample time nonnegative. Navigation freshness still uses the declared
+F22_AP_CLOCK epoch and 0.35 s
 controller policy, separately from native World-clock receiver/audio leases.
 
 This adds no native object allocation, private offset or recurring allocation.
@@ -27,3 +28,15 @@ qualification remain distinct from these deterministic API fixtures.
 Physical cockpit consumers use Physical_Snapshot.lua: one fixed field list (at most64), before/after valid/generation/stamp/clock-kind checks and a permanent owner latch. Invalid new publications never restore legacy truth. References read achieved mass/fuel/trim/gear/supply through that envelope. All19 supported VehicleFaults IDs are registered as disabled mission-author choices in F-22A.lua. Native callback tests qualify their owner behavior; mission-editor UI delivery remains unobserved.
 
 Focused complexity cleanup separates snapshot epoch/payload checks, route point validation and reference formatting. Reference strings are recomputed only after their bounded input cache changes. These extractions preserve existing owner APIs and fail-closed behavior; the actual consumer/mission/native fixtures remain the behavior checks. This does not declare the retained large HUD/UFC/legacy callback functions compliant.
+
+The actual DLL coupling regression first reproduced acceptance of loose steering fields without a snapshot. It now rejects that startup path, accepts a complete current frame, disconnects on schema withdrawal and requires a deliberate new engagement after restoration. The deprecated native raw-steering handle/read route and optional-schema flag are removed. The combined installed integration includes this contract; installation receipts identify its exact build.
+
+HUD flight/landing data, read-only mass/fuel/trim/supply references and altitude
+control now require the current physical envelope from startup. Pre-owner loose
+fields, computed CAS from host truth and animation-based gear/contact substitutes
+are removed. HUD cage and native pressure requests require current supply.
+Measured ADC health/age and achieved gear/contact govern their own indications;
+independent current barometric/standby sources remain available under their
+declared feeds. Invalid AoA never sends NaN to the render parameter. The actual
+startup regression failed before the change; current-frame, invalid/stale data,
+ADC degradation, landing contact, source/recovery and UFC transaction cases pass.

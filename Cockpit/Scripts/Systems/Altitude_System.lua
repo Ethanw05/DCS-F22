@@ -10,7 +10,6 @@ local function put(k,v)h(k):set(v)end
 local physical=dofile(LockOn_Options.script_path..'Systems/Physical_Snapshot.lua').new(get,
  {'MAIN_POWER','F22_ESSENTIAL_POWER','EFM_HUD_VALID'})
 local function power(essential)
- if not physical.owned then return get('MAIN_POWER')==1 end
  local key=essential and 'F22_ESSENTIAL_POWER'or'MAIN_POWER'
  return physical.valid and physical.values[key]==1
 end
@@ -92,8 +91,8 @@ function update()
   local q=get('F22_ALT_ACTUAL_PRESSURE_MMHG')
   if finite(q)and q>=650 and q<=820 then settings.qnh=q;settings.saved_qnh=q;adopted=true end
  end
- put('F22_ALT_PRESSURE_REQUEST_TIME',now);put('F22_ALT_PRESSURE_REQUEST_VALID',adopted and 1 or 0);publish()
  local powered=power(false)
+ put('F22_ALT_PRESSURE_REQUEST_TIME',now);put('F22_ALT_PRESSURE_REQUEST_VALID',powered and adopted and 1 or 0);publish()
  if not powered then put('F22_ENTRY_ALT_ACTIVE',0)end
  local baro=get('F22_ALT_NATIVE_BARO_M')*3.280839895
  put('F22_ALT_BARO_VALID',powered and native and finite(baro)and 1 or 0)
@@ -112,7 +111,7 @@ function update()
  put('F22_ALT_STANDBY_STAMP',get('F22_ALT_STANDBY_NATIVE_STAMP'))
  if standby_valid then put('F22_ALT_STANDBY_FT',standby)end
  local ok,radar=pcall(base.getRadarAltitude)
- local valid=powered and get('EFM_HUD_VALID')>.5 and ok and finite(radar)and radar>=0 and radar<20000
+ local valid=powered and physical.values.EFM_HUD_VALID==1 and ok and finite(radar)and radar>=0 and radar<20000
  put('F22_ALT_RADAR_VALID',valid and 1 or 0)
  put('F22_ALT_RADAR_REASON',not powered and 1 or not ok and 2 or not valid and 3 or 0)
  if valid then put('F22_ALT_RADAR_FT',radar*3.280839895);put('F22_ALT_RADAR_STAMP',now)end

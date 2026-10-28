@@ -77,18 +77,18 @@ lua.execute("""
 local state={EFM_POWER_OWNER=1,EFM_PHYSICAL_VALID=1,EFM_PHYSICAL_GENERATION=2,
  EFM_PHYSICAL_STAMP=5,EFM_PHYSICAL_CLOCK_KIND=1,F22_AP_CLOCK=5,
  EFM_MISSION_POWER_AVAILABLE=1,F22_ELECTRICAL_VALID=1,EFM_ENVIRONMENT_VALID=1,
- EFM_EQUIPMENT_TEMP_C=60,EFM_THERMAL_FAULT=0}
+ EFM_EQUIPMENT_TEMP_C=60,EFM_THERMAL_FAULT=0,F22_AESA_ARRAY_KNOWN=1,F22_AESA_ARRAY_HEALTH=1}
 local function get(n)return state[n]or 0 end
-local r=dofile(SCRIPT_ROOT..'Systems/Radar_Service_Adapter.lua').new()
-assert(r:health(get,28805,true)==1 and r.power_known and r.thermal_known)
+local r=dofile(SCRIPT_ROOT..'Systems/Radar_Resource.lua').new(get)
+assert(r:update(28805,true)==1 and r.power_known and r.thermal_known)
 state.EFM_MISSION_POWER_AVAILABLE=0
-assert(r:health(get,28805,true)==0,'APU-only power enabled mission radar')
+assert(r:update(28805,true)==0,'APU-only power enabled mission radar')
 state.EFM_MISSION_POWER_AVAILABLE=1;state.EFM_EQUIPMENT_TEMP_C=80
-assert(r:health(get,28805,true)==.5)
-state.EFM_THERMAL_FAULT=1;assert(r:health(get,28805,true)==0)
-state.EFM_THERMAL_FAULT=0;state.F22_AP_CLOCK=6;assert(r:health(get,28806,true)==0)
+assert(r:update(28805,true)==.5)
+state.EFM_THERMAL_FAULT=1;assert(r:update(28805,true)==0)
+state.EFM_THERMAL_FAULT=0;state.F22_AP_CLOCK=6;assert(r:update(28806,true)==0)
 state.EFM_POWER_OWNER=0;state.MAIN_POWER=1
-assert(r:health(get,28806,true)==0,'stopped physical owner restored legacy healthy power')
+assert(r:update(28806,true)==0,'stopped physical owner restored legacy healthy power')
 """)
 print('Owned AESA Lua: measured tracks, cache deduplication, acquisition, source2 STT/gun aliases, engagement, stale/torn/invalid snapshots and power PASS')
 from radar_test_runtime import owned_runtime

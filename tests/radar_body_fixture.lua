@@ -5,7 +5,9 @@ local actual_update=update
 local fixture_clock=0
 local display=dofile(SCRIPT_ROOT..'Systems/Radar_Display.lua')
 local hits, stamps = {}, {}
-if type(get_model_time)~='function' then
+-- This replay owns its sample clock when the harness supplied the default one.
+if type(get_model_time)~='function'
+ or test_radar_physical and get_model_time==test_radar_physical.clock_function then
  function get_model_time()return fixture_clock end
 end
 local function set(n,v)get_param_handle(n):set(v)end

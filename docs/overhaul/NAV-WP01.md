@@ -16,6 +16,16 @@ Host observation calls are protected and checked; invalid attitude withdraws
 position-dependent HUD projection without destroying a healthy position estimate.
 The pose/estimate input buffers are reused at the owner rate.
 
+HUD, primary ADI and standby attitude consumers require the selected coherent
+GINS frame from startup. The previous pre-producer raw-pose substitution is
+removed; absent, withdrawn or invalid selected references hide their dependent
+indications. Independent NAV/HUD/SFG selection and surviving standby references
+are retained. The absent-producer regression failed before this change and now
+passes through the actual display owners. Six isolated display workflows publish
+explicit test-only selected-pose frames; 25 pitch/bank cases retain the existing
+HUD/ADI convention. GINS failure/recovery tests use the actual producer. This is
+source qualification, separate from the installed playtest snapshot.
+
 Brower (2001), §§32.3.3/32.3.6/32.4 establishes the historical GPS/TACAN/ILS,
 ring-laser IRS and recovery families. The installed ED Hornet guide supplies
 display/entry analogues. Independent normal/retained/training GINS behavior is

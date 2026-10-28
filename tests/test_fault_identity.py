@@ -42,11 +42,26 @@ function get_aircraft_draw_argument_value()return 0 end
 local function get(k)return get_param_handle(k):get()end
 local function put(k,v)get_param_handle(k):set(v)end
 put('MAIN_POWER',1);put('EFM_VEHICLE_VALID',1);put('L_GEN_OUT',1)
-dofile(SCRIPT_ROOT..'Systems/Pilot_Warning_System.lua');post_initialize();update()
+for key,value in pairs({EFM_POWER_OWNER=1,EFM_PHYSICAL_VALID=1,
+ EFM_PHYSICAL_GENERATION=1,EFM_PHYSICAL_CLOCK_KIND=1,F22_ELECTRICAL_VALID=1,
+ L_GEN_POWER=0,R_GEN_POWER=1,EFM_FCS_INTEGRITY_VALID=1,EFM_FCS_DAMAGED=0,
+ EFM_HYD_LEFT_PSI=4000,EFM_HYD_RIGHT_PSI=4000,EFM_ENGINE_VALID=1,
+ EFM_ENGINE_LEFT_OIL_PSI=200,EFM_ENGINE_RIGHT_OIL_PSI=200})do put(key,value)end
+dofile(SCRIPT_ROOT..'Systems/Pilot_Warning_System.lua');post_initialize()
+local warning_update=update
+function update()
+ put('F22_AP_CLOCK',now);put('EFM_PHYSICAL_STAMP',now)
+ put('EFM_PHYSICAL_GENERATION',get('EFM_PHYSICAL_GENERATION')+1)
+ warning_update()
+end
+update()
 assert(get('F22_FAULT_GEN_L_OCCURRENCE')==1)
 SetCommand(11000,1);now=11;update();assert(get('F22_FAULT_UNACK_COUNT')==0)
 put('MAIN_POWER',0);now=12;update();now=13;update()
 assert(get('F22_FAULT_GEN_L_OCCURRENCE')==1,'power loss erased fault history')
+-- Physical sensing is independent of display power. Add a new real source
+-- occurrence to verify that a held ACK cannot acknowledge it on restoration.
+put('EFM_HYD_RIGHT_PSI',0)
 put('MAIN_POWER',1);now=14;update();SetCommand(11000,1);update()
 assert(get('F22_FAULT_UNACK_COUNT')>0,'held ACK re-fired after power restore')
 SetCommand(11000,0);SetCommand(11000,1);update();assert(get('F22_FAULT_UNACK_COUNT')==0)
