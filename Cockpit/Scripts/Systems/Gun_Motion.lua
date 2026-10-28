@@ -1,7 +1,7 @@
 -- GPL-3.0-or-later. Gun maneuver estimate from measured track velocity history.
 -- A short velocity fit avoids differentiating individual noisy radar reports.
 -- Window and damping are mod estimator policy, not recovered F-22 parameters.
-local M = {maximum_interval = .5, window = .24, capacity = 32}
+local M = {maximum_interval = .5, window = .24, capacity = 32, damping = .05}
 
 local function finite(value)
     return type(value) == 'number' and value == value and math.abs(value) < 1e8
@@ -78,7 +78,7 @@ end
 
 local function acceleration(self, velocity, speed, tangent, dt)
     rotation(self)
-    local gain = self.warmed and 1 - math.exp(-dt/.12) or 1
+    local gain = self.warmed and 1 - math.exp(-dt/M.damping) or 1
     for axis = 1, 3 do
         self.omega[axis] = self.omega[axis] + gain * (self.raw_omega[axis] - self.omega[axis])
     end

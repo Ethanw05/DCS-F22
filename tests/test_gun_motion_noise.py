@@ -41,6 +41,27 @@ estimator.reset(estimator)
 assert estimator.update(estimator, 11, v) is None
 print('Motion estimator: slow measured cadence, stale gap, time rewind and explicit reset PASS')
 
+# Match the pre-AESA estimator's clean onset response while retaining the
+# window fit. The superseded 0.12s second filter takes 400..429ms here.
+for dt in (.02, .025, .05):
+    for phase in (0, .004, .011):
+        estimator = motion.new()
+        response = None
+        for index in range(round(5/dt)):
+            t = index*dt+phase
+            angle = .18*max(0, t-3)
+            v = [220*math.cos(angle), 0, 220*math.sin(angle)]
+            a = estimator.update(estimator, t, lua.table_from(v))
+            if t >= 3 and a is not None:
+                expected = [-.18*v[2], 0, .18*v[0]]
+                ratio = sum(a[i+1]*expected[i] for i in range(3))/sum(x*x for x in expected)
+                if ratio >= .9:
+                    response = t-3
+                    break
+        assert response is not None and response <= .315, ('clean maneuver response regressed',dt,phase,response)
+print('Motion response: nine report phases/cadences meet the pre-AESA onset envelope PASS')
+
+
 lua.globals().motion_module = motion
 lua.execute('''
 local m=motion_module;local state=m.new();local velocity={220,0,0}
