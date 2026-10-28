@@ -68,6 +68,40 @@
         "IFF_PROVIDER_READY remains Chat4 provided decision; no reverse radar prerequisite"
       ],
       "release": "Record focused patch paths/commit request; no concurrent staging/commit"
+    },
+    {
+      "id": "weapons-payload-profile",
+      "owner": "chat2 integration of chat4",
+      "status": "applied; pending focused integration commit",
+      "paths": [
+        "UnitPayloads/F-22A.lua"
+      ],
+      "patch": "docs/overhaul/chat4-weapons-ew/payload-profile.patch",
+      "baseline_hashes": {
+        "UnitPayloads/F-22A.lua": "adf5683ddeec51babd0039f99062e8cdbdef8bae7ed6cbea643ffee0fa51e9cb"
+      },
+      "review_correction": "Compacted retained IRST record from table index5 to3 so numeric payload arrays remain contiguous; physical station stays6 and saved preset names/IDs stay unchanged.",
+      "result_hashes": {
+        "UnitPayloads/F-22A.lua": "fd04c70bb35e4bfcd7d140d49017895f9e8ac6d08c3fea96cfeaab73bc6a97e9"
+      }
+    },
+    {
+      "id": "radar-first-slice-consumers",
+      "owner": "chat2 integration of chat3",
+      "status": "applied; pending focused integration commit",
+      "paths": [
+        "Cockpit/Scripts/PMFD_CENTER/radar_format.lua",
+        "Cockpit/Scripts/Systems/Engagement_System.lua"
+      ],
+      "patch": "docs/overhaul/radar-execution/SHARED-CONSUMERS.patch",
+      "baseline_hashes": {
+        "Cockpit/Scripts/PMFD_CENTER/radar_format.lua": "3e95742f505b465737b85b498f34ab6a820be449cc2e94e093220273da00d377",
+        "Cockpit/Scripts/Systems/Engagement_System.lua": "6f3ecc97597e4d03cb6b090341af07f4ef2311739e5efc580a9df0dbee29d792"
+      },
+      "result_hashes": {
+        "Cockpit/Scripts/PMFD_CENTER/radar_format.lua": "806087b2dc71112511448377073ccbb0dee93c8835c80dfaec109a7fbff6990a",
+        "Cockpit/Scripts/Systems/Engagement_System.lua": "94a4b11955dd01a268e3e5ca97ffd1b0842e2bd3a17ef542e108eb327207eecd"
+      }
     }
   ],
   "packages": [
@@ -118,13 +152,14 @@
     {
       "id": "P-INT-004",
       "owner": "chat2",
-      "status": "adopted; canonical_link_validation_pending",
+      "status": "adopted",
       "dependencies": [
         "P-INT-001"
       ],
       "blockers": [],
       "evidence": [
-        "ADOPTION.json"
+        "ADOPTION.json",
+        "LINK-VALIDATION.json"
       ]
     },
     {
@@ -215,12 +250,19 @@
     {
       "id": "P-INT-008",
       "owner": "chat2",
-      "status": "pending",
+      "status": "checked_port_tested; staged_caller_migration",
       "dependencies": [
         "P-INT-001",
         "P-INT-002"
       ],
-      "blockers": []
+      "blockers": [
+        "Legacy native adapters still use the one-argument getter; complete migration/reset/cache/context qualification required.",
+        "Constructor-time capture and actual supported-host context lifetime remain open."
+      ],
+      "evidence": [
+        "NATIVE-PARAMETER-CONTRACT.md",
+        "NATIVE-CALLERS.json"
+      ]
     },
     {
       "id": "P-FLT-001",
@@ -687,6 +729,35 @@
       "id": "I-INT-003",
       "decision": "proposed checked cutover; actual callers not migrated",
       "reference": "NATIVE-PARAMETER-CONTRACT.md"
+    }
+  ],
+  "gates": {
+    "P_INT_001_ADOPTED": true,
+    "P_INT_002_HARNESS_READY": true,
+    "P_INT_003_SAFE_BUILD_OUTPUT": true,
+    "P_INT_008_CHECKED_READ_PORT": true,
+    "P_INT_008_COMPLETE": false
+  },
+  "common_commit": "67ca2ea",
+  "checked_read_port": {
+    "status": "available for scoped caller migration",
+    "signature": "bool EDPARAM::getParamNumber(void*, double&) const noexcept",
+    "success": "finite converted value including 0; output replaced only on success",
+    "failure": "false; caller output unchanged",
+    "guarded_resolve": "null on absent export/name",
+    "lifecycle": "initialize/invalidate/epoch available; constructor/static and all owning handle caches still require complete migration",
+    "legacy": "one-argument getter remains PRE-EXISTING and known-failing; not a qualified migration port",
+    "tests": "replacement_parameter_transport and replacement_altimetry_request_status",
+    "instructions": "Domain native adapters may migrate to this checked port in leased owning regions. Preserve direct bool-checked readers. Track every old value-only use for P-INT-008 cutover; do not add new one-argument uses."
+  },
+  "shared_review": [
+    {
+      "change": "radar SEARCH indication and removal of enclosure-only support degradation",
+      "result": "applied after clean-region check; actual target-specific support checks retained"
+    },
+    {
+      "change": "payload profile labels and unregistered sensor station rows",
+      "result": "applied with contiguous array correction; optional capability stays selected off"
     }
   ]
 }

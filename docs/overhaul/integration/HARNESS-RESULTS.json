@@ -35,5 +35,10 @@
   ],
   "gate": "HARNESS_READY",
   "aircraft_qualified": false,
-  "legacy_acceptance_executed": false
+  "legacy_acceptance_executed": false,
+  "domain": {
+    "tests": 40,
+    "python_passed": true,
+    "native_passed": true
+  }
 }

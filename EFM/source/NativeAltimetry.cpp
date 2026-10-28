@@ -12,7 +12,6 @@ std::map<std::string,void*> handles;
 double stamp=-100,value=0,selected=760;bool valid=false;
 double standby_stamp=-100,standby_value=0;
 void* handle(EDPARAM&p,const char*n){auto&h=handles[n];if(!h)h=p.getParamHandle(n);return h;}
-double get(EDPARAM&p,const char*n){return p.getParamNumber(handle(p,n));}
 void put(EDPARAM&p,const char*n,double v){p.setParamNumber(handle(p,n),v);}
 // ICAO standard-atmosphere pressure height: troposphere, then isothermal 11-20 km layer.
 // Altimeter setting shifts the datum, rather than changing the atmosphere's temperature.
@@ -25,9 +24,11 @@ bool pressure_sample(double pa) {
  return std::isfinite(pa) && pa >= 1000 && pa <= 120000;
 }
 bool pressure_request(EDPARAM& p, double now) {
- if (get(p, "F22_ALT_PRESSURE_REQUEST_VALID") <= .5) return true;
- const double request = get(p, "F22_ALT_PRESSURE_MMHG");
- const double time = get(p, "F22_ALT_PRESSURE_REQUEST_TIME");
+ double active = 0, request = 0, time = 0;
+ if (!p.getParamNumber(handle(p, "F22_ALT_PRESSURE_REQUEST_VALID"), active)) return false;
+ if (active == 0) return true;
+ if (active != 1 || !p.getParamNumber(handle(p, "F22_ALT_PRESSURE_MMHG"), request)
+     || !p.getParamNumber(handle(p, "F22_ALT_PRESSURE_REQUEST_TIME"), time)) return false;
  if (!std::isfinite(request) || request < 650 || request > 820 ||
      !std::isfinite(time) || now < time - .01 || now - time > .2) return false;
  selected = request;

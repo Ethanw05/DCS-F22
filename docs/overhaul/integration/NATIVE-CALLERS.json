@@ -1,0 +1,113 @@
+{
+  "policy": "Transitional inventory; cannot close P-INT-008 until actual legacy calls/caches and initialization are migrated. Preserve existing safe direct bool readers.",
+  "callers": [
+    {
+      "path": "EFM/source/NativeAGWeapons.cpp",
+      "line": 23,
+      "source": "double get(EDPARAM& p,const char* n) {return p.getParamNumber(handle(p,n));}",
+      "migration": "review argument count and migrate legacy use"
+    },
+    {
+      "path": "EFM/source/NativeAltimetry.cpp",
+      "line": 28,
+      "source": "if (!p.getParamNumber(handle(p, \"F22_ALT_PRESSURE_REQUEST_VALID\"), active)) return false;",
+      "migration": "checked or declaration"
+    },
+    {
+      "path": "EFM/source/NativeAltimetry.cpp",
+      "line": 30,
+      "source": "if (active != 1 || !p.getParamNumber(handle(p, \"F22_ALT_PRESSURE_MMHG\"), request)",
+      "migration": "checked or declaration"
+    },
+    {
+      "path": "EFM/source/NativeAltimetry.cpp",
+      "line": 31,
+      "source": "|| !p.getParamNumber(handle(p, \"F22_ALT_PRESSURE_REQUEST_TIME\"), time)) return false;",
+      "migration": "checked or declaration"
+    },
+    {
+      "path": "EFM/source/NativeDatalink.cpp",
+      "line": 62,
+      "source": "double get(EDPARAM &p,const std::string &n) {auto &h=handles[n];if(!h)h=p.getParamHandle(n.c_str());return p.getParamNumber(h);}",
+      "migration": "review argument count and migrate legacy use"
+    },
+    {
+      "path": "EFM/source/NativeGroundRadar.cpp",
+      "line": 14,
+      "source": "const bool driver = p.getParamNumber(p.getParamHandle(\"F22_AESA_DRIVER_READY\")) == 1;",
+      "migration": "review argument count and migrate legacy use"
+    },
+    {
+      "path": "EFM/source/NativeGroundRadar.cpp",
+      "line": 15,
+      "source": "const bool ready = driver && p.getParamNumber(p.getParamHandle(\"F22_AG_GMT_READY\")) == 1;",
+      "migration": "review argument count and migrate legacy use"
+    },
+    {
+      "path": "EFM/source/NativeGroundRadar.cpp",
+      "line": 17,
+      "source": "p.setParamNumber(p.getParamHandle(\"F22_AG_RADAR_NATIVE_REASON\"), ready ? 0 : driver ? p.getParamNumber(p.getParamHandle(\"F22_AG_GMT_REASON\")) : 4);",
+      "migration": "review argument count and migrate legacy use"
+    },
+    {
+      "path": "EFM/source/NativeGroundSensor.cpp",
+      "line": 108,
+      "source": "double get(EDPARAM&p,const std::string&n){auto&h=handles[n];if(!h)h=p.getParamHandle(n.c_str());return p.getParamNumber(h);}",
+      "migration": "review argument count and migrate legacy use"
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "line": 301,
+      "source": "auto &h=handles[name];if (!h) h=p.getParamHandle(name.c_str());return p.getParamNumber(h);",
+      "migration": "review argument count and migrate legacy use"
+    },
+    {
+      "path": "EFM/source/NativeGunSight.cpp",
+      "line": 28,
+      "source": "return p.getParamNumber(handle(p, n));",
+      "migration": "checked or declaration"
+    },
+    {
+      "path": "EFM/source/NativeMWS.cpp",
+      "line": 149,
+      "source": "return p.getParamNumber(h);",
+      "migration": "review argument count and migrate legacy use"
+    },
+    {
+      "path": "EFM/source/NativeNavigation.cpp",
+      "line": 184,
+      "source": "return p.getParamNumber(h);",
+      "migration": "review argument count and migrate legacy use"
+    },
+    {
+      "path": "EFM/source/NativeSidewinder.cpp",
+      "line": 288,
+      "source": "return p.getParamNumber(h);",
+      "migration": "review argument count and migrate legacy use"
+    },
+    {
+      "path": "EFM/source/NativeSidewinder.cpp",
+      "line": 350,
+      "source": "live[i]=g.parameters->getParamNumber(g.live_handles[i]);if(!std::isfinite(live[i]))return false;",
+      "migration": "review argument count and migrate legacy use"
+    },
+    {
+      "path": "EFM/source/RAPTOR.cpp",
+      "line": 1977,
+      "source": "double result = param_api_.getParamNumber(it->second);",
+      "migration": "review argument count and migrate legacy use"
+    },
+    {
+      "path": "EFM/include/Cockpit/CockpitAPI_Declare.h",
+      "line": 38,
+      "source": "bool getParamNumber(void* handle, double& value) const noexcept",
+      "migration": "checked or declaration"
+    },
+    {
+      "path": "EFM/include/Cockpit/CockpitAPI_Declare.h",
+      "line": 68,
+      "source": "double getParamNumber(void* handle)",
+      "migration": "review argument count and migrate legacy use"
+    }
+  ]
+}

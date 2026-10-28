@@ -1150,9 +1150,12 @@
       "owner": "chat2",
       "captured_sha256": "215fbd891fa3454a82b35a8d5882c67eb39c957466d6ac8935efb84d85fe6504",
       "execution_sha256": "215fbd891fa3454a82b35a8d5882c67eb39c957466d6ac8935efb84d85fe6504",
-      "status": "pending_domain_remake",
-      "replacement": null,
-      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+      "status": "deleted_replaced",
+      "replacement": [
+        "tests/native/altimetry_requests.cpp"
+      ],
+      "evidence_classification": "unclassified; owner must trace original source before retaining research data",
+      "coverage_limit": "Checked pressure-request admission remade now; full pressure solve/atmosphere/lifetime remains P-NAV-001/003 and P-FLT-001 qualification, not asserted by this request test."
     },
     {
       "path": "tests/test_native_contact_identity.cpp",

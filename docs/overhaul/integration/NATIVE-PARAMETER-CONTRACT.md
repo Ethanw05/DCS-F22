@@ -1,6 +1,6 @@
 # I-INT-003 checked native parameter cutover
 
-Owner/integrator: Chat 2. Proposed migration port for all four owners; no second
+Owner/integrator: Chat 2. Tested migration port for all four owners; no second
 unchecked acceptance contract may remain after caller migration.
 
 `EDPARAM` must be inert during static construction. An explicit `initialize`
@@ -9,7 +9,7 @@ returns readiness independently of field conversion. `invalidate` clears exports
 and borrowed handles at release, changes epoch, and prevents calls until a new
 initialization. No assumption that a readable address proves native lifetime.
 
-Proposed numeric port: `bool getParamNumber(void* handle, double& value) const`.
+Numeric port: `bool getParamNumber(void* handle, double& value) const noexcept`.
 It returns false for a null handle, missing export, false conversion or nonfinite
 payload, leaves the caller's output unchanged on failure, and preserves valid
 zero. String reads return bool and bound buffers; writes/resolve operations check
@@ -35,3 +35,10 @@ module/each export, failed conversion with retained/modified 0 or 7, valid zero,
 nonfinite/string/null, initial missing module then explicit rediscovery,
 invalidation/reacquisition and reused context addresses. Real DCS callback
 ordering, handle lifetime and concurrent use remain a separate native gate.
+
+The checked numeric overload, guarded resolve/writes and bounded bool string read
+are implemented and tested. NativeAltimetry pressure-request admission uses the
+checked overload; its safe direct standby reader is retained. The pre-existing
+one-argument getter and constructor capture are transitional, still known-failing
+and inventoried in NATIVE-CALLERS.json. P-INT-008 remains open until all callers,
+initialization and handle epochs are migrated; port readiness is not that closure.

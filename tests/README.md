@@ -8,6 +8,10 @@ acceptance suite. See `docs/overhaul/integration/TEST-RETIREMENT.json`.
 Use the pinned environment in `tools/requirements-navigation.txt` (Lupa 2.6,
 Lua 5.1). Configure with BUILD_TESTING=ON in an external build directory, build,
 then run `python tests/run_all.py --build-dir <external> --output <external>`.
+The default `--scope common` measures HARNESS_READY independently of domain
+work. `--scope all` also runs rebuilt domain cases and all registered native
+cases, returning failure for unmet domain requirements without revoking a
+successful common gate.
 No build, test or probe installs a DLL, runs a hook, launches DCS or sends inputs
 to a user's simulator. The new Lua port requires explicit sensor exports and
 physical samples; zero-initialized native parameter storage is not a healthy

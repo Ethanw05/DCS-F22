@@ -31,7 +31,8 @@ def stopped_altitude():
     observed = h.get('HUD_ALT_VALID')
     return dict(id='F-NAV-001',initial_valid=initial,expected_valid=0,
                 actual_valid=observed,altitude_ft=h.get('HUD_ALT_FT'),
-                status='known_failure' if initial == 1 and observed == 1 else 'changed_requires_review')
+                status='known_failure' if initial == 1 and observed == 1 else
+                'resolved' if initial == 1 and observed == 0 else 'changed_requires_review')
 
 
 def competing_page():
@@ -59,7 +60,8 @@ def competing_page():
     h.execute('controller:update(true)')
     restored = h.get('LMFD_ENG_PAGE')
     return dict(id='F-NAV-002',expected_sequence=[1,1,1],actual_sequence=[before,after,restored],
-                status='known_failure' if [before,after,restored] == [1,0,1] else 'changed_requires_review')
+                status='known_failure' if [before,after,restored] == [1,0,1] else
+                'resolved' if [before,after,restored] == [1,1,1] else 'changed_requires_review')
 
 
 def native_read(executable):

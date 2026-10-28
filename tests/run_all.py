@@ -23,12 +23,17 @@ def main():
     parser.add_argument('--output', type=external, required=True)
     parser.add_argument('--build-dir', type=external, required=True)
     parser.add_argument('--config', choices=['Debug','Release','RelWithDebInfo'], default='Release')
+    parser.add_argument('--scope', choices=['common','all'], default='common')
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
-    suite = unittest.defaultTestLoader.discover(str(ROOT / 'tests/cases'))
+    common = ['test_host_contract.py','test_driver_protocol.py','test_lua_syntax.py']
+    suite = unittest.TestSuite()
+    for name in common:
+        suite.addTests(unittest.defaultTestLoader.discover(str(ROOT / 'tests/cases'),pattern=name))
     with (args.output / 'python-results.txt').open('w', encoding='utf-8') as stream:
         results = unittest.TextTestRunner(stream=stream, verbosity=2).run(suite)
     native = subprocess.run(['ctest','--test-dir',str(args.build_dir),'-C',args.config,
+                             '-R','^replacement_parameter_transport$',
                              '--output-on-failure','--no-tests=error'],
                             capture_output=True, text=True, timeout=180)
     (args.output / 'native-results.txt').write_text(native.stdout + native.stderr, encoding='utf-8')
@@ -42,14 +47,28 @@ def main():
             observations.append(fn())
         except Exception as error:
             observations.append(dict(status='probe_error',error=str(error)))
-    changed = any(x['status'] != 'known_failure' for x in observations)
+    changed = any(x['status'] not in ['known_failure','resolved'] for x in observations)
     summary = dict(replacement_tests=results.testsRun,python_passed=results.wasSuccessful(),
                    native_passed=native.returncode == 0,pre_fix_observations=observations,
                    gate='HARNESS_READY' if results.wasSuccessful() and native.returncode == 0 and not changed else 'NOT_READY',
                    aircraft_qualified=False,legacy_acceptance_executed=False)
+    if args.scope == 'all':
+        domain = unittest.TestSuite()
+        for path in sorted((ROOT / 'tests/cases').glob('test_*.py')):
+            if path.name not in common:
+                domain.addTests(unittest.defaultTestLoader.discover(str(path.parent),pattern=path.name))
+        with (args.output / 'domain-results.txt').open('w', encoding='utf-8') as stream:
+            domain_results = unittest.TextTestRunner(stream=stream, verbosity=2).run(domain)
+        domain_native = subprocess.run(['ctest','--test-dir',str(args.build_dir),'-C',args.config,
+                                        '--output-on-failure','--no-tests=error'],
+                                       capture_output=True,text=True,timeout=180)
+        (args.output / 'domain-native-results.txt').write_text(domain_native.stdout+domain_native.stderr,encoding='utf-8')
+        summary['domain'] = dict(tests=domain_results.testsRun,python_passed=domain_results.wasSuccessful(),
+                                 native_passed=domain_native.returncode == 0)
     (args.output / 'RESULTS.json').write_text(json.dumps(summary, indent=2)+'\n', encoding='utf-8')
     print(json.dumps(summary, indent=2))
-    return 0 if summary['gate'] == 'HARNESS_READY' else 1
+    domain = summary.get('domain',dict(python_passed=True,native_passed=True))
+    return 0 if summary['gate'] == 'HARNESS_READY' and domain['python_passed'] and domain['native_passed'] else 1
 
 
 if __name__ == '__main__':
