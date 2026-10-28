@@ -2,6 +2,8 @@
 local Nav=dofile(LockOn_Options.script_path..'Systems/Nav_Entry.lua')
 local Transaction=dofile(LockOn_Options.script_path..'Systems/Entry_Transaction.lua')
 local M={}
+local ap_off_fields={'F22_AP_ACTIVE','F22_AP_AT','F22_AP_ROLL_MODE','F22_AP_PITCH_MODE',
+ 'F22_AP_OVERRIDE','F22_AP_NAV_OVERRIDE'}
 local function finite(v)return type(v)=='number'and v==v and math.abs(v)<1e9 end
 function M.new(get,put,send,_sensors)
  local s={page='',entry=nil,pending=nil,status='',clock=0,point=nil}
@@ -26,7 +28,7 @@ function M.new(get,put,send,_sensors)
  function s:cancel()
   if self.pending and self.pending.cancel then self.pending.cancel()end
   if self.page=='STORES'and(self.entry or self.pending)then send('WEAPON_SYSTEM',10980,1)end
-  self.entry=nil;self.pending=nil;self.status=''
+  self.entry=nil;self.pending=nil;self.status='';self.ap_off_sequence=nil
  end
  function s:request_action(owner,command,value)
   local pending,error=request(owner,command,value,function()return true end)
@@ -67,7 +69,25 @@ function M.new(get,put,send,_sensors)
   return true
  end
  function s.ap_mode(_self,command)
+  _self.ap_off_sequence=nil;_self.status=''
   send('FLIGHT_GUIDANCE',command,1)
+ end
+ function s:ap_off()
+  self:cancel()
+  self.ap_off_sequence=get('F22_AP_OFF_SEQUENCE')
+  self.ap_off_started=self.clock
+  self.status='AP / AT OFF REQUESTED'
+  send('FLIGHT_GUIDANCE',10953,1)
+ end
+ function s:ap_off_update()
+  if self.ap_off_sequence==nil then return end
+  local sequence=get('F22_AP_OFF_SEQUENCE')
+  local off=finite(sequence) and sequence>0 and sequence~=self.ap_off_sequence
+  for _,key in ipairs(ap_off_fields)do off=off and get(key)==0 end
+  if off then self.ap_off_sequence=nil;self.status='AP / AT OFF'
+  elseif self.clock-self.ap_off_started>1 then
+   self.ap_off_sequence=nil;self.status='AP OFF NOT CONFIRMED'
+  end
  end
  function s:rows()
   local page=self.page;local rows={}
@@ -200,7 +220,7 @@ function M.new(get,put,send,_sensors)
    rows[5]=action('RTN',function()self:open('ALT DISPLAY',true)end)
   elseif page=='AP'then
    local active=get('F22_AP_ACTIVE')>.5;local roll=get('F22_AP_ROLL_MODE');local pitch=get('F22_AP_PITCH_MODE')
-   for i,d in ipairs({{'ATTH',10951,active and roll==1 and pitch==1},{'HSEL',10954,active and roll==2},
+   for i,d in ipairs({{'ATTH',10951,active and (roll==1 or pitch==1)},{'HSEL',10954,active and roll==2},
     {'BALT',10950,active and pitch==2},{'RALT',10960,active and pitch==3},{'NAV CPL',10955,active and roll==3}})do
     local item=d;rows[i]=action((item[3]and':'or'')..item[1],function()self:ap_mode(item[2])end)
    end
@@ -326,6 +346,7 @@ function M.new(get,put,send,_sensors)
     if self.entry then self.entry.error='NO RESPONSE'else self.status='NO RESPONSE'end
    end
   end
+  self:ap_off_update()
   put('F22_UFC_VISIBLE',self.page~=''and 1 or 0);put('F22_UFC_SELECTED',self.entry and self.entry.option or 0)
   put('F22_UFC_PAGE',self.page)
   local title=self.page=='AP'and'AP: RMB ALL OFF'or self.page=='NAV'and'NAV 1/2'

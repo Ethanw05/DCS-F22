@@ -6,7 +6,7 @@ end
 local function primary(c, get)
     c[1] = command('PROG', 'EW_SYSTEM', 11105)
     c[2] = command('MODE', 'EW_SYSTEM', 11107)
-    c[6] = command('ECM','EW_SYSTEM',10842)
+    c[6] = command('ECM','EW_SYSTEM',11116)
     c[6].selected=get('F22_ECM_REQUESTED')==1
     c[14] = {label = 'RNG+', action = 'def_range', value = 1}
     c[15] = {label = 'RNG-', action = 'def_range', value = -1}

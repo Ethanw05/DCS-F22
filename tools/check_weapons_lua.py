@@ -48,6 +48,13 @@ def main():
    file_options=lua.table_from({'std':'lua51','max_line_length':120,
     'globals':lua.table_from(entrypoints+[host_export]),
     'read_globals':lua.table_from([key for key in read_globals if key!=host_export])})
+  if name.startswith('Input/F-22A/') and name.endswith('/default.lua'):
+   # DCS input profiles receive these command constants outside the cockpit
+   # script environment. Keep their allowance scoped to those two profiles.
+   file_options=lua.table_from({'std':'lua51','max_line_length':120,
+    'globals':lua.table_from(entrypoints),
+    'read_globals':lua.table_from(read_globals+[
+     'iCommandPlaneDropFlareOnce','iCommandPlaneDropChaffOnce','iCommandActiveJamming'])})
   def lint(text):
    lines=text.splitlines();report=check(lua.table_from([text]),file_options)[1]
    return Counter((e['code'],e['name'],lines[e['line']-1].strip())for _,e in report.items())

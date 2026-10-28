@@ -125,6 +125,16 @@ int main(int argc,char** argv) {
     set("F22_NAV_SNAPSHOT_1_VALID",1);set("F22_NAV_SNAPSHOT_1_TRACK",.3);
     set("F22_NAV_SNAPSHOT_1_TIME",get("F22_AP_CLOCK"));set("F22_NAV_SNAPSHOT_1_TERMINAL",0);
     cmd(11605,1);ticks(1);assert(get("F22_AP_ROLL_MODE")==3);
+    cmd(11605,1);ticks(1);
+    assert(get("F22_AP_ROLL_MODE")==0 && get("F22_AP_ACTIVE")==0);
+    ticks(2);assert(get("F22_AP_ROLL_MODE")==0); // Fresh NAV cannot re-engage a released mode.
+    cmd(11605,1);ticks(1);assert(get("F22_AP_ROLL_MODE")==3);
+    const auto off_sequence=get("F22_AP_OFF_SEQUENCE");
+    cmd(11603,1);ticks(1);
+    assert(get("F22_AP_ACTIVE")==0 && get("F22_AP_ROLL_MODE")==0 && get("F22_AP_PITCH_MODE")==0);
+    assert(get("F22_AP_AT")==0 && get("F22_AP_OVERRIDE")==0 && get("F22_AP_NAV_OVERRIDE")==0);
+    assert(get("F22_AP_OFF_SEQUENCE")!=off_sequence && get("F22_AP_OFF_SEQUENCE")>0);
+    cmd(11605,1);ticks(1);assert(get("F22_AP_ROLL_MODE")==3);
     set("F22_NAV_SNAPSHOT_SCHEMA",0);ticks(1);assert(get("F22_AP_ROLL_MODE")==0);
     set("F22_NAV_SNAPSHOT_SCHEMA",1);set("F22_NAV_SNAPSHOT_1_TIME",get("F22_AP_CLOCK"));
     ticks(1);assert(get("F22_AP_ROLL_MODE")==0); // Restoration never engages.

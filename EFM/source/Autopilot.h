@@ -74,6 +74,7 @@ public:
   double throttle = 0, last_left_throttle = 0, last_right_throttle = 0;
   double last_speed = 0, speed_rate = 0;
   int reason = 0, at_reason = 0;
+  unsigned off_sequence = 0;
   double at_feedback_until = 0;
   bool nav_override = false, pitch_limited = false, roll_limited = false, at_limited = false;
   bool active() const { return vertical != Off || lateral != Manual; }
@@ -83,6 +84,7 @@ public:
     integral = 0;
     reason = why;
     nav_override = false;
+    pitch_limited = roll_limited = false;
   }
   void reset() { *this = Controller{}; }
   bool engage(Pitch p, Roll r, const Frame &f) {
@@ -104,6 +106,7 @@ public:
   }
   void end_throttle(int why, double now) {
     at = false;
+    at_limited = false;
     throttle_integral = 0;
     at_reason = why;
     at_feedback_until = why ? now + 10 : 0;
@@ -127,6 +130,7 @@ public:
       disconnect();
       end_throttle(0, f.time);
       override_held = false;
+      off_sequence = off_sequence >= 999999999u ? 1u : off_sequence + 1u;
       return;
     }
     if (c == 427 || c == 11611) {
@@ -219,43 +223,56 @@ public:
       return;
     }
   }
+  static Pitch pitch_mode(int command) {
+    switch (command) {
+    case 11600: case 389: return Altitude;
+    case 11610: return RadarAltitude;
+    case 11619: return VerticalSpeed;
+    default: return Off;
+    }
+  }
+  static Roll roll_mode(int command) {
+    switch (command) {
+    case 11604: return Heading;
+    case 11605: case 429: return Navigation;
+    default: return Manual;
+    }
+  }
+  bool deselect(Pitch pitch, Roll roll) {
+    const bool release_pitch = pitch != Off && vertical == pitch;
+    const bool release_roll = roll != Manual && lateral == roll;
+    if (!release_pitch && !release_roll) return false;
+    if (release_pitch) {
+      vertical = Off;
+      integral = 0;
+      pitch_limited = false;
+    }
+    if (release_roll) {
+      lateral = Manual;
+      nav_override = false;
+      roll_limited = false;
+    }
+    reason = 0;
+    return true;
+  }
   void mode_command(int c, const Frame &f) {
-    if (c == 11600 || c == 389) {
-      engage(Altitude, lateral, f);
-      return;
-    }
     if (c == 11601 || c == 62) {
-      if (active() && vertical == Att && lateral == Attitude)
-        disconnect();
-      else
-        engage(Att, Attitude, f);
+      if (!deselect(Att, Attitude)) engage(Att, Attitude, f);
       return;
     }
-    if (c == 11604) {
-      if (!f.eligible()) {
-        reason = 1;
-        return;
-      }
-      if(!heading_preset)selected_heading=f.heading;
-      engage(vertical, Heading, f);
-      return;
+    const auto pitch = pitch_mode(c);
+    const auto roll = roll_mode(c);
+    // Deselect before engagement gates: losing NAV, power or an altitude
+    // source must never prevent the pilot from releasing a selected mode.
+    if (deselect(pitch, roll)) return;
+    if (pitch != Off) { engage(pitch, lateral, f); return; }
+    if (roll == Manual) return;
+    if (!f.eligible()) { reason = 1; return; }
+    if (roll == Heading && !heading_preset) {
+      if (!f.heading_valid || !std::isfinite(f.heading)) { reason = 1; return; }
+      selected_heading = f.heading;
     }
-    if (c == 11605 || c == 429) {
-      if (!f.eligible() || !f.navigation()) {
-        reason = 1;
-        return;
-      }
-      engage(vertical, Navigation, f);
-      return;
-    }
-    if (c == 11610) {
-      engage(RadarAltitude, lateral, f);
-      return;
-    }
-    if (c == 11619) {
-      engage(VerticalSpeed, lateral, f);
-      return;
-    }
+    engage(vertical, roll, f);
   }
   void command(int c, const Frame &f, double value=1) {
     if (c == 11626) { reason = 0; at_reason = 0; at_feedback_until = 0; return; }
