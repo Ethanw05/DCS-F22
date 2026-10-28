@@ -104,6 +104,32 @@ for _, group in ipairs(mission.coalition.red.country[1].vehicle.group) do
     end
 end
 assert(moving == 6 and total < 150)
+
+local checker = assert(loadfile(stage .. '/route_verifier.lua'))
+local checker_env = setmetatable({_ = function(value) return value end}, {__index = _G})
+setfenv(checker, checker_env)
+local verify_route = checker()
+local routes = {players[1]}
+for _, group in ipairs(mission.coalition.red.country[1].vehicle.group) do
+    routes[#routes + 1] = group
+end
+for _, group in ipairs(routes) do
+    for index, point in ipairs(group.route.points) do
+        point.index = index -- the Mission Editor adds these during import
+        assert(type(point.ETA) == 'number')
+        assert(point.ETA_locked == (index == 1), 'incorrect time-lock placement')
+    end
+    local failure = verify_route(group.route, group.lateActivation)
+    assert(failure == nil, group.name .. ': ' .. tostring(failure))
+end
+-- Negative control: the actual editor validator must reproduce the reported
+-- error when the original missing start lock is reintroduced on the flight.
+local start_point = players[1].route.points[1]
+start_point.ETA_locked = false
+assert(verify_route(players[1].route, false) == 'Route has no waypoints with locked time!')
+start_point.ETA_locked = true
+print('Installed Mission Editor timing validator: PASS (' .. #routes .. ' routes; negative control reproduced)')
+
 for _, name in ipairs({'options', 'l10n/DEFAULT/dictionary', 'l10n/DEFAULT/mapResource'}) do
     assert(loadfile(stage .. '/' .. name))
 end

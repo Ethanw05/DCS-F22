@@ -80,6 +80,18 @@ def waypoint(name: str, position: tuple, altitude: float, speed: float) -> dict:
             "task": combo()}
 
 
+def set_route_timing(points: list[dict]) -> None:
+    """Match me_mission.lua: time-lock waypoint 1, speed-lock later legs."""
+    elapsed = 0.0
+    for index, point in enumerate(points):
+        if index:
+            previous = points[index - 1]
+            elapsed += math.hypot(point["x"] - previous["x"],
+                                  point["y"] - previous["y"]) / point["speed"]
+        point["ETA"] = elapsed
+        point["ETA_locked"] = index == 0
+
+
 def player_country() -> dict:
     route = [waypoint("START", START, 4200, 230),
              waypoint("INGRESS", (-300000, 630000), 3000, 230),
@@ -87,6 +99,7 @@ def player_country() -> dict:
              waypoint("BRAVO FUEL", BRAVO, 4500, 230),
              waypoint("EGRESS", (-305000, 650000), 4000, 230),
              waypoint("BATUMI OVERHEAD", BATUMI, 1000, 150)]
+    set_route_timing(route)
     heading = math.atan2(route[1]["y"] - START[1], route[1]["x"] - START[0])
     payload = {"fuel": 8200, "flare": 120, "chaff": 120, "gun": 100,
                "pylons": {1: {"CLSID": "{AIM9X-BLKII}"},
@@ -134,6 +147,7 @@ def ground_group(index: int, name: str, types: list[str], position: tuple,
                       "action": "On Road", "speed": 10, "speed_locked": True,
                       "ETA_locked": False, "task": combo([action(1, "SwitchWaypoint", {
                           "fromWaypointIndex": 2, "goToWaypointIndex": 1})])})
+    set_route_timing(route)
     return {"name": name, "groupId": 100 + index, "x": x, "y": y,
             "units": units, "route": {"points": route}, "task": "Ground Nothing",
             "tasks": [], "start_time": 0, "lateActivation": False, "uncontrolled": False,
@@ -236,12 +250,23 @@ def validate_plan(groups: list[dict], dcs_root: Path) -> None:
     print(f"Plan: {len(groups)} hostile groups, {len(units)} Excellent ground units, 6 looping convoys")
 
 
+def stage_route_verifier(stage: Path, dcs_root: Path) -> None:
+    # Execute the installed Mission Editor's actual timing validator offline.
+    # Its small dependency-free section needs only the translation identity.
+    source = (dcs_root / "MissionEditor/modules/me_route.lua").read_text(encoding="utf-8-sig")
+    start = source.index("local function getWptWithFlags(")
+    end = source.index("\nfunction verifyWptTasks(", start)
+    verifier = source[start:end] + "\nreturn verifyRoute\n"
+    (stage / "route_verifier.lua").write_text(verifier, encoding="utf-8")
+
+
 def build(lua_exe: Path, install: Path | None) -> None:
     dcs_root = lua_exe.parent.parent
     groups = ground_forces()
     validate_plan(groups, dcs_root)
     stage = ROOT / "out/ew-gauntlet"
     stage.mkdir(parents=True, exist_ok=True)
+    stage_route_verifier(stage, dcs_root)
     template = ROOT / "Missions/Ground Attack/F-22A - Ground Attack - JDAM AUTO.miz"
     with zipfile.ZipFile(template) as archive:
         for name in archive.namelist():
