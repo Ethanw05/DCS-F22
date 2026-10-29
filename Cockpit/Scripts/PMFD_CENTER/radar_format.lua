@@ -486,14 +486,6 @@ group(
 )
 text("SUPPORT COAST", 0, -0.89, nil, "yellow", "F22_RDR_SUPPORT_COAST", 0.0036)
 
--- Search geometry is requested; actual priority service is independent.
-group("F22_RDR_SCAN_SEARCH", { "F22_RADAR_MODE_CODE", "F22_RADAR_SEARCH_REQUEST_VALID" }, {
-    { "parameter_in_range", 0, 1.9, 3.1 }, { "parameter_in_range", 1, .9, 1.1 },
-})
-text("SEARCH", 0, -0.76, nil, "blue", "F22_RDR_SCAN_SEARCH", 0.0038)
-text("AZ %.0f", -0.14, -0.815, "F22_RADAR_SCAN_AZ_DEG", "blue", "F22_RDR_SCAN_SEARCH", 0.0038)
-text("HT %.0f", 0.15, -0.815, "F22_RADAR_SCAN_EL_DEG", "blue", "F22_RDR_SCAN_SEARCH", 0.0038)
-text("EL %+.0f", 0, -0.865, "F22_RADAR_SCAN_CENTER_EL_DEG", "blue", "F22_RDR_SCAN_SEARCH", 0.0038)
 -- Show actual sensor degradation; queue depth belongs in diagnostics.
 text("AESA", -0.72, -0.89, nil, "blue", nil, 0.0033)
 group("F22_RDR_SERVICE_DEGRADED", { "F22_RADAR_SERVICE_STATE" }, { { "parameter_in_range", 0, 1.9, 2.1 } })

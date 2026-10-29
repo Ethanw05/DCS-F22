@@ -19,16 +19,18 @@ class DatalinkMotion(unittest.TestCase):
         point = self.module.position(row, 104)
         self.assertEqual((point.n, point.u, point.e), (10400, 3000, 100))
         self.assertEqual((point.age, point.receive_age, point.motion_age), (4, 2, 2))
-        self.assertTrue(point.estimated and point.coast)
+        self.assertTrue(point.estimated)
+        self.assertFalse(point.coast)
         self.assertFalse(point.observation_known)
         self.assertEqual((row.time, row.received), (100, 102))
 
     def test_prediction_stops_and_original_lifetime_still_expires(self):
         row = self.report()
-        point = self.module.position(row, 150)
+        point = self.module.position(row, 120)
         self.assertEqual((point.n, point.e, point.state), (12600, 650, 3))
-        self.assertEqual(point.receive_age, 48)
-        self.assertIsNone(self.module.position(row, 175.1))
+        self.assertEqual(point.receive_age, 18)
+        self.assertTrue(point.coast)
+        self.assertIsNone(self.module.position(row, 126.1))
         self.assertIsNone(self.module.position(self.report(ppli=True), 126.1))
 
     def test_known_clock_and_bad_input(self):
@@ -36,6 +38,16 @@ class DatalinkMotion(unittest.TestCase):
         self.assertEqual(self.module.position(known, 104).n, 10800)
         self.assertIsNone(self.module.position(self.report(received=105), 104))
         self.assertIsNone(self.module.position(self.report(vn=float('nan')), 104))
+
+    def test_observed_twelve_second_updates_do_not_coast_or_renew_old_clock(self):
+        row = self.report(time=104.741, received=104.741)
+        for now in (104.741, 110, 116.761):
+            self.assertFalse(self.module.position(row, now).coast)
+        self.assertTrue(self.module.position(row, 118).coast)
+        self.assertEqual(row.received, 104.741)
+        self.assertIsNone(self.module.position(row, 130.742))
+        replacement = self.report(time=131, received=131)
+        self.assertFalse(self.module.position(replacement, 131).coast)
 
     def test_ingress_preserves_ppli_and_epoch_independently(self):
         self.h.execute('''

@@ -4,7 +4,7 @@ local Bearings = dofile(LockOn_Options.script_path .. 'Systems/RWR_Bearings.lua'
 local Geo = dofile(LockOn_Options.script_path .. 'Systems/EW_Geolocation.lua')
 -- Retention/prediction are mod policies for sparse common-terminal reports.
 -- Unknown source clocks stay unknown; receive-time motion is only an estimate.
-local M = { lifetime = 75, ppli_lifetime = 26, coast = 13, prediction = 13, max_tracks = 64 }
+local M = { lifetime = 26, ppli_lifetime = 26, coast = 13, prediction = 13, max_tracks = 64 }
 function M.retention(o)return (o.ppli==true or o.ppli==1)and M.ppli_lifetime or M.lifetime end
 local function finite(x)
     return type(x) == 'number' and x == x and math.abs(x) < 1e9
@@ -26,6 +26,11 @@ local function motion_clock(o, now)
     end
     return math.max(0, now - o.time)
 end
+function M.coasting(o, now)
+    if not o or not finite(now) or not finite(o.time) then return true end
+    local age = motion_clock(o, now)
+    return not age or age > M.coast
+end
 local function position_state(unknown, motion_age)
     if motion_age > M.prediction then return 3 end
     if unknown or motion_age > 0 then return 2 end
@@ -39,7 +44,7 @@ function M.position(o, now)
     local receive_age = finite(o.received) and math.max(0, now - o.received) or nil
     local dt = math.min(motion_age, M.prediction)
     return { n = o.n + o.vn * dt, u = o.u + o.vu * dt, e = o.e + o.ve * dt,
-        age = age, coast = unknown or age > M.coast,
+        age = age, coast = motion_age > M.coast,
         state = position_state(unknown, motion_age),
         estimated = unknown or dt > 0, motion_age = dt, receive_age = receive_age,
         observation_known = not unknown, received = o.received }

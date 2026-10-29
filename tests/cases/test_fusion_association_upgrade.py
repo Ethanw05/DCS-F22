@@ -7,7 +7,7 @@ def fixture():
     h = Host()
     h.execute("""
         A=dofile(LockOn_Options.script_path..'Systems/Tactical_Association.lua').new()
-        limits={radar=20,rf=12,mws=3,datalink=75,irst=2.5}
+        limits={radar=20,rf=12,mws=3,datalink=26,irst=2.5}
         function radar(id,n,e)
             return {source=id,time=100,epoch=1,n=n,u=0,e=e,vn=200,vu=0,ve=0,
                 az=math.atan2(e,n),el=0,velocity_valid=true,

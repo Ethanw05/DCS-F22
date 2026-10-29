@@ -1,26 +1,7 @@
 -- GPL-3.0-or-later. TSD layers over the existing common radar map.
-return function(api, layout, gain, root)
+return function(api, _layout, gain, root)
 	local group, line, text = api.group, api.line, api.text
 	local identity=dofile(LockOn_Options.script_path..'Systems/Tactical_Identity.lua')
-	local function passive_label(optical,prefix,parent,color)
-		if optical==1 then
-			text('MSL',0,0,nil,color,parent,.0033)
-			return
-		end
-		for value,label in pairs({[0]='RF',[1]='IRST'})do
-			local source=parent..'_IRST_'..value
-			group(source,{prefix..'IRST'},{{'parameter_in_range',0,value-.1,value+.1}},parent)
-			if value==1 then
-				text(label,0,0,nil,color,source,.0033)
-			else
-				for present,caption in pairs({[0]='RF',[1]='RF/IR'})do
-					local fused=source..'_FUSED_'..present
-					group(fused,{prefix..'IRST_CONTRIBUTOR'},{{'parameter_in_range',0,present-.1,present+.1}},source)
-					text(caption,0,0,nil,color,fused,.0033)
-				end
-			end
-		end
-	end
 	local function offboard_warnings(prefix,parent)
 		group(parent..'_RF_ONLY',{prefix..'MWS_CURRENT'},{{'parameter_in_range',0,-.1,.1}},parent)
 		for signal,label in pairs({[2]='LOCK',[3]='LAUNCH'})do
@@ -125,41 +106,6 @@ return function(api, layout, gain, root)
 			{ "parameter_in_range", 4, 0.9, 1.1 },
 		}
 		api.add(e, "F22_TSD_ROUTE_" .. i, parent)
-	end
-	group("F22_TSD_PASSIVE_RING", { "F22_TSD_PASSIVE_LAYER" }, { { "parameter_in_range", 0, 0.9, 1.1 } }, parent)
-	for deg = 0, 345, 15 do
-		local a, b = math.rad(deg), math.rad(deg + 6)
-		line(
-			0.20 * math.sin(a),
-			layout.origin_y + 0.20 * math.cos(a),
-			0.20 * math.sin(b),
-			layout.origin_y + 0.20 * math.cos(b),
-			"blue",
-			"F22_TSD_PASSIVE_RING"
-		)
-	end
-	text("BRG", 0.28, layout.origin_y - 0.08, nil, "blue", "F22_TSD_PASSIVE_RING", 0.0032)
-	for i = 1, 8 do
-		local p = string.format("F22_TSD_BEARING_%02d_", i)
-		local name = "F22_TSD_BEARING_" .. i
-		group(name, { p .. "X", p .. "Y", p .. "VALID" }, {
-			{ "move_left_right_using_parameter", 0, 1 },
-			{ "move_up_down_using_parameter", 1, 1 },
-			{ "parameter_in_range", 2, 0.9, 1.1 },
-		}, parent)
-		for optical = 0, 1 do
-			local kind = name .. "_TYPE_" .. optical
-			group(kind, { p .. "OPTICAL" }, { { "parameter_in_range", 0, optical - 0.1, optical + 0.1 } }, name)
-			for _,style in ipairs(identity.styles)do
-				local color_group=kind..'_ID_'..style[1]
-				group(color_group,{p..'AFFILIATION'},{{'parameter_in_range',0,style[1]-.1,style[1]+.1}},kind)
-				passive_label(optical,p,color_group,style[2])
-			end
-		end
-		group(name .. "_COAST", { p .. "COAST" }, { { "parameter_in_range", 0, 0.9, 1.1 } }, name)
-		text("C", 0.025, -0.027, nil, "yellow", name .. "_COAST", 0.0028)
-		group(name .. "_CLUSTER", { p .. "EXTRA_COUNT" }, { { "parameter_in_range", 0, 0.5, 64.5 } }, name)
-		text("+%.0f", 0.035, 0.025, p .. "EXTRA_COUNT", "white", name .. "_CLUSTER", 0.0028)
 	end
 	for i, entry in ipairs({ { "RADAR", "R" }, { "RF", "RF" }, { "OPTICAL", "MSL" }, { "IRST", "IR" } }) do
 		local name = "F22_TSD_SELECTED_" .. entry[1]

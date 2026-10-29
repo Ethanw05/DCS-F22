@@ -53,9 +53,9 @@ struct Report {
   int affiliation{-1};bool flight{},ppli{};
   double received{};bool observation_known{};
 };
-// The common AI terminal can space surveillance reports about a minute apart.
-// Retain bounded SA memory; the original observation time is never renewed.
-double lifetime(const Report &q) {return q.ppli?26.:75.;}
+// Flight log2026-10-29: PPLI/target reports arrived every12/12.02seconds.
+// Mod policy permits one missed cycle plus margin; source time is never renewed.
+constexpr double report_lifetime_s=26.;
 // PPLI membership has its own lifetime; surveillance must not replace or renew it.
 using ReportKey = std::tuple<int,unsigned,unsigned,bool>;
 ReportKey report_key(const Report& report) {
@@ -199,7 +199,7 @@ unsigned last_sender{};int last_kind{-1};
 int published_rx=-1,published_tx=-1;
 
 bool report_clock(const Report& q,double now) {
-  return finite(now)&&finite(q.time)&&q.time>=0&&now-q.time>=-.05&&now-q.time<=lifetime(q);
+  return finite(now)&&finite(q.time)&&q.time>=0&&now-q.time>=-.05&&now-q.time<=report_lifetime_s;
 }
 bool report_identity(const Report& q) {
   return q.source&&q.reporter&&!((q.ppli||q.link==2)&&q.source==own_id);
@@ -379,6 +379,15 @@ void transmit(EDPARAM &p,double now) {
   // Only our own PPLI and complete onboard measured snapshots, never relays.
   api.send(terminal.data(),message.data());++sent;last_transmitted=now;
 }
+void retire_reports(double now,bool ifdl) {
+  for(auto i=participants.begin();i!=participants.end();) {
+    if(now-i->second.time>report_lifetime_s||now<i->second.time-.05)i=participants.erase(i);else ++i;
+  }
+  for(auto i=reports.begin();i!=reports.end();) {
+    if(now-i->second.time>report_lifetime_s||now<i->second.time-.05||(i->second.link==1&&!ifdl))i=reports.erase(i);
+    else ++i;
+  }
+}
 void publish_latency(EDPARAM& p,double now) {
   double newest=999,oldest=0;
   for(const auto& [key,report]:reports) {
@@ -429,13 +438,7 @@ void update(EDPARAM &p) {
     if(controls.ifdl)transmit(p,now);
   }
   if(!power){reports.clear();participants.clear();}
-  for(auto i=participants.begin();i!=participants.end();) {
-    if(now-i->second.time>26||now<i->second.time-.05)i=participants.erase(i);else ++i;
-  }
-  for(auto i=reports.begin();i!=reports.end();) {
-    if(now-i->second.time>lifetime(i->second)||now<i->second.time-.05||(i->second.link==1&&!controls.ifdl))i=reports.erase(i);
-    else ++i;
-  }
+  retire_reports(now,controls.ifdl);
   put(p,"F22_DL_RX_SEQUENCE",0);unsigned index=0;
   for(const auto &[id,q]:reports) {
     char prefix[48];std::snprintf(prefix,sizeof prefix,"F22_DL_RX_%02u_",++index);std::string s=prefix;

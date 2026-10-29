@@ -50,10 +50,13 @@ class FusionPresentation(unittest.TestCase):
         self.assertEqual(h.get('F22_DEF_OV_COUNT'), 1)
         # The donor position still has unknown observation age, but its fresh RF
         # observation keeps the common object current and its lock warning alive.
-        self.assertEqual(h.get('F22_TSD_DL_01_COAST'), 1)
+        self.assertEqual(h.get('F22_TSD_DL_01_COAST'), 0)
         self.assertEqual(h.get('F22_DEF_OV_01_COAST'), 0)
         h.execute('publish(104)')
         self.assertEqual(h.get('F22_TSD_DL_01_RF_SIGNAL'), 0)
+        self.assertEqual(h.get('F22_DEF_OV_01_COAST'), 0)
+        h.execute('publish(114)')
+        self.assertEqual(h.get('F22_TSD_DL_01_COAST'), 1)
         self.assertEqual(h.get('F22_DEF_OV_01_COAST'), 1)
 
     def test_visible_coasting_radar_does_not_get_a_second_donor_symbol(self):

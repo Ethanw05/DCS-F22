@@ -44,9 +44,7 @@ local function coast_state(track, now, coast)
     if not track then return coast end
     if current_own(track, now) then return false end
     local donor = track.datalink
-    if donor and (donor.observation_known == false or now - donor.time > Datalink.coast) then
-        return true
-    end
+    if donor then return Datalink.coasting(donor, now) end
     return coast
 end
 function M.new(get,put,sensors)

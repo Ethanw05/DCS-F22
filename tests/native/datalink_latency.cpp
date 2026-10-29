@@ -54,9 +54,25 @@ bool capacity() {
     }
     return reports.size()==64;
 }
+bool dropout() {
+    using namespace NativeDatalink;
+    reports.clear();participants.clear();
+    Report old;old.source=301;old.reporter=200;old.time=100;
+    accept(old,100);
+    Report live=old;live.source=302;live.time=124;
+    accept(live,124);
+    retire_reports(125,true);
+    if(reports.size()!=2)return false; // One missed twelve-second update survives.
+    retire_reports(126.01,true);
+    if(reports.size()!=1 || reports.begin()->second.source!=302)return false;
+    accept(old,126.01); // Late replay cannot revive the expired target.
+    if(reports.size()!=1 || reports.begin()->second.received!=124)return false;
+    retire_reports(150.01,true);
+    return reports.empty();
+}
 }
 int main() {
     EDPARAM port;WeaponParameterPort::bind(port);
-    if(!scheduling(port) || !membership(port) || !capacity())return 1;
+    if(!scheduling(port) || !membership(port) || !capacity() || !dropout())return 1;
     std::cout<<"Datalink: bounded 5 Hz scheduling, independent PPLI clocks, receipt ages and capacity pass\n";
 }

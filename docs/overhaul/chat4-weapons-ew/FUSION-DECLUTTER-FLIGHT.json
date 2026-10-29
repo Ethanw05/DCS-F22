@@ -1,0 +1,128 @@
+{
+  "flight_log": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Logs\\dcs.log",
+  "sha256": "5d2c20a7bc8c425b04933c321b28cb4d2973f166798ebf18e6c2f313a3af5f4d",
+  "mission_load_utc": "2026-10-29 08:19:30.950",
+  "read_before_edits": true,
+  "source_groups": [
+    {
+      "link": "1",
+      "reporter": "16777984",
+      "source": "16777984",
+      "ppli": true,
+      "original_observation_time_known": false,
+      "receive_times": [
+        16.262,
+        28.261,
+        40.284,
+        52.281,
+        64.284,
+        76.284,
+        88.281,
+        100.281,
+        112.284,
+        124.281,
+        136.281,
+        148.281,
+        160.281,
+        172.281,
+        184.281,
+        196.281,
+        208.281,
+        220.284,
+        232.281,
+        244.284,
+        256.301,
+        268.301,
+        280.301,
+        292.301,
+        304.301,
+        316.301,
+        328.301,
+        340.301,
+        352.301,
+        364.301,
+        376.301,
+        388.301,
+        400.301,
+        412.301,
+        424.301,
+        436.301,
+        448.301,
+        460.301,
+        472.301
+      ],
+      "minimum_receive_gap_s": 11.997,
+      "maximum_receive_gap_s": 12.023,
+      "maximum_logged_age_s": 17.699,
+      "fusion_samples": 237,
+      "new_age_policy_sample_counts": {
+        "current": 234,
+        "coasting": 3,
+        "expired": 0
+      }
+    },
+    {
+      "link": "1",
+      "reporter": "16777984",
+      "source": "16777472",
+      "ppli": false,
+      "original_observation_time_known": false,
+      "receive_times": [
+        104.741,
+        116.762,
+        128.781,
+        140.801,
+        152.821,
+        164.841,
+        176.861,
+        188.881
+      ],
+      "minimum_receive_gap_s": 12.019000000000005,
+      "maximum_receive_gap_s": 12.021,
+      "maximum_logged_age_s": 73.119,
+      "fusion_samples": 79,
+      "new_age_policy_sample_counts": {
+        "current": 48,
+        "coasting": 7,
+        "expired": 24
+      }
+    },
+    {
+      "link": "1",
+      "reporter": "16777984",
+      "source": "16777728",
+      "ppli": false,
+      "original_observation_time_known": false,
+      "receive_times": [
+        104.741,
+        116.762,
+        128.781,
+        140.801,
+        152.821,
+        164.841
+      ],
+      "minimum_receive_gap_s": 12.019000000000005,
+      "maximum_receive_gap_s": 12.021,
+      "maximum_logged_age_s": 73.159,
+      "fusion_samples": 67,
+      "new_age_policy_sample_counts": {
+        "current": 36,
+        "coasting": 7,
+        "expired": 24
+      }
+    }
+  ],
+  "final_transport_counters": {
+    "t": "490.000",
+    "epoch": "3",
+    "tracks": "1",
+    "rx": "53",
+    "raw": "87",
+    "rejected": "0",
+    "tx": "2450",
+    "newest_receive_age": "17.683",
+    "oldest_receive_age": "17.683",
+    "tx_age": "0.183"
+  },
+  "policy": "26-second retention for PPLI and targets,13-second motion/coast boundary. Unknown observation-clock qualification remains independent. No clock renewed by display refresh."
+}

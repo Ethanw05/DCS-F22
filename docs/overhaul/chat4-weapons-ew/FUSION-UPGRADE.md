@@ -15,3 +15,20 @@ Tactical schema 2 uses an odd/even commit marker and epoch; radar metadata check
 Validation uses actual Lua owners and native transport code: close formations, multiple reporters, no-wingman radar/RWR, PPLI, IRST, separate MAWS, stale reports, contradictory updates, power/epoch resets, torn packets, display deduplication, and transport timing. Numeric gates and timings are explicit simulator estimates, not authenticated F-22 specifications. See the external sensor-fusion-20261029 build/check records and FUSION-COMPLEXITY.json for limits. Actual post-install flight validation remains pending.
 
 Installed source 1c81b19 into the normal F-22A mod with DCS closed: 588 runtime assets and the DLL hash-verified, 22 runtime files updated, 0 remaining mismatches. All 338 domain + 12 common cases and 30 native tests pass; 102 checks against 158 actual installed Lua dependencies pass. Canonical receipt: [COMPLETE-PACKAGE-INSTALLATION.json](../integration/COMPLETE-PACKAGE-INSTALLATION.json). No simulator operation or post-install flight was performed.
+
+
+## Follow-up flight: stale entries and display clutter
+
+The next flight is recorded in [FUSION-DECLUTTER-FLIGHT.json](FUSION-DECLUTTER-FLIGHT.json).
+It supplied 53 accepted reports with zero reported rejections, roughly 12-second
+PPLI/target intervals, and target entries retained as long as 73 seconds after
+reports stopped. Unknown observation clocks incorrectly marked every native
+report as coasting. Freshness now follows the actual source/receipt clock:
+13 seconds to coast, 26 seconds to expire in the native receiver, Lua receiver
+and fusion owner. Original observation-clock uncertainty remains explicit.
+
+Removed the dotted radar bearing ring and its passive symbols, the SEARCH and
+repeated AZ/HT/EL captions near ownship, and DEF R/DL tags. Rendering changes do
+not remove their source data from fusion or missile/lock warnings. The source
+changes and actual installed package are checked separately; another flight
+remains the host confirmation of the new presentation.

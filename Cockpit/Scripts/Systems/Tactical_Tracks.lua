@@ -1,5 +1,5 @@
 -- GPL-3.0-or-later. Source-aware tactical picture, separate from fire control.
-local M = {limits={radar=20, rf=12, mws=3, datalink=75, irst=2.5},
+local M = {limits={radar=20, rf=12, mws=3, datalink=26, irst=2.5},
     bits={radar=1, rf=2, mws=4, datalink=8, irst=16}}
 local Association = dofile(LockOn_Options.script_path .. 'Systems/Tactical_Association.lua')
 local Observation = dofile(LockOn_Options.script_path .. 'Systems/Tactical_Observation.lua')

@@ -26,12 +26,13 @@ solution, or missile support.
 Reports retain their sender, original geometry time when known, receipt time and
 velocity. Source-timestamped reports predict from their observation time. Native
 AI reports have an unknown observation clock: their displayed motion estimates
-from the original receipt time, retaining the unknown-time/coast qualifier. Both
-estimates stop after thirteen seconds. **C** also marks known reports older than
-thirteen seconds. PPLI expires after 26 seconds; target reports retain up to 75
-seconds of visibly coasting situational-awareness memory. These are mod policy
-limits for sparse reports, not measurements of an AI sender's current cadence or
-weapon-quality information. Display updates renew neither clock. PPLI and
+from the original receipt time, retaining the separate OBS AGE ? qualifier.
+Unknown observation time alone does not mark a fresh report as coasting. Prediction
+stops and **C** appears after thirteen seconds without new source information.
+PPLI and target entries expire after 26 seconds. The 29 October test flight
+recorded approximately 12-second PPLI and 12.02-second target updates; this policy
+allows one missed cycle plus a margin. A slower donor can disappear between
+reports. These are simulator display/retention limits, not weapon-quality information. Display updates renew neither clock. PPLI and
 surveillance reports retain separate membership/lifetime records, so a target
 report cannot erase or renew flight membership. Radar/RF/optical ages remain
 independent. Range changes rescale contacts and retain offscale direction cues.
@@ -116,3 +117,7 @@ These are mod policy limits, not claims of real F-22 performance.
 Controlled flights reproduced the old friendly-shot alarm, then showed native
 optical detections with no warning after the fix. A separate hostile incoming
 missile flight produced an audible warning with the new classifier.
+
+The radar page omits the dotted ownship bearing ring, its RF/IRST/missile labels,
+and the repeated SEARCH/AZ/HT/EL text. Sensor fusion and DEF warnings still consume
+those observations. DEF contact symbols omit the R and DL source tags.
