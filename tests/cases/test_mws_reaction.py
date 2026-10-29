@@ -39,13 +39,67 @@ def warning_host():
     h.load('Systems/MWS_System.lua')
     h.env.post_initialize()
     h.seed({'F22_MWS_NATIVE_READY': 1, 'F22_MWS_NATIVE_TIME': 100,
+            'F22_MWS_NATIVE_SEQUENCE': 2, 'F22_MWS_NATIVE_SCHEMA': 1, 'F22_MWS_NATIVE_EPOCH': 1,
             'F22_MWS_NATIVE_01_VALID': 1, 'F22_MWS_NATIVE_01_SOURCE': 17,
             'F22_MWS_NATIVE_01_TIME': 100, 'F22_MWS_NATIVE_01_AZ': .2,
-            'F22_MWS_NATIVE_01_EL': 0, 'F22_MWS_NATIVE_01_THREAT': 1})
+            'F22_MWS_NATIVE_01_EL': 0, 'F22_MWS_NATIVE_01_THREAT': 1,
+            'F22_MWS_NATIVE_01_DECISION': 4, 'F22_MWS_NATIVE_01_EVIDENCE_TIME': 100})
     return h
 
 
 class MWSReaction(unittest.TestCase):
+    def test_hold_uses_original_evidence_and_pass_clears_immediately(self):
+        h = warning_host()
+        h.state.time = 104.9
+        h.seed({'F22_MWS_NATIVE_TIME': 104.9, 'F22_MWS_NATIVE_01_TIME': 104.9,
+                'F22_MWS_NATIVE_01_DECISION': 5})
+        h.update()
+        self.assertEqual(h.get('F22_MWS_ALERT'), 1)
+        self.assertEqual(h.get('F22_MWS_HELD'), 1)
+        h.state.time = 105.01
+        h.seed({'F22_MWS_NATIVE_TIME': 105.01, 'F22_MWS_NATIVE_01_TIME': 105.01})
+        h.update()
+        self.assertEqual(h.get('F22_MWS_ALERT'), 0)
+        h = warning_host()
+        h.update()
+        h.state.time = 100.15
+        h.seed({'F22_MWS_NATIVE_TIME': 100.15, 'F22_MWS_NATIVE_01_TIME': 100.15,
+                'F22_MWS_NATIVE_01_THREAT': 0, 'F22_MWS_NATIVE_01_DECISION': 6})
+        h.update()
+        self.assertEqual(h.get('F22_MWS_ALERT'), 0)
+
+    def test_epoch_or_invalid_packet_retires_old_warning(self):
+        h = warning_host()
+        h.update()
+        h.seed({'F22_MWS_NATIVE_EPOCH': 2, 'F22_MWS_NATIVE_01_VALID': 0})
+        h.update()
+        self.assertEqual(h.get('F22_MWS_ALERT'), 0)
+        self.assertEqual(h.get('F22_MWS_EPOCH'), 2)
+        for field, value in [('SEQUENCE', 3), ('SCHEMA', 99), ('TIME', 101)]:
+            h = warning_host()
+            h.update()
+            h.seed({'F22_MWS_NATIVE_' + field: value})
+            h.update()
+            self.assertEqual(h.get('F22_MWS_ALERT'), 0, field)
+
+    def test_capture_rejects_payload_changed_during_read(self):
+        h = warning_host()
+        tear = [False]
+
+        def read(name):
+            value = h.get(name)
+            if tear[0] and name == 'F22_MWS_NATIVE_01_AZ':
+                h.seed({'F22_MWS_NATIVE_SEQUENCE': 4})
+                tear[0] = False
+            return value
+
+        snapshot = h.load('Systems/MWS_Snapshot.lua').new(read)
+        self.assertTrue(snapshot.read(snapshot, 100).ready)
+        tear[0] = True
+        packet = snapshot.read(snapshot, 100)
+        self.assertFalse(packet.ready)
+        self.assertEqual(len(packet.contacts), 0)
+
     def test_mws_takes_priority_over_an_already_playing_radar_launch_tone(self):
         h = warning_host()
         self.assertEqual(h.get('F22_RWR_ALERT'), 3)

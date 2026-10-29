@@ -1,5 +1,6 @@
 // GPL-3.0-or-later. Owned common avMLWS optical observations, never shot events.
 #include "NativeMWS.h"
+#include "MawsThreat.h"
 #include <Cockpit/CockpitAPI_Declare.h>
 #include <Windows.h>
 #include <cmath>
@@ -27,78 +28,19 @@ template <class T> bool load(std::uintptr_t address, T &out) {
     std::memcpy(&out, reinterpret_cast<void *>(address), sizeof(T));
     return true;
 }
-struct Polar {
-    double az{}, el{}, range{};
-};
+using Polar = MawsThreat::Polar;
 struct Contact {
     unsigned id{};
     double time{}, az{}, el{};
     Polar world{};
     bool threat{};
+    std::uintptr_t incarnation{};
+    unsigned priority{};
 };
 // A low bearing rate alone also accepts a friendly missile flying away.
 // Classify only native optical observations, using measured relative motion.
 // These are mod warning-policy limits, not claimed aircraft specifications.
-struct ApproachFilter {
-    enum class Decision : unsigned { None, Measuring, Receding, OutsideHorizon, Incoming };
-    struct Track {
-        double time{}, n{}, u{}, e{};
-        bool threat{};
-        double closing{}, closest_time{-1}, miss{};
-        Decision decision{Decision::None};
-    };
-    std::map<unsigned, Track> tracks;
-    static bool valid(double time, const Polar& p) {
-        return std::isfinite(time) && std::isfinite(p.az) && std::isfinite(p.el)
-            && std::isfinite(p.range) && p.range >= 1 && p.range <= 150000;
-    }
-    static Track measure(double time, double n, double u, double e, const Track& old) {
-        const double dt = time - old.time;
-        const double vn = (n-old.n)/dt, vu = (u-old.u)/dt, ve = (e-old.e)/dt;
-        const double range = std::hypot(n,u,e);
-        const double dot = n*vn + u*vu + e*ve;
-        const double speed2 = vn*vn + vu*vu + ve*ve;
-        const double closing = -dot/range;
-        const double closest_time = speed2 > 1 ? -dot/speed2 : -1;
-        const double miss = std::hypot(n+vn*closest_time,u+vu*closest_time,e+ve*closest_time);
-        // Native optical visibility and >3 low-bearing-rate observations have
-        // already qualified this missile. A lofting/turning missile need not
-        // have a present straight-line collision course. Keep CPA diagnostic;
-        // reject receding missiles and retain the existing60s warning horizon.
-        const bool threat = closing > 25 && closest_time > 0 && closest_time <= 60;
-        const auto decision = threat ? Decision::Incoming
-            : closing <= 25 ? Decision::Receding : Decision::OutsideHorizon;
-        return {time,n,u,e,threat,closing,closest_time,miss,decision};
-    }
-    bool observe(unsigned id, double time, const Polar& p) {
-        if (!valid(time,p)) {
-            tracks.erase(id);
-            return false;
-        }
-        const double ce = std::cos(p.el);
-        const double n = p.range*ce*std::cos(p.az), u = p.range*std::sin(p.el);
-        const double e = p.range*ce*std::sin(p.az);
-        auto it = tracks.find(id);
-        if (it == tracks.end() || time < it->second.time || time-it->second.time > 1.) {
-            tracks[id] = {time,n,u,e,false,0,-1,0,Decision::Measuring};
-            return false;
-        }
-        auto& old = it->second;
-        if (time-old.time < .1) return old.threat;
-        old = measure(time,n,u,e,old);
-        return old.threat;
-    }
-    Track diagnostic(unsigned id) const {
-        const auto it = tracks.find(id);
-        return it == tracks.end() ? Track{} : it->second;
-    }
-    void expire(double now) {
-        for (auto it = tracks.begin(); it != tracks.end();) {
-            if (now < it->second.time || now-it->second.time > 1.) it = tracks.erase(it);
-            else ++it;
-        }
-    }
-};
+using ApproachFilter = MawsThreat::Core;
 ApproachFilter approach;
 struct Api {
     using Context = void *(__cdecl *)();
@@ -176,13 +118,30 @@ struct Api {
 };
 Api api;
 std::map<std::string, void *> handles;
+unsigned publication_sequence{}, source_epoch{1};
+bool publication_ok{};
 double last = -100;
 bool was_powered = false;
 void put(EDPARAM &p, const std::string &n, double value) {
     auto &h = handles[n];
     if (!h)
         h = p.getParamHandle(n.c_str());
-    p.setParamNumber(h, value);
+    const bool written = p.setParamNumber(h, value);
+    publication_ok = written && publication_ok;
+}
+void begin_publication(EDPARAM& p) {
+    publication_ok = true;
+    publication_sequence = publication_sequence%15999998+2;
+    put(p,"F22_MWS_NATIVE_SEQUENCE",publication_sequence-1);
+    put(p,"F22_MWS_NATIVE_READY",0);
+    put(p,"F22_MWS_NATIVE_SCHEMA",1);
+    put(p,"F22_MWS_NATIVE_EPOCH",source_epoch);
+}
+void finish_publication(EDPARAM& p, bool ready) {
+    if (!publication_ok) return;
+    put(p,"F22_MWS_NATIVE_EPOCH",source_epoch);
+    put(p,"F22_MWS_NATIVE_READY",ready ? 1 : 0);
+    if (publication_ok) put(p,"F22_MWS_NATIVE_SEQUENCE",publication_sequence);
 }
 bool get(EDPARAM &p, const std::string &n, double& value) {
     auto &h = handles[n];
@@ -311,7 +270,7 @@ bool collect(const Api &a, std::uintptr_t object, double now, std::vector<Contac
         Polar world{};
         a.world_spike(reinterpret_cast<void *>(object), &world, reinterpret_cast<void *>(node + 40));
         if(!std::isfinite(world.az)||!std::isfinite(world.el)||!std::isfinite(world.range)||world.range<1)return false;
-        result.push_back({id, time, direction.az, direction.el, world});
+        result.push_back({id, time, direction.az, direction.el, world, false, link, 0});
     }
     return seen.size() == count;
 }
@@ -321,13 +280,15 @@ void reset() {
     api = {};
     last = -100;
     was_powered = false;
-    approach.tracks.clear();
+    approach.reset();
+    source_epoch = source_epoch%15999999+1;
 }
 void update(EDPARAM &p) {
     api.initialize();
     if (!api.ready) {
-        put(p, "F22_MWS_NATIVE_READY", 0);
+        begin_publication(p);
         put(p, "F22_MWS_NATIVE_REASON", api.reason);
+        finish_publication(p,false);
         return;
     }
     const double now = api.clock();
@@ -336,22 +297,25 @@ void update(EDPARAM &p) {
     if (now < last) {
         last = -100;
         was_powered = false;
-        approach.tracks.clear();
+        approach.reset();
+        source_epoch = source_epoch%15999999+1;
     }
     if (now - last < .05)
         return;
     last = now;
-    put(p, "F22_MWS_NATIVE_READY", 0);
+    begin_publication(p);
     double id = 0;
     bool powered = false;
     if (!read_inputs(p,id,powered)) {
-        approach.tracks.clear(); was_powered = false;
+        approach.reset(); was_powered = false;
         put(p,"F22_MWS_NATIVE_REASON",8);
         return;
     }
     auto context = api.context();
-    if (!context)
+    if (!context) {
+        put(p,"F22_MWS_NATIVE_REASON",4);
         return;
+    }
     auto object = reinterpret_cast<std::uintptr_t>(api.device(context, static_cast<unsigned>(id)));
     if (!owned(api, object)) {
         put(p, "F22_MWS_NATIVE_REASON", 4);
@@ -390,13 +354,20 @@ void update(EDPARAM &p) {
             return;
         }
     } else if (was_powered) {
-        api.clear(reinterpret_cast<void *>(object));approach.tracks.clear();
+        api.clear(reinterpret_cast<void *>(object));approach.reset();
+        source_epoch = source_epoch%15999999+1;
     }
     approach.expire(now);unsigned threat_count{};
-    for(auto &c:found) {c.threat=approach.observe(c.id,c.time,c.world);if(c.threat)++threat_count;}
-    std::stable_sort(found.begin(),found.end(),[](const Contact&a,const Contact&b){return a.threat!=b.threat?a.threat>b.threat:a.id<b.id;});
+    for (auto& c : found) {
+        c.threat = approach.observe(c.id,c.time,c.world,c.incarnation);
+        const auto t = approach.diagnostic(c.id);
+        c.priority = !c.threat ? 0 : t.decision == MawsThreat::Decision::Incoming ? 2 : 1;
+        if (c.threat) ++threat_count;
+    }
+    std::sort(found.begin(),found.end(),[](const Contact& a,const Contact& b) {
+        return a.priority != b.priority ? a.priority > b.priority : a.id < b.id;
+    });
     was_powered = powered;
-    put(p, "F22_MWS_NATIVE_READY", 1);
     put(p, "F22_MWS_NATIVE_REASON", 0);
     put(p, "F22_MWS_NATIVE_TIME", now);
     put(p, "F22_MWS_NATIVE_COUNT", count_value(found.size()));
@@ -409,6 +380,8 @@ void update(EDPARAM &p) {
     put(p, "F22_MWS_NATIVE_CLOSING_MPS", diagnostic.closing);
     put(p, "F22_MWS_NATIVE_CLOSEST_SECONDS", diagnostic.closest_time);
     put(p, "F22_MWS_NATIVE_MISS_M", diagnostic.miss);
+    put(p, "F22_MWS_NATIVE_EVIDENCE_TIME", diagnostic.evidence_time);
+    put(p, "F22_MWS_NATIVE_OVERFLOW", approach.overflow ? 1 : 0);
     for (std::size_t i = 0; i < 16; ++i) {
         auto prefix = std::string("F22_MWS_NATIVE_") + (i < 9 ? "0" : "") + std::to_string(i + 1) + "_";
         const auto *c = i < found.size() ? &found[i] : nullptr;
@@ -418,6 +391,10 @@ void update(EDPARAM &p) {
         put(p, prefix + "AZ", c ? c->az : 0);
         put(p, prefix + "EL", c ? c->el : 0);
         put(p, prefix + "THREAT", c && c->threat ? 1 : 0);
+        const auto track = c ? approach.diagnostic(c->id) : ApproachFilter::Track{};
+        put(p, prefix + "DECISION", static_cast<unsigned>(track.decision));
+        put(p, prefix + "EVIDENCE_TIME", track.evidence_time);
     }
+    finish_publication(p,true);
 }
 } // namespace NativeMWS

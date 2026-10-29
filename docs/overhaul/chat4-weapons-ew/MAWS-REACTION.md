@@ -1,5 +1,9 @@
 # MAWS reaction and launch-alert investigation
 
+The subsequent [temporal-classification improvement](MAWS-HISTORY.md) supersedes
+this initial fix's immediate receding dismissal and adds bounded maneuver
+history, observed pass/divergence clearance and coherent native report capture.
+
 The RWR launch tone does not suppress MAWS. The actual MWS owner ignores the
 RWR alert when deciding optical detection/audio; its active audio lease instead
 suppresses the RWR tone. Only a current priority3 pilot voice holds MAWS audio.

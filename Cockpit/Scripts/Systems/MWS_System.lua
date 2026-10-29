@@ -4,6 +4,7 @@ dofile(LockOn_Options.script_path .. "devices.lua")
 local library = dofile(LockOn_Options.script_path .. "Systems/MWS_Computer.lua")
 local decode = dofile(LockOn_Options.script_path .. "Systems/Input_Value.lua")
 local receiver = library.new()
+local snapshot_library = dofile(LockOn_Options.script_path .. 'Systems/MWS_Snapshot.lua')
 local audio_gate = dofile(LockOn_Options.script_path .. 'Systems/Warning_Audio_Gate.lua')
 local bearing_library = dofile(LockOn_Options.script_path .. "Systems/RWR_Bearings.lua")
 local bearings = bearing_library.new()
@@ -22,6 +23,8 @@ local function put(n, v)
 	h(n):set(v)
 end
 local supply = dofile(LockOn_Options.script_path..'Systems/EW_Power.lua').new(get)
+local native_snapshot = snapshot_library.new(get)
+local source_epoch = 0
 -- Declare every producer/indicator handle before indicator Lua states bind it.
 for _, name in ipairs({
 	"MAIN_POWER",
@@ -39,6 +42,7 @@ for _, name in ipairs({
 	"F22_MWS_NATIVE_ANGULAR_LIMIT",
     'F22_MWS_NATIVE_THREAT_COUNT', 'F22_MWS_NATIVE_CANDIDATE', 'F22_MWS_NATIVE_DECISION',
     'F22_MWS_NATIVE_CLOSING_MPS', 'F22_MWS_NATIVE_CLOSEST_SECONDS', 'F22_MWS_NATIVE_MISS_M',
+    'F22_MWS_NATIVE_EVIDENCE_TIME', 'F22_MWS_NATIVE_OVERFLOW', 'F22_MWS_EPOCH', 'F22_MWS_HELD',
 	"F22_MWS_ALERT",
 	"F22_MWS_COUNT",
 	"F22_MWS_BLINK",
@@ -94,6 +98,7 @@ function post_initialize()
 	held = {}
 	signature = nil
 	next_sample = 0
+    source_epoch = 0
 	put("F22_MWS_DEVICE_ID", devices.MWS_NATIVE)
 	put("F22_MWS_SUPPLY", 0)
 	put("F22_MWS_ALERT", 0)
@@ -114,21 +119,14 @@ function update()
 	local powered = enabled and supply.electrical and clock_valid
 	put("F22_MWS_SUPPLY", powered and 1 or 0)
     put('F22_MWS_SUPPLY_VALID', supply.valid and 1 or 0)
-    local stamp = get('F22_MWS_NATIVE_TIME')
-    local age = library.finite(stamp) and now - stamp or math.huge
-	local ready = powered and get("F22_MWS_NATIVE_READY") == 1 and age >= -0.05 and age <= 0.35
-	local observations = {}
-	if powered and ready then
-		for i = 1, 16 do
-			local p = string.format("F22_MWS_NATIVE_%02d_", i)
-			if get(p .. "VALID") == 1 then
-				observations[#observations + 1] =
-					{ source = get(p .. "SOURCE"), time = get(p .. "TIME"), az = get(p .. "AZ"),
-                        el = get(p .. "EL"), threat = get(p .. "THREAT") == 1 }
-			end
-		end
-	end
-	receiver:update(now, observations, powered and ready)
+    local packet = native_snapshot:read(now)
+    local ready = powered and packet.ready
+    if ready and packet.epoch ~= source_epoch then
+        receiver:update(now, nil, false)
+        bearings:reset()
+        source_epoch = packet.epoch
+    end
+	receiver:update(now, packet.contacts, ready)
     put('F22_MWS_MEMORY_CAPACITY', library.capacity)
     put('F22_MWS_MEMORY_OVERFLOW', receiver.overflow and 1 or 0)
     put('F22_MWS_MEMORY_EVICTIONS', receiver.evictions)
@@ -161,6 +159,8 @@ function update()
 	put("F22_MWS_ELEVATION", first and (first.el > math.rad(10) and 1 or first.el < math.rad(-10) and -1 or 0) or 0)
 	put("F22_MWS_COAST", first and first.coast and 1 or 0)
 	put("F22_MWS_MUTED", muted and 1 or 0)
+    put('F22_MWS_EPOCH', source_epoch)
+    put('F22_MWS_HELD', first and first.held and 1 or 0)
 	for i = 1, 16 do
 		local p = string.format("F22_MWS_%02d_", i)
 		local c = contacts[i]
@@ -227,7 +227,7 @@ function update()
 				string.format(
 					't=%.3f %s az=%.5f el=%.5f age=%.3f raw=%.0f hits=%.0f eyes=%.0f rate=%.5f '
                         ..'accepted=%.0f incoming=%.0f candidate=%.0f decision=%.0f closing=%.1f '
-                        ..'closest=%.2f pass=%.1f sources=%s',
+                        ..'closest=%.2f pass=%.1f evidence=%.3f pool_full=%.0f held=%d sources=%s',
 					now,
 					state,
 					first and first.az or 0,
@@ -241,6 +241,8 @@ function update()
                     get('F22_MWS_NATIVE_CANDIDATE'), get('F22_MWS_NATIVE_DECISION'),
                     get('F22_MWS_NATIVE_CLOSING_MPS'), get('F22_MWS_NATIVE_CLOSEST_SECONDS'),
                     get('F22_MWS_NATIVE_MISS_M'),
+                    get('F22_MWS_NATIVE_EVIDENCE_TIME'), get('F22_MWS_NATIVE_OVERFLOW'),
+                    first and first.held and 1 or 0,
 					table.concat(source_ids, "|")
 				)
 			)

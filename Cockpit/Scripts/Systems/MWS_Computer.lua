@@ -1,5 +1,5 @@
 -- GPL-3.0-or-later. Bounded native optical-warning memory; no aircraft IRST.
-local M = { memory_seconds = 3, fresh_seconds = 0.5, capacity = 16 }
+local M = { memory_seconds = 3, fresh_seconds = 0.5, capacity = 16, hold_seconds = 5 }
 M.__index = M
 
 function M.finite(value)
@@ -61,11 +61,13 @@ local function ingest(self, o, now)
     local track = old or slot(self, o.time)
     if not track then return end
     track.source, track.time, track.az, track.el = o.source, o.time, o.az, o.el
+    track.held, track.decision, track.evidence_time = o.decision == 5, o.decision, o.evidence_time
     self.tracks[o.source] = track
 end
 
 local function order(a, b)
     if a.coast ~= b.coast then return not a.coast end
+    if (a.held == true) ~= (b.held == true) then return a.held ~= true end
     if a.time ~= b.time then return a.time > b.time end
     return a.source < b.source
 end
@@ -85,6 +87,10 @@ function M:update(now, observations, enabled)
     for index = 1, M.capacity do
         local track = self.slots[index]
         if track.source > 0 and now - track.time > M.memory_seconds then remove(self, track) end
+        if track.held and (not M.finite(track.evidence_time)
+            or now - track.evidence_time > M.hold_seconds or now < track.evidence_time - .05) then
+            remove(self, track)
+        end
         self.contacts[index] = nil
     end
     if enabled and type(observations) == 'table' then
