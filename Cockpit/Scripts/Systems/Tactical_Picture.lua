@@ -7,11 +7,13 @@ local Identification = dofile(LockOn_Options.script_path .. 'Systems/Identificat
 local Donor = dofile(LockOn_Options.script_path .. 'Systems/Donor_Selection.lua')
 local M = {}
 local RadarSnapshot=dofile(LockOn_Options.script_path.."Systems/Radar_Tactical_Snapshot.lua")
+local IRSTSnapshot=dofile(LockOn_Options.script_path..'Systems/IRST_Snapshot.lua')
 local Labels=dofile(LockOn_Options.script_path..'Systems/RWR_Computer.lua')
 function M.new(get, put, sensors)
 	put('F22_DATALINK_ENABLE',1)
 	put('F22_IFDL_ENABLE',1)
-	local s = { radar = RadarSnapshot.new(get), store = Tracks.new(), sequence = 0,
+	local s = { radar = RadarSnapshot.new(get), irst = IRSTSnapshot.new(get,'F22_IRST_'),
+        store = Tracks.new(), sequence = 0,
         situation = Situation.new(get, put, sensors),
         datalink = Datalink.new(get, sensors), responder = Identification.responder(get, put),
         donor = Donor.new(get, put) }
@@ -34,7 +36,9 @@ function M.new(get, put, sensors)
         self.responder:update(now)
 		self.sequence = self.sequence + 1
 		local radar_packet=self.radar:read(now)
+		local infrared=self.irst:read(now)
 		local batches = {
+			irst={sequence=infrared.sequence,time=infrared.time,epoch=infrared.epoch,contacts={}},
 			datalink = self.datalink:update(now, power),
 			rf = { sequence = self.sequence, time = now, contacts = {} },
 			radar = {
@@ -94,6 +98,12 @@ function M.new(get, put, sensors)
 				}
 			end
 		end
+		for i=1,#infrared.contacts do
+			local t=infrared.contacts[i]
+			batches.irst.contacts[i]={source=t.id,age=infrared.time-t.time,az=t.az,el=t.el,
+				epoch=infrared.epoch,label='U'}
+		end
+		if not infrared.ready then self.store.batches.irst=nil end
 		self.store:update(now, batches, power)
         self.donor:update(now, self.store.contacts, power)
 		self.situation:update(now, self.store.contacts, power)

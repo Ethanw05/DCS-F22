@@ -22,8 +22,9 @@ add({'{MAKO_A2A_C}'},10,2,'radar',true)
 add({'{MAKO_A2G_C}'},11,7,'unsupported',false,true)
 add({'{LDTP_FUEL_Tank}','{E1F29B21-F291-4589-9FD8-3272EEC69506}'},12,nil,'fuel',false)
 add({'{F22_IRST}'},13,nil,'sensor',false)
-definitions['{F22_IRST}'].optional_equipment='irds'
-definitions['{F22_IRST}'].evidence='optional sensor carriage; player observation backend unqualified'
+definitions['{F22_IRST}'].optional_equipment='irst_pod'
+definitions['{F22_IRST}'].functional_sensor=true
+definitions['{F22_IRST}'].evidence='optional pod; shared DCS IR search; estimated sensitivity; flight check pending'
 add({'CATM-9M','{CATM-9M}'},15,nil,'training',false)
 for _,id in ipairs({'{AIM-260A}','{LAU_115_2xAIM-260A}','{MAKO_A2A_C}','{MAKO_A2G_C}'})do
  definitions[id].optional_equipment='additional_weapons'

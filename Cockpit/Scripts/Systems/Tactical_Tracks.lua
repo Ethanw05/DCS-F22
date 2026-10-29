@@ -1,12 +1,13 @@
 -- GPL-3.0-or-later. Source-aware tactical picture, separate from fire control.
 -- Sensor-scoped identities correlate through measured geometry, never equal host IDs.
-local M = { limits = { radar = 20, rf = 12, mws = 3, datalink = 75 }, bits = { radar = 1, rf = 2, mws = 4, datalink = 8 } }
+local M = { limits = { radar = 20, rf = 12, mws = 3, datalink = 75, irst = 2.5 },
+    bits = { radar = 1, rf = 2, mws = 4, datalink = 8, irst = 16 } }
 local Association = dofile(LockOn_Options.script_path .. "Systems/Tactical_Association.lua")
 local Threat = dofile(LockOn_Options.script_path .. "Systems/Tactical_Threat.lua")
 local Geolocation = dofile(LockOn_Options.script_path .. "Systems/EW_Geolocation.lua")
 local Identification = dofile(LockOn_Options.script_path .. 'Systems/Identification_State.lua')
-local capacities = { radar = 64, rf = 16, mws = 16, datalink = 64 }
-local direction_rank = { radar = 3, mws = 2, rf = 1, datalink = 0 }
+local capacities = { radar = 64, rf = 16, mws = 16, datalink = 64, irst = 16 }
+local direction_rank = { radar = 3, mws = 2, rf = 1, datalink = 0, irst = 2.5 }
 local function finite(x)
 	return type(x) == "number" and x == x and math.abs(x) < 1e12
 end
@@ -82,6 +83,7 @@ function M.new()
 							estimated = o.estimated == true,
 							uncertainty = finite(o.uncertainty) and o.uncertainty >= 0 and o.uncertainty or nil,
 						}
+						if sensor=='irst' then c.epoch=o.epoch end
 						if sensor == 'datalink' or sensor == 'radar' then
 							for _,k in ipairs({'n','u','e','vn','vu','ve','link','reporter','flight','ppli',
                                 'received','observation_known','observation_time','epoch','velocity_valid',

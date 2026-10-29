@@ -1,6 +1,7 @@
 // GPL-3.0-or-later. Own AESA sensor behind DCS's shared spatial-object interface.
 // No avSimpleRadar detection, observation cache, antenna phase or aircraft DLL calls.
 #include "NativeAesaRadar.h"
+#include "NativeIRST.h"
 #include "AesaRadar.h"
 #include "AesaReceiver.h"
 #include "AesaHostProfile.h"
@@ -921,8 +922,10 @@ void __fastcall driver_update(void* self) noexcept {
     using Update = void(__fastcall*)(void*);
     reinterpret_cast<Update>(original[6])(self);
     sample(self);
+    NativeIRST::sample();
 }
 void __fastcall driver_final_release(void* self) noexcept {
+    NativeIRST::retire();
     using FinalRelease = void(__fastcall*)(void*);
     const auto original = driver_original.load(std::memory_order_acquire);
     const auto release = original ? reinterpret_cast<FinalRelease>(original[0]) : nullptr;

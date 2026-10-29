@@ -707,5 +707,6 @@ join(res.keyCommands,{
 })
 
 -- folder is the device directory supplied by DCS Scripts/Input/Data.lua.
+dofile(folder..'../irst_commands.lua')(res,getfenv(1))
 dofile(folder..'../control_cleanup.lua')(res,getfenv(1),false)
 return res

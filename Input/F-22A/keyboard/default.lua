@@ -692,5 +692,6 @@ join(res.keyCommands,{
 })
 
 -- Keep keyboard shortcuts on their single current control entry.
+dofile(folder..'../irst_commands.lua')(res,getfenv(1))
 dofile(folder..'../control_cleanup.lua')(res,getfenv(1),true)
 return res

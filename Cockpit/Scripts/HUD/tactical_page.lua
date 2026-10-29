@@ -267,5 +267,10 @@ return function(api)
     end
 
     dofile(LockOn_Options.script_path..'HUD/ag.lua')(api)
+    angular('HUD_IRST_SELECTED',0,0,{'F22_IRST_HUD_X','F22_IRST_HUD_Y','F22_IRST_HUD_VALID','HUD_POWER'},
+        {{'move_left_right_using_parameter',0,1},{'move_up_down_using_parameter',1,1},
+         {'parameter_in_range',2,.9,1.1},{'opacity_using_parameter',3}})
+    ring(0,0,.035,'HUD_IRST_SELECTED',12)
+    static(.065,-.035,'IR',.021,'HUD_IRST_SELECTED')
     dofile(LockOn_Options.script_path..'HUD/pilot_warnings.lua')(api)
 end

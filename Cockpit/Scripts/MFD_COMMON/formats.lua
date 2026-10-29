@@ -6,6 +6,7 @@ return function(panel)
  local D=load('MFD_COMMON/lcd.lua',R.flag(panel,R.pages.menu),prefix..'MENU')
  D.text('FORMAT SELECT',0,.66,nil,'blue',.0048)
  load('MFD_COMMON/nav_page.lua',R.flag(panel,R.pages.nav))
+ load('MFD_COMMON/irst_page.lua',R.flag(panel,R.pages.irst))
  load('MFD_COMMON/stores_page.lua',R.flag(panel,R.pages.stores),prefix..'STORES','F22_SMS_UI_PAGE_'..panel)
  for _,item in ipairs({{'eng_page',R.pages.eng},{'fcs_page',R.pages.fcs},{'fuel_page',R.pages.fuel},
   {'adi_page',R.pages.adi},{'checklist_page',R.pages.checks}})do

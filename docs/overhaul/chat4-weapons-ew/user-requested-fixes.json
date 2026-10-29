@@ -79,7 +79,9 @@
         "Resolve profile selection and unavailable/failure/recovery behavior alongside the existing supplied-preset repair.",
         "Qualify actual native imagery/sensor effects and applicable 2D/VR/MP behavior; keep aircraft evidence/calibration distinct from estimates."
       ],
-      "completion": "The pod provides a real qualified sensing/control/display chain with correct provenance and unavailable states; model/CLSID presence alone does not close it."
+      "completion": "The pod provides a real qualified sensing/control/display chain with correct provenance and unavailable states; model/CLSID presence alone does not close it.",
+      "status": "Software implemented; matched installation and next-flight native effects qualification recorded separately",
+      "evidence": "IRST-IMPLEMENTATION.md and IRST-INSTALLATION.json"
     }
   ],
   "current_profile": "public_f22_manual_recovery@1 remains the current baseline; these requests add work toward complete optional capabilities and do not themselves demonstrate backend availability."

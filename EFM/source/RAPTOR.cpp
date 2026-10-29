@@ -39,6 +39,7 @@
 #include "NativeSidewinder.h"
 #include "NativeAesaRadar.h"
 #include "NativeMWS.h"
+#include "NativeIRST.h"
 #include "NativeGroundRadar.h"
 #include "NativeGroundVideo.h"
 #include "NativeAGWeapons.h"
@@ -1697,6 +1698,7 @@ void CockpitManager::initialize() {
     vehicle_bus.write(VehicleSignal::RequestValid, 0.0);
     vehicle_repair_injected_faults();
     NativeSidewinder::start_feedback();
+    NativeIRST::initialize(param_api_);
     NativeContactIdentity::reset();
     NativeDatalink::reset();
     NativeAltimetry::reset();
@@ -1838,11 +1840,13 @@ void CockpitManager::updateCombat(double dt) {
         RAPTOR::sim_initialised && vehicle.atmosphere_valid);
     NativeSidewinder::update(param_api_, dt);
     NativeMWS::update(param_api_);
+    NativeIRST::update(param_api_);
     NativeGroundRadar::update(param_api_);
     NativeNavigation::update(param_api_);
 }
 
 void CockpitManager::retireParameters() {
+    NativeIRST::retire();
     NativeSidewinder::reset(&param_api_);
     parameters_ready_ = false;
     param_api_.invalidate();

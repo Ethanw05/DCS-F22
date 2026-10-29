@@ -141,6 +141,14 @@ function M.for_page(page,view,get)
    c[10]=row('REF','view',6)
    if view==6 then c[12]=row('RTN','view',5)end
   end
+ elseif page==P.irst then
+  for _,spec in ipairs({{1,'POWER',11300},{2,'SCAN',11301},{3,'NEXT',11307},{4,'TRACK',11308},
+   {5,'DROP',11309},{6,'RAD CUE',11310},{14,'AZ R',11305},{15,'AZ L',11304},
+   {16,'CNTR',11306},{17,'EL DN',11303},{18,'EL UP',11302}})do
+   c[spec[1]]={label=spec[2],device='IRST_SYSTEM',command=spec[3]}
+  end
+  c[1].selected=get('F22_IRST_POWER')==1;c[4].selected=get('F22_IRST_TRACKING')==1
+  c[6].condition='F22_IRST_CUE_AVAILABLE'
  elseif page==P.def then
   return defensive.for_page(view,get)
  end

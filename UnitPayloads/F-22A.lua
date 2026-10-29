@@ -1032,7 +1032,7 @@ local unitPayloads = {
 -- Existing community A/A weapons are enabled by user request. These stores remain unavailable.
 -- Keep every saved preset name/ID; carriage registration is not functionality.
 local optional_stores={
-    ['{MAKO_A2G_C}']=true, ['{F22_IRST}']=true,
+    ['{MAKO_A2G_C}']=true,
 }
 for index=1,24 do
     local payload=unitPayloads.payloads[index]

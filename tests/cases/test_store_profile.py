@@ -49,7 +49,7 @@ class StoreProfile(unittest.TestCase):
     def test_optional_presets_are_labelled_without_changing_mission_names(self):
         h = self.host()
         payloads = h.env.dofile((ROOT/'UnitPayloads/F-22A.lua').as_posix()).payloads
-        optional = {'{MAKO_A2G_C}', '{F22_IRST}'}
+        optional = {'{MAKO_A2G_C}'}
         for _, p in payloads.items():
             selected_off = any(row.CLSID in optional for _, row in p.pylons.items())
             self.assertEqual('OPTIONAL OFF' in p.displayName, selected_off, p.name)

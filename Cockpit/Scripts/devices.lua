@@ -55,3 +55,4 @@ devices["ALTITUDE_SYSTEM"] = counter()--27: native altimetry request and warning
 devices["PILOT_WARNING_SYSTEM"] = counter()--28: terrain/floor/control cautions and original voice
 
 devices["GUN_SYSTEM"] = counter()--29: independent fire-control aiming cadence
+devices["IRST_SYSTEM"] = counter()--30: independent podded passive search/track

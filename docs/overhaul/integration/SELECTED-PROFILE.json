@@ -57,6 +57,14 @@
       "calibration": "unqualified except explicitly sourced values",
       "installed_identity": "file hashes to be captured; loaded identity unmeasured",
       "runtime_qualification": false
+    },
+    "irst_pod": {
+      "selected": true,
+      "owner": "chat4",
+      "implementation": "Owned shared-DCS avIRSensor pod, angular tracks, controls, common MFD/HUD, awareness fusion and explicit radar bearing cue",
+      "aircraft_evidence": "Optional mod pod; separate from embedded IRDS; see chat4-weapons-ew/IRST-IMPLEMENTATION.md",
+      "calibration": "Estimated fixed50km threshold/aperture and search policies; no validated heat/aspect/atmospheric model",
+      "runtime_qualification": false
     }
   },
   "excluded": {

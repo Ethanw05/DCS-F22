@@ -1,16 +1,16 @@
 -- GPL-3.0-or-later. Awareness association; never grants radar or weapon authority.
-local M = { maximum = 160 }
+local M = { maximum = 176 }
 local RF=dofile(LockOn_Options.script_path..'Systems/Tactical_RF_Association.lua')
 local History=dofile(LockOn_Options.script_path..'Systems/Tactical_Radar_History.lua')
 local axes = {'n','u','e','vn','vu','ve'}
-local order = {'radar','rf','mws','datalink'}
+local order = {'radar','rf','mws','datalink','irst'}
 local function finite(v) return type(v)=='number' and v==v and math.abs(v)<1e9 end
 local function angular(a,b) return (a-b+math.pi)%(2*math.pi)-math.pi end
 local function key(sensor,o)
     if sensor=='datalink' then
         return sensor..':'..tostring(o.link)..':'..tostring(o.reporter)..':'..tostring(o.epoch)..':'..o.source
     end
-    if sensor=='radar' then return sensor..':'..tostring(o.epoch)..':'..o.source end
+    if sensor=='radar' or sensor=='irst' then return sensor..':'..tostring(o.epoch)..':'..o.source end
     return sensor..':'..o.source
 end
 local function known_position(o,now)

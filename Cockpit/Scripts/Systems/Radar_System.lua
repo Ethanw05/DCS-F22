@@ -32,6 +32,7 @@ local function put(n, v)
 end
 local radar_resource=resource_policy.new(get)
 local donor_cue=dofile(LockOn_Options.script_path .. "Systems/Radar_Donor_Cue.lua").new(get,put)
+local irst_cue=dofile(LockOn_Options.script_path .. "Systems/IRST_Radar_Cue.lua").new(get,put)
 local aesa = dofile(LockOn_Options.script_path .. "Systems/AESA_Control.lua").new(get, put)
 tactical.publish({tracks={},clock=0}, put, false)
 sensor_tasks:publish(put,0)
@@ -80,6 +81,7 @@ for id in pairs(legacy) do
 end
 dev:listen_command(10620)
 dev:listen_command(10621)
+dev:listen_command(11311)
 local slew_x, slew_y = 0, 0
 local slew_focus, slew_role = nil, nil
 local pending_unlock = false
@@ -196,6 +198,13 @@ function SetCommand(command, value)
 	-- Synchronize before accepting a pattern command as well as on update:
 	-- weapon mode and its scan request can arrive during the same frame.
 	sync_weapon_mode()
+	if command==11311 then
+		if value>0 then
+			irst_cue:request(computer.clock,computer.power and not emission_inhibited
+				and get('MAIN_POWER')==1,get('HUD_MODE')==7 or get('F22N_RADAR_MODE')==3 or computer.acquire)
+		end
+		return
+	end
 	if command >= 10600 and command <= 10652 then
 		value = input_value(value, devices.RADAR_COMPUTER)
 	end
@@ -554,6 +563,9 @@ function update()
 		telemetry_config.rf_tasking_enabled~=false and powered and ready and pose~=nil and get("HUD_MODE")~=7)
 	scan=donor_cue:apply(computer.clock,pose,scan,requested_power and observations_ready and pose~=nil
         and (computer.mode=="RWS" or computer.mode=="TWS") and native_mode~=3 and not computer.acquire,computer)
+	-- IRST contributes a bearing cue only. All radar detection and lock remain owned here.
+	scan=irst_cue:apply(computer.clock,scan,powered and ready and get('HUD_MODE')~=7
+		and native_mode~=3 and not computer.acquire)
 	aesa:publish(computer.clock, computer, service_resource, powered and ready, false, scan)
 	sensor_tasks:publish(put,computer.clock,scan)
 	if log and log.write then
