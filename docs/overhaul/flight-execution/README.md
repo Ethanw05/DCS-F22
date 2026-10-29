@@ -36,3 +36,7 @@ The additional [pilot threat-warning change](THREAT-WARNING.md) adopts a
 Hornet-inspired status/launch audio policy and explicit pulsing lock/launch/MWS
 presentation. Its research, package checks and flight limitations are recorded
 separately from the eleven original physical flight packages.
+
+The user-requested [ground RF range fix](GROUND-RF-RANGE.md) retains RNG+/RNG−
+and adds explicitly estimated terrain intersections to the existing geolocation
+path so eligible ground contacts follow DEF/TSD range scaling.

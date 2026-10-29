@@ -97,6 +97,7 @@ for i=1,16 do
  D.text('MISSILE',0,.073,nil,'red',.0032,D.choice(p..'MWS_CURRENT',1,symbol))
  -- A conditional passive location retains its estimate qualifier.
  D.text('E',-.045,.025,nil,'blue',.0026,D.choice(p..'GEO',1,symbol))
+ D.text('>',0,-.055,nil,'white',.0026,D.choice(p..'OFFSCALE',1,symbol))
 end
 
 -- Compact expendable readbacks occupy the same lower-right region as the photo.

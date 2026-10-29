@@ -1,5 +1,6 @@
 -- GPL-3.0-or-later. Conditional stationary-ground RF location estimate.
--- Own bearing-only model; no target positions, radar range or terrain queries.
+-- Own bearing-only model, with a separately qualified terrain-intersection fallback.
+local Terrain = dofile(LockOn_Options.script_path .. 'Systems/EW_Terrain_Geolocation.lua')
 local M = {
     window = 45, max_samples = 32, sample_interval = 1.5, max_tracks = 16, min_samples = 5,
     min_span = 8, min_baseline = 1000, min_cross_baseline = 100,
@@ -26,6 +27,7 @@ end
 -- Preserve provenance and an explicit finite life. A new RF reception does
 -- not renew an old solution. This is a model envelope, not a confidence level.
 function M.current(fix, now)
+    if type(fix) == 'table' and fix.method == 2 then return Terrain.current(fix, now) end
     if not valid(fix) or not finite(now) or now-fix.time<-.01 or now-fix.time>M.lifetime
         or not finite(fix.radius) or fix.radius<=0 or fix.radius>M.max_radius
         or not finite(fix.samples) or fix.samples<M.min_samples or fix.samples>M.max_samples
@@ -144,9 +146,9 @@ local function position_at(history,time)
         return {n=last.n,u=last.u,e=last.e,time=time}
     end
 end
-function M.new()
-    local s={history={},tracks={}}
-    function s:reset()self.history={};self.tracks={};self.clock=nil end
+function M.new(height)
+    local s={history={},tracks={},terrain=Terrain.new(height)}
+    function s:reset()self.history={};self.tracks={};self.clock=nil;self.terrain:reset() end
     function s:update(now,position,contacts,bearings,power)
         for _,c in ipairs(contacts)do c.geolocation=nil;c.geolocation_status=0 end
         if not power or not finite(now)or not position or not finite(position.n)
@@ -204,6 +206,10 @@ function M.new()
             end
         end
         for id in pairs(self.tracks)do if not seen[id]then self.tracks[id]=nil end end
+        self.terrain:update(now, contacts, bearings)
+        for _, contact in ipairs(contacts) do
+            if contact.geolocation then contact.geolocation_status = 4 end
+        end
     end
     return s
 end

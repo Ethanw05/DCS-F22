@@ -7,7 +7,9 @@ local proximity = dofile(LockOn_Options.script_path .. 'Systems/RWR_Proximity.lu
 local bearing_library = dofile(LockOn_Options.script_path .. "Systems/RWR_Bearings.lua")
 local bearings = bearing_library.new()
 local geolocation_library = dofile(LockOn_Options.script_path .. "Systems/EW_Geolocation.lua")
-local geolocation = geolocation_library.new()
+local terrain_ok, terrain = pcall(require, 'terrain')
+local terrain_height = terrain_ok and type(terrain) == 'table' and terrain.GetHeight or nil
+local geolocation = geolocation_library.new(terrain_height)
 local sensors = get_base_data()
 local audio_library = dofile(LockOn_Options.script_path .. "Systems/RWR_Audio.lua")
 local audio = audio_library.new()
@@ -205,6 +207,7 @@ function update()
 		c.bearing_world=c.bearing_compensated and measured and measured.world or nil
 	end
 	geolocation:update(clock, geolocation_library.position(sensors), receiver.contacts, bearings.tracks, ready and powered)
+	put('F22_RWR_TERRAIN_GEO_STATUS', geolocation.terrain.status)
 	tactical:update(clock, receiver.contacts, supply.electrical)
 	defensive.now = clock
 	defensive:update(tactical.store.contacts, critical)
