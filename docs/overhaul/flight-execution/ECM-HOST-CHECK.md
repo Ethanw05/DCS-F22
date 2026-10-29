@@ -84,6 +84,28 @@ again during parallel integration. The receipt distinguishes historical file
 identity, current installed identity and observed runtime status. An on-disk
 hash alone does not authenticate the DLL loaded in a flight.
 
+## Clarified test: Hornet against an AI F-22
+
+The user clarified that the missing jamming was observed while flying an F/A-18
+against an AI F-22 spawned at Ace skill. The player F-22 ECM observations above
+do not establish that this AI opponent was transmitting. The AI uses DCS's native
+ECM policy; our player-cockpit jammer controls do not run for that opponent.
+
+The installed `MissionEditor/modules/me_action_db.lua` defines ECM Using as
+option 13, with Never Use = 0 and Always Use = 3. Its default is Use If Only Lock
+By Radar = 1. `me_crutches.lua` maps airborne Ace to the separate skill value
+Excellent. Selecting Ace does not explicitly select Always Use ECM. A default
+activation policy is a plausible explanation, not proof of the reported cause.
+
+`tools/build_ai_ecm_comparison.py` prepares four external missions: single-player
+and multiplayer client-slot versions of ECM Always/Never. The player is a clean
+Hornet, facing one clean, unarmed Ace F-22 at 40 NM head-on, both at 10,000 m MSL
+and 230 m/s. AI weapons hold and no evasive route changes preserve the comparison.
+The AI's first waypoint explicitly sets option 13. No aircraft source, hooks,
+saved controls or installed mod files are changed. The mission is reloaded with
+Lua 5.1 and checked after ZIP packaging; `ai-ecm-comparison.json` records the
+artifacts and checks. Policy assignment does not prove actual transmission.
+
 ## Remaining effectiveness gate
 
 Use the prepared matched F-22/Hornet qualification missions at the same altitude,

@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "purpose": "Isolate AI ECM activation policy from Ace skill",
+  "missions": [
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat1-20261028\\ai-ecm-comparison\\Hornet-vs-AI-F22-ECM-NEVER-SP.miz",
+      "sha256": "a02647fb990c92066c9d47cc05c45133ad907c7725bc842a5190898c38ece6dd",
+      "ai_ecm_option": 0,
+      "player_slot": "Player"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat1-20261028\\ai-ecm-comparison\\Hornet-vs-AI-F22-ECM-ALWAYS-SP.miz",
+      "sha256": "d6a4ab583929df03ecbf9b7c664a84dfd3cbb1e7672deea64bb4c334f61305a8",
+      "ai_ecm_option": 3,
+      "player_slot": "Player"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat1-20261028\\ai-ecm-comparison\\Hornet-vs-AI-F22-ECM-NEVER-MP.miz",
+      "sha256": "51754d728f95bfb0b67a67626cf380e3b0cedc0aefefc573c0a094075f751a37",
+      "ai_ecm_option": 0,
+      "player_slot": "Client"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat1-20261028\\ai-ecm-comparison\\Hornet-vs-AI-F22-ECM-ALWAYS-MP.miz",
+      "sha256": "6976ae500c869646ac3600b3565f44f2eb5ee8c675358554c6aa86c78b4f7f13",
+      "ai_ecm_option": 3,
+      "player_slot": "Client"
+    }
+  ],
+  "production_changed": false,
+  "installed": false,
+  "simulator_executed": false,
+  "transmission_observed": false,
+  "template_sha256": "2835759204883af1f2b80cd7cb564fbb1d89c35bdcebd3191848f6dbf598daad",
+  "source_registration_sha256": "8cec308d388fc1c8c04d232c0ca736c3634ad118e2cd30ae0709bb8db989ac8c",
+  "captured_at_utc": "2026-10-29T03:27:52.314557+00:00",
+  "generator": "tools/build_ai_ecm_comparison.py",
+  "checks": [
+    "Four ZIP archives reloaded and structurally verified with Lua 5.1",
+    "Within each slot mode, missions differ only in briefing/sortie text and ECM option value",
+    "SP/client versions differ only in player skill slot",
+    "ECM option number/value/default and Ace skill mapping verified against installed DCS editor"
+  ],
+  "dcs_sources": [
+    {
+      "path": "D:\\DCS\\MissionEditor\\modules\\me_action_db.lua",
+      "sha256": "b04c09a9812c7955228a555417aeef3dfdf8d651452a9b8237c6d60137ae5d4b"
+    },
+    {
+      "path": "D:\\DCS\\MissionEditor\\modules\\me_crutches.lua",
+      "sha256": "d9d488bebab50959ecbdce9fa33f123f0fd7de7b54893ce6f78a421b8d57a920"
+    }
+  ],
+  "default_policy": "USE_IF_ONLY_LOCK_BY_RADAR",
+  "default_policy_value": 1,
+  "ai_skill": "Excellent",
+  "ai_skill_label": "Ace",
+  "limit": "Offline preparation; AI transmission and Hornet receiver effects are unobserved, including multiplayer."
+}
