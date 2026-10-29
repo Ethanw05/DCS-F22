@@ -1,13 +1,13 @@
 {
-  "status": "BUILT_VERIFIED_INSTALL_WAITING_FOR_DCS_EXIT",
-  "source_commit": "837c41bcb117a81877b9b18150aa0a4393aefd00",
+  "status": "INSTALLED_HASH_VERIFIED_FLIGHT_PENDING",
+  "source_commit": "b3688f98bcc9951e6626735a5244c4dc29f00650",
   "build_directory": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\complete-sync-20261029",
   "planned_runtime_assets": 583,
   "planned_updated_files": 101,
   "built_dll_sha256": "accaad39164e03c1db363b6db08c63797905662d2a89b2ee86647b37133bdef8",
   "native_identity": "F22_NATIVE_V1|source=74b6e01b1440a6f741f9ae14e07e72d8cf98928f538121b688e0edbdbcf84e19|cache=470ff50e48ebcf94b92298397a60b3aa247358aec031887776a50954c23916a9|compiler=MSVC-19.51.36252.0|config=Release|cxx=23",
-  "installed_dll_sha256": "94e3012b8826b82ea644a49e72b1e048b4df8d85ce637a02a86c80f0dd6a122f",
-  "installed_dll_unchanged": true,
+  "installed_dll_sha256": "accaad39164e03c1db363b6db08c63797905662d2a89b2ee86647b37133bdef8",
+  "installed_dll_unchanged": false,
   "checks": {
     "replacement_tests": 12,
     "python_passed": true,
@@ -61,13 +61,48 @@
     "lua": "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/complete-sync-20261029/lua-package-checks.json",
     "binary_and_DCS": "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/complete-sync-20261029/binary-host-checks.json",
     "compiler_diagnostics": "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/complete-sync-20261029/compiler-diagnostics.json",
-    "installed_before": "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/complete-sync-20261029/installed-before/RESULTS.json"
+    "installed_before": "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/complete-sync-20261029/installed-before/RESULTS.json",
+    "applied_plan": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat2-hud-designation-20261029\\complete-install-plan.json",
+    "raw_receipt": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat2-hud-designation-20261029\\complete-install-receipt.json",
+    "raw_receipt_sha256": "6a7a65b8e1a40c40f6ebac60c84af32b8b0e158a8daf82a53f4b04f546122872",
+    "installed_navigation": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat2-hud-designation-20261029\\installed-nav\\RESULTS.json",
+    "installed_complete": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat2-hud-designation-20261029\\installed-complete\\RESULTS.json",
+    "extra_protected": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat2-hud-designation-20261029\\EXTRA-PROTECTED.json"
   },
   "compiler_diagnostics": {
     "baseline": 64,
     "current": 64,
     "new": 0
   },
-  "required_external_action": "Exit DCS, then apply the guarded complete package and run actual installed-dependency checks.",
-  "installation_applied": false
+  "required_external_action": "Check the installed HUD cue in a fresh flight; actual 2D/VR optics, effects and MP remain unqualified.",
+  "installation_applied": true,
+  "checked_complete_package_source_commit": "837c41bcb117a81877b9b18150aa0a4393aefd00",
+  "installed_at_utc": "2026-10-29T07:04:01.280533+00:00",
+  "verified_at_utc": "2026-10-29T07:06:41.868067+00:00",
+  "installed_root": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A",
+  "runtime_files_verified": 583,
+  "runtime_files_updated": 101,
+  "remaining_package_mismatches": [],
+  "saved_controls_hooks_audio_protected": 41,
+  "additional_export_and_HUD_style_protections": 17,
+  "preserved_audio_overrides": [],
+  "installed_navigation_checks": {
+    "tests": 75,
+    "passed": true,
+    "planned_source_files": 0,
+    "dependency_hashes_stable": true,
+    "dependencies": 95,
+    "other_modules": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Cockpit\\Scripts",
+    "actual_DCS_executed": false
+  },
+  "installed_complete_package_checks": {
+    "cases": 74,
+    "passed": true,
+    "installed_dependencies": 143,
+    "source_overlays": false
+  },
+  "simulator_running_at_installation": false,
+  "simulator_observed_running_after_copy": true,
+  "runtime_loaded_identity_verified": false,
+  "source_dirty_state": "Unrelated owner work preserved; exact snapshot in raw receipt; native artifact matches all current native source."
 }

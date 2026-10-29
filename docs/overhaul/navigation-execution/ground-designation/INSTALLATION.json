@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "source_commit": "b3688f98bcc9951e6626735a5244c4dc29f00650",
+  "installed_root": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A",
+  "installed_at_utc": "2026-10-29T07:04:01.280533+00:00",
+  "files": [
+    {
+      "path": "Cockpit/Scripts/HUD/geometry.lua",
+      "source_sha256": "3d56a8070d60972e30c184d0efdac45506b4069f99c5393e7c8cb01195bb7fb4",
+      "installed_before_sha256": null,
+      "preserve_audio": false,
+      "copy": true
+    },
+    {
+      "path": "Cockpit/Scripts/HUD/tactical_page.lua",
+      "source_sha256": "0c7e57e54c034153dd2cfa8e51511a73f2e934befcee2c1de8b64292a5176845",
+      "installed_before_sha256": "1f6e749e7871d8b7a83d115b3329f1bc10f0b57d3aa987407689bd4ee3b6e1d9",
+      "preserve_audio": false,
+      "copy": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Mark_System.lua",
+      "source_sha256": "5b5d66d0b46dd0bf4f2285bf7ae3493181f41445e6cdd59c623faceabbc6b14c",
+      "installed_before_sha256": "b3974225ece7a04932de4ca5dd32cdd304c2b4474fc71fcbcf91cf56810049d2",
+      "preserve_audio": false,
+      "copy": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/HUD_Designation_Projection.lua",
+      "source_sha256": "145ef0be385ec0b7d93da5c34cf44513c4926964bea604625a86cf4c367f21e9",
+      "installed_before_sha256": null,
+      "preserve_audio": false,
+      "copy": true
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Navigation_System.lua",
+      "source_sha256": "9a232ca9c02b5f9c989956c6a9a650201133ac463bd63dd26b37ce016daa5f11",
+      "installed_before_sha256": "3125003fde9bebe52c0bb99bd44bd6336563f10e6891deefa83348b4461d77cb",
+      "preserve_audio": false,
+      "copy": true
+    },
+    {
+      "path": "Cockpit/Scripts/device_init.lua",
+      "source_sha256": "94323a9258af4ca2ab1993521c4e3ea28f39f11a12b002ad377e86a5e2ec9f6a",
+      "installed_before_sha256": "972713631448584c218c2646554160304a2c06c8a4d8b6107af0affd00c5d87a",
+      "preserve_audio": false,
+      "copy": true
+    }
+  ],
+  "installed_checks": {
+    "tests": 75,
+    "passed": true,
+    "planned_source_files": 0,
+    "dependency_hashes_stable": true,
+    "dependencies": 95,
+    "other_modules": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Cockpit\\Scripts",
+    "actual_DCS_executed": false
+  },
+  "full_package_receipt": "docs/overhaul/integration/COMPLETE-PACKAGE-INSTALLATION.json",
+  "complete_runtime_files_verified": 583,
+  "DLL_audio_font_input_hook_implementation_changed_by_HUD_fix": false,
+  "user_requested_complete_package_also_installed": true,
+  "simulator_operated": false,
+  "actual_DCS_VR_MP_validation": "unexecuted"
+}
