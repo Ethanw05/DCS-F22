@@ -1,15 +1,15 @@
 {
   "status": "INSTALLED_HASH_VERIFIED_FLIGHT_PENDING",
-  "source_commit": "1c81b191ca6168e532d62716c0760f29a7795a08",
-  "build_directory": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\sensor-fusion-20261029",
+  "source_commit": "58a4905382c31942b240de7ce30a1b19091abf89",
+  "build_directory": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\fusion-declutter-20261029",
   "installed_root": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A",
-  "installed_at_utc": "2026-10-29T08:01:01.537786+00:00",
-  "verified_at_utc": "2026-10-29T08:03:16.141879+00:00",
-  "built_dll_sha256": "914aa27caa457bfd9a8ac044d62f0d3bb66e0cd1103ce717d427ad1aeb2eb51f",
-  "installed_dll_sha256": "914aa27caa457bfd9a8ac044d62f0d3bb66e0cd1103ce717d427ad1aeb2eb51f",
-  "native_identity": "F22_NATIVE_V1|source=89ec468be3ea6476662d8ea29e066aa805bb093ec53a6418ddc6b9a9b5628e03|cache=5659152df99534513609f1e752b404fb9b2d238b08bbe3c35bc3c8784c01bd2f|compiler=MSVC-19.51.36252.0|config=Release|cxx=23",
+  "installed_at_utc": "2026-10-29T08:43:27.103052+00:00",
+  "verified_at_utc": "2026-10-29T08:44:28.455460+00:00",
+  "built_dll_sha256": "27eec05d31b9c321463f007fa5053f2930e72d26616aa8b0c96558f66f3523a6",
+  "installed_dll_sha256": "27eec05d31b9c321463f007fa5053f2930e72d26616aa8b0c96558f66f3523a6",
+  "native_identity": "F22_NATIVE_V1|source=7e80b2879e8e50b9c495bd85ff0d84bef75265be61b4dc2e5db62c63f2415944|cache=35870932022492924269a53fa13b1f1b788adbc05fcc075f4912632671d2f980|compiler=MSVC-19.51.36252.0|config=Release|cxx=23",
   "runtime_files_verified": 588,
-  "runtime_files_updated": 22,
+  "runtime_files_updated": 7,
   "remaining_package_mismatches": [],
   "saved_controls_hooks_audio_protected": 41,
   "preserved_audio_overrides": [],
@@ -53,33 +53,33 @@
     "aircraft_qualified": false,
     "legacy_acceptance_executed": false,
     "domain": {
-      "tests": 338,
+      "tests": 339,
       "python_passed": true,
       "native_passed": true
     }
   },
   "native_tests": 30,
   "installed_complete_package_checks": {
-    "cases": 102,
+    "cases": 103,
     "passed": true,
     "installed_lua_dependencies": 158,
     "source_overlays": false
   },
-  "lua_compilation": "361 current tracked/untracked Lua sources compiled with Lua5.1",
-  "lint": "0 new findings;19 retained findings in changed Lua scope",
-  "compiler_diagnostics": "37 unique warning code/message signatures, identical to previous complete build",
+  "lua_compilation": "Current tracked Lua and replacement fixtures compile under Lua5.1; installed owner/indicator declarations exercised.",
+  "lint": "0 new findings;12 retained findings in changed Lua scope",
+  "compiler_diagnostics": "37 unique warning code/message signatures, unchanged from previous sensor fusion build",
   "installation_applied": true,
   "simulator_running_at_installation": false,
   "DCS_launched_or_controlled": false,
   "backups_created": false,
   "runtime_loaded_identity_verified": false,
-  "required_external_action": "Post-install flight comparison, with and without a wingman. F22_FUSION records association and observed receipt timing.",
+  "required_external_action": "Confirm the cleaned radar/DEF presentation and datalink dropout behavior in the next flight.",
   "verification_artifacts": {
-    "receipt": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\sensor-fusion-20261029\\install-receipt.json",
-    "source_checks": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\sensor-fusion-20261029\\checks-final\\RESULTS.json",
-    "installed_checks": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\sensor-fusion-20261029\\installed-checks\\RESULTS.json",
-    "flight_review": "../chat4-weapons-ew/FUSION-FLIGHT-REVIEW.json"
+    "receipt": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\fusion-declutter-20261029\\install-receipt.json",
+    "source_checks": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\fusion-declutter-20261029\\checks\\RESULTS.json",
+    "installed_checks": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\fusion-declutter-20261029\\installed-checks\\RESULTS.json",
+    "flight_review": "../chat4-weapons-ew/FUSION-DECLUTTER-FLIGHT.json"
   },
-  "source_dirty_state": "Unrelated pre-existing work preserved. The existing untracked radar resource fixture was updated only for the new schema2 header and was not staged with another owner's changes.",
-  "previous_package_record": "Git85572d6:docs/overhaul/integration/COMPLETE-PACKAGE-INSTALLATION.json"
+  "source_dirty_state": "Unrelated existing changes preserved; exact snapshot in external receipt.",
+  "previous_package_record": "Git0aae261:docs/overhaul/integration/COMPLETE-PACKAGE-INSTALLATION.json"
 }

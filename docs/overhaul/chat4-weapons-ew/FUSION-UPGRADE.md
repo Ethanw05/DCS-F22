@@ -32,3 +32,9 @@ repeated AZ/HT/EL captions near ownship, and DEF R/DL tags. Rendering changes do
 not remove their source data from fusion or missile/lock warnings. The source
 changes and actual installed package are checked separately; another flight
 remains the host confirmation of the new presentation.
+
+Follow-up installed from source 58a4905: seven Lua assets plus the matched DLL updated,
+all 588 runtime asset hashes verified with zero mismatches. 339 domain cases,
+12 common cases, 30 native checks and 103 installed-package cases passed. No new
+Lua or native diagnostic signatures. DCS remained closed during installation;
+post-install flight confirmation remains pending.
