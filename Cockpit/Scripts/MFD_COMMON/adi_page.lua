@@ -333,30 +333,30 @@ Add(ADIVV)
 --ILS_VERT
 --ILS_HORIZON
 ADIILS_H                    	= CreateElement "ceTexPoly"
-ADIILS_H.name    				= "BG"
+ADIILS_H.name    				= "ADI_ILS_LOCALIZER_"..page_parameter
 ADIILS_H.material				= ILS_H
 ADIILS_H.change_opacity 		= false
 ADIILS_H.collimated 			= false
 ADIILS_H.isvisible 				= true
 ADIILS_H.init_pos 				= {0, 0.12, 0} --L-R,U-D,F-B
 ADIILS_H.init_rot 				= {0, 0, 0}
-ADIILS_H.element_params 		= {"MFD_OPACITY",page_parameter,"ILS_HORIZON","ILSN_VIS"}--this may not be bneeded check when more pages done for backlight on page 7 SMS fc3 bs
-ADIILS_H.controllers			= {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"move_left_right_using_parameter",2,0.045,0}}
+ADIILS_H.element_params 		= {"MFD_OPACITY",page_parameter,"HUD_ILS_LOC","HUD_ILS_LOC_VALID"}
+ADIILS_H.controllers			= {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"move_left_right_using_parameter",2,0.045,0},{"parameter_in_range",3,.9,1.1}}
 ADIILS_H.level 				    = 11
 ADIILS_H.h_clip_relation       = h_clip_relations.COMPARE
 vertices(ADIILS_H, 1.3, true)
 Add(ADIILS_H)
 -- ----------------------------------------------------------------------------------------
 ADIILS_V                    	= CreateElement "ceTexPoly"
-ADIILS_V.name    				= "BG"
+ADIILS_V.name    				= "ADI_ILS_GLIDESLOPE_"..page_parameter
 ADIILS_V.material				= ILS_V
 ADIILS_V.change_opacity 		= false
 ADIILS_V.collimated 			= false
 ADIILS_V.isvisible 				= true
 ADIILS_V.init_pos 				= {0, 0.12, 0} --L-R,U-D,F-B
 ADIILS_V.init_rot 				= {90, 0, 0}
-ADIILS_V.element_params 		= {"MFD_OPACITY",page_parameter,"ILS_VERT","ILSN_VIS"}--this may not be bneeded check when more pages done for backlight on page 7 SMS fc3 bs
-ADIILS_V.controllers			= {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"move_left_right_using_parameter",2,0.045,0}}
+ADIILS_V.element_params 		= {"MFD_OPACITY",page_parameter,"HUD_ILS_GS","HUD_ILS_GS_VALID"}
+ADIILS_V.controllers			= {{"opacity_using_parameter",0},{"parameter_in_range",1,0.9,1.1},{"move_up_down_using_parameter",2,0.045,0},{"parameter_in_range",3,.9,1.1}}
 ADIILS_V.level 					= 11
 ADIILS_V.h_clip_relation       = h_clip_relations.COMPARE
 vertices(ADIILS_V, 1.3, true)

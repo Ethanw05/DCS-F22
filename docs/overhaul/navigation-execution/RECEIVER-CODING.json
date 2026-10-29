@@ -1,0 +1,44 @@
+{
+  "tools": {
+    "lizard": "1.17.31",
+    "luacheck": "1.2.0"
+  },
+  "native_changed_helpers": {
+    "maximum_CCN_excluding_retained_functions": 10,
+    "maximum_lines": 30,
+    "update_lines": 15
+  },
+  "bounds": {
+    "native_handle_cache": 64,
+    "radio_payload_fields": 14,
+    "radio_metadata_fields": 6,
+    "requested_controls": 4,
+    "snapshot_sequences": "2..16777214 even; no wrap within physical generation",
+    "lease_seconds": 0.25,
+    "future_tolerance_seconds": 0.01
+  },
+  "exceptions": [
+    {
+      "function": "NativeNavigation::API::init",
+      "CCN": 46,
+      "reason": "Retained private ABI profile/export resolution; fixed symbol list and fixed module/profile guards. Not expanded in this slice. Actual startup/lifetime remains unqualified."
+    },
+    {
+      "function": "NativeNavigation::publish_magnetic",
+      "CCN": 11,
+      "reason": "Retained bounded checked metadata/payload publication; below mandatory 15 limit."
+    },
+    {
+      "function": "NativeNavigation::handle",
+      "reason": "Bounded late-host handle initialization retained in the native callback. At most64 fixed contract keys; heterogeneous lookup removes recurring temporary string allocation. A strict startup-only allocation guarantee is not claimed."
+    },
+    {
+      "function": "Nav_Guidance returned callback and Flight_Guidance.update",
+      "reason": "Retained fixed source-selection/status callbacks. New receiver admission/manual-approach work is in small helpers. Full branch coverage and native/DCS cadence remain unmeasured."
+    }
+  ],
+  "decision_evidence": {
+    "covered": "Current/changed/null/reused contexts before retained-object access; publication zero, conversion/writer failure, changed epoch/context/generation, sequence exhaustion/recovery; independent axis admission; retune/power/setting cache changes; actual Lua owner stopped/torn/source failures.",
+    "not_measured": "Numerical branch-coverage percentage; actual native allocation/start/timer/drain/destruction paths; DCS parameter scheduling/memory ordering. These block P-NAV-003 closure."
+  }
+}

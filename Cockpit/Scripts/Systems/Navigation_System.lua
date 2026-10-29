@@ -15,6 +15,7 @@ make_default_activity(.05)
 local handles={}
 local function get(k) if not handles[k] then handles[k]=get_param_handle(k) end return handles[k]:get() end
 local function set(k,v) if not handles[k] then handles[k]=get_param_handle(k) end handles[k]:set(v) end
+local received=dofile(LockOn_Options.script_path..'Systems/Radio_Snapshot.lua').new(get)
 local request_sequence=0
 local function designation_status(code,text)
     set('F22_NAV_DESIGNATE_STATUS',code);set('F22_NAV_DESIGNATE_STATUS_TEXT',text)
@@ -40,6 +41,7 @@ for _,key in ipairs({'MAIN_POWER','HUD_GS_VALID','HUD_GS_MPS','HUD_WP_VALID','HU
     'HUD_NAV_STEER_VALID','HUD_NAV_STEER_ERROR','HUD_NAV_BUG_LABEL','HUD_NAV_BUG_VALID','HUD_NAV_BUG_DEG','HUD_NAV_BUG_EDGE','HUD_HDG_BUG_VALID','HUD_HDG_BUG_DEG','HUD_HEADING_REFERENCE',
     'F22_NAV_HDG_BUG_ROT','F22_NAV_CDI_VALID','F22_NAV_CDI','F22_NAV_COURSE_ROT','F22_NAV_TO_FROM',
     'F22_NAV_TCN_BRG_AVAILABLE','F22_NAV_TCN_RANGE_AVAILABLE','F22_TCN_MODE',
+    'F22_NAV_ILS_LOC_AVAILABLE','F22_NAV_ILS_GS_AVAILABLE','F22_NAV_COMPASS_VALID',
     'F22_TCN_BRG_VALID','F22_TCN_RANGE_VALID','F22_TCN_BRG_MAG','F22_TCN_RANGE_M','F22_ILS_LOC_VALID','F22_ILS_GS_VALID',
     'F22_ILS_LOC','F22_ILS_GS','F22_MAG_VALID','F22_MAG_DECL','F22_RADIONAV_AVAILABLE','F22_RADIONAV_REASON'}) do handles[key]=get_param_handle(key) end
 -- Native text controllers bind parameter type during concurrent indicator startup.
@@ -461,7 +463,8 @@ local function time_text(t)
     return string.format('%02d:%02d:%02d',math.floor(t/3600),math.floor(t/60)%60,t%60)
 end
 function update()
-    radio.publish_data(get,set)
+    received:update()
+    radio.publish_data(get,set,received)
     set('F22_NAV_AUTO',computer.automatic and 1 or 0)
     set('F22_NAV_AUTO_TEXT',mark_active and'MARK'or computer.automatic and'AUTO'or'MAN')
     set('F22_NAV_SCALE_NM',nav.ranges[active_computer().range_index]);set('F22_NAV_ROUTE_COUNT',#computer.route)
@@ -483,7 +486,7 @@ function update()
     local selected_computer=active_computer()
     local s=own and nav.solution(selected_computer,own,get('F22_NAV_SOURCE')==0)
     if not s then
-        clear();guidance(get,set,own,nil);publication.publish();diagnostic(own,nil);return
+        clear();guidance(get,set,own,nil,received);publication.publish();diagnostic(own,nil);return
     end
     local w=s.waypoint
     set('F22_NAV_ARRIVED',s.arrived and 1 or 0)
@@ -559,7 +562,7 @@ function update()
         set(root..'VALID',l and get('F22_NAV_SEQUENCE_VISIBLE')==1 and 1 or 0)
         if l then for _,k in ipairs({'x1','y1','x2','y2'}) do set(root..k:upper(),l[k]) end;set(root..'ACTIVE',l.active and 1 or 0) end
     end
-    guidance(get,set,own,s)
+    guidance(get,set,own,s,received)
     publication.publish()
     diagnostic(own,s)
 end

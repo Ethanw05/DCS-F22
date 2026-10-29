@@ -51,7 +51,7 @@ main=group('STEERING',0,0,{page_key},{{'parameter_in_range',0,-.1,.1}},format_ro
 text('RNG %.0f',-.58,.82,'F22_NAV_SCALE_NM','blue',nil,.0034)
 
 text('NAV %s',0,.85,'F22_NAV_HEADING_TEXT','blue')
-local map=group('MAP',0,.10,{},{});local compass=group('COMPASS',0,0,{'F22_NAV_COMPASS_ROT'},{{'rotate_using_parameter',0,1}},map)
+local map=group('MAP',0,.10,{},{});local compass=group('COMPASS',0,0,{'F22_NAV_COMPASS_ROT','F22_NAV_COMPASS_VALID'},{{'rotate_using_parameter',0,1},{'parameter_in_range',1,.9,1.1}},map)
 for i=0,71 do
     local a=i*2*math.pi/72;local r=i%2==0 and .61 or .59
     line(.56*math.sin(a),.56*math.cos(a),r*math.sin(a),r*math.cos(a),'blue',compass)
@@ -152,7 +152,7 @@ for view=1,3 do
    text('BRG ---',-.25,-.10,nil,'blue',off,.0035)
    text('DME ---',.25,-.10,nil,'blue',off,.0035)
   else
-   for _,part in ipairs({{'LOC','F22_ILS_LOC_VALID',-.18},{'GS','F22_ILS_GS_VALID',.18}})do
+   for _,part in ipairs({{'LOC','F22_NAV_ILS_LOC_AVAILABLE',-.18},{'GS','F22_NAV_ILS_GS_AVAILABLE',.18}})do
     local show=group('ILS_'..part[1],0,0,{part[2]},{{'parameter_in_range',0,.9,1.1}},data)
     text(part[1],part[3],-.10,nil,'green',show,.0043)
     local invalid=group('ILS_'..part[1]..'_INVALID',0,0,{part[2]},{{'parameter_in_range',0,-.1,.1}},data)

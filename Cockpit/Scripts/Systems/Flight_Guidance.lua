@@ -9,9 +9,14 @@ local handles={}
 local function h(k)if not handles[k]then handles[k]=get_param_handle(k)end return handles[k]end
 local function get(k)return h(k):get()end
 local function set(k,v)h(k):set(v)end
+local Magnetic=dofile(LockOn_Options.script_path..'Systems/Magnetic_Reference.lua')
+local Physical=dofile(LockOn_Options.script_path..'Systems/Physical_Snapshot.lua')
+local Currentness=dofile(LockOn_Options.script_path..'Systems/Cockpit_Currentness.lua')
+local reference_physical=Physical.new(get,{'EFM_PHYSICAL_WORLD_STAMP','EFM_PHYSICAL_WORLD_CLOCK_KIND'})
+local reference_currentness=Currentness.new()
 local status_clock,status_dirty=nil,true
 local function status_due()
- local now=get('F22_AP_CLOCK')
+ local now=Currentness.clock()
  if type(now)~='number' or now~=now or math.abs(now)>=1e9 then
   status_clock,status_dirty=nil,true;return true
  end
@@ -38,8 +43,14 @@ for command=10505,10512 do dev:listen_command(command)end
 for command=11905,11912 do dev:listen_command(command)end
 local course_true=0
 local function course_reference()
- if get('F22_NAV_REFERENCE')<.5 then return 0 end
- if get('F22_MAG_VALID')>.5 then return math.deg(get('F22_MAG_DECL'))end
+ local selected=get('F22_NAV_REFERENCE')
+ if selected==0 then return 0 end
+ if selected~=1 then return end
+ local now=Currentness.clock()
+ reference_physical:update()
+ if not reference_currentness:update(reference_physical,now) then return end
+ local variation=Magnetic.declination(get,reference_physical.generation,now)
+ if variation~=nil then return math.deg(variation)end
 end
 local function publish_course()
  local reference=course_reference()
@@ -173,9 +184,9 @@ function update()
  if get('F22_AT_REASON')>0 and get('F22_AP_CLOCK')<get('F22_AT_FEEDBACK_UNTIL')then status=status..' / A/T OFF'end
  if get('F22_AP_LIMITED')>.5 then status=status..' LIMIT'end
  set('F22_AP_STATUS_TEXT',status)
- local mag=get('F22_NAV_REFERENCE')>.5 and get('F22_MAG_VALID')>.5
- local d=mag and math.deg(get('F22_MAG_DECL')) or 0
- set('F22_AP_HDG_TEXT',string.format('HDG %03d%s',(get('F22_AP_HEADING')-d)%360,mag and 'M' or 'T'))
+ local suffix=get('F22_NAV_REFERENCE')==1 and 'M' or get('F22_NAV_REFERENCE')==0 and 'T' or '?'
+ local d=course_reference()
+ set('F22_AP_HDG_TEXT',d~=nil and string.format('HDG %03d%s',(get('F22_AP_HEADING')-d)%360,suffix)or'HDG ---'..suffix)
  set('F22_AP_ALT_TEXT',string.format('ALT %.0f',get('F22_AP_ALT')))
  set('F22_AP_VS_TEXT',string.format('V/S %+.0f',get('F22_AP_VS')))
  set('F22_AP_SPEED_TEXT',get('F22_AP_MACH_HOLD')>.5 and string.format('M %.2f',get('F22_AP_MACH')) or string.format('SPD %.0f',get('F22_AP_SPEED')))
@@ -183,6 +194,6 @@ function update()
  set('F22_ILS_TUNE_TEXT',string.format('ILS %.2f',get('F22_ILS_FREQ_KHZ')/1000))
  set('F22_NAV_SOURCE_TEXT',({'WPT','TCN','ILS','---'})[get('F22_NAV_SOURCE')+1] or '---')
  set('F22_NAV_CRS_TEXT',get('F22_NAV_COURSE_REF_VALID')>.5
-  and string.format('CRS %03d%s',get('F22_NAV_COURSE'),mag and 'M' or 'T')or'CRS ---M')
+  and string.format('CRS %03d%s',get('F22_NAV_COURSE'),suffix)or'CRS ---'..suffix)
 end
 need_to_be_closed=false

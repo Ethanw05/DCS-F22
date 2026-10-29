@@ -34,15 +34,24 @@ is changed by this indication/reference work.
 
 ## Remaining navigation work
 
+The subsequent received-navigation slice is described in [RADIO-CONTRACT.md](RADIO-CONTRACT.md)
+and `RECEIVER-RESULTS.json`. It adds coherent receiver observations, independent
+current LOC/GS ADI inputs, retune admission, and context-loss withdrawal.
+Forty-one focused Python/Lua tests and two rebuilt native suites pass. The
+hash-matching legacy TACAN-component test was deleted and independently remade.
+Native callback drain, real reception and installation remain open.
+
 - P-NAV-001: selected AFCS reference policy and actual host verification.
 - P-NAV-002: remaining obsolete PMFD paths and loader/control cleanup.
-- P-NAV-003: receiver context/allocator lifetime, source freshness and real ident.
+- P-NAV-003: receiver callback drain/allocator lifetime, RF age/identity and real ident;
+  getter-observation freshness and context-loss withdrawal now have source tests.
 - P-NAV-004: tested selected-off clear-voice disposition and menu behavior.
 - P-NAV-005: qualified native bingo cause, warning/audio delivery and terrain checks.
 - P-NAV-006: navigation depth/applicability and independent alignment/coast evaluation.
 - P-NAV-007: matching installation and received manual approach/failure/recovery in DCS;
   2D, VR and multiplayer require actual observations.
-- P-NAV-008: remaining control lifecycle checks and current independent LOC/GS axes.
+- P-NAV-008: remaining control lifecycle/optical checks; independent current LOC/GS
+  ADI inputs and retained appearance now have source tests.
 
 Four hash-matching legacy GINS/fixture artifacts were deleted and replaced by
 `tests/navigation_ports.py`, `test_gins_admission.py` and `test_side_indications.py`.

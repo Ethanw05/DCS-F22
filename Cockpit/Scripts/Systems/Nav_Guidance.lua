@@ -1,39 +1,38 @@
 -- GPL-3.0-or-later. Navigation references and fly-over course guidance.
 local N=dofile(LockOn_Options.script_path..'Systems/Nav_Computer.lua')
 local Radio=dofile(LockOn_Options.script_path..'Systems/Radio_Navigation.lua')
+local Magnetic=dofile(LockOn_Options.script_path..'Systems/Magnetic_Reference.lua')
+local Approach=dofile(LockOn_Options.script_path..'Systems/Manual_Approach.lua')
 local function clamp(v,a,b)return math.max(a,math.min(b,v))end
 local function selected_course(get)
  local course=get('F22_NAV_COURSE_TRUE')
  if get('F22_NAV_COURSE_SCHEMA')~=1 or not N.finite(course)or course<0 or course>=360 then return end
  return math.rad(course)
 end
-return function(get,set,own,s)
+return function(get,set,own,s,received)
  local ready=get('F22_INS_READY')==1
- local mag=get('F22_NAV_REFERENCE')>.5 and get('F22_MAG_VALID')>.5
- local variation=get('F22_MAG_VALID')>.5 and get('F22_MAG_DECL') or 0
- local reference=mag and variation or 0;local suffix=mag and 'M' or 'T'
+ local selection=get('F22_NAV_REFERENCE')
+ local suffix=selection==1 and 'M' or selection==0 and 'T' or '?'
+ local reference
+ if selection==0 then reference=0
+ elseif selection==1 and received.physical_current then reference=Magnetic.declination(get,received.physical.generation,received.now)end
  set('HUD_HEADING_REFERENCE',suffix)
  set('F22_NAV_GUIDANCE_VALID',0);set('F22_NAV_STEER_VALID',0);set('HUD_NAV_BUG_VALID',0);set('F22_NAV_CDI_VALID',0)
  set('F22_NAV_CDI_SCALE_TEXT','')
  set('HUD_NAV_STEER_VALID',0)
- set('F22_NAV_DISPLAY_VALID',0);set('HUD_ILS_LOC_VALID',0);set('HUD_ILS_GS_VALID',0)
- -- ILS reception is independent of TACAN/waypoint steering and IRS position.
- -- Explicit ILS selection enables acquisition in NAV; landing configuration
- -- enables received approach guidance even with TCN steering or A/G retained.
+ set('F22_NAV_DISPLAY_VALID',0);set('F22_NAV_COMPASS_VALID',0)
+ set('F22_NAV_HEADING_TEXT','---'..suffix)
+ Approach.publish(get,set,received)
  local source=get('F22_NAV_SOURCE')
- local approach=get('MAIN_POWER')>.5 and (source==2 and get('HUD_MODE')==1 or get('HUD_LANDING_CONFIG')>.5)
- set('HUD_ILS_DISPLAY_ENABLE',approach and 1 or 0)
- local loc,gs=get('F22_ILS_LOC'),get('F22_ILS_GS')
- set('HUD_ILS_LOC_VALID',approach and get('F22_ILS_LOC_VALID')>.5 and N.finite(loc) and 1 or 0)
- set('HUD_ILS_GS_VALID',approach and get('F22_ILS_GS_VALID')>.5 and N.finite(gs) and 1 or 0)
- set('HUD_ILS_LOC',N.finite(loc) and clamp(loc/(.6*math.rad(2.5)),-1,1) or 0)
- set('HUD_ILS_GS',N.finite(gs) and clamp(-gs/(.6*math.rad(.7)),-1,1) or 0)
  set('HUD_HDG_BUG_VALID',own and get('MAIN_POWER')>.5 and 1 or 0)
  if not own then return end
  local hdg_delta=math.deg(N.wrap(math.rad(get('F22_AP_HEADING'))-own.heading))
  set('HUD_HDG_BUG_DEG',clamp(hdg_delta,-15,15));set('F22_NAV_HDG_BUG_ROT',-math.rad(hdg_delta))
- set('F22_NAV_COMPASS_ROT',(own.heading-reference)%(2*math.pi))
- set('F22_NAV_HEADING_TEXT',string.format('%03d%s',math.floor(math.deg(own.heading-reference)+.5)%360,suffix))
+ set('F22_NAV_HEADING_TEXT','---'..suffix)
+ if reference~=nil then
+  set('F22_NAV_COMPASS_ROT',(own.heading-reference)%(2*math.pi));set('F22_NAV_COMPASS_VALID',1)
+  set('F22_NAV_HEADING_TEXT',string.format('%03d%s',math.floor(math.deg(own.heading-reference)+.5)%360,suffix))
+ end
  if source~=0 then set('F22_NAV_DESIGNATED',0)end
  set('F22_NAV_DISPLAY_VALID',(source~=3 and (source~=0 or s~=nil))and 1 or 0)
  if source~=0 or not ready then
@@ -60,8 +59,8 @@ return function(get,set,own,s)
   if s.along and s.along>s.length and get('F22_NAV_OBS')<.5 then steer=bearing end
  elseif source==1 then
   -- Common receiver reports magnetic bearing. Never silently mix it with true.
-  distance=Radio.range(get)
-  bearing=Radio.true_bearing(get)
+  distance=received:range()
+  bearing=Radio.true_bearing(get,received)
   if bearing then
    steer=bearing
    if get('F22_NAV_OBS')>.5 then
@@ -76,7 +75,9 @@ return function(get,set,own,s)
   set('F22_NAV_ALT_TEXT','');set('F22_NAV_TTG_TEXT','');set('F22_NAV_XTK_TEXT','')
  elseif source==2 then
   set('F22_NAV_FIX_TEXT',get('F22_ILS_TUNE_TEXT'))
-  set('F22_NAV_STATUS_TEXT',get('F22_ILS_LOC_VALID')>.5 and (get('F22_ILS_GS_VALID')>.5 and 'ILS LOC + GS' or 'ILS LOCALIZER') or 'ILS NO SIGNAL')
+  local loc,gs=received:ils()
+  set('F22_NAV_STATUS_TEXT',loc~=nil and (gs~=nil and 'ILS LOC + GS' or 'ILS LOCALIZER')
+   or gs~=nil and 'ILS GS / NO LOC' or 'ILS NO SIGNAL')
   set('F22_NAV_BRG_TEXT','');set('F22_NAV_DIST_TEXT','');set('F22_NAV_ALT_TEXT','');set('F22_NAV_TTG_TEXT','');set('F22_NAV_XTK_TEXT','')
   -- avILS is 0.6 * angular error (IDA update_LOC/update_Marker).
   -- Conventional +/-2.5 deg LOC and +/-0.7 deg GS display sensitivity.
@@ -88,7 +89,8 @@ return function(get,set,own,s)
   local relative=math.deg(N.wrap(bearing-own.heading))
   set('HUD_NAV_BUG_VALID',distance and distance<1 and 0 or 1)
   set('HUD_NAV_BUG_DEG',clamp(relative,-15,15));set('HUD_NAV_BUG_EDGE',relative< -15 and -1 or (relative>15 and 1 or 0))
-  set('F22_NAV_BRG_ROT',-math.rad(relative));set('F22_NAV_BRG_TEXT',string.format('BRG %03d%s',math.floor(math.deg(bearing-reference)+.5)%360,suffix))
+  set('F22_NAV_BRG_ROT',-math.rad(relative))
+  set('F22_NAV_BRG_TEXT',reference~=nil and string.format('BRG %03d%s',math.floor(math.deg(bearing-reference)+.5)%360,suffix)or'BRG ---'..suffix)
   local vn,ve=get('EFM_HUD_VN'),get('EFM_HUD_VE')
   local track=get('EFM_HUD_VALID')>.5 and N.atan2(ve,vn) or own.heading
   local hud_steer=get('F22_NAV_OBS')>.5 and steer or bearing
@@ -103,7 +105,8 @@ return function(get,set,own,s)
  end
  if Radio.publish_cdi(set,source,bearing,course,cross) then
   set('F22_NAV_COURSE_ROT',N.wrap(own.heading-course))
-  set('F22_NAV_COURSE_TEXT',string.format('CRS %03d%s',math.floor(math.deg(course-reference)+.5)%360,suffix))
+  local text=reference~=nil and string.format('CRS %03d%s',math.floor(math.deg(course-reference)+.5)%360,suffix)
+  set('F22_NAV_COURSE_TEXT',text or'CRS ---'..suffix)
   set('F22_NAV_TO_FROM',bearing and math.abs(N.wrap(bearing-course))<math.pi/2 and 'TO' or 'FROM')
  else set('F22_NAV_COURSE_TEXT','CRS --');set('F22_NAV_TO_FROM','')end
 end

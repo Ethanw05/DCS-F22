@@ -1,0 +1,76 @@
+{
+  "scope": "P-NAV-003/P-NAV-008 received navigation source slice; P-NAV-003 remains open",
+  "source_baseline": "ed26d63",
+  "parent_at_verification": "272a234f714c71610019369f7fa2c7cf251010be",
+  "source_sha256": {
+    "Cockpit/Scripts/MFD_COMMON/adi_page.lua": "76e7bd998ec6240163de4c45cf288c1682c05d42e14e758b931d893769603634",
+    "Cockpit/Scripts/MFD_COMMON/nav_page.lua": "2e759400511dac24f6b5605693d0fc0fb188827cc6d0287325d3df63fa62e646",
+    "Cockpit/Scripts/Systems/Flight_Guidance.lua": "9c24570952dc20f2c368fd520bfc61c0369c109d93b29440ec1663fb930bcf1a",
+    "Cockpit/Scripts/Systems/Magnetic_Reference.lua": "ebb3f94db6e4075cee3183c98b66917911fa49f0dd1ac2cb39a3ad3bd8a92630",
+    "Cockpit/Scripts/Systems/Nav_Guidance.lua": "e8ea8f48802f6a9f174a6ae61cf15a7ee80d995dce4e129e5c705d184c0a9dd1",
+    "Cockpit/Scripts/Systems/Navigation_System.lua": "3125003fde9bebe52c0bb99bd44bd6336563f10e6891deefa83348b4461d77cb",
+    "Cockpit/Scripts/Systems/Radio_Navigation.lua": "b46f2f81ff5b586ef08cd0c0956649f6abb36007bad0bf8b9b8f68ad6e43a7e1",
+    "Cockpit/Scripts/Systems/Radio_Snapshot.lua": "d117790118ad68dec5b76c3704ffc9fbf73fd2187a110c314e06ae58c61d5188",
+    "Cockpit/Scripts/Systems/Manual_Approach.lua": "201d21586cb99211c340f1a6cbcc7443a495122498c638d62b5efb64077c9964",
+    "EFM/source/NativeNavigation.cpp": "c5759c58a260776596a1a92b0d02ae729b0a163b752243f00f21cf9bc5336d6e",
+    "tests/cases/test_received_navigation.py": "f6bc7d4495bcd97f771421918935994d8d97730cc5c11cd35db2e83877751ef6",
+    "tests/native/navigation_publication.cpp": "df2bdc0a586a5027bb883e36998d96a6cb137e5dc2de310586def9919e8da444"
+  },
+  "python_lua": {
+    "new_received_tests": 12,
+    "focused_total": 41,
+    "passed": true,
+    "modules": [
+      "test_received_navigation",
+      "test_side_indications",
+      "test_navigation_indication_rendering",
+      "test_gins_admission",
+      "test_altitude_owners",
+      "test_flight_field_validity"
+    ]
+  },
+  "native": {
+    "passed": true,
+    "ctest": [
+      "replacement_navigation_publication",
+      "replacement_native_control_read_status"
+    ],
+    "configuration": "Release C++23 MSVC19.51.36252.0; MSBuild18.8.2; /W4 /WX /analyze",
+    "executable_sha256": {
+      "f22_navigation_publication.exe": "09dcd494608dc3cba16f61dd5c88e820d02cfd9e380bec0d863d3b7018d8b96a",
+      "f22_native_control_reads.exe": "69a6aefe0c52a1d5e649dc08a2d45e3f858be2cdc13e4f7ea1576752d01a39e6"
+    },
+    "build_log_sha256": "d42f988ba287a90976f8df8b77c65098c50c097aa5aa9c042b5da3ba1d511cae",
+    "actual_private_receiver_effects_executed": false
+  },
+  "lua_lint": {
+    "tool": "Luacheck1.2.0 Lua5.1",
+    "new_findings": 0,
+    "retained_baseline_findings": 353,
+    "files": 9
+  },
+  "profile": {
+    "owner": "Radio_Snapshot, Radio_Navigation and Nav_Guidance with no IRS position",
+    "calls": 500,
+    "requested_period_ms": 50,
+    "p50_ms": 0.0134,
+    "p95_ms": 0.0239,
+    "p99_ms": 0.0506,
+    "maximum_ms": 0.0952,
+    "transient_kib_per_call": 1.212603515625,
+    "retained_kib_delta": 0.0390625,
+    "limits": "Isolated Lupa Lua5.1 host; no DCS cadence, GC, native lifetime or optics qualification."
+  },
+  "legacy_retirement": {
+    "path": "tests/test_tacan_components.py",
+    "deleted_sha256": "2fecd1e7aeede28647e35d313da2e0263a4a281ffd7d366b023feffc6719d53f",
+    "independent_replacements": [
+      "tests/cases/test_received_navigation.py",
+      "tests/native/navigation_publication.cpp"
+    ]
+  },
+  "installed": false,
+  "DCS_operated": false,
+  "DCS_2D_VR_MP_audio_qualified": false,
+  "limits": "See RADIO-CONTRACT.md; original RF sample time/station identity, native callback drain, magnetic position-input lifetime and coherent installation remain open."
+}

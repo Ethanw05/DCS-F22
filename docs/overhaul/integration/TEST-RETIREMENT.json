@@ -1905,9 +1905,12 @@
       "owner": "chat2",
       "captured_sha256": "2fecd1e7aeede28647e35d313da2e0263a4a281ffd7d366b023feffc6719d53f",
       "execution_sha256": "2fecd1e7aeede28647e35d313da2e0263a4a281ffd7d366b023feffc6719d53f",
-      "status": "pending_domain_remake",
-      "replacement": null,
-      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+      "status": "deleted_replaced",
+      "replacement": [
+        "tests/cases/test_received_navigation.py",
+        "tests/native/navigation_publication.cpp"
+      ],
+      "evidence_classification": "Legacy test code removed after exact hash recheck; new assertions derive from mode/component/reference/received-state contracts, not historical answers. Native RF acquisition, identification and callback drain remain unqualified."
     },
     {
       "path": "tests/test_tactical_association.py",

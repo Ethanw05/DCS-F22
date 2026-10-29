@@ -39,7 +39,11 @@ function M.heading(get,true_radians,reference,generation,now)
     if not finite(true_radians) then return end
     if reference==0 then return degrees(true_radians) end
     if reference~=1 then return end
-    local ok,declination=pcall(capture,get,generation,now)
-    if ok and declination~=nil then return degrees(true_radians-declination) end
+    local declination=M.declination(get,generation,now)
+    if declination~=nil then return degrees(true_radians-declination) end
+end
+function M.declination(get,generation,now)
+    local ok,value=pcall(capture,get,generation,now)
+    if ok then return value end
 end
 return M

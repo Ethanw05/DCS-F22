@@ -173,18 +173,21 @@ struct API {
   }
 } api;
 RaptorCni::Supply supply;
-std::map<std::string, void *> handles;
-bool put(EDPARAM &p, const std::string &k, double v) {
-  auto &h = handles[k];
-  if (!h)
-    h = p.getParamHandle(k.c_str());
-  return p.setParamNumber(h, v);
+std::map<std::string, void *, std::less<>> handles;
+void* handle(EDPARAM& p, const char* key) {
+  const auto found = handles.find(key); // Heterogeneous lookup; no temporary string allocation.
+  if (found != handles.end()) {
+    if (!found->second) found->second = p.getParamHandle(key);
+    return found->second;
+  }
+  if (handles.size() >= 64) return nullptr;
+  return handles.emplace(key,p.getParamHandle(key)).first->second;
 }
-bool get(EDPARAM &p, const std::string &k, double& value) {
-  auto &h = handles[k];
-  if (!h)
-    h = p.getParamHandle(k.c_str());
-  return p.getParamNumber(h,value);
+bool put(EDPARAM &p, const char* key, double value) {
+  return p.setParamNumber(handle(p,key),value);
+}
+bool get(EDPARAM &p, const char* key, double& value) {
+  return p.getParamNumber(handle(p,key),value);
 }
 unsigned magnetic_sequence=0;
 bool magnetic_generation(EDPARAM& p,double& generation) {
@@ -249,6 +252,108 @@ bool requested_controls(EDPARAM& p, Controls& result) {
   result = candidate;
   return candidate.tacan_valid && candidate.ils_valid;
 }
+// Observation of the current native receiver state, not the RF measurement time.
+// No station identity or acquisition guarantee is inferred from a tuning command.
+struct Reception {
+  Controls controls;
+  void* context = nullptr;
+  std::uint64_t parameter_epoch = 0;
+  double generation = 0;
+  double bearing = 0, range_m = 0, localizer = 0, glideslope = 0;
+  bool tacan_power = false, ils_power = false;
+  bool bearing_valid = false, range_valid = false;
+  bool localizer_valid = false, glideslope_valid = false;
+};
+unsigned reception_sequence = 0;
+double reception_generation = 0;
+struct SignalAdmission {
+  bool waiting_for_clear = true;
+  bool observe(bool native_valid) {
+    if (waiting_for_clear) {
+      if (!native_valid) waiting_for_clear = false;
+      return false;
+    }
+    return native_valid;
+  }
+};
+SignalAdmission bearing_admission, range_admission, loc_admission, gs_admission;
+bool receiver_context_retired = false;
+bool reception_current(EDPARAM& p, const Reception& sample) {
+  double generation = 0;
+  return api.context && api.context() == sample.context && sample.context
+      && p.epoch() == sample.parameter_epoch && magnetic_generation(p,generation)
+      && generation == sample.generation;
+}
+bool begin_reception(EDPARAM& p, const Reception& sample, double observed, unsigned& next) {
+  if (!std::isfinite(observed) || observed < 0 || observed >= 1e9
+      || !reception_current(p,sample)) return false;
+  if (sample.generation != reception_generation) {
+    reception_generation = sample.generation;
+    reception_sequence = 0;
+  }
+  if (reception_sequence >= 16777214) return false; // No marker reuse in one generation.
+  next = reception_sequence + 2;
+  return put(p,"F22_RADIONAV_SEQUENCE",next-1) && put(p,"F22_RADIONAV_VALID",0);
+}
+bool commit_reception(EDPARAM& p, const Reception& sample, unsigned next) {
+  if (!reception_current(p,sample) || !put(p,"F22_RADIONAV_VALID",1)
+      || !put(p,"F22_RADIONAV_SEQUENCE",next)) return false;
+  reception_sequence = next;
+  return true;
+}
+bool publish_reception(EDPARAM& p, const Reception& sample, double observed) {
+  unsigned next = 0;
+  if (!begin_reception(p,sample,observed,next)) return false;
+  const auto& c = sample.controls;
+  const std::pair<const char*,double> fields[] = {
+    {"F22_RADIONAV_SCHEMA",1},{"F22_RADIONAV_CLOCK_KIND",2},
+    {"F22_RADIONAV_GENERATION",sample.generation},{"F22_RADIONAV_STAMP",observed},
+    {"F22_RADIONAV_TCN_CHANNEL",c.channel},{"F22_RADIONAV_TCN_BAND",c.band},
+    {"F22_RADIONAV_TCN_MODE",c.mode},{"F22_RADIONAV_ILS_FREQ_KHZ",c.frequency_khz},
+    {"F22_TCN_POWER",sample.tacan_power},{"F22_ILS_POWER",sample.ils_power},
+    {"F22_TCN_BRG_MAG",sample.bearing},{"F22_TCN_RANGE_M",sample.range_m},
+    {"F22_ILS_LOC",sample.localizer},{"F22_ILS_GS",sample.glideslope},
+    {"F22_TCN_BRG_VALID",sample.bearing_valid},{"F22_TCN_RANGE_VALID",sample.range_valid},
+    {"F22_ILS_LOC_VALID",sample.localizer_valid},{"F22_ILS_GS_VALID",sample.glideslope_valid}};
+  for (const auto& field:fields) if (!put(p,field.first,field.second)) return false;
+  return commit_reception(p,sample,next);
+}
+bool bounded(double value, double lo, double hi) {
+  return std::isfinite(value) && value >= lo && value <= hi;
+}
+void observe_tacan(Reception& sample, void* tacan) {
+  const auto& c = sample.controls;
+  if (!c.tacan_valid || !sample.tacan_power) return;
+  const bool b = bearing_admission.observe(api.bv(tacan));
+  const bool r = range_admission.observe(api.rv(tacan));
+  if (b) sample.bearing = api.bearing(tacan);
+  if (r) sample.range_m = api.range(tacan) * 1852.0;
+  constexpr double circle = 2*3.141592653589793;
+  sample.bearing_valid = b && (c.mode == 1 || c.mode == 2) && bounded(sample.bearing,-circle,circle);
+  sample.range_valid = r && c.mode >= 2 && bounded(sample.range_m,0,999999999);
+}
+void observe_ils(Reception& sample, void* ils) {
+  if (!sample.controls.ils_valid || !sample.ils_power) return;
+  const bool l = loc_admission.observe(api.lv(ils));
+  const bool g = gs_admission.observe(api.gv(ils));
+  if (l) sample.localizer = api.loc(ils);
+  if (g) sample.glideslope = api.gs(ils);
+  constexpr double half_circle = 3.141592653589793;
+  sample.localizer_valid = l && bounded(sample.localizer,-half_circle,half_circle);
+  sample.glideslope_valid = g && bounded(sample.glideslope,-half_circle,half_circle);
+}
+void observe_reception(Reception& sample, void* tacan, void* ils, bool powered) {
+  sample.tacan_power = api.tacan_power(tacan);
+  sample.ils_power = api.ils_power_state(ils);
+  if (!powered) return;
+  observe_tacan(sample,tacan);
+  observe_ils(sample,ils);
+  // Invalid payloads remain finite transport values behind independent false flags.
+  if (!sample.bearing_valid) sample.bearing = 0;
+  if (!sample.range_valid) sample.range_m = 0;
+  if (!sample.localizer_valid) sample.localizer = 0;
+  if (!sample.glideslope_valid) sample.glideslope = 0;
+}
 bool configure_squelch(void *tacan, void *ils) {
   if (!api.receiver_squelch || !api.receiver_squelch_state)
     return false;
@@ -271,6 +376,158 @@ bool mute_identification(void *tacan, void *ils) {
   api.receiver_mute(i, true);
   return api.receiver_mute_state(t) && api.receiver_mute_state(i);
 }
+bool unavailable(EDPARAM& p, int reason) {
+  (void)put(p,"F22_RADIONAV_AVAILABLE",0);
+  (void)put(p,"F22_RADIONAV_REASON",reason);
+  return false;
+}
+void* current_context(EDPARAM& p) {
+  auto context = api.context();
+  if (receiver_context_retired || !context || (api.component && api.component_context != context)) {
+    if (api.component) receiver_context_retired = true;
+    (void)unavailable(p,8);
+    return nullptr;
+  }
+  // Readability/reused addresses cannot restore a retired context. Callback
+  // drain and matched destruction at reset still require host qualification.
+  return context;
+}
+bool create_tacan(EDPARAM& p, void* context) {
+  if (api.component) return true;
+  char path[4096]{};
+  if (!p.getParamString(handle(p,"F22_NAV_CONFIG_PATH"),path,sizeof path) || !path[0])
+    return unavailable(p,5);
+  void* memory = api.allocate(2856);
+  if (!memory) return unavailable(p,6);
+  api.component = api.construct(memory);
+  if (!api.component) {
+    api.free(memory);
+    return unavailable(p,6);
+  }
+  api.component_context = context;
+  // ccContextRelatedObject::get_context is [this+24], verified in IDA.
+  std::memcpy(static_cast<char*>(memory)+24,&context,sizeof context);
+  API::StringView name{};
+  std::memcpy(name.inline_text,"F22_TACAN",10);
+  name.size = 9;
+  name.capacity = 15;
+  API::StringView config{};
+  config.pointer = path;
+  config.size = std::strlen(path);
+  config.capacity = config.size > 15 ? config.size : 16;
+  api.initialize(memory,23,name,config);
+  api.start(memory,0);
+  if (auto electrical = owned(context,26,api.electrical_table,5800)) {
+    api.connect_tacan(memory,api.dc_bus(electrical,1),api.ac_bus(electrical,1));
+  }
+  return true;
+}
+bool receivers(EDPARAM& p, void* context, void*& tacan, void*& ils) {
+  if (!create_tacan(p,context)) return false;
+  tacan = api.component;
+  ils = owned(context,24,api.ils_table,3352);
+  void* table = nullptr;
+  if (!load(tacan,table) || table != api.tacan_table || !ils) return unavailable(p,4);
+  return true;
+}
+void connect_receivers(void* context, void* ils, const RaptorCni::Power& feed) {
+  auto electrical = owned(context,26,api.electrical_table,5800);
+  if (!electrical) return;
+  if (ils != api.connected_ils) {
+    api.connect_ils(ils,api.dc_bus(electrical,1),api.ac_bus(electrical,1));
+    api.connected_ils = ils;
+  }
+  api.generator(electrical,feed.left,1);
+  api.generator(electrical,feed.right,2);
+}
+bool tacan_changed(const Controls& wanted, int desired_mode) {
+  return ch != wanted.channel || band != wanted.band || mode != desired_mode;
+}
+void tune_tacan(void* tacan, const Controls& wanted, bool on) {
+  if (tacan != tlast) {
+    ch = band = mode = -1;
+    tlast = tacan;
+  }
+  const int desired_mode = on && wanted.tacan_valid ? wanted.mode : 0;
+  if (tacan_changed(wanted,desired_mode)) bearing_admission = range_admission = SignalAdmission{};
+  if (wanted.tacan_valid && ch != wanted.channel) {
+    api.channel(tacan,wanted.channel);
+    ch = wanted.channel;
+  }
+  if (wanted.tacan_valid && band != wanted.band) {
+    api.xy(tacan,wanted.band);
+    band = wanted.band;
+  }
+  if (mode != desired_mode) {
+    api.mode(tacan,desired_mode);
+    mode = desired_mode;
+  }
+}
+void tune_ils(void* ils, const Controls& wanted, bool on) {
+  if (ils != ilast) {
+    freq = power = -1;
+    ilast = ils;
+  }
+  const int desired_power = on && wanted.ils_valid ? 1 : 0;
+  if (freq != wanted.frequency_khz || power != desired_power) loc_admission = gs_admission = SignalAdmission{};
+  if (wanted.ils_valid && freq != wanted.frequency_khz) {
+    api.mhz(ils,wanted.frequency_khz/1000);
+    api.khz(ils,wanted.frequency_khz%1000);
+    freq = wanted.frequency_khz;
+  }
+  if (power != desired_power) {
+    api.ils_power(ils,desired_power != 0);
+    power = desired_power;
+  }
+}
+void update_reception(EDPARAM& p, void* context, void* tacan, void* ils, bool on) {
+  Reception sample;
+  if (!requested_controls(p,sample.controls)) (void)put(p,"F22_RADIONAV_REASON",7);
+  tune_tacan(tacan,sample.controls,on);
+  tune_ils(ils,sample.controls,on);
+  sample.context = context;
+  sample.parameter_epoch = p.epoch();
+  if (!magnetic_generation(p,sample.generation)) return;
+  if (sample.generation != reception_generation) {
+    bearing_admission = range_admission = loc_admission = gs_admission = SignalAdmission{};
+  }
+  observe_reception(sample,tacan,ils,on);
+  double observed = 0;
+  if (NativeAltimetry::model_time(observed)) (void)publish_reception(p,sample,observed);
+}
+bool own_position(EDPARAM& p, double& north, double& east) {
+  double valid = 0;
+  return get(p,"F22_NAV_OWN_VALID",valid) && valid == 1
+      && get(p,"F22_NAV_OWN_N",north) && get(p,"F22_NAV_OWN_E",east);
+}
+void update_magnetic(EDPARAM& p) {
+  double north = 0, east = 0;
+  if (!api.decl || !api.coordinates || !own_position(p,north,east)) return;
+  double latitude = NAN, longitude = NAN;
+  api.coordinates(north,east,latitude,longitude);
+  constexpr double maximum = std::numeric_limits<float>::max();
+  if (!bounded(latitude,-maximum,maximum) || !bounded(longitude,-maximum,maximum)) return;
+  const auto lat = static_cast<float>(latitude), lon = static_cast<float>(longitude);
+  if (!std::isfinite(lat) || !std::isfinite(lon)) return;
+  const double declination = api.decl(lat,lon);
+  double observed = 0;
+  if (NativeAltimetry::model_time(observed)) (void)publish_magnetic(p,declination,observed);
+}
+RaptorCni::Power begin_update(EDPARAM& p) {
+  (void)put(p,"F22_RADIONAV_VALID",0);
+  (void)put(p,"F22_NAV_SQUELCH_VALID",0);
+  (void)put(p,"F22_NAV_IDENT_MUTED",0);
+  const auto feed = supply.sample(p);
+  (void)put(p,"F22_CNI_SUPPLY_VALID",feed.valid ? 1 : 0);
+  (void)put(p,"F22_CNI_RECEIVER_FEED",feed.receiver ? 1 : 0);
+  (void)put(p,"F22_CNI_THERMAL_INHIBIT",feed.thermal ? 1 : 0);
+  for (const char* key:{"F22_TCN_BRG_VALID","F22_TCN_RANGE_VALID","F22_ILS_LOC_VALID",
+      "F22_ILS_GS_VALID","F22_MAG_VALID"}) (void)put(p,key,0);
+  api.init();
+  (void)put(p,"F22_RADIONAV_AVAILABLE",api.ready ? 1 : 0);
+  (void)put(p,"F22_RADIONAV_REASON",api.reason);
+  return feed;
+}
 } // namespace
 void reset() {
   if (api.component && api.release && api.destroy && api.free) {
@@ -284,158 +541,24 @@ void reset() {
   tlast = ilast = nullptr;
   ch = band = mode = freq = power = -1;
   magnetic_sequence=0;
+  reception_sequence=0;
+  reception_generation=0;
+  bearing_admission = range_admission = loc_admission = gs_admission = SignalAdmission{};
+  receiver_context_retired = false;
 }
 void update(EDPARAM &p) {
-  put(p, "F22_NAV_SQUELCH_VALID", 0);
-  put(p, "F22_NAV_IDENT_MUTED", 0);
-  const auto feed = supply.sample(p);
-  put(p, "F22_CNI_SUPPLY_VALID", feed.valid ? 1 : 0);
-  put(p, "F22_CNI_RECEIVER_FEED", feed.receiver ? 1 : 0);
-  put(p, "F22_CNI_THERMAL_INHIBIT", feed.thermal ? 1 : 0);
-  for (const char *k :
-       {"F22_TCN_BRG_VALID", "F22_TCN_RANGE_VALID", "F22_ILS_LOC_VALID",
-        "F22_ILS_GS_VALID", "F22_MAG_VALID"})
-    put(p, k, 0);
-  api.init();
-  put(p, "F22_RADIONAV_AVAILABLE", api.ready ? 1 : 0);
-  put(p, "F22_RADIONAV_REASON", api.reason);
+  const auto feed = begin_update(p);
   if (!api.ready)
     return;
-  auto context = api.context();
-  if (!context)
-    return;
-  if (!api.component) {
-    auto &path_handle = handles["F22_NAV_CONFIG_PATH"];
-    if (!path_handle)
-      path_handle = p.getParamHandle("F22_NAV_CONFIG_PATH");
-    char path[4096]{};
-    p.getParamString(path_handle, path, sizeof path);
-    if (!path[0]) {
-      put(p, "F22_RADIONAV_REASON", 5);
-      return;
-    }
-    void *memory = api.allocate(2856);
-    if (!memory) {
-      put(p, "F22_RADIONAV_REASON", 6);
-      return;
-    }
-    api.component = api.construct(memory);
-    api.component_context = context;
-    // ccContextRelatedObject::get_context is [this+24], verified in IDA.
-    std::memcpy(static_cast<char *>(memory) + 24, &context, sizeof context);
-    API::StringView name{};
-    std::memcpy(name.inline_text, "F22_TACAN", 10);
-    name.size = 9;
-    name.capacity = 15;
-    API::StringView config{};
-    config.pointer = path;
-    config.size = std::strlen(path);
-    config.capacity = config.size > 15 ? config.size : 16;
-    api.initialize(memory, 23, name, config);
-    api.start(memory, 0);
-    if (auto electrical = owned(context, 26, api.electrical_table, 5800)) {
-      api.connect_tacan(memory, api.dc_bus(electrical, 1),
-                        api.ac_bus(electrical, 1));
-    }
-  }
-  void *t = api.component;
-  auto i = owned(context, 24, api.ils_table, 3352);
-  void *table{};
-  if (!load(t, table) || table != api.tacan_table)
-    t = nullptr;
-  if (!t || !i) {
-    put(p, "F22_RADIONAV_AVAILABLE", 0);
-    put(p, "F22_RADIONAV_REASON", 4);
-    return;
-  }
-  put(p, "F22_NAV_SQUELCH_VALID", configure_squelch(t, i) ? 1 : 0);
-  if (i != api.connected_ils) {
-    if (auto electrical = owned(context, 26, api.electrical_table, 5800)) {
-      api.connect_ils(i, api.dc_bus(electrical, 1), api.ac_bus(electrical, 1));
-      api.connected_ils = i;
-    }
-  }
-  int on = feed.receiver ? 1 : 0;
-  if (auto electrical = owned(context, 26, api.electrical_table, 5800)) {
-    api.generator(electrical, feed.left, 1);
-    api.generator(electrical, feed.right, 2);
-  }
-  Controls wanted;
-  if (!requested_controls(p,wanted)) {
-    put(p,"F22_RADIONAV_REASON",7); // Unavailable/malformed controls, not default tuning.
-  }
-  const int wanted_ch = wanted.channel, wanted_band = wanted.band;
-  const int wanted_mode = on && wanted.tacan_valid ? wanted.mode : 0;
-  const int wanted_freq = wanted.frequency_khz;
-  if (t != tlast) {
-    ch = band = mode = -1;
-    tlast = t;
-  }
-  if (i != ilast) {
-    freq = power = -1;
-    ilast = i;
-  }
-  if (wanted.tacan_valid && ch != wanted_ch) {
-    api.channel(t, wanted_ch);
-    ch = wanted_ch;
-  }
-  if (wanted.tacan_valid && band != wanted_band) {
-    api.xy(t, wanted_band);
-    band = wanted_band;
-  }
-  if (mode != wanted_mode) {
-    api.mode(t, wanted_mode);
-    mode = wanted_mode;
-  }
-  if (wanted.ils_valid && freq != wanted_freq) {
-    api.mhz(i, wanted_freq / 1000);
-    api.khz(i, wanted_freq % 1000);
-    freq = wanted_freq;
-  }
-  const int ils_on = on && wanted.ils_valid ? 1 : 0;
-  if (power != ils_on) {
-    api.ils_power(i, ils_on != 0);
-    power = ils_on;
-  }
-  put(p, "F22_NAV_IDENT_MUTED", mute_identification(t, i) ? 1 : 0);
-  put(p, "F22_TCN_POWER", api.tacan_power(t) ? 1 : 0);
-  put(p, "F22_ILS_POWER", api.ils_power_state(i) ? 1 : 0);
-  if (!on)
-    return;
-  const bool b = wanted.tacan_valid && api.bv(t), r = wanted.tacan_valid && api.rv(t);
-  const bool l = wanted.ils_valid && api.lv(i), g = wanted.ils_valid && api.gv(i);
-  const double bearing = b ? api.bearing(t) : NAN, range = r ? api.range(t) : NAN;
-  const double loc = l ? api.loc(i) : NAN, gs = g ? api.gs(i) : NAN;
-  if (b && std::isfinite(bearing)) {
-    put(p, "F22_TCN_BRG_MAG", bearing);
-    put(p, "F22_TCN_BRG_VALID", 1);
-  }
-  if (r && std::isfinite(range) && range >= 0) {
-    put(p, "F22_TCN_RANGE_M", range * 1852.0);
-    put(p, "F22_TCN_RANGE_VALID", 1);
-  }
-  if (l && std::isfinite(loc)) {
-    put(p, "F22_ILS_LOC", loc);
-    put(p, "F22_ILS_LOC_VALID", 1);
-  }
-  if (g && std::isfinite(gs)) {
-    put(p, "F22_ILS_GS", gs);
-    put(p, "F22_ILS_GS_VALID", 1);
-  }
-  double position_valid = 0, north = 0, east = 0;
-  if (api.decl && api.coordinates && get(p,"F22_NAV_OWN_VALID",position_valid)
-      && position_valid == 1 && get(p,"F22_NAV_OWN_N",north) && get(p,"F22_NAV_OWN_E",east)) {
-    double latitude = NAN, longitude = NAN;
-    api.coordinates(north,east,latitude,longitude);
-    constexpr double maximum = std::numeric_limits<float>::max();
-    if (!std::isfinite(latitude) || !std::isfinite(longitude)
-        || std::abs(latitude) > maximum || std::abs(longitude) > maximum) return;
-    const auto lat = static_cast<float>(latitude), lon = static_cast<float>(longitude);
-    if (!std::isfinite(lat) || !std::isfinite(lon)) return;
-    const double d =
-        api.decl(lat,lon);
-    double observed=0;
-    if (NativeAltimetry::model_time(observed)) (void)publish_magnetic(p,d,observed);
-  }
+  auto context = current_context(p);
+  if (!context) return;
+  void* tacan = nullptr;
+  void* ils = nullptr;
+  if (!receivers(p,context,tacan,ils)) return;
+  (void)put(p,"F22_NAV_SQUELCH_VALID",configure_squelch(tacan,ils) ? 1 : 0);
+  connect_receivers(context,ils,feed);
+  (void)put(p,"F22_NAV_IDENT_MUTED",mute_identification(tacan,ils) ? 1 : 0);
+  update_reception(p,context,tacan,ils,feed.receiver);
+  if (feed.receiver) update_magnetic(p);
 }
 } // namespace NativeNavigation
