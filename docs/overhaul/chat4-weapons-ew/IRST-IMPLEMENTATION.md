@@ -96,6 +96,11 @@ observations; it does not emulate or prove native DCS detection. Release DLL
 linking, Lua5.1 compilation, pinned luacheck1.2.0 and MSVC/analyze results are in
 IRST-INSTALLATION.json. Native functions stay within complexity15; conditional
 admission/publication paths11–15 retain explicit checks and fixed bounds.
+Lua `IRST_System.update` retains the explicit clock/power/status/publication
+branches as a reviewed complexity exception: fixed work and16 output rows,
+no release authority, with off, missing pod, failed/frozen power, unavailable
+source, search and track exercised through its actual owner. Lua-managed
+parameter-name concatenation remains a bounded allocation exception.
 
 Four existing MFD supply cases also pass. The six IRST cases additionally run
 against the actual packaged Lua variants and their installed dependencies.

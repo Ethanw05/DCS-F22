@@ -145,7 +145,8 @@ function update()
     put('F22_IRST_READY',ready and 1 or 0)
     put('F22_IRST_POWER',powered and 1 or 0);put('F22_IRST_PRESENT',present and 1 or 0)
     put('F22_IRST_SUPPLY_VALID',physical_valid and 1 or 0)
-    local status=not present and 2 or not selected_profile and 1 or not computer.enabled and 1 or not physical_valid and 5
+    local status=not present and 2 or not selected_profile and 1
+        or not computer.enabled and 1 or not physical_valid and 5
         or not supply.mission and 3 or not ready and 4 or computer.tracking and 7 or 6
     put('F22_IRST_STATUS',status);put('F22_IRST_REASON',get('F22_IRST_NATIVE_REASON'))
     put('F22_IRST_SCAN_AZ',packet.az or 0);put('F22_IRST_SCAN_EL',packet.el or 0)
