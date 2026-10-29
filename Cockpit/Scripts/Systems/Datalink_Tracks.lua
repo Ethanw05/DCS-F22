@@ -2,24 +2,46 @@
 local Frames = dofile(LockOn_Options.script_path .. 'Systems/Gun_Frames.lua')
 local Bearings = dofile(LockOn_Options.script_path .. 'Systems/RWR_Bearings.lua')
 local Geo = dofile(LockOn_Options.script_path .. 'Systems/EW_Geolocation.lua')
--- Native PPLI cadence is about twelve seconds. Retain one missed PPLI cycle;
--- native AI target reports can be about a minute apart. Keep bounded, visibly
--- coasting SA memory across that interval, without renewing observation time.
+-- Retention/prediction are mod policies for sparse common-terminal reports.
+-- Unknown source clocks stay unknown; receive-time motion is only an estimate.
 local M = { lifetime = 75, ppli_lifetime = 26, coast = 13, prediction = 13, max_tracks = 64 }
 function M.retention(o)return (o.ppli==true or o.ppli==1)and M.ppli_lifetime or M.lifetime end
 local function finite(x)
     return type(x) == 'number' and x == x and math.abs(x) < 1e9
 end
 local function id(x) return finite(x) and x >= 1 and x % 1 == 0 end
+local motion_keys = {'n','u','e','vn','vu','ve'}
+local function valid_motion(o, now)
+    if not o or not finite(now) or not finite(o.time) then return false end
+    if now - o.time < -.05 or now - o.time > M.retention(o) then return false end
+    for _, key in ipairs(motion_keys) do
+        if not finite(o[key]) then return false end
+    end
+    return true
+end
+local function motion_clock(o, now)
+    if o.observation_known == false then
+        if not finite(o.received) or now < o.received - .05 then return end
+        return math.max(0, now - o.received)
+    end
+    return math.max(0, now - o.time)
+end
+local function position_state(unknown, motion_age)
+    if motion_age > M.prediction then return 3 end
+    if unknown or motion_age > 0 then return 2 end
+    return 1
+end
 function M.position(o, now)
-    if not o or not finite(now) or not finite(o.time) then return end
-    local age = now - o.time
-    if age < -.05 or age > M.retention(o) then return end
-    local unknown = o.observation_known == false
-    local dt = unknown and 0 or math.min(math.max(0, age), M.prediction)
+    if not valid_motion(o, now) then return end
+    local motion_age = motion_clock(o, now)
+    if not motion_age then return end
+    local age, unknown = math.max(0, now - o.time), o.observation_known == false
+    local receive_age = finite(o.received) and math.max(0, now - o.received) or nil
+    local dt = math.min(motion_age, M.prediction)
     return { n = o.n + o.vn * dt, u = o.u + o.vu * dt, e = o.e + o.ve * dt,
-        age = math.max(0, age), coast = unknown or age > M.coast,
-        state = (unknown or age > M.prediction) and 3 or age > 0 and 2 or 1,
+        age = age, coast = unknown or age > M.coast,
+        state = position_state(unknown, motion_age),
+        estimated = unknown or dt > 0, motion_age = dt, receive_age = receive_age,
         observation_known = not unknown, received = o.received }
 end
 function M.new(get, sensors)
@@ -33,13 +55,15 @@ function M.new(get, sensors)
     end
     function s:update(now, power)
         self.sequence = self.sequence + 1
-        local batch = { sequence = self.sequence, time = now, contacts = {} }
+        local batch = { sequence = self.sequence, time = now, epoch = self.epoch, contacts = {} }
         if not power or not finite(now) or self.clock and now < self.clock then
             self:reset()
+            batch.epoch = self.epoch
             return batch
         end
         self.clock = now
         local epoch, seq = get('F22_DL_RX_EPOCH'), get('F22_DL_RX_SEQUENCE')
+        batch.epoch = epoch
         if epoch ~= self.epoch then
             self.records = {}; self.seen = nil; self.received = nil; self.epoch = epoch
         end
@@ -76,7 +100,7 @@ function M.new(get, sensors)
                     or o.ppli == 1 and (o.source ~= o.reporter or o.affiliation ~= 1) then
                     valid = false; break
                 end
-                local identity=o.link..':'..o.reporter..':'..o.source
+                local identity=o.link..':'..o.reporter..':'..o.source..':'..o.ppli
                 local old = records[identity]
                 if not old or o.time > old.time or o.time == old.time and o.link < old.link then
                     records[identity] = o
@@ -102,6 +126,7 @@ function M.new(get, sensors)
                     flight = o.flight == 1, ppli = o.ppli == 1,
                     received = o.received, observation_known = o.observation_known,
                     observation_time = o.observation_time, epoch = o.epoch,
+                    estimated_position = q.estimated, receive_age = q.receive_age,
                 }
             end
         end

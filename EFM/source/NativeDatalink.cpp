@@ -56,8 +56,11 @@ struct Report {
 // The common AI terminal can space surveillance reports about a minute apart.
 // Retain bounded SA memory; the original observation time is never renewed.
 double lifetime(const Report &q) {return q.ppli?26.:75.;}
-using ReportKey = std::tuple<int,unsigned,unsigned>;
-ReportKey report_key(const Report& report) { return {report.link,report.reporter,report.source}; }
+// PPLI membership has its own lifetime; surveillance must not replace or renew it.
+using ReportKey = std::tuple<int,unsigned,unsigned,bool>;
+ReportKey report_key(const Report& report) {
+  return {report.link,report.reporter,report.source,report.ppli};
+}
 std::map<ReportKey,Report> reports;
 std::map<unsigned,Report> participants;
 std::map<std::string,void*> handles;
@@ -188,7 +191,10 @@ alignas(16) std::array<std::byte,0x340> terminal{};
 alignas(16) std::array<std::byte,0x2b8> transiver_storage{};
 alignas(16) std::array<std::byte,40> status_storage{};
 void *radio{},*owner{},*registered_interface{};unsigned own_id{};bool constructed{},registered{};
-double previous=-1,last_send=-1;unsigned long long sequence{},epoch{1},received{},sent{},rejected{},raw_received{};
+double previous=-1,last_send=-1,last_transmitted=-1;
+unsigned long long sequence{},epoch{1},received{},sent{},rejected{},raw_received{};
+constexpr double transmit_interval_s=.2; // Bounded 5 Hz mod peer exchange, not an F-22 RF specification.
+constexpr std::size_t maximum_payload_bytes=16384;
 unsigned last_sender{};int last_kind{-1};
 int published_rx=-1,published_tx=-1;
 
@@ -333,19 +339,17 @@ bool start(void *aircraft) {
   registered=true;
   return true;
 }
-void transmit(EDPARAM &p,double now) {
-  if(!finite(now)||now<0)return;
-  if(last_send>=0&&now-last_send<1)return;
-  last_send=now;
-  const bool current=tactical_reader.capture(p,now,tactical_packet);
-  std::ostringstream text;text.precision(15);text<<"F22IFDL1;";
+bool append_ppli(std::ostringstream& text,double now) {
   Vec position{};api.point(owner,&position);const float *velocity=api.velocity(owner);
-  if(!valid(position)||!readable(velocity,12))return;
+  if(!valid(position)||!readable(velocity,12))return false;
   const Vec motion{velocity[0],velocity[1],velocity[2]};
-  if(!valid(motion)||std::hypot(motion.n,motion.u,motion.e)>1500)return;
+  if(!valid(motion)||std::hypot(motion.n,motion.u,motion.e)>1500)return false;
   text<<own_id<<','<<now<<','<<position.n<<','<<position.u<<','<<position.e<<','
       <<motion.n<<','<<motion.u<<','<<motion.e<<",1,1;";
-  if(current)for(std::size_t i=0;i<tactical_packet.count;++i) {
+  return true;
+}
+void append_tracks(std::ostringstream& text) {
+  for(std::size_t i=0;i<tactical_packet.count;++i) {
     const auto& report=tactical_packet.reports[i];
     // The current v1 wire has no velocity-valid or independent identity clock.
     // Never turn unavailable velocity into healthy zero or renew old identity.
@@ -355,13 +359,36 @@ void transmit(EDPARAM &p,double now) {
     for(const double value:report.velocity)text<<','<<value;
     text<<",-1,0;"; // Unknown identity until Chat4 qualifies its versioned wire.
   }
+}
+void transmit(EDPARAM &p,double now) {
+  if(!finite(now)||now<0)return;
+  // At most one packet per callback; delayed updates never produce catch-up bursts.
+  if(last_send>=0&&now-last_send<transmit_interval_s-1e-9)return;
+  last_send=now;
+  const bool current=tactical_reader.capture(p,now,tactical_packet);
+  std::ostringstream text;text.precision(15);text<<"F22IFDL1;";
+  if(!append_ppli(text,now))return;
+  if(current)append_tracks(text);
   if(current&&tactical_packet.parameter_epoch!=p.epoch())return;
-  auto payload=text.str();alignas(8) std::array<std::byte,160> message{};
+  auto payload=text.str();
+  if(payload.size()>maximum_payload_bytes)return;
+  alignas(8) std::array<std::byte,160> message{};
   std::memcpy(message.data(),&own_id,4);message[117]=std::byte{1};
   StringView v{};v.pointer=payload.data();v.size=payload.size();v.capacity=payload.size();
   std::memcpy(message.data()+120,&v,sizeof v);
   // Only our own PPLI and complete onboard measured snapshots, never relays.
-  api.send(terminal.data(),message.data());++sent;
+  api.send(terminal.data(),message.data());++sent;last_transmitted=now;
+}
+void publish_latency(EDPARAM& p,double now) {
+  double newest=999,oldest=0;
+  for(const auto& [key,report]:reports) {
+    const double age=std::max(0.,now-report.received);
+    newest=std::min(newest,age);oldest=std::max(oldest,age);
+  }
+  put(p,"F22_DATALINK_NEWEST_RECEIVE_AGE",newest);
+  put(p,"F22_DATALINK_OLDEST_RECEIVE_AGE",reports.empty()?999:oldest);
+  put(p,"F22_IFDL_TRANSMIT_INTERVAL",transmit_interval_s);
+  put(p,"F22_IFDL_LAST_TRANSMIT_AGE",last_transmitted<0?999:std::max(0.,now-last_transmitted));
 }
 } // namespace
 void reset() {
@@ -376,7 +403,7 @@ void reset() {
     if(auto destroy_status=method<DestroyStatus>(status_storage.data(),0))destroy_status(status_storage.data(),0);
   }
   constructed=registered=false;radio=owner=registered_interface=nullptr;own_id=0;
-  reports.clear();participants.clear();previous=last_send=-1;received=sent=rejected=0;++epoch;
+  reports.clear();participants.clear();previous=last_send=last_transmitted=-1;received=sent=rejected=0;++epoch;
   published_rx=published_tx=-1;raw_received=0;last_sender=0;last_kind=-1;
 }
 void update(EDPARAM &p) {
@@ -427,5 +454,6 @@ void update(EDPARAM &p) {
   put(p,"F22_DATALINK_REJECTED",double(rejected));
   put(p,"F22_DATALINK_RAW_MESSAGES",double(raw_received));
   put(p,"F22_DATALINK_LAST_SENDER",last_sender);put(p,"F22_DATALINK_LAST_KIND",last_kind);
+  publish_latency(p,now);
 }
 } // namespace NativeDatalink

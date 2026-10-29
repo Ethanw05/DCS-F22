@@ -159,6 +159,9 @@ function update()
 	put("F22_MWS_ELEVATION", first and (first.el > math.rad(10) and 1 or first.el < math.rad(-10) and -1 or 0) or 0)
 	put("F22_MWS_COAST", first and first.coast and 1 or 0)
 	put("F22_MWS_MUTED", muted and 1 or 0)
+    publish_sequence = publish_sequence % 15999998 + 2
+    put('F22_MWS_PUBLISH_SEQUENCE', publish_sequence - 1)
+    put('F22_MWS_PUBLISH_SCHEMA', 1)
     put('F22_MWS_EPOCH', source_epoch)
     put('F22_MWS_HELD', first and first.held and 1 or 0)
 	for i = 1, 16 do
@@ -173,7 +176,6 @@ function update()
 		put(p .. "X", c and math.sin(c.az) * 0.9 or 0)
 		put(p .. "Y", c and math.cos(c.az) * 0.9 or 0)
 	end
-	publish_sequence = publish_sequence + 1
 	put("F22_MWS_PUBLISH_TIME", now)
 	put("F22_MWS_PUBLISH_SEQUENCE", publish_sequence)
 	local playing = false

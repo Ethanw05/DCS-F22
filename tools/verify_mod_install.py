@@ -18,6 +18,8 @@ CASES = (
     'test_jdam_handoff', 'test_radar_target_handoff', 'test_weapon_release',
     'test_store_profile', 'test_irst', 'test_mws_reaction', 'test_radar_interleave',
     'test_radar_fusion_packet', 'test_received_navigation', 'test_altitude_owners',
+    'test_fusion_association_upgrade', 'test_fusion_presentation', 'test_fusion_lifecycle',
+    'test_datalink_motion',
 )
 
 

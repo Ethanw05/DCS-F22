@@ -771,7 +771,7 @@ function update()
 		log.write("F22_RADAR", log.INFO, diagnostic)
 		last_diagnostic = diagnostic
 	end
-    local correlated=contact_metadata.read(get,computer.clock)
+    local correlated=contact_metadata.read(get,computer.clock,aesa.generation)
 	for i = 1, 24 do
 		local t = visible[i]
 		local p = string.format("F22_SCOPE_%02d_", i)
@@ -804,6 +804,12 @@ function update()
         local ew_signal=joined and joined.signal or 0
 		put(p..'LABEL_CODE',contact_metadata.label(t,joined))
 		put(p .. "EW_SIGNAL", ew_signal)
+		put(p .. "PICTURE_SOURCE", joined and joined.source or 0)
+		put(p .. "SOURCES", joined and joined.sources or 1)
+		put(p .. "DATALINK", joined and joined.datalink or 0)
+		put(p .. "IRST", joined and joined.irst and 1 or 0)
+		put(p .. "MWS_CURRENT", joined and joined.mws and 1 or 0)
+		put(p .. "IDENTITY_CONFLICT", joined and joined.conflict and 1 or 0)
 		if t and (t.stt or t.id == computer.selected) then
 			put("F22_RADAR_SELECTED_EW_SIGNAL", ew_signal)
 		end
@@ -814,7 +820,7 @@ function update()
 		local identity_track = t and t.stt and (locked_track or stt_observation) or t
 		local affiliation = display.affiliation(t and t.iff, identity_track, computer.clock)
 		-- Coalition metadata colors detected tracks without claiming an IFF reply.
-		put(p .. "AFFILIATION", affiliation)
+		put(p .. "AFFILIATION", contact_metadata.affiliation(affiliation, joined))
 		put(p .. "ALT_VALID", t and display.finite(t.altitude) and 1 or 0)
 		put(p .. "ALT_FT", t and t.altitude and t.altitude * 3.280839895 or 0)
 		local vx, vy = 0, 0

@@ -15,20 +15,25 @@ Two assignable controls are under **F-22 Datalink** in keyboard/joystick setting
 Both start enabled and require main electrical power. Own radar operation is
 independent. No physical key combination is assigned automatically.
 
-Offboard symbols on the tactical display are marked **IFDL** or **L16**. Onboard
-radar and offboard reports associate by the native simulator object ID. A fresh
-radar symbol suppresses a duplicate offboard symbol. Known friendly PPLI is green;
+Offboard symbols on the tactical display are marked **IFDL** or **L16**. The common
+picture associates qualified participant identity and compatible sensor geometry;
+radar track numbers and donor-local track numbers are separate namespaces. A fresh
+associated radar symbol suppresses its duplicate offboard symbol. Known friendly PPLI is green;
 direct same-flight Raptor PPLI is cyan. A target report without qualified identity
 remains unknown. Peer reports do not establish STT, a radar detection, a launch
 solution, or missile support.
 
-Reports retain their sender, observation time and velocity. Prediction stops at
-thirteen seconds; **C** denotes coast after thirteen seconds. PPLI expires after
-26 seconds, allowing one missed native update. Target reports retain up to 75
-seconds of visibly coasting situational-awareness memory because the inspected
-common AI terminal can space surveillance messages about a minute apart. These
-are mod memory limits, not claims of current weapon-quality information. Original
-report time is never renewed by display updates, and radar/RF/optical ages remain
+Reports retain their sender, original geometry time when known, receipt time and
+velocity. Source-timestamped reports predict from their observation time. Native
+AI reports have an unknown observation clock: their displayed motion estimates
+from the original receipt time, retaining the unknown-time/coast qualifier. Both
+estimates stop after thirteen seconds. **C** also marks known reports older than
+thirteen seconds. PPLI expires after 26 seconds; target reports retain up to 75
+seconds of visibly coasting situational-awareness memory. These are mod policy
+limits for sparse reports, not measurements of an AI sender's current cadence or
+weapon-quality information. Display updates renew neither clock. PPLI and
+surveillance reports retain separate membership/lifetime records, so a target
+report cannot erase or renew flight membership. Radar/RF/optical ages remain
 independent. Range changes rescale contacts and retain offscale direction cues.
 
 The defensive overview now uses the native RWR `POWER` value for relative RF
@@ -53,6 +58,19 @@ native decoders. Link 16 reception remains receive-only at the application
 level. Our player-to-player IFDL uses a separate `F22IFDL1` message body over the
 shared radio transport. It shares own position and genuine onboard radar
 observations only; received reports are never relayed recursively.
+
+Own peer transmission is limited to five packets per second, each containing own
+PPLI and at most 32 measured radar reports, with a 16 KiB payload limit. A delayed
+callback sends at most one packet, without catch-up bursts. Five hertz is a mod
+responsiveness policy, not a real IFDL specification. The receiver drains its
+bounded queue on the 50 Hz combat callback; fusion consumes it at 20 Hz. Actual
+host scheduling and radio delivery can add latency. The mod does not control the
+common AI terminal's transmission schedule, so smoother motion and faster own
+peer exchange do not claim faster AI observations.
+
+Receipt-age diagnostics publish newest/oldest retained report ages separately
+from receive-message totals and own transmit totals/age. Empty receive memory
+reports age 999. These counters expose arrival gaps without fabricating updates.
 
 AI Raptors do not run the player cockpit. Their native common-terminal peer
 reports are adapted to the mod's IFDL channel. This is a simulator compatibility

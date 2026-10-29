@@ -69,11 +69,13 @@ local function read_cue(get,p,elapsed,pose)
 end
 function M.read(get, now, pose)
 	local sequence = get("F22_TACTICAL_SEQUENCE")
+	local epoch = get("F22_TACTICAL_EPOCH")
 	local stamp = get("F22_TACTICAL_TIME")
 	if
 		not finite(now)
 		or not finite(sequence)
-		or sequence < 1
+		or sequence < 2 or sequence % 2 ~= 0
+		or get('F22_TACTICAL_SCHEMA') ~= 2
 		or not finite(stamp)
 		or now - stamp < -0.01
 		or now - stamp > M.snapshot_life
@@ -86,7 +88,8 @@ function M.read(get, now, pose)
 		local c=read_cue(get,p,math.max(0,now-stamp),pose)
 		if c then cues[#cues+1]=c end
 	end
-	if get("F22_TACTICAL_SEQUENCE") ~= sequence then
+	if get("F22_TACTICAL_SEQUENCE") ~= sequence or get('F22_TACTICAL_EPOCH') ~= epoch
+        or get('F22_TACTICAL_TIME') ~= stamp then
 		return {}
 	end
 	table.sort(cues, function(a, b)

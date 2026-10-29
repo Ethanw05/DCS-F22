@@ -2,6 +2,35 @@
 return function(api, layout, gain, root)
 	local group, line, text = api.group, api.line, api.text
 	local identity=dofile(LockOn_Options.script_path..'Systems/Tactical_Identity.lua')
+	local function passive_label(optical,prefix,parent,color)
+		if optical==1 then
+			text('MSL',0,0,nil,color,parent,.0033)
+			return
+		end
+		for value,label in pairs({[0]='RF',[1]='IRST'})do
+			local source=parent..'_IRST_'..value
+			group(source,{prefix..'IRST'},{{'parameter_in_range',0,value-.1,value+.1}},parent)
+			if value==1 then
+				text(label,0,0,nil,color,source,.0033)
+			else
+				for present,caption in pairs({[0]='RF',[1]='RF/IR'})do
+					local fused=source..'_FUSED_'..present
+					group(fused,{prefix..'IRST_CONTRIBUTOR'},{{'parameter_in_range',0,present-.1,present+.1}},source)
+					text(caption,0,0,nil,color,fused,.0033)
+				end
+			end
+		end
+	end
+	local function offboard_warnings(prefix,parent)
+		group(parent..'_RF_ONLY',{prefix..'MWS_CURRENT'},{{'parameter_in_range',0,-.1,.1}},parent)
+		for signal,label in pairs({[2]='LOCK',[3]='LAUNCH'})do
+			local warning=parent..'_RF_WARNING_'..signal
+			group(warning,{prefix..'RF_SIGNAL'},{{'parameter_in_range',0,signal-.1,signal+.1}},parent..'_RF_ONLY')
+			text(label,0,.08,nil,signal==3 and 'red' or 'yellow',warning,.0028)
+		end
+		group(parent..'_MWS',{prefix..'MWS_CURRENT'},{{'parameter_in_range',0,.9,1.1}},parent)
+		text('MISSILE',0,.08,nil,'red',parent..'_MWS',.0028)
+	end
 	group("F22_TSD_OVERLAY", { "F22_TSD_VALID" }, { { "parameter_in_range", 0, 0.9, 1.1 } }, root)
 	local parent = "F22_TSD_OVERLAY"
     dofile(LockOn_Options.script_path..'Systems/ECM_Indicator.lua')(
@@ -27,6 +56,13 @@ return function(api, layout, gain, root)
 		end
 		group(name..'_COAST',{p..'COAST'},{{'parameter_in_range',0,.9,1.1}},name)
 		text('C',.03,-.027,nil,'yellow',name..'_COAST',.0028)
+		group(name..'_IRST',{p..'IRST'},{{'parameter_in_range',0,.9,1.1}},name)
+		text('IR',-.04,-.04,nil,'white',name..'_IRST',.0028)
+		group(name..'_CONFLICT',{p..'IDENTITY_CONFLICT'},{{'parameter_in_range',0,.9,1.1}},name)
+		text('ID?',.065,-.04,nil,'yellow',name..'_CONFLICT',.0028)
+		group(name..'_RF',{p..'RF_SIGNAL'},{{'parameter_in_range',0,.9,3.1}},name)
+		text('RF',-.04,.04,nil,'white',name..'_RF',.0028)
+		offboard_warnings(p,name)
         group(name..'_SA',{p..'SA_SELECTED'},{{'parameter_in_range',0,.9,1.1}},name)
         for _,side in ipairs({-1,1})do
             line(side*.04,-.04,side*.04,.04,'white',name..'_SA')
@@ -117,7 +153,7 @@ return function(api, layout, gain, root)
 			for _,style in ipairs(identity.styles)do
 				local color_group=kind..'_ID_'..style[1]
 				group(color_group,{p..'AFFILIATION'},{{'parameter_in_range',0,style[1]-.1,style[1]+.1}},kind)
-				text(optical==1 and 'IR' or 'RF',0,0,nil,style[2],color_group,.0033)
+				passive_label(optical,p,color_group,style[2])
 			end
 		end
 		group(name .. "_COAST", { p .. "COAST" }, { { "parameter_in_range", 0, 0.9, 1.1 } }, name)
@@ -125,9 +161,9 @@ return function(api, layout, gain, root)
 		group(name .. "_CLUSTER", { p .. "EXTRA_COUNT" }, { { "parameter_in_range", 0, 0.5, 64.5 } }, name)
 		text("+%.0f", 0.035, 0.025, p .. "EXTRA_COUNT", "white", name .. "_CLUSTER", 0.0028)
 	end
-	for i, entry in ipairs({ { "RADAR", "R" }, { "RF", "RF" }, { "OPTICAL", "IR" } }) do
+	for i, entry in ipairs({ { "RADAR", "R" }, { "RF", "RF" }, { "OPTICAL", "MSL" }, { "IRST", "IR" } }) do
 		local name = "F22_TSD_SELECTED_" .. entry[1]
 		group(name, { name }, { { "parameter_in_range", 0, 0.9, 1.1 } }, parent)
-		text(entry[2], 0.59 + i * 0.10, 0.79, nil, "blue", name, 0.0033)
+		text(entry[2], 0.49 + i * 0.10, 0.79, nil, "blue", name, 0.0033)
 	end
 end

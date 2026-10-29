@@ -347,6 +347,17 @@ for i = 1, 24 do
 	end
 	group(name .. "_COAST", { p .. "COAST" }, { { "parameter_in_range", 0, 0.9, 1.1 } }, name)
 	text("C", 0.062, 0, nil, "white", name .. "_COAST", 0.0036)
+	group(name .. "_DL", { p .. "DATALINK" }, { { "parameter_in_range", 0, .9, 2.1 } }, name)
+	text("DL", -.035, -.047, nil, "white", name .. "_DL", .0027)
+	group(name .. "_IRST", { p .. "IRST" }, { { "parameter_in_range", 0, .9, 1.1 } }, name)
+	text("IR", .035, -.047, nil, "white", name .. "_IRST", .0027)
+	group(name .. "_CONFLICT", { p .. "IDENTITY_CONFLICT" }, { { "parameter_in_range", 0, .9, 1.1 } }, name)
+	text("ID?", .07, .06, nil, "yellow", name .. "_CONFLICT", .0027)
+	for signal, label in pairs({ [2] = "LOCK", [3] = "LAUNCH" }) do
+		local warning = name .. "_RF_" .. signal
+		group(warning, { p .. "EW_SIGNAL" }, { { "parameter_in_range", 0, signal - .1, signal + .1 } }, name)
+		text(label, 0, -.08, nil, signal == 3 and "red" or "yellow", warning, .0027)
+	end
 end
 group(
 	"F22_RDR_WAYPOINT",

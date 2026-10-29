@@ -15,6 +15,37 @@ end
 local function inside(x, y)
 	return finite(x) and finite(y) and math.abs(x) < 0.94 and y > -0.91 and y < 0.97
 end
+local function sources(track, now)
+	local observations = track.observations or {}
+	local signal = track.signal or 0
+	local rf = observations.rf and not Threat.coast(observations.rf, "rf", signal, now)
+	return {
+		rf_signal = rf and signal or 0,
+		irst = observations.irst and not Threat.coast(observations.irst, "irst", 0, now),
+		mws = observations.mws and not Threat.coast(observations.mws, "mws", 0, now),
+	}
+end
+local empty_offboard = {x=0,y=0,source=0,age=999,link=0,reporter=0,affiliation=-1,
+	rot=0,sensors={rf_signal=0}}
+local offboard_fields = {'x','y','source','age','link','reporter','affiliation','rot'}
+local offboard_names = {'X','Y','SOURCE','AGE','LINK','REPORTER','AFFILIATION','ROT'}
+local function flag(value)
+	return value and 1 or 0
+end
+local function publish_offboard(put, prefix, record, selected)
+	local row = record or empty_offboard
+	for index=1,#offboard_fields do
+		put(prefix..offboard_names[index],row[offboard_fields[index]])
+	end
+	put(prefix..'COAST',flag(row.coast))
+	put(prefix..'VALID',flag(record))
+	put(prefix..'OFFSCALE',flag(row.offscale))
+	put(prefix..'RF_SIGNAL',row.sensors.rf_signal)
+	put(prefix..'IRST',flag(row.sensors.irst))
+	put(prefix..'MWS_CURRENT',flag(row.sensors.mws))
+	put(prefix..'IDENTITY_CONFLICT',flag(row.conflict))
+	put(prefix..'SA_SELECTED',flag(record and row.source==selected))
+end
 function M.new(get, put, sensors)
 	local s = { nav = false, passive = true }
 	function s:reset()
@@ -100,7 +131,7 @@ function M.new(get, put, sensors)
 		local radar_on_map = {}
 		for i = 1, 24 do
 			local p = string.format("F22_SCOPE_%02d_", i)
-			if get(p .. "VALID") > 0.5 and get(p .. "COAST") < 0.5 then
+			if get(p .. "VALID") > 0.5 then
 				radar_on_map[get(p .. "SOURCE")] = true
 			end
 		end
@@ -113,7 +144,7 @@ function M.new(get, put, sensors)
 		local passive = {}
 		local estimates,located={},{}
 		local own=enabled and Geolocation.position(sensors)
-		local offboard = {}
+		local offboard, offboard_shown = {}, {}
 		if enabled and own then
 			for _, t in ipairs(tracks) do
 				local q = Datalink.position(t.datalink, now)
@@ -128,25 +159,22 @@ function M.new(get, put, sensors)
 					elseif dy<0 and y<-.86 then scale=math.min(scale,(-.86-Layout.origin_y)/dy)end
 					offboard[#offboard+1] = {x=dx*scale,y=Layout.origin_y+dy*scale,source=t.source,age=q.age,coast=q.coast,
 						offscale=scale<1,rot=-math.atan2(dx,dy),
-						link=t.datalink.link,reporter=t.datalink.reporter,affiliation=Identity.normalize(t.affiliation)}
+						link=t.datalink.link,reporter=t.datalink.reporter,affiliation=Identity.normalize(t.affiliation),
+						sensors=sources(t,now),conflict=t.identity_conflict}
 				end
 			end
 		end
 		for i=1,24 do
 			local q=offboard[i];local p=string.format('F22_TSD_DL_%02d_',i)
-			put(p..'X',q and q.x or 0);put(p..'Y',q and q.y or 0)
-			put(p..'SOURCE',q and q.source or 0);put(p..'AGE',q and q.age or 999)
-			put(p..'LINK',q and q.link or 0);put(p..'REPORTER',q and q.reporter or 0)
-			put(p..'AFFILIATION',q and q.affiliation or -1)
-			put(p..'COAST',q and q.coast and 1 or 0);put(p..'VALID',q and 1 or 0)
-			put(p..'OFFSCALE',q and q.offscale and 1 or 0);put(p..'ROT',q and q.rot or 0)
-            put(p..'SA_SELECTED',q and q.source==get('F22_DONOR_SOURCE')and 1 or 0)
+			if q then offboard_shown[q.source]=true end
+			publish_offboard(put,p,q,get('F22_DONOR_SOURCE'))
 		end
 		put('F22_TSD_DL_COUNT',math.min(24,#offboard))
 		put('F22_TSD_DL_OVERFLOW',math.max(0,#offboard-24))
 		if enabled and self.passive and own then
 			for _,t in ipairs(tracks)do
-				local geo=not on_map[t.source] and Geolocation.relative(t.geolocation,now,own)
+				local geo=not on_map[t.source] and not offboard_shown[t.source]
+					and Geolocation.relative(t.geolocation,now,own)
 				if geo then
 					local n,e=geo.n-own.n,geo.e-own.e
 					local gx=(-n*math.sin(heading)+e*math.cos(heading))*factor
@@ -181,8 +209,9 @@ function M.new(get, put, sensors)
 			if t.selected then
 				selected = t
 			end
-			if enabled and self.passive and not on_map[t.source] and not located[t.source] and (t.signal > 0 or t.optical) then
-				local o, sensor = Threat.direction(t, now)
+			if enabled and self.passive and not on_map[t.source] and not located[t.source]
+				and not offboard_shown[t.source] then
+				local o, sensor = Threat.awareness_direction(t, now)
 				if o then
 					local ce = math.cos(o.el)
 					local world = Frames.world(frame, { ce * math.cos(o.az), math.sin(o.el), ce * math.sin(o.az) })
@@ -190,6 +219,7 @@ function M.new(get, put, sensors)
 					local forward = world[1] * math.cos(heading) + world[3] * math.sin(heading)
 					local horizontal = math.sqrt(right * right + forward * forward)
 					if horizontal >= 1e-6 then
+						local contributing = sources(t, now)
 						passive[#passive + 1] = {
 							source = t.source,
 							angle = math.atan2(right, forward),
@@ -198,6 +228,8 @@ function M.new(get, put, sensors)
 							age = Threat.age(o, now),
 							coast = Threat.coast(o, sensor, t.signal, now),
 							optical = sensor == "mws",
+							irst = sensor == "irst",
+							irst_contributor = not not contributing.irst,
 							affiliation = Identity.normalize(t.affiliation),
 							priority = Threat.priority(t, now),
 						}
@@ -221,6 +253,8 @@ function M.new(get, put, sensors)
 			put(p .. "AGE", c and c.age or 999)
 			put(p .. "SOURCE", c and c.source or 0)
 			put(p .. "OPTICAL", c and c.optical and 1 or 0)
+			put(p .. "IRST", c and c.irst and 1 or 0)
+			put(p .. "IRST_CONTRIBUTOR", c and c.irst_contributor and 1 or 0)
 			put(p .. "COAST", c and c.coast and 1 or 0)
 			put(p .. "AFFILIATION", c and c.affiliation or -1)
 			put(p .. "COUNT", cluster and cluster.count or 0)
@@ -230,7 +264,7 @@ function M.new(get, put, sensors)
 		put("F22_TSD_BEARING_TOTAL", #passive)
 		put("F22_TSD_BEARING_SHOWN", math.min(8, #clusters))
 		put("F22_TSD_BEARING_OMITTED", omitted)
-		for _, v in ipairs({ { "RADAR", "radar" }, { "RF", "rf" }, { "OPTICAL", "mws" } }) do
+		for _, v in ipairs({ { "RADAR", "radar" }, { "RF", "rf" }, { "OPTICAL", "mws" }, { "IRST", "irst" } }) do
 			put("F22_TSD_SELECTED_" .. v[1], enabled and selected and selected.observations[v[2]] and 1 or 0)
 		end
 		put("F22_TSD_VALID", enabled and 1 or 0)

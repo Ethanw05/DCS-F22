@@ -4,6 +4,7 @@ local Bearings=dofile(LockOn_Options.script_path..'Systems/RWR_Bearings.lua')
 local Geolocation=dofile(LockOn_Options.script_path..'Systems/EW_Geolocation.lua')
 local Datalink=dofile(LockOn_Options.script_path..'Systems/Datalink_Tracks.lua')
 local Proximity=dofile(LockOn_Options.script_path..'Systems/RWR_Proximity.lua')
+local Threat=dofile(LockOn_Options.script_path..'Systems/Tactical_Threat.lua')
 local M={radius=.84}
 local Labels=dofile(LockOn_Options.script_path..'Systems/RWR_Computer.lua')
 local function contact_kind(t)
@@ -16,6 +17,38 @@ local function contact_kind(t)
  return 1
 end
 local function finite(v)return type(v)=='number'and v==v and math.abs(v)<1e9 end
+local empty_observations = {}
+local passive_sources = {'rf', 'mws', 'irst'}
+local function current_own(track, now)
+    local observations = track.observations or empty_observations
+    for index = 1, #passive_sources do
+        local sensor = passive_sources[index]
+        if observations[sensor] and not Threat.coast(observations[sensor], sensor, track.signal or 0, now) then
+            return true
+        end
+    end
+    return observations.radar and Threat.age(observations.radar, now) <= 6 or false
+end
+local function flag(value)
+    return value and 1 or 0
+end
+local function publish_sources(put, prefix, track)
+    local observations = track and track.observations or empty_observations
+    put(prefix .. 'OPTICAL', flag(observations.mws))
+    put(prefix .. 'RF', flag(observations.rf))
+    put(prefix .. 'RADAR', flag(observations.radar))
+    put(prefix .. 'IRST', flag(observations.irst))
+    put(prefix .. 'SOURCES', track and track.mask or 0)
+end
+local function coast_state(track, now, coast)
+    if not track then return coast end
+    if current_own(track, now) then return false end
+    local donor = track.datalink
+    if donor and (donor.observation_known == false or now - donor.time > Datalink.coast) then
+        return true
+    end
+    return coast
+end
 function M.new(get,put,sensors)
  local s={}
  get("F22_DEF_OV_CURRENT") -- MFD-owned independent freshness gate; declare read binding only.
@@ -76,7 +109,7 @@ function M.new(get,put,sensors)
     local right,forward,horizontal,geo,dl_range=unpack(projected[t])
     local distance_m=finite(t.range)and t.range>=40 and t.range or dl_range
     has_range=ranged and distance_m~=nil
-    link=has_range and dl_range and t.datalink.link or 0
+    link=t.datalink and t.datalink.link or 0
     estimated=ranged and not has_range and geo~=nil
     local rf=t.observations and t.observations.rf
     local proximity=not has_range and not estimated and rf and Proximity.radius(rf.power,M.radius)
@@ -103,15 +136,14 @@ function M.new(get,put,sensors)
    put(p..'PROXIMITY',relative and 1 or 0);put(p..'DATALINK',link)
    put(p..'GEO',estimated and 1 or 0)
    put(p..'OFFSCALE',offscale and 1 or 0)
-   put(p..'OPTICAL',t and t.optical and 1 or 0)
-   put(p..'RF',t and t.observations and t.observations.rf and 1 or 0)
+   publish_sources(put,p,t)
    local ir,signal,coast=false,0,false
    if t then ir,signal,coast=warning(t)end
    put(p..'SIGNAL',signal)
    put(p..'MWS_CURRENT',ir and 1 or 0)
    put(p..'PULSE',Labels.pulse(now,ir and 3 or signal))
    put(p..'RF_CURRENT',signal>0 and 1 or 0)
-   if donor and (donor.observation_known==false or now-donor.time>Datalink.coast)then coast=true end
+   coast=coast_state(t,now,coast)
    put(p..'COAST',coast and 1 or 0)
    put(p..'ALPHA',coast and .4 or 1)
    put(p..'ALERT',(ir or signal>=3)and 1 or 0)

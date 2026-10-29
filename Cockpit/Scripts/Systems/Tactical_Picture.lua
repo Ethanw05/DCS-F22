@@ -6,6 +6,8 @@ local Datalink = dofile(LockOn_Options.script_path .. "Systems/Datalink_Tracks.l
 local Identification = dofile(LockOn_Options.script_path .. 'Systems/Identification_State.lua')
 local Donor = dofile(LockOn_Options.script_path .. 'Systems/Donor_Selection.lua')
 local M = {}
+local MWS = dofile(LockOn_Options.script_path..'Systems/Tactical_MWS_Snapshot.lua')
+local Diagnostics = dofile(LockOn_Options.script_path..'Systems/Tactical_Diagnostics.lua')
 local RadarSnapshot=dofile(LockOn_Options.script_path.."Systems/Radar_Tactical_Snapshot.lua")
 local IRSTSnapshot=dofile(LockOn_Options.script_path..'Systems/IRST_Snapshot.lua')
 local Labels=dofile(LockOn_Options.script_path..'Systems/RWR_Computer.lua')
@@ -13,7 +15,7 @@ function M.new(get, put, sensors)
 	put('F22_DATALINK_ENABLE',1)
 	put('F22_IFDL_ENABLE',1)
 	local s = { radar = RadarSnapshot.new(get), irst = IRSTSnapshot.new(get,'F22_IRST_'),
-        store = Tracks.new(), sequence = 0,
+        store = Tracks.new(), sequence = 0, diagnostics = Diagnostics.new(get),
         situation = Situation.new(get, put, sensors),
         datalink = Datalink.new(get, sensors), responder = Identification.responder(get, put),
         donor = Donor.new(get, put) }
@@ -34,23 +36,19 @@ function M.new(get, put, sensors)
 	end
 	function s:update(now, rf, power)
         self.responder:update(now)
-		self.sequence = self.sequence + 1
+		self.sequence = self.sequence % 15999998 + 2
 		local radar_packet=self.radar:read(now)
 		local infrared=self.irst:read(now)
 		local batches = {
 			irst={sequence=infrared.sequence,time=infrared.time,epoch=infrared.epoch,contacts={}},
 			datalink = self.datalink:update(now, power),
-			rf = { sequence = self.sequence, time = now, contacts = {} },
+			rf = { sequence = self.sequence, time = now, epoch = self.store.epoch, contacts = {} },
 			radar = {
                 sequence=radar_packet and radar_packet.sequence or -1,
                 time=radar_packet and radar_packet.time or now,
                 epoch=radar_packet and radar_packet.epoch or 0,contacts={},
             },
-			mws = {
-				sequence = get("F22_MWS_PUBLISH_SEQUENCE"),
-				time = get("F22_MWS_PUBLISH_TIME"),
-				contacts = {},
-			},
+            mws = MWS.read(get, now),
 		}
 		for _, c in ipairs(rf) do
 			batches.rf.contacts[#batches.rf.contacts + 1] = {
@@ -87,17 +85,7 @@ function M.new(get, put, sensors)
                     hostile=v.HOSTILE==1}
             end
         end
-		for i = 1, 16 do
-			local p = string.format("F22_MWS_%02d_", i)
-			if get(p .. "VALID") > 0.5 then
-				batches.mws.contacts[#batches.mws.contacts + 1] = {
-					source = get(p .. "SOURCE"),
-					age = get(p .. "AGE"),
-					az = get(p .. "AZ"),
-					el = get(p .. "EL"),
-				}
-			end
-		end
+
 		for i=1,#infrared.contacts do
 			local t=infrared.contacts[i]
 			batches.irst.contacts[i]={source=t.id,age=infrared.time-t.time,az=t.az,el=t.el,
@@ -107,6 +95,9 @@ function M.new(get, put, sensors)
 		self.store:update(now, batches, power)
         self.donor:update(now, self.store.contacts, power)
 		self.situation:update(now, self.store.contacts, power)
+        put('F22_TACTICAL_SEQUENCE', self.sequence-1)
+        put('F22_TACTICAL_SCHEMA', 2)
+        put('F22_TACTICAL_EPOCH', self.store.epoch)
 		for i = 1, 64 do
 			local p = string.format("F22_TACTICAL_%02d_", i)
 			local t = self.store.contacts[i]
@@ -130,13 +121,16 @@ function M.new(get, put, sensors)
 			put(p .. "SELECTED", t and t.selected and 1 or 0)
             local radar=t and t.observations.radar
             put(p..'RADAR_SOURCE',radar and radar.source or 0)
+            put(p..'RADAR_EPOCH',radar and radar.epoch or 0)
+            put(p..'IRST_AGE',t and t.irst_age or 999)
             put(p .. 'RADAR_MEASUREMENT_SOURCE',radar and radar.measurement_source or 0)
             put(p .. 'WEAPON_AUTHORITY',0) -- This picture is never the release provider.
 			local dl = t and t.datalink
 			put(p .. "DATALINK", dl and dl.link or 0)
 			put(p .. "DATALINK_AGE", t and t.datalink_age or 999)
 			put(p .. "DATALINK_REPORTER", dl and dl.reporter or 0)
-			put(p .. "DATALINK_COAST", dl and t.datalink_age > Datalink.coast and 1 or 0)
+			put(p .. "DATALINK_COAST", dl and (dl.observation_known==false
+                or t.datalink_age > Datalink.coast) and 1 or 0)
             put(p .. 'DATALINK_OBSERVATION_KNOWN', dl and dl.observation_known and 1 or 0)
             put(p .. 'DATALINK_RECEIVE_AGE', dl and dl.received and math.max(0,now-dl.received)or 999)
 			put(p .. "RF_SIGNAL", t and t.signal or 0)
@@ -169,6 +163,7 @@ function M.new(get, put, sensors)
 		put("F22_TACTICAL_OVERFLOW", math.max(0, #self.store.contacts - 64))
 		put("F22_TACTICAL_TIME", now)
 		put("F22_TACTICAL_SEQUENCE", self.sequence)
+        self.diagnostics:update(now, self.store)
 	end
 	s:reset()
 	return s

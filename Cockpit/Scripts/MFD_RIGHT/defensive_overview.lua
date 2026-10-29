@@ -98,6 +98,11 @@ for i=1,16 do
  -- A conditional passive location retains its estimate qualifier.
  D.text('E',-.045,.025,nil,'blue',.0026,D.choice(p..'GEO',1,symbol))
  D.text('>',0,-.055,nil,'white',.0026,D.choice(p..'OFFSCALE',1,symbol))
+ D.text('R',-.045,-.05,nil,'white',.0025,D.choice(p..'RADAR',1,symbol))
+ D.text('IR',.015,-.05,nil,'white',.0025,D.choice(p..'IRST',1,symbol))
+ D.text('DL',.08,-.05,nil,'white',.0025,
+  group({p..'DATALINK'},{{'parameter_in_range',0,.9,2.1}},symbol))
+ D.text('ID?',.08,.07,nil,'yellow',.0025,D.choice(p..'IDENTITY_CONFLICT',1,symbol))
 end
 
 -- Compact expendable readbacks occupy the same lower-right region as the photo.

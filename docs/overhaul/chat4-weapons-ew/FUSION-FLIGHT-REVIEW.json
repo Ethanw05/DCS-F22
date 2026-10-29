@@ -1,0 +1,61 @@
+{
+  "source_log": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Logs\\dcs.log",
+  "sha256": "8adbe89e9e089d9306e2d6a9359b734692811c47ae708fe7b67cd5116920ad2c",
+  "read_before_source_changes": true,
+  "scope": "Two separate mission runs in the same DCS log",
+  "flights": [
+    {
+      "mission_load_utc": "2026-10-29 07:09:13.688",
+      "lines": [
+        876,
+        21787
+      ],
+      "radar_ids": [
+        1,
+        2,
+        3
+      ],
+      "min_concurrent_aircraft_separation_m": 425,
+      "rwr_world_sources": [
+        16777984,
+        16777728,
+        16777472
+      ],
+      "first_rwr_contact_utc": "07:09:26.388",
+      "known_coalition_utc": "07:09:26.441",
+      "irst": "ready; no contacts logged",
+      "maws": "active warning records present"
+    },
+    {
+      "mission_load_utc": "2026-10-29 07:16:38.275",
+      "lines": [
+        21788,
+        34479
+      ],
+      "radar_ids": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "min_concurrent_aircraft_separation_m": 391,
+      "rwr_world_sources": [
+        16777984,
+        16777728,
+        16777472
+      ],
+      "first_rwr_contact_utc": "07:16:45.632",
+      "known_coalition_utc": "07:16:45.687",
+      "irst": "ready; no contacts logged",
+      "maws": "active warning records present"
+    }
+  ],
+  "limits": [
+    "No datalink payload or fusion-row telemetry in these flights; exact duplicates and AI transmission cadence cannot be replayed from this log.",
+    "Different local radar IDs alone do not prove ghost tracks; loss and reacquisition are possible.",
+    "No actual loaded native build identity token was recorded. Installed package identity was verified separately."
+  ]
+}

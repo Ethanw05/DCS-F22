@@ -1,17 +1,31 @@
 -- GPL-3.0-or-later. Evidence flags and an explicitly simulated ownship responder.
 -- No waveform, cryptography, host interrogation or PPLI transmission is implied.
 local M = {}
+local function time_known(observation, sensor)
+    if sensor == 'datalink' then return observation.observation_known == true end
+    if sensor == 'radar' then return observation.identity_known == true end
+    return sensor == 'rf' and observation.identity_time ~= nil
+end
+local function donor_evidence(track, observation, evidence)
+    evidence.reporter, evidence.source = observation.reporter, observation.source
+    evidence.epoch, evidence.link = observation.epoch, observation.link
+    track.donor_identity_evidence = track.donor_identity_evidence or {}
+    if #track.donor_identity_evidence < 64 then
+        track.donor_identity_evidence[#track.donor_identity_evidence + 1] = evidence
+    end
+end
 function M.evidence(track, observation, sensor)
     if not observation.friendly and not observation.hostile then return end
     track.identity_evidence = track.identity_evidence or {}
     track.identity_evidence[sensor] = { friendly = observation.friendly,
         hostile = observation.hostile, time = observation.identity_time or observation.time,
         hostile_time = observation.hostile_time or observation.identity_time or observation.time,
-        time_known = sensor=='datalink' and observation.observation_known==true
-            or sensor=='radar' and observation.identity_known==true
-            or sensor=='rf' and observation.identity_time~=nil,
+        time_known = time_known(observation, sensor),
         received = observation.received,
         kind = sensor == 'datalink' and 2 or 1 } -- 1 simulator-assisted, 2 donor.
+    if sensor == 'datalink' then
+        donor_evidence(track, observation, track.identity_evidence[sensor])
+    end
     track.friendly_protected = track.friendly_protected or observation.friendly
     track.hostile_evidence = track.hostile_evidence or observation.hostile
     track.identity_conflict = track.friendly_protected and track.hostile_evidence or false

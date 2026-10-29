@@ -10,6 +10,8 @@ function M.group(candidates)
 			if
 				distance < M.separation
 				and c.optical == a.optical
+				and c.irst == a.irst
+				and c.irst_contributor == a.irst_contributor
 				and c.affiliation == a.affiliation
 				and c.coast == a.coast
 			then

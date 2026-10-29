@@ -72,6 +72,15 @@ if(MSVC)
 endif()
 add_test(NAME replacement_datalink_control_status COMMAND f22_datalink_controls)
 
+add_executable(f22_datalink_latency native/datalink_latency.cpp)
+target_compile_features(f22_datalink_latency PRIVATE cxx_std_23)
+target_include_directories(f22_datalink_latency PRIVATE "${PROJECT_SOURCE_DIR}/EFM/include")
+target_compile_definitions(f22_datalink_latency PRIVATE NOMINMAX)
+if(MSVC)
+    target_compile_options(f22_datalink_latency PRIVATE /W4 /WX /analyze)
+endif()
+add_test(NAME replacement_datalink_latency COMMAND f22_datalink_latency)
+
 # Reviewed independently rebuilt owner tests. No installed simulator operation.
 include(native/radar_admission.cmake)
 include(native/radar_ground.cmake)

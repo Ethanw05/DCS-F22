@@ -1,0 +1,45 @@
+{
+  "tool": "lizard 1.17.31 lexical Lua accounting",
+  "retained_exceptions": [
+    {
+      "file": "Cockpit/Scripts/Systems/Tactical_Picture.lua",
+      "before_max_ccn": 11,
+      "after_max_ccn": 134
+    },
+    {
+      "file": "Cockpit/Scripts/Systems/MWS_System.lua",
+      "before_max_ccn": 106,
+      "after_max_ccn": 106
+    },
+    {
+      "file": "Cockpit/Scripts/Systems/Identification_State.lua",
+      "before_max_ccn": 25,
+      "after_max_ccn": 25
+    },
+    {
+      "file": "Cockpit/Scripts/Systems/Radar_System.lua",
+      "before_max_ccn": 118,
+      "after_max_ccn": 118
+    },
+    {
+      "file": "Cockpit/Scripts/Systems/Tactical_Situation.lua",
+      "before_max_ccn": 99,
+      "after_max_ccn": 79
+    },
+    {
+      "file": "Cockpit/Scripts/Systems/Defensive_Overview.lua",
+      "before_max_ccn": 120,
+      "after_max_ccn": 109
+    }
+  ],
+  "rationale": "Existing device lifecycle and fixed-field publication bodies retained; no new unbounded iteration. Admission, joining, matching and new packet validation extracted into focused helpers (CCN <=15). Tactical publication is bounded64 rows; MWS publication16. Existing Radar_System callback and display builders retain prior complexity.",
+  "bounds": {
+    "observations": 176,
+    "pairs_per_update": 15400,
+    "picture_rows": 64,
+    "warning_rows": 16,
+    "donor_evidence_rows": 64
+  },
+  "allocation": "Lua-managed bounded tables; association entry/candidate/history buffers reused. Existing native maps/streams remain bounded by64 reports and <=33 outbound rows;16KiB payload cap,5Hz maximum, no catch-up bursts.",
+  "measurement": "Worst-case synthetic176-observation association benchmark17.05ms/update on this host; not DCS callback timing or aircraft validation."
+}
