@@ -1,0 +1,372 @@
+{
+  "schema": 1,
+  "status": "INSTALLED_PACKAGE_CURRENT_CLEANUP_PARTIAL_EXECUTION_POLICY_BLOCK",
+  "recorded_utc": "2026-10-29T07:42:30.488545+00:00",
+  "source_root": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22",
+  "branch": "main",
+  "verified_source_commit": "85572d6ddf1cb6cc26855752ecee77ddbd8f6e85",
+  "installed_root": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A",
+  "complete_package_receipt": "docs/overhaul/integration/COMPLETE-PACKAGE-INSTALLATION.json",
+  "verification": {
+    "runtime_assets": 583,
+    "source_or_installed_mismatches": [],
+    "DLL_sha256": "accaad39164e03c1db363b6db08c63797905662d2a89b2ee86647b37133bdef8",
+    "native_build_source_and_configuration_match": true,
+    "primary_bin_matches": true,
+    "DCS_libraries_checked": 14,
+    "DCS_library_mismatches": [],
+    "actual_installed_package_cases": 74,
+    "actual_installed_package_passed": true,
+    "actual_installed_navigation_HUD_cases": 75,
+    "actual_installed_navigation_HUD_passed": true,
+    "source_overlays": false,
+    "actual_DCS_flight_executed": false
+  },
+  "removed": [
+    {
+      "kind": "registered abandoned radar checkout",
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DlcBuilder\\radar-fixes-2026-10-25",
+      "old_head": "0fc6dc00b4085d1c0a3325c743eedf61b2ef77a3",
+      "files_before": 573,
+      "bytes_before": 2886849897,
+      "working_changes_before": 245,
+      "user_authorization": "Yes remove all old/dead checkouts, work, dead code ect.",
+      "all_24_audio_files_also_present_identically_on_main": true,
+      "removal": "git worktree remove --force; exact root/common Git directory/head validated; no new backup or snapshot",
+      "absent_after": true
+    }
+  ],
+  "registered_worktrees_after": [
+    "worktree C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/DCS-F22",
+    "HEAD 85572d6ddf1cb6cc26855752ecee77ddbd8f6e85",
+    "branch refs/heads/main",
+    ""
+  ],
+  "blocked_file_cleanup": {
+    "status": "NOT_APPLIED",
+    "commands": "Bulk exact-path/hash-checked removal and a single explicitly named hash-checked receipt removal both rejected by automatic approval review",
+    "returned_reason": "blocked by policy",
+    "files_still_present": 37,
+    "targets": [
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-AP-OFF-LIVE-STATE.json",
+        "sha256": "3677e45a32a2f412ab2ece502bdab35ce7a9b94f08cb0200805302f7b8b60959",
+        "bytes": 1800,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-CONTROL-CLEANUP.json",
+        "sha256": "d1d3f2745ede0e85f2f67da75b084ed4c0d78ecc4eb8c8edb5e1bcdce9445c93",
+        "bytes": 4096,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-COURSE-CONTRACT-HOTFIX.json",
+        "sha256": "f5b7378e119c36941f9f5e217492a0a1e9493c72a0cc7d79377d3dbe32035673",
+        "bytes": 1374,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-CURRENT-INTEGRATION.json",
+        "sha256": "5b10316066747c91a6a03af5101e0ee745f6af12a933b557ae88679a892b486d",
+        "bytes": 15892,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-DAMAGE-MODE-HOTFIX.json",
+        "sha256": "0e958c3e943ca212b62f4125f3a46a7e8cd106fc9db538474ce1893979077104",
+        "bytes": 2680,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-DEF-CONTACT-MARKERS.json",
+        "sha256": "c154e66667e307c1e87fce61d5ec52d5c1a18ac982c07c9562f3b365fe4f1854",
+        "bytes": 2301,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-ENGAGEMENT-HOTFIX.json",
+        "sha256": "a7ad7bbe8f13a787d13bbd961d4a6977d093cab80656d24718d8d2430f24c0cf",
+        "bytes": 2730,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-FLIGHT-HOTFIX.json",
+        "sha256": "4e7603608b206fdfc0f7fb99330c3f677e1c188fad7be13f9f0c197f61aff10c",
+        "bytes": 854,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-GROUND-CONTACT-HOTFIX.json",
+        "sha256": "c812431b58ff7d1273487f8d3b65af1d13a805f05ba23c39cf7bc29787a3470b",
+        "bytes": 2635,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-GROUND-MAP-RWR-REPAIR.json",
+        "sha256": "5a3c1d2d6cae0dec7316af5fbf5a2a8a7e1403e757ca66cb08a299b7553964ca",
+        "bytes": 2690,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-GROUND-QUALITY.json",
+        "sha256": "94c57466f1c15aa93da4c98d0508ca2c4a47db5a26a547d016fbc856b72fb734",
+        "bytes": 3073,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-GROUND-TRACKING.json",
+        "sha256": "148176506bcb2bc1842f7cf284f026f66f16e57900dfaa04de5fa3b42a5777c6",
+        "bytes": 2117,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-GUN-AUDIO-WARNING-HOTFIX.json",
+        "sha256": "ecbcd88d596d2cd4eb9602760e3ec0496b80a703e48e4c8e6d596c9a2f91cd05",
+        "bytes": 2721,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-GUN-COHERENT-VELOCITY.json",
+        "sha256": "4665108b1226df2d3cd952f689f1168f7fb0ecc6fe9743cf762000371178ebc4",
+        "bytes": 2071,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-GUN-CUE-STABILIZATION.json",
+        "sha256": "824cada5d46d20900ed2b0de6639b06128b098c8b2f13763aa41ac5a8dc7a1b5",
+        "bytes": 2058,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-GUN-NATIVE-MOTION.json",
+        "sha256": "9ac39c8589254ce360c113595c75c50f578c14a5b922fad074858d459a9a18d5",
+        "bytes": 2566,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-GUN-RESPONSE-HOTFIX.json",
+        "sha256": "fcbda2b745f036334439bc0f4b9f465e3792e4f88118c71e74986c5643b915bf",
+        "bytes": 1880,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-GUN-SOLUTION-EPOCH.json",
+        "sha256": "c1eed75f44e8acb8d3858b80f8cfa254ac881adf3204c3ce69847ab71d15297a",
+        "bytes": 1696,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-HUD-EBRACKET.json",
+        "sha256": "c3836bc71af208633d4cca2ecaacb26faaa9eb2d9081bcee40e51f3f45c378e4",
+        "bytes": 1780,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-HUD-FOCUS-DOT.json",
+        "sha256": "6dfd928a2d193097d9942abaeebb58a234195c74df612d7e8ad2becf71798f85",
+        "bytes": 1288,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-HUD-GROUND-DESIGNATION.json",
+        "sha256": "4d6af7efd9a8548c428de73e4078e2bed304c3860f9e0bf18880a5c6cd0b0390",
+        "bytes": 2408,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-HUD-TEXT-HOTFIX.json",
+        "sha256": "835719d780c63abdb9f5893bffb161d34e9058e722abb7bed85853726fe56a6c",
+        "bytes": 1194,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-INTEGRATION-VALIDATION.json",
+        "sha256": "329777460ef342ad216a802b969d22fce204884e529a767bfbe22d70400e7a8e",
+        "bytes": 8635,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-NAV-EW-AP-TOGGLE.json",
+        "sha256": "98ea168fd51a5f5b395e8ea788fb67e00dca018b4c9bb5366cf065379ebcf63d",
+        "bytes": 3554,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-NAV-IDENT-AUDIO.json",
+        "sha256": "3a7e3acb36d32585c2c7991fe559631f0ee3161be0930052bdf8d1dad88e08b7",
+        "bytes": 2137,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-NAV-SOURCE-SEQUENCE.json",
+        "sha256": "1fed348117aa68eb3a8703ac948aac81b5912f95ea1adb0a48037b50ba15bb57",
+        "bytes": 2873,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-PHYSICAL-DISPLAY-HOTFIX.json",
+        "sha256": "15588874e5f4304756899138560eede452c22fe4a1651c3af1ccd70c130d5823",
+        "bytes": 1979,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-PITCH-YAW-HOTFIX.json",
+        "sha256": "17eb716a1970f27bbd9c5983e5a7bd80b39520d452c48e859bedfbb5eb3d2c2f",
+        "bytes": 1295,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-PLAYTEST.json",
+        "sha256": "8befd42b207979b069ccd2ec6a40511a1da049ca7329687145e9cd2164c1a550",
+        "bytes": 132207,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-POWER-ENGINE-INTEGRATION.json",
+        "sha256": "572dc483a9435061157b870ae77e5e24f8ffe97d78515b27c51f158b24e515dd",
+        "bytes": 4996,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-RADAR-TRACK-REPAIR.json",
+        "sha256": "b96f8ef6811ad7327a10c3cd49df0b9c562edca2ecbedd82ac12ebf0fac3b6d9",
+        "bytes": 2880,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-WARNING-POLICY-HOTFIX.json",
+        "sha256": "9793d41e85215e4d27e191ebae79444319a2a096441fb562d94f68a53d7423a6",
+        "bytes": 2071,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F22-WEAPONS-HOTFIX.json",
+        "sha256": "fd5c61acc912c3faea3f75356fb039b269bd1fbcbce1f756b675471776ca8055",
+        "bytes": 1557,
+        "reason": "Superseded historical hotfix installation receipt; no runtime reader"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22NativePreview.lua",
+        "sha256": "275da49485131451c5ffcbd0296f9d8d7cfdd075084b543fa4207321476686d6",
+        "bytes": 4303,
+        "reason": "Obsolete mission-name-activated test-control driver; current passive recorder retained"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22GroundRegressionHook.lua",
+        "sha256": "d02d9fc4ce43ce93ade228255667c8f5214165ce71a9601b7f4960e64b356cea",
+        "bytes": 770,
+        "reason": "Obsolete mission-name-activated test-control driver; current passive recorder retained"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22EWTrialHook.lua",
+        "sha256": "d14bb2fe7a8e76ad3e386e4381a27a907eaa54397f184838900e4acd276203b5",
+        "bytes": 2435,
+        "reason": "Obsolete mission-name-activated test-control driver; current passive recorder retained"
+      },
+      {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22DogfightValidation.lua",
+        "sha256": "72e4f90ef029c95227d2a20c3487e5a0d3727a21c51120ce0e270865b617af2e",
+        "bytes": 4938,
+        "reason": "Obsolete mission-name-activated test-control driver; current passive recorder retained"
+      }
+    ]
+  },
+  "other_old_work_inventoried_not_deleted": [
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DlcBuilder\\ag-usability-2026-10-25",
+      "files": 685,
+      "bytes": 2890205121,
+      "git_marker": false,
+      "classification": "Old code copy with evidence; deletion pending exact evidence retention classification"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DlcBuilder\\cockpit-research-2026-10-25",
+      "files": 28,
+      "bytes": 4620911,
+      "git_marker": false,
+      "classification": "Historical work/research; retain original evidence, retire only reproduced code/build products"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DlcBuilder\\ground-radar-audit-2026-10-25",
+      "files": 505,
+      "bytes": 30798444,
+      "git_marker": false,
+      "classification": "Old code copy with evidence; deletion pending exact evidence retention classification"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DlcBuilder\\ground-radar-fixes-2026-10-25",
+      "files": 590,
+      "bytes": 2886911355,
+      "git_marker": false,
+      "classification": "Old code copy with evidence; deletion pending exact evidence retention classification"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DlcBuilder\\hud-review-2026-10-25",
+      "files": 702,
+      "bytes": 2899357561,
+      "git_marker": false,
+      "classification": "Historical work/research; retain original evidence, retire only reproduced code/build products"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DlcBuilder\\hud-schema-2026-10-25",
+      "files": 706,
+      "bytes": 2899325529,
+      "git_marker": false,
+      "classification": "Historical work/research; retain original evidence, retire only reproduced code/build products"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DlcBuilder\\overhaul-integration-2026-10-25",
+      "files": 11,
+      "bytes": 104490,
+      "git_marker": false,
+      "classification": "Historical work/research; retain original evidence, retire only reproduced code/build products"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DlcBuilder\\radar-audit-2026-10-25",
+      "files": 391,
+      "bytes": 27058669,
+      "git_marker": false,
+      "classification": "Old code copy with evidence; deletion pending exact evidence retention classification"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DlcBuilder\\stores-overhaul-2026-10-25",
+      "files": 115,
+      "bytes": 3370148,
+      "git_marker": false,
+      "classification": "Historical work/research; retain original evidence, retire only reproduced code/build products"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DlcBuilder\\systems-audit-2026-10-25",
+      "files": 4895,
+      "bytes": 3227056884,
+      "git_marker": false,
+      "classification": "Old code copy with evidence; deletion pending exact evidence retention classification"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DlcBuilder\\vehicle-overhaul-2026-10-25",
+      "files": 1206,
+      "bytes": 2988169601,
+      "git_marker": false,
+      "classification": "Historical work/research; retain original evidence, retire only reproduced code/build products"
+    }
+  ],
+  "preservation": {
+    "protected_entries_checked": 54,
+    "changed": [],
+    "saved_controls": 5,
+    "recorded_audio": 31,
+    "current_passive_F22TrimTelemetry_retained": true,
+    "HUD_style_and_export_preserved": true,
+    "other_owners_pending_work_preserved": true,
+    "SAR_source_and_research_retained": true,
+    "backups_created": false
+  },
+  "other_pending_actions": [
+    "Superseded installed README differs from main; planned refresh was in the rejected command and was not applied. Contributors and license already match.",
+    "Other old code copies and generated build products remain inventoried; they have not been deleted. Original source references/evidence and current SAR research are retained.",
+    "No production Lua/C++ changed. Lack of a direct runtime caller alone did not establish that test/research helpers or requested unfinished features were dead code."
+  ],
+  "evidence_directory": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\install-cleanup-20261029",
+  "DCS_launched_controlled_or_terminated": false
+}
