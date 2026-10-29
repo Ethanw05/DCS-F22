@@ -1,0 +1,425 @@
+{
+  "schema_version": 1,
+  "captured_at_utc": "2026-10-29T02:44:58.046009+00:00",
+  "result": "No update-related ECM control-path break found; target effectiveness unqualified.",
+  "source_head_reviewed": "af79e0296d0f72d48658749b630495111bf423cc",
+  "method": "Read-only JSON-RPC via existing IDA MCP plugin /mcp endpoints; no DLL loading, patching, database editing, simulator operation or installation.",
+  "external_capture_directory": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat1-20261028\\ecm-mcp-review",
+  "ida_sessions": [
+    {
+      "port": 13339,
+      "metadata": {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Documents\\Codex\\2026-10-24\\fi\\work\\inputs\\CockpitBase.dll",
+        "module": "CockpitBase.dll",
+        "base": "0x180000000",
+        "size": "0x59a000",
+        "md5": "be53854bcaddbb8c64f2e0202f2d4211",
+        "sha256": "163d55167503da8dd0ea9eb459e17206fc3dc8d6b4805b5b13bbe58341beb794",
+        "crc32": "0x5bc6d16",
+        "filesize": "0x591400"
+      }
+    },
+    {
+      "port": 13340,
+      "metadata": {
+        "path": "D:\\DCS\\bin-mt\\CockpitBase.dll",
+        "module": "CockpitBase.dll",
+        "base": "0x180000000",
+        "size": "0x68e000",
+        "md5": "f83edf34ecbd16cdb2c5a11be50d15ad",
+        "sha256": "fb0a09be70627c7790dea1527cedfee43082bb8b112484d5c85be1d99d33de95",
+        "crc32": "0xfc1b07cb",
+        "filesize": "0x683c00"
+      }
+    },
+    {
+      "port": 13342,
+      "metadata": {
+        "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\native-host-2.9.31.29434\\WorldGeneral-stop-snapshot.dll",
+        "module": "WorldGeneral-stop-snapshot.dll",
+        "base": "0x180000000",
+        "size": "0x127b000",
+        "md5": "552c01dd3a7c555837adbeeb33659fb2",
+        "sha256": "2ecc3945e15e371bb20e9a52000652aac8d28e74f036865382361891f070556b",
+        "crc32": "0x5ecf070a",
+        "filesize": "0x126b000"
+      }
+    }
+  ],
+  "current_host_files": [
+    {
+      "name": "CockpitBase",
+      "path": "D:\\DCS\\bin-mt\\CockpitBase.dll",
+      "sha256": "fb0a09be70627c7790dea1527cedfee43082bb8b112484d5c85be1d99d33de95"
+    },
+    {
+      "name": "WorldGeneral",
+      "path": "D:\\DCS\\bin-mt\\WorldGeneral.dll",
+      "sha256": "83d36b10205234da58b4a98dd06f75a84d6f3e13826d0a123e482eb53a7b8265"
+    },
+    {
+      "name": "edObjects",
+      "path": "D:\\DCS\\bin-mt\\edObjects.dll",
+      "sha256": "53921811f0b0ec487a7615dba8262dad622a94908c84d64528fa3fd62ea5102f"
+    },
+    {
+      "name": "World",
+      "path": "D:\\DCS\\bin-mt\\World.dll",
+      "sha256": "80f5bb2f83db6c5023727ff5097ca98a4069ddc767a1881638fc81353b310793"
+    }
+  ],
+  "installed_file_at_capture": {
+    "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\bin\\F22.dll",
+    "sha256": "fa145c973f4c4da4354fb58f272654de30cedb88411b63836b194340801f45fa",
+    "mtime_utc": "2026-10-29T02:27:33.915143+00:00",
+    "identity": "F22_NATIVE_V1|source=c7eec28c5e69957ef67dbfb24fa20bd6a39d1b5f16e2dfcfd007cedf8931bf1a|cache=ec34e3a0830d9656b6ed39285cd19a292f28aa2c6f4c2e5cd09f4599af36c36c|compiler=MSVC-19.51.36252.0|config=Release|cxx=23"
+  },
+  "installed_current_profile_file_offset": 475868,
+  "loaded_binary_identity_proven": false,
+  "normalization": {
+    "remove": "IDA /* */ comments; address literals matching 0x(?:180[0-9a-fA-F]{6}|7[fF][0-9a-fA-F]{10}) and generated sub_ addresses; collapse whitespace",
+    "retain": "Non-address numeric literals, member offsets, named calls, branches and virtual slot indices",
+    "limit": "Function-level pseudocode comparison, supported by inspected call/member roles; not byte or whole-DLL equivalence."
+  },
+  "comparisons": [
+    {
+      "function": "get",
+      "previous_rva": "0x27a1c0",
+      "current_rva": "0x362200",
+      "normalized_equal": true,
+      "normalized_sha256": "8beddae0be81dd9210bd9009669438669ca3278d08735ffec8bd0eb8013bfd50"
+    },
+    {
+      "function": "set",
+      "previous_rva": "0x27aab0",
+      "current_rva": "0x362af0",
+      "normalized_equal": true,
+      "normalized_sha256": "69e7edc21170aafeb08419ba7e47011546bda15d063a253681d742178fefd88b"
+    },
+    {
+      "function": "radar-block",
+      "previous_rva": "0x3406e0",
+      "current_rva": "0x42ef70",
+      "normalized_equal": true,
+      "normalized_sha256": "46bcb7bdfa72e44a99b0599c847550adaffe499c645ab004681710e403993468"
+    }
+  ],
+  "current_native_trace": {
+    "ecm_constructor_rva": "0x80780",
+    "ecm_setter_rva": "0x80dc0",
+    "ecm_tick_rva": "0x80b60",
+    "ecm_record_submission_rva": "0x80c80",
+    "processor_instance_rva": "0x131d10",
+    "processor_constructor_rva": "0x128ee0",
+    "processor_vtable_rva": "0x1fbc70",
+    "processor_register_ecm_rva": "0x1338d0",
+    "processor_activity_rva": "0x12aeb0",
+    "processor_update_rva": "0x1355f0",
+    "processor_work_input_rva": "0x12c550",
+    "activation_delay_s": 1.05,
+    "strength_member_offset": 16,
+    "constructor_strength_values_internal_units": [
+      1.0,
+      0.79,
+      1.92
+    ],
+    "f22_instance_strength_observed": false,
+    "sam_receiver_response_observed": false
+  },
+  "previous_log": {
+    "sha256": "e8f9d4e4f6e48e6abb05c7f12990f51ff8ca33c74f1b93d0a239177521c15905",
+    "bytes_read": 5642876,
+    "qualified_active_samples": 678,
+    "latest_qualified_active": {
+      "line": 18916,
+      "model_s": "138.72",
+      "timestamp_UTC": "2026-10-29 01:13:33.709",
+      "fields": {
+        "F22_ECM_REQUESTED": "1",
+        "F22_ECM_HOST_VALID": "1",
+        "F22_ECM_ACTIVE": "1",
+        "F22_ECM_PENDING": "0",
+        "F22_ECM_FAILED": "0",
+        "F22_ECM_TRANSMITTING_VALID": "1",
+        "F22_ECM_TRANSMITTING": "1",
+        "F22_ECM_DISPLAY_STATE": "3",
+        "F22_NATIVE_ECM_VALID": "1",
+        "F22_NATIVE_ECM_ACTIVE": "1",
+        "F22_AESA_DRIVER_READY": "1",
+        "F22_AESA_REASON": "0"
+      }
+    },
+    "installed_file_historical": {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\bin\\F22.dll",
+      "sha256": "d29216510d70e41fafa878457374c7e7d845230cf6655822fbcef468c029ac34",
+      "mtime_UTC": "2026-10-29T00:51:59.087911+00:00",
+      "embedded_identity": "F22_NATIVE_V1|source=6f953bf71eb5dc7e7a99455e45d655605a772a9b366ea0439963819aa7688159|cache=009d4ac6a4cbe480a15efc85fe618f3c542b5404f03c0eaa9f2f9ed588ea7097|compiler=MSVC-19.51.36252.0|config=Release|cxx=23"
+    }
+  },
+  "newer_live_log": {
+    "captured_at_utc": "2026-10-29T02:42:26.854157+00:00",
+    "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Logs\\dcs.log",
+    "bytes_read": 7797180,
+    "sha256": "1631a85e9d72be236abcd392de792283cc7b7bf87341854dc13cac690f476cba",
+    "flights": [
+      {
+        "start": "2026-10-29 02:31:31.696",
+        "samples": 350,
+        "counts": {
+          "F22_ECM_REQUESTED": 0,
+          "F22_ECM_HOST_VALID": 349,
+          "F22_ECM_ACTIVE": 0,
+          "F22_ECM_PENDING": 0,
+          "F22_ECM_FAILED": 0,
+          "F22_ECM_TRANSMITTING_VALID": 349,
+          "F22_ECM_TRANSMITTING": 0,
+          "F22_ECM_DISPLAY_STATE": 0,
+          "F22_NATIVE_ECM_VALID": 349,
+          "F22_NATIVE_ECM_ACTIVE": 0,
+          "F22_AESA_DRIVER_READY": 349,
+          "F22_AESA_REASON": 0
+        },
+        "qualified_active": 0
+      },
+      {
+        "start": "2026-10-29 02:32:52.468",
+        "samples": 583,
+        "counts": {
+          "F22_ECM_REQUESTED": 0,
+          "F22_ECM_HOST_VALID": 582,
+          "F22_ECM_ACTIVE": 0,
+          "F22_ECM_PENDING": 0,
+          "F22_ECM_FAILED": 0,
+          "F22_ECM_TRANSMITTING_VALID": 582,
+          "F22_ECM_TRANSMITTING": 0,
+          "F22_ECM_DISPLAY_STATE": 0,
+          "F22_NATIVE_ECM_VALID": 582,
+          "F22_NATIVE_ECM_ACTIVE": 0,
+          "F22_AESA_DRIVER_READY": 582,
+          "F22_AESA_REASON": 0
+        },
+        "qualified_active": 0
+      },
+      {
+        "start": "2026-10-29 02:35:00.127",
+        "samples": 710,
+        "counts": {
+          "F22_ECM_REQUESTED": 472,
+          "F22_ECM_HOST_VALID": 709,
+          "F22_ECM_ACTIVE": 466,
+          "F22_ECM_PENDING": 6,
+          "F22_ECM_FAILED": 0,
+          "F22_ECM_TRANSMITTING_VALID": 709,
+          "F22_ECM_TRANSMITTING": 466,
+          "F22_ECM_DISPLAY_STATE": 6,
+          "F22_NATIVE_ECM_VALID": 709,
+          "F22_NATIVE_ECM_ACTIVE": 466,
+          "F22_AESA_DRIVER_READY": 709,
+          "F22_AESA_REASON": 0
+        },
+        "qualified_active": 466
+      },
+      {
+        "start": "2026-10-29 02:37:46.820",
+        "samples": 637,
+        "counts": {
+          "F22_ECM_REQUESTED": 612,
+          "F22_ECM_HOST_VALID": 636,
+          "F22_ECM_ACTIVE": 607,
+          "F22_ECM_PENDING": 5,
+          "F22_ECM_FAILED": 0,
+          "F22_ECM_TRANSMITTING_VALID": 577,
+          "F22_ECM_TRANSMITTING": 548,
+          "F22_ECM_DISPLAY_STATE": 5,
+          "F22_NATIVE_ECM_VALID": 636,
+          "F22_NATIVE_ECM_ACTIVE": 607,
+          "F22_AESA_DRIVER_READY": 636,
+          "F22_AESA_REASON": 0
+        },
+        "qualified_active": 548
+      },
+      {
+        "start": "2026-10-29 02:40:09.003",
+        "samples": 3,
+        "counts": {
+          "F22_ECM_REQUESTED": 0,
+          "F22_ECM_HOST_VALID": 2,
+          "F22_ECM_ACTIVE": 0,
+          "F22_ECM_PENDING": 0,
+          "F22_ECM_FAILED": 0,
+          "F22_ECM_TRANSMITTING_VALID": 2,
+          "F22_ECM_TRANSMITTING": 0,
+          "F22_ECM_DISPLAY_STATE": 0,
+          "F22_NATIVE_ECM_VALID": 2,
+          "F22_NATIVE_ECM_ACTIVE": 0,
+          "F22_AESA_DRIVER_READY": 2,
+          "F22_AESA_REASON": 0
+        },
+        "qualified_active": 0
+      }
+    ],
+    "qualified_active_samples": 1014,
+    "latest_qualified_active": {
+      "line": 22921,
+      "timestamp_utc": "2026-10-29 02:39:47.554",
+      "model_s": "117.708",
+      "fields": {
+        "F22_ECM_REQUESTED": "1",
+        "F22_ECM_HOST_VALID": "1",
+        "F22_ECM_ACTIVE": "1",
+        "F22_ECM_PENDING": "0",
+        "F22_ECM_FAILED": "0",
+        "F22_ECM_TRANSMITTING_VALID": "1",
+        "F22_ECM_TRANSMITTING": "1",
+        "F22_ECM_DISPLAY_STATE": "3",
+        "F22_NATIVE_ECM_VALID": "1",
+        "F22_NATIVE_ECM_ACTIVE": "1",
+        "F22_AESA_DRIVER_READY": "1",
+        "F22_AESA_REASON": "0"
+      }
+    },
+    "signature_trial_observer_rows": 0,
+    "loaded_identity_tokens": 0,
+    "limit": "Live log snapshot; enabled/borrowed-object status only, not per-threat radar response or RF strength."
+  },
+  "stale_indication_period": {
+    "samples": 59,
+    "first": {
+      "line": 22930,
+      "segment": 4,
+      "utc": "2026-10-29 02:39:47.754",
+      "model": "117.912",
+      "native_time": "117.5",
+      "native_gen": "11",
+      "effect_time": "-100",
+      "sequence": "45254",
+      "display": "2",
+      "age": 0.41200000000000614
+    },
+    "last": {
+      "line": 23585,
+      "segment": 4,
+      "utc": "2026-10-29 02:39:59.580",
+      "model": "129.744",
+      "native_time": "117.5",
+      "native_gen": "11",
+      "effect_time": "-100",
+      "sequence": "45254",
+      "display": "2",
+      "age": 12.244
+    },
+    "cause_of_native_sampling_stop": "unqualified",
+    "control_requested_and_host_active_remained_true": true,
+    "display_downgraded_to_enabled": true
+  },
+  "limits": [
+    "Native control and object/flag observations do not prove nonzero RF output or victim suppression.",
+    "The adapter validates strength bounds but discards the value in ownship publication; zero is allowed.",
+    "Simple radar receiver code does not authenticate AI SAM behavior or threat-specific burn-through range.",
+    "Two-participant multiplayer AI authority/effectiveness is unexecuted.",
+    "Current installed identity postdates earlier flight and is not authenticated as loaded by either log.",
+    "No production code change was justified by this read-only compatibility check."
+  ],
+  "captures": [
+    {
+      "name": "metadata-13339.json",
+      "sha256": "ca511032d4c57ddbade8226679cb2a94b241f9bc01add4f9d694265fe2c48035"
+    },
+    {
+      "name": "metadata-13340.json",
+      "sha256": "492878a2d6d655c1c9687fbba94cdb0b51bacc3a33df294de2d0ce307110a643"
+    },
+    {
+      "name": "metadata-13342.json",
+      "sha256": "cd13d82b19d693501276c01e595dd5598d112bc90eb076d661f58e985a806f14"
+    },
+    {
+      "name": "old-get.json",
+      "sha256": "7053c1a3c40d83343b9e402fc9f2070094fae88f29f00c57473234eee124c2be"
+    },
+    {
+      "name": "old-set.json",
+      "sha256": "fa44e220507cedfaec1785a5f93d6f213ae2a8a2a0c9bcf5e0f2d75ee855ea88"
+    },
+    {
+      "name": "old-radar-block.json",
+      "sha256": "c058e8967ff462ab76fb45f9dcbf1e097a7e5cef6d6101de9f693dcbe8a6519b"
+    },
+    {
+      "name": "current-get.json",
+      "sha256": "267295419cffa5244f2eb022ae22eda40b5c3c9f342bda4f611ed5a6aa86f848"
+    },
+    {
+      "name": "current-set.json",
+      "sha256": "89b3f57d5047240e24e9957a24dd8729b892ea831360e2b3765bd7d67af78d75"
+    },
+    {
+      "name": "current-radar-block.json",
+      "sha256": "24166900bd1479549d2a75684d4226b1f0b9e737a0d0124f0bb6f1ed5c69a72b"
+    },
+    {
+      "name": "current-base-constructor.json",
+      "sha256": "c3edc2c3f4ea5e7d560a8f9f139e48a6a1eaa69b98d34a44dc55ef09fbe5f345"
+    },
+    {
+      "name": "current-base-active.json",
+      "sha256": "2d485f802f98653ab167dbd1678b3601cea710c7af85fed27e3a08250d3e8318"
+    },
+    {
+      "name": "current-base-set.json",
+      "sha256": "ffb20301033c347142e393b67eaad0f8db71001d10388366e649b688ec79c859"
+    },
+    {
+      "name": "current-base-update.json",
+      "sha256": "adb95e8f755f2671a5c727e8b73b131904a129c7647b62ecdae9d6edec390d06"
+    },
+    {
+      "name": "ecm-tick.json",
+      "sha256": "e2c089b69a52cb972aef4c6102a07a31bd564c2f20143fee14134114502c3487"
+    },
+    {
+      "name": "world-radar-instance.json",
+      "sha256": "70100a388169cc95e2271cc02aaa72a145dba037c78b6ac533fa1c37ed475f47"
+    },
+    {
+      "name": "world-radar-constructor.json",
+      "sha256": "a215ce742dcfd8db4ea9f844902c61e719910184f093f72730b370b75a4ca5ab"
+    },
+    {
+      "name": "world-radar-register-slot.json",
+      "sha256": "f62160cd4cf89df29c38d060380617335a07b7d7103ccb0fb0f36fba15e38251"
+    },
+    {
+      "name": "world-radar-register-ecm.json",
+      "sha256": "002ff906a06ba8ae24ddc61b504a4b2ae1e1254bdb8571d0a2abc09870ca8a72"
+    },
+    {
+      "name": "world-radar-tick.json",
+      "sha256": "e4f1cde6fe7006ff88da993d7897222c7c405ff0e4603f67a5382f15be36eb06"
+    },
+    {
+      "name": "world-radar-update.json",
+      "sha256": "74434dd5d67595b85e86f1a6634c6281992fc5fffcf97e11ebccd60ab547669b"
+    },
+    {
+      "name": "world-radar-work-input.json",
+      "sha256": "93e0ddf353f3fadcbf2344cfa92cda7ee8cfa1d7a4e6531d9528e0627561d95b"
+    },
+    {
+      "name": "burnthrough.json",
+      "sha256": "29121e53cff71a88556b41821adc0d1b788fb07e83d329008dcf7ad530a73d59"
+    },
+    {
+      "name": "current-host-files.json",
+      "sha256": "9fe473470f9ad8e15799fdeb406d11800c946303bef18ef4718de7724499a3b6"
+    },
+    {
+      "name": "current-flight-log.json",
+      "sha256": "d14efd0db52929f0383cde781495c17d57e3aede89c6435accbf62b0abaa4805"
+    },
+    {
+      "name": "indication-gaps.json",
+      "sha256": "d46ac69032fa52a736127c2338fbef4b1000689938486c271456865b861c8106"
+    }
+  ]
+}

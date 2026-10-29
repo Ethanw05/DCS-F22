@@ -25,3 +25,9 @@ and physical-profile-decisions.md. Original research and recorded audio are reta
 The additional user request for dynamic ownship RCS is being investigated separately
 from radar receiver modeling. Current registration uses0.0001m² for all configurations;
 changing a cockpit parameter cannot establish a different return for AI SAMs.
+
+The [ECM host check](ECM-HOST-CHECK.md) compares the open previous/current IDA
+sessions through MCP and traces current native ECM submission to the world radar
+processor. No update-related control break was found. Actual logs demonstrate
+enabled ECM and guarded indication; threat suppression, nonzero emitted power
+and multiplayer effectiveness remain unmeasured.
