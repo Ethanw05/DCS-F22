@@ -37,6 +37,8 @@ for _, name in ipairs({
 	"F22_MWS_NATIVE_MAX_HITS",
 	"F22_MWS_NATIVE_EYE_COUNT",
 	"F22_MWS_NATIVE_ANGULAR_LIMIT",
+    'F22_MWS_NATIVE_THREAT_COUNT', 'F22_MWS_NATIVE_CANDIDATE', 'F22_MWS_NATIVE_DECISION',
+    'F22_MWS_NATIVE_CLOSING_MPS', 'F22_MWS_NATIVE_CLOSEST_SECONDS', 'F22_MWS_NATIVE_MISS_M',
 	"F22_MWS_ALERT",
 	"F22_MWS_COUNT",
 	"F22_MWS_BLINK",
@@ -223,7 +225,9 @@ function update()
 				"F22_MWS_SAMPLE",
 				log.INFO,
 				string.format(
-					"t=%.3f %s az=%.5f el=%.5f age=%.3f raw=%.0f hits=%.0f eyes=%.0f rate=%.5f sources=%s",
+					't=%.3f %s az=%.5f el=%.5f age=%.3f raw=%.0f hits=%.0f eyes=%.0f rate=%.5f '
+                        ..'accepted=%.0f incoming=%.0f candidate=%.0f decision=%.0f closing=%.1f '
+                        ..'closest=%.2f pass=%.1f sources=%s',
 					now,
 					state,
 					first and first.az or 0,
@@ -233,6 +237,10 @@ function update()
 					get("F22_MWS_NATIVE_MAX_HITS"),
 					get("F22_MWS_NATIVE_EYE_COUNT"),
 					get("F22_MWS_NATIVE_ANGULAR_LIMIT"),
+                    get('F22_MWS_NATIVE_COUNT'), get('F22_MWS_NATIVE_THREAT_COUNT'),
+                    get('F22_MWS_NATIVE_CANDIDATE'), get('F22_MWS_NATIVE_DECISION'),
+                    get('F22_MWS_NATIVE_CLOSING_MPS'), get('F22_MWS_NATIVE_CLOSEST_SECONDS'),
+                    get('F22_MWS_NATIVE_MISS_M'),
 					table.concat(source_ids, "|")
 				)
 			)

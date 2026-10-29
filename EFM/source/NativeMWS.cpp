@@ -40,26 +40,64 @@ struct Contact {
 // Classify only native optical observations, using measured relative motion.
 // These are mod warning-policy limits, not claimed aircraft specifications.
 struct ApproachFilter {
-    struct Track {double time{},n{},u{},e{};bool threat{};};
-    std::map<unsigned,Track> tracks;
-    bool observe(unsigned id,double time,const Polar &p) {
-        if(!std::isfinite(time)||!std::isfinite(p.az)||!std::isfinite(p.el)||
-           !std::isfinite(p.range)||p.range<1||p.range>150000)return false;
-        const double ce=std::cos(p.el),n=p.range*ce*std::cos(p.az),u=p.range*std::sin(p.el),e=p.range*ce*std::sin(p.az);
-        auto it=tracks.find(id);
-        if(it==tracks.end()||time<it->second.time||time-it->second.time>1.) {
-            tracks[id]={time,n,u,e,false};return false;
-        }
-        auto &old=it->second;const double dt=time-old.time;
-        if(dt<.1)return old.threat;
-        const double vn=(n-old.n)/dt,vu=(u-old.u)/dt,ve=(e-old.e)/dt;
-        const double dot=n*vn+u*vu+e*ve,speed2=vn*vn+vu*vu+ve*ve;
-        const double closing=-dot/p.range,tca=speed2>1?-dot/speed2:-1;
-        const double miss=std::hypot(n+vn*tca,u+vu*tca,e+ve*tca);
-        const bool threat=closing>25&&tca>0&&tca<=60&&miss<=std::max(300.,p.range*.03);
-        old={time,n,u,e,threat};return threat;
+    enum class Decision : unsigned { None, Measuring, Receding, OutsideHorizon, Incoming };
+    struct Track {
+        double time{}, n{}, u{}, e{};
+        bool threat{};
+        double closing{}, closest_time{-1}, miss{};
+        Decision decision{Decision::None};
+    };
+    std::map<unsigned, Track> tracks;
+    static bool valid(double time, const Polar& p) {
+        return std::isfinite(time) && std::isfinite(p.az) && std::isfinite(p.el)
+            && std::isfinite(p.range) && p.range >= 1 && p.range <= 150000;
     }
-    void expire(double now) {for(auto i=tracks.begin();i!=tracks.end();)if(now<i->second.time||now-i->second.time>1.)i=tracks.erase(i);else ++i;}
+    static Track measure(double time, double n, double u, double e, const Track& old) {
+        const double dt = time - old.time;
+        const double vn = (n-old.n)/dt, vu = (u-old.u)/dt, ve = (e-old.e)/dt;
+        const double range = std::hypot(n,u,e);
+        const double dot = n*vn + u*vu + e*ve;
+        const double speed2 = vn*vn + vu*vu + ve*ve;
+        const double closing = -dot/range;
+        const double closest_time = speed2 > 1 ? -dot/speed2 : -1;
+        const double miss = std::hypot(n+vn*closest_time,u+vu*closest_time,e+ve*closest_time);
+        // Native optical visibility and >3 low-bearing-rate observations have
+        // already qualified this missile. A lofting/turning missile need not
+        // have a present straight-line collision course. Keep CPA diagnostic;
+        // reject receding missiles and retain the existing60s warning horizon.
+        const bool threat = closing > 25 && closest_time > 0 && closest_time <= 60;
+        const auto decision = threat ? Decision::Incoming
+            : closing <= 25 ? Decision::Receding : Decision::OutsideHorizon;
+        return {time,n,u,e,threat,closing,closest_time,miss,decision};
+    }
+    bool observe(unsigned id, double time, const Polar& p) {
+        if (!valid(time,p)) {
+            tracks.erase(id);
+            return false;
+        }
+        const double ce = std::cos(p.el);
+        const double n = p.range*ce*std::cos(p.az), u = p.range*std::sin(p.el);
+        const double e = p.range*ce*std::sin(p.az);
+        auto it = tracks.find(id);
+        if (it == tracks.end() || time < it->second.time || time-it->second.time > 1.) {
+            tracks[id] = {time,n,u,e,false,0,-1,0,Decision::Measuring};
+            return false;
+        }
+        auto& old = it->second;
+        if (time-old.time < .1) return old.threat;
+        old = measure(time,n,u,e,old);
+        return old.threat;
+    }
+    Track diagnostic(unsigned id) const {
+        const auto it = tracks.find(id);
+        return it == tracks.end() ? Track{} : it->second;
+    }
+    void expire(double now) {
+        for (auto it = tracks.begin(); it != tracks.end();) {
+            if (now < it->second.time || now-it->second.time > 1.) it = tracks.erase(it);
+            else ++it;
+        }
+    }
 };
 ApproachFilter approach;
 struct Api {
@@ -365,6 +403,12 @@ void update(EDPARAM &p) {
     put(p, "F22_MWS_NATIVE_RAW_COUNT", count_value(raw_count));
     put(p, "F22_MWS_NATIVE_MAX_HITS", max_hits);
     put(p, "F22_MWS_NATIVE_THREAT_COUNT", threat_count);
+    const auto diagnostic = found.empty() ? ApproachFilter::Track{} : approach.diagnostic(found.front().id);
+    put(p, "F22_MWS_NATIVE_CANDIDATE", found.empty() ? 0 : found.front().id);
+    put(p, "F22_MWS_NATIVE_DECISION", static_cast<unsigned>(diagnostic.decision));
+    put(p, "F22_MWS_NATIVE_CLOSING_MPS", diagnostic.closing);
+    put(p, "F22_MWS_NATIVE_CLOSEST_SECONDS", diagnostic.closest_time);
+    put(p, "F22_MWS_NATIVE_MISS_M", diagnostic.miss);
     for (std::size_t i = 0; i < 16; ++i) {
         auto prefix = std::string("F22_MWS_NATIVE_") + (i < 9 ? "0" : "") + std::to_string(i + 1) + "_";
         const auto *c = i < found.size() ? &found[i] : nullptr;
