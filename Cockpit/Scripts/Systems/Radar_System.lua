@@ -127,6 +127,7 @@ local function sync_model_clock()
 	end
 	if now < computer.clock - 0.001 then
 		computer:reset()
+		identification:reset(now)
 		cursor_clock = nil
 		radar_resource:reset(true)
 		aesa:reset()
@@ -179,14 +180,39 @@ local function sync_weapon_mode()
 			native_mode, computer.acquire and 1 or 0, pending_unlock and 1 or 0))
 	end
 end
+local function request_identification(name)
+	identification:update(computer.clock, computer.power and get("MAIN_POWER") > 0.5)
+	local target = computer.selected and computer.tracks[computer.selected]
+	local az, el = computer.cursor_az, computer.elevation
+	if target and latest_pose then
+		local _, body_az, body_el = display.body_observation(target, latest_pose, computer:age(target))
+		az, el = body_az, body_el
+	end
+	identification:request(name, computer.clock, az, el) -- Rejection is published; no reply is inferred.
+	identification:publish(put)
+end
 function SetCommand(command, value)
 	local command_time = sync_model_clock()
 	if not command_time then
+		identification:reset(computer.clock)
+		identification:publish(put)
 		slew_x, slew_y, slew_focus, slew_role = 0, 0, nil, nil
 		cursor_clock = nil
 		if ag then
 			ag:command("axis_x", 0, false)
 			ag:command("axis_y", 0, false)
+		end
+		return
+	end
+	if not display.finite(command) or command%1~=0 then return end
+	if value==nil then value=0 end
+	if not display.finite(value) then
+		if command==10620 then
+			slew_x=0
+			if ag then ag:command("axis_x",0,false,command_time) end
+		elseif command==10621 then
+			slew_y=0
+			if ag then ag:command("axis_y",0,false,command_time) end
 		end
 		return
 	end
@@ -208,6 +234,22 @@ function SetCommand(command, value)
 	if command >= 10600 and command <= 10652 then
 		value = input_value(value, devices.RADAR_COMPUTER)
 	end
+	local iff_name = by_id[command]
+	-- Saved A/G INTL selects surface image/GMT service, not IFF.
+	if value > 0 and iff_name == "interrogate" and get("HUD_MODE") == 7 and ag then
+		ag:command("interrogate", value, computer.power and get("MAIN_POWER") > 0.5, command_time)
+		return
+	end
+	if value > 0 and iff_name == "iff_auto" then
+		identification:toggle_auto()
+		identification:update(computer.clock, computer.power and get("MAIN_POWER") > 0.5)
+		identification:publish(put)
+		return
+	end
+	if value > 0 and (iff_name == "interrogate" or iff_name == "interrogate_los") then
+		request_identification(iff_name)
+		return
+	end
 	if get("HUD_MODE") == 7 and ag then
 		local name = command == 10620 and "axis_x" or command == 10621 and "axis_y" or by_id[command] or legacy[command]
 		if name == "axis_x" or name == "axis_y" then
@@ -219,8 +261,6 @@ function SetCommand(command, value)
 			if value > 0 then computer.power = not computer.power; emission_inhibited = not computer.power end
 		elseif name == "operate" then
 			if value > 0 and not emission_inhibited then computer.power = true end
-		elseif name == "iff_auto" then
-			if value > 0 then identification:toggle_auto() end
 		else
 			ag:command(name, value, computer.power and get("MAIN_POWER") > .5, command_time)
 		end
@@ -279,20 +319,6 @@ function SetCommand(command, value)
 		end
 		return
 	end
-	if name == "iff_auto" then
-		identification:toggle_auto()
-		return
-	end
-	if name == "interrogate" or name == "interrogate_los" then
-		local t = computer.selected and computer.tracks[computer.selected]
-		local a, e = computer.cursor_az, computer.elevation
-		if t and latest_pose then
-			local _, az, el = display.body_observation(t, latest_pose, computer:age(t))
-			a, e = az, el
-		end
-		identification:request(name, computer.clock, a, e)
-		return
-	end
 	-- The shared backend can guide one STT target. Reject before swapping.
 	if name == "swap_targets" and get("F22N_RADAR_MODE") == 3 then
 		return
@@ -338,6 +364,8 @@ function SetCommand(command, value)
 	end
 end
 function post_initialize()
+	identification:reset(computer.clock)
+	identification:publish(put)
 	cursor_clock = nil
 	donor_cue:retire(-100)
 	aesa:reset()
@@ -369,7 +397,8 @@ local function withdraw_clock()
     slew_x,slew_y,slew_focus,slew_role=0,0,nil,nil
     acquiring,pending_unlock=false,false
     latest_pose=nil
-    identification:update(computer.clock,false)
+    identification:reset(computer.clock)
+    identification:publish(put)
     sensor_tasks:reset()
     sensor_tasks:publish(put,computer.clock)
     radar_resource:reset(true)
@@ -377,7 +406,7 @@ local function withdraw_clock()
     aesa:state(computer.clock,computer,{})
     aesa:publish(computer.clock,computer,0,false,false,nil)
     ag:update(nil,computer.clock,0,false,false)
-    tactical.publish(computer,put,false)
+    tactical.publish(computer,put,false,nil,aesa.generation)
     for _,name in ipairs({"RADAR_PWR","F22_RADAR_SUPPLY","F22_RADAR_BACKEND_READY","F22_RADAR_STT_VALID",
         "F22_RADAR_SUPPORT_ENABLED","F22_RADAR_OBSERVATION_BACKEND_READY","F22_RADAR_FC_ENABLE",
         "F22_RADAR_DESIGNATION_VALID","F22_RADAR_SELECTED_VALID","F22_RADAR_SECONDARY_VALID",
@@ -459,15 +488,10 @@ function update()
 	end
 	was_stt = now_stt
 	identification:update(computer.clock, powered)
-	local iff_enabled = identification:enabled()
 	put("F22_RADAR_EMISSION_INHIBIT", emission_inhibited and 1 or 0)
-	put("F22_RADAR_IFF_AUTO", identification.automatic and 1 or 0)
-	put("F22_RADAR_IFF_REQUEST", identification.mode)
-	put("F22_RADAR_IFF_REMAINING", identification.mode ~= 0 and math.max(0, identification.until_time - computer.clock) or 0)
+	identification:publish(put)
 	put("F22_RADAR_SUPPLY", powered and 1 or 0)
 	put("RADAR_PWR", powered and 1 or 0)
-	put("F22N_IFF_INTERROGATOR_STATUS", powered and iff_enabled and 1 or 0)
-	put("F22_RADAR_IFF_ON", powered and iff_enabled and 1 or 0)
 	local ready = get("F22_AESA_DRIVER_READY") == 1
 	local service_resource = radar_resource:update(computer.clock,powered)
 	ready = ready and service_resource >= resource_policy.minimum_resource and pose~=nil
@@ -490,12 +514,13 @@ function update()
 		sensor_tasks:reset()
 		sensor_tasks:publish(put,computer.clock)
 		local background = aesa:read(computer.clock + step, pose, display)
+		put("F22_RADAR_OBSERVATION_BACKEND_READY", aesa.ready and 1 or 0)
 		if aesa.generation_changed then computer:reset();aesa.locked,aesa.acquiring=nil,nil end
 		computer:update(step, background, 1, aesa.ready)
 		aesa:publish(computer.clock, computer, service_resource, powered and ready, true, nil)
 		put("F22_RADAR_SUPPORT_ENABLED", requested_power and aesa.ready and 1 or 0)
 		put("F22_TWS_ACTIVE",0);put("F22_TWS_TARGET_ID",0)
-		tactical.publish(computer, put, powered and ready)
+		tactical.publish(computer, put, powered and ready,nil,aesa.generation)
 		if telemetry then telemetry:sample(computer.clock,pose) end
 		return
 	end
@@ -903,7 +928,7 @@ function update()
 	put("F22_TWS_TARGET_ID", computer:supportable(selected) and selected.native_id or 0)
 	put("F22_TWS_TARGET_AGE", selected and math.max(0, computer.clock - selected.observed) or 999)
 	put("F22_TWS_TARGET_RANGE", selected and (selected.current_range or selected.range) or 0)
-	tactical.publish(computer, put, powered and ready, stt_observation)
+	tactical.publish(computer, put, powered and ready, stt_observation,aesa.generation)
 	put("F22_TWS_PUBLISH_SEQUENCE", publish_sequence)
 	local quality_track = selected
 	if native_mode == 3 then

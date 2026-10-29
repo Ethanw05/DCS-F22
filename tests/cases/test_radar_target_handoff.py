@@ -1,77 +1,14 @@
-"""R-RAD-003/015: coherent target evidence through actual proposed consumers.
-
-Shared owner changes are reviewed as an unapplied patch. These tests apply its
-exact hunks in memory to the current actual files, never a copied codebase or an
-old test oracle. Once the exact proposed source is integrated, it runs directly.
-"""
-import hashlib
-import json
-import re
+"""Coherent target evidence through the current production Lua owners."""
 import unittest
-from pathlib import Path
 from host import Host, ROOT
 from weapon_ports import WeaponHost
 
 
-REVIEW = ROOT/'docs/overhaul/radar-execution/target-handoff'
-
-
-def reviewed_sources(review=REVIEW, patch_name="SHARED.patch", expected_name="EXPECTED-SOURCES.json"):
-    expected = json.loads((review/expected_name).read_text())
-    identities = {x['path']: x for x in expected['files']}
-    result, lines, index = {}, (review/patch_name).read_text().splitlines(True), 0
-    while index < len(lines):
-        if not lines[index].startswith('--- a/'):
-            index += 1
-            continue
-        relative = lines[index][6:].strip()
-        index += 2
-        actual = ROOT/relative
-        original = actual.read_text(encoding='utf-8-sig')
-        digest = hashlib.sha256(actual.read_bytes()).hexdigest()
-        identity = identities[relative]
-        if hashlib.sha256(original.encode()).hexdigest() == identity['proposed_text_sha256']:
-            result[relative] = original
-            while index < len(lines) and not lines[index].startswith('--- a/'):
-                index += 1
-            continue
-        if digest != identity['expected_sha256']:
-            raise AssertionError('Shared source drift requires owner review: '+relative)
-        old, new, cursor = original.splitlines(True), [], 0
-        while index < len(lines) and not lines[index].startswith('--- a/'):
-            match = re.match(r'@@ -(\d+)(?:,\d+)? \+\d+(?:,\d+)? @@', lines[index])
-            if not match:
-                raise AssertionError('Malformed review patch hunk')
-            start = int(match.group(1))-1
-            new.extend(old[cursor:start])
-            cursor, index = start, index+1
-            while index < len(lines) and not lines[index].startswith(('@@ ', '--- a/')):
-                line = lines[index]
-                if line[0] in ' -':
-                    if old[cursor] != line[1:]:
-                        raise AssertionError('Review context changed: '+relative)
-                    cursor += 1
-                if line[0] in ' +':
-                    new.append(line[1:])
-                index += 1
-            if index == len(lines) or lines[index].startswith('--- a/'):
-                break
-        new.extend(old[cursor:])
-        result[relative] = ''.join(new)
-        if hashlib.sha256(result[relative].encode()).hexdigest() != identity['proposed_text_sha256']:
-            raise AssertionError('Review result identity mismatch: '+relative)
-    return result
-
-
-def install_review(h):
-    sources = reviewed_sources()
-    actual_load = h.env.dofile
-    by_path = {(ROOT/name).as_posix(): text for name, text in sources.items()}
-    def load(path):
-        text = by_path.get(str(path).replace('\\', '/'))
-        return h.execute(text) if text is not None else actual_load(path)
-    h.env.dofile = load
-    return sources
+def actual_sources():
+    names = ('AG_Mark_System', 'AG_Stores', 'Weapon_System', 'Navigation_System', 'AG_Ballistic_Computer')
+    return {'Cockpit/Scripts/Systems/'+name+'.lua':
+            (ROOT/'Cockpit/Scripts/Systems'/(name+'.lua')).read_text(encoding='utf-8-sig')
+            for name in names}
 
 
 def radar_packet(h, now=10, sample=10, kind=1, logical=1, valid=1, epoch=7,
@@ -79,6 +16,7 @@ def radar_packet(h, now=10, sample=10, kind=1, logical=1, valid=1, epoch=7,
     if live is None:
         live = int(kind != 3)
     h.seed(dict(F22_AG_NATIVE_SOURCE_EPOCH=epoch,
+        F22_AG_NATIVE_SCHEMA=1, F22_AG_NATIVE_SEQUENCE=commit,
         F22_AG_NATIVE_CONTROL_SCHEMA=1, F22_AG_NATIVE_CONTROL_SEQUENCE=commit,
         F22_AG_NATIVE_CONTROL_EPOCH=epoch, F22_AG_NATIVE_CONTROL_TIME=now,
         F22_AG_DESIGNATION_SCHEMA=1, F22_AG_DESIGNATION_SEQUENCE=logical,
@@ -91,7 +29,6 @@ def radar_packet(h, now=10, sample=10, kind=1, logical=1, valid=1, epoch=7,
 
 def mark_host(observer=None):
     h = Host()
-    install_review(h)
     h.state.time = 10
     h.sensor('getSelfCoordinates', (0, 1000, 0))
     for name in ('getHeading', 'getPitch', 'getRoll'):
@@ -115,16 +52,8 @@ def read_target(h, now=None, delivery=False, getter=None):
     return fn(getter or h.get, h.state.time if now is None else now)
 
 
-class ReviewedWeaponHost(WeaponHost):
-    def load(self, relative):
-        if not getattr(self, 'review_installed', False):
-            install_review(self)
-            self.review_installed = True
-        return super().load(relative)
-
-
 def guided_handoff(kind=3):
-    h = ReviewedWeaponHost()
+    h = WeaponHost()
     h.execute("payload[2]={count=1,CLSID='{GBU_32_V_2B}',"
               "weapon={level1=4,level2=5,level3=36,level4=901}}")
     for _ in range(20):
@@ -148,10 +77,10 @@ def guided_handoff(kind=3):
 
 
 class RadarTargetHandoff(unittest.TestCase):
-    def test_review_patch_and_new_owner_are_lua51_syntax_valid(self):
+    def test_current_target_owners_are_lua51_syntax_valid(self):
         h = Host()
         compile_lua = h.lua.eval('function(text) return loadstring(text) ~= nil end')
-        for path, source in reviewed_sources().items():
+        for path, source in actual_sources().items():
             self.assertTrue(compile_lua(source), path)
         self.assertTrue(compile_lua((ROOT/'Cockpit/Scripts/Systems/AG_Target_Snapshot.lua').read_text()))
 

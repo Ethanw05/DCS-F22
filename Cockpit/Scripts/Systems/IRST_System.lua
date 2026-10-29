@@ -4,6 +4,7 @@ dofile(LockOn_Options.script_path..'devices.lua')
 local library=dofile(LockOn_Options.script_path..'Systems/IRST_Computer.lua')
 local Snapshot=dofile(LockOn_Options.script_path..'Systems/IRST_Snapshot.lua')
 local decode=dofile(LockOn_Options.script_path..'Systems/Input_Value.lua')
+local caps=dofile(LockOn_Options.script_path..'Systems/Store_Capabilities.lua')
 local selected_profile=dofile(LockOn_Options.script_path..'Systems/Equipment_Profile.lua').supports('irst_pod')
 local handles={}
 local function h(name)
@@ -61,13 +62,11 @@ local function pod_loaded()
     if not native_weapon then native_weapon=GetDevice(devices.WEAPON_NATIVE)end
     if not native_weapon then return false end
     local ok,info=pcall(native_weapon.get_station_info,native_weapon,5) -- Declared pylon6 only.
-    if not ok or type(info)~='table' or not Snapshot.finite(info.count)
-        or info.count<1 or info.count>128 or info.count%1~=0 then return false end
-    local clsid=info.CLSID or info.clsid
-    if clsid~=nil then return clsid=='{F22_IRST}'end
+    if not ok or not caps.station(info) or info.count<1 then return false end
+    if caps.key(info)=='{F22_IRST}'then return true end
     -- The shared station API can omit CLSID. This mod's pylon6 sensor has
     -- the registered4/15/45 pod type; other registered pylon6 store is fuel.
-    local w=type(info.weapon)=='table' and info.weapon or {}
+    local w=info.weapon or {}
     return w.level1==4 and w.level2==15 and w.level3==45
 end
 local function command_packet(now,powered,valid)

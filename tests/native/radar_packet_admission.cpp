@@ -11,6 +11,10 @@ void sample(void*,const ArrayService&) { std::abort(); }
 namespace NativeGroundVideo {
 void set_aircraft(const AesaRadar::Pose*,double) noexcept { std::abort(); }
 }
+namespace NativeIRST {
+void sample() noexcept { std::abort(); }
+void retire() noexcept { std::abort(); }
+}
 namespace {
 struct Field { double value{}; bool available=true; };
 std::array<Field,22> fields;

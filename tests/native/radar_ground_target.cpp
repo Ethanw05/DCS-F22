@@ -1,6 +1,7 @@
 // Actual typed target reader and callback binding; no weapon/native effect call.
 #include "../../EFM/source/GroundTargetPacket.h"
 #include <iostream>
+#include <iomanip>
 #include <map>
 #include <string>
 #include <vector>
@@ -147,8 +148,29 @@ void release_policy() {
         require(!accepted(invalid),"fractional/negative/two flags cannot widen preparation or callback permission");
     }
 }
+int packet_port() {
+    double now{};
+    unsigned count{};
+    if (!(std::cin >> now >> count) || count > 256) return 2;
+    for (unsigned i = 0; i < count; ++i) {
+        std::string name;
+        double value{};
+        if (!(std::cin >> name >> value) || name.size() > 128) return 2;
+        bus[name] = {value, true};
+    }
+    EDPARAM port;
+    activate(port);
+    GroundTargetPacket::Reader reader;
+    GroundTargetPacket::Target target;
+    const bool valid = reader.capture(port, now, target);
+    const auto& point = target.identity.point;
+    std::cout << std::setprecision(17) << valid << ' ' << point[0] << ' ' << point[1] << ' '
+              << point[2] << '\n';
+    return 0;
 }
-int main() {
+}
+int main(int argc, char** argv) {
+    if (argc == 2 && std::string(argv[1]) == "--packet") return packet_port();
     EDPARAM p;active_port=&p;activate(p);packet();
     GroundTargetPacket::Reader reader;
     schedules(reader,p);invalid_data(reader,p);fixed_policy(reader,p);callback_frame(reader,p);

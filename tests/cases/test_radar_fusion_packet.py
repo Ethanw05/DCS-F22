@@ -1,20 +1,10 @@
 """I-DEEP-005: checked own-radar packet through actual reviewed fusion owners."""
 import unittest
-from host import ROOT
 from test_radar_tactical_packet import setup
-from test_radar_target_handoff import reviewed_sources
 
 
 def chain():
     h = setup()
-    review = ROOT/'docs/overhaul/radar-execution'
-    sources = reviewed_sources(review, 'TACTICAL-CONSUMERS.patch', 'TACTICAL-CONSUMERS-SOURCES.json')
-    actual = h.env.dofile
-    by_path = {(ROOT/name).as_posix(): text for name, text in sources.items()}
-    def load(path):
-        text = by_path.get(str(path).replace('\\', '/'))
-        return h.execute(text) if text is not None else actual(path)
-    h.env.dofile = load
     h.execute("function sample(k) return get_param_handle(k):get() end;"
         "function put(k,v) get_param_handle(k):set(v) end;"
         "picture=dofile(LockOn_Options.script_path..'Systems/Tactical_Picture.lua').new(sample,put,get_base_data());"

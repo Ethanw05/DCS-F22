@@ -353,12 +353,16 @@ bool Model::search_angles(const Controls& c, double& azimuth, double& elevation)
     return cued;
 }
 void Model::start(double now, const Controls& c, const Pose& pose) noexcept {
-    const bool surface_job = c.surface && array_turn_ % 3 != 0;
-    array_turn_ = (array_turn_ + 1) % 3;
-    if (surface_job) { start_surface(now, c, pose); return; }
     auto task = priority_task(now, c, pose);
     double azimuth = 0, elevation = 0;
     if (task.track && !priority_angles(*task.track, pose, now, azimuth, elevation)) task = {};
+    if (!task.track) {
+        // Due measured support/maintenance uses the bounded priority RF budget.
+        // Remaining discovery jobs rotate two surface looks per air search.
+        const bool surface_job = c.surface && array_turn_ % 3 != 0;
+        array_turn_ = (array_turn_ + 1) % 3;
+        if (surface_job) { start_surface(now, c, pose); return; }
+    }
     const bool cued = !task.track && search_angles(c, azimuth, elevation);
     azimuth = std::clamp(azimuth, -60 * degree, 60 * degree);
     elevation = std::clamp(elevation, -60 * degree, 60 * degree);

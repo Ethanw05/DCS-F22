@@ -199,6 +199,10 @@ for code, value in ipairs({ "OFF", "STBY", "RWS", "TWS", "ACQ", "STT", "BORE", "
 	text(value, 0.79, 0.936, nil, "white", name)
 end
 group("F22_RDR_IFF", { "F22_RADAR_IFF_ON" }, { { "parameter_in_range", 0, 0.9, 1.1 } })
+group("F22_RDR_IFF_UNAVAILABLE", { "F22_RADAR_IFF_REQUESTED", "F22_RADAR_IFF_UNAVAILABLE" }, {
+    { "parameter_in_range", 0, 0.9, 1.1 }, { "parameter_in_range", 1, 0.9, 1.1 },
+})
+text("IFF UNAV", 0.79, 0.875, nil, "white", "F22_RDR_IFF_UNAVAILABLE")
 text("%.0f", 0.72, 0.59, "F22_RADAR_RANGE_NM", "white", nil, 0.006)
 text("%.0f", 0.41, -0.065, "F22_RADAR_HALF_RANGE_NM", "blue", nil, 0.0055)
 -- Coverage rays originate at ownship; width follows the selected search sector.

@@ -12,6 +12,9 @@ local M = {
 local function finite(v)
 	return type(v) == "number" and v == v and math.abs(v) < 1e9
 end
+local function source_token(v)
+    return type(v)=="number" and v>=1 and v<=4294967295 and v%1==0
+end
 local function clamp(x, a, b)
 	return math.max(a, math.min(b, x))
 end
@@ -46,11 +49,30 @@ function M.project(c, pose)
 end
 -- Dedicated RF fields keep optical missiles and radar-supplied directions out
 -- of RF tasking. Publication age is added to reception age, never subtracted.
+local function eligible_rf(source,age,signal,affiliation)
+    if not source_token(source) or not finite(age) or age<0 then return false end
+    if signal~=1 and signal~=2 and signal~=3 then return false end
+    return finite(affiliation) and affiliation>=-1 and affiliation<=3 and affiliation%1==0
+        and affiliation~=1 and affiliation~=3
+end
+local function read_cue(get,p,elapsed,pose)
+    if get(p.."VALID")~=1 or get(p.."RF_DIRECTION_VALID")~=1 or get(p.."RF_GENERAL")~=1 then return end
+    local source,raw_age,signal=get(p.."SOURCE"),get(p.."RF_AGE"),get(p.."RF_SIGNAL")
+    if not eligible_rf(source,raw_age,signal,get(p.."AFFILIATION")) then return end
+    local age=raw_age+elapsed
+    local hold=signal>1 and 3.5 or M.cue_life
+    if age>math.min(M.cue_life,hold) then return end
+    local c={source=source,age=age,signal=signal,
+        wn=get(p.."RF_WORLD_N"),wu=get(p.."RF_WORLD_U"),we=get(p.."RF_WORLD_E")}
+    c.az,c.el=M.project(c,pose)
+    if c.az and math.abs(c.az)<=M.limit and math.abs(c.el)<=M.limit then return c end
+end
 function M.read(get, now, pose)
 	local sequence = get("F22_TACTICAL_SEQUENCE")
 	local stamp = get("F22_TACTICAL_TIME")
 	if
-		not finite(sequence)
+		not finite(now)
+		or not finite(sequence)
 		or sequence < 1
 		or not finite(stamp)
 		or now - stamp < -0.01
@@ -61,36 +83,8 @@ function M.read(get, now, pose)
 	local cues = {}
 	for i = 1, 64 do
 		local p = string.format("F22_TACTICAL_%02d_", i)
-		local source, age = get(p .. "SOURCE"), get(p .. "RF_AGE") + math.max(0, now - stamp)
-		local signal = get(p .. "RF_SIGNAL")
-		local hold = signal > 1 and 3.5 or M.cue_life
-		if
-			get(p .. "VALID") > 0.5
-			and get(p .. "RF_DIRECTION_VALID") > 0.5
-			and get(p .. "RF_GENERAL") == 1
-			and get(p .. "AFFILIATION") ~= 1
-			and get(p .. "AFFILIATION") ~= 3
-			and finite(source)
-			and source > 0
-			and source % 1 == 0
-			and finite(age)
-			and age >= 0
-			and age <= math.min(M.cue_life, hold)
-			and (signal == 1 or signal == 2 or signal == 3)
-		then
-			local c = {
-				source = source,
-				age = age,
-				signal = signal,
-				wn = get(p .. "RF_WORLD_N"),
-				wu = get(p .. "RF_WORLD_U"),
-				we = get(p .. "RF_WORLD_E"),
-			}
-			c.az, c.el = M.project(c, pose)
-			if c.az and math.abs(c.az) <= M.limit and math.abs(c.el) <= M.limit then
-				cues[#cues + 1] = c
-			end
-		end
+		local c=read_cue(get,p,math.max(0,now-stamp),pose)
+		if c then cues[#cues+1]=c end
 	end
 	if get("F22_TACTICAL_SEQUENCE") ~= sequence then
 		return {}

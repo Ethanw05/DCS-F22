@@ -2,6 +2,7 @@
 import argparse
 import importlib.util
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -25,6 +26,10 @@ def main():
     parser.add_argument('--config', choices=['Debug','Release','RelWithDebInfo'], default='Release')
     parser.add_argument('--scope', choices=['common','all'], default='common')
     args = parser.parse_args()
+    os.environ.setdefault('F22_RADAR_INTERLEAVE_EXE', str(
+        args.build_dir / 'tests' / args.config / 'f22_radar_interleave.exe'))
+    os.environ.setdefault('F22_RADAR_GROUND_TARGET_EXE', str(
+        args.build_dir / 'radar' / args.config / 'f22_radar_ground_target.exe'))
     args.output.mkdir(parents=True, exist_ok=True)
     common = ['test_host_contract.py','test_driver_protocol.py','test_lua_syntax.py']
     suite = unittest.TestSuite()
