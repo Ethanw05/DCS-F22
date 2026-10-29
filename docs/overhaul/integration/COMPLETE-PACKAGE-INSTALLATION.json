@@ -1,0 +1,73 @@
+{
+  "status": "BUILT_VERIFIED_INSTALL_WAITING_FOR_DCS_EXIT",
+  "source_commit": "837c41bcb117a81877b9b18150aa0a4393aefd00",
+  "build_directory": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\complete-sync-20261029",
+  "planned_runtime_assets": 583,
+  "planned_updated_files": 101,
+  "built_dll_sha256": "accaad39164e03c1db363b6db08c63797905662d2a89b2ee86647b37133bdef8",
+  "native_identity": "F22_NATIVE_V1|source=74b6e01b1440a6f741f9ae14e07e72d8cf98928f538121b688e0edbdbcf84e19|cache=470ff50e48ebcf94b92298397a60b3aa247358aec031887776a50954c23916a9|compiler=MSVC-19.51.36252.0|config=Release|cxx=23",
+  "installed_dll_sha256": "94e3012b8826b82ea644a49e72b1e048b4df8d85ce637a02a86c80f0dd6a122f",
+  "installed_dll_unchanged": true,
+  "checks": {
+    "replacement_tests": 12,
+    "python_passed": true,
+    "native_passed": true,
+    "pre_fix_observations": [
+      {
+        "id": "F-NAV-001",
+        "initial_valid": 1,
+        "expected_valid": 0,
+        "actual_valid": 0,
+        "altitude_ft": 3000,
+        "status": "resolved"
+      },
+      {
+        "id": "F-NAV-002",
+        "expected_sequence": [
+          1,
+          1,
+          1
+        ],
+        "actual_sequence": [
+          1,
+          1,
+          1
+        ],
+        "status": "resolved"
+      },
+      {
+        "conversion_status": false,
+        "read_success": false,
+        "exposed_value": -123,
+        "id": "F-INT-003",
+        "status": "resolved",
+        "expected": "failed conversion returns false and preserves caller output"
+      }
+    ],
+    "gate": "HARNESS_READY",
+    "aircraft_qualified": false,
+    "legacy_acceptance_executed": false,
+    "domain": {
+      "tests": 309,
+      "python_passed": true,
+      "native_passed": true
+    }
+  },
+  "DCS_launched_or_controlled": false,
+  "backups_created": false,
+  "verification_artifacts": {
+    "plan": "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/complete-sync-20261029/install-plan.json",
+    "source_checks": "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/complete-sync-20261029/checks-final/RESULTS.json",
+    "lua": "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/complete-sync-20261029/lua-package-checks.json",
+    "binary_and_DCS": "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/complete-sync-20261029/binary-host-checks.json",
+    "compiler_diagnostics": "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/complete-sync-20261029/compiler-diagnostics.json",
+    "installed_before": "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/complete-sync-20261029/installed-before/RESULTS.json"
+  },
+  "compiler_diagnostics": {
+    "baseline": 64,
+    "current": 64,
+    "new": 0
+  },
+  "required_external_action": "Exit DCS, then apply the guarded complete package and run actual installed-dependency checks.",
+  "installation_applied": false
+}
