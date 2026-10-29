@@ -53,3 +53,10 @@ Candidate pose bounds differ from the root declaration and still need comparison
 with DCS; PEC estimates omit aircraft materials and cavity/multiple reflection.
 Neither this extraction nor a successful bake closes the native ownship response
 or multiplayer gate. See offline-bake.json for the measured run and limits.
+
+The next step is the [matched Hornet/F-22 comparison](comparison-plan.md), before
+choosing a replacement RCS. The new builder prepares clean SP and MP-client
+missions with radar, IR and optical controls. The schema-2 observer adds guarded
+slant distances, native ownship type/draw arguments and gun-burst events. The log
+summary separates first reports, radar targets, attributed shots and unknowns.
+These are prepared measurement tools, not flown results or a dynamic RCS fix.

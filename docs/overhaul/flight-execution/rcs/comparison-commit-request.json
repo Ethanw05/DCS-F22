@@ -1,0 +1,29 @@
+{
+  "owner": "chat1",
+  "status": "Approved exact serialized comparison tools commit; host qualification remains open",
+  "subject": "Add matched Hornet F22 signature controls and passive range gun-event observations",
+  "paths": [
+    "tools/build_signature_trial.py",
+    "tools/build_signature_comparison.py",
+    "tools/diagnostics/observe_signature_sam.lua",
+    "tools/diagnostics/summarize_signature_trial.py",
+    "tests/cases/test_signature_comparison.py",
+    "docs/overhaul/flight-execution/rcs/README.md",
+    "docs/overhaul/flight-execution/rcs/comparison-plan.md",
+    "docs/overhaul/flight-execution/rcs/comparison-evidence.json"
+  ],
+  "sha256": {
+    "tools/build_signature_trial.py": "e11c48d09c57c10076aa8352dbc5903f59ed2e8bceff59a306c28e970e1bd464",
+    "tools/build_signature_comparison.py": "b150229b9198600257cab09c4f887d18ac1c5b47bbc9b31946bfbfcd1f1e7f14",
+    "tools/diagnostics/observe_signature_sam.lua": "252529b3028636c047c91d64775628cf380db206c6eebeff5dbecad90f9afb00",
+    "tools/diagnostics/summarize_signature_trial.py": "d4505e4efe43c12beab0172230f55d28e7794df711f49fc4e8845586a5fa6b08",
+    "tests/cases/test_signature_comparison.py": "72ebce64cdab1807fb12f5282c7ac7275881381a979322e8e93f1b2471f862eb",
+    "docs/overhaul/flight-execution/rcs/README.md": "d6e58c7152184c67ca96d146961fd6036e834a0ccf08d52c246568c44cb543e8",
+    "docs/overhaul/flight-execution/rcs/comparison-plan.md": "c60776f33e19207c2a3d7f3ef7b2804cd90978b4ee12966711033a30d6a96e86",
+    "docs/overhaul/flight-execution/rcs/comparison-evidence.json": "3f65012312abbac946fe3c836531d422cecacc4def6a20f79f97e89b159ed491"
+  },
+  "verification": "15offlinecasespass; Luacheck0new2baseline;allLuaCC<=10;all4MIZZIP/Lua/sourceidentitychecks pass",
+  "scope": "Tools/tests/ownRCSnotes only; no F22RCS change, DLL/host/input/hook source changes",
+  "runtime": "No simulator operation. Exact normal-registration installation is a separate requested lease.",
+  "head_at_claim": "55224a2a7be9666b66a57a7e3a4321efa9142fc0"
+}

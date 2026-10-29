@@ -1,0 +1,243 @@
+{
+  "captured_at": "2026-10-29T00:43:56.267212+00:00",
+  "status": "Prepared external matched controls; actual host flights remain unobserved",
+  "comparison_manifest": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat1-20261028\\rcs-comparison\\comparison.json",
+  "comparison_manifest_sha256": "72f4004859f3b26db716926f27710f35195094613e9857788f730024cc0f2c13",
+  "trials": [
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat1-20261028\\rcs-comparison\\sp-f22\\F22-RCS-SAM-Qualification.miz",
+      "sha256": "e665f78bbb724fede4f40be43f868889f9d20ad8014cd5dc51907dcc2b9fb832",
+      "observed_groups": 20,
+      "altitude_msl_m": 1500.0,
+      "aircraft": "F-22A",
+      "slot": "Player",
+      "clean": true,
+      "mixed_sensors": true,
+      "observer_sha256": "2e8c6433e059ee2c3f156fdc02ca87e7f83e9b08b3e285c9bead6b5e5c143040",
+      "preserved_original": null,
+      "executed": false
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat1-20261028\\rcs-comparison\\sp-hornet\\F22-RCS-SAM-Qualification.miz",
+      "sha256": "3fdfa270af81553bcc821ae0817cbd52e3a708f3a64d50948c8fb7eb8a7bfea1",
+      "observed_groups": 20,
+      "altitude_msl_m": 1500.0,
+      "aircraft": "FA-18C_hornet",
+      "slot": "Player",
+      "clean": true,
+      "mixed_sensors": true,
+      "observer_sha256": "62cac45a6243e4568ab12571863bbcbe608bf225e6decec48814be57ef9ef5fa",
+      "preserved_original": null,
+      "executed": false
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat1-20261028\\rcs-comparison\\mp-f22\\F22-RCS-SAM-Qualification.miz",
+      "sha256": "921309dd180abc6780e89f9b5e0da837115b80d8548c751989893c4741fc7bb1",
+      "observed_groups": 20,
+      "altitude_msl_m": 1500.0,
+      "aircraft": "F-22A",
+      "slot": "Client",
+      "clean": true,
+      "mixed_sensors": true,
+      "observer_sha256": "2e8c6433e059ee2c3f156fdc02ca87e7f83e9b08b3e285c9bead6b5e5c143040",
+      "preserved_original": null,
+      "executed": false
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat1-20261028\\rcs-comparison\\mp-hornet\\F22-RCS-SAM-Qualification.miz",
+      "sha256": "534d41c002d28258de1f21cf17692fa306dd27404812b218eef92161bebe7776",
+      "observed_groups": 20,
+      "altitude_msl_m": 1500.0,
+      "aircraft": "FA-18C_hornet",
+      "slot": "Client",
+      "clean": true,
+      "mixed_sensors": true,
+      "observer_sha256": "62cac45a6243e4568ab12571863bbcbe608bf225e6decec48814be57ef9ef5fa",
+      "preserved_original": null,
+      "executed": false
+    }
+  ],
+  "registration_identity": {
+    "captured_at": "2026-10-29T00:39:23.102503+00:00",
+    "source": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\F-22A.lua",
+    "source_sha256": "8cec308d388fc1c8c04d232c0ca736c3634ad118e2cd30ae0709bb8db989ac8c",
+    "installed": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\F-22A.lua",
+    "installed_sha256": "ccb122f14e28f17be47e8ef40e8f60ece45b2328d13293934fada3afc409e2f0",
+    "identical": false,
+    "source_rcs_m2": 0.0001,
+    "installed_rcs_m2": 0.0001,
+    "descriptor_diff": [
+      "--- installed\n",
+      "+++ source\n",
+      "@@ -28,7 +28,7 @@\n",
+      "         Picture \t\t= \"F-22A.png\",",
+      "         Rate \t\t\t= \"50\",",
+      "         Shape\t\t\t= \"F-22A\",--AG\t",
+      "-        WorldID\t\t\t=  F_22A,     ",
+      "+        WorldID\t\t\t=  WSTYPE_PLACEHOLDER,",
+      " \tshape_table_data \t= ",
+      " \t{",
+      " \t\t{",
+      "@@ -38,7 +38,7 @@\n",
+      " \t\t\tdesrt    \t= 'F-22A_destr'; -- Name of destroyed object file name",
+      " \t\t\tfire  \t \t= { 300, 2}; -- Fire on the ground after destoyed: 300sec 2m",
+      " \t\t\tusername\t= 'F-22A';--AG",
+      "-\t\t\tindex       =  F_22A;",
+      "+\t\t\tindex       =  WSTYPE_PLACEHOLDER;",
+      " \t\t\tclassname   = \"lLandPlane\";",
+      " \t\t\tpositioning = \"BYNORMAL\";",
+      " \t\t},",
+      "@@ -53,7 +53,7 @@\n",
+      " \t",
+      " \tmapclasskey \t\t= \"P0091000024\",",
+      " \t-- Native network participation is separate from the legacy EPLRS flag.",
+      "-\tattribute  \t\t\t= {wsType_Air, wsType_Airplane, wsType_Fighter, F_22A, \"Fighters\", \"Refuelable\", \"Datalink\", \"Link16\"},--AG WSTYPE_PLACEHOLDER",
+      "+\tattribute  \t\t\t= {wsType_Air, wsType_Airplane, wsType_Fighter, WSTYPE_PLACEHOLDER, \"Fighters\", \"Refuelable\", \"Datalink\", \"Link16\"},--AG WSTYPE_PLACEHOLDER",
+      " \tCategories= {\"{78EFB7A2-FD52-4b57-A6A6-3BF0E1D6555F}\", \"Interceptor\",},",
+      " \t",
+      " \t\tM_empty\t\t\t\t\t\t=\t19700,--19700\t-- kg Updated to reflect real F-22 values"
+    ],
+    "diagnostic_patch_applied": false,
+    "loaded_identity_verified": false,
+    "normal_mod_modified": false
+  },
+  "diagnostic_control": {
+    "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat1-20261028\\rcs-comparison\\F22-RCS-5m2-diagnostic.patch",
+    "git_apply_check": "passed against current source",
+    "applied": false,
+    "value_m2": 5,
+    "purpose": "Temporary Hornet-equivalent numeric control; not an F22 estimate"
+  },
+  "tests": {
+    "methods_passed": 15,
+    "scope": "13signature cases plus2actual aircraft registration cases",
+    "runtime": "Lupa 2.6 Lua5.1",
+    "cases": "Matched4missions and clean/control geometry; preserving original mode; slant13m/zero/nonfinite; actual generated-observer-to-summary; radar/track/shot distinction; unknown attribution; schema separation; sample/unit/fire budgets; actualfresh/reloadtype registration",
+    "Lua_lint": "Luacheck1.2.0:0newfindings,2retainedbaseline",
+    "Lua_complexity": [
+      {
+        "name": "finite_coordinate",
+        "cyclomatic": 3,
+        "nloc": 3
+      },
+      {
+        "name": "object_point",
+        "cyclomatic": 7,
+        "nloc": 8
+      },
+      {
+        "name": "slant_range",
+        "cyclomatic": 3,
+        "nloc": 6
+      },
+      {
+        "name": "draw_argument",
+        "cyclomatic": 5,
+        "nloc": 7
+      },
+      {
+        "name": "object_type",
+        "cyclomatic": 4,
+        "nloc": 7
+      },
+      {
+        "name": "unit_group_name",
+        "cyclomatic": 5,
+        "nloc": 7
+      },
+      {
+        "name": "object_id",
+        "cyclomatic": 5,
+        "nloc": 5
+      },
+      {
+        "name": "radar_detection",
+        "cyclomatic": 10,
+        "nloc": 13
+      },
+      {
+        "name": "radar_track",
+        "cyclomatic": 4,
+        "nloc": 6
+      },
+      {
+        "name": "observe_unit",
+        "cyclomatic": 4,
+        "nloc": 15
+      },
+      {
+        "name": "observe_ownship",
+        "cyclomatic": 3,
+        "nloc": 12
+      },
+      {
+        "name": "sample_groups",
+        "cyclomatic": 7,
+        "nloc": 19
+      },
+      {
+        "name": "valid_time",
+        "cyclomatic": 4,
+        "nloc": 3
+      },
+      {
+        "name": "begin_sample",
+        "cyclomatic": 8,
+        "nloc": 8
+      },
+      {
+        "name": "fire_event_label",
+        "cyclomatic": 5,
+        "nloc": 7
+      },
+      {
+        "name": "record_fire",
+        "cyclomatic": 5,
+        "nloc": 9
+      },
+      {
+        "name": "self",
+        "cyclomatic": 4,
+        "nloc": 11
+      },
+      {
+        "name": "self",
+        "cyclomatic": 8,
+        "nloc": 17
+      },
+      {
+        "name": "M.new",
+        "cyclomatic": 4,
+        "nloc": 14
+      }
+    ]
+  },
+  "schema": {
+    "version": 2,
+    "range": "slant metres from guarded native Unit.getPoint reads",
+    "ownship": "native type and position plus600/601/602,0/3/5,22draw-argument reads; numeric read success alone does not qualify the argument",
+    "fire": "S_EVENT_SHOT plus available S_EVENT_SHOOTING_START/END; missing targets stay unknown",
+    "reports": "Native target-list membership can contain memory; first positive report is not proven detection onset",
+    "budgets": "600samples/64groups/16units per group/128units per sample/1024fireevents plusoneoverflowmarker"
+  },
+  "source_sha256": {
+    "tools/build_signature_trial.py": "e11c48d09c57c10076aa8352dbc5903f59ed2e8bceff59a306c28e970e1bd464",
+    "tools/build_signature_comparison.py": "b150229b9198600257cab09c4f887d18ac1c5b47bbc9b31946bfbfcd1f1e7f14",
+    "tools/diagnostics/observe_signature_sam.lua": "252529b3028636c047c91d64775628cf380db206c6eebeff5dbecad90f9afb00",
+    "tools/diagnostics/summarize_signature_trial.py": "d4505e4efe43c12beab0172230f55d28e7794df711f49fc4e8845586a5fa6b08",
+    "tests/cases/test_signature_comparison.py": "72ebce64cdab1807fb12f5282c7ac7275881381a979322e8e93f1b2471f862eb",
+    "docs/overhaul/flight-execution/rcs/README.md": "d6e58c7152184c67ca96d146961fd6036e834a0ccf08d52c246568c44cb543e8",
+    "docs/overhaul/flight-execution/rcs/comparison-plan.md": "c60776f33e19207c2a3d7f3ef7b2804cd90978b4ee12966711033a30d6a96e86"
+  },
+  "production_RCS_changed": false,
+  "normal_mod_modified": false,
+  "hooks_installed": false,
+  "simulator_operated": false,
+  "multiplayer_qualified": false,
+  "remaining": [
+    "Exact3fieldregistration installation coordinated separately; loadedidentity unverified",
+    "Fresh matched flight observations withactualECM/bay/geometry evidence",
+    "Dedicated-server andremoteclient repeats",
+    "RealF22calibration andnativeper-aircraft dynamic RCSbackend"
+  ]
+}
