@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "installed_utc": "2026-10-29T09:50:41.135544+00:00",
+  "source_commit": "86cd376f8ccf7ac8b107bbe731f48c285f4707b0",
+  "installed_root": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A",
+  "files": [
+    {
+      "path": "Cockpit/Scripts/HUD/page.lua",
+      "source_sha256": "d13fca941ce9ac82352a5db2ca5ebb5437398c0ddc257a87a097969d7b6b1f63",
+      "installed_before_sha256": "c057ff1bf26f55454c689e7a7c18b98ef7fd5c9e537d09fa23b20896a5e70006"
+    },
+    {
+      "path": "Cockpit/Scripts/HUD/tactical_page.lua",
+      "source_sha256": "166a5d6a60316ea27ae214649591cbb0af1af81fcf62173a4e169223c55b69f5",
+      "installed_before_sha256": "0c7e57e54c034153dd2cfa8e51511a73f2e934befcee2c1de8b64292a5176845"
+    },
+    {
+      "path": "Cockpit/Scripts/HUD/engagement.lua",
+      "source_sha256": "5a46d0e52429a5bf0155d2bdca86ac75c5a6f7cd1634a90f50b1dd40dd7a26b4",
+      "installed_before_sha256": "1ab66f090a679337b75f25184a66a7f512c4372ee2327612dc916e2deea2c17a"
+    },
+    {
+      "path": "Cockpit/Scripts/HUD/ag.lua",
+      "source_sha256": "3d4f12129ae5203df4c30719dc090ad1cd3c043dae4669f857f99d6c48169900",
+      "installed_before_sha256": "1d3b9bace2e609c21f0eca43fc3c1d67896e24b82608d42e7dc8a2e2e146d14d"
+    },
+    {
+      "path": "Cockpit/Scripts/HUD/readouts.lua",
+      "source_sha256": "8656636a666c7d809bd4af9df109a40a2d6f32edb4dd1ce61cff518d9f9bc612",
+      "installed_before_sha256": null
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Flight_Guidance.lua",
+      "source_sha256": "1be6da11d33ed172b83b826bc1ade9674b8fcc501aa2f9869c75bddb25b0239f",
+      "installed_before_sha256": "9c24570952dc20f2c368fd520bfc61c0369c109d93b29440ec1663fb930bcf1a"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AP_HUD_Status.lua",
+      "source_sha256": "696f4d7037d11a835a993264f42bb7f3b83ff1215acdba1952f2955a9039f9a5",
+      "installed_before_sha256": null
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AP_Annunciation.lua",
+      "source_sha256": "52d694b93358521979d036672b992c53377350187fcf05b0feb0e93fe18484d8",
+      "installed_before_sha256": null
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Pilot_Warnings.lua",
+      "source_sha256": "053dfd32725a53d3d68502380ca701cd3c079b018d02820d65283e287f21b0d7",
+      "installed_before_sha256": "7bb01c946b1b0d7fd2b4c55f11e4c69ee5c9c825f93dba79291b63ab8e444444"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Pilot_Warning_System.lua",
+      "source_sha256": "061c9578d4fde9c0bca3ed7905402820a69e0de63e850e0aba4f14e5255a06e3",
+      "installed_before_sha256": "b73c122e70d7141d680d37e38fbbfe9264fc31c8141c5decc80c6508ab6d6c8e"
+    }
+  ],
+  "file_hashes_verified": 10,
+  "protected_entries_verified": 60,
+  "protected_manifest": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat2-hud-readouts-20261029\\implementation\\INSTALL-PLAN.json",
+  "checks_completed_before_user_requested_stop": {
+    "cases_passed": 89,
+    "Lua51_Luacheck120_new_findings": 0,
+    "retained_lint_findings": 18
+  },
+  "further_test_runs": 0,
+  "DLL_font_audio_saved_controls_hooks_changed": false,
+  "simulator_executed": false,
+  "DCS_running_at_copy": false,
+  "backups_created": false,
+  "actual_in_game_validation": "pending"
+}
