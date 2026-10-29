@@ -58,5 +58,8 @@ Actual native terrain-query cost, in-flight estimate accuracy/legibility, VR and
 multiplayer remain untested. The calculation uses cockpit observations and local
 terrain only, with no mission hook or server truth dependency. That architecture
 does not itself establish multiplayer qualification. Installation identity is
-recorded separately in `GROUND-RF-RANGE-INSTALLATION.json` after the exclusive
-installation lease is used.
+recorded in `GROUND-RF-RANGE-INSTALLATION.json`: source commit `ceb4d66` is
+installed in the normal Saved Games mod. All four Lua hashes match, 431 protected
+files remain unchanged and 30 installed-package cases pass through 64 actual
+script dependencies. DCS was absent, no simulator input was sent and the
+installation lease was released.

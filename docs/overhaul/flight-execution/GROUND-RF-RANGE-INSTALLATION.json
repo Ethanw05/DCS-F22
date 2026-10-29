@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "installed_at_utc": "2026-10-29T05:24:42.998224+00:00",
+  "source_commit": "ceb4d66952540d851016d09bffb54d94790035e3",
+  "installed_scripts": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Cockpit\\Scripts",
+  "lease_plan_sha256": "3724e69580bfe4191d5eb563be0a7bb349f1e8d324c9c7fdb76dc982025ee064",
+  "files": [
+    {
+      "path": "Cockpit/Scripts/Systems/EW_Terrain_Geolocation.lua",
+      "installed_before_sha256": null,
+      "installed_after_sha256": "e99f2bfab5a0bcb45ba385aec4b08f1726a123a6640c8a761034c51c24fdfb04"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/EW_Geolocation.lua",
+      "installed_before_sha256": "57e8c5a26c5faf6d700cb3332555d140462df657c503eef2e4a2583bd1b5eaa2",
+      "installed_after_sha256": "ca3d2df37b996c146aeb999266f0852a7d96f65000cc424aabb5ef377789d9b9"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/RWR_System.lua",
+      "installed_before_sha256": "212cc54706949bed759e7bd07650b45a49f5a013350d209353285b41cd74cea3",
+      "installed_after_sha256": "49a72e5188e892e28a857126994701ff1cf1f97f8bde609e804d810f807f1953"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_RIGHT/defensive_overview.lua",
+      "installed_before_sha256": "5310ba5cd97f159aa5a778991f7016d50a543cd3f2c22b68d8c75503f222298f",
+      "installed_after_sha256": "aedb04b32d90054d38f33b34833bcc2e8f6765ad6d8c59fb02425c4a36317065"
+    }
+  ],
+  "installed_tests": {
+    "cases": 30,
+    "passed": true,
+    "dependency_files": 64,
+    "report_sha256": "31ea5cc6645dd1fd6b4f59d3e46f48c8bb8ab44b62307abf3746fe61d2c84ee0"
+  },
+  "protected_files_unchanged": 431,
+  "protected_manifest": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat1-20261028\\ground-rf-range\\installation-plan.json",
+  "DLL_audio_font_input_hook_changed": false,
+  "simulator_operated": false,
+  "runtime_loaded_identity_verified": false,
+  "actual_DCS_VR_MP_validation": "unexecuted"
+}

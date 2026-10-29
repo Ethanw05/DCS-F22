@@ -67,11 +67,16 @@
     "maximum_terrain_queries_per_update": 171,
     "lifetime_s": 6
   },
-  "installation": "Pending exact four-Lua exclusive lease; no DCS operation",
+  "installation": "Installed under exact four-Lua lease; hashes and431 protected files verified;30 installed cases through64dependencies pass; slot released.",
   "unexecuted": [
     "Actual native terrain-query performance",
     "DCS flight estimate accuracy/legibility",
     "VR",
     "Multiplayer"
-  ]
+  ],
+  "source_commit": "ceb4d66952540d851016d09bffb54d94790035e3",
+  "installation_receipt": {
+    "path": "docs/overhaul/flight-execution/GROUND-RF-RANGE-INSTALLATION.json",
+    "sha256": "c6a911b19d7fd152e34dc0c01dcd2ef39337895360601647cd7364b94e72e941"
+  }
 }
