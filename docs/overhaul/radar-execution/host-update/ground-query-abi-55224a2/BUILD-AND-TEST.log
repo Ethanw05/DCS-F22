@@ -1,0 +1,18 @@
+radar_ground_tracks.cpp
+radar_ground_callbacks.cpp
+PASS host-ID permutations: 40 delayed measured reports, 20 epochs
+PASS crossing ambiguity: coasted original observation; ambiguous=2
+PASS queue rollback, old-time catchup, current-request recovery and single release
+PASS zero time, finite eight-return batch and original processing delay
+PASS impossible same-host jump and full 32-report processing capacity
+Measured ground owner cases pass; native/DCS qualification remains separate.
+PASS by-value volume/segment ownership, zero callback retention, int hints and early-return destruction
+PASS actual control packet: 20 preemptions, conversion failures and zero
+PASS finite zero and nonfinite/overflow ground camera admission
+PASS actual callback host-ID permutation and ambiguous crossing
+PASS correlated acquisition, delayed replacement and type3 FTT
+PASS pending/selected/range rewind, original producer lease and repeated-clock no-work
+PASS protected MAP/GMT/SEA family identity and mode-change search withdrawal
+PASS checked payload-write failure, missing writer and coherent current recovery
+PASS mid-publication API context change stops all later writes and recovers
+Actual ground callback software ports pass; DCS ABI/lifetime/effects remain unqualified.

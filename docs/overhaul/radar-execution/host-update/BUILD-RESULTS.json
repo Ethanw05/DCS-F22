@@ -2,26 +2,29 @@
   "status": "STABLE_CURRENT_PRIMARY_FULL_DLL_BUILD_PASSED",
   "branch": "main",
   "head": "bead9bcf94cb9bc0ab1203721aa4830bd336f251",
-  "native_source_sha256": "43e9acb9d5c1f2a87548bb89de7a6f2ef1b05a44e39525b48e65df8f13c79f07",
+  "native_source_sha256": "19246f328031c9b9ce991174950f72c53defce112275fb61bf1a8a511a37550a",
   "native_sources_stable": true,
   "build_dir": "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/radar-current-main-20261028-1823/build",
   "dll": "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/radar-current-main-20261028-1823/build/artifacts/Release/f22.dll",
-  "sha256": "bd440e538f00e25ffb3ac3f8a6d675f1d81c4c37a55168404183727f281839d9",
+  "sha256": "a5b6311aeb44501ca87b3e4f80c18887b9f35081e63dd38989dc2acf2b6e4351",
   "native_identity": {
-    "token": "F22_NATIVE_V1|source=43e9acb9d5c1f2a87548bb89de7a6f2ef1b05a44e39525b48e65df8f13c79f07|cache=1574b10698125d978b2a64a5f6326803ef560ac057953cbfeb98e17562f803dc|compiler=MSVC-19.51.36252.0|config=Release|cxx=23",
-    "rva": 515184
+    "token": "F22_NATIVE_V1|source=19246f328031c9b9ce991174950f72c53defce112275fb61bf1a8a511a37550a|cache=1574b10698125d978b2a64a5f6326803ef560ac057953cbfeb98e17562f803dc|compiler=MSVC-19.51.36252.0|config=Release|cxx=23",
+    "rva": 519328
   },
   "identity_matches_current_source_and_cache": true,
   "warning_count": 64,
   "radar_warning_count": 0,
   "warning_baseline": "Same64 legacy diagnostics as earlier full build; actual changed radar owner checks also pass /W4 /WX /analyze",
   "manifests": [
-    "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/radar-current-main-20261028-1823/PACKAGE-BEFORE.json",
-    "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/radar-current-main-20261028-1823/PACKAGE-AFTER.json"
+    "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/radar-current-main-20261028-1823/PACKAGE-BEFORE-GROUND-ABI.json",
+    "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/radar-current-main-20261028-1823/PACKAGE-FINAL.json"
   ],
   "source_bin_unchanged": true,
   "installed_dll_unchanged": true,
   "installed": false,
   "DCS_run": false,
-  "remaining": "Air adapter current-host source support only. Other native adapters retain old guards until their owners qualify current interfaces. Current package has127 runtime asset differences; joint reviewed installation/runtime remains outstanding."
+  "remaining": "Air adapter current-host source support and ground Query ownership repair only. Other native adapters retain old guards until qualified. Joint reviewed runtime asset manifest must include UnitPayloads (PACKAGING-GAPS.json); installation/runtime remains outstanding.",
+  "first_stable_dll_sha256": "bd440e538f00e25ffb3ac3f8a6d675f1d81c4c37a55168404183727f281839d9",
+  "final_rebuild_log": "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/radar-current-main-20261028-1823/ground-abi-rebuild.log",
+  "final_rebuild_warnings": 0
 }

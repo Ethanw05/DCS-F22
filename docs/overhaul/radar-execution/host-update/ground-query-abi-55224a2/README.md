@@ -1,0 +1,9 @@
+# Ground query ABI repair
+
+Applied directly on primary main after the exact `e20eb2e2…` source baseline check. The product change is limited to the utility include, int-return/by-value Query declarations for volume19 and segment24, explicit callback moves and deliberate ignored query hints. All prior host guards, control/publication/reset behavior and camera code are unchanged. The normalized result matches the reviewed unapplied proposal.
+
+The owning callback fixture now declares the actual host call shape. New nontrivial tracked callables pass through the real ground `method<>` vtable adapter and verify sole ownership, no extra copy/retention and exactly one payload destruction on normal volume completion, early return and unused segment completion. Existing actual-owner measurement, source-lease, epoch, request, fixed-terrain, family and publication-failure checks continue to pass. This is software ownership evidence through explicit ports; it does not qualify live borrowed DCS objects or callback scheduling.
+
+Both ground executables compile in the fresh external `out/radar-ground-query-abi-55224a2` directory with MSVC14.51 `/std:c++latest /EHsc /W4 /WX /analyze /DNOMINMAX /D_USE_MATH_DEFINES`, without emitted diagnostics. Explicit exit checks are0 for both. New test functions have maximumCC15; production decisions are unchanged and retained large-callback exceptions remain. `RESULTS.json`, `FOCUSED.diff`, logs and complete current function metrics record the exact scope and source identities. Earlier evidence is preserved.
+
+No profile activation, other native C++ edit, common CMake change, staging, commit, installation, simulator activity or native DCS DLL execution occurred. The current ground host guards still reject the unsupported updated profile. Root owns the incremental full DLL rebuild and any later supported-host qualification.

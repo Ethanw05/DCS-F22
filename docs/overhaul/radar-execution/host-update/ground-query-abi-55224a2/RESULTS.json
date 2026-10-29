@@ -1,0 +1,97 @@
+{
+  "scope": "Exact GroundSensor query ABI repair; independent own host-port lifetime checks",
+  "baseline_head": "55224a2a7be9666b66a57a7e3a4321efa9142fc0",
+  "immediate_pre_edit_sha256": {
+    "EFM/source/NativeGroundSensor.cpp": "e20eb2e210a941795bb99bd0610f1fc0912b47c7a6397691fd0308ae03a6197f",
+    "tests/native/radar_ground_callbacks.cpp": "86f80aea4f290205448f32ddaad8f7670410f22dbac136f7a32a1f4a9334bd0d"
+  },
+  "source_after_sha256": {
+    "EFM/source/NativeGroundSensor.cpp": "845f3ad1d0813435e63586b6b493196c16b74a430ef725d6b0f8b2a245654e2c",
+    "tests/native/radar_ground_callbacks.cpp": "e292dcf3499a498c3610e41ba8a92752ff81bd8b833930a34b723254b1d2abbe"
+  },
+  "normalized_committed_baseline_sha256": {
+    "EFM/source/NativeGroundSensor.cpp": "b9258323f95aef23d9e5216a4c50750d7b7419ee2c38c8e9f028d581970e1749",
+    "tests/native/radar_ground_callbacks.cpp": "86f80aea4f290205448f32ddaad8f7670410f22dbac136f7a32a1f4a9334bd0d"
+  },
+  "diff": "FOCUSED.diff",
+  "source_matches_reviewed_proposal": true,
+  "production_change": "utility include; int-return by-value Query volume19 and segment24; std::move callbacks; explicit ignored query hints only",
+  "old_host_guards_unchanged": true,
+  "control_publication_reset_code_unchanged": true,
+  "fresh_external_output": "C:\\Users\\Ethans Desktop 2.0\\Documents\\ChatGPT\\F22 MOD\\out\\radar-ground-query-abi-55224a2",
+  "compiler": "MSVC14.51.36231 x64",
+  "flags": [
+    "/std:c++latest",
+    "/EHsc",
+    "/W4",
+    "/WX",
+    "/analyze",
+    "/DNOMINMAX",
+    "/D_USE_MATH_DEFINES"
+  ],
+  "build_script_sha256": "8fb4750f5b8650bb3e5eddd0a8c450dcbdcba7c1ab6a066b8a347ec6f9537765",
+  "compiler_diagnostics": "none emitted under /W4 /WX /analyze",
+  "checks": [
+    {
+      "name": "f22_radar_ground_tracks",
+      "exit_code": 0
+    },
+    {
+      "name": "f22_radar_ground_callbacks",
+      "exit_code": 0
+    }
+  ],
+  "logs": [
+    "BUILD-AND-TEST.log",
+    "EXPLICIT-TEST-EXITS.log"
+  ],
+  "new_cases": [
+    "Moved by-value callback destroyed exactly once on normal volume completion",
+    "Moved by-value callback destroyed exactly once on early volume return",
+    "Unused segment callback consumed/destroyed on return with no retained callable"
+  ],
+  "new_test_function_max_CC": 15,
+  "modified_file_max_CC": {
+    "EFM/source/NativeGroundSensor.cpp": 132,
+    "tests/native/radar_ground_callbacks.cpp": 21
+  },
+  "binary_sha256": {
+    "radar_ground_tracks.exe": "bf0ca6bb5821776d4758553ae1bda39bb67b23b3ae411ae5609f6d2cd40b06e8",
+    "radar_ground_callbacks.exe": "054270ab0da207b2db54e3455c8b7883e52f9a4379f5b59103e14c918737c0c1"
+  },
+  "dependency_sha256_after_build": {
+    "EFM/source/GroundMovingTargets.h": "01ac9fad9283eab3ea357f95808fe058308fbd0bd706e6829adaaa5bd60cac0d",
+    "EFM/source/AesaRadar.h": "2f5ff1f49d66241c43a8025f37025dcbec568a1ca4a5dd74288984f5a413327f",
+    "EFM/source/AesaTrackFilter.h": "6b9c8e7a3ce7147aaad1410074392581a508a3039381ba34c2485a3b7bf59d60",
+    "EFM/source/AesaAssociation.h": "2a6f1cda3bd8fd9cd5ea6de4188d0cb1ea50aa8fac61f908811acca67ae9959e",
+    "EFM/source/NativeGroundSensor.h": "815df712ffec23c36c9c44480b18299b8437aa631c41aa0e7c58690478c48904",
+    "EFM/include/Cockpit/CockpitAPI_Declare.h": "98bed221a28ca55cbb6d35d6bd10db703093ccbb5e77fec002d2db91579828e6",
+    "EFM/include/Cockpit/ccParametersAPI.h": "cf8d79a785ec67e97c60f216c6bb25ef626c5fcd5c463b6ed07e7cfc24301419",
+    "tests/native/radar_ground_tracks.cpp": "a2505972dc61045754210196271670c106f2ac9e32ab6cb6e02d0dac6b87c056",
+    "tests/native/radar_ground.cmake": "e5c60b629e4a6e6cb25296bf267007e5cde0e15aaec008f2103060d809114576"
+  },
+  "dependency_snapshot_phase": "After build; modified source and fixture match their recorded pre-build hashes. Root owns complete full-DLL build closure.",
+  "old_evidence_overwritten": false,
+  "profile_activation": false,
+  "existing_other_native_cpp_modified": false,
+  "common_cmake_modified": false,
+  "staged_or_committed": false,
+  "installed": false,
+  "limits": [
+    "Actual DCS private callback scheduling and borrowed-object/lifetime remain unqualified.",
+    "The fixture exercises actual ground owner with explicit test-owned scene/parameter/camera ports; it is not live host ABI qualification.",
+    "Current unsupported host profile remains rejected by unchanged ground guards.",
+    "Root requires one incremental full DLL rebuild after this frozen source change."
+  ],
+  "modified_file_max_CC_before_after": {
+    "EFM/source/NativeGroundSensor.cpp": {
+      "before": 132,
+      "after": 132
+    },
+    "tests/native/radar_ground_callbacks.cpp": {
+      "before": 21,
+      "after": 21
+    }
+  },
+  "DCS_DLL_loaded_or_invoked": false
+}

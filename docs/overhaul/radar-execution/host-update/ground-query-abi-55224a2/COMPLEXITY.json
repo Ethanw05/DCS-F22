@@ -1,0 +1,808 @@
+{
+  "tool": "Lizard1.17.31",
+  "files": {
+    "EFM/source/NativeGroundSensor.cpp": [
+      {
+        "name": "NativeGroundSensor::readable",
+        "nloc": 6,
+        "CC": 7
+      },
+      {
+        "name": "NativeGroundSensor::method",
+        "nloc": 7,
+        "CC": 3
+      },
+      {
+        "name": "NativeGroundSensor::profile",
+        "nloc": 7,
+        "CC": 6
+      },
+      {
+        "name": "NativeGroundSensor::Api::initialize",
+        "nloc": 23,
+        "CC": 25
+      },
+      {
+        "name": "NativeGroundSensor::bind_context",
+        "nloc": 5,
+        "CC": 3
+      },
+      {
+        "name": "NativeGroundSensor::get",
+        "nloc": 10,
+        "CC": 4
+      },
+      {
+        "name": "NativeGroundSensor::Publication::put",
+        "nloc": 14,
+        "CC": 6
+      },
+      {
+        "name": "NativeGroundSensor::Publication::current",
+        "nloc": 3,
+        "CC": 2
+      },
+      {
+        "name": "NativeGroundSensor::moving",
+        "nloc": 5,
+        "CC": 3
+      },
+      {
+        "name": "NativeGroundSensor::id",
+        "nloc": 1,
+        "CC": 2
+      },
+      {
+        "name": "NativeGroundSensor::motion",
+        "nloc": 7,
+        "CC": 5
+      },
+      {
+        "name": "NativeGroundSensor::terrain_visible",
+        "nloc": 11,
+        "CC": 7
+      },
+      {
+        "name": "NativeGroundSensor::visible",
+        "nloc": 22,
+        "CC": 12
+      },
+      {
+        "name": "NativeGroundSensor::positive_response",
+        "nloc": 9,
+        "CC": 4
+      },
+      {
+        "name": "NativeGroundSensor::volume",
+        "nloc": 19,
+        "CC": 18
+      },
+      {
+        "name": "NativeGroundSensor::reset",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "NativeGroundSensor::retire_sampler",
+        "nloc": 9,
+        "CC": 1
+      },
+      {
+        "name": "NativeGroundSensor::retire_source",
+        "nloc": 7,
+        "CC": 2
+      },
+      {
+        "name": "NativeGroundSensor::accept_reports",
+        "nloc": 27,
+        "CC": 23
+      },
+      {
+        "name": "NativeGroundSensor::pointing_clock",
+        "nloc": 3,
+        "CC": 6
+      },
+      {
+        "name": "NativeGroundSensor::pointing_geometry",
+        "nloc": 3,
+        "CC": 4
+      },
+      {
+        "name": "NativeGroundSensor::predicted_point",
+        "nloc": 8,
+        "CC": 4
+      },
+      {
+        "name": "NativeGroundSensor::selected_point",
+        "nloc": 6,
+        "CC": 7
+      },
+      {
+        "name": "NativeGroundSensor::aim_at",
+        "nloc": 8,
+        "CC": 4
+      },
+      {
+        "name": "NativeGroundSensor::routine_request",
+        "nloc": 7,
+        "CC": 9
+      },
+      {
+        "name": "NativeGroundSensor::job_geometry",
+        "nloc": 6,
+        "CC": 9
+      },
+      {
+        "name": "NativeGroundSensor::valid_job",
+        "nloc": 7,
+        "CC": 11
+      },
+      {
+        "name": "NativeGroundSensor::in_job",
+        "nloc": 6,
+        "CC": 3
+      },
+      {
+        "name": "NativeGroundSensor::pointing",
+        "nloc": 18,
+        "CC": 9
+      },
+      {
+        "name": "NativeGroundSensor::sample",
+        "nloc": 160,
+        "CC": 132
+      },
+      {
+        "name": "NativeGroundSensor::committed",
+        "nloc": 3,
+        "CC": 4
+      },
+      {
+        "name": "NativeGroundSensor::flag",
+        "nloc": 5,
+        "CC": 3
+      },
+      {
+        "name": "NativeGroundSensor::read_controls",
+        "nloc": 32,
+        "CC": 48
+      },
+      {
+        "name": "NativeGroundSensor::update",
+        "nloc": 69,
+        "CC": 57
+      }
+    ],
+    "tests/native/radar_ground_callbacks.cpp": [
+      {
+        "name": "require",
+        "nloc": 3,
+        "CC": 2
+      },
+      {
+        "name": "set",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "value",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "resolve",
+        "nloc": 5,
+        "CC": 2
+      },
+      {
+        "name": "seed",
+        "nloc": 11,
+        "CC": 2
+      },
+      {
+        "name": "read_number",
+        "nloc": 14,
+        "CC": 6
+      },
+      {
+        "name": "write_number",
+        "nloc": 9,
+        "CC": 4
+      },
+      {
+        "name": "clock",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "aircraft",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "own",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "same",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "identity",
+        "nloc": 4,
+        "CC": 2
+      },
+      {
+        "name": "point",
+        "nloc": 5,
+        "CC": 2
+      },
+      {
+        "name": "velocity",
+        "nloc": 4,
+        "CC": 2
+      },
+      {
+        "name": "type",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "dead",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "flag",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "position",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "response",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "cross_section",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "terrain",
+        "nloc": 11,
+        "CC": 4
+      },
+      {
+        "name": "camera",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "clip",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "intersect",
+        "nloc": 2,
+        "CC": 1
+      },
+      {
+        "name": "query",
+        "nloc": 7,
+        "CC": 3
+      },
+      {
+        "name": "segment",
+        "nloc": 4,
+        "CC": 1
+      },
+      {
+        "name": "bind_object",
+        "nloc": 3,
+        "CC": 1
+      },
+      {
+        "name": "configure",
+        "nloc": 36,
+        "CC": 1
+      },
+      {
+        "name": "TrackedVisitor::TrackedVisitor",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "TrackedVisitor::TrackedVisitor",
+        "nloc": 3,
+        "CC": 2
+      },
+      {
+        "name": "TrackedVisitor::TrackedVisitor",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "TrackedVisitor::~TrackedVisitor",
+        "nloc": 1,
+        "CC": 2
+      },
+      {
+        "name": "TrackedVisitor::operator ( )",
+        "nloc": 3,
+        "CC": 2
+      },
+      {
+        "name": "query_ownership",
+        "nloc": 25,
+        "CC": 15
+      },
+      {
+        "name": "service",
+        "nloc": 9,
+        "CC": 1
+      },
+      {
+        "name": "tick",
+        "nloc": 6,
+        "CC": 1
+      },
+      {
+        "name": "packet_admission",
+        "nloc": 53,
+        "CC": 21
+      },
+      {
+        "name": "camera_admission",
+        "nloc": 15,
+        "CC": 5
+      },
+      {
+        "name": "measured_run",
+        "nloc": 21,
+        "CC": 10
+      },
+      {
+        "name": "measured_association",
+        "nloc": 21,
+        "CC": 9
+      },
+      {
+        "name": "acquisition_and_fixed",
+        "nloc": 20,
+        "CC": 8
+      },
+      {
+        "name": "require_retired",
+        "nloc": 10,
+        "CC": 10
+      },
+      {
+        "name": "retirement",
+        "nloc": 32,
+        "CC": 6
+      },
+      {
+        "name": "mode_family",
+        "nloc": 14,
+        "CC": 6
+      },
+      {
+        "name": "publication_failure",
+        "nloc": 38,
+        "CC": 7
+      },
+      {
+        "name": "publication_context_change",
+        "nloc": 17,
+        "CC": 5
+      },
+      {
+        "name": "main",
+        "nloc": 5,
+        "CC": 1
+      }
+    ]
+  },
+  "new_test_function_max_CC": 15,
+  "production_decisions_added": 0,
+  "retained_exception": "Existing NativeGroundSensor sampler/visitor and parameter map/string allocation exceptions retained; no camera/lifecycle redesign or blanket standards qualification.",
+  "baseline_files": {
+    "EFM/source/NativeGroundSensor.cpp": [
+      {
+        "name": "NativeGroundSensor::readable",
+        "nloc": 6,
+        "CC": 7
+      },
+      {
+        "name": "NativeGroundSensor::method",
+        "nloc": 7,
+        "CC": 3
+      },
+      {
+        "name": "NativeGroundSensor::profile",
+        "nloc": 7,
+        "CC": 6
+      },
+      {
+        "name": "NativeGroundSensor::Api::initialize",
+        "nloc": 23,
+        "CC": 25
+      },
+      {
+        "name": "NativeGroundSensor::bind_context",
+        "nloc": 5,
+        "CC": 3
+      },
+      {
+        "name": "NativeGroundSensor::get",
+        "nloc": 10,
+        "CC": 4
+      },
+      {
+        "name": "NativeGroundSensor::Publication::put",
+        "nloc": 14,
+        "CC": 6
+      },
+      {
+        "name": "NativeGroundSensor::Publication::current",
+        "nloc": 3,
+        "CC": 2
+      },
+      {
+        "name": "NativeGroundSensor::moving",
+        "nloc": 5,
+        "CC": 3
+      },
+      {
+        "name": "NativeGroundSensor::id",
+        "nloc": 1,
+        "CC": 2
+      },
+      {
+        "name": "NativeGroundSensor::motion",
+        "nloc": 7,
+        "CC": 5
+      },
+      {
+        "name": "NativeGroundSensor::terrain_visible",
+        "nloc": 11,
+        "CC": 7
+      },
+      {
+        "name": "NativeGroundSensor::visible",
+        "nloc": 22,
+        "CC": 12
+      },
+      {
+        "name": "NativeGroundSensor::positive_response",
+        "nloc": 9,
+        "CC": 4
+      },
+      {
+        "name": "NativeGroundSensor::volume",
+        "nloc": 19,
+        "CC": 18
+      },
+      {
+        "name": "NativeGroundSensor::reset",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "NativeGroundSensor::retire_sampler",
+        "nloc": 9,
+        "CC": 1
+      },
+      {
+        "name": "NativeGroundSensor::retire_source",
+        "nloc": 7,
+        "CC": 2
+      },
+      {
+        "name": "NativeGroundSensor::accept_reports",
+        "nloc": 27,
+        "CC": 23
+      },
+      {
+        "name": "NativeGroundSensor::pointing_clock",
+        "nloc": 3,
+        "CC": 6
+      },
+      {
+        "name": "NativeGroundSensor::pointing_geometry",
+        "nloc": 3,
+        "CC": 4
+      },
+      {
+        "name": "NativeGroundSensor::predicted_point",
+        "nloc": 8,
+        "CC": 4
+      },
+      {
+        "name": "NativeGroundSensor::selected_point",
+        "nloc": 6,
+        "CC": 7
+      },
+      {
+        "name": "NativeGroundSensor::aim_at",
+        "nloc": 8,
+        "CC": 4
+      },
+      {
+        "name": "NativeGroundSensor::routine_request",
+        "nloc": 7,
+        "CC": 9
+      },
+      {
+        "name": "NativeGroundSensor::job_geometry",
+        "nloc": 6,
+        "CC": 9
+      },
+      {
+        "name": "NativeGroundSensor::valid_job",
+        "nloc": 7,
+        "CC": 11
+      },
+      {
+        "name": "NativeGroundSensor::in_job",
+        "nloc": 6,
+        "CC": 3
+      },
+      {
+        "name": "NativeGroundSensor::pointing",
+        "nloc": 18,
+        "CC": 9
+      },
+      {
+        "name": "NativeGroundSensor::sample",
+        "nloc": 160,
+        "CC": 132
+      },
+      {
+        "name": "NativeGroundSensor::committed",
+        "nloc": 3,
+        "CC": 4
+      },
+      {
+        "name": "NativeGroundSensor::flag",
+        "nloc": 5,
+        "CC": 3
+      },
+      {
+        "name": "NativeGroundSensor::read_controls",
+        "nloc": 32,
+        "CC": 48
+      },
+      {
+        "name": "NativeGroundSensor::update",
+        "nloc": 69,
+        "CC": 57
+      }
+    ],
+    "tests/native/radar_ground_callbacks.cpp": [
+      {
+        "name": "require",
+        "nloc": 3,
+        "CC": 2
+      },
+      {
+        "name": "set",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "value",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "resolve",
+        "nloc": 5,
+        "CC": 2
+      },
+      {
+        "name": "seed",
+        "nloc": 11,
+        "CC": 2
+      },
+      {
+        "name": "read_number",
+        "nloc": 14,
+        "CC": 6
+      },
+      {
+        "name": "write_number",
+        "nloc": 9,
+        "CC": 4
+      },
+      {
+        "name": "clock",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "aircraft",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "own",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "same",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "identity",
+        "nloc": 4,
+        "CC": 2
+      },
+      {
+        "name": "point",
+        "nloc": 5,
+        "CC": 2
+      },
+      {
+        "name": "velocity",
+        "nloc": 4,
+        "CC": 2
+      },
+      {
+        "name": "type",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "dead",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "flag",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "position",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "response",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "cross_section",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "terrain",
+        "nloc": 11,
+        "CC": 4
+      },
+      {
+        "name": "camera",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "clip",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "intersect",
+        "nloc": 2,
+        "CC": 1
+      },
+      {
+        "name": "query",
+        "nloc": 5,
+        "CC": 3
+      },
+      {
+        "name": "segment",
+        "nloc": 1,
+        "CC": 1
+      },
+      {
+        "name": "bind_object",
+        "nloc": 3,
+        "CC": 1
+      },
+      {
+        "name": "configure",
+        "nloc": 36,
+        "CC": 1
+      },
+      {
+        "name": "service",
+        "nloc": 9,
+        "CC": 1
+      },
+      {
+        "name": "tick",
+        "nloc": 6,
+        "CC": 1
+      },
+      {
+        "name": "packet_admission",
+        "nloc": 53,
+        "CC": 21
+      },
+      {
+        "name": "camera_admission",
+        "nloc": 15,
+        "CC": 5
+      },
+      {
+        "name": "measured_run",
+        "nloc": 21,
+        "CC": 10
+      },
+      {
+        "name": "measured_association",
+        "nloc": 21,
+        "CC": 9
+      },
+      {
+        "name": "acquisition_and_fixed",
+        "nloc": 20,
+        "CC": 8
+      },
+      {
+        "name": "require_retired",
+        "nloc": 10,
+        "CC": 10
+      },
+      {
+        "name": "retirement",
+        "nloc": 32,
+        "CC": 6
+      },
+      {
+        "name": "mode_family",
+        "nloc": 14,
+        "CC": 6
+      },
+      {
+        "name": "publication_failure",
+        "nloc": 38,
+        "CC": 7
+      },
+      {
+        "name": "publication_context_change",
+        "nloc": 17,
+        "CC": 5
+      },
+      {
+        "name": "main",
+        "nloc": 5,
+        "CC": 1
+      }
+    ]
+  },
+  "max_CC_before_after": {
+    "EFM/source/NativeGroundSensor.cpp": {
+      "before": 132,
+      "after": 132
+    },
+    "tests/native/radar_ground_callbacks.cpp": {
+      "before": 21,
+      "after": 21
+    }
+  }
+}

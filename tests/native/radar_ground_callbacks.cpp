@@ -124,12 +124,17 @@ void* __fastcall camera(void* memory,int) { return memory; }
 const void* __fastcall clip(const void* memory) { return memory; }
 const char* __fastcall intersect(const NativeGroundSensor::Scene&,const Vec&,const Vec&,
                                  Vec&,double&,Vec&) { return nullptr; }
-void __fastcall query(void*,const void*,unsigned,const NativeGroundSensor::Query& visitor) {
+int __fastcall query(void*,const void*,unsigned,NativeGroundSensor::Query visitor) {
+    require(static_cast<bool>(visitor),"volume port received an empty callback");
     ++volume_queries;
     for(void* item:scene)
-        if(visitor(*reinterpret_cast<NativeGroundSensor::Scene*>(item)))break;
+        if(visitor(*reinterpret_cast<NativeGroundSensor::Scene*>(item)))return 1;
+    return 0;
 }
-void __fastcall segment(void*,const Vec&,const Vec&,unsigned,const NativeGroundSensor::Query&) {}
+int __fastcall segment(void*,const Vec&,const Vec&,unsigned,NativeGroundSensor::Query visitor) {
+    require(static_cast<bool>(visitor),"segment port received an empty callback");
+    return 0;
+}
 template<std::size_t N> void bind_object(std::array<std::byte,N>& memory,void** table,std::size_t offset=0) {
     std::memcpy(memory.data()+offset,&table,sizeof(table));
 }
@@ -168,6 +173,44 @@ void configure(EDPARAM& p) {
     api.reason=0;api.ready=true;
     NativeGroundSensor::sampled_epoch=0;NativeGroundSensor::source_faulted=false;
     NativeGroundSensor::previous_active=false;
+}
+struct CallbackLifetime { unsigned owners{},calls{},destroyed{},copies{};bool stop{}; };
+struct TrackedVisitor {
+    CallbackLifetime* lifetime{};
+    explicit TrackedVisitor(CallbackLifetime& value) noexcept :lifetime(&value) { ++lifetime->owners; }
+    TrackedVisitor(const TrackedVisitor& other) noexcept :lifetime(other.lifetime) {
+        if(lifetime){++lifetime->owners;++lifetime->copies;}
+    }
+    TrackedVisitor(TrackedVisitor&& other) noexcept :lifetime(other.lifetime) { other.lifetime=nullptr; }
+    ~TrackedVisitor() { if(lifetime){--lifetime->owners;++lifetime->destroyed;} }
+    int operator()(NativeGroundSensor::Scene&) const noexcept {
+        ++lifetime->calls;return lifetime->stop?1:0;
+    }
+};
+void query_ownership(EDPARAM& p) {
+    configure(p);scene={first_memory.data(),second_memory.data()};
+    using Volume=int(__fastcall*)(void*,const void*,unsigned,NativeGroundSensor::Query);
+    using Segment=int(__fastcall*)(void*,const Vec&,const Vec&,unsigned,NativeGroundSensor::Query);
+    const auto volume=NativeGroundSensor::method<Volume>(manager_memory.data(),19);
+    const auto segment_port=NativeGroundSensor::method<Segment>(manager_memory.data(),24);
+    require(volume&&segment_port,"owned query port missing from actual vtable adapter");
+    if(!volume||!segment_port)return;
+    for(bool stop:{false,true}) {
+        CallbackLifetime lifetime;lifetime.stop=stop;
+        NativeGroundSensor::Query visitor=TrackedVisitor(lifetime);
+        const auto copies=lifetime.copies;
+        require(lifetime.owners==1,"callback setup did not own exactly one callable");
+        const int hint=volume(manager_memory.data(),nullptr,32,std::move(visitor));
+        require(!visitor&&lifetime.owners==0&&lifetime.destroyed==1&&lifetime.copies==copies,
+                "volume callback was borrowed, copied, retained or destroyed twice");
+        require(lifetime.calls==(stop?1u:2u)&&hint==(stop?1:0),
+                "volume callback early completion/returned int hint changed");
+    }
+    CallbackLifetime lifetime;NativeGroundSensor::Query visitor=TrackedVisitor(lifetime);
+    const int hint=segment_port(manager_memory.data(),Vec{},Vec{100,0,0},35,std::move(visitor));
+    require(!visitor&&lifetime.owners==0&&lifetime.destroyed==1&&lifetime.calls==0&&hint==0,
+            "empty segment query did not consume/destroy its unused callback exactly once");
+    std::cout<<"PASS by-value volume/segment ownership, zero callback retention, int hints and early-return destruction\n";
 }
 NativeGroundSensor::ArrayService service(double now,bool granted=true) {
     NativeGroundSensor::ArrayService result;
@@ -428,6 +471,6 @@ void publication_context_change(EDPARAM& p) {
 }
 int main() {
     EDPARAM actual;
-    packet_admission(actual);camera_admission(actual);measured_association(actual);acquisition_and_fixed(actual);retirement(actual);mode_family(actual);publication_failure(actual);publication_context_change(actual);
+    query_ownership(actual);packet_admission(actual);camera_admission(actual);measured_association(actual);acquisition_and_fixed(actual);retirement(actual);mode_family(actual);publication_failure(actual);publication_context_change(actual);
     std::cout<<"Actual ground callback software ports pass; DCS ABI/lifetime/effects remain unqualified.\n";
 }

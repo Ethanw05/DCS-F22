@@ -13,6 +13,7 @@
 #include <string>
 #include <cstring>
 #include <limits>
+#include <utility>
 namespace NativeGroundSensor { namespace {
 using namespace GroundMovingTargets;
 struct VecF {float n,u,e;};
@@ -178,7 +179,7 @@ bool terrain_visible(const Vec&from,const Vec&to) {
 }
 bool visible(const Vec&from,const Vec&to,unsigned target,unsigned own,Output&stats) {
   if(!terrain_visible(from,to)){++stats.terrain_rejects;return false;}
-  using Segment=void(__fastcall*)(void*,const Vec&,const Vec&,unsigned,const Query&);
+  using Segment=int(__fastcall*)(void*,const Vec&,const Vec&,unsigned,Query);
   void *manager=*api.manager;auto query=method<Segment>(manager,24);if(!query)return false;
   struct SegmentState { const Vec* from;const Vec* to;Output* stats;unsigned own{},tested{},nearest_id{};
     double distance{},nearest{}; };
@@ -194,7 +195,7 @@ bool visible(const Vec&from,const Vec&to,unsigned target,unsigned own,Output&sta
     return 0;
   };
   // Same separate scene-object obstruction query used by APG-73 AG visibility.
-  query(manager,from,to,35,each);
+  (void)query(manager,from,to,35,std::move(each));
   const bool accepted=context.tested<=32&&(context.nearest_id==target||context.distance-context.nearest<10);
   if(!accepted)++stats.object_rejects;
   return accepted;
@@ -510,10 +511,10 @@ void sample(void *owned_radar, const ArrayService& service) {
     if(measurements.queue(hit,origin,heading,c.resource,acquiring||tracking,state->own_velocity,request))++state->returns;
     return 0;
   };
-  using VolumeQuery=void(__fastcall*)(void*,const void*,unsigned,const Query&);
+  using VolumeQuery=int(__fastcall*)(void*,const void*,unsigned,Query);
   void *manager=*api.manager;auto query=method<VolumeQuery>(manager,19);
   if(!query){stats.ready=false;stats.reason=5;return;}
-  ++stats.queries;query(manager,clip,c.sea?34:32,each);
+  ++stats.queries;(void)query(manager,clip,c.sea?34:32,std::move(each));
   // 4A4B80 initializes the acquisition timer to 3 seconds; 4A02E0 falls
   // back to a fixed terrain designation only if the same terrain LOS passes.
   if(acquiring&&now-acquisition_time>=3){

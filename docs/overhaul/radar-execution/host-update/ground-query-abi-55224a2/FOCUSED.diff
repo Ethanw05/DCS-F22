@@ -1,0 +1,121 @@
+diff --git a/EFM/source/NativeGroundSensor.cpp b/EFM/source/NativeGroundSensor.cpp
+index df0ef2b..ae97c3c 100644
+--- a/EFM/source/NativeGroundSensor.cpp
++++ b/EFM/source/NativeGroundSensor.cpp
+@@ -13,6 +13,7 @@
+ #include <string>
+ #include <cstring>
+ #include <limits>
++#include <utility>
+ namespace NativeGroundSensor { namespace {
+ using namespace GroundMovingTargets;
+ struct VecF {float n,u,e;};
+@@ -178,7 +179,7 @@ bool terrain_visible(const Vec&from,const Vec&to) {
+ }
+ bool visible(const Vec&from,const Vec&to,unsigned target,unsigned own,Output&stats) {
+   if(!terrain_visible(from,to)){++stats.terrain_rejects;return false;}
+-  using Segment=void(__fastcall*)(void*,const Vec&,const Vec&,unsigned,const Query&);
++  using Segment=int(__fastcall*)(void*,const Vec&,const Vec&,unsigned,Query);
+   void *manager=*api.manager;auto query=method<Segment>(manager,24);if(!query)return false;
+   struct SegmentState { const Vec* from;const Vec* to;Output* stats;unsigned own{},tested{},nearest_id{};
+     double distance{},nearest{}; };
+@@ -194,7 +195,7 @@ bool visible(const Vec&from,const Vec&to,unsigned target,unsigned own,Output&sta
+     return 0;
+   };
+   // Same separate scene-object obstruction query used by APG-73 AG visibility.
+-  query(manager,from,to,35,each);
++  (void)query(manager,from,to,35,std::move(each));
+   const bool accepted=context.tested<=32&&(context.nearest_id==target||context.distance-context.nearest<10);
+   if(!accepted)++stats.object_rejects;
+   return accepted;
+@@ -510,10 +511,10 @@ void sample(void *owned_radar, const ArrayService& service) {
+     if(measurements.queue(hit,origin,heading,c.resource,acquiring||tracking,state->own_velocity,request))++state->returns;
+     return 0;
+   };
+-  using VolumeQuery=void(__fastcall*)(void*,const void*,unsigned,const Query&);
++  using VolumeQuery=int(__fastcall*)(void*,const void*,unsigned,Query);
+   void *manager=*api.manager;auto query=method<VolumeQuery>(manager,19);
+   if(!query){stats.ready=false;stats.reason=5;return;}
+-  ++stats.queries;query(manager,clip,c.sea?34:32,each);
++  ++stats.queries;(void)query(manager,clip,c.sea?34:32,std::move(each));
+   // 4A4B80 initializes the acquisition timer to 3 seconds; 4A02E0 falls
+   // back to a fixed terrain designation only if the same terrain LOS passes.
+   if(acquiring&&now-acquisition_time>=3){
+diff --git a/tests/native/radar_ground_callbacks.cpp b/tests/native/radar_ground_callbacks.cpp
+index 68c351b..18b96bc 100644
+--- a/tests/native/radar_ground_callbacks.cpp
++++ b/tests/native/radar_ground_callbacks.cpp
+@@ -124,12 +124,17 @@ void* __fastcall camera(void* memory,int) { return memory; }
+ const void* __fastcall clip(const void* memory) { return memory; }
+ const char* __fastcall intersect(const NativeGroundSensor::Scene&,const Vec&,const Vec&,
+                                  Vec&,double&,Vec&) { return nullptr; }
+-void __fastcall query(void*,const void*,unsigned,const NativeGroundSensor::Query& visitor) {
++int __fastcall query(void*,const void*,unsigned,NativeGroundSensor::Query visitor) {
++    require(static_cast<bool>(visitor),"volume port received an empty callback");
+     ++volume_queries;
+     for(void* item:scene)
+-        if(visitor(*reinterpret_cast<NativeGroundSensor::Scene*>(item)))break;
++        if(visitor(*reinterpret_cast<NativeGroundSensor::Scene*>(item)))return 1;
++    return 0;
++}
++int __fastcall segment(void*,const Vec&,const Vec&,unsigned,NativeGroundSensor::Query visitor) {
++    require(static_cast<bool>(visitor),"segment port received an empty callback");
++    return 0;
+ }
+-void __fastcall segment(void*,const Vec&,const Vec&,unsigned,const NativeGroundSensor::Query&) {}
+ template<std::size_t N> void bind_object(std::array<std::byte,N>& memory,void** table,std::size_t offset=0) {
+     std::memcpy(memory.data()+offset,&table,sizeof(table));
+ }
+@@ -169,6 +174,44 @@ void configure(EDPARAM& p) {
+     NativeGroundSensor::sampled_epoch=0;NativeGroundSensor::source_faulted=false;
+     NativeGroundSensor::previous_active=false;
+ }
++struct CallbackLifetime { unsigned owners{},calls{},destroyed{},copies{};bool stop{}; };
++struct TrackedVisitor {
++    CallbackLifetime* lifetime{};
++    explicit TrackedVisitor(CallbackLifetime& value) noexcept :lifetime(&value) { ++lifetime->owners; }
++    TrackedVisitor(const TrackedVisitor& other) noexcept :lifetime(other.lifetime) {
++        if(lifetime){++lifetime->owners;++lifetime->copies;}
++    }
++    TrackedVisitor(TrackedVisitor&& other) noexcept :lifetime(other.lifetime) { other.lifetime=nullptr; }
++    ~TrackedVisitor() { if(lifetime){--lifetime->owners;++lifetime->destroyed;} }
++    int operator()(NativeGroundSensor::Scene&) const noexcept {
++        ++lifetime->calls;return lifetime->stop?1:0;
++    }
++};
++void query_ownership(EDPARAM& p) {
++    configure(p);scene={first_memory.data(),second_memory.data()};
++    using Volume=int(__fastcall*)(void*,const void*,unsigned,NativeGroundSensor::Query);
++    using Segment=int(__fastcall*)(void*,const Vec&,const Vec&,unsigned,NativeGroundSensor::Query);
++    const auto volume=NativeGroundSensor::method<Volume>(manager_memory.data(),19);
++    const auto segment_port=NativeGroundSensor::method<Segment>(manager_memory.data(),24);
++    require(volume&&segment_port,"owned query port missing from actual vtable adapter");
++    if(!volume||!segment_port)return;
++    for(bool stop:{false,true}) {
++        CallbackLifetime lifetime;lifetime.stop=stop;
++        NativeGroundSensor::Query visitor=TrackedVisitor(lifetime);
++        const auto copies=lifetime.copies;
++        require(lifetime.owners==1,"callback setup did not own exactly one callable");
++        const int hint=volume(manager_memory.data(),nullptr,32,std::move(visitor));
++        require(!visitor&&lifetime.owners==0&&lifetime.destroyed==1&&lifetime.copies==copies,
++                "volume callback was borrowed, copied, retained or destroyed twice");
++        require(lifetime.calls==(stop?1u:2u)&&hint==(stop?1:0),
++                "volume callback early completion/returned int hint changed");
++    }
++    CallbackLifetime lifetime;NativeGroundSensor::Query visitor=TrackedVisitor(lifetime);
++    const int hint=segment_port(manager_memory.data(),Vec{},Vec{100,0,0},35,std::move(visitor));
++    require(!visitor&&lifetime.owners==0&&lifetime.destroyed==1&&lifetime.calls==0&&hint==0,
++            "empty segment query did not consume/destroy its unused callback exactly once");
++    std::cout<<"PASS by-value volume/segment ownership, zero callback retention, int hints and early-return destruction\n";
++}
+ NativeGroundSensor::ArrayService service(double now,bool granted=true) {
+     NativeGroundSensor::ArrayService result;
+     result.granted=granted;result.active=true;result.resource=1;
+@@ -428,6 +471,6 @@ void publication_context_change(EDPARAM& p) {
+ }
+ int main() {
+     EDPARAM actual;
+-    packet_admission(actual);camera_admission(actual);measured_association(actual);acquisition_and_fixed(actual);retirement(actual);mode_family(actual);publication_failure(actual);publication_context_change(actual);
++    query_ownership(actual);packet_admission(actual);camera_admission(actual);measured_association(actual);acquisition_and_fixed(actual);retirement(actual);mode_family(actual);publication_failure(actual);publication_context_change(actual);
+     std::cout<<"Actual ground callback software ports pass; DCS ABI/lifetime/effects remain unqualified.\n";
+ }
