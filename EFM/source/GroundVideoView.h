@@ -257,7 +257,9 @@ inline std::array<Param,18> parameters(const View &v, bool erase, bool preset) {
   // must also be cropped by the consuming MFD texture coordinates.
   if (preset) p[7].text = GroundVideoView::preset(v);
   // DynamicParam8 is FLOAT footprint intensity, NOT integer quantization.
-  p[8].number = v.gmt&&!v.tracking?.5f:0.f;
+  // Individual AESA looks jump faster than a useful pilot scan indication.
+  // Suppress the cosmetic bright footprint; measured imagery remains intact.
+  p[8].number = 0.f;
   // 4A42D0 changes the GMT limits at sweep reversal. INTL substitutes
   // zero on the reverse sweep; the same shared renderer consumes these.
   p[9].number = v.gmt&&(!v.interleave||v.scan_direction>0)?50.f:0.f;

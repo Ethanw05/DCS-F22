@@ -441,12 +441,26 @@ void late_owner_callbacks() {
   NativeGroundVideo::reset();
 }
 }
+void no_strobing_footprint() {
+  for (bool gmt : {false,true}) for (bool tracking : {false,true}) {
+    GroundVideoView::View view;
+    view.gmt=gmt;view.tracking=tracking;
+    for (double fraction : {0.,.8,.1,1.}) {
+      view.scan_fraction=fraction;
+      const auto params=GroundVideoView::parameters(view,false,false);
+      require(params[8].number==0,"AESA scan jumps must not draw a cosmetic bright footprint");
+      require(params[1].number==static_cast<float>(fraction),"sensor-driven image progress was altered");
+      require(params[9].number==(gmt?50.f:0.f),"GMT processing limits were altered");
+    }
+  }
+}
 int main() {
   EDPARAM port;
   scalar_admission(port);protected_tracking(port);control_capture_boundaries(port);
   control_header_failures(port);control_source_identity(port);derived_geometry();captured_camera(port);
   reset_between_callbacks(port);source_between_callbacks(port);context_between_callbacks(port);
   late_owner_callbacks();
+  no_strobing_footprint();
   std::cout<<"radar camera checks="<<checks<<" failures="<<failures<<'\n';
   return failures?1:0;
 }

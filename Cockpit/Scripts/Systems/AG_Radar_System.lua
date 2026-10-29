@@ -362,7 +362,7 @@ function M:update(pose, now, dt, powered, ready)
 	local selected
 	for i=1,64 do
 		local r=m.movers[i];local prefix="F22_AG_GMT_DISPLAY_"..i.."_"
-		put(prefix.."VALID",r and (m.mode==1 or Modes.search(m.mode)) and operating and 1 or 0)
+		put(prefix.."VALID",r and Modes.search(m.mode) and operating and 1 or 0)
 		if r then
 			put(prefix.."X",r.x);put(prefix.."Y",r.y);put(prefix.."ALPHA",1-.6*r.age/6)
 		end
@@ -500,6 +500,8 @@ function M:update(pose, now, dt, powered, ready)
 	if log and log.write and (not self.next_diagnostic or now >= self.next_diagnostic or now < self.next_diagnostic - 2) then
 		self.next_diagnostic = now + 1
 		local row = {string.format("t=%.3f operating=%d range=%.0f width=%.0f gain=%.3f erase=%.0f", now, operating and 1 or 0, m.range_nm, m.width, self.video_gain, self.video_erase)}
+		row[#row+1]=string.format("HUD_TARGET=%.0f HUD_CUE=%.0f HUD_EDGE=%.0f",
+			get("HUD_AG_TARGET_VALID"),get("HUD_AG_CUE_VALID"),get("HUD_AG_EDGE_VALID"))
 		for _,name in ipairs({"RADAR_NATIVE_READY","RADAR_NATIVE_REASON","VIDEO_READY","VIDEO_REASON","VIDEO_ENABLE",
 			"EXPANSION","FAST","VIDEO_FOV_DEG","VIDEO_CENTER_M","VIDEO_SPAN_M","VIDEO_QUALIFIED",
 			"VIDEO_FROZEN","DESIGNATION_VALID","DESIGNATION_SEQUENCE","RADAR_CANDIDATE","TRACK_REQUEST_ACTIVE","TRACK_REQUEST_SEQUENCE",

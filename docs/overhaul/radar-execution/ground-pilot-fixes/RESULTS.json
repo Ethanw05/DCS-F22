@@ -1,0 +1,53 @@
+{
+  "status": "SOFTWARE_AND_PLANNED_INSTALLATION_VERIFIED",
+  "source_lua_tests": 35,
+  "planned_installed_lua": {
+    "mode": "planned_overlay",
+    "tests": 26,
+    "failures": 0,
+    "errors": 0,
+    "actual_DCS_runtime_qualified": false
+  },
+  "native_checks": {
+    "camera_and_parameters": 650,
+    "ground_api_profile": 230,
+    "video_api_profile": 516,
+    "actual_ground_callback_groups": 10,
+    "failures": 0,
+    "fixture_compile_warnings": 0
+  },
+  "full_dll_warnings": {
+    "retained_baseline": 64,
+    "changed_native_files": 0
+  },
+  "lua_lint": {
+    "runtime": "Lua5.1",
+    "version": "1.2.0",
+    "new_findings": 0,
+    "retained_baseline_findings": 60
+  },
+  "freshness_policy": ".5 seconds from original measured report; association and clock required; no RF credit during air jobs",
+  "dll": {
+    "path": "artifacts\\Release\\f22.dll",
+    "sha256": "9f6515fa51fadcdce04985c19049673c77a602c30b14436a2954806c98c8c539",
+    "native_identity": {
+      "token": "F22_NATIVE_V1|source=e750817f3580dbbd73073af482705c785b22acd0933a30ed104b27fbc1f7cd71|cache=60fe5efa021342947f6967e317d44692dc3c3d361182ed798d3d2c76e188c8d0|compiler=MSVC-19.51.36252.0|config=Release|cxx=23",
+      "rva": 541200
+    },
+    "matches_current_native_source_and_cache": true
+  },
+  "native_source_sha256": "e750817f3580dbbd73073af482705c785b22acd0933a30ed104b27fbc1f7cd71",
+  "source_stable_during_build": true,
+  "external_build": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\ground-pilot-fixes-20261028",
+  "actual_DCS_pixels_or_HUD_qualified": false,
+  "files": {
+    "EFM/source/NativeGroundSensor.cpp": "39529e0b378180f8a8779f75bcb42f7c850b60e413660be482bc0d2be1c7fc16",
+    "EFM/source/GroundVideoView.h": "864d6babcefb9b2757be2e17e72e05836ad47980e79f3fdf9df2190e84274cd4",
+    "Cockpit/Scripts/Systems/AG_Radar_System.lua": "f0506b5559b11b14914a27aff1a3ecf6bcd5b2282c71a962e3ace24d9fe6646a",
+    "Cockpit/Scripts/Systems/AG_Mark_System.lua": "b3974225ece7a04932de4ca5dd32cdd304c2b4474fc71fcbcf91cf56810049d2",
+    "Cockpit/Scripts/PMFD_CENTER/ag_radar_format.lua": "25d5d1443d31d66eb08d053ddc683ec50a5a34ba81e161702a296aed876fb194",
+    "tests/native/radar_ground_callbacks.cpp": "1e5a2ceef6b68e32cb5581ec4ef5327e29b6ee5a907db2a1da05c397d3915653",
+    "tests/native/radar_camera_admission.cpp": "f39aa0fc1339bc8a0a5ef40e509a34ca9cef424ff3c342f034adea18c65a5afb",
+    "tests/cases/test_ground_radar_pilot_fixes.py": "1ae98ef3b890994ca28be6c4568928252f2c2812c5e744bd10bb2529acc8429e"
+  }
+}

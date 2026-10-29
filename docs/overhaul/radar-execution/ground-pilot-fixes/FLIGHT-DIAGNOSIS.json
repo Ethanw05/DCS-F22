@@ -1,0 +1,52 @@
+{
+  "log": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Logs\\dcs.log",
+  "sha256": "4bc804eaae429dfd6c02e3d95b6cccb87e87e8f70f9ed71dd2f52bf41d56b32a",
+  "segments": {
+    "1": {
+      "rows": 136
+    },
+    "2": {
+      "rows": 220,
+      "type=1,memory=1,designation=0": 5,
+      "type=2,memory=1,designation=0": 45
+    },
+    "3": {
+      "rows": 214,
+      "type=3,memory=0,designation=1": 7,
+      "type=3,memory=1,designation=1": 16
+    }
+  },
+  "examples": [
+    {
+      "segment": 2,
+      "line": 12755,
+      "wall_utc": "2026-10-29 04:44:00.913",
+      "type": "1",
+      "model_time": "32.606",
+      "observation_time": "32.52",
+      "memory": "1",
+      "designation": "0"
+    },
+    {
+      "segment": 2,
+      "line": 12802,
+      "wall_utc": "2026-10-29 04:44:01.913",
+      "type": "2",
+      "model_time": "33.609",
+      "observation_time": "33.53",
+      "memory": "1",
+      "designation": "0"
+    },
+    {
+      "segment": 3,
+      "line": 29086,
+      "wall_utc": "2026-10-29 04:49:28.523",
+      "type": "3",
+      "model_time": "128.724",
+      "observation_time": "128.705",
+      "memory": "0",
+      "designation": "1"
+    }
+  ],
+  "diagnosis": "Object tracks in segment2 were all published as MEMORY and never designated. Native air-job branch forces MEMORY regardless of measurement age. MAP search bricks are deliberately ungated in current source. Bright renderer footprint follows rapidly changing native scan/cache state."
+}

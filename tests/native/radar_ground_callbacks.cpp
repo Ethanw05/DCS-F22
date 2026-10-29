@@ -337,6 +337,27 @@ void measured_association(EDPARAM& p) {
     require(coasted,"actual crossing callback retained perfect identity instead of coasting");
     std::cout<<"PASS actual callback host-ID permutation and ambiguous crossing\n";
 }
+void interleaved_track_freshness(EDPARAM& p) {
+    configure(p);scene={first_memory.data()};
+    tick(p,1,true,true,1);tick(p,1.061,false,true,1);
+    tick(p,1.2,true,true,1);tick(p,1.261,false,true,1);
+    require(value("F22_AG_NATIVE_TRACK_VALID")==1 && value("F22_AG_NATIVE_TRACK_MEMORY")==0,
+            "a measured ground track became memory merely because an air job ran");
+    const auto stamp=value("F22_AG_NATIVE_TRACK_TIME");
+    const auto queries=volume_queries;
+    tick(p,stamp+.3,false,true,1);
+    require(value("F22_AG_NATIVE_TRACK_MEMORY")==0,"current ground report lost its publication lease");
+    tick(p,stamp+.521,false,true,1);
+    require(value("F22_AG_NATIVE_TRACK_MEMORY")==1,"old ground report did not enter memory");
+    require(value("F22_AG_NATIVE_TRACK_TIME")==stamp && volume_queries==queries,
+            "air intervals renewed measurement time or created surface queries");
+    auto contact=NativeGroundSensor::selected;
+    require(!NativeGroundSensor::track_memory(contact,false,stamp+.5),"current age boundary rejected");
+    contact.association_valid=false;
+    require(NativeGroundSensor::track_memory(contact,false,stamp),"ambiguous association retained live authority");
+    require(NativeGroundSensor::track_memory(contact,false,stamp-.001),"future ground observation became live");
+    std::cout<<"PASS measured ground freshness survives interleaved air jobs without RF credit\n";
+}
 void acquisition_and_fixed(EDPARAM& p) {
     configure(p);scene={first_memory.data()};
     tick(p,1,true,true,1);require(!value("F22_AG_NATIVE_TRACK_VALID"),"cue granted immediate object track");
@@ -471,6 +492,6 @@ void publication_context_change(EDPARAM& p) {
 }
 int main() {
     EDPARAM actual;
-    query_ownership(actual);packet_admission(actual);camera_admission(actual);measured_association(actual);acquisition_and_fixed(actual);retirement(actual);mode_family(actual);publication_failure(actual);publication_context_change(actual);
+    query_ownership(actual);packet_admission(actual);camera_admission(actual);measured_association(actual);interleaved_track_freshness(actual);acquisition_and_fixed(actual);retirement(actual);mode_family(actual);publication_failure(actual);publication_context_change(actual);
     std::cout<<"Actual ground callback software ports pass; DCS ABI/lifetime/effects remain unqualified.\n";
 }

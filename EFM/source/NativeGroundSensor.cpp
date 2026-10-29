@@ -127,6 +127,15 @@ struct RangeReport { double stamp=-100, release{}, range{}, rate{};bool valid{};
 std::array<RangeReport, 4> range_pending{};
 RangeReport range_report;
 Contact selected;
+// Game publication policy, matching the existing .5-second ground packet lease.
+// An interleaved air job is not itself evidence that this measurement was lost.
+constexpr double current_track_seconds = .5;
+bool track_memory(const Contact& contact, bool terrain_fixed, double now) noexcept {
+  if (!contact.id && !terrain_fixed) return false;
+  return !std::isfinite(now) || !std::isfinite(contact.stamp) || now < contact.stamp
+    || now - contact.stamp > current_track_seconds
+    || (!terrain_fixed && !contact.association_valid);
+}
 Vec acquisition_point{};
 bool acquiring{},fixed{};
 unsigned selected_type{};
@@ -431,7 +440,7 @@ void sample(void *owned_radar, const ArrayService& service) {
     // ranging cannot bypass the common array service budget.
     if((selected.id||fixed)&&now-selected.stamp>5){selected={};fixed=false;}
     stats.contacts=measurements.contacts();stats.selected=selected;stats.selected_type=selected_type;
-    stats.fixed=fixed;stats.memory=selected.id||fixed;stats.acquiring=acquiring;
+    stats.fixed=fixed;stats.memory=track_memory(selected,fixed,now);stats.acquiring=acquiring;
     std::lock_guard<std::mutex>lock(state_mutex);if(epoch.load()==generation)output=std::move(stats);return;
   }
   void *la=api.aircraft();using Own=void*(__fastcall*)(void*);auto own_get=method<Own>(la,40);
@@ -482,7 +491,7 @@ void sample(void *owned_radar, const ArrayService& service) {
     if(measured)selected.stamp=now;
     else if(now-selected.stamp>=5+2*dt){fixed=false;selected={};}
     stats.contacts.clear();stats.selected=selected;stats.selected_type=selected_type;stats.fixed=fixed;
-    stats.memory=fixed&&!measured;stats.acquiring=false;stats.dt=dt;
+    stats.memory=track_memory(selected,fixed,now);stats.acquiring=false;stats.dt=dt;
     std::lock_guard<std::mutex>lock(state_mutex);if(epoch.load()==generation)output=std::move(stats);return;
   }
   if(selected.id&&now-selected.stamp>=2*dt+5)selected={};
@@ -550,7 +559,7 @@ void sample(void *owned_radar, const ArrayService& service) {
   }
   stats.origin=origin;stats.heading=heading;stats.az=az;stats.dt=dt;stats.contacts=measurements.contacts();
   stats.aspect=selected.velocity_valid?difference(bearing(selected.velocity),heading):0;
-  stats.selected=selected;stats.selected_type=selected_type;stats.memory=selected.id&&(!selected.association_valid||now-selected.stamp>=2*dt);stats.acquiring=acquiring;stats.fixed=fixed;
+  stats.selected=selected;stats.selected_type=selected_type;stats.memory=track_memory(selected,fixed,now);stats.acquiring=acquiring;stats.fixed=fixed;
   std::lock_guard<std::mutex>lock(state_mutex);if(epoch.load()==generation)output=std::move(stats);
 }
 namespace {

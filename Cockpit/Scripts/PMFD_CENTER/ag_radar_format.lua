@@ -214,7 +214,7 @@ for i=1,60 do
 end
 local unqualified = gate("F22_AG_RDR_MAP_UNAVAILABLE", "F22_AG_VIDEO_GEOMETRY_QUALIFIED", 0, map_mode)
 status("VIDEO",unqualified)
-group("F22_AG_GMT_MODE",{"F22_AG_MODE"},{{"parameter_in_range",0,.9,5.1}},live)
+group("F22_AG_GMT_MODE",{"F22_AG_MODE"},{{"parameter_in_range",0,1.9,5.1}},live)
 local gmt="F22_AG_GMT_MODE"
 
 
