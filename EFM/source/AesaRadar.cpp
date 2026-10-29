@@ -395,6 +395,7 @@ void Model::queue(double now, const Pose& pose, const Truth& truth, double signa
     slot->value={0,1,measured,{},now,sigma_r,sigma_a,true,false};
     slot->host = truth.id;
     slot->value.type_name=truth.type_name;
+    slot->value.coalition_affiliation = truth.coalition_affiliation;
     slot->value.measured_range=measured_range;slot->value.measured_azimuth=measured_az;
     slot->value.measured_elevation=measured_el;slot->value.measured_range_rate=range_rate;
     slot->value.rate_sigma_mps=sigma_rate;

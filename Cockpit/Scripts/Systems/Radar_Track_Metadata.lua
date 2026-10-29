@@ -2,6 +2,7 @@
 local M = {}
 local fields = {
     {"TYPE_NAME","type_name"},
+    {"COALITION_KNOWN","coalition_known"}, {"COALITION_AFFILIATION","coalition_affiliation"},
     {"POSITION_SIGMA_M","position_sigma_m"}, {"VELOCITY_SIGMA_MPS","velocity_sigma_mps"},
     {"RANGE_SIGMA_M","range_sigma_m"}, {"ANGLE_SIGMA_RAD","angle_sigma_rad"},
     {"RAW_N","raw_north"}, {"RAW_U","raw_altitude"}, {"RAW_E","raw_east"},

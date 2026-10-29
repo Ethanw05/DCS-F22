@@ -1,0 +1,77 @@
+{
+  "status": "SOURCE_AND_PLANNED_INSTALLED_SOFTWARE_VERIFIED",
+  "user_policy": "DCS coalition metadata identifies detected radar tracks independently of RWR/IFF",
+  "lua_tests": 37,
+  "native_checks": {
+    "publication_and_coalition": 6719,
+    "current_api_profile": 165,
+    "packet_admission": 185
+  },
+  "native_test_warnings": 0,
+  "native_test_failures": 0,
+  "full_dll_legacy_warnings": 64,
+  "full_dll_new_radar_warnings": 0,
+  "lua_lint": {
+    "version": "1.2.0",
+    "lua": "5.1",
+    "new_findings": 0,
+    "retained_baseline_findings": 60,
+    "display_metadata_additional_lint_new_findings": 0
+  },
+  "controller_overlay": {
+    "mode": "planned_overlay",
+    "cases": [
+      {
+        "coalition": -1,
+        "search_and_lock_color": -1,
+        "RWR_required": false,
+        "selected_friendly": 0,
+        "IFF_state_preserved": true
+      },
+      {
+        "coalition": 0,
+        "search_and_lock_color": 0,
+        "RWR_required": false,
+        "selected_friendly": 0,
+        "IFF_state_preserved": true
+      },
+      {
+        "coalition": 1,
+        "search_and_lock_color": 1,
+        "RWR_required": false,
+        "selected_friendly": 1,
+        "IFF_state_preserved": true
+      }
+    ],
+    "failures": 0,
+    "actual_DCS_runtime_qualified": false
+  },
+  "dll": {
+    "path": "artifacts\\Release\\f22.dll",
+    "sha256": "c911cf8655ec7cd226e6cd0159af8838e84e4effb91f8fc0a3122e103b00bbe0",
+    "native_identity": {
+      "token": "F22_NATIVE_V1|source=a1cf890fa22918a958a03ead18998708056229d35598d37911104f426eb31ec0|cache=568cf61c0d94256f966e894c1118e24e6173af4485518c8166f915cc12773355|compiler=MSVC-19.51.36252.0|config=Release|cxx=23",
+      "rva": 523744
+    },
+    "matches_current_native_source_and_cache": true
+  },
+  "source_stable_during_build": true,
+  "external_build": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\coalition-radar-20261028",
+  "native_source_sha256": "a1cf890fa22918a958a03ead18998708056229d35598d37911104f426eb31ec0",
+  "limitations": [
+    "No actual DCS flight or VR qualification performed.",
+    "Held Radar_System control/IFF differences and earlier Radar_Computer source/install differences are preserved by focused installation patches.",
+    "Build identity describes the current main working tree, including previously held native work; it is not a clean-HEAD-only build claim."
+  ],
+  "files": {
+    "EFM/source/AesaRadar.h": "d40c86345a9e5ad1beffdfc856ca382462393b9bd8d98a8cf5aaea1b5ef49d65",
+    "EFM/source/AesaRadar.cpp": "0378dd310b3049eba74570193bdcd03dd38a81f40a964e6d8cf600e671b0e52c",
+    "EFM/source/NativeAesaRadar.cpp": "2d94078328b06921e96611e1522be7e1dcbe7792d5a07f27c054b24b6857b159",
+    "Cockpit/Scripts/Systems/Radar_Computer.lua": "faaaf36140a1976226dfd65f243ae73e125d3b3d9827087c0ef819984b1447a5",
+    "Cockpit/Scripts/Systems/Radar_System.lua": "b7825615412b2f668d35d2f936fc0d464424b59476dd74463e0f3620194fe448",
+    "Cockpit/Scripts/Systems/Radar_Display.lua": "c96f8b8d6b574940176153f552aca0f69adb8e8feba274054e49366a0626b7b1",
+    "Cockpit/Scripts/Systems/Radar_Track_Metadata.lua": "63e126e186dc31af437733a9e4956ae278b4dc5f2370c43329f5626d6a237d86",
+    "tests/native/radar_publication.cpp": "0533c599852032aac9b4ec02d72d302f8a60bbcf6908e9672df18354d127a361",
+    "tests/cases/test_radar_coalition_metadata.py": "e06824946c2ae20b4f89ef3e908b3cb9295d01c3455b41e10fbd12107a84a585"
+  }
+}

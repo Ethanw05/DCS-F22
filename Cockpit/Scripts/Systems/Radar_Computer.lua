@@ -3,7 +3,8 @@
 -- RWS/TWS/VACQ/BORE are simulation workflows, not claimed classified F-22 logic.
 local M = { fresh_seconds = 6, support_seconds = 6, maximum_tracks = 64, maximum_hits = 255 }
 -- Keep this numerical owner independent of host globals/file loading.
-local metadata_fields = {"association_valid","filter_valid","position_sigma_m","velocity_sigma_mps","range_sigma_m",
+local metadata_fields = {"coalition_known","coalition_affiliation",
+    "association_valid","filter_valid","position_sigma_m","velocity_sigma_mps","range_sigma_m",
     "angle_sigma_rad","raw_north","raw_altitude","raw_east","measured_range","measured_azimuth",
     "measured_elevation","range_rate","rate_sigma_mps"}
 local function copy_metadata(target, observation)

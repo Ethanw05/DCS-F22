@@ -774,8 +774,9 @@ function update()
 		put(p .. "COAST", computer:quality(t) == 3 and 1 or 0)
 		put(p .. "ID", t and t.id or 0)
 		put(p .. "SOURCE", t and t.native_id or 0)
-		local affiliation = display.affiliation(t and t.iff)
-		-- A correlated emitter does not turn simulator coalition into combat ID.
+		local identity_track = t and t.stt and (locked_track or stt_observation) or t
+		local affiliation = display.affiliation(t and t.iff, identity_track, computer.clock)
+		-- Coalition metadata colors detected tracks without claiming an IFF reply.
 		put(p .. "AFFILIATION", affiliation)
 		put(p .. "ALT_VALID", t and display.finite(t.altitude) and 1 or 0)
 		put(p .. "ALT_FT", t and t.altitude and t.altitude * 3.280839895 or 0)
@@ -901,6 +902,7 @@ function update()
 	put("F22_RADAR_SELECTED_SUPPORT_ELIGIBLE", powered and ready and computer:supportable(quality_track) and 1 or 0)
 	put("F22_RADAR_SELECTED_VALID", powered and ready and (computer:quality(selected) > 0 or stt_valid) and 1 or 0)
 	local friendly = native_mode == 3 and lock_iff == 1 or native_mode ~= 3 and selected and selected.iff == 1
+	friendly = display.affiliation(friendly and 1 or -1, quality_track or stt_observation, computer.clock) == 1
 	put("F22_RADAR_SELECTED_FRIENDLY", powered and ready and friendly and 1 or 0)
 	put(
 		"F22_RADAR_SELECTED_RANGE_NM",

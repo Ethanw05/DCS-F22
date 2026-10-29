@@ -8,12 +8,19 @@ end
 function M.wrap(a)
 	return (a + pi) % (2 * pi) - pi
 end
-function M.affiliation(identification)
+function M.affiliation(identification, track, now)
+	-- User-selected simulator coalition identification, separate from IFF replies.
+	if track and track.coalition_known == 1 and track.association_valid
+		and M.finite(now) and M.finite(track.observed)
+		and now >= track.observed and now - track.observed <= 12 then
+		local side = track.coalition_affiliation
+		if side == 0 or side == 1 then return side end
+	end
 	if identification == 1 or identification == 0 then
 		return identification
-	end -- friendly
+	end
 	-- Input is the qualified track classification, not a raw IFF boolean.
-	return -1 -- disabled interrogation, missing or unknown
+	return -1 -- No current classification.
 end
 function M.point(distance, bearing, range)
 	local fraction = distance / range

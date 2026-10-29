@@ -30,6 +30,11 @@ They extend the current radar assignment and must remain open until delivered.
   protection. Keep achieved IFF distinct from passive/simulator identification;
   an alert color or missing reply cannot establish hostile identity. Diagnosis:
   [last-flight evidence](host-update/RWR-RADAR-IDENTITY-DIAGNOSIS.md).
+  The user subsequently selected coalition metadata for radar. The radar adapter
+  now carries coalition on detected reports, including non-emitting aircraft;
+  scope color and the selected-friendly flag consume it independently of IFF.
+  [Implementation and verification](coalition-identity/README.md). Flight
+  confirmation remains pending; no further identity-policy approval is required.
 
 ## Starting code and evidence
 

@@ -35,14 +35,15 @@
     {
       "id": "R-RAD-023",
       "title": "Resolve RWR/radar identity-policy mismatch",
-      "status": "diagnosed from last flight; shared identity policy and consumer integration open",
+      "status": "user selected coalition metadata; direct detected-report metadata and radar consumer implemented; flight confirmation pending",
       "packages": [
         "P-RAD-007",
         "P-WPN-004"
       ],
       "owners": "Radar scope consumer; Weapons-EW identity provider and fusion semantics",
       "evidence": "host-update/RWR-RADAR-IDENTITY-DIAGNOSIS.md",
-      "claim_limit": "RWR hostile classification uses simulator coalition metadata. Radar RF correlation carries label/signal but does not promote IFF. No achieved interrogation/reply established by this flight."
+      "claim_limit": "Coalition determines radar presentation and selected-friendly flag independently of RWR emission. It does not establish achieved IFF or qualify actual post-change flight behavior.",
+      "implementation": "coalition-identity/README.md"
     }
   ],
   "source_note": "REQUESTED-ADDITIONS.md",

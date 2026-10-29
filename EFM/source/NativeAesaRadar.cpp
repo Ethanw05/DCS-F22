@@ -82,6 +82,7 @@ struct Api {
     using Velocity = const FloatVector*(__fastcall*)(const void*);
     using Type = const unsigned char*(__fastcall*)(const void*);
     using Dead = bool(__fastcall*)(const void*);
+    using Coalition = int(__fastcall*)(const void*);
     using Flag = bool(__fastcall*)(const void*, int);
     using Position = const float*(__fastcall*)(void*);
     using Intersection = const char*(__fastcall*)(const Scene&, const Vector&, const Vector&, Vector&, double&, Vector&);
@@ -91,6 +92,7 @@ struct Api {
     void* lua_vtable{}; void* lua_update{};
     Type type{}; Dead dead{}; Position position{}; Intersection intersect{};
     Flag flag{};
+    Coalition coalition{}; // Optional metadata; absence must not disable sensing.
     void** ecm_vtable{};
     void* ecm_active{}; void* ecm_strength{};
     void** manager{}; void** land{}; void** registry{};
@@ -129,6 +131,8 @@ struct Api {
         velocity = reinterpret_cast<Velocity>(GetProcAddress(general, "?VectorVelocity@MovingObject@@UEBAAEBVVec3f@osg@@XZ"));
         type = reinterpret_cast<Type>(GetProcAddress(general, "?Type@MovingObject@@QEBAAEBVwsType@@XZ"));
         dead = reinterpret_cast<Dead>(GetProcAddress(general, "?IsDead@MovingObject@@UEBA_NXZ"));
+        coalition = reinterpret_cast<Coalition>(GetProcAddress(general,
+            "?Coalition@MovingObject@@QEBA?BW4wcCoalitionName@@XZ"));
         position = reinterpret_cast<Position>(GetProcAddress(general, "?Position@MovingObject@@UEAAAEBV?$wPosition3@M@@XZ"));
         intersect = reinterpret_cast<Intersection>(GetProcAddress(objects,
             "?intersectSegment@@YAPEBDAEBVISceneObject@@AEBVVec3d@osg@@1AEAV23@AEAN2@Z"));
@@ -209,6 +213,12 @@ Box bounds(const Pose& pose, const Beam& beam) noexcept {
         static_cast<float>(std::max(pose.position.u, end.u + u)),
         static_cast<float>(std::max(pose.position.e, end.e + e))}};
 }
+int coalition_affiliation(void* own_unit, void* other_unit) noexcept {
+    if (!api.coalition || !own_unit || !other_unit) return -1;
+    const int own = api.coalition(own_unit), other = api.coalition(other_unit);
+    if ((own != 1 && own != 2) || (other != 1 && other != 2)) return -1;
+    return own == other ? 1 : 0;
+}
 class Provider final : public Environment {
     void* own_{};
     bool airborne(void* unit) const noexcept {
@@ -230,6 +240,7 @@ class Provider final : public Environment {
         truth.velocity={velocity->n,velocity->u,velocity->e};
         // Unknown type text is deliberately empty; it never gates sensing.
         (void)scene_type(unit,truth.type_name);
+        truth.coalition_affiliation = coalition_affiliation(own_, unit);
         if (truth.id && finite(truth.position) && finite(truth.velocity)) out[count++]=truth;
         return 0;
     }
@@ -399,7 +410,8 @@ struct Parameters {
         "FORWARD_N", "FORWARD_U", "FORWARD_E", "UP_N", "UP_U", "UP_E", "RIGHT_N", "RIGHT_U", "RIGHT_E",
         "COV_00", "COV_01", "COV_02", "COV_03", "COV_04", "COV_05",
         "COV_11", "COV_12", "COV_13", "COV_14", "COV_15", "COV_22", "COV_23", "COV_24", "COV_25",
-        "COV_33", "COV_34", "COV_35", "COV_44", "COV_45", "COV_55", "ASSOCIATION_VALID"};
+        "COV_33", "COV_34", "COV_35", "COV_44", "COV_45", "COV_55", "ASSOCIATION_VALID",
+        "COALITION_KNOWN", "COALITION_AFFILIATION"};
     std::array<void*, input_names.size()> inputs{};
     std::array<void*, output_names.size()> outputs{};
     std::array<void*, 10> priorities{};
@@ -574,7 +586,11 @@ struct Parameters {
             withdraw_publication(p);
     }
     void publish_authority(EDPARAM &p, std::size_t i, const Measurement &m, bool valid) noexcept {
-        write_number(p, contacts[i].back(), valid && m.association_valid ? 1 : 0);
+        const bool associated = valid && m.association_valid;
+        const bool identified = associated && (m.coalition_affiliation == 0 || m.coalition_affiliation == 1);
+        write_number(p, contacts[i][fields.size() - 3], associated ? 1 : 0);
+        write_number(p, contacts[i][fields.size() - 2], identified ? 1 : 0);
+        write_number(p, contacts[i].back(), identified ? m.coalition_affiliation : -1);
         write_number(p, contacts[i][9], valid && m.association_valid && m.velocity_valid ? 1 : 0);
     }
     static auto contact_values(const Measurement &m) noexcept {

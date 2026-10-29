@@ -55,3 +55,7 @@ missing replies, or copy a red warning color into identity.
 
 This investigation does not implement that policy change or qualify an IFF backend.
 The existing contract remains in `chat4-weapons-ew/IFF-PROVIDER-CONTRACT.md`.
+
+Subsequent user direction selected coalition metadata for radar. The correction
+is documented in [radar coalition identification](../coalition-identity/README.md);
+the flight evidence above describes the pre-change behavior.

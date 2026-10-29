@@ -333,6 +333,88 @@ void optional_type_admission() {
     publish(10.1);
     rejected("missing label handle cannot commit a new id with unverifiable stale type");
 }
+int __fastcall fixture_coalition(const void* object) {
+    return *static_cast<const int*>(object);
+}
+class CoalitionEnvironment final : public AesaRadar::Environment {
+public:
+    int affiliation = -1;
+    bool interference(double stamp, const AesaRadar::Pose&, const AesaRadar::Beam&,
+                      AesaRadar::Interference& value, AesaRadar::QueryStats&) noexcept override {
+        value = {true, 0, stamp, 0}; // Explicit supplied environment with no interfering emitter.
+        return true;
+    }
+    bool visible(const AesaRadar::Pose&, const AesaRadar::Truth&, AesaRadar::QueryStats&) noexcept override {
+        return true;
+    }
+    bool query(const AesaRadar::Pose&, const AesaRadar::Beam&, std::span<AesaRadar::Truth> output,
+               std::size_t& count, AesaRadar::QueryStats&) noexcept override {
+        output[0] = {};
+        output[0].id = 314;
+        output[0].position = {1000, 0, 0};
+        output[0].cross_section_m2 = 1000000;
+        output[0].coalition_affiliation = affiliation;
+        count = 1;
+        return true;
+    }
+};
+void coalition_getter_cases() {
+    NativeAesaRadar::api.coalition = fixture_coalition;
+    for (int own = -1; own <= 3; ++own) {
+        for (int other = -1; other <= 3; ++other) {
+            const int expected = (own == 1 || own == 2) && (other == 1 || other == 2)
+                ? (own == other ? 1 : 0) : -1;
+            require(NativeAesaRadar::coalition_affiliation(&own, &other) == expected,
+                    "same combat side friendly, opposite hostile, neutral/unavailable unknown");
+        }
+    }
+    require(NativeAesaRadar::coalition_affiliation(nullptr, nullptr) == -1, "absent owner cannot identify");
+    int known_side = 1;
+    require(NativeAesaRadar::coalition_affiliation(&known_side, nullptr) == -1, "absent target cannot identify");
+    NativeAesaRadar::api.coalition = nullptr;
+    int side = 1;
+    require(NativeAesaRadar::coalition_affiliation(&side, &side) == -1, "optional export absence stays unknown");
+}
+void coalition_sensor_cases() {
+    for (int affiliation : {-1, 0, 1}) {
+        static AesaRadar::Model sensor;
+        sensor.reset();
+        CoalitionEnvironment environment;
+        environment.affiliation = affiliation;
+        AesaRadar::Controls controls;
+        controls.enabled = true;
+        controls.half_azimuth = controls.half_elevation = AesaRadar::degree;
+        controls.emit = false;
+        sensor.update(0, controls, {}, environment);
+        for (const auto& measurement : sensor.measurements())
+            require(!measurement.valid, "coalition metadata cannot create a detection with RF off");
+        controls.emit = true;
+        for (int step = 0; step <= 100; ++step)
+            sensor.update(step * .01, controls, {}, environment);
+        bool found = false;
+        for (const auto& measurement : sensor.measurements()) {
+            if (!measurement.valid) continue;
+            found = true;
+            require(measurement.coalition_affiliation == affiliation, "detected report preserves source coalition");
+            require(measurement.time >= 0 && measurement.time <= 1, "coalition retains measured report time");
+        }
+        require(found, "non-emitter scene target produces an actual owned sensor report");
+    }
+}
+void coalition_publication_cases() {
+    for (int affiliation : {-1, 0, 1, 2}) {
+        baseline();
+        packet.measurements[0].coalition_affiliation = affiliation;
+        publish(10);
+        const bool known = affiliation == 0 || affiliation == 1;
+        require(value("F22A_01_COALITION_KNOWN") == (known ? 1 : 0), "explicit coalition known flag");
+        require(value("F22A_01_COALITION_AFFILIATION") == (known ? affiliation : -1), "coherent coalition code");
+        packet.measurements[0].association_valid = false;
+        publish(10.1);
+        require(value("F22A_01_COALITION_KNOWN") == 0, "association loss withdraws identity without a new sample");
+        require(value("F22A_01_COALITION_AFFILIATION") == -1, "association loss clears prior coalition");
+    }
+}
 } // namespace
 int main(int argc, char **argv) {
     captures = argc == 2 && std::string(argv[1]) == "--capture";
@@ -341,6 +423,9 @@ int main(int argc, char **argv) {
     handle_failures();
     writer_and_epoch_schedules();
     optional_type_admission();
+    coalition_getter_cases();
+    coalition_sensor_cases();
+    coalition_publication_cases();
     std::cout << "publication checks=" << checks << " failures=" << failures << '\n';
     return failures ? 1 : 0;
 }
