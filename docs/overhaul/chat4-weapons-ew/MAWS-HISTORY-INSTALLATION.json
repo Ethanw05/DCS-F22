@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "feature": "temporal MAWS threat classification",
+  "status": "INSTALLED_HASH_VERIFIED_HOST_FLIGHT_PENDING",
+  "source_commit": "a849b3d144cf78165f6166ccdfcb75ead361456f",
+  "installed_utc": "2026-10-29T06:19:56.346313+00:00",
+  "mod_path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A",
+  "installed_before_dll_sha256": "974ce548c19d85655d925fe2f2db62a74ade140598f52cd6f88ee23d88e172c9",
+  "built_dll_sha256": "94e3012b8826b82ea644a49e72b1e048b4df8d85ce637a02a86c80f0dd6a122f",
+  "installed_dll_sha256": "94e3012b8826b82ea644a49e72b1e048b4df8d85ce637a02a86c80f0dd6a122f",
+  "primary_bin_sha256": "94e3012b8826b82ea644a49e72b1e048b4df8d85ce637a02a86c80f0dd6a122f",
+  "native_identity": "F22_NATIVE_V1|source=c37246e11b831c327dcf1401cea394fc246a68076603c0eb052ab78d396c639f|cache=36f1b4192586be9b3feb9ec740f53480cdeb3f16d422f4a81afcbbe6be8e1541|compiler=MSVC-19.51.36252.0|config=Release|cxx=23",
+  "lua_installed_sha256": {
+    "MWS_System.lua": "e3a70124ab8ad07cf636886e446a37c2155ce1c7e87648fd86bb8cd45800e89c",
+    "MWS_Computer.lua": "473897ed1ca3126aafcfd79c5922e005919c521a835948edeb0374dd413e50d0",
+    "MWS_Snapshot.lua": "ad3a045263af445793c62db87484a3e5887aecc4f9397963a18706a61f331133"
+  },
+  "installed_lua_before_sha256": {
+    "MWS_System.lua": "530c0231dcd7698e8c3f21c76ee315f8c9602696418ca67cd1424fda706e831d",
+    "MWS_Computer.lua": "3d13fab4f611357033c5027dfdb226869947b6aa9a529fd8646a5e0b6782221b",
+    "MWS_Snapshot.lua": null
+  },
+  "dcs_version": "2.9.31.29434",
+  "host": {
+    "CockpitBase.dll": {
+      "sha256": "fb0a09be70627c7790dea1527cedfee43082bb8b112484d5c85be1d99d33de95",
+      "timestamp": "0x6adbad09",
+      "image_size": "0x68e000"
+    },
+    "WorldGeneral.dll": {
+      "sha256": "83d36b10205234da58b4a98dd06f75a84d6f3e13826d0a123e482eb53a7b8265",
+      "timestamp": "0x6adbace0",
+      "image_size": "0x127b000"
+    },
+    "World.dll": {
+      "sha256": "80f5bb2f83db6c5023727ff5097ca98a4069ddc767a1881638fc81353b310793",
+      "timestamp": "0x6acb804e",
+      "image_size": "0x14000"
+    }
+  },
+  "build_directory": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\maws-history-2.9.31.29434",
+  "composition": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\maws-history-2.9.31.29434\\composition.json",
+  "composition_sha256": "824858b0540fe1369c4c5d0b7ab340249c6bd38c92e2c06235605e3f9008298a",
+  "source_manifest_sha256": "c37246e11b831c327dcf1401cea394fc246a68076603c0eb052ab78d396c639f",
+  "object_baseline_dll_sha256": "9f6515fa51fadcdce04985c19049673c77a602c30b14436a2954806c98c8c539",
+  "preserved_object_count": 16,
+  "method": "Rebuild NativeMWS.cpp with MawsThreat.h and generated identity; link the same 16 preserved aircraft objects as the installed MAWS-reaction DLL, including IRST and ground-radar fixes. No alternate checkout or source restore.",
+  "other_pending_native_changes_excluded": [
+    "EFM/source/AesaRadar.cpp"
+  ],
+  "checks": {
+    "native_actual_owner": "Approach/loft, outgoing/stationary, horizon, maneuver hold/expiry, pass/divergence/turnback, stale/rewind/invalid, incarnation/duplicate/capacity, publication failure pass",
+    "actual_Lua_owner_cases": 7,
+    "Lua51_compile": true,
+    "luacheck_1_2_0_new_diagnostics": 0,
+    "MSVC_19_51": "C++23 /W4 /WX /analyze; 0diagnostics",
+    "DLL_exports_preserved": 41,
+    "DLL_import_libraries_preserved": [
+      "KERNEL32.dll",
+      "MSVCP140.dll",
+      "MSVCP140_2.dll",
+      "VCRUNTIME140.dll",
+      "VCRUNTIME140_1.dll",
+      "api-ms-win-crt-heap-l1-1-0.dll",
+      "api-ms-win-crt-math-l1-1-0.dll",
+      "api-ms-win-crt-runtime-l1-1-0.dll",
+      "api-ms-win-crt-stdio-l1-1-0.dll",
+      "api-ms-win-crt-string-l1-1-0.dll"
+    ],
+    "new_policy_complexity_max": 10,
+    "native_adapter_update_exception": "94NLOC/CCN37 to111/41, documented and reviewed in MAWS-HISTORY.md"
+  },
+  "verification_artifacts": {
+    "build.log": {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\maws-history-2.9.31.29434\\build.log",
+      "sha256": "45146779c914cfdee252dd2ebbb9a47748a6b319cc6d56cc5d30aef7e62e8844"
+    },
+    "lua-owner-tests.log": {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\maws-history-2.9.31.29434\\lua-owner-tests.log",
+      "sha256": "9b43ba3066d3c188f8b3f4e8b0778ea23030ef4e436350b8ef9afa0ec0db1e75"
+    },
+    "native-owner-tests.log": {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\maws-history-2.9.31.29434\\native-owner-tests.log",
+      "sha256": "2f780bab507bd325098a55a95105750e3f9c0acf0a0e6b5294c8a5f7402cbcec"
+    },
+    "lua-checks.json": {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\maws-history-2.9.31.29434\\lua-checks.json",
+      "sha256": "86e846c2124e1974ce90bc4ae0eb10bdfa45f3905dd24abfa77f65104ec3bdfa"
+    },
+    "binary-checks.json": {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\maws-history-2.9.31.29434\\binary-checks.json",
+      "sha256": "651b4d467064bd41572c89c27df9d1d4a0b308743e1f6a36994040ca93243e28"
+    },
+    "complexity.json": {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\maws-history-2.9.31.29434\\complexity.json",
+      "sha256": "a55794739adbb335fa6c53b83b5e68975c5f8d1af2801e358401767f13597a58"
+    }
+  },
+  "protected_installed_file_count": 433,
+  "protected_manifest": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\maws-history-2.9.31.29434\\protected-files.json",
+  "protected_manifest_sha256": "0ea562710b812d3c0753e3854df7413768197be2b507a7c2c60ef072403e51b8",
+  "DCS_absent_at_copy": true,
+  "DCS_launched_or_controlled": false,
+  "backups_created": false,
+  "research": "docs/overhaul/chat4-weapons-ew/MAWS-HISTORY.md",
+  "limits": [
+    "Numerical thresholds and hold/clearance times are mod estimates, not authenticated F-22 specifications.",
+    "Initially opening observations cannot establish seeker target intent; confirmed approaches may warn when aimed elsewhere.",
+    "Native source admission/visibility and legacy lifecycle remain; no calibrated radiometry or multispectral classifier.",
+    "Actual user flight must confirm loaded identity, optical detection and sensor-to-warning timing."
+  ]
+}
