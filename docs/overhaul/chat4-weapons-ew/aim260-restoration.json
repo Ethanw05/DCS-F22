@@ -1,0 +1,42 @@
+{
+  "owner": "chat4",
+  "scope": "Restore user-requested existing AIM260 and community A/A stores; preserve normal release interlocks and unsupported A/G/pod exclusions.",
+  "before": {
+    "Cockpit/Scripts/Systems/Equipment_Profile.lua": "df3054e151939d32caffea7876be84cdaaa6a877a07c250417e828d9a1f610a8",
+    "UnitPayloads/F-22A.lua": "fd04c70bb35e4bfcd7d140d49017895f9e8ac6d08c3fea96cfeaab73bc6a97e9",
+    "tests/cases/test_store_profile.py": "49b57df16448db4bbb30d425c2f646c4f5dc9731519ea5bdf33d415a36a3cee1",
+    "tests/cases/test_weapon_release.py": "c4b1738fcf5f9a02591040122fb191e826e65ba1112075f29584392c823c6a57",
+    "docs/overhaul/integration/SELECTED-PROFILE.json": "07afae9f0656c05c37945b96dd8b12d7d7f1cfac7e5310f86afa7bffb3563c11"
+  },
+  "before_owner_reproduction": {
+    "supported": 0,
+    "station": 3,
+    "radar_inhibit": 0,
+    "native_pickle_calls": 0,
+    "bay": 1
+  },
+  "after": {
+    "Cockpit/Scripts/Systems/Equipment_Profile.lua": "7c7f4093d3cd100f38bf3345cfe0db2f0e45e461fe7c81c6ef7b9596d0676991",
+    "UnitPayloads/F-22A.lua": "3a52e2420bb9bf8e0cf7295917d411bea1a1c6f785eefec7e8545827bad4d86e",
+    "tests/cases/test_store_profile.py": "e0afe301725c59b85c756e2f4cb2dbd2ef9428e29e179d8bd5f5d3eec2932037",
+    "tests/cases/test_weapon_release.py": "06dbbbd304b11e02a0f6da88a961db69118c8bb8cfb4ac8a9475dfbb7950af72",
+    "docs/overhaul/integration/SELECTED-PROFILE.json": "c97a349ff2c1d098bcc5efe5acc14251c8ce314fa3989b56ee3612369601afe6"
+  },
+  "checks": "Five focused profile/actual-weapon-owner checks pass; before fix actual owner emitted no pickle despite open bay and valid radar support, after fix one native pickle request. Target loss still inhibits further release.",
+  "installed_utc": "2026-10-29T03:21:15.968600+00:00",
+  "installed_files": [
+    {
+      "path": "Cockpit/Scripts/Systems/Equipment_Profile.lua",
+      "sha256": "7c7f4093d3cd100f38bf3345cfe0db2f0e45e461fe7c81c6ef7b9596d0676991"
+    },
+    {
+      "path": "UnitPayloads/F-22A.lua",
+      "sha256": "3a52e2420bb9bf8e0cf7295917d411bea1a1c6f785eefec7e8545827bad4d86e"
+    }
+  ],
+  "DCS_absent_at_copy": true,
+  "DCS_launched_or_controlled": false,
+  "DLL_rebuild_required": false,
+  "user_flight": "User confirms gun and AIM9 seeker work after recovery install; AIM260 in-game launch after this Lua fix remains unverified.",
+  "log_observation": "Flight contained AIM260 type478/station3 with valid radar target9 and native prediction. Last recorded attempt shows gun trigger detents; missile firing uses Weapon Release/Pickle. Profile gate independently blocked release."
+}

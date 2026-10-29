@@ -5,6 +5,35 @@ from weapon_ports import WeaponHost
 
 
 class ReleaseTransactions(unittest.TestCase):
+    def test_aim260_reaches_native_pickle_with_current_radar_target(self):
+        h = WeaponHost()
+        h.execute("""
+            payload={[3]={count=1,CLSID='{AIM-260A}',
+                weapon={level1=4,level2=4,level3=7,level4=478}}}
+            pickle_on=0
+            local dispatch=dispatch_action
+            function dispatch_action(device,command,value)
+                if command==350 then pickle_on=pickle_on+1 end
+                return dispatch(device,command,value)
+            end
+        """)
+        h.command(10800, 2)
+        h.seed({'RADAR_PWR': 1, 'F22_RADAR_BACKEND_READY': 1,
+                'F22_RADAR_WEAPON_TARGET_ID': 9, 'F22_TWS_GUIDANCE_BACKEND_READY': 1})
+        for _ in range(15):
+            h.tick()
+        h.command(10803, 1)
+        for _ in range(30):
+            h.tick()
+        self.assertEqual(h.get('F22_WEAPON_SUPPORTED'), 1)
+        self.assertEqual(h.env.pickle_on, 1)
+        h.command(10803, 0)
+        h.seed({'F22_RADAR_WEAPON_TARGET_ID': 0})
+        h.command(10803, 1)
+        h.tick()
+        self.assertEqual(h.get('F22_MRM_RELEASE_INHIBIT'), 1)
+        self.assertEqual(h.env.pickle_on, 1)
+
     def test_only_matching_native_outcome_completes(self):
         h = WeaponHost()
         h.request()

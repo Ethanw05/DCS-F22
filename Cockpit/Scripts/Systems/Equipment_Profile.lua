@@ -5,7 +5,7 @@ local selected = {
     gins = true, gps = true, tacan = true, ils = true, radar = true,
     manual_recovery = true, advisory_terrain = true,
     targeting_pod = false, hmd = false, irds = false, carrier_acls = false,
-    autoland = false, automatic_gcas = false, additional_weapons = false,
+    autoland = false, automatic_gcas = false, additional_weapons = true,
     clear_voice_backend = false, diagnostic_weapon_truth = false,
 }
 local M = {

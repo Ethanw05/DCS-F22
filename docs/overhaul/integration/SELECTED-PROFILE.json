@@ -91,8 +91,8 @@
       "owner": "chat2"
     },
     "additional_weapons": {
-      "selected": false,
-      "decision": "Retain selected off; no complete host/evidence decision has changed applicability",
+      "selected": true,
+      "decision": "User-requested restoration of existing AIM260 and MAKO A/A native launch paths; estimated community stores remain identified. Unsupported A/G MAKO and unavailable sensor services retain their separate exclusions.",
       "owner": "chat4"
     },
     "clear_voice_backend": {

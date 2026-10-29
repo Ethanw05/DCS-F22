@@ -20,16 +20,20 @@ class StoreProfile(unittest.TestCase):
         self.assertTrue(h.env.stock.supported)
         self.assertEqual(h.env.stock.delivery, 'bomb')
 
-    def test_each_optional_family_is_selected_off_and_cannot_release(self):
+    def test_requested_community_air_to_air_stores_keep_their_launch_capability(self):
         h = self.host()
-        for identifier in ['{AIM-260A}', '{MAKO_A2A_C}', '{MAKO_A2G_C}', '{F22_IRST}']:
+        for identifier in ['{AIM-260A}', '{LAU_115_2xAIM-260A}', '{MAKO_A2A_C}']:
+            h.env.identifier = identifier
+            h.execute('store=caps.describe({CLSID=identifier,count=1,weapon={}})')
+            self.assertTrue(h.env.store.supported, identifier)
+            self.assertEqual(h.env.store.delivery, 'radar')
+            self.assertEqual(h.env.store.kind, 2)
+        self.assertTrue(h.env.profile.supports('additional_weapons'))
+        for identifier in ['{MAKO_A2G_C}', '{F22_IRST}']:
             h.env.identifier = identifier
             h.execute('store=caps.describe({CLSID=identifier,count=1,weapon={}})')
             self.assertFalse(h.env.store.supported, identifier)
-            option = h.env.store.optional_equipment
-            self.assertIsNotNone(option, identifier)
-            self.assertFalse(h.env.profile.supports(option))
-        for option in ['targeting_pod', 'hmd', 'irds', 'additional_weapons',
+        for option in ['targeting_pod', 'hmd', 'irds',
                        'carrier_acls', 'autoland', 'automatic_gcas']:
             self.assertFalse(h.env.profile.supports(option))
 
@@ -45,7 +49,7 @@ class StoreProfile(unittest.TestCase):
     def test_optional_presets_are_labelled_without_changing_mission_names(self):
         h = self.host()
         payloads = h.env.dofile((ROOT/'UnitPayloads/F-22A.lua').as_posix()).payloads
-        optional = {'{AIM-260A}', '{MAKO_A2A_C}', '{MAKO_A2G_C}', '{F22_IRST}'}
+        optional = {'{MAKO_A2G_C}', '{F22_IRST}'}
         for _, p in payloads.items():
             selected_off = any(row.CLSID in optional for _, row in p.pylons.items())
             self.assertEqual('OPTIONAL OFF' in p.displayName, selected_off, p.name)

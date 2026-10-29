@@ -1029,10 +1029,9 @@ local unitPayloads = {
 	},
 	["unitType"] = "F-22A",
 }
--- The selected public_f22_manual_recovery@1 profile leaves these families off.
+-- Existing community A/A weapons are enabled by user request. These stores remain unavailable.
 -- Keep every saved preset name/ID; carriage registration is not functionality.
 local optional_stores={
-    ['{AIM-260A}']=true, ['{MAKO_A2A_C}']=true,
     ['{MAKO_A2G_C}']=true, ['{F22_IRST}']=true,
 }
 for index=1,24 do
