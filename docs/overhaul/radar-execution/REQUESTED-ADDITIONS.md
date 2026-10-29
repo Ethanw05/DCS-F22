@@ -21,6 +21,9 @@ They extend the current radar assignment and must remain open until delivered.
   work, cancellation/recovery and measured CPU/GPU/2D/VR budgets. Select the
   documented applicable radar variant and label unsupported performance values
   as estimates. Installation and actual native qualification remain explicit.
+  The user selected optional SAR within MAP. The verified foundation and ordered
+  native scene/texture, scheduling, processing and control work are recorded in
+  [the implementation route](sar/IMPLEMENTATION.md); operational SAR remains open.
 - [ ] **R-RAD-023 — Consistent identity policy across RWR and radar.** The last
   flight logged a hostile RWR emitter while its RF-correlated selected radar
   track remained unknown/yellow. The RWR accepts DCS coalition metadata; the

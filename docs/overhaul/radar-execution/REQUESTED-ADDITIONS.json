@@ -23,13 +23,14 @@
     {
       "id": "R-RAD-022",
       "title": "Implement coherent SAR collection, formation, imagery and controls",
-      "status": "requested implementation goal; backend/texture/host/budget feasibility unresolved",
+      "status": "implementation route mapped; coherent core, scene converter and terrain provider software verified; owned texture, full scene capture and live scheduler/UI integration remain open",
       "packages": [
         "P-RAD-005",
         "P-RAD-006",
         "P-RAD-008"
       ],
       "runtime_enabled": false,
+      "implementation": "sar/IMPLEMENTATION.md",
       "supersedes": "A permanent selected-off/no-go is no longer a completion disposition for the requested feature; fail-closed runtime behavior remains required until implementation is qualified."
     },
     {

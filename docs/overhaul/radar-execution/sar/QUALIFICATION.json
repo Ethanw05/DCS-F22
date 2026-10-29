@@ -1,0 +1,211 @@
+{
+  "captured_utc": "2026-10-29T04:28:05.641719+00:00",
+  "status": "VERIFIED_STANDALONE_FOUNDATION_AND_IMPLEMENTATION_ROUTE; LIVE_HOST_CONNECTION_OPEN",
+  "user_policy": "Optional SAR selected within MAP; ordinary MAP/EXP and GMT alone do not start SAR",
+  "native_checks": {
+    "coherent_core": 9543,
+    "scene_registration": 50,
+    "failures": 0,
+    "compile_warnings": 0,
+    "compiler": "MSVC 19.51.36252.0",
+    "flags": "/std:c++latest /O2 /EHsc /MD /W4 /WX /analyze /DNOMINMAX"
+  },
+  "lua_checks": {
+    "terrain_cases": 7,
+    "failures": 0,
+    "runtime": "Lua 5.1",
+    "luacheck": "1.2.0",
+    "lint_findings": 0
+  },
+  "core_bytes": 12748704,
+  "coding_targets": {
+    "EFM/source/SarCore.h": [],
+    "EFM/source/SarCore.cpp": [
+      {
+        "function": "Sar::grid",
+        "complexity": 13,
+        "nloc": 7
+      },
+      {
+        "function": "Sar::waveform",
+        "complexity": 13,
+        "nloc": 7
+      },
+      {
+        "function": "Sar::valid_config",
+        "complexity": 12,
+        "nloc": 6
+      },
+      {
+        "function": "Sar::Core::grant_valid",
+        "complexity": 13,
+        "nloc": 9
+      },
+      {
+        "function": "Sar::Core::scene_valid",
+        "complexity": 12,
+        "nloc": 13
+      },
+      {
+        "function": "Sar::Core::work_one",
+        "complexity": 11,
+        "nloc": 16
+      }
+    ],
+    "EFM/source/SarSceneInput.h": []
+  },
+  "coding_review": "Six bounded validation/dispatch functions have complexity 11..13, above preferred 10 and below mandatory exception threshold 15. Input domains and work are bounded; no runtime adapter enabled.",
+  "source_sha256": {
+    "EFM/source/SarCore.h": "f497c4e99adf8d31ea862b1d2378890b7bc7978c05a00075b5cf1899eeaff56e",
+    "EFM/source/SarCore.cpp": "f1fe7b9812d5038df8605d795a3754e438faaa9d32b02c073873d4dafb72b926",
+    "EFM/source/SarSceneInput.h": "495758cc224f0634947768a06fbe8010dfe31e0d0aefb00abc35b3d134740d04",
+    "Cockpit/Scripts/Systems/SAR_Terrain_Scene.lua": "35a44ec510697a155d84eaa131626178b6999ec5732ec7267af8c9c3463cc92c",
+    "tests/native/radar_sar_core.cpp": "962ccbdcca1082f540a632dbe5b0e34a455d54dc24abeceef885195c24ccab84",
+    "tests/native/radar_sar_scene.cpp": "cd6847c3906f917978e1a73cef7ffde1d8298f4a6e13d1dc0d8cd212ef7787fb",
+    "tests/cases/test_radar_sar_terrain.py": "6b57538ad2b3f7635981d59a81bf495bcd5b638ad5d3b8e65728a0b3f8a589ca"
+  },
+  "shader_inputs": {
+    "D:\\DCS\\Bazar\\shaders\\enlight\\radar.fx": "719e33753046e472f1d14cc7032786f5b26672389126a3da79718786a99ecc3d",
+    "D:\\DCS\\Bazar\\shaders\\model\\functions\\radar.hlsl": "1e0fad2793b23f928aef1be48b45da1c5d9f865275bf4b793c2d638e5c4f0811"
+  },
+  "graphics_candidates": [
+    {
+      "path": "D:\\DCS\\bin-mt\\dx11backend.dll",
+      "sha256": "d19d5125939b1d81ffabb042b4d08af93fc70525fe5aa10a7c7252dee6884976",
+      "stamp": "0x6acb8051",
+      "size": "0x199000",
+      "exports": [
+        {
+          "name": "?createRenderTarget@DX11Renderer@RenderAPI@@UEAA?AV?$Ptr@UITexture@RenderAPI@@UDeleter@12@@ed@@AEBUTextureDescBackend@2@PEBD@Z",
+          "rva": "0x14650"
+        },
+        {
+          "name": "?getDevice@DX11Renderer@RenderAPI@@QEAAPEAUID3D11Device@@XZ",
+          "rva": "0x50e0"
+        },
+        {
+          "name": "?getDeviceContext@DX11Renderer@RenderAPI@@QEAAPEAUID3D11DeviceContext@@XZ",
+          "rva": "0x50f0"
+        },
+        {
+          "name": "?getRenderTargetInternal@DX11Renderer@RenderAPI@@AEAA?AV?$Ptr@UITexture@RenderAPI@@UDeleter@12@@ed@@PEBD@Z",
+          "rva": "0x162b0"
+        }
+      ]
+    },
+    {
+      "path": "D:\\DCS\\bin-mt\\Renderer.dll",
+      "sha256": "a1e857bcfee43f7bc7660ea7aba44d12ecf6c42e8a4f02b3d0240736e83d8ec9",
+      "stamp": "0x6acb804e",
+      "size": "0x1f000",
+      "exports": [
+        {
+          "name": "?pRenderApi@RenderAPI@@3PEAUIRenderAPI@1@EA",
+          "rva": "0x1a6d8"
+        },
+        {
+          "name": "?setTexturesVFS@render@@YAXV?$shared_ptr@VIVFSandbox@edvfs@@@std@@@Z",
+          "rva": "0xbd90"
+        }
+      ]
+    },
+    {
+      "path": "D:\\DCS\\bin-mt\\SceneRenderer.dll",
+      "sha256": "f1c79790c8b6f6a23b4d2baf8c174bba2bff8a8af9852a34b1e55d9d52222272",
+      "stamp": "0x6acb811a",
+      "size": "0x70000",
+      "exports": []
+    },
+    {
+      "path": "D:\\DCS\\bin-mt\\enlight.dll",
+      "sha256": "54b2aeb87ea942bf520ed9d3055cbc0121cce7002f268b2a92790bec82d93c2c",
+      "stamp": "0x6acb8107",
+      "size": "0xa9000",
+      "exports": []
+    },
+    {
+      "path": "D:\\DCS\\bin-mt\\lua-terrain.dll",
+      "sha256": "81ac570930ded453543f4a66fd1d4932a73bc735b8ab78c417db1de9399614e5",
+      "stamp": "0x6acb80e0",
+      "size": "0x11000",
+      "exports": []
+    },
+    {
+      "path": "D:\\DCS\\bin-mt\\edterrain4.dll",
+      "sha256": "70a128998c66b2804910d9d5b5afce2a5fa06f2616a4f95f019bf0a7fd24bd5e",
+      "stamp": "0x6acb80e9",
+      "size": "0x14cd000",
+      "exports": [
+        {
+          "name": "?querySurfaceMesh@ITerrainImpl4@@UEBA_NAEBV?$BoundingBoxImpl@VVec3f@osg@@@osg@@AEBVMatrixd@3@HAEAV?$vector@VVec3f@osg@@V?$allocator@VVec3f@osg@@@ed@@@ed@@AEAV?$vector@VVec3i@osg@@V?$allocator@VVec3i@osg@@@ed@@@6@@Z",
+          "rva": "0x29520"
+        },
+        {
+          "name": "?querySurfaceMesh@Surface5File@landscape5@@QEBA_NAEBUSurfaceMeshQuery@edterrain@@AEAUSurfaceMesh@4@@Z",
+          "rva": "0x272800"
+        },
+        {
+          "name": "?querySurfaceMesh@Surface5File@landscape5@@QEBA_NAEBV?$BoundingBoxImpl@VVec3f@osg@@@osg@@AEBVMatrixd@4@HAEAV?$vector@VVec3f@osg@@V?$allocator@VVec3f@osg@@@ed@@@ed@@AEAV?$vector@VVec3i@osg@@V?$allocator@VVec3i@osg@@@ed@@@7@@Z",
+          "rva": "0x273fd0"
+        },
+        {
+          "name": "?querySurfaceMeshEx@ITerrainImpl4@@UEBA_NAEBUSurfaceMeshQuery@edterrain@@AEAUSurfaceMesh@3@@Z",
+          "rva": "0x295b0"
+        },
+        {
+          "name": "?setTextureMode@ITerrainImpl4@@UEAA_N_N@Z",
+          "rva": "0x29dd0"
+        }
+      ]
+    }
+  ],
+  "confirmed_current_getters": {
+    "device": {
+      "rva": "0x50e0",
+      "instructions": [
+        {
+          "rva": "0x50e0",
+          "op": "mov rax, qword ptr [rcx + 0x28]"
+        },
+        {
+          "rva": "0x50e4",
+          "op": "ret "
+        }
+      ]
+    },
+    "context": {
+      "rva": "0x50f0",
+      "instructions": [
+        {
+          "rva": "0x50f0",
+          "op": "mov rax, qword ptr [rcx + 0x30]"
+        },
+        {
+          "rva": "0x50f4",
+          "op": "ret "
+        }
+      ]
+    }
+  },
+  "new_findings": [
+    "The current terrain provider has neither objects nor illumination-specific visibility.",
+    "The core needs tiled pulse accumulation for dense scenes beyond its current 256-scatterer limit.",
+    "SAR needs typed completed RF grants; existing surface/GMT/display work cannot supply credit.",
+    "The current ground parameter callback precedes the engine output pass, requiring a separately owned image surface/publication seam.",
+    "Small-patch GPU research is not a complete EXP footprint or DCS/VR performance qualification."
+  ],
+  "native_open_proofs": [
+    "Current texture descriptor/name registration and intrusive ownership/destructor",
+    "Permitted render phase, context lifetime/state and device replacement",
+    "Paired complete depth/unblurred-radiance/RF-visibility capture and geographic registration"
+  ],
+  "next_task": "Dedicated cockpit texture/calibration publication proof, followed by paired scene capture.",
+  "runtime_enabled": false,
+  "installed_SAR": false,
+  "DCS_launched_controlled_or_patched": false,
+  "existing_installed_mod_changed": false,
+  "external_validation_directory": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\radar-sar-implementation-20261028",
+  "external_core_directory": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\radar-sar-20261028",
+  "coverage": "Analytic, lifecycle, malformed-input and budget cases executed. Branch/decision coverage is not instrumented; live adapter and release qualification remain open.",
+  "runtime_linkage": "Current CMake glob already compiles SarCore.cpp, but there is no live Core instance, SAR scheduler grant producer or SAR cockpit image consumer. This commit adds source tracking and verified contracts without changing the installed mod."
+}
