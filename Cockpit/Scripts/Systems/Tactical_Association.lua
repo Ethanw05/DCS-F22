@@ -3,6 +3,7 @@
 local M = { maximum = 176 }
 local Geometry = dofile(LockOn_Options.script_path .. 'Systems/Tactical_Association_Geometry.lua')
 local History = dofile(LockOn_Options.script_path .. 'Systems/Tactical_Radar_History.lua')
+local Stale = dofile(LockOn_Options.script_path .. 'Systems/Tactical_Stale_Donor.lua')
 local order = {'radar', 'rf', 'mws', 'datalink', 'irst'}
 local evidence_fields = {'time', 'received', 'n', 'u', 'e', 'vn', 'vu', 've'}
 
@@ -54,7 +55,7 @@ local function merge(entries, a, b, work)
     for _, member in ipairs(right.members) do left.members[#left.members + 1] = member end
 end
 
-local function candidate(entry, other, index, score, ranked)
+local function candidate(entry, other, index, score, ranked, confirm)
     local stream = other.group
     local choice = entry.candidates[stream]
     if not choice then
@@ -68,6 +69,7 @@ local function candidate(entry, other, index, score, ranked)
     if score < choice.score then
         choice.second = choice.score
         choice.index, choice.score, choice.ranked = index, score, ranked
+        choice.confirm = confirm
     else
         choice.second = math.min(choice.second, score)
     end
@@ -107,35 +109,42 @@ local function match_pairs(entries, count, now)
         for b = a + 1, count do
             local left, right = entries[a], entries[b]
             if left.group ~= right.group then
-                local score, ranked, veto = Geometry.score(left, right, now)
+                local score, ranked, veto, confirm = Geometry.score(left, right, now)
                 if veto then left.conflicts[b] = true; right.conflicts[a] = true end
-                if not score then score, ranked = Geometry.continuity(left, right, now) end
+                if not score then
+                    score, ranked = Geometry.continuity(left, right, now)
+                    confirm = false
+                end
                 if score then
-                    candidate(left, right, b, score, ranked)
-                    candidate(right, left, a, score, ranked)
+                    candidate(left, right, b, score, ranked, confirm)
+                    candidate(right, left, a, score, ranked, confirm)
                 end
             end
         end
     end
 end
 
-local function join_pairs(entries, count, work)
+local function join_pairs(entries, count, work, stale)
+    stale:begin()
     for a = 1, count do
         local left = entries[a]
         for _, choice in pairs(left.candidates) do
             local right = entries[choice.index]
             local back = right.candidates[left.group]
             if back and back.index == a and decisive(choice) and decisive(back) then
-                merge(entries, a, choice.index, work)
+                if not choice.confirm or stale:accept(left, right) then
+                    merge(entries, a, choice.index, work)
+                end
             end
         end
     end
+    stale:finish()
 end
 
 function M.new()
     local state = {entries = {}, identities = {}, scratch = {}, used = {},
         evidence = {}, next_evidence = {},
-        next_id = 1, history = History.new(), work = {remaining = 0}}
+        next_id = 1, history = History.new(), work = {remaining = 0}, stale = Stale.new()}
 
     function state:allocate()
         local id = self.next_id
@@ -150,6 +159,7 @@ function M.new()
         clear(self.evidence)
         clear(self.next_evidence)
         clear(self.history.tracks)
+        self.stale:reset()
     end
 
     function state:prepare(batches, now, limits)
@@ -206,7 +216,7 @@ function M.new()
         local count = self:prepare(batches, now, limits)
         match_pairs(self.entries, count, now)
         self.work.remaining = M.maximum * M.maximum
-        join_pairs(self.entries, count, self.work)
+        join_pairs(self.entries, count, self.work, self.stale)
         self:publish(count)
     end
     return state

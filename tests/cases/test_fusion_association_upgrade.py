@@ -164,6 +164,71 @@ class FusionAssociationUpgrade(unittest.TestCase):
             assert(r.picture_source~=d2.picture_source)
         """)
 
+    def test_late_radar_acquisition_confirms_stale_donor_without_refreshing_it(self):
+        h = fixture()
+        h.execute("""
+            d=donor(3,800,20000,0);run(100,nil,{d});old=d.picture_source
+            r=radar(1,24000,0);r.time=120
+            run(120,{r},{d});assert(r.picture_source~=d.picture_source)
+            for j=1,4 do run(120+j*.05,{r},{d}) end
+            assert(r.picture_source~=d.picture_source)
+            r.time=120.3;r.n=24060;run(120.3,{r},{d})
+            assert(r.picture_source~=d.picture_source)
+            r.time=120.6;r.n=24120;run(120.6,{r},{d})
+            assert(r.picture_source==d.picture_source and d.picture_source==old)
+            assert(d.time==100 and d.received==100 and d.observation_known==false)
+            local D=dofile(LockOn_Options.script_path..'Systems/Datalink_Tracks.lua')
+            assert(D.position(d,120.6).n==22600)
+        """)
+
+    def test_late_match_does_not_collapse_an_ambiguous_formation(self):
+        h = fixture()
+        h.execute("""
+            d=donor(3,800,20000,0);run(100,nil,{d})
+            r1=radar(1,24000,-200);r2=radar(2,24000,200)
+            for j=0,3 do
+                local t=120+j*.3
+                r1.time=t;r2.time=t;r1.n=20000+200*(t-100);r2.n=r1.n
+                run(t,{r1,r2},{d})
+                assert(r1.picture_source~=r2.picture_source)
+                assert(d.picture_source~=r1.picture_source and d.picture_source~=r2.picture_source)
+            end
+        """)
+
+    def test_late_match_rejects_bad_velocity_uncertainty_and_changed_generation(self):
+        for mutation in ('r.vn=-200', 'r.velocity_valid=false', 'r.position_sigma_m=101',
+                         'r.velocity_sigma_mps=26', 'd.ve=0/0', 'd.received=nil'):
+            with self.subTest(mutation=mutation):
+                h = fixture()
+                h.execute('d=donor(3,800,20000,0);r=radar(1,24000,0);'+mutation+'''
+                    for j=0,3 do
+                        r.time=120+j*.3;r.n=20000+200*(r.time-100)
+                        run(r.time,{r},{d});assert(r.picture_source~=d.picture_source)
+                    end''')
+        h = fixture()
+        h.execute('''
+            d=donor(3,800,20000,0);r=radar(1,24000,0)
+            for j=0,1 do r.time=120+j*.3;r.n=20000+200*(r.time-100);run(r.time,{r},{d}) end
+            d.epoch=2;r.time=120.6;r.n=24120;run(120.6,{r},{d})
+            assert(r.picture_source~=d.picture_source)
+            r.time=120.9;r.n=24180;run(120.9,{r},{d})
+            assert(r.picture_source~=d.picture_source)
+            r.time=121.2;r.n=24240;run(121.2,{r},{d})
+            assert(r.picture_source==d.picture_source)
+        ''')
+
+    def test_established_match_survives_turn_but_changed_donor_must_requalify(self):
+        h = fixture()
+        h.execute('''
+            d=donor(3,800,20000,0);r=radar(1,20000,0)
+            run(100,{r},{d});old=r.picture_source
+            r.time=120;r.n=21000;r.e=3000;r.vn=0;r.ve=200
+            run(120,{r},{d})
+            assert(r.picture_source==old and d.picture_source==old)
+            d.n=19000;run(120.1,{r},{d})
+            assert(r.picture_source~=d.picture_source)
+        ''')
+
 
 if __name__ == '__main__':
     unittest.main()

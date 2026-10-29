@@ -38,3 +38,38 @@ all 588 runtime asset hashes verified with zero mismatches. 339 domain cases,
 12 common cases, 30 native checks and 103 installed-package cases passed. No new
 Lua or native diagnostic signatures. DCS remained closed during installation;
 post-install flight confirmation remains pending.
+
+## Radar acquisition after a donor report has gone stale
+
+Previously, only an already established match survived the donor's 13-second
+prediction limit. A radar acquisition after that point could leave two symbols.
+The new delayed matcher compares the donor's estimated motion with current
+radar position and velocity, requiring reciprocal best fit and three distinct
+radar observations spanning at least 0.5 seconds. Reprocessing the same radar
+observation does not advance confirmation. Unresolved close formations remain
+separate; changed reports, sensor generations and lost candidates reset it.
+
+This association-only estimate is limited to the donor's existing 26-second
+retention. It never moves the displayed stale donor, extends its lifetime or
+refreshes its timestamp. Once confirmed, radar supplies the fused direction and
+range, the duplicate offboard symbol disappears, and DEF shows one aircraft.
+Established associations survive radar-observed turns while the donor remains
+unchanged. New contradictory donor reports must qualify again. Missing receipt
+time cannot stand in for a known source observation clock.
+
+The conservative simulator gates require radar age at most 1 second, valid
+velocity, position sigma at most 100 m and velocity sigma at most 25 m/s. The
+position gate is 250 m plus twice radar position sigma, with velocity difference
+at most 50 m/s. These estimates are not authenticated aircraft specifications.
+At most 64 confirmation candidates persist (128 records during frame rollover),
+within the existing 176-observation pair and union work budgets. New helper
+complexity is at most 10; changed module complexity is at most 13.
+
+The last flight log remains SHA256
+5d2c20a7bc8c425b04933c321b28cb4d2973f166798ebf18e6c2f313a3af5f4d;
+no additional flight was available. Forty focused source cases and the same
+forty cases using 75 actual installed Lua dependencies pass, with zero Lua lint
+findings. Three fusion files were installed with DCS closed; the installed DLL,
+controls, audio, HUD and concurrent radar button changes were preserved.
+See [DELAYED-DONOR-INSTALLATION.json](DELAYED-DONOR-INSTALLATION.json).
+Flight confirmation remains pending.

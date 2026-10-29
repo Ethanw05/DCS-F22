@@ -1,0 +1,53 @@
+{
+  "status": "INSTALLED_HASH_VERIFIED_FLIGHT_PENDING",
+  "source_base_commit": "11453971098470bcdbb451194c17be335e6614cb",
+  "installed_root": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A",
+  "installed_at_utc": "2026-10-29T09:02:09.939330+00:00",
+  "assets": [
+    {
+      "path": "Cockpit/Scripts/Systems/Tactical_Association.lua",
+      "source_sha256": "c67f43b42f879a8f3fc2430837e24718caaf7e711aba62c87c7f38125e24da5c",
+      "installed_before_sha256": "7c8ab1ed6d40a95b0d8aa2999effdcef593c71259fdb8b11ba43d9d1a6316514"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Tactical_Association_Geometry.lua",
+      "source_sha256": "c774ca8994e5dc8d51f6bd9d5082a4c2a25e182a9aa7c99a098bf0aa8da5efa5",
+      "installed_before_sha256": "f6e1d7d2a5dfb963d85fc760e1e6e2aa485c07821ea7f8c5142b3a37360be55e"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Tactical_Stale_Donor.lua",
+      "source_sha256": "e19cc6645c32f8543c58fc8c371d6504f9b482e0629d44426ba39b0641a3d42b",
+      "installed_before_sha256": null
+    }
+  ],
+  "DLL_rebuilt": false,
+  "DLL_unchanged": true,
+  "protected_unchanged": true,
+  "DCS_operated": false,
+  "backups_created": false,
+  "source_checks": {
+    "cases": 40,
+    "passed": true,
+    "Lua51_lint_new_findings": 0,
+    "changed_module_max_complexity": 13,
+    "new_helper_max_complexity": 10
+  },
+  "installed_DLL_sha256": "27eec05d31b9c321463f007fa5053f2930e72d26616aa8b0c96558f66f3523a6",
+  "protected_file_count": 50,
+  "installed_checks": {
+    "cases": 40,
+    "passed": true,
+    "modules": [
+      "test_fusion_association_upgrade",
+      "test_fusion_lifecycle",
+      "test_fusion_presentation",
+      "test_datalink_motion",
+      "test_radar_fusion_packet"
+    ],
+    "actual_installed_dependencies": 75,
+    "source_overlays": false
+  },
+  "receipt": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\fusion-delayed-match-20261029\\install-receipt.json",
+  "flight_verified": false,
+  "scope": "Three fusion Lua files; preserves the full package baseline and subsequent radar-button installation."
+}

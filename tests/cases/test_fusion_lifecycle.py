@@ -65,6 +65,45 @@ class FusionLifecycle(unittest.TestCase):
         h.execute('store:update(100.2,{},true)')
         self.assertEqual(h.execute('return #store.contacts'), 0)
 
+    def test_late_radar_match_clears_duplicate_in_actual_map_and_def_consumers(self):
+        h = store()
+        for name in ('getHeading', 'getPitch', 'getRoll'):
+            h.sensor(name, 0)
+        h.sensor('getSelfCoordinates', (0, 0, 0))
+        h.seed({'F22_RADAR_RANGE_NM': 40, 'F22_SCOPE_01_VALID': 1, 'F22_SCOPE_01_SOURCE': 1})
+        h.execute('''
+            function get(k) return get_param_handle(k):get() end
+            function put(k,v) get_param_handle(k):set(v) end
+            situation=dofile(LockOn_Options.script_path..'Systems/Tactical_Situation.lua').new(get,put,get_base_data())
+            overview=dofile(LockOn_Options.script_path..'Systems/Defensive_Overview.lua').new(get,put,get_base_data())
+            function publish(t)
+                situation:update(t,store.contacts,true)
+                overview:update(t,store.contacts,true,false,nil)
+            end
+            store:update(100,{datalink=batch({d})},true)
+            for j=0,2 do
+                local t=120+j*.3
+                r.n=20000+200*(t-100);r.range=r.n
+                store:update(t,{radar=batch({r},j+1,1,t)},true);publish(t)
+                if j<2 then
+                    assert(#store.contacts==2 and get('F22_TSD_DL_COUNT')==1)
+                    assert(get('F22_DEF_OV_COUNT')==2)
+                end
+            end
+            assert(#store.contacts==1)
+            local track=store.contacts[1]
+            assert(track.mask==9 and track.direction_sensor=='radar')
+            assert(track.range==24120 and track.datalink_age>20)
+            assert(track.datalink.time==100 and track.datalink.received==100)
+            assert(track.datalink.observation_known==false)
+            assert(get('F22_TSD_DL_COUNT')==0 and get('F22_DEF_OV_COUNT')==1)
+            assert(get('F22_DEF_OV_01_COAST')==0 and get('F22_DEF_OV_01_RADAR')==1)
+            r.n=25400;r.range=r.n
+            store:update(127,{radar=batch({r},4,1,127)},true);publish(127)
+            assert(#store.contacts==1 and store.contacts[1].mask==1)
+            assert(store.contacts[1].datalink==nil and get('F22_TSD_DL_COUNT')==0)
+        ''')
+
     def test_actual_picture_commits_schema_and_radar_epoch(self):
         h = chain()
         self.assertEqual(h.get('F22_TACTICAL_SCHEMA'), 2)

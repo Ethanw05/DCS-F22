@@ -3,6 +3,7 @@
 local M = {}
 local RF = dofile(LockOn_Options.script_path .. 'Systems/Tactical_RF_Association.lua')
 local Datalink = dofile(LockOn_Options.script_path .. 'Systems/Datalink_Tracks.lua')
+local Stale = dofile(LockOn_Options.script_path .. 'Systems/Tactical_Stale_Donor.lua')
 local position_axes, velocity_axes = {'n', 'u', 'e'}, {'vn', 'vu', 've'}
 local leases = {radar = 6, rf = 12, mws = .5, datalink = 13, irst = 1}
 
@@ -19,7 +20,8 @@ end
 
 local function current(entry, now)
     local o = entry.observation
-    local time = entry.sensor == 'datalink' and o.observation_known == false and o.received or o.time
+    local time = o.time
+    if entry.sensor == 'datalink' and o.observation_known == false then time = o.received end
     return finite(time) and now - time >= 0 and now - time <= leases[entry.sensor]
 end
 
@@ -107,8 +109,14 @@ function M.continuity(a, b, now)
 end
 
 function M.score(a, b, now)
-    if not current(a, now) or not current(b, now) then return end
     if object_class(a) ~= object_class(b) then return end
+    -- An established unchanged donor already belongs to this object. Its old
+    -- straight-line estimate must not split the object when radar sees a turn.
+    local coast = M.continuity(a, b, now)
+    if coast then return coast, true end
+    local delayed, delayed_ranked, veto, confirm = Stale.score(a, b, now)
+    if confirm then return delayed, delayed_ranked, veto, true end
+    if not current(a, now) or not current(b, now) then return end
     local identity = ppli_rf(a, b, now) or ppli_rf(b, a, now)
     if identity then return identity, true end
     if a.position and b.position then
