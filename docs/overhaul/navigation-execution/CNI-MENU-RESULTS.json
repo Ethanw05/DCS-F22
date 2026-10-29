@@ -1,0 +1,69 @@
+{
+  "scope": "P-NAV-004 selected-off decision; ICP finite-event guard and cached parameter handles",
+  "source_parent": "35f79a9",
+  "source_sha256": "ce0de93190c130dc6e5e4ca34b9f07fdb66b526f92b52df88af9817dacbd10b3",
+  "python_lua": {
+    "focused_tests_passed": 48,
+    "CNI_menu_tests_passed": 7
+  },
+  "lua_lint": {
+    "tool": "Lua5.1 Luacheck1.2.0",
+    "new_findings": 0,
+    "retained_baseline_findings": 1
+  },
+  "bounded_input": "Six fixed intervals,57 command IDs; no saved binding or command ID changed",
+  "installed": {
+    "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Cockpit\\Scripts\\Systems\\ICP_System.lua",
+    "before_sha256": "5bef14cd3d2588b481d8d8802e7d9579c78fa8c8358065b89b1900d15abc3bc0",
+    "after_sha256": "ce0de93190c130dc6e5e4ca34b9f07fdb66b526f92b52df88af9817dacbd10b3",
+    "canonical_baseline_match_before": true,
+    "dependency_checks": {
+      "Cockpit/Scripts/Systems/UFC_Controller.lua": {
+        "source_sha256": "89ef8b98721a43bc489b1a30b1fdb87a393fd91e48afdd39caf6c9f0148e1139",
+        "installed_sha256": "89ef8b98721a43bc489b1a30b1fdb87a393fd91e48afdd39caf6c9f0148e1139",
+        "canonical_text_match": true
+      },
+      "Cockpit/Scripts/Systems/Nav_Entry.lua": {
+        "source_sha256": "0bfa2939dd1974489f1057c4ade02a6c83849c91823105ae18c368dc59a0c80b",
+        "installed_sha256": "0bfa2939dd1974489f1057c4ade02a6c83849c91823105ae18c368dc59a0c80b",
+        "canonical_text_match": true
+      },
+      "Cockpit/Scripts/Systems/Entry_Transaction.lua": {
+        "source_sha256": "71ddf8c87a28b61ea5401b3b828ce7f56a8ea4eb1f0667edfc957aeab8dfc341",
+        "installed_sha256": "71ddf8c87a28b61ea5401b3b828ce7f56a8ea4eb1f0667edfc957aeab8dfc341",
+        "canonical_text_match": true
+      },
+      "Cockpit/Scripts/Systems/Input_Value.lua": {
+        "source_sha256": "39243eb97bd1db32e5c5110cca023f7f0c9313a9ec135006e05abaa06e82370f",
+        "installed_sha256": "39243eb97bd1db32e5c5110cca023f7f0c9313a9ec135006e05abaa06e82370f",
+        "canonical_text_match": true
+      },
+      "Cockpit/Scripts/Systems/Equipment_Profile.lua": {
+        "source_sha256": "df3054e151939d32caffea7876be84cdaaa6a877a07c250417e828d9a1f610a8",
+        "installed_sha256": "df3054e151939d32caffea7876be84cdaaa6a877a07c250417e828d9a1f610a8",
+        "canonical_text_match": true
+      },
+      "Cockpit/Scripts/devices.lua": {
+        "source_sha256": "ac4a300bc1ec05561624718689349bf7526396fb933e42c7b039b6d147bae18e",
+        "installed_sha256": "ac4a300bc1ec05561624718689349bf7526396fb933e42c7b039b6d147bae18e",
+        "canonical_text_match": true
+      },
+      "Cockpit/Scripts/command_defs.lua": {
+        "source_sha256": "71f608464f3844a951df34285d1ffb7d8e0ad498d6365051aaf9858f85cdefe0",
+        "installed_sha256": "71f608464f3844a951df34285d1ffb7d8e0ad498d6365051aaf9858f85cdefe0",
+        "canonical_text_match": true
+      },
+      "Cockpit/Scripts/device_init.lua": {
+        "source_sha256": "25c278268d802ab4e49d2bbf82b033c0fd7da438c2405d4abaedb96d39a62bcd",
+        "installed_sha256": "25c278268d802ab4e49d2bbf82b033c0fd7da438c2405d4abaedb96d39a62bcd",
+        "canonical_text_match": true
+      }
+    },
+    "DCS_running_at_install": false,
+    "simulator_operated": false,
+    "DLL_or_other_assets_copied": false,
+    "saved_bindings_or_hooks_written": false,
+    "actual_installed_owner_fixture_tests_passed": 7
+  },
+  "qualification_limits": "Fixture dispatch is not an observed DCS communications menu, tuning, RX/TX/PTT or audio effect. Optional backend stays selected off; native ident/lifetime remains P-NAV-003 open."
+}

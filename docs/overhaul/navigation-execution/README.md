@@ -32,6 +32,12 @@ would deliberately withdraw unavailable indications. Shared DLL/package
 coherence must be established before installation. No weapon or radar source
 is changed by this indication/reference work.
 
+The independent ICP event/handle-cache fix is installed in the normal mod. Its
+eight script/configuration dependencies matched the existing installation, and
+seven fixture cases passed through the actual installed ICP owner. Only that
+one Lua file was copied; no DLL, binding or hook was changed. See
+`CNI-MENU-RESULTS.json`; actual DCS menu/audio operation remains unqualified.
+
 ## Remaining navigation work
 
 The subsequent received-navigation slice is described in [RADIO-CONTRACT.md](RADIO-CONTRACT.md)
@@ -45,7 +51,10 @@ Native callback drain, real reception and installation remain open.
 - P-NAV-002: remaining obsolete PMFD paths and loader/control cleanup.
 - P-NAV-003: receiver callback drain/allocator lifetime, RF age/identity and real ident;
   getter-observation freshness and context-loss withdrawal now have source tests.
-- P-NAV-004: tested selected-off clear-voice disposition and menu behavior.
+- P-NAV-004: selected-off clear-voice disposition and retained menu behavior are
+  recorded in [CNI-VOICE-DISPOSITION.md](CNI-VOICE-DISPOSITION.md) and covered by
+  seven actual-module tests. Real DCS menu/audio and any future optional backend
+  require host qualification.
 - P-NAV-005: qualified native bingo cause, warning/audio delivery and terrain checks.
 - P-NAV-006: navigation depth/applicability and independent alignment/coast evaluation.
 - P-NAV-007: matching installation and received manual approach/failure/recovery in DCS;

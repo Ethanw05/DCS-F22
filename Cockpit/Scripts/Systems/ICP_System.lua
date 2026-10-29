@@ -3,8 +3,13 @@ dofile(LockOn_Options.script_path..'devices.lua')
 dofile(LockOn_Options.script_path..'command_defs.lua')
 local dev=GetSelf()
 local decode=dofile(LockOn_Options.script_path..'Systems/Input_Value.lua')
-local function get(k)return get_param_handle(k):get()end
-local function put(k,v)get_param_handle(k):set(v)end
+local handles={}
+local function handle(key)
+ if not handles[key]then handles[key]=get_param_handle(key)end
+ return handles[key]
+end
+local function get(k)return handle(k):get()end
+local function put(k,v)handle(k):set(v)end
 local function send(owner,c,v)
  dispatch_action(owner and devices[owner]or nil,c,v or 1)
  if owner=='PILOT_WARNING_SYSTEM'then dispatch_action(devices[owner],c,0)end
@@ -18,11 +23,24 @@ for c=11030,11034 do dev:listen_command(c)end
 local pages={[3001]='COM1',[3002]='COM2',[3003]='NAV',[3004]='STPT',[3005]='ALT',[3006]='HUD',[3007]='OTHR',
  [3015]='AP',[3033]='IFF',[3034]='DVR',
  [10041]='COM1',[10042]='COM2',[10043]='NAV',[10044]='STPT',[10045]='ALT',[10046]='HUD',[10047]='AP',[10053]='OTHR',[11401]='IFF',[11402]='DVR'}
+local function finite(value)
+ return type(value)=='number'and value==value and math.abs(value)<1e9
+end
+local command_ranges={{3001,3028},{3033,3035},{10041,10053},{10989,10994},{11030,11034},{11401,11402}}
+local function registered(command)
+ for index=1,#command_ranges do
+  local range=command_ranges[index]
+  if command>=range[1]and command<=range[2]then return true end
+ end
+ return false
+end
 function post_initialize()
  held={};ui:cancel();ui.page='';ui.clock=0;ui:update(0)
  put('ICP_OPACITY',get('MAIN_POWER')>.5 and 1 or 0)
 end
 function SetCommand(c,v)
+ if not finite(c)or c%1~=0 or not registered(c)then return end
+ if v~=nil and not finite(v)then return end
  v=decode(v,devices.ICP_SYSTEM);if c==3014 and v<0 then v=-v end
  if v<=0 then held[c]=nil;return end
  -- Historical keyboard/joystick aliases are down-only impulses.
