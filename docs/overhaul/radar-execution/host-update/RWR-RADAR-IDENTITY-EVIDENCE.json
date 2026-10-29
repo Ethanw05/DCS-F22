@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "flight_date_local": "2026-10-28",
+  "timezone": "America/Denver",
+  "segment_local": "21:04:45 to 21:14:34 MDT",
+  "log": {
+    "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Logs\\dcs.log",
+    "sha256": "6826ece78997ad9686cf17ac8d582db11a49875dcf8c2b01b7f383c3bc306acc",
+    "bytes": 20263830,
+    "excerpts": [
+      {
+        "line": 35104,
+        "text": "2026-10-29 03:04:57.682 INFO    F22_EW (Main): power=1 ready=1 count=1 alert=1; id=16777472 signal=1 label=18 class=-1 bearings 16777472:346.3deg age=0.00"
+      },
+      {
+        "line": 35108,
+        "text": "2026-10-29 03:04:57.693 INFO    F22_SA (Main): file=1 source=9 iff=-1 ew=1 pri=0 sec=0 coast=0"
+      },
+      {
+        "line": 35111,
+        "text": "2026-10-29 03:04:57.736 INFO    F22_EW (Main): power=1 ready=1 count=1 alert=1; id=16777472 signal=1 label=18 class=0 bearings 16777472:346.3deg age=0.05"
+      },
+      {
+        "line": 35249,
+        "text": "2026-10-29 03:05:00.601 INFO    F22_SA (Main): file=1 source=9 iff=-1 ew=1 pri=1 sec=0 coast=0"
+      }
+    ]
+  },
+  "installed_lua": {
+    "RWR_Affiliation.lua": {
+      "sha256": "798e8964640f2d8cdcbafdcdfb5bdae133778fb54d33ccb6e544641a95de6a3a",
+      "same_as_main_after_newline_normalization": true
+    },
+    "RWR_System.lua": {
+      "sha256": "224c65718260d11e951a6da51a74d1846d9aa825d98b6edf9ffa3a2395190629",
+      "same_as_main_after_newline_normalization": true
+    },
+    "AESA_Control.lua": {
+      "sha256": "0d0b03dd675faede395f54a3311efafd8f8ebf2d0c5bad724c6dc03c37c86a37",
+      "same_as_main_after_newline_normalization": true
+    },
+    "Radar_Contact_Metadata.lua": {
+      "sha256": "91b884161fc0154444dc2f92dabda1b4ebd8b6194ff019481a74709708f6ea76",
+      "same_as_main_after_newline_normalization": true
+    },
+    "Radar_System.lua": {
+      "sha256": "19919b82af741a8f47dc10334cec1b0ce7ac547a16f66872c6d64b9e670b458c",
+      "same_as_main_after_newline_normalization": false
+    },
+    "Defensive_Contact_Indicator.lua": {
+      "sha256": "346f4f33c8b31925474e9ece0f9ada8ca22c7d3bbed0ca8eb64ba186e250342f",
+      "same_as_main_after_newline_normalization": true
+    }
+  },
+  "runtime_changes_by_this_investigation": false,
+  "conclusion": "RWR simulator-coalition affiliation and radar IFF use separate policies. Existing RF correlation transfers label/signal, not identity.",
+  "fix_status": "Open R-RAD-023; no new IFF provider or combat identity promotion."
+}

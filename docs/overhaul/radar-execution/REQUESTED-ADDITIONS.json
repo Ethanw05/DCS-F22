@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "requested_by": "user during active execution, 2026-10-28",
+  "owner": "chat3",
+  "requirements": [
+    {
+      "id": "R-RAD-021",
+      "title": "Continue measured A/A surveillance while operating A/G",
+      "status": "requested; intended air/surface service and actual A/G Lua airborne ingestion covered by new software cases; installed/runtime continuity and any needed repair remain open",
+      "packages": [
+        "P-RAD-004"
+      ],
+      "existing_source": [
+        "EFM/source/AesaRadar.cpp Model::start air/surface jobs",
+        "Cockpit/Scripts/Systems/Radar_System.lua A/G background read/update/tactical publish"
+      ],
+      "claim_limit": "Intended source path exists; observed installed behavior not qualified.",
+      "software_evidence": [
+        "model/SOFTWARE-RESULTS.json",
+        "pilot/SOFTWARE-RESULTS.json"
+      ]
+    },
+    {
+      "id": "R-RAD-022",
+      "title": "Implement coherent SAR collection, formation, imagery and controls",
+      "status": "requested implementation goal; backend/texture/host/budget feasibility unresolved",
+      "packages": [
+        "P-RAD-005",
+        "P-RAD-006",
+        "P-RAD-008"
+      ],
+      "runtime_enabled": false,
+      "supersedes": "A permanent selected-off/no-go is no longer a completion disposition for the requested feature; fail-closed runtime behavior remains required until implementation is qualified."
+    },
+    {
+      "id": "R-RAD-023",
+      "title": "Resolve RWR/radar identity-policy mismatch",
+      "status": "diagnosed from last flight; shared identity policy and consumer integration open",
+      "packages": [
+        "P-RAD-007",
+        "P-WPN-004"
+      ],
+      "owners": "Radar scope consumer; Weapons-EW identity provider and fusion semantics",
+      "evidence": "host-update/RWR-RADAR-IDENTITY-DIAGNOSIS.md",
+      "claim_limit": "RWR hostile classification uses simulator coalition metadata. Radar RF correlation carries label/signal but does not promote IFF. No achieved interrogation/reply established by this flight."
+    }
+  ],
+  "source_note": "REQUESTED-ADDITIONS.md",
+  "canonical_adoption": "Chat2 integrator owns contended BACKLOG/profile changes; requested in continuation integration file."
+}
