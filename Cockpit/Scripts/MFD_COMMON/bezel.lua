@@ -1,4 +1,25 @@
 -- GPL-3.0-or-later. One bezel geometry and one label per physical key.
+local function track_pair(panel,layout,prefix,root,native_scale,green,h)
+ -- One TRACK caption spans the two top-right keys. Vector arrowheads keep
+ -- the direction readable without depending on optional font glyphs.
+ local pair=prefix..'TRACK_PAIR'
+ local group=CreateElement('ceSimple');group.name=pair;group.parent_element=root
+ group.element_params={'F22_MFD_'..panel..'_TRACK_PAIR'}
+ group.controllers={{'parameter_in_range',0,.9,1.1}}
+ group.level=28;group.h_clip_relation=h_clip_relations.COMPARE;group.collimated=false;Add(group)
+ local left,right=layout.keys[4],layout.keys[5]
+ local caption=CreateElement('ceStringSLine');caption.name=prefix..'TRACK_CAPTION';caption.parent_element=pair
+ caption.material='F22_LCD_FONT_WHITE';caption.value='TRACK';caption.alignment='CenterCenter'
+ caption.init_pos={(left.x+right.x)/2,(left.y+right.y)/2,0};caption.stringdefs={h,h*.6,h*.06,0}
+ caption.level=28;caption.h_clip_relation=h_clip_relations.COMPARE;caption.collimated=false;Add(caption)
+ local y=math.min(left.y,right.y)-1.15*h/native_scale
+ local head=.12*(right.x-left.x)
+ local arrow=CreateElement('ceSMultiLine');arrow.name=prefix..'TRACK_ARROW';arrow.parent_element=pair
+ arrow.vertices={{left.x,y},{right.x,y},{left.x+head,y+head*.6},{left.x+head,y-head*.6},
+  {right.x-head,y+head*.6},{right.x-head,y-head*.6}}
+ arrow.indices={0,1,0,2,0,3,1,4,1,5};arrow.material=green;arrow.thickness=1.4;arrow.fuzziness=.2
+ arrow.level=28;arrow.h_clip_relation=h_clip_relations.COMPARE;arrow.collimated=false;Add(arrow)
+end
 return function(panel)
  dofile(LockOn_Options.script_path..'MFD_COMMON/definitions.lua')
  dofile(LockOn_Options.script_path..'fonts.lua');SetScale(FOV)
@@ -47,4 +68,5 @@ return function(panel)
    Add(box)
   end
  end
+ track_pair(panel,layout,prefix,root,native_scale,green,h)
 end

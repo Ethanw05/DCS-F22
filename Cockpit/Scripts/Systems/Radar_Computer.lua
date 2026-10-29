@@ -242,7 +242,7 @@ function M.new()
 			self.acquire = false
 			self.locked = false
 			self.mode = self.return_mode
-		elseif c == "next_track" then
+		elseif c == "next_track" or c == "previous_track" then
 			local ids = {}
 			for id, t in pairs(self.tracks) do
 				-- A pilot may designate a retained sensor return between
@@ -252,14 +252,15 @@ function M.new()
 				end
 			end
 			table.sort(ids)
-			local index = 0
+			local direction = c == "previous_track" and -1 or 1
+			local index = direction == -1 and 1 or 0
 			for i, id in ipairs(ids) do
 				if id == self.selected then
 					index = i
 				end
 			end
-			self.selected = ids[index % math.max(1, #ids) + 1]
-			self.cursor_follow = true
+			self.selected = #ids > 0 and ids[(index + direction - 1) % #ids + 1] or nil
+			self.cursor_follow = self.selected ~= nil
 			local t = self.selected and self.tracks[self.selected]
 			if t then
 				self.cursor_az = t.scope_az or t.az

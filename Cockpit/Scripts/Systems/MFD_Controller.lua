@@ -111,6 +111,9 @@ function M.new(param,send,ground_override)
    if self.powered and p.page==R.pages.stores then any_stores=true end
    if self.powered and p.page==R.pages.tsd and get('HUD_MODE')==7 and p.view==2 then ground_data=true end
    local controls=C.for_page(p.page,p.view,get)
+   local track_pair=controls[4] and controls[4].track_step==-1
+    and controls[5] and controls[5].track_step==1
+   put('F22_MFD_'..name..'_TRACK_PAIR',self.powered and track_pair and 1 or 0)
    for b=1,20 do
     local a=controls[b];local label=a and(a.label or(a.parameter and get(a.parameter)))or''
     if not self.powered then label=''end

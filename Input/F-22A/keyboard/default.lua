@@ -450,6 +450,8 @@ join(res.keyCommands,{
     {down=10616,value_down=1,cockpit_device_id=14,name=_('Search Width - Cycle 30 / 60 / 120 Degrees'),category=_('F-22 Radar')},
     {down=10617,value_down=1,cockpit_device_id=14,name=_('Search Volume and Cursor - Recenter'),category=_('F-22 Radar')},
     {down=10618,value_down=1,cockpit_device_id=14,name=_('Target Designation - Next Track'),category=_('F-22 Radar')},
+    {down=10653,value_down=1,cockpit_device_id=14,
+     name=_('Target Designation - Previous Track'),category=_('F-22 Radar')},
     {down=10619,value_down=1,cockpit_device_id=14,name=_('Identification - IFF Interrogate'),category=_('F-22 Radar')},
     {down=10631,value_down=1,cockpit_device_id=14,name=_('Identification - Automatic IFF On/Off'),category=_('F-22 Radar')},
 })

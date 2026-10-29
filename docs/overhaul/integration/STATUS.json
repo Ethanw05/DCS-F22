@@ -5,11 +5,12 @@
   "audit_root": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Audit\\Deep-Audit-2026-10-28-1351",
   "runtime_slot": {
     "owner": null,
-    "status": "Independent audit: all 583 runtime assets and matched DLL/build identity current;149 fresh installed checks pass and14 DCS library hashes match. Abandoned registered radar checkout removed. Cleanup partial: automatic approval review rejected file deletions;33 obsolete receipts,4 active test hooks and other inventoried old work remain. Controls/audio/HUD/passive trim recorder preserved; no DCS operation or backups.",
+    "status": "Installed radar top-row SWAP/TRACK pair:7 runtime files hash verified;31 checks pass against73 actual installed dependencies;53 protected entries and DLL unchanged. DCS absent for copy; no simulator operation or backups. Prior cleanup remains partial as recorded in cleanup_audit.",
     "source_commit": "b3688f98bcc9951e6626735a5244c4dc29f00650",
     "plan": "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/chat2-hud-designation-20261029/complete-install-plan.json",
     "receipt": "docs/overhaul/integration/COMPLETE-PACKAGE-INSTALLATION.json",
-    "cleanup_audit": "docs/overhaul/radar-execution/install-audit/RESULTS.json"
+    "cleanup_audit": "docs/overhaul/radar-execution/install-audit/RESULTS.json",
+    "radar_track_buttons_receipt": "docs/overhaul/radar-execution/track-buttons/RESULTS.json"
   },
   "leases": [
     {

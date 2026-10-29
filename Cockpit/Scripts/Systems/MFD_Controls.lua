@@ -125,7 +125,9 @@ function M.for_page(page,view,get)
    c[12]=row('RTN','view',0)
    for b,spec in ipairs({{'BORE',10605},{'VACQ',10604},{'WIDE',10622},{'RWS',10601},{'TWS',10602}})do radar(b,spec[1],spec[2]);c[b].home=true end
   else
-   radar(1,'PRI',10606);radar(2,'SEC',10628);radar(3,'SWAP',10629);radar(4,'CLR2',10630);radar(5,'IFF',10619)
+   radar(3,'SWAP',10629)
+   radar(4,'',10653);c[4].track_step=-1
+   radar(5,'',10618);c[5].track_step=1
    radar(7,'RWS/TWS',10603);c[8]=row('ACM','view',1)
    c[9]={label='NAV',device='RWR_SYSTEM',command=10915,selected=get('F22_TSD_NAV_LAYER')>.5}
    radar(19,string.format('HT %.0f',get('F22_RADAR_SEARCH_HEIGHT_DEG')),10623)
