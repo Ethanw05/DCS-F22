@@ -1,0 +1,8 @@
+{
+  "applied": false,
+  "baseline_sha256": "18df690166a301b3c0ace7039c593821a2389404c9a19cd0196e33ea7a28196d",
+  "patch_sha256": "73ac6860178e54206eed07a7d76c792680bcee88218c6722cdce0edc6d75ea5c",
+  "proposed_text_sha256": "5c9c8a08211be3107c3dd44d7ea555a1f730ca857305290e39bf1a09da3d0084",
+  "scope": "Exactvoid FinalRelease reset-before-forward only",
+  "preserves": "Control/publication/interleaving/IFF/responder/gun calculations unchanged; native deleting destructor slot1 untouched"
+}

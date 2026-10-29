@@ -1,0 +1,8 @@
+{
+  "applied": false,
+  "baseline_sha256": "18df690166a301b3c0ace7039c593821a2389404c9a19cd0196e33ea7a28196d",
+  "patch_sha256": "10a7c668247ffac30d8a2b7aeeade52f61b5b132c4c9f98a8cf47f53292a2d92",
+  "proposed_text_sha256": "df68166cbede8ecd4f5c585c6784dbd873f4f51e6aa8725b2a4742ab1b174eb5",
+  "scope": "Exact Query by-value/nativeint ignored ABI",
+  "preserves": "Control/publication/interleaving/IFF/driver/responder logic unchanged; FinalRelease typing remains separately recorded longstanding issue"
+}

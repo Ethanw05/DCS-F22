@@ -1,0 +1,113 @@
+{
+  "priority": "CURRENT_HOST_AA_RADAR_RECOVERY; SAR_FEATURE_WORK_HELD",
+  "user_confirmed_game_updated": true,
+  "user_timezone": "America/Denver;MDT UTC-06 on2026-10-28",
+  "game_version": "DCS2.9.31.29434",
+  "head": "ed26d635adb10a10fde396bf445ee38f230b9515",
+  "log": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Logs\\dcs.log",
+  "log_sha256": "f9e0bcac7267b7fe7fb9302b4a3f95b31334a846778d20cb8a95335c0a4f8e72",
+  "module_mismatches": [
+    {
+      "path": "D:\\DCS\\bin\\CockpitBase.dll",
+      "current_timestamp": "0x6adbad09",
+      "current_image_size": "0x68e000",
+      "expected_timestamp": "0x6ac12468",
+      "expected_image_size": "0x59a000",
+      "matches": false
+    },
+    {
+      "path": "D:\\DCS\\bin\\World.dll",
+      "current_timestamp": "0x6acb804e",
+      "current_image_size": "0x14000",
+      "expected_timestamp": "0x6aae1d9b",
+      "expected_image_size": "0x14000",
+      "matches": false
+    },
+    {
+      "path": "D:\\DCS\\bin\\edObjects.dll",
+      "current_timestamp": "0x6ad87426",
+      "current_image_size": "0x46000",
+      "expected_timestamp": "0x6aae1e0e",
+      "expected_image_size": "0x46000",
+      "matches": false
+    },
+    {
+      "path": "D:\\DCS\\bin\\WorldGeneral.dll",
+      "current_timestamp": "0x6adbace0",
+      "current_image_size": "0x127b000",
+      "expected_timestamp": "0x6ac122f4",
+      "expected_image_size": "0x125b000",
+      "matches": false
+    }
+  ],
+  "installed_assets": [
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\bin\\f22.dll",
+      "sha256": "c50b245ffd2c069cce105397294f9d2e17f37e5b8d5834933b4e87a309af43a5",
+      "modified_mdt": "2026-10-28T02:49:59.789901-06:00",
+      "primary_checkout_sha256": "c50b245ffd2c069cce105397294f9d2e17f37e5b8d5834933b4e87a309af43a5",
+      "note": "Primary bin is old build artifact too; current builds are external"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Cockpit\\Scripts\\Systems\\Radar_System.lua",
+      "sha256": "19919b82af741a8f47dc10334cec1b0ce7ac547a16f66872c6d64b9e670b458c",
+      "modified_mdt": "2026-10-27T23:11:05.880192-06:00",
+      "primary_checkout_sha256": "cefa7f5803d57bab1ef4b841e31c269f6b32558ba67debd8b197c6988b955e3b",
+      "note": "Installed runtime Lua differs from current primary source"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Cockpit\\Scripts\\Systems\\AESA_Control.lua",
+      "sha256": "cce16ba3ec9736706cde98cbb7f6d74a76042b0f8e617508ec364bbb9c07d923",
+      "modified_mdt": "2026-10-27T20:21:49.913741-06:00",
+      "primary_checkout_sha256": "0d0b03dd675faede395f54a3311efafd8f8ebf2d0c5bad724c6dc03c37c86a37",
+      "note": "Installed runtime Lua differs from current primary source"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Cockpit\\Scripts\\Systems\\Radar_Computer.lua",
+      "sha256": "5fc47e9123766d8cab8eaba3432c652fac3459d152b1f416a1cda3723d2ceb9f",
+      "modified_mdt": "2026-10-27T23:11:05.874042-06:00",
+      "primary_checkout_sha256": "0e5e50c84fcb14655efd292dad21097dda810eb01fb5e84386a6134f3cd25cf9",
+      "note": "Installed runtime Lua differs from current primary source"
+    }
+  ],
+  "telemetry": {
+    "F22_RADAR_STT_VALID": {
+      "samples": 2173,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "last": 0.0
+    },
+    "F22_RADAR_TRACK_COUNT": {
+      "samples": 544,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "last": 0.0
+    },
+    "F22_AESA_DRIVER_READY": {
+      "samples": 544,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "last": 0.0
+    },
+    "F22_AESA_READY": {
+      "samples": 544,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "last": 0.0
+    },
+    "F22_AESA_REASON": {
+      "samples": 544,
+      "minimum": 0.0,
+      "maximum": 2.0,
+      "last": 2.0
+    },
+    "F22_AESA_COUNT": {
+      "samples": 544,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "last": 0.0
+    }
+  },
+  "diagnosis": "AESA reason2/profile mismatch; backend never initialized and produced zero tracks throughout logged flight. Installed package also predates current source fixes. Installing current code without qualifying new host profiles would retain incompatibility.",
+  "next": "Requalify actual new native ABI/profile, rebuild combined current primary package, install under exclusive integrator slot and verify startup/track/acquisition. Preserve controls/passive recorder/recordings. No source/profile guard bypass or game intervention by this diagnosis."
+}

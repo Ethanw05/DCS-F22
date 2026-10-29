@@ -1,0 +1,11 @@
+{
+  "applied": false,
+  "path": "EFM/source/NativeAesaRadar.cpp",
+  "baseline_sha256": "18df690166a301b3c0ace7039c593821a2389404c9a19cd0196e33ea7a28196d",
+  "patch_sha256": "f065827cf2c90a2f28117caa4218c71888f59a216c26276d74eb5b3b4488665a",
+  "proposed_text_sha256": "c776ef11a664898c47c24a1296c1907e673df6cf016de0b30f932df3a54c6aed",
+  "scope": "Api include, checked PE capture/coherent bundle selection, selected qualified ECM RVAs only",
+  "preserved": "All source control/publication/interleaving/IFF/driver/responder/scene/provider code outside stated region",
+  "requires": "Surface owning AesaHostProfile.h helper exact Image/Modules/Profile/select contract",
+  "production_source_unchanged": true
+}

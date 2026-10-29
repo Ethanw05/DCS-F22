@@ -1,0 +1,85 @@
+diff --git a/EFM/source/NativeAesaRadar.cpp b/EFM/source/NativeAesaRadar.cpp
+--- a/EFM/source/NativeAesaRadar.cpp
++++ b/EFM/source/NativeAesaRadar.cpp
+@@ -14,6 +14,7 @@
+ #include <cstring>
+ #include <functional>
+ #include <limits>
++#include <utility>
+ 
+ namespace NativeAesaRadar { namespace {
+ using namespace AesaRadar;
+@@ -21,6 +22,9 @@
+ struct Box { FloatVector minimum{}, maximum{}; };
+ struct Scene {};
+ using Query = std::function<int(Scene&)>;
++// Native owns/destroys each64-byte by-value callback. RAX traversal result is ignored.
++using SceneSearch = int(__fastcall*)(void*, const Box&, unsigned, Query);
++using SceneSegment = int(__fastcall*)(void*, const Vector&, const Vector&, unsigned, Query);
+ static_assert(sizeof(Query) == 64, "Inspected MSVC DCS query ABI");
+ static_assert(sizeof(Box) == 24 && sizeof(Vector) == 24);
+ bool readable(const void* pointer, std::size_t size) noexcept {
+@@ -261,20 +265,18 @@
+     }
+     bool interference(double now, const Pose& pose, const Beam& beam,
+                       Interference& result, QueryStats& stats) noexcept override {
+-        using Search = void(__fastcall*)(void*, const Box&, unsigned, const Query&);
+         using Terrain = bool(__fastcall*)(void*, const FloatVector&, const FloatVector&);
+-        using Segment = void(__fastcall*)(void*, const Vector&, const Vector&, unsigned, const Query&);
+         result = {false, 0, now, 0};
+         void* manager = readable(api.manager, sizeof(void*)) ? *api.manager : nullptr;
+         void* land = readable(api.land, sizeof(void*)) ? *api.land : nullptr;
+-        const auto search = method<Search>(manager, 20);
+-        if (!search || !method<Terrain>(land, 15) || !method<Segment>(manager, 24)) return false;
++        const auto search = method<SceneSearch>(manager, 20);
++        if (!search || !method<Terrain>(land, 15) || !method<SceneSegment>(manager, 24)) return false;
+         ReceiverQuery context{this, &pose, &beam, &result, &stats};
+         Query each = [c = &context](Scene& scene) { return c->self->receive(scene, *c); };
+         constexpr double r = AesaReceiver::survey_range_m;
+         const Box box{{static_cast<float>(pose.position.n-r), static_cast<float>(pose.position.u-r), static_cast<float>(pose.position.e-r)},
+             {static_cast<float>(pose.position.n+r), static_cast<float>(pose.position.u+r), static_cast<float>(pose.position.e+r)}};
+-        search(manager, box, 32, each);
++        (void)search(manager, box, 32, std::move(each));
+         result.valid = context.known && !stats.truncated;
+         return result.valid;
+     }
+@@ -295,9 +297,8 @@
+     }
+     bool query(const Pose& pose, const Beam& beam, std::span<Truth> out,
+                std::size_t& count, QueryStats& stats) noexcept override {
+-        using Search = void(__fastcall*)(void*, const Box&, unsigned, const Query&);
+         void* manager = readable(api.manager, sizeof(void*)) ? *api.manager : nullptr;
+-        const auto search = method<Search>(manager, 20);
++        const auto search = method<SceneSearch>(manager, 20);
+         if (!search) return false;
+         struct Context { Provider* self; std::span<Truth> out; std::size_t* count; QueryStats* stats; };
+         Context context{this, out, &count, &stats};
+@@ -307,7 +308,7 @@
+             return c->self->candidate(scene,c->out,*c->count);
+         };
+         const auto box = bounds(pose, beam);
+-        search(manager, box, 32, each);
++        (void)search(manager, box, 32, std::move(each));
+         return true;
+     }
+     bool visible(const Pose& pose, const Truth& target, QueryStats& stats) noexcept override {
+@@ -323,9 +324,8 @@
+         return objects_visible(pose.position, target, stats);
+     }
+     bool objects_visible(Vector from, const Truth& target, QueryStats& stats) noexcept {
+-        using Segment = void(__fastcall*)(void*, const Vector&, const Vector&, unsigned, const Query&);
+         void* manager = readable(api.manager, sizeof(void*)) ? *api.manager : nullptr;
+-        const auto segment = method<Segment>(manager, 24);
++        const auto segment = method<SceneSegment>(manager, 24);
+         if (!segment) return false;
+         struct Context { Provider* self; Vector from, to; unsigned target{}, visits{}; bool blocked{}; };
+         Context context{this, from, target.position, target.id};
+@@ -337,7 +337,7 @@
+                 && fraction > .00001 && fraction < .99999) c->blocked = true;
+             return c->blocked ? 1 : 0;
+         };
+-        segment(manager, from, target.position, 35, each);
++        (void)segment(manager, from, target.position, 35, std::move(each));
+         if (context.blocked) ++stats.object_blocked;
+         if (context.visits > 32) stats.truncated = true;
+         return !context.blocked;

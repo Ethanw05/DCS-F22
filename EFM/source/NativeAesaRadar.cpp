@@ -3,6 +3,7 @@
 #include "NativeAesaRadar.h"
 #include "AesaRadar.h"
 #include "AesaReceiver.h"
+#include "AesaHostProfile.h"
 #include "NativeGroundSensor.h"
 #include "NativeGroundVideo.h"
 #include <Cockpit/CockpitAPI_Declare.h>
@@ -14,6 +15,7 @@
 #include <cstring>
 #include <functional>
 #include <limits>
+#include <utility>
 
 namespace NativeAesaRadar { namespace {
 using namespace AesaRadar;
@@ -21,6 +23,9 @@ struct FloatVector { float n{}, u{}, e{}; };
 struct Box { FloatVector minimum{}, maximum{}; };
 struct Scene {};
 using Query = std::function<int(Scene&)>;
+// Native owns/destroys each64-byte by-value callback. RAX traversal result is ignored.
+using SceneSearch = int(__fastcall*)(void*, const Box&, unsigned, Query);
+using SceneSegment = int(__fastcall*)(void*, const Vector&, const Vector&, unsigned, Query);
 static_assert(sizeof(Query) == 64, "Inspected MSVC DCS query ABI");
 static_assert(sizeof(Box) == 24 && sizeof(Vector) == 24);
 bool readable(const void* pointer, std::size_t size) noexcept {
@@ -47,15 +52,25 @@ template<class Function> Function method(void* object, std::size_t index) noexce
         || !(info.Protect & (PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE))) return nullptr;
     return reinterpret_cast<Function>(function);
 }
-bool profile(HMODULE module, DWORD stamp, DWORD size) noexcept {
+bool module_profile(HMODULE module, AesaHostProfile::Image& image) noexcept {
+    image = {};
     if (!readable(module, sizeof(IMAGE_DOS_HEADER))) return false;
     const auto base = reinterpret_cast<const std::byte*>(module);
     const auto dos = reinterpret_cast<const IMAGE_DOS_HEADER*>(module);
     if (dos->e_magic != IMAGE_DOS_SIGNATURE || dos->e_lfanew < 0 || dos->e_lfanew > 1048576) return false;
     const auto pe = reinterpret_cast<const IMAGE_NT_HEADERS64*>(base + dos->e_lfanew);
-    return readable(pe, sizeof(*pe)) && pe->Signature == IMAGE_NT_SIGNATURE
-        && pe->FileHeader.Machine == IMAGE_FILE_MACHINE_AMD64
-        && pe->FileHeader.TimeDateStamp == stamp && pe->OptionalHeader.SizeOfImage == size;
+    if (!readable(pe, sizeof(*pe)) || pe->Signature != IMAGE_NT_SIGNATURE
+        || pe->FileHeader.Machine != IMAGE_FILE_MACHINE_AMD64
+        || pe->OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR64_MAGIC) return false;
+    image = {pe->FileHeader.TimeDateStamp, pe->OptionalHeader.SizeOfImage};
+    return true;
+}
+const AesaHostProfile::Profile* qualified_profile(HMODULE common, HMODULE objects,
+                                               HMODULE world, HMODULE general) noexcept {
+    AesaHostProfile::Modules modules{};
+    if (!module_profile(common, modules.cockpit) || !module_profile(objects, modules.objects)
+        || !module_profile(world, modules.world) || !module_profile(general, modules.general)) return nullptr;
+    return AesaHostProfile::select(modules);
 }
 struct Api {
     using Clock = double(__cdecl*)();
@@ -81,11 +96,11 @@ struct Api {
     void** manager{}; void** land{}; void** registry{};
     std::atomic<bool> ready{};
     unsigned reason = 1;
-    bool initialize_ecm() noexcept {
+    bool initialize_ecm(const AesaHostProfile::Profile& selected) noexcept {
         flag = reinterpret_cast<Flag>(GetProcAddress(general, "?IsFlag@MovingObject@@QEBA?B_NH@Z"));
         const auto base = reinterpret_cast<std::byte*>(general);
-        ecm_vtable = reinterpret_cast<void**>(base + 0x1d0778);
-        ecm_active = base + 0x65bd0; ecm_strength = base + 0x65bc0;
+        ecm_vtable = reinterpret_cast<void**>(base + selected.ecm_table);
+        ecm_active = base + selected.ecm_active; ecm_strength = base + selected.ecm_strength;
         return flag && readable(ecm_vtable, 5 * sizeof(void*))
             && ecm_vtable[1] == ecm_active && ecm_vtable[4] == ecm_strength;
     }
@@ -100,10 +115,8 @@ struct Api {
         common = GetModuleHandleW(L"CockpitBase.dll"); objects = GetModuleHandleW(L"edObjects.dll");
         world = GetModuleHandleW(L"World.dll"); general = GetModuleHandleW(L"WorldGeneral.dll");
         if (!common || !objects || !world || !general) return;
-        if (!profile(common, 0x6ac12468, 0x59a000) || !profile(objects, 0x6aae1e0e, 0x46000)
-            || !profile(world, 0x6aae1d9b, 0x14000) || !profile(general, 0x6ac122f4, 0x125b000)) {
-            reason = 2; return;
-        }
+        const auto selected = qualified_profile(common, objects, world, general);
+        if (!selected) { reason = 2; return; }
         clock = reinterpret_cast<Clock>(GetProcAddress(world, "?GetModelTime@wTime@@SANXZ"));
         aircraft = reinterpret_cast<Aircraft>(GetProcAddress(common, "?c_LA@cockpit@@YAPEAVIwoLA@@XZ"));
         context = reinterpret_cast<Context>(GetProcAddress(common, "?binding_context@cockpit@@YAPEAVccCockpitContext@1@XZ"));
@@ -122,7 +135,7 @@ struct Api {
         manager = reinterpret_cast<void**>(GetProcAddress(objects, "?instance@viObjectManager@@2PEAV1@EA"));
         registry = reinterpret_cast<void**>(GetProcAddress(objects, "?instance@RegisterManager@@2PEAV1@EA"));
         land = reinterpret_cast<void**>(GetProcAddress(general, "?globalLand@@3PEAVwTerrain@@EA"));
-        const bool available = initialize_ecm() && scene_exports() && cockpit_exports();
+        const bool available = initialize_ecm(*selected) && scene_exports() && cockpit_exports();
         reason = available ? 0u : 3u;
         ready.store(available, std::memory_order_release);
     }
@@ -261,20 +274,18 @@ public:
     }
     bool interference(double now, const Pose& pose, const Beam& beam,
                       Interference& result, QueryStats& stats) noexcept override {
-        using Search = void(__fastcall*)(void*, const Box&, unsigned, const Query&);
         using Terrain = bool(__fastcall*)(void*, const FloatVector&, const FloatVector&);
-        using Segment = void(__fastcall*)(void*, const Vector&, const Vector&, unsigned, const Query&);
         result = {false, 0, now, 0};
         void* manager = readable(api.manager, sizeof(void*)) ? *api.manager : nullptr;
         void* land = readable(api.land, sizeof(void*)) ? *api.land : nullptr;
-        const auto search = method<Search>(manager, 20);
-        if (!search || !method<Terrain>(land, 15) || !method<Segment>(manager, 24)) return false;
+        const auto search = method<SceneSearch>(manager, 20);
+        if (!search || !method<Terrain>(land, 15) || !method<SceneSegment>(manager, 24)) return false;
         ReceiverQuery context{this, &pose, &beam, &result, &stats};
         Query each = [c = &context](Scene& scene) { return c->self->receive(scene, *c); };
         constexpr double r = AesaReceiver::survey_range_m;
         const Box box{{static_cast<float>(pose.position.n-r), static_cast<float>(pose.position.u-r), static_cast<float>(pose.position.e-r)},
             {static_cast<float>(pose.position.n+r), static_cast<float>(pose.position.u+r), static_cast<float>(pose.position.e+r)}};
-        search(manager, box, 32, each);
+        (void)search(manager, box, 32, std::move(each));
         result.valid = context.known && !stats.truncated;
         return result.valid;
     }
@@ -295,9 +306,8 @@ public:
     }
     bool query(const Pose& pose, const Beam& beam, std::span<Truth> out,
                std::size_t& count, QueryStats& stats) noexcept override {
-        using Search = void(__fastcall*)(void*, const Box&, unsigned, const Query&);
         void* manager = readable(api.manager, sizeof(void*)) ? *api.manager : nullptr;
-        const auto search = method<Search>(manager, 20);
+        const auto search = method<SceneSearch>(manager, 20);
         if (!search) return false;
         struct Context { Provider* self; std::span<Truth> out; std::size_t* count; QueryStats* stats; };
         Context context{this, out, &count, &stats};
@@ -307,7 +317,7 @@ public:
             return c->self->candidate(scene,c->out,*c->count);
         };
         const auto box = bounds(pose, beam);
-        search(manager, box, 32, each);
+        (void)search(manager, box, 32, std::move(each));
         return true;
     }
     bool visible(const Pose& pose, const Truth& target, QueryStats& stats) noexcept override {
@@ -323,9 +333,8 @@ public:
         return objects_visible(pose.position, target, stats);
     }
     bool objects_visible(Vector from, const Truth& target, QueryStats& stats) noexcept {
-        using Segment = void(__fastcall*)(void*, const Vector&, const Vector&, unsigned, const Query&);
         void* manager = readable(api.manager, sizeof(void*)) ? *api.manager : nullptr;
-        const auto segment = method<Segment>(manager, 24);
+        const auto segment = method<SceneSegment>(manager, 24);
         if (!segment) return false;
         struct Context { Provider* self; Vector from, to; unsigned target{}, visits{}; bool blocked{}; };
         Context context{this, from, target.position, target.id};
@@ -337,7 +346,7 @@ public:
                 && fraction > .00001 && fraction < .99999) c->blocked = true;
             return c->blocked ? 1 : 0;
         };
-        segment(manager, from, target.position, 35, each);
+        (void)segment(manager, from, target.position, 35, std::move(each));
         if (context.blocked) ++stats.object_blocked;
         if (context.visits > 32) stats.truncated = true;
         return !context.blocked;
@@ -897,12 +906,12 @@ void __fastcall driver_update(void* self) noexcept {
     reinterpret_cast<Update>(original[6])(self);
     sample(self);
 }
-void* __fastcall driver_destroy(void* self, unsigned flags) noexcept {
-    using Destroy = void*(__fastcall*)(void*, unsigned);
+void __fastcall driver_final_release(void* self) noexcept {
+    using FinalRelease = void(__fastcall*)(void*);
     const auto original = driver_original.load(std::memory_order_acquire);
-    const auto destroy = original ? reinterpret_cast<Destroy>(original[0]) : nullptr;
+    const auto release = original ? reinterpret_cast<FinalRelease>(original[0]) : nullptr;
     reset();
-    return destroy ? destroy(self, flags) : nullptr;
+    if (release) release(self);
 }
 bool bind_driver() noexcept {
     void* context = api.context();
@@ -918,7 +927,7 @@ bool bind_driver() noexcept {
     if (count < 7 || count == 64) return false;
     driver_table[0] = original[-1];
     for (std::size_t i = 0; i < count; ++i) driver_table[i + 1] = original[i];
-    driver_table[1] = reinterpret_cast<void*>(&driver_destroy);
+    driver_table[1] = reinterpret_cast<void*>(&driver_final_release);
     driver_table[7] = reinterpret_cast<void*>(&driver_update);
     driver_original = original; driver_slot = reinterpret_cast<void**>(slot);
     attach(driver);

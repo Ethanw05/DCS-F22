@@ -1,0 +1,263 @@
+{
+  "current_source_sha256": "18df690166a301b3c0ace7039c593821a2389404c9a19cd0196e33ea7a28196d",
+  "source_scope": "Api + consumed airscene interfaces; no source or simulator mutation",
+  "modules": {
+    "CockpitBase": {
+      "path": "D:\\DCS\\bin\\CockpitBase.dll",
+      "sha256": "fb0a09be70627c7790dea1527cedfee43082bb8b112484d5c85be1d99d33de95",
+      "stamp": "0x6adbad09",
+      "image_size": "0x68e000"
+    },
+    "edObjects": {
+      "path": "D:\\DCS\\bin\\edObjects.dll",
+      "sha256": "53921811f0b0ec487a7615dba8262dad622a94908c84d64528fa3fd62ea5102f",
+      "stamp": "0x6ad87426",
+      "image_size": "0x46000"
+    },
+    "World": {
+      "path": "D:\\DCS\\bin\\World.dll",
+      "sha256": "80f5bb2f83db6c5023727ff5097ca98a4069ddc767a1881638fc81353b310793",
+      "stamp": "0x6acb804e",
+      "image_size": "0x14000"
+    },
+    "WorldGeneral": {
+      "path": "D:\\DCS\\bin\\WorldGeneral.dll",
+      "sha256": "83d36b10205234da58b4a98dd06f75a84d6f3e13826d0a123e482eb53a7b8265",
+      "stamp": "0x6adbace0",
+      "image_size": "0x127b000"
+    }
+  },
+  "exports": [
+    {
+      "module": "WorldGeneral",
+      "name": "?IsFlag@MovingObject@@QEBA?B_NH@Z",
+      "current_rva": "0x838a0",
+      "present": true
+    },
+    {
+      "module": "World",
+      "name": "?GetModelTime@wTime@@SANXZ",
+      "current_rva": "0x6e00",
+      "present": true
+    },
+    {
+      "module": "CockpitBase",
+      "name": "?c_LA@cockpit@@YAPEAVIwoLA@@XZ",
+      "current_rva": "0x4f3830",
+      "present": true
+    },
+    {
+      "module": "CockpitBase",
+      "name": "?binding_context@cockpit@@YAPEAVccCockpitContext@1@XZ",
+      "current_rva": "0x2dc900",
+      "present": true
+    },
+    {
+      "module": "CockpitBase",
+      "name": "?get_wide_device@ccCockpitContext@cockpit@@QEAAPEAVavDevice@2@I@Z",
+      "current_rva": "0x2c9180",
+      "present": true
+    },
+    {
+      "module": "CockpitBase",
+      "name": "?c_mark_radar_emitter_active@cockpit@@YAX_N@Z",
+      "current_rva": "0x4f3b30",
+      "present": true
+    },
+    {
+      "module": "CockpitBase",
+      "name": "??_7avLuaDevice@cockpit@@6BccContextRelatedObject@1@@",
+      "current_rva": "0x546d38",
+      "present": true
+    },
+    {
+      "module": "CockpitBase",
+      "name": "?update@avLuaDevice@cockpit@@UEAAXXZ",
+      "current_rva": "0x3452b0",
+      "present": true
+    },
+    {
+      "module": "WorldGeneral",
+      "name": "?GetPoint@MovingObject@@UEAA?AVVec3d@osg@@XZ",
+      "current_rva": "0x83840",
+      "present": true
+    },
+    {
+      "module": "WorldGeneral",
+      "name": "?VectorVelocity@MovingObject@@UEBAAEBVVec3f@osg@@XZ",
+      "current_rva": "0x83cb0",
+      "present": true
+    },
+    {
+      "module": "WorldGeneral",
+      "name": "?Type@MovingObject@@QEBAAEBVwsType@@XZ",
+      "current_rva": "0x83c20",
+      "present": true
+    },
+    {
+      "module": "WorldGeneral",
+      "name": "?IsDead@MovingObject@@UEBA_NXZ",
+      "current_rva": "0x83880",
+      "present": true
+    },
+    {
+      "module": "WorldGeneral",
+      "name": "?Position@MovingObject@@UEAAAEBV?$wPosition3@M@@XZ",
+      "current_rva": "0x4b210",
+      "present": true
+    },
+    {
+      "module": "edObjects",
+      "name": "?intersectSegment@@YAPEBDAEBVISceneObject@@AEBVVec3d@osg@@1AEAV23@AEAN2@Z",
+      "current_rva": "0x37c0",
+      "present": true
+    },
+    {
+      "module": "edObjects",
+      "name": "?instance@viObjectManager@@2PEAV1@EA",
+      "current_rva": "0x3fae8",
+      "present": true
+    },
+    {
+      "module": "edObjects",
+      "name": "?instance@RegisterManager@@2PEAV1@EA",
+      "current_rva": "0x40060",
+      "present": true
+    },
+    {
+      "module": "WorldGeneral",
+      "name": "?globalLand@@3PEAVwTerrain@@EA",
+      "current_rva": "0x28cd10",
+      "present": true
+    }
+  ],
+  "ecm": {
+    "snapshot": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\native-host-2.9.31.29434\\WorldGeneral-stop-snapshot.dll",
+    "sha256": "2ecc3945e15e371bb20e9a52000652aac8d28e74f036865382361891f070556b",
+    "table_rva": "0x1ef6a8",
+    "entries": [
+      "0x80ac0",
+      "0x80c70",
+      "0x80dc0",
+      "0x80c60",
+      "0x80c60"
+    ],
+    "rtti": {
+      "col_rva": "0x208368",
+      "signature": 1,
+      "offset": 0,
+      "type_descriptor": "0x285f00",
+      "name": ".?AVwBaseAircraftECM@@"
+    },
+    "prefix": {
+      "vptr_offset": 0,
+      "owner_offset": 8,
+      "strength_offset": 16,
+      "prefix_bytes": 24
+    },
+    "strength_bytes": "f20f104110c3",
+    "active_bytes": "488b4908ba08000000e9222c0000"
+  },
+  "interfaces": [
+    {
+      "name": "GetPoint",
+      "proof": "current WG83840 preserves hidden result buffer RDX/RAX; restored IAT1e0068 equals original import80a868 edObjects.GetPoint@viObjectShape atfb10, which stores double components at result+0/+8/+16; calls basis getter at object+30,vslot3",
+      "shape": "Vector24byte return buffer preserved"
+    },
+    {
+      "name": "VectorVelocity",
+      "proof": "current WG83cb0 returns borrowed Vec3f atMovingObject+254; primary MovingObject andwoLABase vslot38 equals same export",
+      "shape": "const FloatVector&12bytes preserved"
+    },
+    {
+      "name": "Type/IsDead/Position",
+      "proof": "WG83c20 returnsType+1b8;83880 boolAL compares floatlife+248;4b210 returns floatwPosition3+174. Existing basis reads first3/4/8 floattriples match declared4x4 floatlayout; no direct objectoffset migration used",
+      "shape": "Existing exported signatures preserved"
+    },
+    {
+      "name": "scene conversion6/7",
+      "proof": "MovingObject secondaryISceneObject table1efc18 RTTIoffset78. Slot6\u219215d501\u2192IAT1dff00 equals original import80a700 edObjects.get_Registered@viObjectShape actual2b70 returnsRCX-78; Registered-primary slot7=4b410 returnsRCX. Identity slot1\u219215d53d/IAT1dff50\u2192edObjects.getObjectID10330 uint32EAX.",
+      "shape": "ISceneObject*\u2192Registered*\u2192MovingObject* and uint32identity preserved"
+    },
+    {
+      "name": "own aircraft40",
+      "proof": "woLABase IwoLA vtable1f2160[40]=a94b0 getMovingObject returnsRCX+8/null; RTTIprimary MovingObject-subobject at8; same nativegetter interface",
+      "shape": "IwoLA*\u2192MovingObject* preserved"
+    },
+    {
+      "name": "type text+296",
+      "proof": "Current wBaseAircraftECM constructor80780 uses owner+128hex (296) as32byte string, size+10hex/capacity+18hex,smallstring threshold15. Source type text remains optional and does not gate sensing.",
+      "shape": "Existing32byte ed::string view remains evidenced"
+    },
+    {
+      "name": "terrain15",
+      "proof": "CurrentCB42fba0..42fbb9 loads globalLand viaIAT5381d0, constructs Vec3f endpoints, calls[land.vtable+78hex] and tests boolAL; same slot15 and floats used by NativeAesa Endpoint fills42f7e7..42f806 and42f89e..42f8bb use3movss each; ALdecision42fbbb. Constness/internalterrainimplementation not inferred from client.",
+      "shape": "bool(land,constFloatVector&,constFloatVector&)"
+    },
+    {
+      "name": "scene search20",
+      "proof": "Current edObjects factoryae20\u2192ctor92a0 writes manager vtable2a940. Direct current file entries19=c290,20=c100,24=c9d0 rechecked. Slot20 c13e..c156 copies24byte floatAABB; R8Dmask, R9callback+38hex holder. c1ab..c1c0 destroys received callback and clears holder: owned BY-VALUE64byte std::function, notconstref. Returns int traversal result.",
+      "shape": "int(manager,constBox&,unsigned,Query BYVALUE); Query callback result native QueryObjectBehavior enum32, Source int preserves representation0/1"
+    },
+    {
+      "name": "segment24",
+      "proof": "Current manager vtable2a940[24]=c9d0. c9f5 saves R9Dmask, RDX/R8 endpoint refs, callback5thstackarg. ca0c..ca4e reads3doubles each at0/8/16; callback+38hex holder is destroyed and cleared by callee. Native result int ignored by existing adapter policy.",
+      "shape": "int(manager,constVector24&,constVector24&,unsigned,Query BYVALUE)"
+    },
+    {
+      "name": "driver/responder",
+      "proof": "CurrentCB avLua vtable546d38 slot6 update3452b0,15executable entries. Slot0FinalRelease/slot1deletingdtor organization also present in old163d5516 binary. Current responder table556f40 has dtor/tracking/target/range4slots;4300d7..4300e2 stores responderthis+c0 into context+100hex, ctor2d89fc zeros slot.",
+      "shape": "Update6/respondercontext256 preserved; longstanding FinalRelease wrapper typing distinguished from update failure"
+    },
+    {
+      "name": "RCS",
+      "proof": "Actual NativeAesa candidate does not call nativeRCS virtual. AesaRadar::Truth.cross_section_m2 defaults to1m\u00b2 explicitly estimated. GroundSensorRCS59\u21926 is separate scope.",
+      "shape": "No new authenticated RCS claim"
+    },
+    {
+      "name": "simulator-assisted gun motion",
+      "proof": "Current MovingObject/woLABase primary slots73/74/75 equal exact exported float Nx/Ny/Nz at80120/83960/80120. Ny usesmovss float1.0, Nx/Nz zeroXMM0; decoratedM declaresfloat. ModelInstance RTTIoffsetMovingObject30hex (woLABase38hex=MovingObject8+30) andslot3=4b220, which subtracts30 then dispatches MovingObject14=4b210, the verifiedfloatwPosition3 reference. CurrentCB resolver2fe650 calls RegisterManager2 thenRegistered7; current velocity38=83cb0 verified.",
+      "shape": "Existing floatg-load/orientation/registry port supported statically; no new flight/calibration claim"
+    }
+  ],
+  "unresolved": [
+    "Actual callback serialization, borrowed object lifetime, concrete live scene/LOS effects and loaded/installed identity require host qualification",
+    "Query callbackint retains native32bit QueryObjectBehavior0/1 representation; no additional enum semantics invented",
+    "FinalRelease fixture verifies sequential reset-before-forward only, not concurrent destruction/reentrancy or borrowed-object lifetime"
+  ],
+  "effects": "No DCS process access/control, installation, DLL invocation, flag bypass or simulator operation by this owner",
+  "known_query_abi_correction": {
+    "previous": "Source used void Search/Segment(...,constQuery&)",
+    "current_proposal": "Exact native int return and Query BYVALUE, calls std::move(each); result explicitly(void)ignored",
+    "reason": "callee destroys received holder and clears it; caller passes consumed temporary. Indirect-pointer machine shape explains priorphysicaloperation but does not make constref ownership declaration correct",
+    "preserved": "No receiver/control/track/visibility policy or callback values changed"
+  },
+  "known_final_release_issue": {
+    "old_table": "455618 slot0\u219242a52c\u2192IAT449b88",
+    "current_table": "546d38 slot0\u2192518fbc\u2192IAT538ba0",
+    "same_import": "edCore.?FinalRelease@?$FakeUnknown@VIdentifiable@Common@@@Common@@EEAAXXZ",
+    "current_deleting_destructor": "slot1\u21923159e0; update remains slot6\u21923452b0",
+    "disposition": "Corrected in the UNAPPLIED combined proposal: exact void(void*) hook/original type, reset before single forward; deleting destructor slot1 unchanged; no teardown redesign"
+  },
+  "peer_evidence": [
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Documents\\ChatGPT\\F22 MOD\\radar-current-host\\ground\\EDOBJECTS-MANAGER-SLOTS.txt",
+      "sha256": "bc5d1d791b38ecedf914f593108b4d94bb784fab3c9b747d1b41779d915731bb"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Documents\\ChatGPT\\F22 MOD\\radar-current-host\\ground\\ASSESSMENT.json",
+      "sha256": "efe5610b6b253656a351f0482272e88da8c0b483087d7e164cc78730fc7e0578"
+    }
+  ],
+  "primary_source_unchanged": true,
+  "all_other_native_aesa_source_preserved": {
+    "anchor": "struct Request {",
+    "normalized_tail_sha256": "9371f535c2c923a9a3faba59ccd750b904036aa414e1cd25ee921c1461dae42e",
+    "exact_equal_except": [
+      "Exact FinalRelease(void*) wrapper",
+      "Slot0 clone pointer renamed to exact wrapper"
+    ],
+    "comparison_passed": true,
+    "scope": "All request/control/publication/interleaving/IFF/responder/gun/bridge/reset code unchanged outside declared two FinalRelease hunks"
+  }
+}

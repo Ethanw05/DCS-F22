@@ -1,0 +1,27 @@
+[
+  {
+    "name": "NativeAesaRadar::module_profile",
+    "cc": 9,
+    "nloc": 13
+  },
+  {
+    "name": "NativeAesaRadar::qualified_profile",
+    "cc": 5,
+    "nloc": 7
+  },
+  {
+    "name": "NativeAesaRadar::Api::initialize_ecm",
+    "cc": 4,
+    "nloc": 8
+  },
+  {
+    "name": "NativeAesaRadar::Api::initialize",
+    "cc": 11,
+    "nloc": 29
+  },
+  {
+    "name": "NativeAesaRadar::driver_final_release",
+    "cc": 3,
+    "nloc": 7
+  }
+]

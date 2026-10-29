@@ -1,0 +1,78 @@
+diff --git a/EFM/source/NativeAesaRadar.cpp b/EFM/source/NativeAesaRadar.cpp
+--- a/EFM/source/NativeAesaRadar.cpp
++++ b/EFM/source/NativeAesaRadar.cpp
+@@ -3,6 +3,7 @@
+ #include "NativeAesaRadar.h"
+ #include "AesaRadar.h"
+ #include "AesaReceiver.h"
++#include "AesaHostProfile.h"
+ #include "NativeGroundSensor.h"
+ #include "NativeGroundVideo.h"
+ #include <Cockpit/CockpitAPI_Declare.h>
+@@ -47,15 +48,25 @@
+         || !(info.Protect & (PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE))) return nullptr;
+     return reinterpret_cast<Function>(function);
+ }
+-bool profile(HMODULE module, DWORD stamp, DWORD size) noexcept {
++bool module_profile(HMODULE module, AesaHostProfile::Image& image) noexcept {
++    image = {};
+     if (!readable(module, sizeof(IMAGE_DOS_HEADER))) return false;
+     const auto base = reinterpret_cast<const std::byte*>(module);
+     const auto dos = reinterpret_cast<const IMAGE_DOS_HEADER*>(module);
+     if (dos->e_magic != IMAGE_DOS_SIGNATURE || dos->e_lfanew < 0 || dos->e_lfanew > 1048576) return false;
+     const auto pe = reinterpret_cast<const IMAGE_NT_HEADERS64*>(base + dos->e_lfanew);
+-    return readable(pe, sizeof(*pe)) && pe->Signature == IMAGE_NT_SIGNATURE
+-        && pe->FileHeader.Machine == IMAGE_FILE_MACHINE_AMD64
+-        && pe->FileHeader.TimeDateStamp == stamp && pe->OptionalHeader.SizeOfImage == size;
++    if (!readable(pe, sizeof(*pe)) || pe->Signature != IMAGE_NT_SIGNATURE
++        || pe->FileHeader.Machine != IMAGE_FILE_MACHINE_AMD64
++        || pe->OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR64_MAGIC) return false;
++    image = {pe->FileHeader.TimeDateStamp, pe->OptionalHeader.SizeOfImage};
++    return true;
++}
++const AesaHostProfile::Profile* qualified_profile(HMODULE common, HMODULE objects,
++                                               HMODULE world, HMODULE general) noexcept {
++    AesaHostProfile::Modules modules{};
++    if (!module_profile(common, modules.cockpit) || !module_profile(objects, modules.objects)
++        || !module_profile(world, modules.world) || !module_profile(general, modules.general)) return nullptr;
++    return AesaHostProfile::select(modules);
+ }
+ struct Api {
+     using Clock = double(__cdecl*)();
+@@ -81,11 +92,11 @@
+     void** manager{}; void** land{}; void** registry{};
+     std::atomic<bool> ready{};
+     unsigned reason = 1;
+-    bool initialize_ecm() noexcept {
++    bool initialize_ecm(const AesaHostProfile::Profile& selected) noexcept {
+         flag = reinterpret_cast<Flag>(GetProcAddress(general, "?IsFlag@MovingObject@@QEBA?B_NH@Z"));
+         const auto base = reinterpret_cast<std::byte*>(general);
+-        ecm_vtable = reinterpret_cast<void**>(base + 0x1d0778);
+-        ecm_active = base + 0x65bd0; ecm_strength = base + 0x65bc0;
++        ecm_vtable = reinterpret_cast<void**>(base + selected.ecm_table);
++        ecm_active = base + selected.ecm_active; ecm_strength = base + selected.ecm_strength;
+         return flag && readable(ecm_vtable, 5 * sizeof(void*))
+             && ecm_vtable[1] == ecm_active && ecm_vtable[4] == ecm_strength;
+     }
+@@ -100,10 +111,8 @@
+         common = GetModuleHandleW(L"CockpitBase.dll"); objects = GetModuleHandleW(L"edObjects.dll");
+         world = GetModuleHandleW(L"World.dll"); general = GetModuleHandleW(L"WorldGeneral.dll");
+         if (!common || !objects || !world || !general) return;
+-        if (!profile(common, 0x6ac12468, 0x59a000) || !profile(objects, 0x6aae1e0e, 0x46000)
+-            || !profile(world, 0x6aae1d9b, 0x14000) || !profile(general, 0x6ac122f4, 0x125b000)) {
+-            reason = 2; return;
+-        }
++        const auto selected = qualified_profile(common, objects, world, general);
++        if (!selected) { reason = 2; return; }
+         clock = reinterpret_cast<Clock>(GetProcAddress(world, "?GetModelTime@wTime@@SANXZ"));
+         aircraft = reinterpret_cast<Aircraft>(GetProcAddress(common, "?c_LA@cockpit@@YAPEAVIwoLA@@XZ"));
+         context = reinterpret_cast<Context>(GetProcAddress(common, "?binding_context@cockpit@@YAPEAVccCockpitContext@1@XZ"));
+@@ -122,7 +131,7 @@
+         manager = reinterpret_cast<void**>(GetProcAddress(objects, "?instance@viObjectManager@@2PEAV1@EA"));
+         registry = reinterpret_cast<void**>(GetProcAddress(objects, "?instance@RegisterManager@@2PEAV1@EA"));
+         land = reinterpret_cast<void**>(GetProcAddress(general, "?globalLand@@3PEAVwTerrain@@EA"));
+-        const bool available = initialize_ecm() && scene_exports() && cockpit_exports();
++        const bool available = initialize_ecm(*selected) && scene_exports() && cockpit_exports();
+         reason = available ? 0u : 3u;
+         ready.store(available, std::memory_order_release);
+     }

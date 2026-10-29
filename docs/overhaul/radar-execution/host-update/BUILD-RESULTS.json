@@ -1,0 +1,27 @@
+{
+  "status": "STABLE_CURRENT_PRIMARY_FULL_DLL_BUILD_PASSED",
+  "branch": "main",
+  "head": "bead9bcf94cb9bc0ab1203721aa4830bd336f251",
+  "native_source_sha256": "43e9acb9d5c1f2a87548bb89de7a6f2ef1b05a44e39525b48e65df8f13c79f07",
+  "native_sources_stable": true,
+  "build_dir": "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/radar-current-main-20261028-1823/build",
+  "dll": "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/radar-current-main-20261028-1823/build/artifacts/Release/f22.dll",
+  "sha256": "bd440e538f00e25ffb3ac3f8a6d675f1d81c4c37a55168404183727f281839d9",
+  "native_identity": {
+    "token": "F22_NATIVE_V1|source=43e9acb9d5c1f2a87548bb89de7a6f2ef1b05a44e39525b48e65df8f13c79f07|cache=1574b10698125d978b2a64a5f6326803ef560ac057953cbfeb98e17562f803dc|compiler=MSVC-19.51.36252.0|config=Release|cxx=23",
+    "rva": 515184
+  },
+  "identity_matches_current_source_and_cache": true,
+  "warning_count": 64,
+  "radar_warning_count": 0,
+  "warning_baseline": "Same64 legacy diagnostics as earlier full build; actual changed radar owner checks also pass /W4 /WX /analyze",
+  "manifests": [
+    "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/radar-current-main-20261028-1823/PACKAGE-BEFORE.json",
+    "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/radar-current-main-20261028-1823/PACKAGE-AFTER.json"
+  ],
+  "source_bin_unchanged": true,
+  "installed_dll_unchanged": true,
+  "installed": false,
+  "DCS_run": false,
+  "remaining": "Air adapter current-host source support only. Other native adapters retain old guards until their owners qualify current interfaces. Current package has127 runtime asset differences; joint reviewed installation/runtime remains outstanding."
+}

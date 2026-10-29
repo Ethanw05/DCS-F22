@@ -1,0 +1,87 @@
+{
+  "scope": "Offline new-host compatibility proposal and actual owning Api/Provider fixtures; no source activation/install or simulator operation",
+  "head": "bead9bcf94cb9bc0ab1203721aa4830bd336f251",
+  "actual_baseline": {
+    "result": "actual Api profile checks=149 failures=23 (inert modules; no native export invoked)",
+    "interpretation": "Expected current-host admission failures on unchanged previous-host-only primary source; not acceptance"
+  },
+  "candidate": {
+    "result": "actual Api profile checks=165 failures=0 (inert modules; no native export invoked)",
+    "checks": 165,
+    "failures": 0,
+    "flags": "/std:c++latest /EHsc /MD /W4 /WX /analyze /DNOMINMAX",
+    "interpretation": "Reviewed combined external single-translation-unit profile+Query ABI candidate, no native DCS export invoked"
+  },
+  "source_stable_during_build": true,
+  "source_closure_files": 14,
+  "source_manifest_sha256": "a4ac2298fe4d31a71d4a5c9ea1b04c2ee6fb906bc8149aa1172deee2c337e72e",
+  "baseline_source_sha256": "18df690166a301b3c0ace7039c593821a2389404c9a19cd0196e33ea7a28196d",
+  "combined_proposal": {
+    "applied": false,
+    "baseline_sha256": "18df690166a301b3c0ace7039c593821a2389404c9a19cd0196e33ea7a28196d",
+    "patch_sha256": "27d1a8e970e45818333e8a11743aac215fd0dd03378dcf7677a05cc6b59d56ce",
+    "proposed_text_sha256": "d653bb5561ece06283774d6c1d7f7f94e178b7a48b0c9bf1e94eec4f8f2b6915",
+    "scope": "Coherent old/current profile + owned Query ABI + exact FinalRelease signature",
+    "preserves": "Control/publication/interleaving/IFF/responder/gun calculations unchanged; native deleting destructor slot1 untouched"
+  },
+  "registration": {
+    "fragment": "tests/native/radar_api_profile.cmake",
+    "gate": "F22_RADAR_CURRENT_HOST_REVIEWED",
+    "state": "Unregistered until integrator includes fragment and reviews/applies paired production source; no skipped test counted pass"
+  },
+  "all_original_production_mutations_by_this_owner": [],
+  "primary_writes": [
+    "NEW tests/native/radar_api_profile.cpp",
+    "NEW tests/native/radar_api_profile.cmake",
+    "Own docs/overhaul/radar-execution/host-update proposal/results/proof artifacts"
+  ],
+  "preservation": "Primary NativeAesa remains18df unchanged; exact scoped comparison preserves allcontrol/publication/interleaving/IFF/gun/responder/reset bytes except declared FinalRelease wrapper/hook. No existing production file written by this owner.",
+  "limits": [
+    "Offline compatibility and inert fixtures do not prove native callback scheduling, borrowed object lifetime or live effects",
+    "FinalRelease tested sequential ordering/exact signature only; no ownership redesign or concurrency claim",
+    "No proposal applied by this owner, no installation/DCS/process control"
+  ],
+  "artifacts": [
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\aesa-host-2931-20261028\\actual-api-build.log",
+      "sha256": "3d565abfafc631f98a52e79bef8f89b1f8de9d3b133a1bb949cd3736bb32b1d7"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\aesa-host-2931-20261028\\candidate-api-build.log",
+      "sha256": "3d565abfafc631f98a52e79bef8f89b1f8de9d3b133a1bb949cd3736bb32b1d7"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\aesa-host-2931-20261028\\actual-api-results.txt",
+      "sha256": "c7198c0f08e69e2596bfea41204b957fe18b1ae538d3d1011d5275f5361a633c"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\aesa-host-2931-20261028\\candidate-api-results.txt",
+      "sha256": "a0cb4cc175884cf62e5edc3e72890907fe176423c401ed9093b1bbae2b91ffe0"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\aesa-host-2931-20261028\\actual_api_profile.exe",
+      "sha256": "483ad47ced40c52963245336d7a18e0edf0be4356639fb499c685ce66f1fa37a"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\aesa-host-2931-20261028\\candidate_api_profile.exe",
+      "sha256": "dc0f48f45684a83f55be3b8348d5f9e09b8acf3c6d05085a44b43faf7a561593"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\aesa-host-2931-20261028\\verify_api.cmd",
+      "sha256": "c672a9e72f54d2b7b72a76dd3736b3e189634c224d772fe41f0d5310e4d690eb"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\aesa-host-2931-20261028\\NativeAesaRadar-current.cpp",
+      "sha256": "d653bb5561ece06283774d6c1d7f7f94e178b7a48b0c9bf1e94eec4f8f2b6915"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\aesa-host-2931-20261028\\api-source-before.json",
+      "sha256": "a4ac2298fe4d31a71d4a5c9ea1b04c2ee6fb906bc8149aa1172deee2c337e72e"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\aesa-host-2931-20261028\\api-source-after.json",
+      "sha256": "a4ac2298fe4d31a71d4a5c9ea1b04c2ee6fb906bc8149aa1172deee2c337e72e"
+    }
+  ],
+  "head_at_handoff": "bead9bcf94cb9bc0ab1203721aa4830bd336f251"
+}

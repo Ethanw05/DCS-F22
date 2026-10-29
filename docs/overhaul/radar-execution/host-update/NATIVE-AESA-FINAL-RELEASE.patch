@@ -1,0 +1,29 @@
+diff --git a/EFM/source/NativeAesaRadar.cpp b/EFM/source/NativeAesaRadar.cpp
+--- a/EFM/source/NativeAesaRadar.cpp
++++ b/EFM/source/NativeAesaRadar.cpp
+@@ -897,12 +897,12 @@
+     reinterpret_cast<Update>(original[6])(self);
+     sample(self);
+ }
+-void* __fastcall driver_destroy(void* self, unsigned flags) noexcept {
+-    using Destroy = void*(__fastcall*)(void*, unsigned);
++void __fastcall driver_final_release(void* self) noexcept {
++    using FinalRelease = void(__fastcall*)(void*);
+     const auto original = driver_original.load(std::memory_order_acquire);
+-    const auto destroy = original ? reinterpret_cast<Destroy>(original[0]) : nullptr;
++    const auto release = original ? reinterpret_cast<FinalRelease>(original[0]) : nullptr;
+     reset();
+-    return destroy ? destroy(self, flags) : nullptr;
++    if (release) release(self);
+ }
+ bool bind_driver() noexcept {
+     void* context = api.context();
+@@ -918,7 +918,7 @@
+     if (count < 7 || count == 64) return false;
+     driver_table[0] = original[-1];
+     for (std::size_t i = 0; i < count; ++i) driver_table[i + 1] = original[i];
+-    driver_table[1] = reinterpret_cast<void*>(&driver_destroy);
++    driver_table[1] = reinterpret_cast<void*>(&driver_final_release);
+     driver_table[7] = reinterpret_cast<void*>(&driver_update);
+     driver_original = original; driver_slot = reinterpret_cast<void**>(slot);
+     attach(driver);

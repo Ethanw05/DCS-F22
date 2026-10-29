@@ -1,0 +1,14 @@
+{
+  "applied": true,
+  "baseline_sha256": "18df690166a301b3c0ace7039c593821a2389404c9a19cd0196e33ea7a28196d",
+  "patch_sha256": "27d1a8e970e45818333e8a11743aac215fd0dd03378dcf7677a05cc6b59d56ce",
+  "proposed_text_sha256": "d653bb5561ece06283774d6c1d7f7f94e178b7a48b0c9bf1e94eec4f8f2b6915",
+  "scope": "Coherent old/current profile + owned Query ABI + exact FinalRelease signature",
+  "preserves": "Control/publication/interleaving/IFF/responder/gun calculations unchanged; native deleting destructor slot1 untouched",
+  "applied_by": "root to primary main; focused patch only",
+  "primary_source_sha256": "da8cf42ffeee7ba37b4437d7fc9d9c771e755a212df1746ef5fdb5756c204e5e",
+  "primary_evidence": "PRIMARY-RESULTS.json",
+  "build_evidence": "BUILD-RESULTS.json",
+  "installed": false,
+  "DCS_run": false
+}
