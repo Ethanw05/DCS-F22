@@ -2,14 +2,14 @@
   "schema_version": 1,
   "owner": "chat3",
   "profile": "public_f22_manual_recovery@1",
-  "stage": "URGENT_CURRENT_HOST_COMPATIBILITY; 2.9.31.29434_RADAR_RECOVERY",
-  "latest_completed_commit": "20374a8 ground Query ABI;55224a2 current air-host compatibility;bead9bc protected publication",
+  "stage": "GROUND_CURRENT_HOST_RECOVERY_INSTALLED; ACTUAL_GROUND_IMAGE_CHECK_PENDING",
+  "latest_completed_commit": "d6780d55c0dd23999783ec7a8fcc2c0cb056023a",
   "host_update": {
     "diagnosis": "host-update/DIAGNOSIS.json",
     "scope": "host-update/ADAPTER-INVENTORY.json",
     "maintenance_proposal": "host-update/COMPATIBILITY-SEAM.md",
-    "source_state": "Air compatibility and ground Query ABI repair committed and tested; native fixes present in installed DLL. Ground/video profile activation still gated; newer radar Lua not yet installed.",
-    "installation": "Installed native DLL verified read-only via embedded source identity; no Chat3 install or DCS operation. In-game lock is not yet verified.",
+    "source_state": "Air and ground sensor/render versioned adapters installed; checked ground video control/lifecycle and matched Lua installed. User confirmed A/A works; actual ground image remains next flight check.",
+    "installation": "ground-recovery/INSTALLATION.json: DLL71ef5ee0 plus8 changed Lua files,12dependency hashes verified;85 protected binding/HUD/font/audio/hook files unchanged. DCS absent during install; not operated byChat3.",
     "features": "SAR held during recovery; IFF remains Weapons-EW owned.",
     "build_evidence": "host-update/BUILD-RESULTS.json"
   },
@@ -256,5 +256,6 @@
   "user_requested_additions": "REQUESTED-ADDITIONS.json",
   "next_focus": "Radar publication integrity, remaining ground/radar integration, A/A-in-A/G continuity and SAR feasibility; IFF handed off.",
   "native_installation_observation": "docs/overhaul/radar-execution/host-update/INSTALLATION-OBSERVATION.json",
-  "current_native_delivery": "Navigation installer installed SHAd29216510d70e41fafa878457374c7e7d845230cf6655822fbcef468c029ac34; embedded native source digest matches current primary code, including radar fixes. Newer radar Lua and actual in-game locking remain unqualified; Chat3 did not operate DCS."
+  "current_native_delivery": "Navigation installer installed SHAd29216510d70e41fafa878457374c7e7d845230cf6655822fbcef468c029ac34; embedded native source digest matches current primary code, including radar fixes. Newer radar Lua and actual in-game locking remain unqualified; Chat3 did not operate DCS.",
+  "ground_recovery_results": "host-update/ground-recovery/RESULTS.json"
 }

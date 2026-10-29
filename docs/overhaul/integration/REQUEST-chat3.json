@@ -45,5 +45,20 @@
   },
   "native_installation_observation": "docs/overhaul/radar-execution/host-update/INSTALLATION-OBSERVATION.json",
   "current_native_delivery": "Navigation installer installed SHAd29216510d70e41fafa878457374c7e7d845230cf6655822fbcef468c029ac34; embedded native source digest matches current primary code, including radar fixes. Newer radar Lua and actual in-game locking remain unqualified; Chat3 did not operate DCS.",
-  "packaging_gap": "../radar-execution/host-update/PACKAGING-GAPS.json"
+  "packaging_gap": "../radar-execution/host-update/PACKAGING-GAPS.json",
+  "ground_recovery_source_commit": "d6780d55c0dd23999783ec7a8fcc2c0cb056023a",
+  "ground_recovery_installation": "docs/overhaul/radar-execution/host-update/ground-recovery/INSTALLATION.json",
+  "ground_recovery_current_state": "INSTALLED_AND_HASH_VERIFIED; userA/A works; originalgroundVideoReason2 repaired via current coherent profiles and matchedLua; actual MAP/GMT/DBS/AGR/VR/reload results stillunmeasured.",
+  "ground_native_dll_sha256": "71ef5ee0bbd542bfceacadfa624592dc642a9a5da08c214961fab2062c8b16f8",
+  "registration_request": {
+    "include": [
+      "native/radar_ground_host.cmake",
+      "native/radar_video_api_profile.cmake"
+    ],
+    "flags": [
+      "F22_RADAR_CURRENT_GROUND_HOST_REVIEWED=ON",
+      "F22_RADAR_VIDEO_API_PROFILE_REVIEWED=ON"
+    ],
+    "actual_checks": "230groundhost+516videoApi+96rendererselector+602camera+29coordination;2groundowner executables;23Lua cases+installedcontrolleroverlay; no skippedtest count"
+  }
 }

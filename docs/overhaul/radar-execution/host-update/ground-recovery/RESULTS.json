@@ -174,7 +174,9 @@
     "matches_current_native_source_and_cache": true
   },
   "installation_plan": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\ground-recovery-20261028-1942\\INSTALL-PLAN.json",
-  "installed": false,
+  "installed": true,
   "game_operated": false,
-  "claim_limit": "Current-host ABI and software verification; actual MAP/GMT/DBS/AGR pixels and VR still need in-game qualification."
+  "claim_limit": "Current-host ABI and software verification; actual MAP/GMT/DBS/AGR pixels and VR still need in-game qualification.",
+  "installation": "INSTALLATION.json",
+  "source_commit": "d6780d55c0dd23999783ec7a8fcc2c0cb056023a"
 }

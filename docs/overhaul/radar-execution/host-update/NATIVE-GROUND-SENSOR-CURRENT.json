@@ -1,5 +1,5 @@
 {
-  "applied": false,
+  "applied": true,
   "path": "EFM/source/NativeGroundSensor.cpp",
   "baseline_sha256": "845f3ad1d0813435e63586b6b493196c16b74a430ef725d6b0f8b2a245654e2c",
   "patch_sha256": "87e95d2dbc792aabd8f8f12ec17e4ee0ff6e9e2f155a0d7f401e98fb9ff23f97",
@@ -7,5 +7,8 @@
   "scope": "CheckedPE64/coherent five-module selection; executable virtual-method admission; diagnostic API reason priority only",
   "preserves": "All committed by-value query ownership, camera geometry, sensor/control/publication/filter/target behavior and reset logic untouched",
   "requires": "Paired Surface-owned Camera contract and common caller review before activation",
-  "primary_source_unchanged": true
+  "primary_source_unchanged": true,
+  "source_commit": "d6780d55c0dd23999783ec7a8fcc2c0cb056023a",
+  "actual_primary_results": "ground-recovery/RESULTS.json",
+  "installed": "ground-recovery/INSTALLATION.json"
 }
