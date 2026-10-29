@@ -1,0 +1,67 @@
+{
+  "CockpitBase": {
+    "path": "D:\\DCS\\bin\\CockpitBase.dll",
+    "sha256": "fb0a09be70627c7790dea1527cedfee43082bb8b112484d5c85be1d99d33de95",
+    "stamp": "0x6adbad09",
+    "image_size": "0x68e000"
+  },
+  "World": {
+    "path": "D:\\DCS\\bin\\World.dll",
+    "sha256": "80f5bb2f83db6c5023727ff5097ca98a4069ddc767a1881638fc81353b310793",
+    "stamp": "0x6acb804e",
+    "image_size": "0x14000"
+  },
+  "edObjects": {
+    "path": "D:\\DCS\\bin\\edObjects.dll",
+    "sha256": "53921811f0b0ec487a7615dba8262dad622a94908c84d64528fa3fd62ea5102f",
+    "stamp": "0x6ad87426",
+    "image_size": "0x46000"
+  },
+  "WorldGeneral": {
+    "path": "D:\\DCS\\bin\\WorldGeneral.dll",
+    "sha256": "83d36b10205234da58b4a98dd06f75a84d6f3e13826d0a123e482eb53a7b8265",
+    "stamp": "0x6adbace0",
+    "image_size": "0x127b000"
+  },
+  "GraphicsVista": {
+    "path": "D:\\DCS\\bin\\GraphicsVista.dll",
+    "sha256": "2c33440947bed14e3eadc1e3fbe9b686b9c6d522c88fe27e68d82965a5722591",
+    "stamp": "0x6acb8063",
+    "image_size": "0x62000"
+  },
+  "Visualizer": {
+    "path": "D:\\DCS\\bin\\Visualizer.dll",
+    "sha256": "5d30a277d955ab1beceb61aaada61adb74737a52a9ad35346d6df22f1e2ea689",
+    "stamp": "0x6ad87745",
+    "image_size": "0x340000"
+  },
+  "SceneRenderer": {
+    "path": "D:\\DCS\\bin\\SceneRenderer.dll",
+    "sha256": "f1c79790c8b6f6a23b4d2baf8c174bba2bff8a8af9852a34b1e55d9d52222272",
+    "stamp": "0x6acb811a",
+    "image_size": "0x70000"
+  },
+  "enlight": {
+    "path": "D:\\DCS\\bin\\enlight.dll",
+    "sha256": "54b2aeb87ea942bf520ed9d3055cbc0121cce7002f268b2a92790bec82d93c2c",
+    "stamp": "0x6acb8107",
+    "image_size": "0xa9000"
+  },
+  "WorldGeneral-derived": {
+    "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\native-host-2.9.31.29434\\WorldGeneral-stop-snapshot.dll",
+    "sha256": "2ecc3945e15e371bb20e9a52000652aac8d28e74f036865382361891f070556b",
+    "provenance": "Existing native-host offline stopped-emulator restored snapshot; reused read-only, not a new DLL load/execution. AIR-SEAM-PROOF.json binds it to current input. Original packer has UPX-named sections but DIE identifies VMProtect; UPX test says NotPacked. Earlier section-name-only UPX shorthand is superseded."
+  },
+  "radar-presets": {
+    "path": "D:/DCS/Config/Effects/radar.lua",
+    "sha256": "4a5a616381de38488889cb0abf7f359915a36f20bcb05ee6686f8746f6a919b2",
+    "required_names": [
+      "GM_F16",
+      "EXP_F16",
+      "DBS1_F16",
+      "DBS2_F16",
+      "F18_TA"
+    ],
+    "all_present": true
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "kind": "Read-only runtime manifest coverage check",
+  "comparison_baseline": "7513f931a8bf1016a72e8eb184a9c98074786e81",
+  "manifest_scope": "tools/package_identity.py explicit path list; native source identity remains comprehensive for its declared CPP/header/CMake inputs",
+  "uncovered_changed_paths": [
+    {
+      "path": "UnitPayloads/F-22A.lua",
+      "source_sha256": "fd04c70bb35e4bfcd7d140d49017895f9e8ac6d08c3fea96cfeaab73bc6a97e9",
+      "installed_sha256": "adf5683ddeec51babd0039f99062e8cdbdef8bae7ed6cbea643ffee0fa51e9cb"
+    }
+  ],
+  "action": "Integrator must classify all listed paths and include runtime assets such as UnitPayloads in the joint install manifest; no shared tool or installed file edited",
+  "installed": false
+}

@@ -1,0 +1,857 @@
+{
+  "schema": 1,
+  "kind": "Read-only native adapter update inventory and bounded compatibility proposal",
+  "created_utc": "2026-10-29T00:16:06.746085+00:00",
+  "repository": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22",
+  "head_at_capture": "bead9bcf94cb9bc0ab1203721aa4830bd336f251",
+  "dcs_version": "2.9.31.29434",
+  "scope": "12 Native*.cpp adapters, common parameter/profile helpers, optional ground video probe; no source edits, DLL loads, DCS actions, test execution or deployment",
+  "comparison": {
+    "path": "docs\\overhaul\\chat4-weapons-ew\\dcs-update-dll-comparison.json",
+    "sha256": "72ec6f8fccba5e72dcf301018adf27a74414bfbd688f1e4419b7ba62f9985826"
+  },
+  "counts": {
+    "adapters": 12,
+    "direct_private_adapters": 10,
+    "transitive_only_adapters": 1,
+    "named_api_public_input_adapters": 1,
+    "capability_rows": 14,
+    "module_identities": 14
+  },
+  "module_identities": [
+    {
+      "name": "CockpitBase.dll",
+      "installed": {
+        "path": "D:\\DCS\\bin-mt\\CockpitBase.dll",
+        "sha256": "fb0a09be70627c7790dea1527cedfee43082bb8b112484d5c85be1d99d33de95",
+        "timestamp": "0x6adbad09",
+        "image_size": "0x68e000"
+      },
+      "recorded_old_source_profile": {
+        "timestamp": "0x6ac12468",
+        "image_size": "0x59a000"
+      },
+      "recorded_match": false,
+      "required_by": [
+        "air_radar",
+        "surface_sensor",
+        "ground_video",
+        "datalink",
+        "passive_rwr_identity",
+        "missile_warning",
+        "ir_seeker",
+        "gun_sight",
+        "bomb_sight",
+        "navigation_receivers"
+      ],
+      "evidence_class": "installed original-file identity from owner comparison; not derived-image or runtime behavior proof"
+    },
+    {
+      "name": "dx11backend.dll",
+      "installed": {
+        "path": "D:\\DCS\\bin-mt\\dx11backend.dll",
+        "sha256": "d19d5125939b1d81ffabb042b4d08af93fc70525fe5aa10a7c7252dee6884976",
+        "timestamp": "0x6acb8051",
+        "image_size": "0x199000"
+      },
+      "recorded_old_source_profile": {
+        "timestamp": "0x6aae1d9d",
+        "image_size": "0x199000"
+      },
+      "recorded_match": false,
+      "required_by": [
+        "ground_video_probe"
+      ],
+      "evidence_class": "installed original-file identity from owner comparison; not derived-image or runtime behavior proof"
+    },
+    {
+      "name": "edCore.dll",
+      "installed": {
+        "path": "D:\\DCS\\bin-mt\\edCore.dll",
+        "sha256": "43fe58da88a0f93ae012d7226d991ed4fbbbf8657f3cc32261b70e55a29e5391",
+        "timestamp": "0x6acb8049",
+        "image_size": "0xaad000"
+      },
+      "recorded_old_source_profile": {
+        "timestamp": "0x6aae1d76",
+        "image_size": "0xaad000"
+      },
+      "recorded_match": false,
+      "required_by": [
+        "datalink"
+      ],
+      "evidence_class": "installed original-file identity from owner comparison; not derived-image or runtime behavior proof"
+    },
+    {
+      "name": "edObjects.dll",
+      "installed": {
+        "path": "D:\\DCS\\bin-mt\\edObjects.dll",
+        "sha256": "53921811f0b0ec487a7615dba8262dad622a94908c84d64528fa3fd62ea5102f",
+        "timestamp": "0x6ad87426",
+        "image_size": "0x46000"
+      },
+      "recorded_old_source_profile": {
+        "timestamp": "0x6aae1e0e",
+        "image_size": "0x46000"
+      },
+      "recorded_match": false,
+      "required_by": [
+        "air_radar",
+        "surface_sensor"
+      ],
+      "evidence_class": "installed original-file identity from owner comparison; not derived-image or runtime behavior proof"
+    },
+    {
+      "name": "enlight.dll",
+      "installed": {
+        "path": "D:\\DCS\\bin-mt\\enlight.dll",
+        "sha256": "54b2aeb87ea942bf520ed9d3055cbc0121cce7002f268b2a92790bec82d93c2c",
+        "timestamp": "0x6acb8107",
+        "image_size": "0xa9000"
+      },
+      "recorded_old_source_profile": {
+        "timestamp": "0x6aae1e38",
+        "image_size": "0xa9000"
+      },
+      "recorded_match": false,
+      "required_by": [
+        "ground_video"
+      ],
+      "evidence_class": "installed original-file identity from owner comparison; not derived-image or runtime behavior proof"
+    },
+    {
+      "name": "GraphicsVista.dll",
+      "installed": {
+        "path": "D:\\DCS\\bin-mt\\GraphicsVista.dll",
+        "sha256": "2c33440947bed14e3eadc1e3fbe9b686b9c6d522c88fe27e68d82965a5722591",
+        "timestamp": "0x6acb8063",
+        "image_size": "0x62000"
+      },
+      "recorded_old_source_profile": {
+        "timestamp": "0x6aae1df2",
+        "image_size": "0x62000"
+      },
+      "recorded_match": false,
+      "required_by": [
+        "surface_sensor",
+        "ground_video"
+      ],
+      "evidence_class": "installed original-file identity from owner comparison; not derived-image or runtime behavior proof"
+    },
+    {
+      "name": "Renderer.dll",
+      "installed": {
+        "path": "D:\\DCS\\bin-mt\\renderer.dll",
+        "sha256": "a1e857bcfee43f7bc7660ea7aba44d12ecf6c42e8a4f02b3d0240736e83d8ec9",
+        "timestamp": "0x6acb804e",
+        "image_size": "0x1f000"
+      },
+      "recorded_old_source_profile": {
+        "timestamp": "0x6aae1d95",
+        "image_size": "0x1f000"
+      },
+      "recorded_match": false,
+      "required_by": [
+        "ground_video_probe"
+      ],
+      "evidence_class": "installed original-file identity from owner comparison; not derived-image or runtime behavior proof"
+    },
+    {
+      "name": "SceneRenderer.dll",
+      "installed": {
+        "path": "D:\\DCS\\bin-mt\\SceneRenderer.dll",
+        "sha256": "f1c79790c8b6f6a23b4d2baf8c174bba2bff8a8af9852a34b1e55d9d52222272",
+        "timestamp": "0x6acb811a",
+        "image_size": "0x70000"
+      },
+      "recorded_old_source_profile": {
+        "timestamp": "0x6aae1e3e",
+        "image_size": "0x70000"
+      },
+      "recorded_match": false,
+      "required_by": [
+        "ground_video"
+      ],
+      "evidence_class": "installed original-file identity from owner comparison; not derived-image or runtime behavior proof"
+    },
+    {
+      "name": "Visualizer.dll",
+      "installed": {
+        "path": "D:\\DCS\\bin-mt\\Visualizer.dll",
+        "sha256": "5d30a277d955ab1beceb61aaada61adb74737a52a9ad35346d6df22f1e2ea689",
+        "timestamp": "0x6ad87745",
+        "image_size": "0x340000"
+      },
+      "recorded_old_source_profile": {
+        "timestamp": "0x6ac12454",
+        "image_size": "0x312000"
+      },
+      "recorded_match": false,
+      "required_by": [
+        "ground_video"
+      ],
+      "evidence_class": "installed original-file identity from owner comparison; not derived-image or runtime behavior proof"
+    },
+    {
+      "name": "Weapons.dll",
+      "installed": {
+        "path": "D:\\DCS\\bin-mt\\Weapons.dll",
+        "sha256": "1d5af83082eb37d12c3b8c66821081ca3c7f2563218467e94f80f2c87786d62c",
+        "timestamp": "0x6ad66192",
+        "image_size": "0x277000"
+      },
+      "recorded_old_source_profile": {
+        "timestamp": "0x6ac12438",
+        "image_size": "0x21f000"
+      },
+      "recorded_match": false,
+      "required_by": [
+        "missile_descriptor_dlz",
+        "gun_sight"
+      ],
+      "evidence_class": "installed original-file identity from owner comparison; not derived-image or runtime behavior proof"
+    },
+    {
+      "name": "WeaponsBase.dll",
+      "installed": {
+        "path": "D:\\DCS\\bin-mt\\WeaponsBase.dll",
+        "sha256": "de2d4188e06767f5d728ab871d2c39c05f0c6702b63734e49124376984523e30",
+        "timestamp": "0x6ad65ebe",
+        "image_size": "0x10b000"
+      },
+      "recorded_old_source_profile": {
+        "timestamp": "0x6aae1e3b",
+        "image_size": "0xeb000"
+      },
+      "recorded_match": false,
+      "required_by": [
+        "aam_tof"
+      ],
+      "evidence_class": "installed original-file identity from owner comparison; not derived-image or runtime behavior proof"
+    },
+    {
+      "name": "World.dll",
+      "installed": {
+        "path": "D:\\DCS\\bin-mt\\World.dll",
+        "sha256": "80f5bb2f83db6c5023727ff5097ca98a4069ddc767a1881638fc81353b310793",
+        "timestamp": "0x6acb804e",
+        "image_size": "0x14000"
+      },
+      "recorded_old_source_profile": {
+        "timestamp": "0x6aae1d9b",
+        "image_size": "0x14000"
+      },
+      "recorded_match": false,
+      "required_by": [
+        "air_radar",
+        "surface_sensor",
+        "passive_rwr_identity"
+      ],
+      "evidence_class": "installed original-file identity from owner comparison; not derived-image or runtime behavior proof"
+    },
+    {
+      "name": "WorldGeneral.dll",
+      "installed": {
+        "path": "D:\\DCS\\bin-mt\\WorldGeneral.dll",
+        "sha256": "83d36b10205234da58b4a98dd06f75a84d6f3e13826d0a123e482eb53a7b8265",
+        "timestamp": "0x6adbace0",
+        "image_size": "0x127b000"
+      },
+      "recorded_old_source_profile": {
+        "timestamp": "0x6ac122f4",
+        "image_size": "0x125b000"
+      },
+      "recorded_match": false,
+      "required_by": [
+        "air_radar",
+        "surface_sensor",
+        "datalink",
+        "passive_rwr_identity"
+      ],
+      "evidence_class": "installed original-file identity from owner comparison; not derived-image or runtime behavior proof"
+    },
+    {
+      "name": "wRadio.dll",
+      "installed": {
+        "path": "D:\\DCS\\bin-mt\\wRadio.dll",
+        "sha256": "8592f9482828de36e6b0db016b2ccd11f90d40dc4862e673dd62a1f87bda89fe",
+        "timestamp": "0x6ad874c1",
+        "image_size": "0x153000"
+      },
+      "recorded_old_source_profile": {
+        "timestamp": "0x6aae1f77",
+        "image_size": "0x144000"
+      },
+      "recorded_match": false,
+      "required_by": [
+        "datalink"
+      ],
+      "evidence_class": "installed original-file identity from owner comparison; not derived-image or runtime behavior proof"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "air_radar",
+      "source": {
+        "path": "EFM/source/NativeAesaRadar.cpp",
+        "sha256": "18df690166a301b3c0ace7039c593821a2389404c9a19cd0196e33ea7a28196d",
+        "anchor_line": 60
+      },
+      "owner": "Chat 3 radar; Chat 2 serializes shared integration",
+      "required_profile_modules": [
+        "CockpitBase.dll",
+        "edObjects.dll",
+        "World.dll",
+        "WorldGeneral.dll"
+      ],
+      "additional_named_only_modules": [],
+      "named_api_families": [
+        "World model clock",
+        "CockpitBase aircraft/context/device/emitter and avLuaDevice exported methods/vtable",
+        "WorldGeneral GetPoint/VectorVelocity/Type/IsDead/Position/IsFlag",
+        "edObjects manager/RegisterManager/intersectSegment; WorldGeneral globalLand"
+      ],
+      "private_contracts": [
+        "ECM table RVA 0x1d0778, active 0x65bd0, strength 0x65bc0 in old source; EcmView vptr/owner/strength offsets 0/8/16",
+        "Scene virtual slots: identity1, registered6, moving7; own IwoLA40; ECM getter57; Box20/Segment24; terrain15",
+        "24-byte float AABB; double Vec3 segment endpoints; 64-byte MSVC std::function callback ownership and return ABI",
+        "ed::string32 at MovingObject+296; optional label, separate from numeric authority",
+        "avLuaDevice clone update6/destruction0; context responder slot+256; explicit teardown and callback lifetime",
+        "Gun-assist consumers additionally use orientation3, registry2, velocity38 and load73/74/75; lock-recovery proof does not qualify these"
+      ],
+      "current_update_work": "Current source still has old four-module guard and old ECM constants. AesaHostProfile.h has proposed exact old/current four-image rows; NATIVE-AESA-CURRENT.patch and QUERY-ABI.patch are unapplied review artifacts. AIR-SEAM-PROOF.json records current original-CB/derived-WG evidence; its early Query-reference wording is superseded by the later by-value callback patch. No runtime pass inferred.",
+      "dependencies": [],
+      "runtime_qualification": "not established by this inventory"
+    },
+    {
+      "id": "surface_sensor",
+      "source": {
+        "path": "EFM/source/NativeGroundSensor.cpp",
+        "sha256": "e20eb2e210a941795bb99bd0610f1fc0912b47c7a6397691fd0308ae03a6197f",
+        "anchor_line": 42
+      },
+      "owner": "Chat 3 radar; Chat 2 serializes shared integration",
+      "required_profile_modules": [
+        "CockpitBase.dll",
+        "edObjects.dll",
+        "World.dll",
+        "WorldGeneral.dll",
+        "GraphicsVista.dll"
+      ],
+      "additional_named_only_modules": [],
+      "named_api_families": [
+        "Aircraft/context and World clock",
+        "WorldGeneral MovingObject accessors/globalLand",
+        "edObjects manager/intersectSegment",
+        "GraphicsVista Camera constructor/getClipVolume"
+      ],
+      "private_contracts": [
+        "Scene identity1/registered6/moving7, velocity38, IwoLA40, native RCS getter59 then response6",
+        "Scene frustum19 and obstruction Segment24 with 64-byte Query; same by-value ownership review as air path is required",
+        "Terrain ray13: bool(float Vec3 origin, float Vec3 direction, float maxrange, float Vec3* hit)",
+        "Camera storage784; pose+560/16-byte row stride, projection+688, dirty+776; borrowed clip volume lifetime",
+        "Current target-visible predicate uses native ray range185200 and hit within500m per axis; this does not supply fine SAR terrain geometry"
+      ],
+      "current_update_work": "All five source guards still old at captured hash. Parent owns current-ground evidence/review. Reuse independently proved scene conversion and motion only after checking exact consumed contract; RCS59/6, frustum19, ray13, camera layout and callback ownership require their own proof.",
+      "dependencies": [
+        "air_radar driver callback/scheduler"
+      ],
+      "runtime_qualification": "not established by this inventory"
+    },
+    {
+      "id": "ground_video",
+      "source": {
+        "path": "EFM/source/NativeGroundVideo.cpp",
+        "sha256": "92d6e8fad152ee715bee104be3a49c0d54fe2e40f84753974798f1b9550cb5e6",
+        "anchor_line": 45
+      },
+      "owner": "Chat 3 radar; Chat 2 serializes shared integration",
+      "required_profile_modules": [
+        "CockpitBase.dll",
+        "Visualizer.dll",
+        "SceneRenderer.dll",
+        "enlight.dll",
+        "GraphicsVista.dll"
+      ],
+      "additional_named_only_modules": [
+        "World.dll"
+      ],
+      "named_api_families": [
+        "CockpitBase binding_context/get_wide_device/indicator context/controller and exported ccIndicator vtable",
+        "Visualizer render_targets export",
+        "GraphicsVista Camera constructor",
+        "World clock"
+      ],
+      "private_contracts": [
+        "ccIndicator clone41 entries; slots22 camera,23 point,24 condition,25 dynamic parameters,26 always plus lifecycle2/5",
+        "Render-target vector index8; target object readable1536; render_target field+1136; native 18x8-byte DynamicParam contract",
+        "Camera storage784; pose+560, projection+688, dirty+776; frame/context/target generation and clone restoration"
+      ],
+      "current_update_work": "Five private guards still old. Existing current-ground render disassembly is evidence input, not automatic qualification. World clock remains a named-only extra dependency. Optional GroundVideoProbe backend is separate and must not gate normal video.",
+      "dependencies": [
+        "air_radar driver/resource state"
+      ],
+      "runtime_qualification": "not established by this inventory"
+    },
+    {
+      "id": "ground_radar_coordinator",
+      "source": {
+        "path": "EFM/source/NativeGroundRadar.cpp",
+        "sha256": "2d6b65d727b2ed354fd9cbe3928e64a07db0809159c073972d9adf70c8d8843b",
+        "anchor_line": 36
+      },
+      "owner": "Chat 3 radar; Chat 2 serializes shared integration",
+      "required_profile_modules": [],
+      "additional_named_only_modules": [],
+      "named_api_families": [
+        "EDPARAM coherent source schema/sequence/epoch reader"
+      ],
+      "private_contracts": [],
+      "current_update_work": "No direct DLL binding, private offset or PE gate. Update through providers; retain packet/driver gating, do not invent another private host profile.",
+      "dependencies": [
+        "surface_sensor",
+        "ground_video",
+        "air_radar driver ready"
+      ],
+      "runtime_qualification": "not established by this inventory"
+    },
+    {
+      "id": "datalink",
+      "source": {
+        "path": "EFM/source/NativeDatalink.cpp",
+        "sha256": "cbef827c03bfa4ff797c007b98935ae81fb304dccd8cfa9855b08a2b3811f2f2",
+        "anchor_line": 87
+      },
+      "owner": "Chat 4 Weapons/EW; Chat 2 serializes shared integration",
+      "required_profile_modules": [
+        "CockpitBase.dll",
+        "wRadio.dll",
+        "WorldGeneral.dll",
+        "edCore.dll"
+      ],
+      "additional_named_only_modules": [
+        "World.dll"
+      ],
+      "named_api_families": [
+        "wRadio communicator/transceiver/status constructors, receiver/transmitter config, queue/send, TADIL_J parser/unpack methods",
+        "edCore LinkBase ctor/dtor/Set",
+        "WorldGeneral group/coalition/type/point/velocity/coordinates",
+        "World clock"
+      ],
+      "private_contracts": [
+        "CockpitBase private object resolver RVA0x2165d0 and exported contexts_ptr array indices/borrowed cockpit interface",
+        "Native terminal storage0x340, transceiver0x2b8, network-status40; LinkBase/cPointer and constructor/destructor pairing",
+        "ed::string32/SSO16, native list/map/message/track layouts and parser output offsets; registrations and radio callback lifetime"
+      ],
+      "current_update_work": "Four guards old; no private allocator RVA in this file (native LinkBase methods are named). Resolver may share a proved supported lookup seam with ContactIdentity/Sidewinder; radio and parser layouts stay Weapons/EW owned.",
+      "dependencies": [],
+      "runtime_qualification": "not established by this inventory"
+    },
+    {
+      "id": "passive_rwr_identity",
+      "source": {
+        "path": "EFM/source/NativeContactIdentity.cpp",
+        "sha256": "752627d76295f6706e6dffc56235ff66e415d792a0d6784ff71c78527dd98eca",
+        "anchor_line": 48
+      },
+      "owner": "Chat 4 Weapons/EW; Chat 2 serializes shared integration",
+      "required_profile_modules": [
+        "CockpitBase.dll",
+        "WorldGeneral.dll",
+        "World.dll"
+      ],
+      "additional_named_only_modules": [],
+      "named_api_families": [
+        "c_LA",
+        "MovingObject Coalition/IsFlag/IsDead",
+        "World clock"
+      ],
+      "private_contracts": [
+        "CockpitBase private object resolver RVA0x2165d0",
+        "Target ISceneObject subobject+120; identity virtual1; own IwoLA40; object span640 and exact ID match"
+      ],
+      "current_update_work": "Three guards old. Passive coalition metadata for an already received RWR ID; this is not IFF reply-backend qualification. Inventory only; IFF work remains frozen.",
+      "dependencies": [],
+      "runtime_qualification": "not established by this inventory"
+    },
+    {
+      "id": "missile_warning",
+      "source": {
+        "path": "EFM/source/NativeMWS.cpp",
+        "sha256": "181a8ce423f6b5060fdb214de4e1539be82ccef8f58a88e5ea63e7671330a1f1",
+        "anchor_line": 65
+      },
+      "owner": "Chat 4 Weapons/EW; Chat 2 serializes shared integration",
+      "required_profile_modules": [
+        "CockpitBase.dll"
+      ],
+      "additional_named_only_modules": [
+        "World.dll"
+      ],
+      "named_api_families": [
+        "avMLWS update/ClearThreats/get_contacts/get_spike/get_spike_world, exported avMLWS vtable",
+        "MWS_Threat ctor/dtor; binding_context/get_wide_device; World clock"
+      ],
+      "private_contracts": [
+        "Private allocator/free IAT RVAs0x449470/0x449460",
+        "Local native contact vtable RVA0x465098; expected first destructor RVA0x334c80",
+        "avMLWS span1176; warning vector fields352/360/368, count376, limit384; 16 slots x72 bytes",
+        "MWS_Threat and MLWS_contact/LinkBase containers, spike native ABI and owner/destructor lifetime"
+      ],
+      "current_update_work": "Owner must compare current original/derived binary call and object-layout evidence before adding a profile; existing source rejects updated guarded images.",
+      "dependencies": [],
+      "runtime_qualification": "not established by this inventory"
+    },
+    {
+      "id": "ir_seeker",
+      "source": {
+        "path": "EFM/source/NativeSidewinder.cpp",
+        "sha256": "8f02347f899a8920329f3182eeb875fe1e122bb2a1dc364ed15c24386a8fa959",
+        "anchor_line": 160
+      },
+      "owner": "Chat 4 Weapons/EW; Chat 2 serializes shared integration",
+      "required_profile_modules": [
+        "CockpitBase.dll"
+      ],
+      "additional_named_only_modules": [
+        "World.dll"
+      ],
+      "named_api_families": [
+        "eqSidewinderNew ctor/dtor/init/update, power/consent/status/station/uncage/bore/slave/track/strength/seeker/launch",
+        "avPlatform pose methods; avMotor/setGimbalLimit/setSunFilter; c_LA/context/device/payload; World clock"
+      ],
+      "private_contracts": [
+        "Private object resolver RVA0x2165d0 and contexts_ptr/cockpit/payload interfaces",
+        "eqSidewinderNew owned storage0x480, seeker/motor/parent/state/hit-vector offsets and native object lifetime",
+        "Payload gun/AG-guidance consumers have additional private virtual/descriptor contracts; not implied by IR ready"
+      ],
+      "current_update_work": "Old CockpitBase guard blocks main seeker. Weapons and WeaponsBase extras are separately gated optional subcapabilities below; preserving their independence avoids unrelated IR shutdown. IFF excluded.",
+      "dependencies": [],
+      "runtime_qualification": "not established by this inventory"
+    },
+    {
+      "id": "missile_descriptor_dlz",
+      "source": {
+        "path": "EFM/source/NativeSidewinder.cpp",
+        "sha256": "8f02347f899a8920329f3182eeb875fe1e122bb2a1dc364ed15c24386a8fa959",
+        "anchor_line": 173
+      },
+      "owner": "Chat 4 Weapons/EW; Chat 2 serializes shared integration",
+      "required_profile_modules": [
+        "Weapons.dll"
+      ],
+      "additional_named_only_modules": [],
+      "named_api_families": [
+        "wAmmunitionSelfHoming/wAmmunitionGuided/woMissile vtable exports",
+        "DLZ/getDFlight/getActiveLockDist"
+      ],
+      "private_contracts": [
+        "Recognized missile vtables and native weapon/descriptor fields: descriptor856,type168,limits832/840,speed292,life276,DLZ coefficient584",
+        "Native missile track/active/state fields, including object+1296/+1320/+1512, need per concrete class proof"
+      ],
+      "current_update_work": "Optional old Weapons gate; do not make matching this DLL a prerequisite for core CockpitBase seeker binding.",
+      "dependencies": [
+        "ir_seeker/payload owner"
+      ],
+      "runtime_qualification": "not established by this inventory"
+    },
+    {
+      "id": "aam_tof",
+      "source": {
+        "path": "EFM/source/NativeSidewinder.cpp",
+        "sha256": "8f02347f899a8920329f3182eeb875fe1e122bb2a1dc364ed15c24386a8fa959",
+        "anchor_line": 142
+      },
+      "owner": "Chat 4 Weapons/EW; Chat 2 serializes shared integration",
+      "required_profile_modules": [
+        "WeaponsBase.dll"
+      ],
+      "additional_named_only_modules": [],
+      "named_api_families": [
+        "TOFEstimator ctor/dtor/getAAMTOF"
+      ],
+      "private_contracts": [
+        "TOFEstimator native storage/ctor/dtor and long typed getAAMTOF ABI"
+      ],
+      "current_update_work": "Separate old WeaponsBase guard and tof_rejected latch. Revalidate only this native estimator contract; do not require the other13 modules to enable it.",
+      "dependencies": [],
+      "runtime_qualification": "not established by this inventory"
+    },
+    {
+      "id": "gun_sight",
+      "source": {
+        "path": "EFM/source/NativeGunSight.cpp",
+        "sha256": "716412136b077e3b6a71cea6546f797ca89564b018ddd846f9c39bf7c8071f93",
+        "anchor_line": 78
+      },
+      "owner": "Chat 4 Weapons/EW; Chat 2 serializes shared integration",
+      "required_profile_modules": [
+        "CockpitBase.dll",
+        "Weapons.dll"
+      ],
+      "additional_named_only_modules": [
+        "World.dll"
+      ],
+      "named_api_families": [
+        "avSimpleWeaponSystem vtable/get_cannon_shell",
+        "binding_context/get_wide_device",
+        "Weapons CannonSight ctor/dtor/sightTime",
+        "World clock"
+      ],
+      "private_contracts": [
+        "Weapon context+24 -> human+16 -> IwoLA40 -> aircraft pose51",
+        "CannonSight owned storage80; shell speed field176 and native shell descriptor layout",
+        "Local Wind vtable and sightTime typed call/native constructor/destructor pairing"
+      ],
+      "current_update_work": "Owner must compare current original/derived binary call and object-layout evidence before adding a profile; existing source rejects updated guarded images.",
+      "dependencies": [],
+      "runtime_qualification": "not established by this inventory"
+    },
+    {
+      "id": "bomb_sight",
+      "source": {
+        "path": "EFM/source/NativeAGWeapons.cpp",
+        "sha256": "a9820cbdab6cc7a6285c7b25180dcc077a0616dfab82455b356d1f301870525b",
+        "anchor_line": 51
+      },
+      "owner": "Chat 4 Weapons/EW; Chat 2 serializes shared integration",
+      "required_profile_modules": [
+        "CockpitBase.dll"
+      ],
+      "additional_named_only_modules": [
+        "World.dll"
+      ],
+      "named_api_families": [
+        "BombSight ctor/dtor/setBombType/calculate_aim_point",
+        "World clock"
+      ],
+      "private_contracts": [
+        "BombSight owned storage512; local Wind proxy (two virtual entries) and wsType8",
+        "Native FloatVec3 inputs/Vec3d output, hidden ownership/aim signature and ctor/dtor pairing"
+      ],
+      "current_update_work": "Old CockpitBase guard blocks native solution. Bomb async schema2/current flight packet and original request time remain independent gates; export presence does not prove buffer/Wind interface safety.",
+      "dependencies": [],
+      "runtime_qualification": "not established by this inventory"
+    },
+    {
+      "id": "navigation_receivers",
+      "source": {
+        "path": "EFM/source/NativeNavigation.cpp",
+        "sha256": "c5759c58a260776596a1a92b0d02ae729b0a163b752243f00f21cf9bc5336d6e",
+        "anchor_line": 31
+      },
+      "owner": "Chat 2 navigation/integration",
+      "required_profile_modules": [
+        "CockpitBase.dll"
+      ],
+      "additional_named_only_modules": [
+        "WorldGeneral.dll (optional declination/coordinates)"
+      ],
+      "named_api_families": [
+        "avTACAN ctor/dtor/initialize/post/start/channel/xy/mode/bearing/range/valid/power",
+        "avILS frequency/power/deviations/valid; avReceiver mute/squelch; avSimpleElectricSystem buses/generator/connect",
+        "binding_context/get_wide_device; optional WorldGeneral magvar/MapCoords"
+      ],
+      "private_contracts": [
+        "Private allocator/free IAT RVAs0x449470/0x449460",
+        "avTACAN owned allocation2856 and component context+24; avDevice initialization and CNI electric system wiring",
+        "ed::string32/SSO16 initialization ABI; native receiver/audio state fields and borrowed TACAN/ILS objects/vtables",
+        "Correct native release/destroy/free family, retained component/context lifetime"
+      ],
+      "current_update_work": "Captured source still checks old CockpitBase. Chat2 owns active receiver migration; optional named declination/coordinates must report their own availability, not invalidate otherwise qualified receiver hardware.",
+      "dependencies": [],
+      "runtime_qualification": "not established by this inventory"
+    },
+    {
+      "id": "pressure_altimetry",
+      "source": {
+        "path": "EFM/source/NativeAltimetry.cpp",
+        "sha256": "e4701fd21b7140fef1754d95b370f0919326a5b2e3bf953736b0fbaecee4c003",
+        "anchor_line": 46
+      },
+      "owner": "Chat 1 public EFM pressure producer; Chat 2 native parameter/lifecycle integration",
+      "required_profile_modules": [],
+      "additional_named_only_modules": [
+        "World.dll"
+      ],
+      "named_api_families": [
+        "Public EFM atmosphere callback pressure input",
+        "World GetModelTime; checked EDPARAM"
+      ],
+      "private_contracts": [],
+      "current_update_work": "No private RVA/vtable/native object allocation or old PE profile gate. Keep direct valid-zero bool reader. Verify named clock discovery and lifecycle; no blanket private stamp change is needed.",
+      "dependencies": [],
+      "runtime_qualification": "not established by this inventory"
+    }
+  ],
+  "existing_helpers": [
+    {
+      "id": "parameter_port",
+      "sources": [
+        {
+          "path": "EFM/include/Cockpit/CockpitAPI_Declare.h",
+          "sha256": "98bed221a28ca55cbb6d35d6bd10db703093ccbb5e77fec002d2db91579828e6"
+        },
+        {
+          "path": "EFM/include/Cockpit/ccParametersAPI.h",
+          "sha256": "cf8d79a785ec67e97c60f216c6bb25ef626c5fcd5c463b6ed07e7cfc24301419"
+        }
+      ],
+      "owner": "Chat 2 navigation/integration",
+      "already_shared": "Inert EDPARAM, explicit initialize/invalidate epoch, bool finite numeric reads preserving output on failure and valid zero, bounded strings/compare, per-write invocation status.",
+      "contract": "Six named CockpitBase C exports; no private build table. Setters are void at SDK level: successful dispatch is not effect acknowledgement.",
+      "keep": "docs/overhaul/integration/NATIVE-PARAMETER-CONTRACT.md; do not introduce a second compatibility wrapper."
+    },
+    {
+      "id": "aesa_profile_table",
+      "owner": "Chat 3 radar; Chat 2 serializes shared integration",
+      "already_shared": "Small constexpr exact four-image old/current table with three ECM RVAs; current NativeAesa does not yet call select.",
+      "scope": "Useful starting pattern for owner-specific profile subsets, not a global14-image gate and not a runtime capability grant.",
+      "sources": [
+        {
+          "path": "EFM/source/AesaHostProfile.h",
+          "sha256": "13cce4c26eb11e7145b9b04cc6cc0384efc918c92793ecd3d6870aaa6364ab1e"
+        }
+      ]
+    },
+    {
+      "id": "ground_video_probe",
+      "owner": "Chat 3 radar; Chat 2 serializes shared integration",
+      "required_profile_modules": [
+        "dx11backend.dll",
+        "Renderer.dll"
+      ],
+      "additional_named_only_modules": [
+        "edCore.dll"
+      ],
+      "private_contracts": [
+        "Exact DX11Renderer exported vtable/pRenderApi identity; getRenderTargetInternal ed::Ptr result ABI",
+        "ITexture intrusive refcount+8/deleting method vtable+120; COM resource+136",
+        "Render-thread callable retention/pinning, context multithread protection, resource/copy/map lifetime"
+      ],
+      "named_api_families": [
+        "getDevice/getDeviceContext/getRenderTargetInternal/getResourcesList/freeStringMem",
+        "ed::RenderingThread inRenderThread/callFunction",
+        "public D3D11 COM"
+      ],
+      "current_update_work": "Optional opt-in diagnostic has old backend/Renderer guards. Separate it from five-module GroundVideo compatibility; neither stock video nor proper SAR is qualified by these export names.",
+      "sources": [
+        {
+          "path": "EFM/source/GroundVideoProbe.h",
+          "sha256": "ab86b5993e0ca569d15cf94c4e7d9d7f25a96810ae51e4b0a7ea0c4e7e99a2e1"
+        }
+      ]
+    }
+  ],
+  "evidence_levels": {
+    "original_pe": "File identity/export/import/client instructions backed by actual original file; does not recover packed empty sections.",
+    "derived_image": "Restored/stop-snapshot code with separate path/hash, derivation and covered ranges; never use its hash as original-file hash.",
+    "source_guard": "Current selected source literal guard/layout; may intentionally reject newly installed DLLs.",
+    "runtime": "Module/context/thread/lifetime and actual scene/weapon/render effects require separately recorded supported-host runs."
+  },
+  "current_aesa_evidence": [
+    "docs/overhaul/radar-execution/host-update/AIR-SEAM-PROOF.json",
+    "docs/overhaul/radar-execution/host-update/NATIVE-AESA-CURRENT.json",
+    "docs/overhaul/radar-execution/host-update/NATIVE-AESA-CURRENT.patch",
+    "docs/overhaul/radar-execution/host-update/NATIVE-AESA-QUERY-ABI.json",
+    "docs/overhaul/radar-execution/host-update/NATIVE-AESA-QUERY-ABI.patch"
+  ],
+  "current_aesa_limit": "Evidence file AIR-SEAM-PROOF includes earlier const-reference wording; later QUERY-ABI review establishes by-value callback ownership/native int result. Integrator must use final paired review, not obsolete preliminary wording. No new profile/patch is reported applied by this document.",
+  "proposed_shared_seam": {
+    "owner": "Chat2 common identity reader/report; each domain owns its typed layout descriptor, binder and lifetime",
+    "module_observation": "One bounded validated PE observation cache per initialization generation; key normalized module name, machine, timestamp, image size; retain module pointer for this generation only.",
+    "selection": "Each capability selects an immutable exact dependency-subset profile. Unknown/mixed required images unsupported; missing optional capability cannot gate another capability. No names-only acceptance where a private layout is consumed.",
+    "private_record_fields": [
+      "capability_id",
+      "profile_id",
+      "required_module_ids",
+      "private_RVAs/fields/slots/native_extents",
+      "typed_export_contracts",
+      "invariant_checks",
+      "evidence_path/hash/range/original_or_derived",
+      "owner",
+      "qualification_limits"
+    ],
+    "not_shared": "No universal native object, allocator, renderer or scene lifetime abstraction. Do not move owner algorithms or add new parameter wrapper.",
+    "first_reuse_candidates": [
+      "Exact per-cap PE identity parser/selector and bounded status enums",
+      "Cb object resolver record used by Datalink/ContactIdentity/Sidewinder",
+      "Cb allocator import-pair record used by Navigation/MWS",
+      "Scene conversion/query/terrain ABI records reused by Air/Ground only when exact signatures and ownership agree",
+      "Camera784 field record shared by GroundSensor/GroundVideo with separate object lifetimes"
+    ],
+    "startup_report": {
+      "max_modules": 16,
+      "max_capabilities": 24,
+      "fields": [
+        "generation",
+        "capability_id",
+        "profile_id_or_none",
+        "state",
+        "first_failed_requirement_id",
+        "module_identity_index",
+        "context_generation"
+      ],
+      "states": [
+        "waiting_module",
+        "unsupported_profile",
+        "missing_export",
+        "layout_mismatch",
+        "binding_available",
+        "awaiting_context",
+        "context_ready",
+        "retired"
+      ],
+      "emission": "Once at explicit initialization and on actual bounded state transition. Fixed identifiers/buffers; no per-frame symbol scans, unbounded logs or file IO.",
+      "separation": "Binding/context states do not manufacture measurement VALID, live target/IFF, scheduler grant, calibration or render/weapon effect readiness.",
+      "max_snapshot_rows": 40
+    }
+  },
+  "remaining_work": [
+    "Chat3/root apply and verify exact AirRadar profile/query ABI review before a matched build; inventory does not grant it.",
+    "Owners prove and populate only their consumed current private contracts; changed fingerprint alone is not an offset change or authorization to copy old values.",
+    "Chat2 integrate one dependency-subset identity/report helper without broad source churn; preserve all existing bool parameter readers and owner validity gates.",
+    "For every removed raw field or RVA, cite actual equivalent host getter/resolver ABI and lifetime; do not substitute names-only guessing.",
+    "Use scoped owner tests for old/new/unknown/mixed subsets, optional absence, malformed PE/export/layout, lifecycle/context reuse and allocator/dtor family; separate actual DCS qualification.",
+    "IFF remains owned by Weapons/EW and frozen; generic host binding readiness cannot assert IFF provider or reply authenticity."
+  ],
+  "source_snapshot_stable_at_write": true,
+  "validation": {
+    "checks": {
+      "all_native_cpp_covered": true,
+      "native_count": 12,
+      "module_count": 14,
+      "module_names_unique": true,
+      "all_profile_dependencies_named": true,
+      "source_hashes_match": true,
+      "anchor_lines_in_range": true,
+      "markdown_local_links_resolve": true
+    },
+    "changed_sources": [],
+    "effect": "Document/source reads only; no native code compiled, loaded or invoked."
+  },
+  "post_capture_updates": [
+    {
+      "capability": "air_radar",
+      "state": "Current host support now applied in primary NativeAesaRadar; captured source rows remain historical baseline",
+      "source_sha256": "da8cf42ffeee7ba37b4437d7fc9d9c771e755a212df1746ef5fdb5756c204e5e",
+      "evidence": "PRIMARY-RESULTS.json",
+      "build": "BUILD-RESULTS.json",
+      "installed": false,
+      "runtime_qualification": false
+    },
+    {
+      "capability": "surface_sensor_query",
+      "state": "Ground Query ABI repair committed20374a8; old host guards unchanged",
+      "source_sha256": "845f3ad1d0813435e63586b6b493196c16b74a430ef725d6b0f8b2a245654e2c",
+      "evidence": "ground-query-abi-55224a2/RESULTS.json",
+      "current_surface_profile_enabled": false
+    },
+    {
+      "capability": "navigation_receivers",
+      "state": "Navigation owner subsequently committed da11a13 and installed its matched package; consult owner receipt for current qualification. Captured inventory rows remain historical source state.",
+      "owner_receipt": "../../navigation-execution/host-update/INSTALLATION.json"
+    }
+  ],
+  "installed_native_observation": "INSTALLATION-OBSERVATION.json"
+}

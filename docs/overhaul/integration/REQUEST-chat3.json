@@ -1,0 +1,49 @@
+{
+  "owner": "chat3",
+  "priority": "URGENT_CURRENT_DCS_HOST_UPDATE_AND_NEXT_INSTALL_GATE",
+  "status": "Air compatibility55224a2 and Ground Query20374a8 committed; tested new native code is installed through current Navigation DLL. Remaining radar Lua/common registration/ground-video and in-game qualification are open.",
+  "broader_user_request": "Qualify all affected native adapters and reduce repeated update work. Inventory covers12 Native adapters/14capabilities; common bounded identity/report proposal retains per-capability dependencies and existing owners.",
+  "inventory": "../radar-execution/host-update/ADAPTER-INVENTORY.json",
+  "compatibility_proposal": "../radar-execution/host-update/COMPATIBILITY-SEAM.md",
+  "latest_source_commit": "bead9bcf94cb9bc0ab1203721aa4830bd336f251: granted protected AESA publication repair; actual current primary4550checks0fail /W4/WX/analyze. Commit slot released; no install/runtime action.",
+  "diagnosis": "../radar-execution/host-update/DIAGNOSIS.json",
+  "actual": "DCS2.9.31.29434, AESA_DRIVER_READY0/AESA_READY0/tracks0 entireflight, AESA_REASON2. InstalledoldDLL SHA c50b245ffd2c069cce105397294f9d2e17f37e5b8d5834933b4e87a309af43a5 from02:49MDT andoldradarLua.",
+  "current_host": "CockpitBase6adbad09/68e000,World6acb804e/14000,edObjects6ad87426/46000,WorldGeneral6adbace0/127b000;14sharednativeprofilesnowmismatchperChat4.",
+  "lease_request": {
+    "id": "radar-current-host-compatibility",
+    "scope": "Exact NativeAesaRadar Api module profile selection/current baseECM offsets + validated driver/responder/scene adapter changes only. Preserve publication/control packet repairs, sharedIFFconsumer additions and all other-owner native changes.",
+    "state": "Exact own air Api/profile/ECM/Query/FinalRelease repair applied under current user recovery scope; no common wrapper, NativeSidewinder, CMake, simulator or installation edit. Surface activation remains gated."
+  },
+  "proof": [
+    "Current CB driver/context/responder registration andedObjectsmanager queryslots match source",
+    "Current derived WorldGeneral primary ECM table1ef6a8/active80c70/strength80c60: current constructor/RTTI/assembly proof. Old hardcoded1d0778/65bd0/65bc0 invalid.",
+    "Remaining current scene/type/terrain/ownship getter proof underbounded analysis; surface/render remainexplicitunavailableuntilqualified.",
+    "Actual current private scene/query/FinalRelease/gun-motion interfaces checked; typed by-value callbacks and exact release signature corrected. Both coherent old/current bundles supported; unknown/mixed bundles rejected.",
+    "Ground/video current call and field matrix in host-update/current-ground/STATUS.json; Ground19 Query ownership requires the bounded repair; opaque camera/teardown and real renderer lifetime still need host qualification."
+  ],
+  "build_install": "Native DLL is now installed by Navigation owner and its embedded source digest matches current primary code, including radar fixes. Radar Lua differences and current surface/render/private-adapter qualification remain open. No simulator was operated by Chat3; coordinate the exclusive next runtime slot and complete full asset manifest, including UnitPayloads.",
+  "other_work": "User holdsSAR/featurework untilAA lock recovery; IFFfrozenhandedofftoWeaponsEW.",
+  "shared_request": "../radar-execution/integration-request.json",
+  "latest_source_commits": {
+    "publication": "bead9bcf94cb9bc0ab1203721aa4830bd336f251",
+    "air_host_compatibility": "55224a2a7be9666b66a57a7e3a4321efa9142fc0",
+    "ground_query": "20374a8c81be1677f367bf868712c3d4429cb524"
+  },
+  "actual_primary_evidence": "../radar-execution/host-update/PRIMARY-RESULTS.json",
+  "build_evidence": "../radar-execution/host-update/BUILD-RESULTS.json",
+  "test_registration": {
+    "include": [
+      "native/radar_host.cmake",
+      "native/radar_api_profile.cmake",
+      "native/radar_publication.cmake"
+    ],
+    "flags": [
+      "F22_RADAR_CURRENT_HOST_REVIEWED=ON",
+      "F22_RADAR_PUBLICATION_REVIEWED=ON"
+    ],
+    "state": "New own fragments are committed; common tests/CMakeLists remains unchanged. External actual primary tests pass; skipped/unregistered tests are not counted."
+  },
+  "native_installation_observation": "docs/overhaul/radar-execution/host-update/INSTALLATION-OBSERVATION.json",
+  "current_native_delivery": "Navigation installer installed SHAd29216510d70e41fafa878457374c7e7d845230cf6655822fbcef468c029ac34; embedded native source digest matches current primary code, including radar fixes. Newer radar Lua and actual in-game locking remain unqualified; Chat3 did not operate DCS.",
+  "packaging_gap": "../radar-execution/host-update/PACKAGING-GAPS.json"
+}

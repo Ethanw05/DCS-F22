@@ -1,0 +1,132 @@
+{
+  "scope": "Bounded read-only current DCS2.9.31.29434 ground/video ABI continuation",
+  "source_sha256": {
+    "EFM/source/NativeGroundSensor.cpp": "e20eb2e210a941795bb99bd0610f1fc0912b47c7a6397691fd0308ae03a6197f",
+    "EFM/source/NativeGroundVideo.cpp": "92d6e8fad152ee715bee104be3a49c0d54fe2e40f84753974798f1b9550cb5e6",
+    "EFM/source/GroundVideoView.h": "3c12487f3ababec965d60bc3b2ca5d99e0c20fd18c3560c71bc6e9f56b35850e"
+  },
+  "endpoints": [
+    {
+      "owner": "GroundSensor",
+      "endpoint": "terrain ray13",
+      "status": "current native caller ABI evidenced",
+      "proof": "CockpitBase427630..42770c avRangefinder and4d04f0..4d05d3 eqLitening use globalLand IAT5381d0, RDX FloatVec origin, R8 FloatVec direction, XMM3 range, fifth FloatVec* output, boolAL. Current camera uses forward230h/origin260h.",
+      "artifact": "COCKPIT-TERRAIN-RAY13.txt"
+    },
+    {
+      "owner": "GroundSensor",
+      "endpoint": "getDetectable59 -> getRCS6",
+      "status": "current named ABI and native caller evidenced",
+      "proof": "Current restored MovingObject viObject table1ef800 slot59=4b430 namesgetDetectable and returnsnull by default. wDetectable table1ef5b0 slot6=80120 namesgetRCS(float,constVec3f&), floatXMM0. Current native wRadarInfo consumer117f79 calls1d8h then117fc7 calls30h withXMM1=0,12byteVectorR8. Null is unavailable, never positiveRCS.",
+      "artifacts": [
+        "WORLDGENERAL-GROUND-RCS-MOTION.txt",
+        "WORLDGENERAL-RCS-CONSUMER.txt"
+      ]
+    },
+    {
+      "owner": "GroundSensor",
+      "endpoint": "scene subtype and velocity",
+      "status": "current restored base/subtype interface evidenced; peer reused",
+      "proof": "AIR-SEAM-PROOF.json current MovingObject secondaryISceneObject table1efc18 RTTIoffset78, slot6 importedget_Registered->primary, slot7 cast_MovingObject4b410 returnsRCX; identity1uint32; motion38=83cb0 returns borrowed12byteVec3f+254h. Source retains copied values, not native object pointers.",
+      "peer": "../AIR-SEAM-PROOF.json"
+    },
+    {
+      "owner": "GroundSensor",
+      "endpoint": "volume19 callback ownership/return",
+      "status": "SOURCE REPAIR REQUIRED; no profile-only enable",
+      "proof": "Current edObjects constructor92a0 selects2a940, slot19=c290. Incoming callbackR9 holder+38h is cloned/moved/cleared and destroyed through itsvirtual+20h before return, matching peer20/24 by-value ownership proof. Return EAX is int. Current source declares constQuery&/void.",
+      "proposal": "GROUND-QUERY-OWNERSHIP.UNAPPLIED.patch",
+      "limits": "Patch intentionally keeps old profile restrictions and is not applied or compiled. Paired actual fixture signatures must be migrated and verified by integrator."
+    },
+    {
+      "owner": "GroundVideo",
+      "endpoint": "primary vtable/context/controller/target",
+      "status": "current static interface evidenced",
+      "proof": "CockpitBase5581e0 primary41methods, deletingdtor1/release4/camera21/point22/condition23/params24/always25. Getters2c8fd0 context18h,2ce370 controller38h,45a160 target470h. Current bridges513680/513750/513980/5139e0/5160c0 forward through those exactslots and render_targets vector65db98.",
+      "artifact": "COCKPIT-INDICATOR-RENDER-BRIDGES.txt",
+      "prior": "External radar-current-host/ground/CURRENT-EXPORT-DISASSEMBLY.txt"
+    },
+    {
+      "owner": "GroundVideo",
+      "endpoint": "HeapVector/DynamicParam transaction",
+      "status": "current allocation/borrowed layout evidenced",
+      "proof": "Visualizerbda80 prepares per-target vector, defaultcount18 (othermode classes60), resizesa60e0, zeroescount*8, data pointer+0 and signedcount+8; thenbdbb6 callsICockpitMT+0d8h withtargetEDX and borrowedbufferR8. CB5139e0 passesbuffer toindicator24 inRDX without modifying header. Source writes18*8 data bytes only.",
+      "artifacts": [
+        "VISUALIZER-PARAMETER-OWNER.txt",
+        "COCKPIT-INDICATOR-RENDER-BRIDGES.txt",
+        "VISUALIZER-RADAR-MODE-FIELDS.txt"
+      ]
+    },
+    {
+      "owner": "GroundVideo",
+      "endpoint": "condition/camera/point ordering",
+      "status": "current synchronous local call sequence evidenced; runtime scheduling unproved",
+      "proof": "Visualizerbc470 callsbd5e0 (condition, camera then24byte point) beforebda80 parameter capture. bd530 jump table mapscondition3 toshader11. CB513680 returnscamera reference;513750 forwards hidden24byte resultRDX/RAX. This does not establish host-wide thread/teardown serialization.",
+      "artifacts": [
+        "VISUALIZER-SCREEN-TRANSACTION.txt",
+        "VISUALIZER-CONDITION-MODE.txt",
+        "VISUALIZER-CONDITION-TABLE.json"
+      ]
+    },
+    {
+      "owner": "GroundVideo",
+      "endpoint": "radar field types/transient ownership",
+      "status": "current typed reads/consumption evidenced",
+      "proof": "Visualizerbc782 radar11 branch copiesParam0/1/2/4/8/9/10 as32bitfloats toMFD148/14c/150/154/158/15c/160h;Param5/6 lowbytes ->191/190h;Param7cstring copied toownededString170h, then5/6 bytes and7pointer cleared. Optional11/12/13 floatfields retained; source initializesunusedtailzero.",
+      "artifact": "VISUALIZER-RADAR-MODE-FIELDS.txt"
+    },
+    {
+      "owner": "GroundVideo",
+      "endpoint": "SceneRenderer/enlight forwarding",
+      "status": "current field forwarding evidenced; achieved images unproved",
+      "proof": "SceneRenderer45f40 readsRadarData preset58h,len68h andflags78/79h; setsenlightclear367h/buildDBS10ch.46194 calls currentIAT4f818 AGRadar::update;45f97 uses4f820 applyConfigPreset. Scalar/vectorpayload preserved intoParams. CurrentGM_F16/EXP_F16/DBS1_F16/DBS2_F16/F18_TA exist inConfig/Effects/radar.lua.",
+      "artifact": "SCENERENDERER-RADAR-INPUT.txt",
+      "limits": "Full pixel cadence, exact current draw-stage completion versus mod ImageCycle submissions, camera/parameter render-thread overlap and 2D/VR outputs were not observed. Do not call these field forwards a qualified renderer transaction."
+    },
+    {
+      "owner": "GroundVideo/GroundSensor",
+      "endpoint": "Graphics::Camera storage consumed fields",
+      "status": "current constructor/clip field access evidenced",
+      "proof": "CurrentGraphicsVista1e480 constructor and1e620 dirty branch use transform230h,projection2b0h,clipcache228h,dirty308h. Ground/View writes match those consumed fields; Rangefinder confirmsorigin260h.",
+      "prior": "External radar-current-host/ground/GRAPHICS-CLIP-DIRTY-BRANCH.txt",
+      "limits": "Opaque size784 and embedded-native-object lifetime/constructor closure are not certified by field offsets alone; thread-local reuse and shutdown need current supported-host review."
+    }
+  ],
+  "profile_candidate_ready": {
+    "GroundSensor": false,
+    "GroundVideo": false
+  },
+  "profile_patch_produced": false,
+  "profile_disposition": "Do not hold air recovery. No surface profile-only update: known Query ownership repair prerequisite and remaining lifecycle/renderer-transaction gates are explicit. Exact current module identities are inINPUTS.json, not activation permission.",
+  "remaining_blocked_interfaces": [
+    {
+      "interface": "Ground query C++ ownership",
+      "required": "Apply/review paired by-valueQuery/int-return/std::move repair and migrate actual callback fixture prototypes. Existing const-ref/void declaration is not supported by current host bodies."
+    },
+    {
+      "interface": "Scene object/current callback lifecycle",
+      "required": "Establish supported current callback completion/borrowed instance validity and shutdown/stop ordering; interface slots alone do not pin objects or exclude in-flight teardown."
+    },
+    {
+      "interface": "Opaque Camera lifetime/closure",
+      "required": "Review all constructor/clip/projection consumed extent and thread-local camera reset/teardown behavior; partial field layout is insufficient as a complete opaque-object proof."
+    },
+    {
+      "interface": "Renderer transaction/thread/lifetime",
+      "required": "Verify current enlight draw-stage completion versus ImageCycle capture/submission policy and captured camera/point/params across actual callback threads, stop/teardown and retained image epochs."
+    },
+    {
+      "interface": "Achieved current-host surface result",
+      "required": "Integrator exclusive host slot after reviewed source/build identity: current surface collection/acquisition/FTT/range and native pixels2D/VR as applicable. No current-host flight/image/effect result is inferred from offlineABI."
+    }
+  ],
+  "effects": {
+    "production_source_modified": false,
+    "shared_files_modified": false,
+    "nativeDLL_loaded_or_executed": false,
+    "simulator_access": false,
+    "IDA_UI_opened": false,
+    "original_research_modified": false
+  },
+  "query_peer_scope": "Native air admission owner independently proves manager20/24 byvalue semantics; this slice only confirms19 and references that proof."
+}

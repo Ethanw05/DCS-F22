@@ -1,0 +1,236 @@
+[
+  {
+    "module": "CockpitBase",
+    "rva": "0x31fff9",
+    "end": "0x320b10",
+    "land": [
+      "0x32040e",
+      "0x320507",
+      "0x320600"
+    ],
+    "calls": [
+      [
+        "0x32043c",
+        "qword ptr [rax + 0x68]"
+      ],
+      [
+        "0x320535",
+        "qword ptr [rax + 0x68]"
+      ],
+      [
+        "0x32062e",
+        "qword ptr [rax + 0x68]"
+      ]
+    ]
+  },
+  {
+    "module": "CockpitBase",
+    "rva": "0x356c90",
+    "end": "0x356e8c",
+    "land": [
+      "0x356d6f"
+    ],
+    "calls": [
+      [
+        "0x356d99",
+        "qword ptr [rax + 0x68]"
+      ]
+    ]
+  },
+  {
+    "module": "CockpitBase",
+    "rva": "0x383f60",
+    "end": "0x384ee6",
+    "land": [
+      "0x3848b8"
+    ],
+    "calls": [
+      [
+        "0x3848f5",
+        "qword ptr [rax + 0x78]"
+      ]
+    ]
+  },
+  {
+    "module": "CockpitBase",
+    "rva": "0x386960",
+    "end": "0x387256",
+    "land": [
+      "0x3871a0"
+    ],
+    "calls": [
+      [
+        "0x387220",
+        "qword ptr [rax + 0x78]"
+      ]
+    ]
+  },
+  {
+    "module": "CockpitBase",
+    "rva": "0x3ad540",
+    "end": "0x3adf64",
+    "land": [
+      "0x3adb0e"
+    ],
+    "calls": [
+      [
+        "0x3adb52",
+        "qword ptr [rax + 0x78]"
+      ]
+    ]
+  },
+  {
+    "module": "CockpitBase",
+    "rva": "0x41d290",
+    "end": "0x41d4c5",
+    "land": [
+      "0x41d33d"
+    ],
+    "calls": [
+      [
+        "0x41d39c",
+        "qword ptr [rax + 0x68]"
+      ]
+    ]
+  },
+  {
+    "module": "CockpitBase",
+    "rva": "0x41ebd0",
+    "end": "0x41f044",
+    "land": [
+      "0x41ef3f"
+    ],
+    "calls": [
+      [
+        "0x41ef65",
+        "qword ptr [rax + 0x78]"
+      ]
+    ]
+  },
+  {
+    "module": "CockpitBase",
+    "rva": "0x4215a0",
+    "end": "0x42170e",
+    "land": [
+      "0x421631"
+    ],
+    "calls": [
+      [
+        "0x421648",
+        "qword ptr [rax + 0x78]"
+      ]
+    ]
+  },
+  {
+    "module": "CockpitBase",
+    "rva": "0x423e1f",
+    "end": "0x423f15",
+    "land": [
+      "0x423e75"
+    ],
+    "calls": [
+      [
+        "0x423ea0",
+        "qword ptr [rax + 0x78]"
+      ]
+    ]
+  },
+  {
+    "module": "CockpitBase",
+    "rva": "0x427630",
+    "end": "0x42770c",
+    "land": [
+      "0x42763a"
+    ],
+    "calls": [
+      [
+        "0x42767b",
+        "qword ptr [rax + 0x68]"
+      ]
+    ]
+  },
+  {
+    "module": "CockpitBase",
+    "rva": "0x427a70",
+    "end": "0x427df1",
+    "land": [
+      "0x427b1a"
+    ],
+    "calls": [
+      [
+        "0x427b4a",
+        "qword ptr [rax + 0x68]"
+      ]
+    ]
+  },
+  {
+    "module": "CockpitBase",
+    "rva": "0x42fb45",
+    "end": "0x42fc29",
+    "land": [
+      "0x42fba0"
+    ],
+    "calls": [
+      [
+        "0x42fbb6",
+        "qword ptr [rax + 0x78]"
+      ]
+    ]
+  },
+  {
+    "module": "CockpitBase",
+    "rva": "0x43fe10",
+    "end": "0x44016d",
+    "land": [
+      "0x44005e"
+    ],
+    "calls": [
+      [
+        "0x440088",
+        "qword ptr [rax + 0x78]"
+      ]
+    ]
+  },
+  {
+    "module": "CockpitBase",
+    "rva": "0x440a80",
+    "end": "0x4412fb",
+    "land": [
+      "0x440d46"
+    ],
+    "calls": [
+      [
+        "0x440d91",
+        "qword ptr [rax + 0x78]"
+      ]
+    ]
+  },
+  {
+    "module": "CockpitBase",
+    "rva": "0x4d04f0",
+    "end": "0x4d05d3",
+    "land": [
+      "0x4d051d"
+    ],
+    "calls": [
+      [
+        "0x4d055e",
+        "qword ptr [rax + 0x68]"
+      ]
+    ]
+  },
+  {
+    "module": "WorldGeneral",
+    "rva": "0x10a180",
+    "end": "0x10a275",
+    "land": [
+      "0x10a23c"
+    ],
+    "calls": [
+      [
+        "0x10a250",
+        "qword ptr [rax + 0x78]"
+      ]
+    ]
+  }
+]

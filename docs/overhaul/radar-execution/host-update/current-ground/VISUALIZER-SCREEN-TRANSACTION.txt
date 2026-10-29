@@ -1,0 +1,93 @@
+0x1800bd5e0: mov qword ptr [rsp + 8], rbx
+0x1800bd5e5: mov qword ptr [rsp + 0x18], rbp
+0x1800bd5ea: mov qword ptr [rsp + 0x10], rdx
+0x1800bd5ef: push rsi
+0x1800bd5f0: push rdi
+0x1800bd5f1: push r14
+0x1800bd5f3: sub rsp, 0x30
+0x1800bd5f7: mov esi, r8d
+0x1800bd5fa: mov rbx, rdx
+0x1800bd5fd: mov r14, rcx
+0x1800bd600: xor ebp, ebp
+0x1800bd602: mov rcx, qword ptr [rcx]
+0x1800bd605: test rcx, rcx
+0x1800bd608: je 0x1800bd618
+0x1800bd60a: mov rax, qword ptr [rcx]
+0x1800bd60d: mov edx, r8d
+0x1800bd610: call qword ptr [rax + 0xc8]
+0x1800bd616: jmp 0x1800bd636
+0x1800bd618: mov rax, qword ptr [rip + 0x171e99]
+0x1800bd61f: mov rcx, qword ptr [rax]
+0x1800bd622: test rcx, rcx
+0x1800bd625: je 0x1800bd701
+0x1800bd62b: mov rax, qword ptr [rcx]
+0x1800bd62e: mov edx, esi
+0x1800bd630: call qword ptr [rax + 0x90]
+0x1800bd636: mov edi, eax
+0x1800bd638: test eax, 0xfffffff7
+0x1800bd63d: je 0x1800bd703
+0x1800bd643: mov rcx, qword ptr [r14]
+0x1800bd646: test rcx, rcx
+0x1800bd649: je 0x1800bd68a
+0x1800bd64b: mov rax, qword ptr [rcx]
+0x1800bd64e: mov edx, esi
+0x1800bd650: call qword ptr [rax + 0xb8]
+0x1800bd656: mov rdx, rax
+0x1800bd659: mov rcx, rbx
+0x1800bd65c: call 0x1800bb110
+0x1800bd661: nop 
+0x1800bd662: mov rcx, qword ptr [r14]
+0x1800bd665: lea rdx, [rbx + 0x310]
+0x1800bd66c: mov rax, qword ptr [rcx]
+0x1800bd66f: mov r8d, esi
+0x1800bd672: call qword ptr [rax + 0xc0]
+0x1800bd678: mov dword ptr [rbx + 0x328], edi
+0x1800bd67e: mov byte ptr [rbx + 0x32c], 1
+0x1800bd685: jmp 0x1800bd730
+0x1800bd68a: mov rax, qword ptr [rip + 0x171e27]
+0x1800bd691: mov rcx, qword ptr [rax]
+0x1800bd694: mov rax, qword ptr [rcx]
+0x1800bd697: mov r8d, esi
+0x1800bd69a: mov rdx, rbx
+0x1800bd69d: call qword ptr [rax + 0x80]
+0x1800bd6a3: nop 
+0x1800bd6a4: mov rax, qword ptr [rip + 0x171e0d]
+0x1800bd6ab: mov rcx, qword ptr [rax]
+0x1800bd6ae: lea rdx, [rbx + 0x310]
+0x1800bd6b5: mov rax, qword ptr [rcx]
+0x1800bd6b8: mov r8d, esi
+0x1800bd6bb: call qword ptr [rax + 0x88]
+0x1800bd6c1: mov dword ptr [rbx + 0x328], edi
+0x1800bd6c7: mov rax, qword ptr [rip + 0x17103a]
+0x1800bd6ce: mov rcx, qword ptr [rax]
+0x1800bd6d1: mov rax, qword ptr [rcx]
+0x1800bd6d4: call qword ptr [rax + 0xb0]
+0x1800bd6da: test al, al
+0x1800bd6dc: jne 0x1800bd6f7
+0x1800bd6de: mov rax, qword ptr [rip + 0x171dd3]
+0x1800bd6e5: mov rcx, qword ptr [rax]
+0x1800bd6e8: mov rax, qword ptr [rcx]
+0x1800bd6eb: mov edx, esi
+0x1800bd6ed: call qword ptr [rax + 0xa8]
+0x1800bd6f3: test al, al
+0x1800bd6f5: je 0x1800bd6f9
+0x1800bd6f7: mov al, 1
+0x1800bd6f9: mov byte ptr [rbx + 0x32c], al
+0x1800bd6ff: jmp 0x1800bd730
+0x1800bd701: mov edi, ebp
+0x1800bd703: xor edx, edx
+0x1800bd705: mov rcx, rbx
+0x1800bd708: call qword ptr [rip + 0x170c22]
+0x1800bd70e: mov qword ptr [rbx + 0x310], rbp
+0x1800bd715: mov qword ptr [rbx + 0x318], rbp
+0x1800bd71c: mov qword ptr [rbx + 0x320], rbp
+0x1800bd723: mov dword ptr [rbx + 0x328], edi
+0x1800bd729: mov byte ptr [rbx + 0x32c], bpl
+0x1800bd730: mov rax, rbx
+0x1800bd733: mov rbx, qword ptr [rsp + 0x50]
+0x1800bd738: mov rbp, qword ptr [rsp + 0x60]
+0x1800bd73d: add rsp, 0x30
+0x1800bd741: pop r14
+0x1800bd743: pop rdi
+0x1800bd744: pop rsi
+0x1800bd745: ret 

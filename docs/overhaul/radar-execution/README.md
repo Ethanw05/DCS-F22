@@ -1,58 +1,41 @@
-# Radar execution — partial source slice, full assignment open
+# Radar execution in the primary main checkout
 
-Accountable owner: Chat 3. Work remains in the primary checkout on `main`.
-Shared coordination and leases are in `../integration/STATUS.json`. The initial
-42 affected-file hashes matched the supplied audit, as did all 60 assigned test
-artifacts. Unrelated research tools, archives and other owners' edits are preserved.
+All implementation is in `C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/DCS-F22` on `main`. No alternate aircraft checkout is used. The earlier `radar-preparation` artifacts were preliminary review/probe material and are superseded by the current owning sources and evidence here. Build outputs live outside the aircraft checkout in `F22-Build`.
 
-## Applied and checked
+Current priority is recovery after the user's DCS update to **2.9.31.29434**. The failed flight log shows native radar profile rejection (`AESA_REASON=2`), no ready driver and no tracks. At that time the installed DLL and radar Lua predated the recent source work. [host-update/DIAGNOSIS.json](host-update/DIAGNOSIS.json) separates that failure from current source and candidate evidence. Current native compatibility work takes precedence over SAR feature development; IFF backend work remains with Weapons/EW. The offline tests do not demonstrate a recovered in-flight lock.
 
-P-RAD-001 core removes the obsolete Lua scan enclosure and RF-window admission
-workaround. Native-owned reports retain original observation time, coherent
-generation and finite/age/physical-volume admission, with the explicit retained
-source exception. Search requests describe the pilot volume; support age and
-association remain separate. The old F22G noise-map reader, 256-slot overlay work,
-F22O/F22N telemetry readers and test-only native noise decoder are removed.
-Ground rollback cancellation keeps its clock in the active ground owner.
+The native publication repair (`bead9bc`), current air-host adapter (`55224a2`) and ground callback ownership fix (`20374a8`) are now committed on `main`. The Navigation installer subsequently installed a DLL whose embedded source identity matches current native code, including those repairs; [INSTALLATION-OBSERVATION.json](host-update/INSTALLATION-OBSERVATION.json) records the independent file check. Newer radar Lua, other adapter qualification and an actual in-game scan/lock remain open. SAR remains held during this recovery.
 
-P-RAD-002 core validates every closure component and result, preserves true zero,
-and withdraws invalid STT without falling back to a selected track. Cursor motion
-uses bounded model-clock elapsed time rather than callback count. Pause creates
-no motion; clock/focus/page/power/gap loss cancels held input and requires new
-consent. The 0.25 s input-gap limit is a declared game policy.
+The first source-admission/finite-closure/cadence slice is integrated at `d7c614d`. The current continuation is applied to the same primary source, with shared consumer changes supplied as focused review patches for the single integrator. No concurrent staging/commit, installation or simulator operation was performed by Chat3.
 
-Six assigned old tests were deleted after an immediate unchanged-hash check and
-independently remade against the new shared host ports. Thirteen replacement
-tests pass, including routed controls and tactical output, scan boundaries,
-finite/zero/invalid recovery, torn/generation failure, STT withdrawal, rollback
-and 30/60/240 Hz/jitter/pause/loss cases. Original recordings remain intact.
-See `TEST-REMAKE.json`, `SOFTWARE-RESULTS.json` and `SOFTWARE-TEST-RESULTS.txt`.
-An independent source review found no remaining actionable new regression.
+## Current software
 
-## Remaining work and gates
+- Native source2 reports are admitted independently of the obsolete enclosing Lua search window. Original time, finite geometry, age, physical field of view and source generations remain checked. Retired F22G/F22O/F22N readers and the native noise decoder are removed.
+- Closing-positive closure rejects malformed inputs and preserves valid zero. Elapsed model time governs cursor motion; loss/reset/focus/page/power cancels held axes. Nonfinite discrete commands are rejected before decoding.
+- Ground measurement association uses owned tokens and measured innovation/ambiguity, rather than private host identity. Pending samples, selected/acquisition/range/filter state retire together on source discontinuity. MAP/GMT/SEA provenance prevents old-family search plots crossing modes.
+- Native camera capture validates all used geometry and derived tuples. Native controls and report readers bracket complete groups, retain original producer leases and reject failed conversions instead of treating them as valid zero.
+- Own tactical publication has an odd/even schema and source epoch. The native reader and Lua checked reader accept a complete snapshot or unavailable. The actual Lua write order is replayed at every protected native reader/writer boundary.
+- Ground designation carries original observation time, source epoch/request/type and live/fixed qualification. The checked mark reader and MAP cue use that evidence. The paired mark/stores/weapon/navigation/ballistic consumer patch and native release consumer patch remain explicit shared integration work.
+- Expanded terrain projection rejects nonfinite heights and recenter resets expanded cursor axes. SIL/ACTIVE/FRZ collection and source reset are covered by independent workflow cases.
 
-| Package | Current disposition |
+## Evidence and integration
+
+`software/RESULTS.json` records the current independent Lua cases and source stability; `software/LUA-LINT.log` records the pinned Lua5.1 lint delta. Full syntax-tree complexity is in `software/COMPLEXITY.json`, with named retained legacy-controller exceptions in `CODING-EXCEPTIONS.json`; new packet modules stay within CC14. These are numerical/software results, not observed DCS scheduling or aircraft validation.
+
+Native evidence is under `native/`, `ground/`, `model/` and `build/`. The full DLL build succeeded with no radar warnings, but common source changed during compilation; its manifest explicitly records drift and is provisional. A final coherent stable build after shared cutover is required before installation. The independent native targets use `/W4 /WX /analyze`.
+
+`integration-request.json` is the current paired-consumer/registration/commit/runtime handoff. Shared patches are not production application evidence. Chat4's reviewed tactical corrections preserve friendly protection with unknown identity age and permit a fresh source epoch after a small timestamp rollback while retaining independent RF evidence. Original recordings and research bytes are retained. `feasibility/TEST-DISPOSITIONS.json` accounts for all60 assigned artifacts; remaining legacy helper callers are explicitly assigned in `cleanup/integration-request.json`.
+
+## Open delivery gates
+
+| Package | Remaining gate |
 | --- | --- |
-| P-RAD-001 | Core fixed; PMFD SEARCH and Engagement support consumer patch awaits serialized Chat 2/4 review. |
-| P-RAD-002 | Core software cases pass; integration, commit, installation and host qualification remain. |
-| P-RAD-003 | Native measured-association/request draft prepared; paired Lua packet/epoch and mark/weapon/navigation schemas require agreement. |
-| D-P-RAD-001 | Native finite-camera/control-lease and ground-history drafts prepared. Checked-read port is tested, but full cutover and shared tactical packet consumer migration remain open. |
-| P-RAD-004 | Depends on the preceding software chains, native lifetime/effect/render/budget evidence and an exclusive runtime slot. |
-| P-RAD-005 | Coherent SAR enablement proposed NO-GO until terrain/render/owned-texture/VR budget contracts are qualified; P-RAD-004 prerequisite remains. |
-| P-RAD-006 | Dependent/unselected coherent SAR; preserve the active MAP/DBS imagery owner. |
-| P-RAD-007 | Wait for Chat 4's P-WPN-004 IFF_PROVIDER_READY; no reverse prerequisite or coalition identity substitute. |
-| P-RAD-008 | 37-parameter evidence ledger and independent validation design prepared; host evidence and calibration remain unqualified. |
+| P-RAD-001/002 | Final caller retirement and current stable integrated package/host evidence; first slice already committed. |
+| P-RAD-003 | Paired shared mark/delivery/native consumer application and current target chain qualification. |
+| D-P-RAD-001 | Shared transmit/fusion/release cutover and exact supported-host lifecycle/scheduling evidence. |
+| P-RAD-004 | Exact loaded DLL/assets/hooks/input identity, native velocity ABI, real effects/AA-AG contention, image registration and measured CPU/GPU/allocation budgets; exclusive runtime slot. |
+| P-RAD-005/006 | Coherent SAR is requested and remains open; actual environment/output/texture contracts and bounded collection/formation/VR budgets are prerequisites. Current MAP/DBS remains active. |
+| P-RAD-007 | Chat4 IFF_PROVIDER_READY: qualified backend or independently tested explicit unavailable decision; no coalition substitute and no reverse prerequisite. |
+| P-RAD-008 | Versioned estimates/evidence ledger and declared-model checks exist; independent aircraft calibration and integrated host-cost evidence remain open. |
 
-Native drafts and independent candidate-only probes are under the task workspace
-`radar-preparation/native-admission/` and `radar-preparation/surface-association/`.
-They are not applied production code or package acceptance. Geometry has 21
-candidate checks; the actual candidate control reader has 107; measured ground
-probes exercise host-ID permutation, ambiguous crossing/coast, queue rollback,
-current-request recovery and bounded work. Candidate native syntax passes MSVC
-`/W4 /WX`; that does not establish supported DCS ABI/thread/render/effect behavior.
-
-`integration-request.json` records exact shared consumer patches, excluded donor
-field cleanup and a focused commit request. Per the integrator lease Chat 3 has
-not staged or committed concurrently. No DLL was built for this applied Lua slice,
-installed file changed, hook run or simulator operated. No package is marked
-complete, and no 2D/VR/multiplayer/aircraft calibration result is inferred.
+[R-RAD-021 and R-RAD-022](REQUESTED-ADDITIONS.md) record the user's added A/A-in-A/G and coherent SAR requirements. Existing source already schedules background airborne work and ingests its reports in A/G; installed new-target continuity and pilot/tactical presentation still require end-to-end qualification. SAR has no permanent selected-off closure. None of these documents claims DCS/2D/VR/multiplayer qualification or coherent SAR completion.

@@ -1,0 +1,122 @@
+[
+  {
+    "condition": 0,
+    "target_rva": "0xbd593",
+    "instructions": [
+      "xor eax, eax",
+      "ret "
+    ]
+  },
+  {
+    "condition": 1,
+    "target_rva": "0xbd557",
+    "instructions": [
+      "mov eax, 3",
+      "ret "
+    ]
+  },
+  {
+    "condition": 2,
+    "target_rva": "0xbd55d",
+    "instructions": [
+      "mov eax, 4",
+      "ret "
+    ]
+  },
+  {
+    "condition": 3,
+    "target_rva": "0xbd58d",
+    "instructions": [
+      "mov eax, 0xb",
+      "ret "
+    ]
+  },
+  {
+    "condition": 4,
+    "target_rva": "0xbd575",
+    "instructions": [
+      "mov eax, 8",
+      "ret "
+    ]
+  },
+  {
+    "condition": 5,
+    "target_rva": "0xbd56f",
+    "instructions": [
+      "mov eax, 6",
+      "ret "
+    ]
+  },
+  {
+    "condition": 6,
+    "target_rva": "0xbd54b",
+    "instructions": [
+      "mov eax, 1",
+      "ret "
+    ]
+  },
+  {
+    "condition": 7,
+    "target_rva": "0xbd55d",
+    "instructions": [
+      "mov eax, 4",
+      "ret "
+    ]
+  },
+  {
+    "condition": 8,
+    "target_rva": "0xbd551",
+    "instructions": [
+      "mov eax, 2",
+      "ret "
+    ]
+  },
+  {
+    "condition": 9,
+    "target_rva": "0xbd587",
+    "instructions": [
+      "mov eax, 9",
+      "ret "
+    ]
+  },
+  {
+    "condition": 10,
+    "target_rva": "0xbd57b",
+    "instructions": [
+      "mov eax, 7",
+      "ret "
+    ]
+  },
+  {
+    "condition": 11,
+    "target_rva": "0xbd55d",
+    "instructions": [
+      "mov eax, 4",
+      "ret "
+    ]
+  },
+  {
+    "condition": 12,
+    "target_rva": "0xbd581",
+    "instructions": [
+      "mov eax, 0xa",
+      "ret "
+    ]
+  },
+  {
+    "condition": 13,
+    "target_rva": "0xbd569",
+    "instructions": [
+      "mov eax, 5",
+      "ret "
+    ]
+  },
+  {
+    "condition": 14,
+    "target_rva": "0xbd563",
+    "instructions": [
+      "mov eax, 0xc",
+      "ret "
+    ]
+  }
+]

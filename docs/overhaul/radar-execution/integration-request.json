@@ -1,6 +1,6 @@
 {
   "owner": "chat3",
-  "status": "requested; no expanded lease assumed",
+  "status": "PAIRED_CORE_INTEGRATED_MAIN; PUBLICATION_REPAIR_AND_TARGET_EXTRACTION_READY; IFF_CONSUMER_FINALIZATION_IN_PROGRESS",
   "source_lease": "radar-independent",
   "shared_status": "../integration/STATUS.json",
   "requests": [
@@ -64,7 +64,8 @@
         "Cockpit/Scripts/Systems/Radar_Donor_Cue.lua": "421fa3fedfbb3e7e460c646deab1acd54c6b5946a6815e652868b16d09c1c065"
       },
       "tests": "13 requirement behavior tests + Lua51 tracked-source syntax test pass",
-      "source_ready_for_integration_review": true
+      "source_ready_for_integration_review": false,
+      "status": "already integrated d7c614d"
     },
     {
       "id": "radar-native-cutover-scope",
@@ -79,15 +80,317 @@
         "EFM/source/GroundMovingTargets.h"
       ],
       "needed": "Explicit native owning-region migration gate/lease using tested I-INT-003 port. Keep direct bool readers; local camera adapter will use shared bool getParamNumber(handle,value). NativeDatalink/Radar_Tactical/Tactical_Picture need Chat4 schema/region review before complete D package.",
-      "draft_checks": "21 geometry + 107 packet reader checks; surface draft probes prepared",
-      "status": "draft only; no native edit applied"
+      "status": "Scoped owning native adapters implemented under available checked-read-port gate; direct bool readers preserved. Shared adapters remain focused unapplied patches."
+    },
+    {
+      "id": "radar-native-test-registration",
+      "action": "Review/register all five listed fragments;10 native owning executable targets.",
+      "paths": [
+        "tests/native/radar_admission.cmake",
+        "tests/native/radar_ground.cmake",
+        "tests/native/radar_model.cmake",
+        "tests/native/radar_coordination.cmake",
+        "tests/native/radar_target.cmake"
+      ],
+      "readiness": "All five fragments now included in actual tests/CMakeLists.txt; owning10 native targets. Publication test is separate gated sixth fragment, enabled only with repair.",
+      "shared_file": "tests/CMakeLists.txt",
+      "status": "APPLIED_BY_INTEGRATOR"
+    },
+    {
+      "id": "radar-tactical-complete-packet",
+      "action": "Review/apply paired native transmit and Lua fusion-consumer patches under Chat4 region review, schema in PACKET-CONTRACT.md",
+      "patches": [
+        "docs/overhaul/radar-execution/native/TACTICAL-TRANSMIT.patch",
+        "docs/overhaul/radar-execution/TACTICAL-CONSUMERS.patch"
+      ],
+      "baseline_files": [
+        "docs/overhaul/radar-execution/native/TACTICAL-TRANSMIT.json",
+        "docs/overhaul/radar-execution/TACTICAL-CONSUMERS-SOURCES.json"
+      ],
+      "already_owned_applied": [
+        "Cockpit/Scripts/Systems/Radar_Tactical.lua odd/even schema1 source epoch producer",
+        "Cockpit/Scripts/Systems/Radar_Tactical_Snapshot.lua checked coherent reader",
+        "EFM/source/RadarTacticalPacket.h checked complete snapshot"
+      ],
+      "wire_scope": "Chat4 owns independent identity wire/clock/epoch migration. Legacy v1 cannot authenticate identity age; proposed reader sends unknown identity until that migration. No coalition truth.",
+      "readiness": "Current own Lua and applied tactical fusion checks pass; Native185/290/1415 plus actual Lua trace4103 pass and stable checked-port source identity. Six actual full-fusion cases cover clocks/epoch/friendly protection/independent RF.",
+      "consumer_owner_review": "docs/overhaul/chat4-weapons-ew/radar-packet-review.json",
+      "integration_update": "Chat2 reports paired native transmit and Lua fusion consumer patch applied. Final source identity/tests to be refreshed after adapter cutover.",
+      "status": "APPLIED_BY_INTEGRATOR; nativeacb527c + Lua361268a"
+    },
+    {
+      "id": "radar-mark-provenance",
+      "action": "Review paired mark/weapon/navigation/ballistic provenance patch when target-handoff/SHARED.patch ready; no shared source edit by Chat3",
+      "contract": "PACKET-CONTRACT.md",
+      "already_owned_applied": [
+        "AG_Radar_System original designation metadata/control transaction",
+        "AG_Target_Provenance.lua checked source capture/currentness",
+        "AG_Target_Snapshot.lua coherent mark/delivery reader",
+        "AG_Radar_System post-commit checked MAP mark projection"
+      ],
+      "request": "Source2 live objects cannot be recreated as fresh fixed coordinates; preserve original observation qualifiers through release prediction. Source1 LOS/source3 NAV behavior preserved.",
+      "patch": "docs/overhaul/radar-execution/target-handoff/SHARED.patch",
+      "baseline_files": "docs/overhaul/radar-execution/target-handoff/EXPECTED-SOURCES.json",
+      "readiness": "Five-file Lua patch17 tests pass; native ground-target header and focused UNAPPLIED callback patch now supplied separately. Rebase against integrator current NativeSidewinder after native-parameter-cutover-final-adapters lease. No shared source write/restore by Chat3.",
+      "status": "APPLIED_BY_INTEGRATOR_69810c2; final whole-chain current-source tests to be refreshed after IFF own edit finishes"
+    },
+    {
+      "id": "radar-iff-provider-ready",
+      "action": "Chat4 P-WPN-004 supplies actual qualified backend or independently tested explicit unavailable/no-go provider decision. Radar consumes provider fields/schema; no reverse IFF prerequisite. Record exact request/source/time/epoch/reply/unsupported contract.",
+      "current": "Existing radar-side no-go consumer and proposed shared UNAV indication preserved for Weapons-EW/Chat2 region review; native IFF backend remains unfinished. No further consumer/backend work in this chat.",
+      "status": "USER_DIRECTED_HANDOFF_TO_WEAPONS_EW; no further IFF work by Chat3",
+      "handoff": "docs/overhaul/radar-execution/iff/HANDOFF.json"
+    },
+    {
+      "id": "radar-user-additions",
+      "action": "Adopt R-RAD-021 A/A surveillance during A/G and R-RAD-022 coherent SAR as requested implementation requirements in canonical backlog/profile decision",
+      "evidence": "REQUESTED-ADDITIONS.md and REQUESTED-ADDITIONS.json",
+      "limits": "Scheduler intended A/A background exists, requires end-to-end installed qualification. Coherent SAR requested; current runtime unavailable until qualified; selected-off no longer final completion disposition."
+    },
+    {
+      "id": "radar-runtime-slot",
+      "action": "Schedule exclusive authorized install/native qualification slot after coherent main source/build review; no DCS process currently observed by Chat3, no takeover/termination performed",
+      "conditions": [
+        "Freeze exact source/DLL/assets/hooks/default input/installed identity",
+        "Preserve user bindings/HUD/audio/passive recorder",
+        "Only final reviewed build installed, no incidental control hooks activation"
+      ],
+      "state": "requested, not claimed"
+    },
+    {
+      "id": "radar-donor-token-domain",
+      "action": "Chat4/Chat2 review and apply focused donor cue token-domain patch after actual current-source hash check",
+      "patch": "docs/overhaul/radar-execution/DONOR-TOKEN.patch",
+      "source": "Cockpit/Scripts/Systems/Radar_Donor_Cue.lua",
+      "reason": "Positive uint32 SOURCE3000000000 is offered and accepted by Link but generic geometry abs<1e9 rejects it at Cue. Patch distinguishes uint32 SOURCE/EPOCH from unchanged finite geometry domain; committed sequence bound matches existing writer.",
+      "status": "UNAPPLIED exact shared proposal; high-token end-to-end reader tests pass against pinned review hunks. metadata resource/DONOR-TOKEN-IDENTITY.json."
+    },
+    {
+      "id": "radar-ground-target-native",
+      "action": "Review/rebase focused native ground delivery capture/callback patch after final-adapter source migration; integrator owns current production NativeSidewinder region.",
+      "patch": "docs/overhaul/radar-execution/native/GROUND-TARGET-CONSUMER.patch",
+      "metadata": "docs/overhaul/radar-execution/native/GROUND-TARGET-CONSUMER.json",
+      "own_source": "EFM/source/GroundTargetPacket.h",
+      "test_fragment": "tests/native/radar_target.cmake",
+      "readiness": "Applied by integrator in69810c2; current GroundTargetPacket240checks pass with stable source. Actual shared /W4/analyze syntax passes; /WX records3 compiler warnings plus1 analysis warning outside target region. Small follow-up extraction is separate.",
+      "preserve": "Arm/power/WoW/station/mode/schema2/solution coordinates/source/sequence, .2s cache/solution and actual weapon-type launch guards. Callback uses copied fixed handles and fresh original target/source qualification before/after guard capture.",
+      "status": "APPLIED_BY_INTEGRATOR; no Chat3 shared source writes"
+    },
+    {
+      "id": "radar-aesa-protected-publication",
+      "action": "Register and commit the already applied NativeAesa Parameters repair under its granted publication-region lease; preserve it during host-profile migration.",
+      "status": "APPLIED_COMMITTED_bead9bc;4550 actual-primary checks pass after current-host change; common CMake registration pending",
+      "scope": "Odd marker dispatch gating; every protected numeric setter result/context epoch; cache advancement only after successful required payload/covariance publication; explicit unknown optional label on unavailable string writer.",
+      "reproduction": "Actual Parameters::publish primed ID84/TIME10/N1200. Fault-injected N=NaN with TIME10.1 leaves N1200, publishes newTIME10.1 VALID1 READY1 and evenSEQ. Same-sample corrected N1250 does not retry due early published_id/time cache. Infinite covariance similarly fails. Controlled invalidate+exports-restored during publication may even-commit changed context. Missing string export after prior successful text leaves old TYPE_NAME under new numeric ID.",
+      "limits": "Adversarial actual publisher/port evidence; no malformed snapshot production from current bounded model or observed DCS mid-callback invalidation is asserted. Chat3 applied the publication repair once under its granted lease; no temporary source save/restore.",
+      "prerequisite": "Do not claim complete protected publication on modeled failure until repair applied/tested; no private ABI/runtime action granted.",
+      "patch": "docs/overhaul/radar-execution/publication/SHARED.patch",
+      "baseline": "docs/overhaul/radar-execution/publication/EXPECTED-SOURCES.json",
+      "test": "tests/native/radar_publication.cpp",
+      "test_fragment": "tests/native/radar_publication.cmake (register only after repair applied)",
+      "type_scope": "Absent optional string update produces a checked numeric0 unknown label; actual Lua metadata/RWR consumer maps0 to U. Numeric fallback failure prevents complete packet commit. No IFF evidence inferred.",
+      "full_request": "docs/overhaul/radar-execution/publication/integration-request.json",
+      "acceptance": "Repaired actual primary4550checks0fail /W4/WX/analyze; source stable. Historical pre-fix actual4550checks1530fail was diagnostic. Include native/radar_publication.cmake with F22_RADAR_PUBLICATION_REVIEWED=ON for common registration. No acceptance from OFF/no registered tests.",
+      "primary_evidence": "docs/overhaul/radar-execution/publication/PRIMARY-RESULTS.json"
+    },
+    {
+      "id": "radar-ground-target-bounded-helper",
+      "action": "Apply narrow source-preserving helper extraction in newly integrated target preparation; keep all guard values/order and current IrControls/parameter-epoch migrations.",
+      "patch": "docs/overhaul/radar-execution/native/GROUND-TARGET-BOUNDS.patch",
+      "metadata": "docs/overhaul/radar-execution/native/GROUND-TARGET-BOUNDS.json",
+      "status": "READY_UNAPPLIED; git apply --check pass; external current/proposed /W4/analyze/Zs pass withsame unrelated legacy warnings",
+      "metrics": "Extracted policyCC10; updateCC11 (currentlyCC20); no new helper exception requested"
+    },
+    {
+      "id": "radar-current-host-compatibility",
+      "status": "AIR_SOURCE55224a2_GROUND_QUERY20374a8_COMMITTED; NATIVE_INSTALLED_CURRENT_SOURCE_MATCH; DCS_UNMEASURED",
+      "reason": "User justflew aftergameupdate. DCS2.9.31.29434 native profiles differ; AESA_REASON2/backend0/track0 entireflight. InstalledDLL2:49AM+oldLua, latestfixesnotinstalled.",
+      "requested_regions": [
+        "NativeAesaRadar Api current profile/export/vtable/ECM/driver/responder guards and exact necessary offsets only",
+        "NativeGroundSensor/NativeGroundVideo supported-host profile and exact validated adapter boundaries only; AA recovery first"
+      ],
+      "actions": [
+        "Chat2 coordinate current-host migration across native domain owners; no blind timestamp replacement",
+        "After source/ABI checks, freeze matched native+Lua build/package and exclusive installation/runtime slot",
+        "Preserve userbindings/HUD/audio and passive recorder; no takeover or termination of simulator"
+      ],
+      "source_evidence": "docs/overhaul/radar-execution/host-update/DIAGNOSIS.json",
+      "primary_evidence": "host-update/PRIMARY-RESULTS.json",
+      "build_evidence": "host-update/BUILD-RESULTS.json",
+      "inventory": "host-update/ADAPTER-INVENTORY.json",
+      "maintenance_proposal": "host-update/COMPATIBILITY-SEAM.md",
+      "remaining": "Ground/video activation needs remaining qualified native lifecycle/render contracts. Other native owners retain their own adapter migrations; no blanket guard acceptance.",
+      "installation_observation": "host-update/INSTALLATION-OBSERVATION.json"
     }
   ],
   "native_next": {
     "package": "D-P-RAD-001",
-    "status": "draft only; explicitly waiting P-INT-008 checked-cutover gate",
-    "draft": "C:\\Users\\Ethans Desktop 2.0\\Documents\\ChatGPT\\F22 MOD\\radar-preparation\\native-admission\\native-admission-draft.patch",
-    "checks": "21 camera cases + 107 actual packet reader checks + two /W4 /WX syntax checks on draft; no host qualification"
+    "status": "Native owning sources implemented directly in primary main; shared NativeDatalink and NativeSidewinder consumer patches require paired serialized integration.",
+    "evidence": [
+      "native/RESULTS.json",
+      "ground/SOFTWARE-RESULTS.json",
+      "model/SOFTWARE-RESULTS.json"
+    ],
+    "primary_root": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22",
+    "no_alternate_source_checkout": true
   },
-  "runtime_slot": "unclaimed; no install/DCS action"
+  "runtime_slot": "unclaimed; no install/DCS action",
+  "continuation_requests": [
+    {
+      "id": "radar-native-test-registration",
+      "action": "Review/register all five listed fragments;10 native owning executable targets.",
+      "paths": [
+        "tests/native/radar_admission.cmake",
+        "tests/native/radar_ground.cmake",
+        "tests/native/radar_model.cmake",
+        "tests/native/radar_coordination.cmake",
+        "tests/native/radar_target.cmake"
+      ],
+      "readiness": "All five fragments now included in actual tests/CMakeLists.txt; owning10 native targets. Publication test is separate gated sixth fragment, enabled only with repair.",
+      "shared_file": "tests/CMakeLists.txt",
+      "status": "APPLIED_BY_INTEGRATOR"
+    },
+    {
+      "id": "radar-tactical-complete-packet",
+      "action": "Review/apply paired native transmit and Lua fusion-consumer patches under Chat4 region review, schema in PACKET-CONTRACT.md",
+      "patches": [
+        "docs/overhaul/radar-execution/native/TACTICAL-TRANSMIT.patch",
+        "docs/overhaul/radar-execution/TACTICAL-CONSUMERS.patch"
+      ],
+      "baseline_files": [
+        "docs/overhaul/radar-execution/native/TACTICAL-TRANSMIT.json",
+        "docs/overhaul/radar-execution/TACTICAL-CONSUMERS-SOURCES.json"
+      ],
+      "already_owned_applied": [
+        "Cockpit/Scripts/Systems/Radar_Tactical.lua odd/even schema1 source epoch producer",
+        "Cockpit/Scripts/Systems/Radar_Tactical_Snapshot.lua checked coherent reader",
+        "EFM/source/RadarTacticalPacket.h checked complete snapshot"
+      ],
+      "wire_scope": "Chat4 owns independent identity wire/clock/epoch migration. Legacy v1 cannot authenticate identity age; proposed reader sends unknown identity until that migration. No coalition truth.",
+      "readiness": "Current own Lua and applied tactical fusion checks pass; Native185/290/1415 plus actual Lua trace4103 pass and stable checked-port source identity. Six actual full-fusion cases cover clocks/epoch/friendly protection/independent RF.",
+      "consumer_owner_review": "docs/overhaul/chat4-weapons-ew/radar-packet-review.json",
+      "integration_update": "Chat2 reports paired native transmit and Lua fusion consumer patch applied. Final source identity/tests to be refreshed after adapter cutover.",
+      "status": "APPLIED_BY_INTEGRATOR; nativeacb527c + Lua361268a"
+    },
+    {
+      "id": "radar-mark-provenance",
+      "action": "Review paired mark/weapon/navigation/ballistic provenance patch when target-handoff/SHARED.patch ready; no shared source edit by Chat3",
+      "contract": "PACKET-CONTRACT.md",
+      "already_owned_applied": [
+        "AG_Radar_System original designation metadata/control transaction",
+        "AG_Target_Provenance.lua checked source capture/currentness",
+        "AG_Target_Snapshot.lua coherent mark/delivery reader",
+        "AG_Radar_System post-commit checked MAP mark projection"
+      ],
+      "request": "Source2 live objects cannot be recreated as fresh fixed coordinates; preserve original observation qualifiers through release prediction. Source1 LOS/source3 NAV behavior preserved.",
+      "patch": "docs/overhaul/radar-execution/target-handoff/SHARED.patch",
+      "baseline_files": "docs/overhaul/radar-execution/target-handoff/EXPECTED-SOURCES.json",
+      "readiness": "Five-file Lua patch17 tests pass; native ground-target header and focused UNAPPLIED callback patch now supplied separately. Rebase against integrator current NativeSidewinder after native-parameter-cutover-final-adapters lease. No shared source write/restore by Chat3.",
+      "status": "APPLIED_BY_INTEGRATOR_69810c2; final whole-chain current-source tests to be refreshed after IFF own edit finishes"
+    },
+    {
+      "id": "radar-iff-provider-ready",
+      "action": "Chat4 P-WPN-004 supplies actual qualified backend or independently tested explicit unavailable/no-go provider decision. Radar consumes provider fields/schema; no reverse IFF prerequisite. Record exact request/source/time/epoch/reply/unsupported contract.",
+      "current": "Existing radar-side no-go consumer and proposed shared UNAV indication preserved for Weapons-EW/Chat2 region review; native IFF backend remains unfinished. No further consumer/backend work in this chat.",
+      "status": "USER_DIRECTED_HANDOFF_TO_WEAPONS_EW; no further IFF work by Chat3",
+      "handoff": "docs/overhaul/radar-execution/iff/HANDOFF.json"
+    },
+    {
+      "id": "radar-user-additions",
+      "action": "Adopt R-RAD-021 A/A surveillance during A/G and R-RAD-022 coherent SAR as requested implementation requirements in canonical backlog/profile decision",
+      "evidence": "REQUESTED-ADDITIONS.md and REQUESTED-ADDITIONS.json",
+      "limits": "Scheduler intended A/A background exists, requires end-to-end installed qualification. Coherent SAR requested; current runtime unavailable until qualified; selected-off no longer final completion disposition."
+    },
+    {
+      "id": "radar-runtime-slot",
+      "action": "Schedule exclusive authorized install/native qualification slot after coherent main source/build review; no DCS process currently observed by Chat3, no takeover/termination performed",
+      "conditions": [
+        "Freeze exact source/DLL/assets/hooks/default input/installed identity",
+        "Preserve user bindings/HUD/audio/passive recorder",
+        "Only final reviewed build installed, no incidental control hooks activation"
+      ],
+      "state": "requested, not claimed"
+    },
+    {
+      "id": "radar-donor-token-domain",
+      "action": "Chat4/Chat2 review and apply focused donor cue token-domain patch after actual current-source hash check",
+      "patch": "docs/overhaul/radar-execution/DONOR-TOKEN.patch",
+      "source": "Cockpit/Scripts/Systems/Radar_Donor_Cue.lua",
+      "reason": "Positive uint32 SOURCE3000000000 is offered and accepted by Link but generic geometry abs<1e9 rejects it at Cue. Patch distinguishes uint32 SOURCE/EPOCH from unchanged finite geometry domain; committed sequence bound matches existing writer.",
+      "status": "UNAPPLIED exact shared proposal; high-token end-to-end reader tests pass against pinned review hunks. metadata resource/DONOR-TOKEN-IDENTITY.json."
+    },
+    {
+      "id": "radar-ground-target-native",
+      "action": "Review/rebase focused native ground delivery capture/callback patch after final-adapter source migration; integrator owns current production NativeSidewinder region.",
+      "patch": "docs/overhaul/radar-execution/native/GROUND-TARGET-CONSUMER.patch",
+      "metadata": "docs/overhaul/radar-execution/native/GROUND-TARGET-CONSUMER.json",
+      "own_source": "EFM/source/GroundTargetPacket.h",
+      "test_fragment": "tests/native/radar_target.cmake",
+      "readiness": "Applied by integrator in69810c2; current GroundTargetPacket240checks pass with stable source. Actual shared /W4/analyze syntax passes; /WX records3 compiler warnings plus1 analysis warning outside target region. Small follow-up extraction is separate.",
+      "preserve": "Arm/power/WoW/station/mode/schema2/solution coordinates/source/sequence, .2s cache/solution and actual weapon-type launch guards. Callback uses copied fixed handles and fresh original target/source qualification before/after guard capture.",
+      "status": "APPLIED_BY_INTEGRATOR; no Chat3 shared source writes"
+    },
+    {
+      "id": "radar-aesa-protected-publication",
+      "action": "Request separate serialized NativeAesa Parameters publication-region review/application after exact current-source check; current lease covers control-reader region only.",
+      "status": "APPLIED_UNDER_GRANTED_LEASE;4550 actual-primary checks pass /W4/WX/analyze; source stable; ready serialized registration/commit",
+      "scope": "Odd marker dispatch gating; every protected numeric setter result/context epoch; cache advancement only after successful required payload/covariance publication; explicit unknown optional label on unavailable string writer.",
+      "reproduction": "Actual Parameters::publish primed ID84/TIME10/N1200. Fault-injected N=NaN with TIME10.1 leaves N1200, publishes newTIME10.1 VALID1 READY1 and evenSEQ. Same-sample corrected N1250 does not retry due early published_id/time cache. Infinite covariance similarly fails. Controlled invalidate+exports-restored during publication may even-commit changed context. Missing string export after prior successful text leaves old TYPE_NAME under new numeric ID.",
+      "limits": "Adversarial actual publisher/port evidence; no malformed snapshot production from current bounded model or observed DCS mid-callback invalidation is asserted. No production NativeAesa publication edit by Chat3.",
+      "prerequisite": "Do not claim complete protected publication on modeled failure until repair applied/tested; no private ABI/runtime action granted.",
+      "patch": "docs/overhaul/radar-execution/publication/SHARED.patch",
+      "baseline": "docs/overhaul/radar-execution/publication/EXPECTED-SOURCES.json",
+      "test": "tests/native/radar_publication.cpp",
+      "test_fragment": "tests/native/radar_publication.cmake (register only after repair applied)",
+      "type_scope": "Absent optional string update produces a checked numeric0 unknown label; actual Lua metadata/RWR consumer maps0 to U. Numeric fallback failure prevents complete packet commit. No IFF evidence inferred.",
+      "full_request": "docs/overhaul/radar-execution/publication/integration-request.json",
+      "acceptance": "Candidate4550checks0fail /W4/WX/analyze; actual4550checks1530fail diagnostic. Apply focused patch, include native/radar_publication.cmake with F22_RADAR_PUBLICATION_REVIEWED=ON, then run actual primary test before closure. No acceptance from OFF/no registered tests.",
+      "primary_evidence": "docs/overhaul/radar-execution/publication/PRIMARY-RESULTS.json"
+    },
+    {
+      "id": "radar-ground-target-bounded-helper",
+      "action": "Apply narrow source-preserving helper extraction in newly integrated target preparation; keep all guard values/order and current IrControls/parameter-epoch migrations.",
+      "patch": "docs/overhaul/radar-execution/native/GROUND-TARGET-BOUNDS.patch",
+      "metadata": "docs/overhaul/radar-execution/native/GROUND-TARGET-BOUNDS.json",
+      "status": "READY_UNAPPLIED; git apply --check pass; external current/proposed /W4/analyze/Zs pass withsame unrelated legacy warnings",
+      "metrics": "Extracted policyCC10; updateCC11 (currentlyCC20); no new helper exception requested"
+    },
+    {
+      "id": "radar-current-host-compatibility",
+      "status": "REQUEST_EXACT_NATIVE_COMPATIBILITY_REGION_LEASE; read-only migration analysis underway",
+      "reason": "User justflew aftergameupdate. DCS2.9.31.29434 native profiles differ; AESA_REASON2/backend0/track0 entireflight. InstalledDLL2:49AM+oldLua, latestfixesnotinstalled.",
+      "requested_regions": [
+        "NativeAesaRadar Api current profile/export/vtable/ECM/driver/responder guards and exact necessary offsets only",
+        "NativeGroundSensor/NativeGroundVideo supported-host profile and exact validated adapter boundaries only; AA recovery first"
+      ],
+      "actions": [
+        "Chat2 coordinate current-host migration across native domain owners; no blind timestamp replacement",
+        "After source/ABI checks, freeze matched native+Lua build/package and exclusive installation/runtime slot",
+        "Preserve userbindings/HUD/audio and passive recorder; no takeover or termination of simulator"
+      ],
+      "source_evidence": "docs/overhaul/radar-execution/host-update/DIAGNOSIS.json"
+    }
+  ],
+  "current_stage": "NATIVE_RADAR_FIXES_COMMITTED_AND_INSTALLED; RADAR_LUA_AND_HOST_QUALIFICATION_OPEN",
+  "software_evidence": "software/RESULTS.json:115 source-stable current cases before latest additional identifier-domain case; final refresh to follow.",
+  "build_evidence": "build/RESULTS.json: DLL build succeeded0 radar warnings, source drift recorded in common header/RAPTOR during compile; provisional, not exact final package. No install/DCS.",
+  "coordination_ack": "COORDINATION-ACK.json",
+  "cleanup_request": "cleanup/integration-request.json",
+  "test_retirement": "feasibility/TEST-DISPOSITIONS.json:54 retired,3 original research preserved,3 helpers pending other-owner callers",
+  "native_integration_commit": "acb527cabcdefce969c2c28dcfe16db25a8180e6",
+  "native_integration_note": "Chat2 committed owning native source/read fixes, tactical transmit and4 native registration fragments. Remaining publication/target patches explicitly separate; own Lua/shared mark cutover and full current build/runtime gates remain.",
+  "current_head": "20374a8c81be1677f367bf868712c3d4429cb524",
+  "own_iff_source_freeze": "Frozen by user direction; handoff iff/HANDOFF.json. No IFF edits/resumption in Chat3. Preserve mixed non-IFF Radar_System changes.",
+  "next_focus": [
+    "Review/install matching newer radar Lua after current shared/frozen dependency review; native code is already installed",
+    "Register the new native host/publication fixtures in common CMake under shared ownership",
+    "Complete remaining current surface/render contracts and other owner adapter migrations, then verify actual AA scan/acquire/lock in exclusive runtime slot",
+    "Resume held SAR after urgent AA recovery; IFF remains Weapons-EW owned"
+  ],
+  "latest_user_priority": "Recover AA radar after DCS2.9.31.29434 update, qualify affected native adapters and reduce repeated private-ABI maintenance. SAR feature work held; IFF remains Weapons-EW owned.",
+  "priority": "URGENT_CURRENT_DCS_UPDATE_COMPATIBILITY_AND_MATCHED_BUILD_INSTALL",
+  "host_update_diagnosis": "host-update/DIAGNOSIS.json",
+  "feature_work": "SAR and additionalfeature work held by user while AA lock failure diagnosed.",
+  "native_installation_observation": "docs/overhaul/radar-execution/host-update/INSTALLATION-OBSERVATION.json",
+  "current_native_delivery": "Navigation installer installed SHAd29216510d70e41fafa878457374c7e7d845230cf6655822fbcef468c029ac34; embedded native source digest matches current primary code, including radar fixes. Newer radar Lua and actual in-game locking remain unqualified; Chat3 did not operate DCS."
 }

@@ -1,0 +1,14 @@
+{
+  "applied": false,
+  "source": "EFM/source/NativeGroundSensor.cpp",
+  "baseline_sha256": "e20eb2e210a941795bb99bd0610f1fc0912b47c7a6397691fd0308ae03a6197f",
+  "proposed_lf_sha256": "970313e0f254f26c79920fc3465448d0988f3c9043d0c52d1943ae605327c4b3",
+  "patch_sha256": "bfa99492b5a8420e74ba67b3f24acdf2902c923b0575129a199d305b4f39100c",
+  "scope": "Call-shape ownership repair only; no profile constants changed. Current manager19 destroys/clears by-value input std::function; peer independently confirms20/24. Native returnsint notvoid. Use std::move for sole callback argument ownership; returned query hint deliberately ignored.",
+  "prerequisites": [
+    "Integrator review against native peer callback proof.",
+    "Migrate actual callback fixtures to int/byvalue signatures before software verification.",
+    "Current profile activation remains separate and is not proposed by this patch."
+  ],
+  "compiled_or_executed": false
+}

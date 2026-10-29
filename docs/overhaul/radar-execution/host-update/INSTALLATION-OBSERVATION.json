@@ -1,0 +1,47 @@
+{
+  "captured_utc": "2026-10-29T01:01:32.435706+00:00",
+  "kind": "Read-only installed native identity observation after Navigation installation",
+  "installation_actor": "Navigation installer; Chat3 did not copy or change installed files",
+  "owner_receipt": "docs/overhaul/navigation-execution/host-update/INSTALLATION.json",
+  "installed_root": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A",
+  "installed_dll_sha256": "d29216510d70e41fafa878457374c7e7d845230cf6655822fbcef468c029ac34",
+  "native_identity": {
+    "token": "F22_NATIVE_V1|source=6f953bf71eb5dc7e7a99455e45d655605a772a9b366ea0439963819aa7688159|cache=009d4ac6a4cbe480a15efc85fe618f3c542b5404f03c0eaa9f2f9ed588ea7097|compiler=MSVC-19.51.36252.0|config=Release|cxx=23",
+    "rva": 519328
+  },
+  "current_native_source_sha256": "6f953bf71eb5dc7e7a99455e45d655605a772a9b366ea0439963819aa7688159",
+  "current_native_source_matches": true,
+  "owned_native_sources": {
+    "EFM/source/NativeAesaRadar.cpp": "da8cf42ffeee7ba37b4437d7fc9d9c771e755a212df1746ef5fdb5756c204e5e",
+    "EFM/source/AesaHostProfile.h": "13cce4c26eb11e7145b9b04cc6cc0384efc918c92793ecd3d6870aaa6364ab1e",
+    "EFM/source/NativeGroundSensor.cpp": "845f3ad1d0813435e63586b6b493196c16b74a430ef725d6b0f8b2a245654e2c"
+  },
+  "radar_lua": [
+    {
+      "path": "Cockpit/Scripts/Systems/AESA_Control.lua",
+      "source_sha256": "0d0b03dd675faede395f54a3311efafd8f8ebf2d0c5bad724c6dc03c37c86a37",
+      "installed_sha256": "cce16ba3ec9736706cde98cbb7f6d74a76042b0f8e617508ec364bbb9c07d923",
+      "matches": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_System.lua",
+      "source_sha256": "cefa7f5803d57bab1ef4b841e31c269f6b32558ba67debd8b197c6988b955e3b",
+      "installed_sha256": "19919b82af741a8f47dc10334cec1b0ce7ac547a16f66872c6d64b9e670b458c",
+      "matches": false
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radar_Computer.lua",
+      "source_sha256": "0e5e50c84fcb14655efd292dad21097dda810eb01fb5e84386a6134f3cd25cf9",
+      "installed_sha256": "5fc47e9123766d8cab8eaba3432c652fac3459d152b1f416a1cda3723d2ceb9f",
+      "matches": false
+    }
+  ],
+  "limits": [
+    "This installed DLL contains current radar native fixes, including committed air compatibility and the tested ground Query repair.",
+    "This observation does not establish a full current radar Lua installation, loaded module identity, in-game scanning or a successful lock.",
+    "Ground/video profiles remain unchanged; other owner adapter qualification continues."
+  ],
+  "DCS_operated_by_chat3": false,
+  "loaded_identity": "Unmeasured",
+  "flight_lock": "Unmeasured"
+}

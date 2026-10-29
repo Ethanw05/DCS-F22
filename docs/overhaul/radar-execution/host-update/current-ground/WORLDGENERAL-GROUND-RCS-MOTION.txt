@@ -1,0 +1,201 @@
+??0MovingObject@@QEAA@XZ RVA=0x82900
+0x180082900: mov qword ptr [rsp + 0x10], rbx
+0x180082905: mov qword ptr [rsp + 0x18], rsi
+0x18008290a: mov qword ptr [rsp + 8], rcx
+0x18008290f: push rdi
+0x180082910: sub rsp, 0x30
+0x180082914: mov rdi, rcx
+0x180082917: mov qword ptr [rsp + 0x20], 0
+0x180082920: mov dword ptr [rsp + 0x28], 0
+0x180082928: lea r8, [rsp + 0x20]
+0x18008292d: xor edx, edx
+0x18008292f: call qword ptr [rip + 0x15d723]
+0x180082935: nop 
+0x180082936: lea rax, [rip + 0x16ce93]
+0x18008293d: mov qword ptr [rdi + 0x110], rax
+0x180082944: xorps xmm0, xmm0
+0x180082947: movups xmmword ptr [rdi + 0x128], xmm0
+0x18008294e: xor esi, esi
+0x180082950: mov qword ptr [rdi + 0x138], rsi
+0x180082957: mov qword ptr [rdi + 0x140], 0xf
+0x180082962: mov byte ptr [rdi + 0x128], sil
+0x180082969: mov qword ptr [rdi + 0x148], rsi
+0x180082970: lea rcx, [rdi + 0x118]
+0x180082977: call qword ptr [rip + 0x15ccab]
+0x18008297d: lea rax, [rip + 0x16ce7c]
+0x180082984: mov qword ptr [rdi], rax
+0x180082987: lea rax, [rip + 0x16d222]
+0x18008298e: mov qword ptr [rdi + 0x30], rax
+0x180082992: lea rax, [rip + 0x16d27f]
+0x180082999: mov qword ptr [rdi + 0x78], rax
+0x18008299d: lea rax, [rip + 0x16d2b4]
+0x1800829a4: mov qword ptr [rdi + 0x110], rax
+0x1800829ab: lea rax, [rip + 0x16d2d6]
+0x1800829b2: mov qword ptr [rdi + 0x118], rax
+0x1800829b9: xorps xmm0, xmm0
+0x1800829bc: movups xmmword ptr [rdi + 0x150], xmm0
+0x1800829c3: mov qword ptr [rdi + 0x160], rsi
+0x1800829ca: mov qword ptr [rdi + 0x168], 0xf
+0x1800829d5: mov byte ptr [rdi + 0x150], sil
+0x1800829dc: mov qword ptr [rdi + 0x17c], rsi
+0x1800829e3: mov qword ptr [rdi + 0x18c], rsi
+0x1800829ea: mov qword ptr [rdi + 0x19c], 0x3f800000
+0x1800829f5: mov dword ptr [rdi + 0x1b0], 0x3f800000
+0x1800829ff: mov qword ptr [rdi + 0x1c8], rsi
+0x180082a06: mov qword ptr [rdi + 0x1d0], rsi
+0x180082a0d: mov qword ptr [rdi + 0x1d8], rsi
+0x180082a14: mov qword ptr [rdi + 0x1e0], rsi
+0x180082a1b: mov dword ptr [rdi + 0x1e8], esi
+0x180082a21: mov qword ptr [rdi + 0x1f8], rsi
+0x180082a28: mov qword ptr [rdi + 0x200], rsi
+0x180082a2f: mov qword ptr [rdi + 0x208], rsi
+0x180082a36: mov qword ptr [rdi + 0x210], rsi
+0x180082a3d: mov qword ptr [rdi + 0x218], rsi
+0x180082a44: mov qword ptr [rdi + 0x220], rsi
+0x180082a4b: mov dword ptr [rdi + 0x230], esi
+0x180082a51: mov qword ptr [rdi + 0x234], 0xffffffffffffffff
+0x180082a5c: mov dword ptr [rdi + 0x23c], 0xffffffff
+0x180082a66: mov qword ptr [rdi + 0x240], rsi
+0x180082a6d: mov qword ptr [rdi + 0x1f0], rsi
+0x180082a74: mov qword ptr [rdi + 0x228], 0xffffffffffffffff
+0x180082a7f: mov byte ptr [rdi + 0x268], 1
+0x180082a86: mov dword ptr [rdi + 0x278], esi
+0x180082a8c: mov dword ptr [rdi + 0x27c], 0xffffffff
+0x180082a96: mov qword ptr [rdi + 0x280], rsi
+0x180082a9d: mov qword ptr [rdi + 0x288], rsi
+0x180082aa4: mov qword ptr [rdi + 0x290], rsi
+0x180082aab: mov dword ptr [rdi + 0x170], esi
+0x180082ab1: mov qword ptr [rdi + 0x174], 0x3f800000
+0x180082abc: mov dword ptr [rdi + 0x184], esi
+0x180082ac2: mov dword ptr [rdi + 0x188], 0x3f800000
+0x180082acc: mov qword ptr [rdi + 0x194], rsi
+0x180082ad3: mov qword ptr [rdi + 0x1a4], rsi
+0x180082ada: mov dword ptr [rdi + 0x1ac], esi
+0x180082ae0: mov qword ptr [rdi + 0x1b8], rsi
+0x180082ae7: mov dword ptr [rdi + 0x1c0], esi
+0x180082aed: mov byte ptr [rdi + 0x1c4], 0x63
+0x180082af4: mov qword ptr [rdi + 0x248], rsi
+0x180082afb: mov qword ptr [rdi + 0x258], rsi
+0x180082b02: mov qword ptr [rdi + 0x250], rsi
+0x180082b09: mov qword ptr [rdi + 0x260], rsi
+0x180082b10: mov qword ptr [rdi + 0x270], rsi
+0x180082b17: mov dword ptr [rdi + 0x26c], esi
+0x180082b1d: or dword ptr [rdi + 0x170], 0x40
+0x180082b24: mov rax, rdi
+0x180082b27: mov rbx, qword ptr [rsp + 0x48]
+0x180082b2c: mov rsi, qword ptr [rsp + 0x50]
+0x180082b31: add rsp, 0x30
+0x180082b35: pop rdi
+0x180082b36: ret 
+??0wDetectable@@QEAA@AEBV0@@Z RVA=0x7ffc0
+0x18007ffc0: lea rax, [rip + 0x16f5e9]
+0x18007ffc7: mov qword ptr [rcx], rax
+0x18007ffca: mov eax, dword ptr [rdx + 8]
+0x18007ffcd: mov dword ptr [rcx + 8], eax
+0x18007ffd0: mov rax, qword ptr [rdx + 0x10]
+0x18007ffd4: mov qword ptr [rcx + 0x10], rax
+0x18007ffd8: mov eax, dword ptr [rdx + 0x18]
+0x18007ffdb: mov dword ptr [rcx + 0x18], eax
+0x18007ffde: mov rax, qword ptr [rdx + 0x20]
+0x18007ffe2: mov qword ptr [rcx + 0x20], rax
+0x18007ffe6: movsd xmm0, qword ptr [rdx + 0x28]
+0x18007ffeb: movsd qword ptr [rcx + 0x28], xmm0
+0x18007fff0: mov eax, dword ptr [rdx + 0x30]
+0x18007fff3: mov dword ptr [rcx + 0x30], eax
+0x18007fff6: mov rax, rcx
+0x18007fff9: ret 
+0x18007fffa: int3 
+0x18007fffb: int3 
+0x18007fffc: int3 
+0x18007fffd: int3 
+0x18007fffe: int3 
+0x18007ffff: int3 
+??0wDetectable@@QEAA@XZ RVA=0x80000
+0x180080000: xor edx, edx
+0x180080002: lea rax, [rip + 0x16f5a7]
+0x180080009: mov qword ptr [rcx], rax
+0x18008000c: movabs rax, 0xc024000000000000
+0x180080016: mov qword ptr [rcx + 0x10], rax
+0x18008001a: mov qword ptr [rcx + 0x20], rax
+0x18008001e: mov rax, rcx
+0x180080021: mov dword ptr [rcx + 8], edx
+0x180080024: mov dword ptr [rcx + 0x18], edx
+0x180080027: mov qword ptr [rcx + 0x28], rdx
+0x18008002b: mov dword ptr [rcx + 0x30], edx
+0x18008002e: ret 
+0x18008002f: int3 
+0x180080030: sub rsp, 0x28
+0x180080034: mov rdx, rcx
+0x180080037: call qword ptr [rip + 0x15efd3]
+0x18008003d: nop 
+??1wDetectable@@UEAA@XZ RVA=0x80050
+0x180080050: lea rax, [rip + 0x16f559]
+0x180080057: mov qword ptr [rcx], rax
+0x18008005a: ret 
+0x18008005b: int3 
+0x18008005c: int3 
+0x18008005d: int3 
+0x18008005e: int3 
+0x18008005f: int3 
+0x180080060: mov eax, dword ptr [rdx + 8]
+0x180080063: mov dword ptr [rcx + 8], eax
+0x180080066: mov rax, qword ptr [rdx + 0x10]
+0x18008006a: mov qword ptr [rcx + 0x10], rax
+0x18008006e: mov eax, dword ptr [rdx + 0x18]
+0x180080071: mov dword ptr [rcx + 0x18], eax
+0x180080074: mov rax, qword ptr [rdx + 0x20]
+0x180080078: mov qword ptr [rcx + 0x20], rax
+0x18008007c: movsd xmm0, qword ptr [rdx + 0x28]
+0x180080081: movsd qword ptr [rcx + 0x28], xmm0
+0x180080086: mov eax, dword ptr [rdx + 0x30]
+0x180080089: mov dword ptr [rcx + 0x30], eax
+0x18008008c: mov rax, rcx
+0x18008008f: ret 
+??_7wDetectable@@6B@ RVA=0x1ef5b0
+slot0 0x80090 
+slot1 0x4b420 ??RNegativeFilter@AI@@UEBA_NPEAVMovingObject@@0AEAUTargetFilterState@1@@Z | ?In_Air_@MovingObject@@UEBA?B_NXZ | ?LinkToTarget@MovingObject@@UEAA?B_NII@Z | ?checkAddGroupDescent@MovingObject@@UEAA_NI_N0@Z | ?detectMissile@wControl@@UEAA_NPEAVMovingObject@@_N@Z
+slot2 0x80120 ?GetKillRadius@MovingObject@@UEAAMAEBVVec3f@osg@@AEBVwsType@@PEAM@Z | ?Nx@MovingObject@@UEBA?BMXZ | ?Nz@MovingObject@@UEBA?BMXZ | ?getFindingDistance@MovingObject@@UEBAMXZ | ?getIllumination@wDetectable@@UEBAMAEBVVec3f@osg@@@Z
+slot3 0x80130 ?getOuterSourceIllumination@wDetectable@@UEBAMPEAVMovingObject@@@Z
+slot4 0x80120 ?GetKillRadius@MovingObject@@UEAAMAEBVVec3f@osg@@AEBVwsType@@PEAM@Z | ?Nx@MovingObject@@UEBA?BMXZ | ?Nz@MovingObject@@UEBA?BMXZ | ?getFindingDistance@MovingObject@@UEBAMXZ | ?getIllumination@wDetectable@@UEBAMAEBVVec3f@osg@@@Z
+slot5 0x80120 ?GetKillRadius@MovingObject@@UEAAMAEBVVec3f@osg@@AEBVwsType@@PEAM@Z | ?Nx@MovingObject@@UEBA?BMXZ | ?Nz@MovingObject@@UEBA?BMXZ | ?getFindingDistance@MovingObject@@UEBAMXZ | ?getIllumination@wDetectable@@UEBAMAEBVVec3f@osg@@@Z
+slot6 0x80120 ?GetKillRadius@MovingObject@@UEAAMAEBVVec3f@osg@@AEBVwsType@@PEAM@Z | ?Nx@MovingObject@@UEBA?BMXZ | ?Nz@MovingObject@@UEBA?BMXZ | ?getFindingDistance@MovingObject@@UEBAMXZ | ?getIllumination@wDetectable@@UEBAMAEBVVec3f@osg@@@Z
+slot7 0x80290 ?getTargetResolutionDistance@wDetectable@@UEBAMPEAVMovingObject@@@Z
+slot8 0x80280 ?getRadiationToTarget@wDetectable@@UEBA?AW4RadarMode@@IAEAMPEAV?$vector@VVec3f@osg@@V?$allocator@VVec3f@osg@@@ed@@@ed@@@Z | ?isRadiatedByRadar@MovingObject@@UEBA?AW4RadarMode@@IAEAM@Z
+?getRCS@wDetectable@@UEBAMMAEBVVec3f@osg@@@Z RVA=0x80120
+0x180080120: xorps xmm0, xmm0
+0x180080123: ret 
+0x180080124: int3 
+0x180080125: int3 
+0x180080126: int3 
+0x180080127: int3 
+0x180080128: int3 
+0x180080129: int3 
+0x18008012a: int3 
+0x18008012b: int3 
+0x18008012c: int3 
+0x18008012d: int3 
+0x18008012e: int3 
+0x18008012f: int3 
+0x180080130: mov qword ptr [rsp + 0x10], rsi
+0x180080135: push rdi
+0x180080136: sub rsp, 0x70
+0x18008013a: mov rax, qword ptr [rdx]
+0x18008013d: mov rsi, rcx
+0x180080140: mov rcx, rdx
+0x180080143: mov rdi, rdx
+0x180080146: call qword ptr [rax + 0x230]
+0x18008014c: test al, al
+0x18008014e: je 0x180080161
+0x180080150: xorps xmm0, xmm0
+0x180080153: mov rsi, qword ptr [rsp + 0x88]
+0x18008015b: add rsp, 0x70
+0x18008015f: pop rdi
+Consumed MovingObject virtual RVA=0x4b430
+0x18004b430: xor eax, eax
+0x18004b432: ret 
+Consumed MovingObject virtual RVA=0x83cb0
+0x180083cb0: lea rax, [rcx + 0x254]
+0x180083cb7: ret 
+Consumed MovingObject virtual RVA=0x4b410
+0x18004b410: mov rax, rcx
+0x18004b413: ret 

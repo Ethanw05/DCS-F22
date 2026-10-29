@@ -1,0 +1,23 @@
+[
+  {
+    "module": "WorldGeneral",
+    "rva": "0x117ef0",
+    "end": "0x118244",
+    "getters": [
+      [
+        "0x117f79",
+        "qword ptr [rdx + 0x1d8]"
+      ],
+      [
+        "0x1181bd",
+        "qword ptr [rax + 0x1d8]"
+      ]
+    ],
+    "responses": [
+      [
+        "0x117fc7",
+        "qword ptr [rax + 0x30]"
+      ]
+    ]
+  }
+]

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "owner": "chat3",
+  "status": "COMMITTED_bead9bc; actual primary4550checks pass; common CMake registration remains pending; native code present in current installed DLL",
+  "head": "361268a67bf6cd943f3b717239e0c89cd970703c",
+  "expected_sources": "docs/overhaul/radar-execution/publication/EXPECTED-SOURCES.json",
+  "patch": "docs/overhaul/radar-execution/publication/SHARED.patch",
+  "new_files": [
+    "tests/native/radar_publication.cpp",
+    "tests/native/radar_publication.cmake"
+  ],
+  "results": "docs/overhaul/radar-execution/host-update/PRIMARY-RESULTS.json",
+  "scope": "Parameters publication methods only. Preserve control capture/readers, all normal names/types/write order, callback/lifecycle. Optional TYPE_NAME0 fallback is explicit checked unknown in actual Lua, not IFF.",
+  "before": "Actual primary:4550checks/1530failures, diagnostic only",
+  "candidate": "Exact external one-file review artifact:4550checks/0failures; source14 files stable during final builds/tests; MSVC W4/WX/analyze clean",
+  "max_modified_cc": 10,
+  "integrator_actions": [
+    "Source repair already applied under radar-aesa-protected-publication lease; preserve it while integrating current-host compatibility. Historical SHARED.patch/RESULTS.json record the original reproduction and candidate only.",
+    "Include native/radar_publication.cmake in owned tests/CMakeLists.txt and enable F22_RADAR_PUBLICATION_REVIEWED=ON only after paired source application.",
+    "Build/run new registered test on actual primary source; candidate results do not imply application.",
+    "Capture actual primary final source/port/DLL/asset identity and apply normal integration process; DCS typed parameter/lifecycle/thread/loaded qualification remains separate."
+  ],
+  "limitations": [
+    "Malformed Snapshot values and mid-callback reset/export restoration are explicit host-port fault injections; no accepted nonfinite output path was found through current bounded Model/filter initialization/update checks.",
+    "Underlying SDK numeric/string setters return void: bool guard success proves invocation only, not physical effect or native lifecycle completion.",
+    "The final even-store is the linearization point. Export/context disappearance triggered after that successful store can leave a complete old-context tuple until original lease expiry; cache is retired. No stale partial tuple or renewed clock is claimed. With no live API, software cannot erase a commit that already occurred.",
+    "Unknown TYPE_NAME fallback is typed numeric zero using the public parameter setter, verified through actual Lua metadata/label reader as U with iff=-1. This preserves numerical sensing without authenticating stale prior text; actual loaded DCS typed-parameter behavior remains a qualification item.",
+    "Lua metadata caches by original id/time/generation. Restoring type text at the same sample safely remains unknown in an existing reader until the next original measurement; the bus publisher retries immediately.",
+    "NativeAesa publication repair was applied once under its source-region lease and verified against actual primary source (4550 checks, zero failures). No temporary production save/restore, NativeSidewinder edit, source-bin build output, staging, commit, installation or DCS operation occurred."
+  ],
+  "no_temporary_production_apply_restore": true,
+  "source_commit": "bead9bcf94cb9bc0ab1203721aa4830bd336f251",
+  "no_temporary_production_save_restore": true,
+  "source_committed": true,
+  "installed_native_observation": "docs/overhaul/radar-execution/host-update/INSTALLATION-OBSERVATION.json",
+  "DCS_operated_by_chat3": false
+}

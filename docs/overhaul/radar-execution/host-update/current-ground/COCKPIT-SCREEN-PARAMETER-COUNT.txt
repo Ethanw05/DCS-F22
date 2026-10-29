@@ -1,0 +1,4 @@
+0x180513960: mov rax, qword ptr [rip + 0x14a239]
+0x180513967: sub rax, qword ptr [rip + 0x14a22a]
+0x18051396e: sar rax, 3
+0x180513972: ret 
