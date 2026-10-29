@@ -1320,9 +1320,9 @@
       "owner": "chat2",
       "captured_sha256": "86bea2a6dc622f32116ad7410ae8b428ca5f8b8018b5c1f8e64b44e2eb953320",
       "execution_sha256": "86bea2a6dc622f32116ad7410ae8b428ca5f8b8018b5c1f8e64b44e2eb953320",
-      "status": "pending_domain_remake",
-      "replacement": null,
-      "evidence_classification": "unclassified; owner must trace original source before retaining research data"
+      "status": "deleted_replaced",
+      "replacement": "tests/cases/test_hud_ground_designation.py",
+      "evidence_classification": "Legacy synthetic NAV/target test using test_display_startup; hash rechecked before deletion. Independently remade from pilot designation/undesignate, owner acknowledgement, actual native HUD declarations and existing viewport. No research measurements or user recordings removed. See navigation-execution/ground-designation/README.md; actual DCS/VR optics remain unqualified."
     },
     {
       "path": "tests/test_nav_entry.py",

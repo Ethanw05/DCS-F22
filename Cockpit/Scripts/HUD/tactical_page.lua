@@ -107,9 +107,9 @@ return function(api)
          {"parameter_in_range",4,0.9,6.1}})
     diamond(0,0,0.047,"HUD_NAV_STEERING")
     angular('HUD_GROUND_TARGET_EDGE',0,0,
-        {'HUD_AG_EDGE_X','HUD_AG_EDGE_Y','HUD_POWER','HUD_AG_EDGE_VALID','HUD_AG_EDGE_FLASH'},
+        {'HUD_AG_EDGE_X','HUD_AG_EDGE_Y','HUD_POWER','HUD_AG_EDGE_VALID'},
         {{'move_left_right_using_parameter',0,1},{'move_up_down_using_parameter',1,1},
-         {'opacity_using_parameter',2},{'parameter_in_range',3,.9,1.1},{'parameter_in_range',4,.9,1.1}})
+         {'opacity_using_parameter',2},{'parameter_in_range',3,.9,1.1}})
     local edge_r,edge_w=.0125/api.layout_scale,.001/api.layout_scale
     line(-edge_r,-edge_r,edge_r,-edge_r,edge_w,'HUD_GROUND_TARGET_EDGE')
     line(edge_r,-edge_r,edge_r,edge_r,edge_w,'HUD_GROUND_TARGET_EDGE')

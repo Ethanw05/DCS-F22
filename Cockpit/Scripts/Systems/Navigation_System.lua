@@ -10,7 +10,8 @@ local decode=dofile(LockOn_Options.script_path..'Systems/Input_Value.lua')
 local geom=dofile(LockOn_Options.script_path..'Systems/NavGeometry.lua')
 local target_snapshot=dofile(LockOn_Options.script_path..'Systems/AG_Target_Snapshot.lua')
 local entry_format=dofile(LockOn_Options.script_path..'Systems/Nav_Entry.lua')
-local project=dofile(LockOn_Options.script_path..'Systems/HUD_TargetMath.lua').new(dofile(LockOn_Options.script_path..'HUD/glass.lua'))
+local project=dofile(LockOn_Options.script_path..'Systems/HUD_Designation_Projection.lua').new(
+    dofile(LockOn_Options.script_path..'HUD/glass.lua'),dofile(LockOn_Options.script_path..'HUD/geometry.lua'))
 make_default_activity(.05)
 local handles={}
 local function get(k) if not handles[k] then handles[k]=get_param_handle(k) end return handles[k]:get() end
@@ -550,9 +551,11 @@ function update()
     if s.designated and s.distance>1 and own.hud_attitude_valid then
         local f,r,u=geom.body(w.x-own.x,w.y-own.y,s.designation_alt-own.alt,own.hud_heading,own.hud_pitch,own.hud_roll)
         local az=nav.atan2(r,f);local el=nav.atan2(u,math.sqrt(f*f+r*r));local cue=project(az,el)
-        set('HUD_WP_AZ_RAD',az);set('HUD_WP_EL_RAD',el);set('HUD_WP_X',cue.x);set('HUD_WP_Y',cue.y)
-        set('HUD_WP_CUE_VALID',cue.visible and 1 or 0);set('HUD_WP_OFFSCREEN',cue.visible and 0 or 1)
-        set('HUD_WP_ARROW_X',cue.arrow_x);set('HUD_WP_ARROW_Y',cue.arrow_y);set('HUD_WP_ARROW_ROT',cue.rotation)
+        if cue then
+            set('HUD_WP_AZ_RAD',az);set('HUD_WP_EL_RAD',el);set('HUD_WP_X',cue.x);set('HUD_WP_Y',cue.y)
+            set('HUD_WP_CUE_VALID',cue.visible and 1 or 0);set('HUD_WP_OFFSCREEN',cue.visible and 0 or 1)
+            set('HUD_WP_ARROW_X',cue.arrow_x);set('HUD_WP_ARROW_Y',cue.arrow_y);set('HUD_WP_ARROW_ROT',cue.rotation)
+        end
     end
     for i=1,nav.slots do
         local p=s.points[i];local root=string.format('F22_NAV_PT_%02d_',i)

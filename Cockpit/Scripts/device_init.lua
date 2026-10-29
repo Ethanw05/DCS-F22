@@ -68,11 +68,12 @@ indicators = {}
 -- The shipped EDM has no HUD-CENTER/DOWN/RIGHT connector triplet.
 -- Use explicit cockpit geometry until editable HUD anchors are available.
 -- Position and optical alignment still require a 2D/VR in-game check.
+local hud_geometry=dofile(LockOn_Options.script_path.."HUD/geometry.lua")
 indicators[#indicators + 1] = {"ccIndicator", LockOn_Options.script_path.."HUD/init.lua",
     nil,
     {
         {},
-        {sx = 0.0, sy = 0.0, sz = 0.0, sw = 0.14, sh = 0.12,
+        {sx = 0.0, sy = 0.0, sz = 0.0, sw = hud_geometry.width, sh = hud_geometry.height,
          rx = 0, ry = 0, rz = 0}
     }
 }

@@ -3,8 +3,9 @@ dofile(LockOn_Options.script_path .. "devices.lua")
 local decode = dofile(LockOn_Options.script_path .. "Systems/Input_Value.lua")
 local geom = dofile(LockOn_Options.script_path .. "Systems/NavGeometry.lua")
 local projection = dofile(LockOn_Options.script_path .. "Systems/HUD_Projection.lua")
-local edge_projection = dofile(LockOn_Options.script_path .. "Systems/HUD_TargetMath.lua").new(
-    dofile(LockOn_Options.script_path .. "HUD/glass.lua"))
+local edge_projection = dofile(LockOn_Options.script_path .. "Systems/HUD_Designation_Projection.lua").new(
+    dofile(LockOn_Options.script_path .. "HUD/glass.lua"),
+    dofile(LockOn_Options.script_path .. "HUD/geometry.lua"))
 local base = get_base_data()
 local dev = GetSelf()
 make_default_activity(0.05)
@@ -23,7 +24,7 @@ local function put(n, v)
 end
 -- Complete invalid ground-marker render snapshot before the HUD binds.
 for _,name in ipairs({"HUD_AG_TGT_X_SLOPE","HUD_AG_TGT_Y_SLOPE",
-    "HUD_AG_TARGET_VALID","HUD_AG_CUE_VALID","HUD_AG_EDGE_VALID","HUD_AG_EDGE_FLASH",
+    "HUD_AG_TARGET_VALID","HUD_AG_CUE_VALID","HUD_AG_EDGE_VALID",
     "HUD_AG_EDGE_X","HUD_AG_EDGE_Y"}) do put(name,0) end
 local function finite(v)
 	return type(v) == "number" and v == v and math.abs(v) < 1e7
@@ -182,6 +183,14 @@ function SetCommand(c, v)
 		request = c
 	end
 end
+local function receive_radar(radar)
+    if not radar then return end
+    if radar.sequence == radar_sequence and radar.epoch == radar_epoch then return end
+    radar_sequence, radar_epoch = radar.sequence, radar.epoch
+    -- Ground-format selection does not require changing the HUD master mode.
+    if radar.valid then assign(radar.n, radar.u, radar.e, 2, radar)
+    elseif target and target.source == 2 then clear() end
+end
 local function update_body(now)
 	local marks = get("HUD_AG_MARK_SEQUENCE")
 	local radar = evidence.read(get,now)
@@ -194,10 +203,7 @@ local function update_body(now)
 		if radar then radar_sequence,radar_epoch=radar.sequence,radar.epoch end
 		return
 	end
-	if get("HUD_MODE")==7 and radar and (radar.sequence~=radar_sequence or radar.epoch~=radar_epoch) then
-        radar_sequence,radar_epoch=radar.sequence,radar.epoch
-        if radar.valid then assign(radar.n,radar.u,radar.e,2,radar)else clear()end
-    end
+    receive_radar(radar)
     if target and target.source==2 and not evidence.current(target,get,now) then clear()end
 	if get("HUD_MODE") == 7 and marks ~= mark_sequence then
 		mark_sequence = marks
@@ -260,9 +266,9 @@ local function update_body(now)
 	local forward,right,up=geom.body(target.n-n,target.e-e,target.u-u,-base.getHeading(),base.getPitch(),base.getRoll())
 	if not forward then put("HUD_AG_CUE_VALID",0);put("HUD_AG_EDGE_VALID",0);return end
 	local cue=edge_projection(math.atan2(right,forward),math.atan2(up,math.sqrt(forward*forward+right*right)))
+	if not cue then put("HUD_AG_CUE_VALID",0);put("HUD_AG_EDGE_VALID",0);return end
 	put("HUD_AG_CUE_VALID",az and el and cue.visible and 1 or 0)
 	put("HUD_AG_EDGE_X",cue.arrow_x);put("HUD_AG_EDGE_Y",cue.arrow_y)
-	put("HUD_AG_EDGE_FLASH",finite(now) and now%0.5<0.25 and 1 or 0)
 	put("HUD_AG_EDGE_VALID",not cue.visible and finite(now) and 1 or 0)
 end
 function update()

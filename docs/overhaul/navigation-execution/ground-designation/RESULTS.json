@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "captured_at_utc": "2026-10-29T06:46:53.154680+00:00",
+  "baseline_commit": "5e19590",
+  "primary_checkout": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22",
+  "branch": "main",
+  "source_hashes": {
+    "Cockpit/Scripts/HUD/geometry.lua": "3d56a8070d60972e30c184d0efdac45506b4069f99c5393e7c8cb01195bb7fb4",
+    "Cockpit/Scripts/Systems/HUD_Designation_Projection.lua": "145ef0be385ec0b7d93da5c34cf44513c4926964bea604625a86cf4c367f21e9",
+    "Cockpit/Scripts/Systems/AG_Mark_System.lua": "5b5d66d0b46dd0bf4f2285bf7ae3493181f41445e6cdd59c623faceabbc6b14c",
+    "Cockpit/Scripts/Systems/Navigation_System.lua": "9a232ca9c02b5f9c989956c6a9a650201133ac463bd63dd26b37ce016daa5f11",
+    "Cockpit/Scripts/HUD/tactical_page.lua": "0c7e57e54c034153dd2cfa8e51511a73f2e934befcee2c1de8b64292a5176845",
+    "Cockpit/Scripts/device_init.lua": "94323a9258af4ca2ab1993521c4e3ea28f39f11a12b002ad377e86a5e2ec9f6a"
+  },
+  "candidate": {
+    "tests": 75,
+    "passed": true,
+    "planned_source_files": 6,
+    "dependency_hashes_stable": true,
+    "dependencies": 95,
+    "other_modules": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Cockpit\\Scripts",
+    "actual_DCS_executed": false
+  },
+  "prefixed_requirements": {
+    "source": "5e19590",
+    "tests": 6,
+    "failures": 5,
+    "errors": 0,
+    "modules": {
+      "Systems/AG_Mark_System.lua": "4f2f8f1c1d1ab95ffded20e356b3cf49fb45f3e9689c69e03736b0c835672c01",
+      "Systems/Navigation_System.lua": "16caa7c0b9be0e858462b7122ceeed7999544b80f66b326932efc04a67b25e51",
+      "HUD/tactical_page.lua": "1f6e749e7871d8b7a83d115b3329f1bc10f0b57d3aa987407689bd4ee3b6e1d9",
+      "device_init.lua": "972713631448584c218c2646554160304a2c06c8a4d8b6107af0affd00c5d87a"
+    },
+    "legacy_acceptance_executed": false
+  },
+  "existing_package_limit": {
+    "before_navigation_fix_source": "5e19590",
+    "unchanged_installed_dependencies": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Cockpit\\Scripts",
+    "failures": 3,
+    "errors": 1,
+    "scope": "Existing installed store/program delivery packet mismatch; preserved, no weapon edits",
+    "actual_DCS_executed": false
+  },
+  "bounded_work": {
+    "isolated_Lua51": true,
+    "DCS_executed": false,
+    "owner_updates": 1000,
+    "elapsed_seconds": 0.1862938999547623,
+    "lua_KiB_before": 146.2685546875,
+    "lua_KiB_before_final_test_GC": 212.5400390625,
+    "lua_KiB_after": 146.2685546875,
+    "parameter_count_before": 38,
+    "parameter_count_after": 38,
+    "limit": "Offline host timing/heap only; not simulator frame-time qualification"
+  },
+  "lint": {
+    "tool": "Luacheck 1.2.0",
+    "Lua": "5.1",
+    "base": "5e19590",
+    "new_findings": 0,
+    "retained_findings": 96
+  },
+  "lizard_version": "1.17.31",
+  "raw_reports": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat2-hud-designation-20261029",
+  "case_selection": [
+    "test_hud_ground_designation",
+    "test_ground_radar_pilot_fixes",
+    "test_radar_target_handoff.RadarTargetHandoff.test_actual_navigation_target_capture_rejects_uncommitted_mark",
+    "test_radar_target_handoff.RadarTargetHandoff.test_actual_writer_exposes_only_completed_or_unavailable_tuple",
+    "test_radar_target_handoff.RadarTargetHandoff.test_completed_nav_failure_ack_remains_available_without_target_authority",
+    "test_radar_target_handoff.RadarTargetHandoff.test_failed_parameter_adapter_withdraws_and_recovers_without_throw",
+    "test_radar_target_handoff.RadarTargetHandoff.test_fixed_coordinate_retains_original_time_until_cancel_or_reset",
+    "test_radar_target_handoff.RadarTargetHandoff.test_live_object_stale_association_and_epoch_loss_withdraw",
+    "test_radar_target_handoff.RadarTargetHandoff.test_nav_ack_and_hud_los_remain_unmeasured_coordinates",
+    "test_radar_target_handoff.RadarTargetHandoff.test_original_measurement_time_survives_mark_copy_and_refresh",
+    "test_radar_target_handoff.RadarTargetHandoff.test_snapshot_rejects_each_torn_protected_field",
+    "test_radar_target_handoff.RadarTargetHandoff.test_snapshot_types_geometry_clock_and_fixed_kind_cannot_mask_live",
+    "test_radar_target_handoff.RadarTargetHandoff.test_torn_request_is_not_consumed_and_same_logical_commit_recovers",
+    "test_radar_target_handoff.RadarTargetHandoff.test_zero_time_and_exact_packet_lease_boundaries"
+  ],
+  "DCS_operated": false,
+  "actual_flight_verified": false
+}
