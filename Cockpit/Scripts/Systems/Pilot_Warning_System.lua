@@ -5,6 +5,7 @@ local policy = dofile(LockOn_Options.script_path .. "Systems/Pilot_Warnings.lua"
 local recovery_cue = dofile(LockOn_Options.script_path .. "Systems/Terrain_Recovery_Cue.lua")
 local recovery_context = dofile(LockOn_Options.script_path .. 'Systems/Recovery_Context.lua')
 local receiver = policy.new()
+local ap_annunciation = dofile(LockOn_Options.script_path..'Systems/AP_Annunciation.lua')
 local fault_definitions = dofile(LockOn_Options.script_path .. 'Systems/Fault_Registry.lua').definitions
 local conditions = {}
 for index, definition in ipairs(fault_definitions) do
@@ -265,7 +266,7 @@ local function initialize_audio(now)
 	for _, name in ipairs(policy.names) do if not sounds[name] then return false end end
 	return true
 end
-local function speak(name, priority, now, test_step, altitude_ticket)
+local function speak(name, priority, now, test_step, altitude_ticket, ap_event)
 	local sound = sounds[name]
 	if playing or muted or volume <= 0.01 or not sound or now < (start_retry[name] or -1) then
 		return false
@@ -278,7 +279,7 @@ local function speak(name, priority, now, test_step, altitude_ticket)
 	end
 	playing = { name = name, priority = priority, started = now,
 		until_time = now + (duration[name] or 2) + 0.15, test_step = test_step,
-        altitude_ticket = altitude_ticket }
+        altitude_ticket = altitude_ticket, ap_event = ap_event }
 	return true
 end
 local function confirm_playback(now)
@@ -297,7 +298,7 @@ local function confirm_playback(now)
 			test.at = now + (duration[playing.name] or 2) + 0.5
 		end
 	else
-		receiver:played(playing.name, now, playing.altitude_ticket)
+		receiver:played(playing.name, now, playing.altitude_ticket, playing.ap_event)
 	end
 end
 local function update_playback(now)
@@ -473,6 +474,8 @@ function update()
 		audio_busy = playing ~= nil or muted or volume <= 0.01 or not audio_ok or not host,
 	}
     qualify_flight(state)
+    state.ap_event = state.valid and state.airborne
+        and ap_annunciation.read(get,now,physical.generation) or nil
 	put('F22_TAWS_IAS_MPS',state.cas or 0)
 	state.approach = recovery_context.update(state,get,put)
 	local height = terrain and terrain.GetHeight
@@ -488,7 +491,7 @@ function update()
 		test = nil
 	end
 	if result.event then
-		speak(result.event, result.priority, now, nil, result.altitude_ticket)
+		speak(result.event, result.priority, now, nil, result.altitude_ticket, result.ap_event)
 	end
 	if test and not muted and not state.missile_warning and not playing and now >= test.at then
 		local name = policy.names[test.index]

@@ -4,6 +4,7 @@
 -- No false CCIP, WEZ, target tracks, or seeker lock indicators.
 return function(api)
     local line, label, static, group = api.line, api.label, api.static, api.group
+    local readouts = dofile(LockOn_Options.script_path..'HUD/readouts.lua')
     local pi = math.pi
     local function angular(name,x,y,params,controllers,parent,reference_y)
         local corrected={}
@@ -86,13 +87,13 @@ return function(api)
         local armRoot=visible("ARMROOT","HUD_MODE",n)
         local armed=visible("ARM","HUD_ARMED",1,armRoot)
         local safed=visible("SAFE","HUD_ARMED",0,armRoot)
-        static(-0.40,-0.62,"ARM",0.023,armed)
-        static(-0.40,-0.62,"SAFE",0.023,safed)
+        static(readouts.right,readouts.weapon_arm,"ARM",0.023,armed,'RightCenter')
+        static(readouts.right,readouts.weapon_arm,"SAFE",0.023,safed,'RightCenter')
     end
     local combatArm = visible("ARM","HUD_ARMED",1,combat)
     local combatSafe = visible("SAFE","HUD_ARMED",0,combat)
-    static(-0.40,-0.62,"ARM",0.023,combatArm)
-    static(-0.40,-0.62,"SAFE",0.023,combatSafe)
+    static(readouts.right,readouts.weapon_arm,"ARM",0.023,combatArm,'RightCenter')
+    static(readouts.right,readouts.weapon_arm,"SAFE",0.023,combatSafe,'RightCenter')
 
     -- NAV: retain historical flight symbology and C-130-inspired heading tape.
     local nav = visible("NAV","HUD_MODE",1)
@@ -119,9 +120,8 @@ return function(api)
     -- Selected payload identity/count, shared with the weapon controller.
     -- Without track/kinematics the HUD MUST NOT show a DLZ or SHOOT cue.
     local mrm = visible("MRM","HUD_MODE",2)
-    static(-0.40,-0.48,"A/A",0.025,mrm)
-    label(0.57,-0.59,"F22_WEAPON_NAME","%s",0.021,mrm)
-    label(.72,-.63,"F22_WEAPON_COUNT","X %.0f",.021,mrm,"RightCenter")
+    label(readouts.right,readouts.weapon_name,"F22_WEAPON_NAME","%s",0.021,mrm,'RightCenter')
+    label(readouts.right,readouts.weapon_count,"F22_WEAPON_COUNT","X %.0f",.021,mrm,"RightCenter")
     local noMRM = visible("MRM_NO_TRACK","HUD_TD_VALID",0,mrm)
     static(0,-1.01,"NO TRACK",0.023,noMRM)
     local tgtText = visible("MRM_TGT","HUD_TD_VALID",1,mrm)
@@ -136,16 +136,15 @@ return function(api)
         local root=visible("RADAR_STATUS","HUD_MODE",m)
         for code,value in ipairs({'OFF','STBY','RWS','TWS','ACQ','STT','BORE','VACQ','WIDE','SENSOR N/A'}) do
             local status=visible('RADAR_CODE','F22_RADAR_MODE_CODE',code-1,root)
-            static(0.60,-0.37,value,0.021,status)
+            static(readouts.right,readouts.radar_mode,value,0.021,status,'RightCenter')
         end
     end
 
     -- AIM-9 states come from the typed native seeker; radar lock alone is not IR lock.
     for _,m in ipairs({3,4,6}) do
         local sr=visible("IR","HUD_MODE",m)
-        static(-0.40,-0.48,"A/A",0.025,sr)
-        label(0.57,-0.59,"F22_WEAPON_NAME","%s",0.021,sr)
-        label(.72,-.63,"F22_WEAPON_COUNT","X %.0f",.021,sr,"RightCenter")
+        label(readouts.right,readouts.weapon_name,"F22_WEAPON_NAME","%s",0.021,sr,'RightCenter')
+        label(readouts.right,readouts.weapon_count,"F22_WEAPON_COUNT","X %.0f",.021,sr,"RightCenter")
         local seekerPos="HUD_IR_NATIVE_"..m
         angular(seekerPos,0,0,
             {"HUD_IR_SEEKER_X_SLOPE","HUD_IR_SEEKER_Y_SLOPE","HUD_POWER","HUD_IR_SEEKER_AVAILABLE","HUD_MODE"},
@@ -158,25 +157,24 @@ return function(api)
         local radarInfo=visible("IR_RADAR_INFO","HUD_AA_TARGET_VALID",1,sr)
         local irClosure=visible("IR_CLOSURE","HUD_AA_CLOSURE_VALID",1,radarInfo)
         local noSeeker=visible("IR_UNAVAILABLE","HUD_IR_BACKEND_READY",0,sr)
-        static(-0.40,-0.69,"IR BACKEND N/A",0.023,noSeeker)
+        static(readouts.right,readouts.weapon_state,"IR BACKEND N/A",0.023,noSeeker,'RightCenter')
         local backend=visible("IR_BACKEND","HUD_IR_BACKEND_READY",1,sr)
         local empty=visible("IR_EMPTY","F22_WEAPON_COUNT",0,backend)
-        label(-0.40,-0.69,"F22_WEAPON_EMPTY_TEXT","%s",0.023,empty)
+        label(readouts.right,readouts.weapon_state,"F22_WEAPON_EMPTY_TEXT","%s",0.023,empty,'RightCenter')
         local searching=visible("IR_AVAILABLE","HUD_IR_SEEKER_AVAILABLE",1,backend)
         local noLock=visible("IR_SEARCH","HUD_IR_SEEKER_VALID",0,searching)
-        static(-0.40,-0.69,"NO IR LOCK",0.023,noLock)
+        static(readouts.right,readouts.weapon_state,"NO IR LOCK",0.023,noLock,'RightCenter')
         local seeker=visible("IR_SEEKER","HUD_IR_SEEKER_VALID",1,sr)
-        static(-0.40,-0.69,"IR TRACK",0.023,seeker)
+        static(readouts.right,readouts.weapon_state,"IR TRACK",0.023,seeker,'RightCenter')
     end
 
     -- Computed target-motion director; no alternate aiming source.
     local gun=visible("GUN","HUD_MODE",5)
-    static(-0.40,-0.48,"A/A",0.025,gun)
-    static(0.57,-0.59,"GUN",0.021,gun)
+    static(readouts.right,readouts.weapon_name,"GUN",0.021,gun,'RightCenter')
     local ammo=visible("GUN_AMMO","F22_GUN_AMMO_VALID",1,gun)
-    label(-0.40,-0.69,"F22_GUN_AMMO_COUNT","AMMO %03.0f",0.023,ammo)
+    label(readouts.right,readouts.weapon_count,"F22_GUN_AMMO_COUNT","AMMO %03.0f",0.023,ammo,'RightCenter')
     local noAmmo=visible("GUN_AMMO_NA","F22_GUN_AMMO_VALID",0,gun)
-    static(-0.40,-0.69,"AMMO N/A",0.023,noAmmo)
+    static(readouts.right,readouts.weapon_count,"AMMO N/A",0.023,noAmmo,'RightCenter')
     local noRange=visible("GUN_NO_RNG","HUD_GUN_TARGET_VALID",0,gun)
     local withRange=visible("GUN_RANGE","HUD_GUN_TARGET_VALID",1,gun)
     local gunVC=visible("GUN_CLOSURE","HUD_AA_CLOSURE_VALID",1,withRange)

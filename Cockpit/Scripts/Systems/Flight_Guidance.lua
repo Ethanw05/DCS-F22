@@ -9,6 +9,7 @@ local handles={}
 local function h(k)if not handles[k]then handles[k]=get_param_handle(k)end return handles[k]end
 local function get(k)return h(k):get()end
 local function set(k,v)h(k):set(v)end
+local hud_status=dofile(LockOn_Options.script_path..'Systems/AP_HUD_Status.lua').new(get,set)
 local Magnetic=dofile(LockOn_Options.script_path..'Systems/Magnetic_Reference.lua')
 local Physical=dofile(LockOn_Options.script_path..'Systems/Physical_Snapshot.lua')
 local Currentness=dofile(LockOn_Options.script_path..'Systems/Cockpit_Currentness.lua')
@@ -66,6 +67,7 @@ local frequency_index=23 -- 110.30 MHz
 local names={[0]='OFF',[1]='REC',[2]='T/R',[3]='A/A REC',[4]='A/A T/R'}
 function post_initialize()
  status_clock,status_dirty=nil,true
+ hud_status:invalidate()
  set('F22_ENTRY_GUIDANCE_ACTIVE',0)
  set('F22_NAV_CONFIG_PATH',LockOn_Options.script_path..'Systems/TACAN_Native.lua')
  set('F22_TCN_CHANNEL',1);set('F22_TCN_BAND',0);set('F22_TCN_MODE',2)
@@ -170,20 +172,7 @@ function update()
   or get('F22_INS_COASTING')>.5 and string.format('IRS COAST EST %.0f M',get('F22_INS_POSITION_UNCERTAINTY_M'))
   or 'GINS / GPS SIM')
  set('F22_INS_STATUS_TEXT',text)
- local pitch={[0]='OFF',[1]='ATT',[2]='ALT',[3]='RALT',[4]='V/S'}
- local roll={[0]='',[1]='ATT',[2]='HDG',[3]='NAV'}
- local active=get('F22_AP_ACTIVE')>.5
- local status=active and ('AP '..(roll[get('F22_AP_ROLL_MODE')] or '?')..' '..(pitch[get('F22_AP_PITCH_MODE')] or '?')) or 'AP OFF'
- if (get('F22_AP_OVERRIDE')>.5 or get('F22_AP_NAV_OVERRIDE')>.5) and active then status='AP OVERRIDE' end
- if get('F22_AP_AT')>.5 then status=status..(get('F22_AP_MACH_HOLD')>.5 and ' / MACH' or ' / A/T')end
- if get('F22_AP_REASON')>0 then
-  local reason={[1]='ENGAGE INHIBIT',[2]='ENVELOPE / POWER',[3]='PILOT OVERRIDE',[4]='NAV LOST',
-   [5]='VERTICAL SOURCE LOST',[6]='HEADING LOST'}
-  status=status..' '..(reason[get('F22_AP_REASON')] or 'FAULT')
- end
- if get('F22_AT_REASON')>0 and get('F22_AP_CLOCK')<get('F22_AT_FEEDBACK_UNTIL')then status=status..' / A/T OFF'end
- if get('F22_AP_LIMITED')>.5 then status=status..' LIMIT'end
- set('F22_AP_STATUS_TEXT',status)
+ set('F22_AP_STATUS_TEXT',hud_status:update())
  local suffix=get('F22_NAV_REFERENCE')==1 and 'M' or get('F22_NAV_REFERENCE')==0 and 'T' or '?'
  local d=course_reference()
  set('F22_AP_HDG_TEXT',d~=nil and string.format('HDG %03d%s',(get('F22_AP_HEADING')-d)%360,suffix)or'HDG ---'..suffix)

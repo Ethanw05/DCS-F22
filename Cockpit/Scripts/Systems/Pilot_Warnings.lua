@@ -127,10 +127,13 @@ function M:update(s, height, visible)
 		self.caution_ack = false
 	end
 	local selected, priority
+    local ap = s.ap_event
+    self.ap_current = ap
+    local ap_pending = ap and (ap.epoch~=self.ap_played_epoch or ap.ticket~=self.ap_played_ticket)
 	if self.terrain_call then
 		selected = self.terrain_call
 		priority = self.terrain_priority
-	elseif self.fault_since and now - self.fault_since >= 0.5 then
+	elseif ap_pending or self.fault_since and now - self.fault_since >= 0.5 then
 		selected = "flight_controls"
 		priority = 1
 	elseif
@@ -150,7 +153,7 @@ function M:update(s, height, visible)
 		or selected == "flight_controls" and 15
 		or 30
 	local busy = s.missile_warning and priority ~= 3
-	local acknowledged = selected == "flight_controls" and self.fault_ack
+	local acknowledged = selected == "flight_controls" and self.fault_ack and not ap_pending
 		or selected == "caution" and self.caution_ack
 		or selected == "altitude" and not altitude_active
 	if
@@ -158,14 +161,16 @@ function M:update(s, height, visible)
 		and not acknowledged
 		and not busy
 		and not s.audio_busy
-		and ((priority == 3 and self.spoken ~= selected) or now - (self.last[selected] or -100) > repeat_time)
+		and (ap_pending and selected=='flight_controls' or
+            (priority == 3 and self.spoken ~= selected) or now - (self.last[selected] or -100) > repeat_time)
 	then
 		event = selected
 	end
 	return { text = text, priority = priority or 0, event = event, impact = impact, terrain = terrain,
-        altitude_ticket = altitude_ticket, altitude_label = self.altitude.label }
+        altitude_ticket = altitude_ticket, altitude_label = self.altitude.label,
+        ap_event = selected=='flight_controls' and ap_pending and ap or nil }
 end
-function M:played(name, now, ticket)
+function M:played(name, now, ticket, ap)
 	if not name or not finite(now) then return end
 	if name == "altitude" then
         if not finite(ticket) or ticket<1 or ticket>16777215 or ticket%1~=0 then return end
@@ -177,8 +182,12 @@ function M:played(name, now, ticket)
     end
 	self.last[name] = now
 	self.spoken = name
+    if name=='flight_controls' and ap then self.ap_played_epoch,self.ap_played_ticket=ap.epoch,ap.ticket end
 end
 function M:acknowledge()
+    if self.ap_current then
+        self.ap_played_epoch,self.ap_played_ticket=self.ap_current.epoch,self.ap_current.ticket
+    end
     self.faults:acknowledge()
 	self.fault_ack = self.fault_since ~= nil
 	self.caution_ack = self.caution_since ~= nil

@@ -1,0 +1,27 @@
+{
+  "baseline_commit": "b2e8d1bf911056c11afe715f6ede43b657df48f6",
+  "source_hashes": {
+    "Cockpit/Scripts/HUD/page.lua": "d13fca941ce9ac82352a5db2ca5ebb5437398c0ddc257a87a097969d7b6b1f63",
+    "Cockpit/Scripts/HUD/tactical_page.lua": "166a5d6a60316ea27ae214649591cbb0af1af81fcf62173a4e169223c55b69f5",
+    "Cockpit/Scripts/HUD/engagement.lua": "5a46d0e52429a5bf0155d2bdca86ac75c5a6f7cd1634a90f50b1dd40dd7a26b4",
+    "Cockpit/Scripts/HUD/ag.lua": "3d4f12129ae5203df4c30719dc090ad1cd3c043dae4669f857f99d6c48169900",
+    "Cockpit/Scripts/HUD/readouts.lua": "8656636a666c7d809bd4af9df109a40a2d6f32edb4dd1ce61cff518d9f9bc612",
+    "Cockpit/Scripts/Systems/Flight_Guidance.lua": "1be6da11d33ed172b83b826bc1ade9674b8fcc501aa2f9869c75bddb25b0239f",
+    "Cockpit/Scripts/Systems/AP_HUD_Status.lua": "696f4d7037d11a835a993264f42bb7f3b83ff1215acdba1952f2955a9039f9a5",
+    "Cockpit/Scripts/Systems/AP_Annunciation.lua": "52d694b93358521979d036672b992c53377350187fcf05b0feb0e93fe18484d8",
+    "Cockpit/Scripts/Systems/Pilot_Warnings.lua": "053dfd32725a53d3d68502380ca701cd3c079b018d02820d65283e287f21b0d7",
+    "Cockpit/Scripts/Systems/Pilot_Warning_System.lua": "061c9578d4fde9c0bca3ed7905402820a69e0de63e850e0aba4f14e5255a06e3"
+  },
+  "checks": {
+    "cases_passed": 89,
+    "Lua51_Luacheck120_new_findings": 0,
+    "retained_lint_findings": 18
+  },
+  "test_case": "tests/cases/test_hud_grouped_readouts.py",
+  "user_requested_no_further_test_runs": true,
+  "raw_plan": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat2-hud-readouts-20261029\\implementation\\INSTALL-PLAN.json",
+  "approved_preview": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat2-hud-readouts-20261029\\HUD-grouped-full-proposal-v4.png",
+  "later_AP_instruction": "OFF blank; ON visible; reason feedback 5 seconds; unexpected native drop offers existing FLIGHT CONTROLS voice once",
+  "simulator_executed": false,
+  "actual_DCS_visibility_verified": false
+}

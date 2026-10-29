@@ -1,6 +1,7 @@
 -- GPL-3.0-or-later. Original ground-attack cues using the existing HUD font/optics.
 return function(api)
 	local group, line, label, static = api.group, api.line, api.label, api.static
+    local readouts = dofile(LockOn_Options.script_path..'HUD/readouts.lua')
 	local unit = 1 / (1000 * api.layout_scale)
 	local frl = dofile(LockOn_Options.script_path .. "HUD/optics.lua").frl_elevation / api.layout_scale
 	local function gate(name, param, lo, hi, parent)
@@ -31,38 +32,42 @@ return function(api)
 	end
 	for mode, name in ipairs({ "GUN", "CCIP", "AUTO" }) do
 		local parent = gate("HUD_AG_MODE_" .. mode, "HUD_AG_SUBMODE", mode - 0.1, mode + 0.1, root)
-		static(0.38, -0.39, name, 0.023, parent)
+		static(readouts.right,mode==1 and readouts.weapon_name or readouts.weapon_state,
+            name,0.023,parent,'RightCenter')
 	end
-	label(0.38,-0.64,'F22_WEAPON_NAME','%s',0.021,
-        gate('HUD_AG_WEAPON_ID','HUD_AG_SUBMODE',1.9,3.1,root))
+	label(readouts.right,readouts.weapon_name,'F22_WEAPON_NAME','%s',0.021,
+        gate('HUD_AG_WEAPON_ID','HUD_AG_SUBMODE',1.9,3.1,root),'RightCenter')
 	label(
-		0.38,
-		-0.44,
+		readouts.right,
+		readouts.weapon_count,
 		"F22_WEAPON_COUNT",
 		"QTY %.0f",
 		0.021,
-		gate("HUD_AG_BOMB_COUNT", "HUD_AG_SUBMODE", 1.9, 3.1, root)
+		gate("HUD_AG_BOMB_COUNT", "HUD_AG_SUBMODE", 1.9, 3.1, root),
+        'RightCenter'
 	)
 	label(
-		0.38,
-		-0.44,
+		readouts.right,
+		readouts.weapon_count,
 		"F22_GUN_AMMO_COUNT",
-		"GUN %.0f",
+		"AMMO %.0f",
 		0.021,
-		gate("HUD_AG_GUN_COUNT", "HUD_AG_SUBMODE", 0.9, 1.1, root)
+		gate("HUD_AG_GUN_COUNT", "HUD_AG_SUBMODE", 0.9, 1.1, root),
+        'RightCenter'
 	)
 	local valid = gate("HUD_AG_SOLUTION", "F22_AG_SOLUTION_VALID", 0.9, 1.1, root)
-	label(0.38, -0.49, "HUD_AG_CCIP_TOF_SEC", "TOF %.1f", 0.021, valid)
-	label(0.38, -0.54, "HUD_AG_CCIP_RANGE_NM", "R %.1f NM", 0.021, valid)
+	label(readouts.right,readouts.closing_velocity,"HUD_AG_CCIP_TOF_SEC","TOF %.1f",0.021,valid,'RightCenter')
+	label(readouts.right,readouts.target_range,"HUD_AG_CCIP_RANGE_NM","RNG %.1f",0.021,valid,'RightCenter')
 	local none = gate("HUD_AG_NO_SOLUTION", "F22_AG_SOLUTION_VALID", -0.1, 0.1, root)
-	static(0.38, -0.49, "NO SOLUTION", 0.021, none)
+	static(readouts.right,readouts.radar_mode,"NO SOLUTION",0.021,none,'RightCenter')
 	local visual = gate("HUD_AG_VISUAL_STATUS", "HUD_AG_SUBMODE", 0.9, 2.1, valid)
 	static(
-		0.38,
-		-0.59,
+		readouts.right,
+		readouts.weapon_state-.038,
 		"PIPPER OFF HUD",
 		0.019,
-		gate("HUD_AG_OFFSCREEN_STATUS", "HUD_AG_CCIP_CUE_VALID", -0.1, 0.1, visual)
+		gate("HUD_AG_OFFSCREEN_STATUS", "HUD_AG_CCIP_CUE_VALID", -0.1, 0.1, visual),
+        'RightCenter'
 	)
 	local auto = gate("HUD_AG_AUTO", "HUD_AG_SUBMODE", 2.9, 3.1, root)
 	static(0, -0.54, "NO DESIGNATION", 0.021, gate("HUD_AG_NO_TARGET", "HUD_AG_TARGET_VALID", -0.1, 0.1, auto))
@@ -117,7 +122,7 @@ return function(api)
 		"HUD_AG_AUTO_ASL"
 	)
 	line(-0.10, 0, 0.10, 0, 1 * unit, "HUD_AG_AUTO_RELEASE_CUE")
-	label(0.38, -0.59, "HUD_AG_CCRP_TIME_SEC", "REL %+.1f", 0.021, steer)
+	label(readouts.right,readouts.weapon_timer,"HUD_AG_CCRP_TIME_SEC","REL %+.1f",0.021,steer,'RightCenter')
 	static(0, -0.66, "CONSENT", 0.021, gate("HUD_AG_CONSENT", "F22_AG_RELEASE_CONSENT", 0.9, 1.1, auto))
 	static(0, -0.61, "RELEASE", 0.021, gate("HUD_AG_RELEASE_WINDOW", "F22_AG_AUTO_RELEASE", 0.9, 1.1, auto))
 	local ccip = gate("HUD_AG_GUIDED_CCIP", "HUD_AG_SUBMODE", 1.9, 2.1, root)

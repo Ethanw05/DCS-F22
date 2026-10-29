@@ -8,6 +8,7 @@ local green = "F22_HUD_GREEN"
 local hud_style=dofile(LockOn_Options.script_path.."HUD/style.lua")
 local pi = math.pi
 local layout = dofile(LockOn_Options.script_path.."HUD/layout.lua")
+local readouts = dofile(LockOn_Options.script_path.."HUD/readouts.lua")
 -- Explicit angular units: layout math uses radians, DCS elements use mrad.
 local layout_scale = layout.angular_scale
 local drawing_scale = layout_scale * 1000
@@ -170,11 +171,7 @@ end
 local counter_x=0.62
 dial(-counter_x,0.02,0.085,"HUD_CAS","HUD_IAS_POINTER")
 dial(counter_x,0.02,0.115,"HUD_ALT_FT","HUD_ALT_POINTER","HUD_ALT_DATA","HUD_NO_ALT_DATA")
--- Reserve separate right-column rows for source, pressure and flight data.
--- Centering BARO between VV and radar altitude made their glyphs overlap.
-label(.72,-.16,'HUD_ALT_SOURCE_TEXT','%s',.020,nil,'RightCenter')
-group('HUD_PRESSURE_CONFIRM',0,0,{'HUD_QNH_VISIBLE'},{{'parameter_in_range',0,.9,1.1}})
-label(.72,-.21,'F22_ALT_DISPLAY_TEXT','%s',.018,'HUD_PRESSURE_CONFIRM','RightCenter')
+-- Source/pressure settings remain on the cockpit pages; the HUD keeps flight values.
 
 -- Geometric attitude reference: moves in pitch, rotates as aircraft rolls.
 -- Every conformal cue shares the fixed nose-reference origin.
@@ -343,8 +340,8 @@ measured_label(left_edge,-.196,'MACH','M %.2f','F22_SIDE_MACH_VALID','LeftCenter
 measured_label(left_edge,-.288,'GFORCE','G %.1f','F22_SIDE_G_VALID','LeftCenter','G ---')
 measured_label(left_edge,-.326,'HUD_AOA_DEG','A %.1f','HUD_AOA_VALID','LeftCenter','A ---')
 measured_label(left_edge,-.402,'HUD_G_MAX','%.1f','HUD_G_MAX_VALID','LeftCenter','---')
-measured_label(right_edge,-.260,'VV','VV %.0f','F22_SIDE_VS_VALID','RightCenter','VV ---')
-measured_label(right_edge,-.310,'RADALT','R %.0f','F22_SIDE_RADAR_VALID','RightCenter','R ---')
+measured_label(right_edge,readouts.vertical_speed,'VV','VV %.0f','F22_SIDE_VS_VALID','RightCenter','VV ---')
+measured_label(right_edge,readouts.radar_altitude,'RADALT','R %.0f','F22_SIDE_RADAR_VALID','RightCenter','R ---')
 group("HUD_NAV_INFO",0,0,{"HUD_MODE"},{{"parameter_in_range",0,.9,1.1}})
 label(right_edge,-0.420,"HUD_WP_INFO","%s",0.021,"HUD_NAV_INFO","RightCenter")
 label(right_edge,-0.470,"HUD_WP_TTG_TEXT","TTG %s",0.021,"HUD_NAV_INFO","RightCenter")
