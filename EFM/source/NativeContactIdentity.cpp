@@ -2,6 +2,7 @@
 // Resolve only IDs already supplied by the passive receiver. No positions,
 // velocities, global object enumeration or radar-track ID matching.
 #include "NativeContactIdentity.h"
+#include "NativeSidewinderHost.h"
 #include <Cockpit/CockpitAPI_Declare.h>
 #include <Windows.h>
 #include <array>
@@ -64,8 +65,11 @@ struct Api {
     return clock && aircraft && coalition && flag && dead && find;
   }
   static bool qualified(HMODULE common, HMODULE general, HMODULE world) {
-    return profile(common, 0x6ac12468, 0x59a000) && profile(general, 0x6ac122f4, 0x125b000) &&
-           profile(world, 0x6aae1d9b, 0x14000);
+    const bool legacy = profile(common, 0x6ac12468, 0x59a000) && profile(general, 0x6ac122f4, 0x125b000)
+      && profile(world, 0x6aae1d9b, 0x14000);
+    const bool current = profile(common, 0x6adbad09, 0x68e000) && profile(general, 0x6adbace0, 0x127b000)
+      && profile(world, 0x6acb804e, 0x14000);
+    return legacy || current;
   }
   void initialize() {
     if (ready || reason > 1)
@@ -85,7 +89,16 @@ struct Api {
     flag = reinterpret_cast<Flag>(GetProcAddress(general, "?IsFlag@MovingObject@@QEBA?B_NH@Z"));
     dead = reinterpret_cast<Dead>(GetProcAddress(general, "?IsDead@MovingObject@@UEBA_NXZ"));
     // Same build-qualified object resolver used for received datalink senders.
-    find = reinterpret_cast<Find>(reinterpret_cast<std::byte *>(common) + 0x2165d0);
+    const bool current = profile(common, 0x6adbad09, 0x68e000);
+    const auto host = NativeSidewinderHost::select(current ? 0x6adbad09 : 0x6ac12468,
+                                                current ? 0x68e000 : 0x59a000);
+    const auto lookup = reinterpret_cast<const std::byte*>(common) + host->object_lookup_rva;
+    const auto code = std::span(lookup, NativeSidewinderHost::object_lookup_size);
+    if (!readable(lookup, code.size()) || !NativeSidewinderHost::matches(*host, code)) {
+      reason = 2;
+      return;
+    }
+    find = reinterpret_cast<Find>(const_cast<std::byte*>(lookup));
     ready = exports_ready();
     reason = ready ? 0 : 3;
   }

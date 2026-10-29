@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "owner": "chat4",
+  "installed_utc": "2026-10-29T02:29:55.667131+00:00",
+  "dcs_version": "2.9.31.29434",
+  "source_head_before_commit": "e701c081faa48803b629683f24a220308aa561e9",
+  "status": "INSTALLED_HASH_VERIFIED_AWAITING_NEXT_USER_FLIGHT",
+  "restored_bindings": [
+    "gun funnel/air-ground gun director",
+    "AIM9 seeker, native uncage and launch",
+    "payload launch events and native missile support/DLZ/TOF",
+    "native bomb aiming",
+    "Link16 and IFDL radio terminal",
+    "passive receiver contact identity",
+    "missile warning contacts and native threat pool"
+  ],
+  "source_changes": {
+    "owner": "chat4",
+    "scope": "User-directed restoration of existing features; exact native profile/export/private-RVA regions only. Checked parameter caller freeze remains untouched.",
+    "created_utc": "2026-10-29T02:26:44.572890+00:00",
+    "before": {
+      "NativeGunSight.cpp": "716412136b077e3b6a71cea6546f797ca89564b018ddd846f9c39bf7c8071f93",
+      "NativeSidewinder.cpp": "8f02347f899a8920329f3182eeb875fe1e122bb2a1dc364ed15c24386a8fa959",
+      "NativeAGWeapons.cpp": "a9820cbdab6cc7a6285c7b25180dcc077a0616dfab82455b356d1f301870525b",
+      "NativeDatalink.cpp": "cbef827c03bfa4ff797c007b98935ae81fb304dccd8cfa9855b08a2b3811f2f2",
+      "NativeContactIdentity.cpp": "752627d76295f6706e6dffc56235ff66e415d792a0d6784ff71c78527dd98eca",
+      "NativeMWS.cpp": "181a8ce423f6b5060fdb214de4e1539be82ccef8f58a88e5ea63e7671330a1f1"
+    },
+    "after": {
+      "NativeGunSight.cpp": "e3feb53ce698565485c8ba01ca03d6bf8c1b03e717d15e4536c835f45fd283e0",
+      "NativeSidewinder.cpp": "b9aa1b671b505e34953b4dcd11b605e560bc865f9513dfda46eea3e88bd31f63",
+      "NativeAGWeapons.cpp": "cfaafe873113c2e5fa84360db4fcd095e071b26a05de38907feda0369c2813d3",
+      "NativeDatalink.cpp": "eda757632e240cb485f47e5f50c32e0d6d58924fa90cd8116d8e099b122e4a0f",
+      "NativeContactIdentity.cpp": "64e065fccde964245cf0baa4504c63f91b93807f9c8fb69d60cfb68ae6e0e951",
+      "NativeMWS.cpp": "db7c32558579881c0f06fe9253e1178b539d3f9985c5878dce38b8ea3077ca0f",
+      "NativeSidewinderHost.h": "b9215ded2051402d4a9b1552b20488485f4b4b935cb3875abb5a76a7481e1555"
+    },
+    "preserved": "No algorithm, Lua/UI, saved control, callback or checked-parameter caller edits. New IFF implementation remains separate."
+  },
+  "build_dir": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\weapons-recovery-2.9.31.29434",
+  "build_log_sha256": "6b1a12dc439dcf1f8fb9dcd37a734d7712db53705f2a8a5ea5133b82bce82c17",
+  "built_dll_sha256": "fa145c973f4c4da4354fb58f272654de30cedb88411b63836b194340801f45fa",
+  "installed_dll_sha256": "fa145c973f4c4da4354fb58f272654de30cedb88411b63836b194340801f45fa",
+  "primary_bin_sha256": "fa145c973f4c4da4354fb58f272654de30cedb88411b63836b194340801f45fa",
+  "native_identity": "C F22_NATIVE_V1|source=c7eec28c5e69957ef67dbfb24fa20bd6a39d1b5f16e2dfcfd007cedf8931bf1a| cache=ec34e3a0830d9656b6ed39285cd19a292f28aa2c6f4c2e5cd09f4599af36c36c| compiler=MSVC-19.51.36252.0|config=Release|cxx=23",
+  "native_inputs_match_at_install": true,
+  "DCS_absent_at_copy": true,
+  "DCS_launched_or_controlled": false,
+  "backups_created": false,
+  "validation": "Full native Release build succeeds; MCP compared current interfaces and private layouts/RVAs. No broad new test suite. Existing algorithms retained.",
+  "limits": [
+    "Installed identity does not prove loaded identity or achieved in-game effects.",
+    "New standalone IFF and missing pod/AIM120 expansion remain separate open work."
+  ],
+  "preservation": "Only the two F22.dll paths copied. No Lua/HUD/audio/hooks/input/default controls or user bindings changed by restoration."
+}

@@ -94,7 +94,8 @@ struct Api {
         IMAGE_NT_HEADERS64 pe{};
         if (!load(base, dos) || dos.e_magic != IMAGE_DOS_SIGNATURE || dos.e_lfanew < 0 ||
             !load(base + dos.e_lfanew, pe) || pe.Signature != IMAGE_NT_SIGNATURE ||
-            pe.FileHeader.TimeDateStamp != 0x6ac12468 || pe.OptionalHeader.SizeOfImage != 0x59a000) {
+            !((pe.FileHeader.TimeDateStamp == 0x6ac12468 && pe.OptionalHeader.SizeOfImage == 0x59a000)
+              || (pe.FileHeader.TimeDateStamp == 0x6adbad09 && pe.OptionalHeader.SizeOfImage == 0x68e000))) {
             reason = 2;
             return;
         }
@@ -106,8 +107,9 @@ struct Api {
         threat_construct = reinterpret_cast<Method>(GetProcAddress(m, "??0MWS_Threat@cockpit@@QEAA@XZ"));
         threat_destroy = reinterpret_cast<Method>(GetProcAddress(m, "??1MWS_Threat@cockpit@@QEAA@XZ"));
         // Exact native malloc/free imports, audited in this guarded PE profile.
-        load(base + 0x449470, allocate);
-        load(base + 0x449460, free);
+        const bool current = pe.FileHeader.TimeDateStamp == 0x6adbad09;
+        load(base + (current ? 0x538478 : 0x449470), allocate);
+        load(base + (current ? 0x538468 : 0x449460), free);
         clear = reinterpret_cast<Method>(GetProcAddress(m, "?ClearThreats@avMLWS@cockpit@@IEAAXXZ"));
         contacts = reinterpret_cast<Contacts>(
             GetProcAddress(m, "?get_contacts@avMLWS@cockpit@@QEBAAEBV?$map@IVMLWS_contact@cockpit@@U?$less@I@"
@@ -119,10 +121,12 @@ struct Api {
         device_table = GetProcAddress(m, "??_7avMLWS@cockpit@@6BccContextRelatedObject@1@@");
         // This local vtable is not exported. IDA verifies its first destructor
         // and RVA in the exact timestamp/image profile checked above.
-        contact_table = reinterpret_cast<const void *>(base + 0x465098);
+        const auto contact_rva = current ? 0x5567c8 : 0x465098;
+        const auto destructor_rva = current ? 0x423510 : 0x334c80;
+        contact_table = reinterpret_cast<const void *>(base + contact_rva);
         const void *destructor{};
-        if (!load(base + 0x465098, destructor) ||
-            destructor != reinterpret_cast<const void *>(base + 0x334c80)) {
+        if (!load(base + contact_rva, destructor) ||
+            destructor != reinterpret_cast<const void *>(base + destructor_rva)) {
             reason = 2;
             return;
         }

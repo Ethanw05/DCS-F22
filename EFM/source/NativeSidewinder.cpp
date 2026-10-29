@@ -2,6 +2,7 @@
 // ABI reference: Standalone-F22-IDA-Research.md, typed Sidewinder investigation.
 // Runtime validation is still required. Reject a different CockpitBase ABI.
 #include "NativeSidewinder.h"
+#include "NativeSidewinderHost.h"
 #include "NativeAesaRadar.h"
 #include "WeaponFlightFrame.h"
 #include "GroundTargetPacket.h"
@@ -145,7 +146,9 @@ struct Api {
         const auto base=reinterpret_cast<const std::byte*>(module);
         const auto dos=reinterpret_cast<const IMAGE_DOS_HEADER*>(base);
         const auto pe=reinterpret_cast<const IMAGE_NT_HEADERS64*>(base+dos->e_lfanew);
-        if (pe->FileHeader.TimeDateStamp!=0x6aae1e3b || pe->OptionalHeader.SizeOfImage!=0xeb000) {tof_rejected=true;return;}
+        const bool legacy=pe->FileHeader.TimeDateStamp==0x6aae1e3b && pe->OptionalHeader.SizeOfImage==0xeb000;
+        const bool current=pe->FileHeader.TimeDateStamp==0x6ad65ebe && pe->OptionalHeader.SizeOfImage==0x10b000;
+        if (!legacy && !current) {tof_rejected=true;return;}
         tof_construct=reinterpret_cast<TOFConstruct>(GetProcAddress(module,"??0TOFEstimator@@QEAA@XZ"));
         tof_destroy=reinterpret_cast<Method>(GetProcAddress(module,"??1TOFEstimator@@QEAA@XZ"));
         if (tof_construct && tof_destroy)
@@ -164,18 +167,25 @@ struct Api {
         const auto base=reinterpret_cast<const std::byte*>(module);
         const auto dos=reinterpret_cast<const IMAGE_DOS_HEADER*>(base);
         const auto pe=reinterpret_cast<const IMAGE_NT_HEADERS64*>(base+dos->e_lfanew);
-        if (pe->FileHeader.TimeDateStamp!=0x6ac12468 || pe->OptionalHeader.SizeOfImage!=0x59a000) {
-            error=2;return;
-        }
-        profile_valid=true;
-        weapon_vtable=GetProcAddress(module,"??_7avSimpleWeaponSystem@cockpit@@6BccContextRelatedObject@1@@");
-        find_object=reinterpret_cast<FindObject>(const_cast<std::byte*>(base)+0x2165d0);
+        const auto host = NativeSidewinderHost::select(pe->FileHeader.TimeDateStamp,
+            pe->OptionalHeader.SizeOfImage);
+        if (!host) { error=2;return; }
+        const auto lookup = base + host->object_lookup_rva;
+        const auto code = std::span(lookup, NativeSidewinderHost::object_lookup_size);
+        if (!NativeSidewinderHost::matches(*host, code)) { error=2;return; }
+        // The matched profile covers seeker, payload and selected missile support interfaces.
+        profile_valid=host->payload_qualified;
+        if (profile_valid)
+            weapon_vtable=GetProcAddress(module,"??_7avSimpleWeaponSystem@cockpit@@6BccContextRelatedObject@1@@");
+        find_object=reinterpret_cast<FindObject>(const_cast<std::byte*>(lookup));
         auto weapons_module=GetModuleHandleW(L"Weapons.dll");
         if (weapons_module) {
             auto wb=reinterpret_cast<const std::byte*>(weapons_module);
             auto wd=reinterpret_cast<const IMAGE_DOS_HEADER*>(wb);
             auto wp=reinterpret_cast<const IMAGE_NT_HEADERS64*>(wb+wd->e_lfanew);
-            if (wp->FileHeader.TimeDateStamp==0x6ac12438 && wp->OptionalHeader.SizeOfImage==0x21f000) {
+            const bool legacy=wp->FileHeader.TimeDateStamp==0x6ac12438 && wp->OptionalHeader.SizeOfImage==0x21f000;
+            const bool current=wp->FileHeader.TimeDateStamp==0x6ad66192 && wp->OptionalHeader.SizeOfImage==0x277000;
+            if (legacy || current) {
                 homing_vtable=GetProcAddress(weapons_module,"??_7wAmmunitionSelfHoming@@6BviObject@@@");
                 guided_vtable=GetProcAddress(weapons_module,"??_7wAmmunitionGuided@@6BviObject@@@");
                 dlz=reinterpret_cast<DLZ>(GetProcAddress(weapons_module,"?DLZ@@YAXPEAURocket_Const@@MMMMAEBVVec3f@osg@@11AEAM22@Z"));
@@ -185,7 +195,7 @@ struct Api {
             }
         }
         // Optional read-only gun-ammunition source; absence does not disable IR.
-        bind(module,payload,"?c_payload@cockpit@@YAPEAVIwHumanPayload@@XZ");
+        if (profile_valid) bind(module,payload,"?c_payload@cockpit@@YAPEAVIwHumanPayload@@XZ");
         bool ok=true;
 #define BIND(field,symbol) ok=bind(module,field,symbol)&&ok
         BIND(construct,"??0eqSidewinderNew@cockpit@@QEAA@AEBVwsType@@@Z");

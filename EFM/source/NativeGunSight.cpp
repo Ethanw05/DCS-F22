@@ -60,6 +60,18 @@ bool profile(HMODULE m, unsigned stamp, unsigned size) {
     return readable(pe, sizeof(*pe)) && pe->Signature == IMAGE_NT_SIGNATURE &&
            pe->FileHeader.TimeDateStamp == stamp && pe->OptionalHeader.SizeOfImage == size;
 }
+// Matched complete module sets; API/layout proof is recorded separately.
+bool supported_build(HMODULE common, HMODULE weapons, HMODULE world) {
+    struct Profile { unsigned common_stamp, common_size, weapon_stamp, weapon_size, world_stamp; };
+    constexpr std::array<Profile,2> profiles{{
+        {0x6ac12468,0x59a000,0x6ac12438,0x21f000,0x6aae1d9b},
+        {0x6adbad09,0x68e000,0x6ad66192,0x277000,0x6acb804e}}};
+    for (const auto& p : profiles) {
+        if (profile(common,p.common_stamp,p.common_size) && profile(weapons,p.weapon_stamp,p.weapon_size)
+            && profile(world,p.world_stamp,0x14000)) return true;
+    }
+    return false;
+}
 struct WindVector {
     float x, y, z;
 };
@@ -96,8 +108,8 @@ struct Api {
         if (ready)
             return true;
         auto c = GetModuleHandleW(L"CockpitBase.dll"), w = GetModuleHandleW(L"Weapons.dll");
-        if (!profile(c, 0x6ac12468, 0x59a000) || !profile(w, 0x6ac12438, 0x21f000))
-            return false;
+        auto world = GetModuleHandleW(L"World.dll");
+        if (!c || !w || !world || !supported_build(c,w,world)) return false;
         context = reinterpret_cast<Context>(
             GetProcAddress(c, "?binding_context@cockpit@@YAPEAVccCockpitContext@1@XZ"));
         device = reinterpret_cast<Device>(
@@ -112,9 +124,7 @@ struct Api {
         time = reinterpret_cast<Time>(GetProcAddress(
             w,
             "?sightTime@CannonSight@@QEAAHNNAEBVVec3d@osg@@QEAV?$IWindTable@MV?$Vector@$02M@Math@@@weapon_base@@AEAV23@N@Z"));
-        auto world = GetModuleHandleW(L"World.dll");
-        clock = world ? reinterpret_cast<Clock>(GetProcAddress(world, "?GetModelTime@wTime@@SANXZ"))
-                      : nullptr;
+        clock = reinterpret_cast<Clock>(GetProcAddress(world, "?GetModelTime@wTime@@SANXZ"));
         return ready = context && device && shell && vtable && ctor && dtor && time && clock;
     }
 } api;

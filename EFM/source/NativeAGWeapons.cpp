@@ -62,7 +62,9 @@ struct Api {
   auto dos=reinterpret_cast<const IMAGE_DOS_HEADER*>(b);
   if(dos->e_magic!=IMAGE_DOS_SIGNATURE)return false;
   auto pe=reinterpret_cast<const IMAGE_NT_HEADERS64*>(b+dos->e_lfanew);
-  if(pe->Signature!=IMAGE_NT_SIGNATURE || pe->FileHeader.TimeDateStamp!=0x6ac12468 || pe->OptionalHeader.SizeOfImage!=0x59a000)return false;
+  const bool legacy=pe->FileHeader.TimeDateStamp==0x6ac12468 && pe->OptionalHeader.SizeOfImage==0x59a000;
+  const bool current=pe->FileHeader.TimeDateStamp==0x6adbad09 && pe->OptionalHeader.SizeOfImage==0x68e000;
+  if(pe->Signature!=IMAGE_NT_SIGNATURE || (!legacy && !current))return false;
   ctor=reinterpret_cast<Ctor>(GetProcAddress(m,"??0BombSight@cockpit@@QEAA@PEBV?$WindTableProxy_@M@weapon_base@@@Z"));
   dtor=reinterpret_cast<Dtor>(GetProcAddress(m,"??1BombSight@cockpit@@UEAA@XZ"));
   type=reinterpret_cast<Set>(GetProcAddress(m,"?setBombType@BombSight@cockpit@@QEAAXAEBVwsType@@@Z"));

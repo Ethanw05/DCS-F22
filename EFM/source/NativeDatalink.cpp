@@ -1,6 +1,7 @@
 // GPL-3.0-or-later. Independent terminal over the audited shared DCS radio ABI.
 // No aircraft-module dependency, mission scripts, export truth or world scans.
 #include "NativeDatalink.h"
+#include "NativeSidewinderHost.h"
 #include "RadarTacticalPacket.h"
 #include <Cockpit/CockpitAPI_Declare.h>
 #include <Windows.h>
@@ -129,8 +130,15 @@ struct API {
     auto c=GetModuleHandleW(L"CockpitBase.dll"),r=GetModuleHandleW(L"wRadio.dll"),
       g=GetModuleHandleW(L"WorldGeneral.dll"),e=GetModuleHandleW(L"edCore.dll"),w=GetModuleHandleW(L"World.dll");
     if(!c||!r||!g||!e||!w)return;
-    if(!profile(c,0x6ac12468,0x59a000)||!profile(r,0x6aae1f77,0x144000)||
-       !profile(g,0x6ac122f4,0x125b000)||!profile(e,0x6aae1d76,0xaad000)){reason=2;return;}
+    const bool legacy=profile(c,0x6ac12468,0x59a000)&&profile(r,0x6aae1f77,0x144000)
+      &&profile(g,0x6ac122f4,0x125b000)&&profile(e,0x6aae1d76,0xaad000)&&profile(w,0x6aae1d9b,0x14000);
+    const bool current=profile(c,0x6adbad09,0x68e000)&&profile(r,0x6ad874c1,0x153000)
+      &&profile(g,0x6adbace0,0x127b000)&&profile(e,0x6acb8049,0xaad000)&&profile(w,0x6acb804e,0x14000);
+    if(!legacy&&!current){reason=2;return;}
+    const auto host=NativeSidewinderHost::select(current?0x6adbad09:0x6ac12468,current?0x68e000:0x59a000);
+    const auto lookup=reinterpret_cast<const std::byte*>(c)+host->object_lookup_rva;
+    const auto code=std::span(lookup,NativeSidewinderHost::object_lookup_size);
+    if(!readable(lookup,code.size())||!NativeSidewinderHost::matches(*host,code)){reason=2;return;}
     bool ok=true;
 #define B(M,F,N) ok=bind(M,F,N)&&ok
     B(r,construct,"??0wDatalinkCommunicator@@QEAA@V?$cPointerTemplate@VMovingObject@@@@IIPEAVIwTransiver@@W4DatalinkTypes@@PEAVNetSendTransiverStatus@0@@Z");
@@ -172,7 +180,7 @@ struct API {
     B(w,clock,"?GetModelTime@wTime@@SANXZ");
 #undef B
     contexts=reinterpret_cast<void***>(GetProcAddress(c,"?contexts_ptr@ccCockpitContext@cockpit@@0PAPEAV12@A"));
-    find=reinterpret_cast<Find>(reinterpret_cast<char*>(c)+0x2165d0);
+    find=reinterpret_cast<Find>(const_cast<std::byte*>(lookup));
     ready=ok&&contexts;reason=ready?0:3;
   }
 } api;
