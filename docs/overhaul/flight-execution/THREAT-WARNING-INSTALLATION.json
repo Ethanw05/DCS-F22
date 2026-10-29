@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "installed_at_utc": "2026-10-29T04:31:03.708797+00:00",
+  "source_commit": "807a796958abad26175ce260477c2cfa9d5ffb19",
+  "installed_scripts": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Cockpit\\Scripts",
+  "lease_plan_sha256": "5c73f010bc0443c2f9753dac895419d269fc97b304fec8635dff47364331409c",
+  "files": [
+    {
+      "path": "Cockpit/Scripts/Systems/RWR_Warning_Indicator.lua",
+      "installed_before_sha256": null,
+      "installed_after_sha256": "2d91f15089bbae1b4c9369f8230e8af8fda6ae13890b2c1660f96c771c090de6"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Defensive_Overview.lua",
+      "installed_before_sha256": "83c86da3e4c4a7931d014c6fb909398ca00c15849f662b841b24eb6646080dc0",
+      "installed_after_sha256": "be849938fcc5f088fb31902f19f454904b7280b34e2b7433e11c5ff941af3106"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_RIGHT/defensive_overview.lua",
+      "installed_before_sha256": "d4d51f33bcbd1f53a4b8c159ed1df07a8f1145f629ab287bad16c71cf518e84d",
+      "installed_after_sha256": "5310ba5cd97f159aa5a778991f7016d50a543cd3f2c22b68d8c75503f222298f"
+    },
+    {
+      "path": "Cockpit/Scripts/PMFD_CENTER/radar_format.lua",
+      "installed_before_sha256": "3e95742f505b465737b85b498f34ab6a820be449cc2e94e093220273da00d377",
+      "installed_after_sha256": "eed75a93f1c7b02140329c3a5581ad4b56a015abe46e7b3a360ceef780b5f39c"
+    },
+    {
+      "path": "Cockpit/Scripts/PMFD_CENTER/ag_radar_format.lua",
+      "installed_before_sha256": "6d3b764ddcac69d1b2d2ae1472f7b25e1f61cfcaff1b7531c3293397e7fa54c5",
+      "installed_after_sha256": "04dacc7c2ef0b6ddde545a6fedc7f1c156df52f7af05f8d801099be3eb2280f9"
+    },
+    {
+      "path": "Cockpit/Scripts/HUD/engagement.lua",
+      "installed_before_sha256": "32eec6839feb520a46d10a1cda9c997cdae24a756b5f3067af78797e676b48ee",
+      "installed_after_sha256": "1ab66f090a679337b75f25184a66a7f512c4372ee2327612dc916e2deea2c17a"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/RWR_Computer.lua",
+      "installed_before_sha256": "99812709a7c2c54636113ab1114ae036ac43031fab68e79be7b2e61d5dbbe9b2",
+      "installed_after_sha256": "87cf113a13724868402efdd40eb3af607fbb9b6b6110216df12da3ca0756ad66"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/RWR_Audio.lua",
+      "installed_before_sha256": "00e5780e57a61b34cf82658f0896ae0a32f268a23111ee4c999a49db66a47fd3",
+      "installed_after_sha256": "5aef53e92b75547852ee0d2dcb23650ffa6a035ef509dcde23508ff8fe41eedb"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/RWR_System.lua",
+      "installed_before_sha256": "224c65718260d11e951a6da51a74d1846d9aa825d98b6edf9ffa3a2395190629",
+      "installed_after_sha256": "212cc54706949bed759e7bd07650b45a49f5a013350d209353285b41cd74cea3"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/EW_Indicator.lua",
+      "installed_before_sha256": "38f600fb3d43fa71491b6ca07cee1ccda92e182aa59e12b41cd3ebadab957395",
+      "installed_after_sha256": "2fb5e9ee2ed167ddf713fe4cf616d504982310807099ba2555a1ae19fb1a3934"
+    }
+  ],
+  "installed_tests": {
+    "cases": 20,
+    "passed": true,
+    "dependency_files": 54,
+    "report_sha256": "ebb6c1316eee1e166c5372b965bd41de5fec110c89961b2325f76c3a88e64d18"
+  },
+  "protected_files_unchanged": 75,
+  "protected_manifest": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat1-20261028\\threat-warning\\installation-plan.json",
+  "DLL_audio_font_input_hook_changed": false,
+  "simulator_operated": false,
+  "runtime_loaded_identity_verified": false,
+  "actual_DCS_VR_MP_validation": "unexecuted"
+}

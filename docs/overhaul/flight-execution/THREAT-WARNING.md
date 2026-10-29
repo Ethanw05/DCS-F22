@@ -81,3 +81,10 @@ states and an explicitly seeded currentness gate; it is not DCS/VR evidence.
 `threat-warning-evidence.json` pins the references, source files, checks and
 installation request. Actual audible discrimination, flight display legibility,
 native warning classification, VR and multiplayer remain separate flight gates.
+
+The ten Lua files from source commit `807a796` are now installed under the normal
+Saved Games F-22A mod, under the integrator's one-use lease. All ten installed
+hashes match; 75 protected files remain unchanged. All 20 package cases pass
+through the 54 installed script dependencies. No DCS process was running and no
+simulator input was sent. `THREAT-WARNING-INSTALLATION.json` records that receipt;
+it does not claim a loaded DLL or completed flight/VR/multiplayer check.

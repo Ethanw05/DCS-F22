@@ -122,12 +122,16 @@
     "candidate_package_sha256": "2684fe130165df2d87fa61ffb634148f95d71042f2d95979670796aef187a03a",
     "installation_plan_sha256": "5c73f010bc0443c2f9753dac895419d269fc97b304fec8635dff47364331409c"
   },
-  "installation": "awaiting exclusive runtime coordination; no DLL/assets/bindings/hooks changed",
+  "installation": "Installed and hash-verified under exclusive lease; 20 installed-package cases pass through 54 scripts. Actual flight/VR/MP remains open.",
   "protected_files": 75,
   "unexecuted": [
     "Actual DCS warning symbology and audible discrimination",
     "VR legibility",
     "Multiplayer authority/classification and rejoin"
   ],
-  "scope_limit": "RF emitter state and optical detections only. No omniscient weapon-release or range authority."
+  "scope_limit": "RF emitter state and optical detections only. No omniscient weapon-release or range authority.",
+  "installation_receipt": {
+    "path": "docs\\overhaul\\flight-execution\\THREAT-WARNING-INSTALLATION.json",
+    "sha256": "c52eea02ac40a8b22730aaeae6eb41990e6551984d06349f657224d0473638a6"
+  }
 }
