@@ -125,5 +125,23 @@
     "Offline preview uses actual native declaration geometry and approximate text; no actual DCS render/VR flight qualification.",
     "DLL and sensor measurement/acquisition behavior unchanged."
   ],
-  "evidence_directory": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\radar-buttons-20261029"
+  "evidence_directory": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\radar-buttons-20261029",
+  "caption_cleanup": {
+    "installed_at_utc": "2026-10-29T09:06:55.018333+00:00",
+    "path": "Cockpit/Scripts/PMFD_CENTER/radar_format.lua",
+    "installed_before_sha256": "f436a6a13722b8dd0524ce76ec2b4cf431a521b5335a31f5a775453bc72e5ded",
+    "source_and_installed_sha256": "439d1ce84aa6011913f58581cc10ce943b54405c0e4f1ba5ac4e2dc602168dbf",
+    "removed": [
+      "LDR",
+      "30 S",
+      "AESA"
+    ],
+    "reason": "LDR/30 S were static, unconnected reference text; AESA was an unnecessary technology caption.",
+    "Lua51_syntax": true,
+    "existing_presentation_tests_passed": true,
+    "protected_unchanged": 41,
+    "DLL_unchanged": "27eec05d31b9c321463f007fa5053f2930e72d26616aa8b0c96558f66f3523a6",
+    "DCS_operated": false,
+    "backups_created": false
+  }
 }

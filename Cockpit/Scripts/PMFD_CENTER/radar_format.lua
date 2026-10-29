@@ -190,9 +190,6 @@ line(0.092, 0.984, 0.092, 0.885, "blue")
 line(-0.092, 0.885, 0, 0.844, "blue")
 line(0.092, 0.885, 0, 0.844, "blue")
 line(0, 0.844, 0, 0.79, "blue")
-local left_edge = -.74
-text("LDR", left_edge, 0.936, nil, nil, nil, nil, "LeftCenter")
-text("30 S", left_edge, 0.875, nil, nil, nil, nil, "LeftCenter")
 for code, value in ipairs({ "OFF", "STBY", "RWS", "TWS", "ACQ", "STT", "BORE", "VACQ", "WIDE", "SENSOR N/A" }) do
 	local name = "F22_RDR_MODE_" .. code
 	group(name, { "F22_RADAR_MODE_CODE" }, { { "parameter_in_range", 0, code - 1.1, code - 0.9 } })
@@ -487,7 +484,6 @@ group(
 text("SUPPORT COAST", 0, -0.89, nil, "yellow", "F22_RDR_SUPPORT_COAST", 0.0036)
 
 -- Show actual sensor degradation; queue depth belongs in diagnostics.
-text("AESA", -0.72, -0.89, nil, "blue", nil, 0.0033)
 group("F22_RDR_SERVICE_DEGRADED", { "F22_RADAR_SERVICE_STATE" }, { { "parameter_in_range", 0, 1.9, 2.1 } })
 text("SENS DEG", 0.70, -0.89, nil, "yellow", "F22_RDR_SERVICE_DEGRADED", 0.0033)
 dofile(LockOn_Options.script_path..'PMFD_CENTER/tactical_overlay.lua')(

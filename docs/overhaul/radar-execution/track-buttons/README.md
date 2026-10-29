@@ -5,3 +5,5 @@ Previous-track command10653 is routed through the existing radar device, with op
 Seven runtime files installed into the normal mod with DCS absent. All31 focused checks pass against73 actual installed Lua dependencies; Lua5.1 syntax and pinned Luacheck1.2.0 introduce zero new findings. Fifty-three protected entries and the installed DLL remain unchanged. No backups or simulator operation. Actual flight/render/VR behavior remains pending. See [RESULTS.json](RESULTS.json).
 
 ![Offline top-row preview](top-row-preview.png)
+
+Follow-up: removed the bottom AESA caption and the unconnected static LDR / 30 S reference labels. Existing presentation checks pass; the updated page is installed with DLL, controls, audio and hooks preserved.
