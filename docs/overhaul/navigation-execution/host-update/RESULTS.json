@@ -1,0 +1,724 @@
+{
+  "scope": "Navigation compatibility with inspected DCS2.9.31.29434 x64",
+  "parent_at_verification": "5d5829ef6bcbb08894dfbaa292aec38630438462",
+  "source_sha256": {
+    "EFM/source/NativeNavigation.cpp": "a06c0170dcf3461d26e0dfa733b5ea6377e9f788df164ea4f4ec888e33bf4af6",
+    "EFM/source/NativeNavigationHost.h": "9242a6d60fe0f7c97f6288e81ce37536167f1333c9311043b8ea57e213a77707",
+    "tests/native/navigation_publication.cpp": "f93bcead9119111c833d15426f53128d3ad64ace27f5beff4e516362f61788be",
+    "tools/audit_navigation_host.py": "e0bb1fae2263b1bcb91b9ffc909de222dcb8619e388f87b84578ea6fbe718597",
+    "tools/verify_navigation_install.py": "215c603042ddc23a2b3dc65702f4641b105816497ce8940de298791782bf1a58",
+    "tools/requirements-navigation-host.txt": "a92a3cafbb294489f71ee8ee407b64ecce91eefd438ff28be40ce5cd1adf9f69"
+  },
+  "host_images": {
+    "CockpitBase.dll": {
+      "path": "D:\\DCS\\bin\\CockpitBase.dll",
+      "sha256": "fb0a09be70627c7790dea1527cedfee43082bb8b112484d5c85be1d99d33de95",
+      "timestamp": "0x6adbad09",
+      "image_size": "0x68e000",
+      "absent_exports": []
+    },
+    "World.dll": {
+      "path": "D:\\DCS\\bin\\World.dll",
+      "sha256": "80f5bb2f83db6c5023727ff5097ca98a4069ddc767a1881638fc81353b310793",
+      "timestamp": "0x6acb804e",
+      "image_size": "0x14000",
+      "absent_exports": []
+    },
+    "WorldGeneral.dll": {
+      "path": "D:\\DCS\\bin\\WorldGeneral.dll",
+      "sha256": "83d36b10205234da58b4a98dd06f75a84d6f3e13826d0a123e482eb53a7b8265",
+      "timestamp": "0x6adbace0",
+      "image_size": "0x127b000",
+      "absent_exports": []
+    }
+  },
+  "navigation_bindings": 33,
+  "vtables": 3,
+  "parameter_bridge_exports": 6,
+  "IDA_comparison": {
+    "start": {
+      "symbol": "?start@avDevice@cockpit@@QEAAXI@Z",
+      "entries": {
+        "previous": {
+          "address": "0x18023a860",
+          "raw_sha256": "76364b40a41f46a80996c0931b03d38902ebee67a32c3dcfbae04e7eef7cd294"
+        },
+        "current": {
+          "address": "0x1803228a0",
+          "raw_sha256": "2186a340acd1b3d31348ec2fed32272dda055111dc28bbceea9a916d280ba221"
+        }
+      },
+      "normalized_pseudocode_equal": false
+    },
+    "tacan_power": {
+      "symbol": "?getElecPower@avTACAN@cockpit@@UEBA_NXZ",
+      "entries": {
+        "previous": {
+          "address": "0x1802e9f20",
+          "raw_sha256": "baecda9ce54a7cfb899b1cf3f7e637cb83850a10b1b47401cfd64862606c726d"
+        },
+        "current": {
+          "address": "0x1803d8730",
+          "raw_sha256": "636df648de5e38155aa3694b2cd15b7b342551afda29c22da121a3713bf8e3ed"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "ils_power_state": {
+      "symbol": "?getElecPower@avILS@cockpit@@UEBA_NXZ",
+      "entries": {
+        "previous": {
+          "address": "0x1802e0840",
+          "raw_sha256": "855af6713d4bdfce440b0c448ee1c480bc4179032ef8b55b59f12c275cf73db5"
+        },
+        "current": {
+          "address": "0x1803cf050",
+          "raw_sha256": "6b8f356e2e00ea507a0d6df409b842d272d75d92622de9c9361d82e1e5ab9340"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "receiver_squelch": {
+      "symbol": "?setSquelchOnOff@avReceiver@cockpit@@QEAAX_N@Z",
+      "entries": {
+        "previous": {
+          "address": "0x1802e8760",
+          "raw_sha256": "90a90d807846821fc901ce6acff8281fb510f2c00fbe5839995111c60ab0ca22"
+        },
+        "current": {
+          "address": "0x1803d6f70",
+          "raw_sha256": "62c369b2a4a6173fa872e6c625682da6ac6cf1f2c58d348f3d35b632b36e91a0"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "receiver_squelch_state": {
+      "symbol": "?getSquelchIsOn@avReceiver@cockpit@@QEBA_NXZ",
+      "entries": {
+        "previous": {
+          "address": "0x1802c5e60",
+          "raw_sha256": "21547355db3c33ea4392c408a05bcf2749ae01117c63c874001e83e2bef61a3d"
+        },
+        "current": {
+          "address": "0x1803b4680",
+          "raw_sha256": "c1de249aea2e5bf214678e182a2cd5674f5448b261a06788451af847998b75f8"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "receiver_mute": {
+      "symbol": "?mute@avReceiver@cockpit@@QEAAX_N@Z",
+      "entries": {
+        "previous": {
+          "address": "0x1802e7c60",
+          "raw_sha256": "6c0583fcf31d98385511505151ea049c57482bbc6de660cd37fa13cdbb415e3a"
+        },
+        "current": {
+          "address": "0x1803d6470",
+          "raw_sha256": "a1060b722fb82e9b4a9f10f5e658ccee318652754031c6595b2ca48ed4b69f8f"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "receiver_mute_state": {
+      "symbol": "?getMuteIsOn@avReceiver@cockpit@@QEBA_NXZ",
+      "entries": {
+        "previous": {
+          "address": "0x1802e6950",
+          "raw_sha256": "1ade9e0b3ff982f9070007a2f377914f903264460a83189fcee88234476a6f4a"
+        },
+        "current": {
+          "address": "0x1803d5160",
+          "raw_sha256": "95ec7c68ccc8d16ee565ec9b4c2b4efea974ef8f2f56c229990a67300745d7fd"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "connect_tacan": {
+      "symbol": "?connectElecPower@avTACAN@cockpit@@QEAAXAEAVItemBase@Elec@EagleFM@@0@Z",
+      "entries": {
+        "previous": {
+          "address": "0x1802e9cb0",
+          "raw_sha256": "8cddb1b6c996b2262d0a2b36d973e0125a433484eb2a44b01d6813e0ac4e5cc0"
+        },
+        "current": {
+          "address": "0x1803d84c0",
+          "raw_sha256": "2f59490ad7ef5cc01afab38a5236e39eda4d12e09bc5c08432c9878dcdf70660"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "connect_ils": {
+      "symbol": "?connectElecPower@avILS@cockpit@@UEAAXAEAVItemBase@Elec@EagleFM@@0@Z",
+      "entries": {
+        "previous": {
+          "address": "0x1802e0700",
+          "raw_sha256": "e829bb5a8665eb627a250e24ac1860e970c2eb88908e8f41f4cbf3b03792bb3b"
+        },
+        "current": {
+          "address": "0x1803cef10",
+          "raw_sha256": "2471574ad5917f8104106070c7b9fed510ba5eddbb5ac3a0fc254acaded27f14"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "ac_bus": {
+      "symbol": "?getACbus@avSimpleElectricSystem@cockpit@@QEAAAEAVWire@Elec@EagleFM@@H@Z",
+      "entries": {
+        "previous": {
+          "address": "0x180275370",
+          "raw_sha256": "dae16153bb8e2de76bb395260b13a7989950890998eb13ca24c1e5dc1375d7f9"
+        },
+        "current": {
+          "address": "0x18035d3b0",
+          "raw_sha256": "a7945542fd9ac2f09c149fce6d08a577b5af368d14b624ccc34375716c087bc4"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "dc_bus": {
+      "symbol": "?getDCbus@avSimpleElectricSystem@cockpit@@QEAAAEAVWire@Elec@EagleFM@@H@Z",
+      "entries": {
+        "previous": {
+          "address": "0x180275390",
+          "raw_sha256": "f4d3f48ba64731c7b7fb3883c3aa65dbacea4dcf928e1b7aba2a1f6ced8ff280"
+        },
+        "current": {
+          "address": "0x18035d3d0",
+          "raw_sha256": "24c9e5d5fe17357793ee2687a2e839373e1b988107d0f6d8c7957f6a7f67aaaa"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "generator": {
+      "symbol": "?switchGenerator@avSimpleElectricSystem@cockpit@@QEAAX_NH@Z",
+      "entries": {
+        "previous": {
+          "address": "0x180275b90",
+          "raw_sha256": "54740e9f5fadcc433ab68a5847589b24fcdca997ba679820bd2b09f8f4c2f579"
+        },
+        "current": {
+          "address": "0x18035dbd0",
+          "raw_sha256": "0d7663565c01ff903a3ce3b960b7f537d998829c4d4a4f60e36b2951642c0314"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "construct": {
+      "symbol": "??0avTACAN@cockpit@@QEAA@XZ",
+      "entries": {
+        "previous": {
+          "address": "0x1802e9970",
+          "raw_sha256": "1e7fbb3ab22a319f5d10e27641999fc223591c26946b84c8b674ba78c003bbe9"
+        },
+        "current": {
+          "address": "0x1803d8180",
+          "raw_sha256": "dac26fa67fc8ea099c6dffc94cf87f3153e0a77193a60273de56a430ab881d09"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "destroy": {
+      "symbol": "??1avTACAN@cockpit@@UEAA@XZ",
+      "entries": {
+        "previous": {
+          "address": "0x1802e9b30",
+          "raw_sha256": "cb4ffb74e276c29f09b42f97ec3038f3b74faa5e17f505cb55b4169306753ec6"
+        },
+        "current": {
+          "address": "0x1803d8340",
+          "raw_sha256": "8a3f2046cfff74352e155c5a175473cb16bc38b52612795b96198ff50900593a"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "release": {
+      "symbol": "?release@avDevice@cockpit@@UEAAXXZ",
+      "entries": {
+        "previous": {
+          "address": "0x18023a730",
+          "raw_sha256": "bba3448f420fb2177387c7341dacd9b66e569bffcb41a8ad322333ed70768128"
+        },
+        "current": {
+          "address": "0x180322770",
+          "raw_sha256": "f3001f3402a28545bdb9e53cda9d355a51d9a2b637f30c870c6a0c1c0e60765f"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "post": {
+      "symbol": "?post_initialize@avTACAN@cockpit@@UEAAXXZ",
+      "entries": {
+        "previous": {
+          "address": "0x1802ea490",
+          "raw_sha256": "95a9d333e14934f9a967673927d9fcb968c33ccdf0dc592f39f73e941ec3fb98"
+        },
+        "current": {
+          "address": "0x1803d8ca0",
+          "raw_sha256": "6e87a674dd9be7a50133a9fbd6180d4a02b46d58acfac71d7290ea678c549032"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "initialize": {
+      "symbol": "?initialize@avTACAN@cockpit@@UEAAXEAEBV?$basic_string@D@ed@@0@Z",
+      "entries": {
+        "previous": {
+          "address": "0x1802ea080",
+          "raw_sha256": "e9f906d81e69108ff25c9b1401acef89e09f56ec6a027482643bbdf7476d6a1c"
+        },
+        "current": {
+          "address": "0x1803d8890",
+          "raw_sha256": "7c4483f987a073dd3c8516ba51626987689e4a4cd6a0f177864cf5e36d146bee"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "context": {
+      "symbol": "?binding_context@cockpit@@YAPEAVccCockpitContext@1@XZ",
+      "entries": {
+        "previous": {
+          "address": "0x1801f4880",
+          "raw_sha256": "e98372c81bdffd538d76fbb203aca237c516930d8dcdaf0bb820c01bb8f56b6a"
+        },
+        "current": {
+          "address": "0x1802dc900",
+          "raw_sha256": "9184493dffca43e309ba23239e6e7df511ab989e83c5b96b53d0b9d193a24e0b"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "device": {
+      "symbol": "?get_wide_device@ccCockpitContext@cockpit@@QEAAPEAVavDevice@2@I@Z",
+      "entries": {
+        "previous": {
+          "address": "0x1801e1100",
+          "raw_sha256": "8c1a227a594b985201ae2d45dee32d0d52266f61e9783146cb914f2cf79ab0c5"
+        },
+        "current": {
+          "address": "0x1802c9180",
+          "raw_sha256": "f009efac4a8c4b7ac126599b624f1b450dd3e716f38d6d5ad5cd89216b448f10"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "channel": {
+      "symbol": "?setChannel@avTACAN@cockpit@@UEAAXH@Z",
+      "entries": {
+        "previous": {
+          "address": "0x1802ea6f0",
+          "raw_sha256": "3c0ad1ee65800897e91f73e79c5f4f87d4467bf9abfb2257b39cf1be8ad527bc"
+        },
+        "current": {
+          "address": "0x1803d8f00",
+          "raw_sha256": "ae31fe25902455a8c86880f309d62678e274c87ce38a857477c22dcfc6903c3a"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "xy": {
+      "symbol": "?setChannelXYMode@avTACAN@cockpit@@UEAAXH@Z",
+      "entries": {
+        "previous": {
+          "address": "0x1802ea720",
+          "raw_sha256": "9e6f30a19a2aa99b0080baf069d5a7a28a02fe53bfc141097dc059bb2be60df0"
+        },
+        "current": {
+          "address": "0x1803d8f30",
+          "raw_sha256": "f1b00ea8f88a95e53fac2bd18f18d525423725d3c29a7a246822024c01d779c0"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "mode": {
+      "symbol": "?setMode@avTACAN@cockpit@@UEAAXH@Z",
+      "entries": {
+        "previous": {
+          "address": "0x1802ea760",
+          "raw_sha256": "bfef8a12b81ac195ac4673fc71550e48512420601f8155ddc5b56e6c925b863e"
+        },
+        "current": {
+          "address": "0x1803d8f70",
+          "raw_sha256": "604676a786c3a52cfa439848cf4ff8df8c222457f59ff3efcc6996cc746840e8"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "mhz": {
+      "symbol": "?setFrequencyMHz@avILS@cockpit@@QEAAXH@Z",
+      "entries": {
+        "previous": {
+          "address": "0x1802e16f0",
+          "raw_sha256": "cd1d7cc2af68e6893ef1c8f348e2b83119b243f20950042262b3b014995509e5"
+        },
+        "current": {
+          "address": "0x1803cff00",
+          "raw_sha256": "ad8d496329de7d98fa2e180c895b802e466d44f3ac1c1da3572cdded3b4cfcd0"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "khz": {
+      "symbol": "?setFrequencyKHz@avILS@cockpit@@QEAAXH@Z",
+      "entries": {
+        "previous": {
+          "address": "0x1802e16d0",
+          "raw_sha256": "00424897c0f84e120f1b505a2a4e770399049f6dea2478059c02c23fd729a344"
+        },
+        "current": {
+          "address": "0x1803cfee0",
+          "raw_sha256": "fee25357bb822ef0ecbb9f0998bde627ff2852a3badd095b6433f06b50dad67b"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "ils_power": {
+      "symbol": "?setElecPower@avILS@cockpit@@QEAAX_N@Z",
+      "entries": {
+        "previous": {
+          "address": "0x1802e1690",
+          "raw_sha256": "ee651504f326c1c642234474080af537b1aa5d52b9ffbcdf787570ad43a2c1a8"
+        },
+        "current": {
+          "address": "0x1803cfea0",
+          "raw_sha256": "b211e4250018617c75f4f7237c64da9fa5ec22f9870aaa513c8d4f7e5fbbbc7a"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "bearing": {
+      "symbol": "?getMagneticBearing@avTACAN@cockpit@@UEAANXZ",
+      "entries": {
+        "previous": {
+          "address": "0x1802e9f70",
+          "raw_sha256": "43568530f29a183b38b5136277f4b1686c3fb2678dff3182319e0985cff0fa3a"
+        },
+        "current": {
+          "address": "0x1803d8780",
+          "raw_sha256": "76303c7ae20efc1de19aada0d0129add4e8bab50ed0ecf62e17636cbefd4e8cc"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "range": {
+      "symbol": "?getRange@avTACAN@cockpit@@UEAANXZ",
+      "entries": {
+        "previous": {
+          "address": "0x1802e9fa0",
+          "raw_sha256": "ce1ab97466a35555292d1e8c6748ed17319195373c13785908a90e3bdeb7619c"
+        },
+        "current": {
+          "address": "0x1803d87b0",
+          "raw_sha256": "1ad85e5a7ef3f9a14b385ff9738d1b1d193664d8a804f2764d21a7af9ad074c3"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "loc": {
+      "symbol": "?getLocalizerDeviation@avILS@cockpit@@QEBANXZ",
+      "entries": {
+        "previous": {
+          "address": "0x1802e08c0",
+          "raw_sha256": "3a348d36b48961867df5cce20c6da8795f2e853f71d841c23d2ed96c707cc1b8"
+        },
+        "current": {
+          "address": "0x1803cf0d0",
+          "raw_sha256": "ba721bfaa28cd30bc8ac645f725cadb4af54aeeb6dde3c1f5905cc13fc9a24c7"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "gs": {
+      "symbol": "?getGlideslopeDeviation@avILS@cockpit@@QEBANXZ",
+      "entries": {
+        "previous": {
+          "address": "0x1802e0850",
+          "raw_sha256": "2eb904de3dd4250b8bc2c6029ade9ec84b48a9f040666081d7811e4347ceed49"
+        },
+        "current": {
+          "address": "0x1803cf060",
+          "raw_sha256": "4d7fffced018f2c35cb926b593ec440907e8432677e28e7dff4d8b2bca10b900"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "bv": {
+      "symbol": "?isBearingValid@avTACAN@cockpit@@UEAA_NXZ",
+      "entries": {
+        "previous": {
+          "address": "0x1802ea260",
+          "raw_sha256": "e1b0ec309f4257126fbdef186bbe04f3bea2c1dea3e8f94bcc7293425d2d4fe8"
+        },
+        "current": {
+          "address": "0x1803d8a70",
+          "raw_sha256": "eb5458561d18bfb81ba548195d24688f5b312f46d5f9ff77feb78bcd2a108609"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "rv": {
+      "symbol": "?isRangeValid@avTACAN@cockpit@@UEAA_NXZ",
+      "entries": {
+        "previous": {
+          "address": "0x1802ea280",
+          "raw_sha256": "f257457eb2e8a66fe18255bf6056a0bb9a259a49ee5d7f4b032dde108b6957de"
+        },
+        "current": {
+          "address": "0x1803d8a90",
+          "raw_sha256": "f85d396b56b823c312cd780a1678bbe4a6e9ef3f0f9bcee439b9e0bfb9f9c572"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "lv": {
+      "symbol": "?isLocalizerValid@avILS@cockpit@@QEBA_NXZ",
+      "entries": {
+        "previous": {
+          "address": "0x1802e1140",
+          "raw_sha256": "727b2d8499977f3b9b515939b601a939edd37c493c1a72025b0bc9e39ac1be6d"
+        },
+        "current": {
+          "address": "0x1803cf950",
+          "raw_sha256": "a83e346c578d08d8f2276b052c20a4a18aab79eb51dbc84812bd4be0dc733ffe"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "gv": {
+      "symbol": "?isGlideslopeValid@avILS@cockpit@@QEBA_NXZ",
+      "entries": {
+        "previous": {
+          "address": "0x1802e1120",
+          "raw_sha256": "078cd60300bef3535a061cf2a5d8eb7029160a0b1c5f9c2c5914ac60d357f5d7"
+        },
+        "current": {
+          "address": "0x1803cf930",
+          "raw_sha256": "5594eb2ff8ab70528aaf2c7eabbea94c76471710761bdac332195e17c5ad8ae7"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "loc_update": {
+      "symbol": "?update_LOC@avILS@cockpit@@IEAAXXZ",
+      "entries": {
+        "previous": {
+          "address": "0x1802e1920",
+          "raw_sha256": "f435623424dca986395456eb43c85d69e2416bc8c66bd75be705a8c344fe491a"
+        },
+        "current": {
+          "address": "0x1803d0130",
+          "raw_sha256": "83949c226531c642382eba70660d61055df983f157be37a67f572a68384ce544"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "gs_update": {
+      "symbol": "?update_Marker@avILS@cockpit@@IEAAXXZ",
+      "entries": {
+        "previous": {
+          "address": "0x1802e19c0",
+          "raw_sha256": "dd212f7c654eafa72f96df613d7d98d2a4971e4cc0778dba2e02abc81807f1c7"
+        },
+        "current": {
+          "address": "0x1803d01d0",
+          "raw_sha256": "b48deb267ef10b8165d71503d9121a50fdfdec07dfe81a6b2263e6c49adee8a1"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "tacan_update": {
+      "symbol": "?updateRangeBearing@avTACAN@cockpit@@MEAAXXZ",
+      "entries": {
+        "previous": {
+          "address": "0x1802ea990",
+          "raw_sha256": "a32980c34e07ffeb88dc490c1924b235efccb3c9d23fc97229c48174783da028"
+        },
+        "current": {
+          "address": "0x1803d91a0",
+          "raw_sha256": "f62adb1853f72aba690ea81ae26fd07a7863e722a1ffdfd1cf45be20a2d5a655"
+        }
+      },
+      "normalized_pseudocode_equal": false
+    },
+    "activity": {
+      "symbol": "?make_default_activity@avDevice@cockpit@@IEAAXN@Z",
+      "entries": {
+        "previous": {
+          "address": "0x18023a420",
+          "raw_sha256": "cdd6eebdec632c4069570312971b345ad9a3a23c9f0bbbf1194ff904d481ead0"
+        },
+        "current": {
+          "address": "0x180322460",
+          "raw_sha256": "1c3ac8657435fc0f6f9b9f4417ed37cb1b85cb8f0558da977b33b514bdda826a"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "ils_constructor": {
+      "symbol": "??0avILS@cockpit@@QEAA@XZ",
+      "entries": {
+        "previous": {
+          "address": "0x1802dff40",
+          "raw_sha256": "b71633bc806c1b01fb806f217b11746cb91e5b752e011627acfb6a2beb387623"
+        },
+        "current": {
+          "address": "0x1803ce750",
+          "raw_sha256": "7f31e782f410a0464c052baee828e8b12c6d74f5468c72431b3ef3aec18ae6aa"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "electrical_constructor": {
+      "symbol": "??0avSimpleElectricSystem@cockpit@@QEAA@XZ",
+      "entries": {
+        "previous": {
+          "address": "0x1802750a0",
+          "raw_sha256": "963b01061c408bba783fd5da595127a9820bfc48a6ab8fcf57ac711edbd0da7c"
+        },
+        "current": {
+          "address": "0x18035d0e0",
+          "raw_sha256": "14b6637d0150bc0fa6dc1c7a3253bb9236ddda0adae2ecab684bbf460cf62e6e"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "parameter_0": {
+      "symbol": "ed_cockpit_get_parameter_handle",
+      "entries": {
+        "previous": {
+          "address": "0x18021cbd0",
+          "raw_sha256": "e63a38b484fcda90416ffbc2a8318cd65978bd22960bbffb26a85c5156d78f5f"
+        },
+        "current": {
+          "address": "0x180304c50",
+          "raw_sha256": "b1f128c0361cfff13bc2fb8186c891a61e7aa140af6b1f549d3fc6243cfb4ea0"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "parameter_1": {
+      "symbol": "ed_cockpit_update_parameter_with_number",
+      "entries": {
+        "previous": {
+          "address": "0x18021cc00",
+          "raw_sha256": "70333e9e4109049d7443cd46045759532d2e4a237818a0f9934bd6e9b4dee2e9"
+        },
+        "current": {
+          "address": "0x180304c80",
+          "raw_sha256": "d05b497ec0088f77da0050ba8db0270d26123cf4f49d721bce564b6d9135b117"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "parameter_2": {
+      "symbol": "ed_cockpit_update_parameter_with_string",
+      "entries": {
+        "previous": {
+          "address": "0x18021cc10",
+          "raw_sha256": "f25053502e383194d255cb4e99c078364d235870efa91785c90e8cd2a111a2c7"
+        },
+        "current": {
+          "address": "0x180304c90",
+          "raw_sha256": "e6a881cc74b5f22dacea7784db874a3496bc15002596787ea8db45cb2a67a650"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "parameter_3": {
+      "symbol": "ed_cockpit_parameter_value_to_number",
+      "entries": {
+        "previous": {
+          "address": "0x18021cbe0",
+          "raw_sha256": "17024298c8cc4798721b6b361f4bb75d1f625ce192a97cd7eeb3b9d778d61d8b"
+        },
+        "current": {
+          "address": "0x180304c60",
+          "raw_sha256": "652c99efe418e87003292971881072a95fb5a1ef61eb202388f22fc9ae21c25f"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "parameter_4": {
+      "symbol": "ed_cockpit_parameter_value_to_string",
+      "entries": {
+        "previous": {
+          "address": "0x18021cbf0",
+          "raw_sha256": "89d7e3ff8066f8feaa893555bebbcf34c8147328faec2b1e9d816ef5935c5ffa"
+        },
+        "current": {
+          "address": "0x180304c70",
+          "raw_sha256": "f352cf2ec34e27e54213b3a044ff590c50bf8ec0d7a033ce06194f1d288bd2e3"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    },
+    "parameter_5": {
+      "symbol": "ed_cockpit_compare_parameters",
+      "entries": {
+        "previous": {
+          "address": "0x18021cbc0",
+          "raw_sha256": "2d01f081e5c07f04e18ee46b352ff24393401f4a24d269cfcd435e99e4595d4d"
+        },
+        "current": {
+          "address": "0x180304c40",
+          "raw_sha256": "cf5e8afdc4967032f463e08e30b9ef4af72269ea76e7f8018fec8d7f95abe41b"
+        }
+      },
+      "normalized_pseudocode_equal": true
+    }
+  },
+  "normalized_equal": 43,
+  "raw_audit_sha256": "579d81649c4ea6bf39f8fa6f5de452f3a7b1b571c0c908c4f4404e219ecf3b22",
+  "raw_decompilation_directory": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat2-navigation-host-2.9.31.29434\\verified",
+  "worldgeneral_snapshot": {
+    "sha256": "2ecc3945e15e371bb20e9a52000652aac8d28e74f036865382361891f070556b",
+    "classification": "Offline restored emulation snapshot; no loaded host/init/effect claim"
+  },
+  "actual_image_admission": {
+    "updated_installed_image": "accepted via SEC_IMAGE_NO_EXECUTE",
+    "previous_image": "rejected, exit73",
+    "DLL_code_executed": false
+  },
+  "tests": {
+    "native_suites": 4,
+    "passed": true,
+    "preinstall_lua": {
+      "tests": 48,
+      "passed": true,
+      "planned_source_files": 26,
+      "other_modules": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Cockpit\\Scripts",
+      "actual_DCS_executed": false
+    },
+    "native_profile_cases": [
+      "old profile",
+      "wrong architecture/header kind",
+      "invalid/out-of-range PE offset",
+      "wrong allocator entry",
+      "missing CRT",
+      "unreadable IAT",
+      "matched real CRT allocation/free"
+    ]
+  },
+  "build": {
+    "dll": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat2-20261028\\artifacts\\Release\\f22.dll",
+    "sha256": "d29216510d70e41fafa878457374c7e7d845230cf6655822fbcef468c029ac34",
+    "identity": {
+      "token": "F22_NATIVE_V1|source=6f953bf71eb5dc7e7a99455e45d655605a772a9b366ea0439963819aa7688159|cache=009d4ac6a4cbe480a15efc85fe618f3c542b5404f03c0eaa9f2f9ed588ea7097|compiler=MSVC-19.51.36252.0|config=Release|cxx=23",
+      "rva": 519328
+    },
+    "native_source_digest": "6f953bf71eb5dc7e7a99455e45d655605a772a9b366ea0439963819aa7688159",
+    "log_sha256": "077cee134d850e03d54fd5ae07065ca888604be2ab4114f2a0c5b6000f27249c",
+    "warnings": "Changed native adapter fixtures build with /W4 /WX /analyze; full DLL retains recorded legacy warnings."
+  },
+  "coding_exceptions": {
+    "API_init": "Retained fixed export resolver:83lines/CCN40. New image/allocator checks are separated, bounded and tested.",
+    "test_drivers": "Retained flat fixture case/return-code drivers exceed CCN15; no product-state authority. Actual host callback drain/concurrency remains unmeasured."
+  },
+  "installation": "Pending guarded26-script navigation/dependency and matching DLL copy; validated intended file set.",
+  "qualification_limits": [
+    "Actual loaded DCS identity/received TACAN/ILS not yet observed",
+    "Private callback drain/reset ordering open",
+    "Original RF age/identity, actual retune/acquisition, 2D/VR/audio/MP open",
+    "Optional voice/ident/autoland remain unselected"
+  ]
+}

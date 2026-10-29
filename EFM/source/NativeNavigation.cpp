@@ -1,5 +1,6 @@
 // GPL-3.0-or-later. Own common navigation receivers. Audited DCS PE only.
 #include "NativeNavigation.h"
+#include "NativeNavigationHost.h"
 #include "NativeAltimetry.h"
 #include "CniPower.h"
 #include <Cockpit/CockpitAPI_Declare.h>
@@ -28,11 +29,38 @@ template <class T> bool load(const void *p, T &v) {
   std::memcpy(&v, p, sizeof v);
   return true;
 }
+bool audited_image(const void* image) {
+  IMAGE_DOS_HEADER dos{};
+  IMAGE_NT_HEADERS64 pe{};
+  if (!load(image,dos) || dos.e_magic != IMAGE_DOS_SIGNATURE
+      || !RaptorNavigationHost::header_offset(dos.e_lfanew)) return false;
+  const auto base = static_cast<const char*>(image);
+  return load(base+dos.e_lfanew,pe) && RaptorNavigationHost::headers(pe);
+}
+using NativeAllocate = void*(__cdecl*)(std::size_t);
+using NativeFree = void(__cdecl*)(void*);
+bool native_allocators(const void* image, HMODULE crt, NativeAllocate& allocate, NativeFree& free) {
+  allocate = nullptr;
+  free = nullptr;
+  if (!crt || !audited_image(image)) return false;
+  const auto base = static_cast<const char*>(image);
+  NativeAllocate candidate_allocate = nullptr;
+  NativeFree candidate_free = nullptr;
+  if (!load(base+RaptorNavigationHost::malloc_iat_rva,candidate_allocate)
+      || !load(base+RaptorNavigationHost::free_iat_rva,candidate_free)) return false;
+  const auto expected_allocate = reinterpret_cast<NativeAllocate>(GetProcAddress(crt,"malloc"));
+  const auto expected_free = reinterpret_cast<NativeFree>(GetProcAddress(crt,"free"));
+  if (!expected_allocate || !expected_free || candidate_allocate != expected_allocate
+      || candidate_free != expected_free) return false;
+  allocate = candidate_allocate;
+  free = candidate_free;
+  return true;
+}
 struct API {
   using Construct = void *(__fastcall *)(void *);
   using Destroy = void(__fastcall *)(void *);
-  using Allocate = void *(__cdecl *)(std::size_t);
-  using Free = void(__cdecl *)(void *);
+  using Allocate = NativeAllocate;
+  using Free = NativeFree;
   struct StringView {
     union {
       const char *pointer;
@@ -89,14 +117,8 @@ struct API {
     auto m = GetModuleHandleW(L"CockpitBase.dll");
     if (!m)
       return;
-    IMAGE_DOS_HEADER dos{};
-    IMAGE_NT_HEADERS64 pe{};
     auto b = reinterpret_cast<const char *>(m);
-    if (!load(b, dos) || dos.e_magic != IMAGE_DOS_SIGNATURE ||
-        dos.e_lfanew < 0 || !load(b + dos.e_lfanew, pe) ||
-        pe.Signature != IMAGE_NT_SIGNATURE ||
-        pe.FileHeader.TimeDateStamp != 0x6ac12468 ||
-        pe.OptionalHeader.SizeOfImage != 0x59a000) {
+    if (!audited_image(b)) {
       reason = 2;
       return;
     }
@@ -131,8 +153,9 @@ struct API {
     BIND(post, Destroy, "?post_initialize@avTACAN@cockpit@@UEAAXXZ");
     BIND(initialize, Initialize,
          "?initialize@avTACAN@cockpit@@UEAAXEAEBV?$basic_string@D@ed@@0@Z");
-    load(b + 0x449470, allocate);
-    load(b + 0x449460, free);
+    // Read the native module's verified CRT imports; never guess an allocator
+    // from an old image offset or mix it with this mod's allocation routines.
+    (void)native_allocators(b,GetModuleHandleW(L"ucrtbase.dll"),allocate,free);
     BIND(context, Context,
          "?binding_context@cockpit@@YAPEAVccCockpitContext@1@XZ");
     BIND(device, Device,
@@ -172,6 +195,9 @@ struct API {
     reason = ready ? 0 : 3;
   }
 } api;
+static_assert(sizeof(API::StringView) == 32);
+static_assert(offsetof(API::StringView,size) == 16);
+static_assert(offsetof(API::StringView,capacity) == 24);
 RaptorCni::Supply supply;
 std::map<std::string, void *, std::less<>> handles;
 void* handle(EDPARAM& p, const char* key) {
@@ -359,8 +385,8 @@ bool configure_squelch(void *tacan, void *ils) {
     return false;
   // Matched common receiver subobjects, verified in initialize/post methods.
   // Squelch gates receiver noise; tuned-station identification remains audio.
-  auto t = static_cast<char *>(tacan) + 2064;
-  auto i = static_cast<char *>(ils) + 2048;
+  auto t = static_cast<char *>(tacan) + RaptorNavigationHost::tacan_receiver_offset;
+  auto i = static_cast<char *>(ils) + RaptorNavigationHost::ils_receiver_offset;
   api.receiver_squelch(t, true);
   api.receiver_squelch(i, true);
   return api.receiver_squelch_state(t) && api.receiver_squelch_state(i);
@@ -370,8 +396,8 @@ bool mute_identification(void *tacan, void *ils) {
   // The mod has no selected NAV identification monitor. The native receiver
   // mute only closes Sounder::Switcher (+152); measurement/power are separate.
   // Audited CockpitBase 0x1802E7C60, getMuteIsOn 0x1802E6950.
-  auto t = static_cast<char *>(tacan) + 2064;
-  auto i = static_cast<char *>(ils) + 2048;
+  auto t = static_cast<char *>(tacan) + RaptorNavigationHost::tacan_receiver_offset;
+  auto i = static_cast<char *>(ils) + RaptorNavigationHost::ils_receiver_offset;
   api.receiver_mute(t, true);
   api.receiver_mute(i, true);
   return api.receiver_mute_state(t) && api.receiver_mute_state(i);
@@ -397,7 +423,7 @@ bool create_tacan(EDPARAM& p, void* context) {
   char path[4096]{};
   if (!p.getParamString(handle(p,"F22_NAV_CONFIG_PATH"),path,sizeof path) || !path[0])
     return unavailable(p,5);
-  void* memory = api.allocate(2856);
+  void* memory = api.allocate(RaptorNavigationHost::tacan_bytes);
   if (!memory) return unavailable(p,6);
   api.component = api.construct(memory);
   if (!api.component) {
@@ -406,7 +432,7 @@ bool create_tacan(EDPARAM& p, void* context) {
   }
   api.component_context = context;
   // ccContextRelatedObject::get_context is [this+24], verified in IDA.
-  std::memcpy(static_cast<char*>(memory)+24,&context,sizeof context);
+  std::memcpy(static_cast<char*>(memory)+RaptorNavigationHost::context_offset,&context,sizeof context);
   API::StringView name{};
   std::memcpy(name.inline_text,"F22_TACAN",10);
   name.size = 9;
@@ -417,7 +443,7 @@ bool create_tacan(EDPARAM& p, void* context) {
   config.capacity = config.size > 15 ? config.size : 16;
   api.initialize(memory,23,name,config);
   api.start(memory,0);
-  if (auto electrical = owned(context,26,api.electrical_table,5800)) {
+  if (auto electrical = owned(context,26,api.electrical_table,RaptorNavigationHost::electrical_probe_bytes)) {
     api.connect_tacan(memory,api.dc_bus(electrical,1),api.ac_bus(electrical,1));
   }
   return true;
@@ -425,13 +451,13 @@ bool create_tacan(EDPARAM& p, void* context) {
 bool receivers(EDPARAM& p, void* context, void*& tacan, void*& ils) {
   if (!create_tacan(p,context)) return false;
   tacan = api.component;
-  ils = owned(context,24,api.ils_table,3352);
+  ils = owned(context,24,api.ils_table,RaptorNavigationHost::ils_bytes);
   void* table = nullptr;
   if (!load(tacan,table) || table != api.tacan_table || !ils) return unavailable(p,4);
   return true;
 }
 void connect_receivers(void* context, void* ils, const RaptorCni::Power& feed) {
-  auto electrical = owned(context,26,api.electrical_table,5800);
+  auto electrical = owned(context,26,api.electrical_table,RaptorNavigationHost::electrical_probe_bytes);
   if (!electrical) return;
   if (ils != api.connected_ils) {
     api.connect_ils(ils,api.dc_bus(electrical,1),api.ac_bus(electrical,1));
