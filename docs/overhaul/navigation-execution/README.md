@@ -26,11 +26,12 @@ actual built DLL's World timestamp, missing-host startup/reacquisition and
 release. They do not qualify private CNI instances, DCS concurrency, aircraft
 calibration or optics.
 
-Installation and actual DCS checks are still pending. These scripts require the
-matching DLL and schema2 GINS producer; copying the Lua alone over an older DLL
-would deliberately withdraw unavailable indications. Shared DLL/package
-coherence must be established before installation. No weapon or radar source
-is changed by this indication/reference work.
+The navigation receiver/reference package is now installed with its matching DLL
+for the inspected DCS2.9.31.29434 host. The installed Lua set passes48 focused
+fixture cases. Actual DCS reception and loaded identity remain unqualified.
+The migration, decompilation evidence and exact installed hashes are recorded in
+[host-update/README.md](host-update/README.md). No weapon or radar source is
+changed by this navigation work.
 
 The independent ICP event/handle-cache fix is installed in the normal mod. Its
 eight script/configuration dependencies matched the existing installation, and
@@ -45,7 +46,8 @@ and `RECEIVER-RESULTS.json`. It adds coherent receiver observations, independent
 current LOC/GS ADI inputs, retune admission, and context-loss withdrawal.
 Forty-one focused Python/Lua tests and two rebuilt native suites pass. The
 hash-matching legacy TACAN-component test was deleted and independently remade.
-Native callback drain, real reception and installation remain open.
+Native callback drain and real reception remain open; the matching installation
+is recorded under `host-update/INSTALLATION.json`.
 
 - P-NAV-001: selected AFCS reference policy and actual host verification.
 - P-NAV-002: remaining obsolete PMFD paths and loader/control cleanup.
@@ -57,7 +59,7 @@ Native callback drain, real reception and installation remain open.
   require host qualification.
 - P-NAV-005: qualified native bingo cause, warning/audio delivery and terrain checks.
 - P-NAV-006: navigation depth/applicability and independent alignment/coast evaluation.
-- P-NAV-007: matching installation and received manual approach/failure/recovery in DCS;
+- P-NAV-007: installed file identity is verified; received manual approach/failure/recovery in DCS,
   2D, VR and multiplayer require actual observations.
 - P-NAV-008: remaining control lifecycle/optical checks; independent current LOC/GS
   ADI inputs and retained appearance now have source tests.

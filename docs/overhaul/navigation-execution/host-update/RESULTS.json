@@ -697,7 +697,8 @@
       "missing CRT",
       "unreadable IAT",
       "matched real CRT allocation/free"
-    ]
+    ],
+    "additional_existing_flight_cni_suite": "passed"
   },
   "build": {
     "dll": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat2-20261028\\artifacts\\Release\\f22.dll",
@@ -714,7 +715,13 @@
     "API_init": "Retained fixed export resolver:83lines/CCN40. New image/allocator checks are separated, bounded and tested.",
     "test_drivers": "Retained flat fixture case/return-code drivers exceed CCN15; no product-state authority. Actual host callback drain/concurrency remains unmeasured."
   },
-  "installation": "Pending guarded26-script navigation/dependency and matching DLL copy; validated intended file set.",
+  "installation": {
+    "receipt": "INSTALLATION.json",
+    "verified": true,
+    "lua_files": 26,
+    "actual_installed_lua_tests_passed": 48,
+    "DCS_operated": false
+  },
   "qualification_limits": [
     "Actual loaded DCS identity/received TACAN/ILS not yet observed",
     "Private callback drain/reset ordering open",

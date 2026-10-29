@@ -60,8 +60,9 @@ The actual navigation admission helper accepts the updated installed CockpitBase
 image mapped with `SEC_IMAGE_NO_EXECUTE`, and rejects the prior real image. This
 does not run DllMain or execute DCS code. Synthetic mapped-image tests also cover
 the malformed profiles/imports and a real matched CRT allocation/free round trip.
-The external full DLL build and four native suites pass with the fixture targets
-using /W4 /WX /analyze. Retained initializer/test-driver complexity exceptions
+The external full DLL build, four native navigation suites and the existing CNI
+power suite pass, with the adapter fixture targets using /W4 /WX /analyze.
+Retained initializer/test-driver complexity exceptions
 remain recorded; host callback-drain/concurrency coverage is not claimed.
 
 The intended Lua package was checked through its real file dependency set before
@@ -69,7 +70,9 @@ copying. Initially, older UFC-altitude/warning consumers retained stale values;
 including the matching navigation consumers makes all48 focused cases pass.
 Unchanged dependencies continue to come from the existing normal installation.
 The exact source/installed hashes, recognized prior script revisions, binary
-identity, package receipt and actual checks are in RESULTS.json. Bindings,
+identity, package receipt and actual checks are in RESULTS.json and INSTALLATION.json.
+The normal installation contains the matching26-script navigation/dependency set
+and rebuilt DLL; all48 cases pass through the actual installed Lua files. Bindings,
 recorded audio, fonts, textures and installed hooks are preserved.
 
 Remaining runtime qualification is received TACAN/ILS, retune/acquisition,

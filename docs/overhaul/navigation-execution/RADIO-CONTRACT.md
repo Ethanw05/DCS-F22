@@ -66,6 +66,7 @@ to true. DME and manual ILS remain independent of magnetic-reference loss.
 - No DCS memory-ordering, callback-concurrency, 2D/VR optics, audio or multiplayer
   qualification is inferred. Native getters/setters in fixtures are explicit
   ports; dispatch/counter observations do not establish real receiver effects.
-- Installation requires one attributable DLL/assets bundle. The current primary
-  checkout has other owners' uncommitted native changes, so this source slice
-  has not been copied into the normal installation. The simulator was not operated.
+- The matching navigation scripts and rebuilt DLL are installed and hash checked
+  for the inspected DCS2.9.31.29434 host; see `host-update/INSTALLATION.json`.
+  Forty-eight fixture cases pass through the actual installed Lua. Installed file
+  identity does not establish loaded identity or real reception. DCS was not operated.

@@ -1,0 +1,259 @@
+{
+  "source_commit": "da11a1374a9060083488fb65effca4b4fae0ec8f",
+  "installed_root": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A",
+  "lua_files": [
+    {
+      "path": "Cockpit/Scripts/HUD/page.lua",
+      "before_sha256": "167fc3e2ecf075e35cc713c271f98b7273e2ee45b693e7123c3a870ae7b3f081",
+      "after_sha256": "c057ff1bf26f55454c689e7a7c18b98ef7fd5c9e537d09fa23b20896a5e70006",
+      "recognized_previous_commit": "16efe50852a83dd164efd92d55fb4ced25e45d51"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/adi_page.lua",
+      "before_sha256": "e9a2b24a2388a0cb1a69a3ac99346ac5df8d712a6e74ef7643e1de453deb9a96",
+      "after_sha256": "76e7bd998ec6240163de4c45cf288c1682c05d42e14e758b931d893769603634",
+      "recognized_previous_commit": "933c1496755969766a47df1bd1042d4f69f6a1e6"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/nav_page.lua",
+      "before_sha256": "34dacdb32012a5854747ec447dfde9885c10651fe9bee927a2bf33470ae644b3",
+      "after_sha256": "2e759400511dac24f6b5605693d0fc0fb188827cc6d0287325d3df63fa62e646",
+      "recognized_previous_commit": "fccbe66da8ea548ce91d43b8779d12413cc88d15"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_COMMON/qualified_readout.lua",
+      "before_sha256": "6f3e56803ac10e31992d62e6230a90c1e64b4efe62d6fe9ed795bb2394aad642",
+      "after_sha256": "0b54b1ec148861de62b1062869f2ed5a0e3dce2b32ffe4755a8530fc31d0126e",
+      "recognized_previous_commit": "bf98b3ca9de2768273cb377c0ca62de4872aa168"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Target_Provenance.lua",
+      "before_sha256": null,
+      "after_sha256": "5bf4c5f36dd2b6426c82459389e36041a20559429c24f91ee04c96d168f6a0a5",
+      "recognized_previous_commit": "absent new module"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/AG_Target_Snapshot.lua",
+      "before_sha256": null,
+      "after_sha256": "95bac2ce9f7e3218c22a5a727a783f4ea298f6bc69ac56dfa72a198d17ec997f",
+      "recognized_previous_commit": "absent new module"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Altitude_Snapshot.lua",
+      "before_sha256": null,
+      "after_sha256": "1475c8cd540d8625b4569443c88db760992eed3fa454def810ca7363b6ee8352",
+      "recognized_previous_commit": "absent new module"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Altitude_System.lua",
+      "before_sha256": "5f0e3b1e0cc4d6af4b257fa3649912802aa7c8b74009e7042bcb62fd4b36376b",
+      "after_sha256": "dcbac0ed13d9705d6b865016e0992c7ff2d47717636ff02995fc75889e8b451e",
+      "recognized_previous_commit": "a736572b737d5c4bd6a6947a1162a2ec0a8e386d"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Avionics.lua",
+      "before_sha256": "707e1dd78f990e118eabc9b8110557edb7c51b0fcd204b362678950d6749370e",
+      "after_sha256": "2a35d394f29a6df4d1d8aabba631d3ec768c0014d536cab80695a99d67d0660f",
+      "recognized_previous_commit": "2ff17dbb702ce57a7fe83cc5da9128c3dfa61bae"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Cockpit_Currentness.lua",
+      "before_sha256": null,
+      "after_sha256": "b1e9b5bad36c05df267e71b32dcce9c72cedb587edfabfdb306b427f03646399",
+      "recognized_previous_commit": "absent new module"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Electrical_System.lua",
+      "before_sha256": "1a4823ef4cd598b8a0d83d670009ad899df50314bb4fedc41af7aa486a37c445",
+      "after_sha256": "70002659181d658902e5bd91fa2441aaee4f31ece44a4732aeac5b1afc9b3c3f",
+      "recognized_previous_commit": "3f7edfb11b8e5caa86231e8edd56469f01182e78"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Flight_Guidance.lua",
+      "before_sha256": "007486bad008cf9bf121aa00e94ac5b0fdca69e20c675c93386c545c9173e6b6",
+      "after_sha256": "9c24570952dc20f2c368fd520bfc61c0369c109d93b29440ec1663fb930bcf1a",
+      "recognized_previous_commit": "f65595a99bc7a0afdcd806bc5904dc9dbc0f859d"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Gins_References.lua",
+      "before_sha256": "90e43d05fd75ba1964b0ea5f7aa0b5afe8a9fcd35fff7ee2db212fa5855ab353",
+      "after_sha256": "8f618e2d9cd189e3230641ab632841d52536b3aefbe7058af05ded40a679f825",
+      "recognized_previous_commit": "41368bd9b383ec7117726c66cce38b0e12afb46b"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/HUD_Flight_Data.lua",
+      "before_sha256": "0c032b5c3f20e06f1503e0f96dc5c93c487ba3f666192fc1209032767fef1c56",
+      "after_sha256": "fe28954b16524150cb3101458157c46ce52a1cc455700916edc40ed51d15205f",
+      "recognized_previous_commit": "72e89defab6cbdd21eb5e3951e2544f7263b766a"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/ICP_Flight_Pages.lua",
+      "before_sha256": "b37f374ae8ded51ad49a6b23d5e813bc6b1b9726fa26597568c0f8bf633a5dcc",
+      "after_sha256": "8cd6ef28f40db8a262d9611a48d701e65ba9a22f3cb5d80314ba0b2ba39d508d",
+      "recognized_previous_commit": "ffea77fcf45e9af01fd12ca3a9a6e0efc6853ad4"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Magnetic_Reference.lua",
+      "before_sha256": null,
+      "after_sha256": "ebb3f94db6e4075cee3183c98b66917911fa49f0dd1ac2cb39a3ad3bd8a92630",
+      "recognized_previous_commit": "absent new module"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Manual_Approach.lua",
+      "before_sha256": null,
+      "after_sha256": "201d21586cb99211c340f1a6cbcc7443a495122498c638d62b5efb64077c9964",
+      "recognized_previous_commit": "absent new module"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Nav_Guidance.lua",
+      "before_sha256": "af58d968e40f54276725c9bb84d586ebeb29cde6c042f1036eaa9bbcfacbf822",
+      "after_sha256": "e8ea8f48802f6a9f174a6ae61cf15a7ee80d995dce4e129e5c705d184c0a9dd1",
+      "recognized_previous_commit": "f65595a99bc7a0afdcd806bc5904dc9dbc0f859d"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Navigation_System.lua",
+      "before_sha256": "4bd8f1d2544dba556c08400a9407fb2df1879c09081d009cee4806de61d39413",
+      "after_sha256": "3125003fde9bebe52c0bb99bd44bd6336563f10e6891deefa83348b4461d77cb",
+      "recognized_previous_commit": "f65595a99bc7a0afdcd806bc5904dc9dbc0f859d"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Pilot_Warning_System.lua",
+      "before_sha256": "5c67f7fb66482f0c45a6488015f6e50b343dee6431f2cb95133a2eaa0cb6636d",
+      "after_sha256": "b73c122e70d7141d680d37e38fbbfe9264fc31c8141c5decc80c6508ab6d6c8e",
+      "recognized_previous_commit": "fecf717035dce4fccabf4e35d64b46f431365bc5"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radio_Navigation.lua",
+      "before_sha256": "174263e5e21c3d040b532a65c9786efd22c3bc05163d8dac1071cf6bb68b3721",
+      "after_sha256": "b46f2f81ff5b586ef08cd0c0956649f6abb36007bad0bf8b9b8f68ad6e43a7e1",
+      "recognized_previous_commit": "fccbe66da8ea548ce91d43b8779d12413cc88d15"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Radio_Snapshot.lua",
+      "before_sha256": null,
+      "after_sha256": "d117790118ad68dec5b76c3704ffc9fbf73fd2187a110c314e06ae58c61d5188",
+      "recognized_previous_commit": "absent new module"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Side_Indications.lua",
+      "before_sha256": null,
+      "after_sha256": "67d70fc910b4ee6fa3f0da1a4d9eb1403538611257437f24be2a3a85c6a99a45",
+      "recognized_previous_commit": "absent new module"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Vehicle_Service_Adapter.lua",
+      "before_sha256": null,
+      "after_sha256": "c26cb6115e4a70952970633b9528102ecbf5a9d88acbe51b58a6a62cd2c7d802",
+      "recognized_previous_commit": "absent new module"
+    },
+    {
+      "path": "Cockpit/Scripts/UFD_LEFT/base_page.lua",
+      "before_sha256": "fdce809270ded2a04d1727fc8db423381f852d368358f0194f8540448fd37051",
+      "after_sha256": "c3cff5a4490101c72bf5e7e8211f90ba2835f4f4a938ae239a8177b44ff1c3ff",
+      "recognized_previous_commit": "bf98b3ca9de2768273cb377c0ca62de4872aa168"
+    },
+    {
+      "path": "Cockpit/Scripts/UFD_RIGHT/base_page.lua",
+      "before_sha256": "8346be40abfe3f4f9870977d4a66bdc417af22fa673458fe60165e12c20c0aa6",
+      "after_sha256": "5c088a794bd64d697b8c28b152b81bfc723a982743a6b6a261b6ce8a0c115770",
+      "recognized_previous_commit": "bf98b3ca9de2768273cb377c0ca62de4872aa168"
+    }
+  ],
+  "DLL": {
+    "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\bin\\f22.dll",
+    "before_sha256": "c50b245ffd2c069cce105397294f9d2e17f37e5b8d5834933b4e87a309af43a5",
+    "after_sha256": "d29216510d70e41fafa878457374c7e7d845230cf6655822fbcef468c029ac34",
+    "embedded_identity": {
+      "token": "F22_NATIVE_V1|source=6f953bf71eb5dc7e7a99455e45d655605a772a9b366ea0439963819aa7688159|cache=009d4ac6a4cbe480a15efc85fe618f3c542b5404f03c0eaa9f2f9ed588ea7097|compiler=MSVC-19.51.36252.0|config=Release|cxx=23",
+      "rva": 519328
+    }
+  },
+  "preserved_file_sha256": {
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Cockpit\\Scripts\\fonts.lua": "89dfa83aee0deed257770a86f2867640e29bdbb45ab7261a1b5c5d7d6e02bd67",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Cockpit\\Scripts\\HUD\\style.lua": "ffefe87b0f2a5ec3573a7b9e8ad5ae24043bb7ca6a19b6a2eaf4832c412ef3e6",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Input\\F-22A\\keyboard\\default.lua": "d4e267d8ca489952628fb746b5f5fab086b159c7e028dbf9e09ff8da396d6f3e",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Input\\F-22A\\joystick\\default.lua": "d064b8f17e7c19e82990bc4f9aefd07518850b7833e0556a84bb1afd9f382e02",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Config\\Input\\Default\\joystick\\Joystick - HOTAS Warthog {69C313F0-C9B2-11f1-8001-444553540000}.diff.lua": "0fec62bb47954b258365d8b00aca6d36bd7e59f339fded8189d75a06bccdb52b",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Config\\Input\\Default\\joystick\\MOZA R5 Base {8FDD8900-C9B5-11f1-8003-444553540000}.diff.lua": "3693d8def6911a8ab110eb3ed7d0bb2f369338850b4a5324a82f153bbaafef87",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Config\\Input\\Default\\joystick\\S-TECS MODERN THROTTLE MINI   {6A1552A0-C9B2-11f1-8002-444553540000}.diff.lua": "3693d8def6911a8ab110eb3ed7d0bb2f369338850b4a5324a82f153bbaafef87",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Config\\Input\\Default\\joystick\\vJoy Device {35070780-C9B6-11f1-8005-444553540000}.diff.lua": "e0197935caf58bc617004ba7e8380dcdae72254d96e943d7ced166bfa62ab585",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Config\\Input\\F-22A\\joystick\\Joystick - HOTAS Warthog {69C313F0-C9B2-11f1-8001-444553540000}.diff.lua": "45962ec1e0319bd45fcf7ca7df67b6b20d6ce793e768115acd982f863e3d3096",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Config\\Input\\F-22A\\joystick\\MOZA R5 Base {8FDD8900-C9B5-11f1-8003-444553540000}.diff.lua": "89b1100308d999147637a37d30cbe797c5c5c228db6459f3874d0ec8a7c57dd7",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Config\\Input\\F-22A\\joystick\\Oculus Touch.diff.lua": "dd0528b5ca9adfd879855c3d6d6387bc0155fd67f1bcddce2f1afc1408aa1ee9",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Config\\Input\\F-22A\\joystick\\S-TECS MODERN THROTTLE MINI   {6A1552A0-C9B2-11f1-8002-444553540000}.diff.lua": "1502965de7ca9ea5b33735a808748e02616eed94d804e679729d0a6f5ade00f8",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Config\\Input\\F-22A\\joystick\\vJoy Device {35070780-C9B6-11f1-8005-444553540000}.diff.lua": "26647ec9cf91b7f812b183fedfb72f315389caf0055dd1f1d1a6c0a5503222da",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Config\\Input\\FA-18C_hornet\\joystick\\Joystick - HOTAS Warthog {69C313F0-C9B2-11f1-8001-444553540000}.diff.lua": "df484e1ead2744ae7d600f1060c448ae157f24e0b8adba1cea623911620bc201",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Config\\Input\\FA-18C_hornet\\joystick\\MOZA R5 Base {8FDD8900-C9B5-11f1-8003-444553540000}.diff.lua": "3693d8def6911a8ab110eb3ed7d0bb2f369338850b4a5324a82f153bbaafef87",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Config\\Input\\FA-18C_hornet\\joystick\\Oculus Touch.diff.lua": "be4940c18f99e89ab7cf11563eb9009384fa05ce5def65b616af57b3b63990fa",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Config\\Input\\FA-18C_hornet\\joystick\\S-TECS MODERN THROTTLE MINI   {6A1552A0-C9B2-11f1-8002-444553540000}.diff.lua": "9940ab899f3758dacd8ed7b44f229ad4ffa6701d76cf6a9e1d5e97ec80189b21",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Config\\Input\\FA-18C_hornet\\joystick\\vJoy Device {35070780-C9B6-11f1-8005-444553540000}.diff.lua": "49ee4ad5b940c9a3dd2e3c7f79f7f4495e54f11d34df8841d61c1cbcd8847807",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22DogfightValidation.lua": "72e4f90ef029c95227d2a20c3487e5a0d3727a21c51120ce0e270865b617af2e",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22EWTrialHook.lua": "d14bb2fe7a8e76ad3e386e4381a27a907eaa54397f184838900e4acd276203b5",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22GroundRegressionHook.lua": "d02d9fc4ce43ce93ade228255667c8f5214165ce71a9601b7f4960e64b356cea",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22NativePreview.lua": "275da49485131451c5ffcbd0296f9d8d7cfdd075084b543fa4207321476686d6",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Scripts\\Hooks\\F22TrimTelemetry.lua": "9af5efbdd7381a1543938d96a8f5870390b1c51b30f37568cf2e1d4ac6eae2ea",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Weapons\\PlaneCannon.wav": "481275c110c80eac12bc2375ce50e9d6e43199798e516cf6469f9ac6b2965071",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Weapons\\PlaneCannonEnd.wav": "cdc2e25adc5979681e110963b0682e4ad36300b3eaa687a9020f3129ac2509db",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\External\\apu_run.wav": "3431ead7d1183c0d41eee74721eb15616a1331a18db3656bc15f25a5c7f6ee82",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\External\\apu_start.wav": "d7ceb221537d6099dec65a0b3e1aeaad9858f1fef7fb214e3988170f4a05d330",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\External\\apu_stop.wav": "4766087e9f4c57e84d4fc8941421e97dda8a6e8fa7a404fe4837e1121be304ca",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\IR\\detect.wav": "97585fda8c5feac1387d46d1ca9755a9e30e1b220d154b60719bb2442006d5c5",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\IR\\fov.wav": "9d7d79ddc123f1c7b9d2d77eb4567b33c2de21aaf9159a4841613e83e691df56",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\IR\\high.wav": "17976c2d3e4925528954165fdb6aacc17801a11953ca5f9c6f5000cbcf27b3d2",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\IR\\low.wav": "e1eb65092ad7e6da94cbc8b2f3869d18dcf91c1d1f7183e80b657f94d016ede4",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\IR\\quiet.wav": "1ce8ffc7a03527072b32ad6d750573d820989cfc3658ca15ae7dfefd8801e07b",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\IR\\search.wav": "c0ef26f83be253ad0b3175640f3e581c89dcd356f08d38278c19e3278f4de634",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\IR\\track.wav": "82279f995b3adf4c47dc4e771ea0769513bbc1e4d2f81b737ae39a2860bb30c1",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\IR\\verify.wav": "e3a5f62eddd25a66f6bf420d3a058287da3c2f8b5c48993e27eba5b9ed5f350f",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\MWS\\approach.wav": "4b42896c19c6cc8a09ffac18380a5c1b9e3f0e732fecd4e6397600fe674c81b2",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\RWR\\contact_lost.wav": "743014b42dd988ba3a5a82efbd4bf74db50192369ef474dc447ac0f0f302560b",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\RWR\\launch.wav": "acf62cf8029cbaae6335738ef095210b88dfa54ed6759bff55f2b7d6225f0f9c",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\RWR\\lock.wav": "313ca89646177830872e58b4eedd53a070350a1d7e5e22f9ed49fc60738298a4",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\RWR\\new_contact.wav": "a8c10737b859d5776213818543f8809083f075b2ac0edf8dd0dcf7c2c45779ad",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\RWR\\ping.wav": "9625b5a15dd33186cb51c1e010f3140b842d1a044a87e65c2a3ee79a30bff286",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\Warnings\\altitude.wav": "3aa3919b3c260522b846d2c8783096c41e15bd4fb1dc0d7e504c6926b56c8b04",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\Warnings\\caution.wav": "742146eccbab3fc4b96edc58bc7ef87ebc4c55dfee34a9d198b01464a58f1519",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\Warnings\\flight_controls.wav": "ff22072696e4bed002fb203ce687c34c1af05c53c7ad216aa6f225ad5b9a75f2",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\Warnings\\pull_up.wav": "ff8d191836c8c8815d0ea0397c2f6eab82fdf69eb2f63f740a3e0451761fb8e5",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\Warnings\\roll_left.wav": "9c18182e6132a588c34d225bf113e7b6e979386377403b43f097d96ce9bcabce",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\Warnings\\roll_right.wav": "21bba167064533af9b6b7fa58c635f265b4ef15475c32bfeac6aa2d462a251b4",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\F-22A\\Warnings\\terrain.wav": "3a725ab91ea771348735e90fc18ca4548f7e42ddfaf6b155c3a338a57afbfc24",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Weapons\\F-22A\\Flare.wav": "b0d1fcee69f455874f16b6ea9e458ffafb25de2ea7cf6423cec6bfcfaa8329b7",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Weapons\\F-22A\\MissileLaunchIn.wav": "5196505f906933425024ae5d4d525e8005bdf6759f2ef00896ec1737bbeb7c3e",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\EditorMusic\\MainMenuIn.ogg": "ebca898b22f7722e53f444157be18bd4fdcfea7836c1726b24e78bb1ea3b8502",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\EditorMusic\\MainMenuloop.ogg": "ebca898b22f7722e53f444157be18bd4fdcfea7836c1726b24e78bb1ea3b8502",
+    "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Sounds\\Effects\\Aircrafts\\Cockpits\\AIM9.ogg": "269f562a05dace451a17ecfdd6b0286589da536488056e5e16a3847525f540b9"
+  },
+  "source_bin_untouched_sha256": "c50b245ffd2c069cce105397294f9d2e17f37e5b8d5834933b4e87a309af43a5",
+  "bindings_fonts_audio_hooks_preserved": true,
+  "simulator_running_at_copy": false,
+  "simulator_operated": false,
+  "loaded_identity_observed": false,
+  "actual_installed_lua_tests": {
+    "tests": 48,
+    "passed": true,
+    "planned_source_files": 0,
+    "other_modules": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Cockpit\\Scripts",
+    "actual_DCS_executed": false
+  },
+  "native_source_at_copy_matched_embedded_identity": true,
+  "current_navigation_source_sha256": {
+    "EFM/source/NativeNavigation.cpp": "a06c0170dcf3461d26e0dfa733b5ea6377e9f788df164ea4f4ec888e33bf4af6",
+    "EFM/source/NativeNavigationHost.h": "9242a6d60fe0f7c97f6288e81ce37536167f1333c9311043b8ea57e213a77707",
+    "tests/native/navigation_publication.cpp": "f93bcead9119111c833d15426f53128d3ad64ace27f5beff4e516362f61788be",
+    "tools/audit_navigation_host.py": "e0bb1fae2263b1bcb91b9ffc909de222dcb8619e388f87b84578ea6fbe718597",
+    "tools/verify_navigation_install.py": "215c603042ddc23a2b3dc65702f4641b105816497ce8940de298791782bf1a58",
+    "tools/requirements-navigation-host.txt": "a92a3cafbb294489f71ee8ee407b64ecce91eefd438ff28be40ce5cd1adf9f69"
+  },
+  "native_working_tree_after_copy": {
+    "digest": "6f953bf71eb5dc7e7a99455e45d655605a772a9b366ea0439963819aa7688159",
+    "status": [
+      " M EFM/source/AesaRadar.cpp",
+      " M EFM/source/NativeGroundSensor.cpp",
+      "?? EFM/source/SarCore.cpp",
+      "?? EFM/source/SarCore.h",
+      "?? EFM/source/SarSceneInput.h"
+    ],
+    "note": "Other owners may continue their source work after the attested copy; installed identity remains the recorded build, not subsequent dirty source."
+  }
+}
