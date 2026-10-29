@@ -499,111 +499,263 @@ struct Parameters {
             || context_epoch != p.epoch()) return {};
         r.stamp = values[1]; r.controls.generation = generation; return r;
     }
-    void publish(EDPARAM& p, const Snapshot& s, double now, bool enabled) noexcept {
+    bool numeric_complete = false;
+    void invalidate_publication_cache() noexcept {
+        published_id.fill(0);
+        published_time.fill(-100);
+        published_type_valid.fill(false);
+        for (auto &type : published_types)
+            type.fill(0);
+    }
+    void write_number(EDPARAM &p, void *handle, double value) noexcept {
+        if (!current_context(p)) {
+            numeric_complete = false;
+            return;
+        }
+        const bool written = p.setParamNumber(handle, value);
+        numeric_complete = written && current_context(p) && numeric_complete;
+    }
+    static bool snapshot_fresh(const Snapshot &s, double now, bool enabled) noexcept {
+        const auto &q = s.status;
+        return enabled && q.ready && q.interference.valid &&
+               s.epoch == epoch.load(std::memory_order_acquire) && now - q.time >= -.01 &&
+               now - q.time <= .5;
+    }
+    bool publication_current(const EDPARAM &p, std::uint64_t context_epoch,
+                             std::uint64_t source_epoch) const noexcept {
+        return current_context(p) && context_epoch == p.epoch() &&
+               source_epoch == epoch.load(std::memory_order_acquire);
+    }
+    void withdraw_publication(EDPARAM &p) noexcept {
+        invalidate_publication_cache();
+        if (!current_context(p))
+            return; // Never reuse handles after context loss.
+        // Deliberate best effort: no even commit follows any failed publication.
+        (void)p.setParamNumber(outputs[3], publication + 1);
+        (void)p.setParamNumber(outputs[0], 0);
+        (void)p.setParamNumber(outputs[4], 0);
+        for (const auto &contact : contacts) {
+            (void)p.setParamNumber(contact[0], 0);
+            (void)p.setParamNumber(contact.back(), 0);
+            (void)p.setParamNumber(contact[9], 0);
+        }
+    }
+    void publish(EDPARAM &p, const Snapshot &s, double now, bool enabled) noexcept {
+        numeric_complete = true;
+        const auto context_epoch = p.epoch();
         publication = (publication + 2) % 16000000;
-        p.setParamNumber(outputs[3], publication + 1);
-        const auto& q = s.status;
-        const bool fresh = enabled && q.ready && q.interference.valid && s.epoch == epoch.load(std::memory_order_acquire)
-            && now - q.time >= -.01 && now - q.time <= .5;
+        write_number(p, outputs[3], publication + 1);
+        if (!numeric_complete) {
+            invalidate_publication_cache();
+            return;
+        }
+        const bool fresh = snapshot_fresh(s, now, enabled);
         unsigned count = 0;
         for (std::size_t i = 0; i < s.measurements.size(); ++i)
-            if (publish_contact(p, i, s.measurements[i], fresh)) ++count;
+            if (publish_contact(p, i, s.measurements[i], fresh))
+                ++count;
         publish_status(p, s, fresh, count);
-        publish_own_effect(p,s,now);
-        p.setParamNumber(outputs[3], publication + 2);
+        publish_own_effect(p, s, now);
+        if (!numeric_complete || !publication_current(p, context_epoch, s.epoch)) {
+            withdraw_publication(p);
+            return;
+        }
+        write_number(p, outputs[3], publication + 2);
+        if (!numeric_complete || !publication_current(p, context_epoch, s.epoch))
+            withdraw_publication(p);
     }
-    void publish_authority(EDPARAM& p, std::size_t i, const Measurement& m, bool valid) noexcept {
-        p.setParamNumber(contacts[i].back(), valid && m.association_valid ? 1 : 0);
-        p.setParamNumber(contacts[i][9], valid && m.association_valid && m.velocity_valid ? 1 : 0);
+    void publish_authority(EDPARAM &p, std::size_t i, const Measurement &m, bool valid) noexcept {
+        write_number(p, contacts[i].back(), valid && m.association_valid ? 1 : 0);
+        write_number(p, contacts[i][9], valid && m.association_valid && m.velocity_valid ? 1 : 0);
     }
-    bool publish_contact(EDPARAM& p, std::size_t i, const Measurement& m, bool fresh) noexcept {
-        const bool valid = fresh && m.valid;
-        publish_type(p,i,m,valid);
-        p.setParamNumber(contacts[i][0], valid ? 1 : 0);
-        publish_authority(p,i,m,valid);
-        if (!valid) { published_id[i] = 0; return false; }
-        // State and covariance change only on a completed measurement.
-        // Producer heartbeat/VALID still update when physics runs faster.
-        if (published_id[i] == m.id && published_time[i] == m.time) return true;
-        published_id[i] = m.id; published_time[i] = m.time;
-        const std::array values{valid ? 1.0 : 0.0, static_cast<double>(m.id), m.time,
-            m.position.n, m.position.u, m.position.e, m.velocity.n, m.velocity.u, m.velocity.e,
-            m.velocity_valid && m.association_valid ? 1.0 : 0.0, m.range_sigma_m, m.angle_sigma_rad, static_cast<double>(m.hits),
-            m.filter_valid ? 1.0 : 0.0, m.position_sigma_m, m.velocity_sigma_mps,
-            m.raw_position.n, m.raw_position.u, m.raw_position.e, m.measured_range,
-            m.measured_azimuth, m.measured_elevation, m.measured_range_rate, m.rate_sigma_mps,
-            m.sensor_origin.n,m.sensor_origin.u,m.sensor_origin.e,m.sensor_velocity.n,m.sensor_velocity.u,m.sensor_velocity.e,
-            m.sensor_forward.n,m.sensor_forward.u,m.sensor_forward.e,m.sensor_up.n,m.sensor_up.u,m.sensor_up.e,
-            m.sensor_right.n,m.sensor_right.u,m.sensor_right.e};
-        for (std::size_t j = 0; j < values.size(); ++j) p.setParamNumber(contacts[i][j], values[j]);
-        for (std::size_t j = 0; j < m.covariance.size(); ++j)
-            p.setParamNumber(contacts[i][values.size()+j], m.covariance[j]);
+    static auto contact_values(const Measurement &m) noexcept {
+        return std::array{1.0,
+                          static_cast<double>(m.id),
+                          m.time,
+                          m.position.n,
+                          m.position.u,
+                          m.position.e,
+                          m.velocity.n,
+                          m.velocity.u,
+                          m.velocity.e,
+                          m.velocity_valid && m.association_valid ? 1.0 : 0.0,
+                          m.range_sigma_m,
+                          m.angle_sigma_rad,
+                          static_cast<double>(m.hits),
+                          m.filter_valid ? 1.0 : 0.0,
+                          m.position_sigma_m,
+                          m.velocity_sigma_mps,
+                          m.raw_position.n,
+                          m.raw_position.u,
+                          m.raw_position.e,
+                          m.measured_range,
+                          m.measured_azimuth,
+                          m.measured_elevation,
+                          m.measured_range_rate,
+                          m.rate_sigma_mps,
+                          m.sensor_origin.n,
+                          m.sensor_origin.u,
+                          m.sensor_origin.e,
+                          m.sensor_velocity.n,
+                          m.sensor_velocity.u,
+                          m.sensor_velocity.e,
+                          m.sensor_forward.n,
+                          m.sensor_forward.u,
+                          m.sensor_forward.e,
+                          m.sensor_up.n,
+                          m.sensor_up.u,
+                          m.sensor_up.e,
+                          m.sensor_right.n,
+                          m.sensor_right.u,
+                          m.sensor_right.e};
+    }
+    static bool finite_measurement(const Measurement &m) noexcept {
+        for (const double value : contact_values(m))
+            if (!std::isfinite(value))
+                return false;
+        for (const double value : m.covariance)
+            if (!std::isfinite(value))
+                return false;
         return true;
     }
-    void gated(EDPARAM& p, std::size_t index, double value, bool valid) noexcept {
-        p.setParamNumber(outputs[index], valid ? value : 0);
+    void write_contact_payload(EDPARAM &p, std::size_t i, const Measurement &m) noexcept {
+        const auto values = contact_values(m);
+        for (std::size_t j = 0; j < values.size(); ++j)
+            write_number(p, contacts[i][j], values[j]);
+        for (std::size_t j = 0; j < m.covariance.size(); ++j)
+            write_number(p, contacts[i][values.size() + j], m.covariance[j]);
     }
-    void publish_type(EDPARAM& p,std::size_t i,const Measurement& m,bool valid) noexcept {
-        const char* name=valid ? m.type_name.data() : "";
-        if (!type_names[i] || !p.ed_param_api.pfn_ed_cockpit_update_parameter_with_string) return;
-        if (published_type_valid[i] && std::strncmp(name,published_types[i].data(),published_types[i].size())==0) return;
-        published_type_valid[i]=true;published_types[i].fill(0);
-        if (valid) published_types[i]=m.type_name;
-        p.setParamString(type_names[i],name);
+    bool publish_contact(EDPARAM &p, std::size_t i, const Measurement &m, bool fresh) noexcept {
+        bool valid = fresh && m.valid;
+        if (valid && !finite_measurement(m)) {
+            numeric_complete = false;
+            valid = false;
+        }
+        publish_type(p, i, m, valid);
+        write_number(p, contacts[i][0], valid ? 1 : 0);
+        publish_authority(p, i, m, valid);
+        if (!valid) {
+            published_id[i] = 0;
+            return false;
+        }
+        // Payload/covariance remain immutable between completed measurements.
+        if (published_id[i] == m.id && published_time[i] == m.time)
+            return true;
+        write_contact_payload(p, i, m);
+        if (numeric_complete) {
+            published_id[i] = m.id;
+            published_time[i] = m.time;
+        }
+        return true;
     }
-    void publish_surface(EDPARAM& p, const Status& q, bool fresh) noexcept {
-        const auto& beam=q.surface_beam;
-        const double depression=std::atan2(beam.direction.u,std::hypot(beam.direction.n,beam.direction.e));
-        const bool surface_known=fresh&&q.surface_sequence>0;
-        gated(p,37,depression,surface_known);gated(p,38,beam.half_angle,surface_known);gated(p,39,beam.range_m,surface_known);
-        p.setParamNumber(outputs[40],surface_known?beam.completes:-100);
-        gated(p,41,beam.surface_search?1:0,surface_known);
-        gated(p,42,beam.surface_cells,surface_known);
-        gated(p,47,q.surface_discovery_sequence,surface_known);
-        gated(p,48,q.surface_discovery_work,surface_known);
+    void gated(EDPARAM &p, std::size_t index, double value, bool valid) noexcept {
+        write_number(p, outputs[index], valid ? value : 0);
     }
-    void publish_interference(EDPARAM& p, const Status& q, bool fresh) noexcept {
+    void publish_unknown_type(EDPARAM &p, std::size_t i) noexcept {
+        // The public numeric parameter setter replaces text with typed zero.
+        // Actual Lua metadata/label readers treat a non-string type as unknown.
+        write_number(p, type_names[i], 0);
+        published_type_valid[i] = false;
+        published_types[i].fill(0);
+    }
+    void publish_type(EDPARAM &p, std::size_t i, const Measurement &m, bool valid) noexcept {
+        if (!current_context(p)) {
+            numeric_complete = false;
+            return;
+        }
+        if (!type_names[i]) {
+            if (valid)
+                numeric_complete = false;
+            return;
+        }
+        if (!p.ed_param_api.pfn_ed_cockpit_update_parameter_with_string) {
+            publish_unknown_type(p, i);
+            return;
+        }
+        const char *name = valid ? m.type_name.data() : "";
+        if (published_type_valid[i] &&
+            std::strncmp(name, published_types[i].data(), published_types[i].size()) == 0)
+            return;
+        if (!p.setParamString(type_names[i], name)) {
+            publish_unknown_type(p, i);
+            return;
+        }
+        published_type_valid[i] = true;
+        published_types[i].fill(0);
+        if (valid)
+            published_types[i] = m.type_name;
+    }
+    void publish_surface(EDPARAM &p, const Status &q, bool fresh) noexcept {
+        const auto &beam = q.surface_beam;
+        const double depression =
+            std::atan2(beam.direction.u, std::hypot(beam.direction.n, beam.direction.e));
+        const bool surface_known = fresh && q.surface_sequence > 0;
+        gated(p, 37, depression, surface_known);
+        gated(p, 38, beam.half_angle, surface_known);
+        gated(p, 39, beam.range_m, surface_known);
+        write_number(p, outputs[40], surface_known ? beam.completes : -100);
+        gated(p, 41, beam.surface_search ? 1 : 0, surface_known);
+        gated(p, 42, beam.surface_cells, surface_known);
+        gated(p, 47, q.surface_discovery_sequence, surface_known);
+        gated(p, 48, q.surface_discovery_work, surface_known);
+    }
+    void publish_interference(EDPARAM &p, const Status &q, bool fresh) noexcept {
         const bool known = fresh && q.interference.valid;
-        gated(p,43,1,known);gated(p,44,q.interference.noise_ratio,known);
-        p.setParamNumber(outputs[45],known?q.interference.time:-100);
-        gated(p,46,q.interference.sources,known);
+        gated(p, 43, 1, known);
+        gated(p, 44, q.interference.noise_ratio, known);
+        write_number(p, outputs[45], known ? q.interference.time : -100);
+        gated(p, 46, q.interference.sources, known);
     }
-    void publish_own_effect(EDPARAM& p, const Snapshot& s, double now) noexcept {
+    void publish_own_effect(EDPARAM &p, const Snapshot &s, double now) noexcept {
         // The shared native callback samples ECM even with radar OFF. Never
         // infer an effect from the cockpit switch or our receiver's readiness.
-        const auto& effect=s.own_effect;
-        const bool known=effect.valid && s.epoch==epoch.load(std::memory_order_acquire)
-            && std::isfinite(now) && now>=effect.time && now-effect.time<=.25;
-        gated(p,49,1,known);gated(p,50,effect.active ? 1 : 0,known);
-        p.setParamNumber(outputs[51],known ? effect.time : -100);
-        p.setParamNumber(outputs[52],static_cast<double>(s.epoch));
+        const auto &effect = s.own_effect;
+        const bool known = effect.valid && s.epoch == epoch.load(std::memory_order_acquire) &&
+                           std::isfinite(now) && now >= effect.time && now - effect.time <= .25;
+        gated(p, 49, 1, known);
+        gated(p, 50, effect.active ? 1 : 0, known);
+        write_number(p, outputs[51], known ? effect.time : -100);
+        write_number(p, outputs[52], static_cast<double>(s.epoch));
     }
-    void publish_status(EDPARAM& p, const Snapshot& s, bool fresh, unsigned count) noexcept {
-        const auto& q = s.status;
-        const std::array values{fresh ? 1.0 : 0.0, fresh ? 0.0 : static_cast<double>(api.reason ? api.reason : 4),
-            q.time, static_cast<double>(publication + 2), static_cast<double>(count), q.beam.azimuth, q.beam.elevation,
-            static_cast<double>(q.dwells), static_cast<double>(q.search_dwells), static_cast<double>(q.track_dwells),
-            static_cast<double>(q.detections), static_cast<double>(q.misses), static_cast<double>(q.pending),
-            static_cast<double>(q.queue_drops), static_cast<double>(q.terrain_blocked),
-            static_cast<double>(q.object_blocked), q.truncated ? 1.0 : 0.0};
-        for (std::size_t i = 0; i < values.size(); ++i) if (i != 3) p.setParamNumber(outputs[i], values[i]);
+    void publish_status(EDPARAM &p, const Snapshot &s, bool fresh, unsigned count) noexcept {
+        const auto &q = s.status;
+        const std::array values{fresh ? 1.0 : 0.0,
+                                fresh ? 0.0 : static_cast<double>(api.reason ? api.reason : 4),
+                                q.time,
+                                static_cast<double>(publication + 2),
+                                static_cast<double>(count),
+                                q.beam.azimuth,
+                                q.beam.elevation,
+                                static_cast<double>(q.dwells),
+                                static_cast<double>(q.search_dwells),
+                                static_cast<double>(q.track_dwells),
+                                static_cast<double>(q.detections),
+                                static_cast<double>(q.misses),
+                                static_cast<double>(q.pending),
+                                static_cast<double>(q.queue_drops),
+                                static_cast<double>(q.terrain_blocked),
+                                static_cast<double>(q.object_blocked),
+                                q.truncated ? 1.0 : 0.0};
+        for (std::size_t i = 0; i < values.size(); ++i)
+            if (i != 3)
+                write_number(p, outputs[i], values[i]);
         gated(p, 20, q.surface_service ? 1 : 0, fresh);
-        p.setParamNumber(outputs[21], q.surface_azimuth);
-        p.setParamNumber(outputs[22], q.surface_sequence);
+        write_number(p, outputs[21], q.surface_azimuth);
+        write_number(p, outputs[22], q.surface_sequence);
         gated(p, 25, q.resource, fresh);
         gated(p, 26, q.processing_s, fresh);
-        p.setParamNumber(outputs[27], static_cast<double>(s.epoch));
+        write_number(p, outputs[27], static_cast<double>(s.epoch));
         gated(p, 28, q.fire_control_id, fresh);
         gated(p, 29, q.fire_control_revisit_s, fresh);
-        p.setParamNumber(outputs[30], fresh ? q.fire_control_last_look : -100);
-        p.setParamNumber(outputs[31], q.deadline_misses);
+        write_number(p, outputs[30], fresh ? q.fire_control_last_look : -100);
+        write_number(p, outputs[31], q.deadline_misses);
         gated(p, 32, q.cue_request, fresh);
-        p.setParamNumber(outputs[33], fresh ? q.cue_time : -100);
-        p.setParamNumber(outputs[34], q.cue_dwells);
-        p.setParamNumber(outputs[35], q.association_ambiguous);
-        p.setParamNumber(outputs[36], q.association_dropped);
-        publish_surface(p,q,fresh);
-        publish_interference(p,q,fresh);
+        write_number(p, outputs[33], fresh ? q.cue_time : -100);
+        write_number(p, outputs[34], q.cue_dwells);
+        write_number(p, outputs[35], q.association_ambiguous);
+        write_number(p, outputs[36], q.association_dropped);
+        publish_surface(p, q, fresh);
+        publish_interference(p, q, fresh);
     }
 } parameters;
 bool fresh(double now, double stamp, double age) noexcept {
