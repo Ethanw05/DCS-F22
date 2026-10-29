@@ -1,0 +1,90 @@
+{
+  "requirement": "User: straight-right TDC input must move straight-right on A/A; preserve MAP/GMT angular/range behaviour.",
+  "behavior": "Manual A/A axes and discrete cursor keys translate screen-space X/Y, then convert back to range/bearing for the existing designation/acquisition chain. Selection-follow retains its existing track attachment. Display scale includes EXP/STT presentation scale; range/sector boundaries stop along the input segment, including the40m minimum-range hole.",
+  "limits": "User-selected mod interaction; no claim of authentic F-22 control laws or in-flight qualification. Normalized axis gain0.4 display-radius units per second; boundary search capped at12 iterations; no new recurring allocations.",
+  "source_checks": {
+    "files": [
+      {
+        "path": "Cockpit/Scripts/Systems/Radar_Computer.lua",
+        "sha256": "2bc92eba268ab7babdd209e22c66027a8f0ff18f3add023a370f26c3efdb9bad"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Radar_System.lua",
+        "sha256": "d3ff074c2a22aaba96fdd992bd296b9ee2ea44e788b488a6d0d983933ae3d5a8"
+      }
+    ],
+    "Lua51_syntax": true,
+    "pinned_luacheck": "1.2.0",
+    "new_findings": [],
+    "new_functions": [
+      {
+        "name": "cursor_inside",
+        "complexity": 4,
+        "lines": 4
+      },
+      {
+        "name": "cursor_scale",
+        "complexity": 4,
+        "lines": 3
+      },
+      {
+        "name": "cursor_inner_fraction",
+        "complexity": 4,
+        "lines": 8
+      },
+      {
+        "name": "cursor_fraction",
+        "complexity": 4,
+        "lines": 16
+      },
+      {
+        "name": "move_cursor",
+        "complexity": 9,
+        "lines": 17
+      }
+    ]
+  },
+  "installation": {
+    "installed_at_utc": "2026-10-29T10:32:53.533415+00:00",
+    "source_base_commit": "e7bc8fff4204c4dc1b9cde3c3ae05b5a286dce59",
+    "installed_root": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A",
+    "files": [
+      {
+        "path": "Cockpit/Scripts/Systems/Radar_Computer.lua",
+        "sha256": "2bc92eba268ab7babdd209e22c66027a8f0ff18f3add023a370f26c3efdb9bad",
+        "installed_before_sha256": "0bc1cbd5acc05fce6e807169c12249c904489f1ccbd4cb340297a9a6da0b933d"
+      },
+      {
+        "path": "Cockpit/Scripts/Systems/Radar_System.lua",
+        "sha256": "d3ff074c2a22aaba96fdd992bd296b9ee2ea44e788b488a6d0d983933ae3d5a8",
+        "installed_before_sha256": "8c1817e7c2440bb42db3322a446a0e4405d6be1125eaebff9221e8ea4c481d75"
+      }
+    ],
+    "protected_entries": 61,
+    "protected_unchanged": true,
+    "ground_radar_files_unchanged": true,
+    "DLL_sha256_unchanged": "27eec05d31b9c321463f007fa5053f2930e72d26616aa8b0c96558f66f3523a6",
+    "DCS_absent_before_copy": true,
+    "DCS_operated": false,
+    "backups_created": false,
+    "actual_flight_verified": false
+  },
+  "installed_checks": {
+    "cases": 64,
+    "passed": true,
+    "modules": [
+      "test_radar_cursor_cartesian",
+      "test_radar_source_contract",
+      "test_radar_geometry_controls",
+      "test_radar_track_buttons",
+      "test_ground_radar_packets",
+      "test_ground_radar_workflow",
+      "test_ground_radar_pilot_fixes"
+    ],
+    "source_overlays": false,
+    "actual_installed_dependencies": 63,
+    "dependency_hashes_stable": true,
+    "DCS_executed": false
+  },
+  "evidence_directory": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\radar-cursor-cartesian-20261029"
+}

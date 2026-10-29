@@ -32,6 +32,54 @@ end
 local function angular(a, b)
 	return (a - b + math.pi) % (2 * math.pi) - math.pi
 end
+local function cursor_inside(x, y, maximum, tangent)
+	local squared = x * x + y * y
+	return y >= 0 and math.abs(x) <= y * tangent and squared >= 40 * 40 and squared <= maximum * maximum
+end
+local function cursor_scale(self)
+	return self.cursor_display_range or self:range() / (self.expand and 2 or 1)
+end
+local function cursor_inner_fraction(x, y, dx, dy)
+	local a = dx * dx + dy * dy
+	local b = x * dx + y * dy
+	local c = math.max(0, x * x + y * y - 40 * 40)
+	local discriminant = b * b - a * c
+	if a == 0 or b >= 0 or discriminant <= 0 then return 1 end
+	return clamp((-b - math.sqrt(discriminant)) / a, 0, 1)
+end
+local function cursor_fraction(x, y, dx, dy, maximum, tangent)
+	-- Do not jump across the minimum-range hole even when both ends are valid.
+	local fraction = cursor_inner_fraction(x, y, dx, dy)
+	if cursor_inside(x + dx * fraction, y + dy * fraction, maximum, tangent) then return fraction end
+	-- Stop on the commanded segment; radial clamping would bend the path.
+	local low, high = 0, fraction
+	for _ = 1, 12 do
+		local middle = (low + high) / 2
+		if cursor_inside(x + dx * middle, y + dy * middle, maximum, tangent) then
+			low = middle
+		else
+			high = middle
+		end
+	end
+	return low
+end
+local function move_cursor(self, dx, dy, scale, half_azimuth)
+	if not finite(dx) or not finite(dy) or (dx == 0 and dy == 0) then return end
+	scale = scale or cursor_scale(self)
+	if not finite(scale) or scale < 40 then return end
+	local maximum = math.min(scale, self:range())
+	local limit = rad(half_azimuth or self.azimuth)
+	local bearing = clamp(self.cursor_az, -limit, limit)
+	local distance = clamp(self.cursor_range, 40, maximum)
+	local x, y = distance * math.sin(bearing), distance * math.cos(bearing)
+	local step_x, step_y = dx * scale, dy * scale
+	local tangent = math.tan(limit)
+	local fraction = cursor_fraction(x, y, step_x, step_y, maximum, tangent)
+	x, y = x + step_x * fraction, y + step_y * fraction
+	self.cursor_az = math.atan2(x, y)
+	self.cursor_range = math.sqrt(x * x + y * y)
+	self.cursor_follow = false
+end
 function M.new()
 	local r = {
 		mode = "RWS",
@@ -56,6 +104,7 @@ function M.new()
 		expand = false,
 		return_mode = "RWS",
 	}
+	r.move_cursor = move_cursor
 	function r:profile()
 		return M.profiles[self.mode]
 	end
@@ -197,26 +246,29 @@ function M.new()
 		end
 		if c == "range_up" then
 			self.range_index = math.min(#self.ranges, self.range_index + 1)
+			self.cursor_display_range = nil
 		elseif c == "range_down" then
 			self.range_index = math.max(1, self.range_index - 1)
+			self.cursor_display_range = nil
 		elseif c == "azimuth" then
 			self.azimuth = self.azimuth == 60 and 30 or self.azimuth == 30 and 15 or 60
 		elseif c == "vertical_span" then
 			self.vertical_span = self.vertical_span == 10 and 20 or self.vertical_span == 20 and 40 or 10
 		elseif c == "expand" then
 			self.expand = not self.expand
+			self.cursor_display_range = nil
 		elseif c == "elevation_up" then
 			self.elevation = clamp(self.elevation + rad(2), rad(-40), rad(40))
 		elseif c == "elevation_down" then
 			self.elevation = clamp(self.elevation - rad(2), rad(-40), rad(40))
 		elseif c == "cursor_left" then
-			self.cursor_az = self.cursor_az - rad(2)
+			self:move_cursor(-0.025, 0)
 		elseif c == "cursor_right" then
-			self.cursor_az = self.cursor_az + rad(2)
+			self:move_cursor(0.025, 0)
 		elseif c == "cursor_up" then
-			self.cursor_range = self.cursor_range + self:range() * 0.025
+			self:move_cursor(0, 0.025)
 		elseif c == "cursor_down" then
-			self.cursor_range = self.cursor_range - self:range() * 0.025
+			self:move_cursor(0, -0.025)
 		elseif c == "recenter" then
 			self.cursor_az = 0
 			self.cursor_range = self:range() / 2

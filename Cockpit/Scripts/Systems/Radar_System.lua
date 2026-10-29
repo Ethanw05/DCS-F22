@@ -471,12 +471,10 @@ function update()
 	if not cursor_authority then
 		slew_x, slew_y = 0, 0
 	end
-	if radar_focus and math.abs(slew_x) > 0.08 then
-		computer.cursor_az = math.max(-math.rad(60), math.min(math.rad(60), computer.cursor_az + slew_x * cursor_dt * 0.4))
-	end
-	if radar_focus and math.abs(slew_y) > 0.08 then
-		computer.cursor_range =
-			math.max(40, math.min(computer:range(), computer.cursor_range + slew_y * cursor_dt * computer:range() * 0.4))
+	if radar_focus and hud_mode ~= 7 then
+		local x_rate = math.abs(slew_x) > 0.08 and slew_x or 0
+		local y_rate = math.abs(slew_y) > 0.08 and slew_y or 0
+		computer:move_cursor(x_rate * cursor_dt * 0.4, y_rate * cursor_dt * 0.4, nil, 60)
 	end
 	local powered = computer.power and get("MAIN_POWER") > 0.5
 	local now_stt = get("F22N_RADAR_MODE") == 3
@@ -665,6 +663,7 @@ function update()
 		envelope_range = get("F22_DLZ_RMAX")
 	end
 	local scope_range = computer:scope_range(stt_valid and sr or nil, envelope_range)
+	computer.cursor_display_range = scope_range
 	put("F22_RADAR_RANGE_NM", scope_range / 1852)
 	put("F22_RADAR_HALF_RANGE_NM", scope_range / 3704)
 	put("F22_RADAR_AZ_DEG", computer.azimuth)

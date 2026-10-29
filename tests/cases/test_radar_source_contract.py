@@ -217,10 +217,9 @@ class RadarSourceContract(unittest.TestCase):
                 if i == frequency//2:
                     h.env.SetCommand(10621, 0)  # Unrelated command synchronizes model time.
                 h.update()
-            results.append(math.atan2(h.get('F22_RADAR_CURSOR_X'),
-                                     h.get('F22_RADAR_CURSOR_Y')+.66))
+            results.append(h.get('F22_RADAR_CURSOR_X'))
         for value in results:
-            self.assertAlmostEqual(value, .2, delta=1e-6)
+            self.assertAlmostEqual(value, 1.45*.2, delta=1e-6)
 
     def test_cursor_pause_jitter_and_loss_require_new_input(self):
         h = system_host()
@@ -234,8 +233,7 @@ class RadarSourceContract(unittest.TestCase):
             now += step
             current_frame(h, now)
             h.update()
-        angle = math.atan2(h.get('F22_RADAR_CURSOR_X'), h.get('F22_RADAR_CURSOR_Y')+.66)
-        self.assertAlmostEqual(angle, .04, delta=1e-6)
+        self.assertAlmostEqual(h.get('F22_RADAR_CURSOR_X'), 1.45*.04, delta=1e-6)
         # Focus/page and power loss cancel held intent, including regain.
         for field, bad, restored in [('F22_SOI', 3, 2),
                                      ('F22_PMFD_FORMAT', 7, 1), ('MAIN_POWER', 0, 1)]:

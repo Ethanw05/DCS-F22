@@ -10,7 +10,8 @@
     "plan": "C:/Users/Ethans Desktop 2.0/Desktop/DCS MODDING/F22-Build/chat2-hud-designation-20261029/complete-install-plan.json",
     "receipt": "docs/overhaul/integration/COMPLETE-PACKAGE-INSTALLATION.json",
     "cleanup_audit": "docs/overhaul/radar-execution/install-audit/RESULTS.json",
-    "radar_track_buttons_receipt": "docs/overhaul/radar-execution/track-buttons/RESULTS.json"
+    "radar_track_buttons_receipt": "docs/overhaul/radar-execution/track-buttons/RESULTS.json",
+    "radar_cursor_receipt": "docs/overhaul/radar-execution/cartesian-cursor/RESULTS.json"
   },
   "leases": [
     {
