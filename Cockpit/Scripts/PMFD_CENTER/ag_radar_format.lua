@@ -18,7 +18,8 @@ local colors = {
 	grid = MakeMaterial(nil, { 0, 105, 48, 170 }),
 	video = MakeMaterial("mfd8", {0,255,0,255}), -- Same owned target; local green presentation.
 }
-local fonts = { green = "F22_LCD_FONT_GREEN", white = "F22_LCD_FONT_WHITE", blue = "F22_LCD_FONT_BLUE" }
+local fonts = { green = "F22_LCD_FONT_GREEN", white = "F22_LCD_FONT_WHITE", blue = "F22_LCD_FONT_BLUE",
+    yellow = "F22_LCD_FONT_YELLOW", red = "F22_LCD_FONT_RED" }
 local root = "F22_AG_RADAR_FORMAT"
 local seq = 0
 local function add(e, parent, name)
@@ -255,5 +256,7 @@ for _,sign in ipairs({-1,1})do
 		{sign*.825*content_x,(-.76+218/840*1.52)*content_y}}
 	cut.indices=sign>0 and {0,1,2} or {0,2,1};add(cut,ordinary)
 end
+dofile(LockOn_Options.script_path..'Systems/RWR_Warning_Indicator.lua')(
+ {group=group,text=text},root,'F22_AG_RF_WARNING',0,.66,.0052)
 
 end

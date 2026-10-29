@@ -73,22 +73,30 @@ D.text('PRI',.42,.88,nil,'white',.0034,D.choice('F22_DEF_OV_RANGE_VALID',0,curre
 D.text('NO DATA',0,.84,nil,'yellow',.0034,D.choice('F22_DEF_OV_CURRENT',0))
 D.text('RF OFF',0,.84,nil,'white',.0030,D.choice('F22_RWR_POWER',0,current))
 D.text('MUTE',.65,.84,nil,'yellow',.0028,D.choice('F22_RWR_MUTE',1,current))
+dofile(LockOn_Options.script_path..'Systems/RWR_Warning_Indicator.lua')(
+ ecm_api,primary,prefix..'_RF_WARNING',0,.84,.0048)
 
 for i=1,16 do
  local p=string.format('F22_DEF_OV_%02d_',i)
  local at=group({p..'X',p..'Y',p..'VALID',p..'ALPHA'},{{'move_left_right_using_parameter',0,1},{'move_up_down_using_parameter',1,1},{'parameter_in_range',2,.9,1.1},{'opacity_using_parameter',3}},current,0,cy)
  local bearing=group({p..'ROT'},{{'rotate_using_parameter',0,1}},at)
  coverage(ecm_api,bearing,prefix..'_COVERAGE_'..i,1,{p..'RF_CURRENT'},{{'parameter_in_range',0,.9,1.1}})
+ local symbol=D.choice(p..'PULSE',1,at)
  for _,aff in ipairs({{-1,'yellow'},{0,'red'},{1,'green'},{3,'cyan'}})do
-  local label_color=D.choice(p..'ALERT',0,D.choice(p..'AFFILIATION',aff[1],at))
+  local label_color=D.choice(p..'ALERT',0,D.choice(p..'AFFILIATION',aff[1],symbol))
   contact_label(ecm_api,p,.075,.025,label_color,prefix..'_CONTACT_'..i..'_ID_'..aff[1],aff[2],.0030)
   class_marker(ecm_api,label_color,prefix..'_CLASS_'..i..'_'..aff[1],p..'KIND',aff[2])
  end
- local warning=D.choice(p..'ALERT',1,at)
+ local warning=D.choice(p..'ALERT',1,symbol)
  contact_label(ecm_api,p,.075,.025,warning,prefix..'_CONTACT_WARNING_'..i,'red',.0030)
  class_marker(ecm_api,warning,prefix..'_WARNING_CLASS_'..i,p..'KIND','red')
+ local rf_only=D.choice(p..'MWS_CURRENT',0,symbol)
+ D.text('LOCK',0,.073,nil,'yellow',.0032,D.choice(p..'SIGNAL',2,rf_only))
+ D.text('LAUNCH',0,.073,nil,'red',.0032,
+  D.choice(p..'SIGNAL',3,rf_only))
+ D.text('MISSILE',0,.073,nil,'red',.0032,D.choice(p..'MWS_CURRENT',1,symbol))
  -- A conditional passive location retains its estimate qualifier.
- D.text('E',-.045,.025,nil,'blue',.0026,D.choice(p..'GEO',1,at))
+ D.text('E',-.045,.025,nil,'blue',.0026,D.choice(p..'GEO',1,symbol))
 end
 
 -- Compact expendable readbacks occupy the same lower-right region as the photo.

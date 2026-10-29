@@ -485,5 +485,7 @@ group("F22_RDR_SERVICE_DEGRADED", { "F22_RADAR_SERVICE_STATE" }, { { "parameter_
 text("SENS DEG", 0.70, -0.89, nil, "yellow", "F22_RDR_SERVICE_DEGRADED", 0.0033)
 dofile(LockOn_Options.script_path..'PMFD_CENTER/tactical_overlay.lua')(
  {group=group,line=line,text=text,add=add,materials=materials},layout,native_page_scale*content_scale,root)
+dofile(LockOn_Options.script_path..'Systems/RWR_Warning_Indicator.lua')(
+ {group=group,text=text},root,'F22_RDR_RF_WARNING',0,.74,.0052)
 
 end

@@ -31,3 +31,8 @@ sessions through MCP and traces current native ECM submission to the world radar
 processor. No update-related control break was found. Actual logs demonstrate
 enabled ECM and guarded indication; threat suppression, nonzero emitted power
 and multiplayer effectiveness remain unmeasured.
+
+The additional [pilot threat-warning change](THREAT-WARNING.md) adopts a
+Hornet-inspired status/launch audio policy and explicit pulsing lock/launch/MWS
+presentation. Its research, package checks and flight limitations are recorded
+separately from the eleven original physical flight packages.

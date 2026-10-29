@@ -248,6 +248,7 @@ function update()
 		put(p .. "AFFILIATION", c and c.affiliation or -1)
 		put(p .. "AGE", c and c.age or 999)
 		put(p .. "COAST", c and library.coasting(c) and 1 or 0)
+		put(p .. "PULSE", library.pulse(clock,c and not library.coasting(c) and c.signal or 0))
 		put(p .. "LABEL", c and c.label or "")
 		put(p .. "LABEL_CODE", library.label_code(c and c.label or "U"))
 		put(p .. "AZ", c and c.az or 0)
@@ -266,7 +267,7 @@ function update()
 		local c = receiver.contacts[i]
 		local p = string.format("HUD_EW_%02d_", i)
 		local valid = c and hud_enabled and (not critical or c.signal > 1)
-		valid = valid and (c.signal ~= 3 or library.coasting(c) or clock % 0.5 < 0.3)
+		valid = valid and library.pulse(clock,library.coasting(c) and 0 or c.signal)==1
 		put(p .. "VALID", valid and 1 or 0)
 		put(p .. "LABEL", c and c.label or "")
 		put(p .. "LABEL_CODE", library.label_code(c and c.label or "U"))
@@ -285,7 +286,7 @@ function update()
 	)
 	for n, s in pairs(sounds) do
 		s:update(1, volume)
-		if n == "lock" or n == "launch" then
+		if n == "launch" then
 			if cue.loop == n then
 				if not audio_gate.playing(s) then
 					s:play_continue()
@@ -300,9 +301,9 @@ function update()
 	if cue.event and sounds[cue.event] then
 		sounds[cue.event]:play_once()
 	end
-	local loop_code = cue.loop == "launch" and 3 or cue.loop == "lock" and 2 or 0
+	local loop_code = cue.loop == "launch" and 3 or 0
 	put("F22_RWR_AUDIO_LOOP", loop_code)
-	put("F22_RWR_AUDIO_EVENT", ({ ping = 1, new_contact = 2, contact_lost = 3 })[cue.event] or 0)
+	put("F22_RWR_AUDIO_EVENT", ({ ping = 1, new_contact = 2, contact_lost = 3, lock = 4 })[cue.event] or 0)
 	if cue.event and log and log.write then
 		log.write("F22_EW_AUDIO", log.INFO, "event=" .. cue.event)
 	end

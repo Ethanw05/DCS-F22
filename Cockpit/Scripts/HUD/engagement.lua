@@ -1,6 +1,18 @@
 -- GPL-3.0-or-later. Compact launch cues; existing HUD font and flight dials.
 return function(api)
 	local group, line, label, static = api.group, api.line, api.label, api.static
+	-- RF warning states remain distinct from the optical MISSILE cue below.
+	group('HUD_RF_WARNING',0,0,
+		{'HUD_POWER','F22_DEF_OV_CURRENT','F22_RWR_POWER','F22_RWR_READY','F22_RWR_HUD_ENABLED'},
+		{{'opacity_using_parameter',0},{'parameter_in_range',1,.9,1.1},
+		 {'parameter_in_range',2,.9,1.1},{'parameter_in_range',3,.9,1.1},
+		 {'parameter_in_range',4,.9,1.1}})
+	for _, warning in ipairs({{2,'RADAR LOCK'},{3,'RWR LAUNCH'}})do
+		local name='HUD_RF_WARNING_'..warning[1]
+		group(name,0,0,{'F22_RWR_ALERT'},
+			{{'parameter_in_range',0,warning[1]-.1,warning[1]+.1}},'HUD_RF_WARNING')
+		static(0,-.43,warning[2],.027,name)
+	end
 	local function gate(name, param, value, parent)
 		group(name, 0, 0, { param }, { { "parameter_in_range", 0, value - 0.1, value + 0.1 } }, parent)
 		return name

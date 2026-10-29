@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "captured_at_utc": "2026-10-29T04:26:01.184192+00:00",
+  "basis_head": "888d4691bc5084d7a3f60c9a731fcac1a18405a6",
+  "purpose": "Hornet-referenced RF/optical pilot warning presentation and audio",
+  "primary_references": [
+    {
+      "path": "D:\\DCS\\Mods\\aircraft\\FA-18C\\Doc\\DCS FA-18C Early Access Guide EN.pdf",
+      "sha256": "063873fac43245154bd772241fce89fe4985128cd962cb3e43fc9cefbc35d74c"
+    },
+    {
+      "path": "D:\\DCS\\Mods\\aircraft\\FA-18C\\Cockpit\\Scripts\\TEWS\\indicator\\RWR_ALR67_Common_definitions.lua",
+      "sha256": "9f79fbecd23b0f36e04d6bd3f9dcb4442afc0f2764c95a6f72b599c59fafc041"
+    },
+    {
+      "path": "D:\\DCS\\Mods\\aircraft\\FA-18C\\Cockpit\\Scripts\\Multipurpose_Display_Group\\Common\\indicator\\Pages\\MPD\\EW\\EW_MAIN_RWR.lua",
+      "sha256": "d47d18ef0ba2d819e3dd1a1912c01eeddf73072326f9c9eef3e53122256672d0"
+    },
+    {
+      "path": "D:\\DCS\\Mods\\aircraft\\FA-18C\\Cockpit\\Scripts\\Multipurpose_Display_Group\\HUD_AVQ32\\indicator\\Pages\\HUD_EW.lua",
+      "sha256": "34b5845d861fec155940c4cb02199b7b4fb7fc4aa0747aec780a3f5e1ac1df8c"
+    },
+    {
+      "path": "D:\\DCS\\Scripts\\Aircrafts\\_Common\\Cockpit\\AN_ALR_SymbolsBase.lua",
+      "sha256": "2a1410de6783989583d70ce2592b0f9d1dd3ef81aa2fddd0d25016b948536fb5"
+    }
+  ],
+  "public_guide_url": "https://www.digitalcombatsimulator.com/upload/iblock/8d7/2s3e89jqknz7xmti8hrhe1bjt2uw1s3e/DCS%20FA-18C%20Early%20Access%20Guide%20EN.pdf",
+  "sources": [
+    {
+      "path": "Cockpit/Scripts/Systems/RWR_Warning_Indicator.lua",
+      "relative": "Systems/RWR_Warning_Indicator.lua",
+      "source_sha256": "2d91f15089bbae1b4c9369f8230e8af8fda6ae13890b2c1660f96c771c090de6",
+      "installed_before_sha256": null,
+      "recognized_installed_commit": null
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/Defensive_Overview.lua",
+      "relative": "Systems/Defensive_Overview.lua",
+      "source_sha256": "be849938fcc5f088fb31902f19f454904b7280b34e2b7433e11c5ff941af3106",
+      "installed_before_sha256": "83c86da3e4c4a7931d014c6fb909398ca00c15849f662b841b24eb6646080dc0",
+      "recognized_installed_commit": "b9db395e35f8a6e565b3cc891b00dc2de30daefc"
+    },
+    {
+      "path": "Cockpit/Scripts/MFD_RIGHT/defensive_overview.lua",
+      "relative": "MFD_RIGHT/defensive_overview.lua",
+      "source_sha256": "5310ba5cd97f159aa5a778991f7016d50a543cd3f2c22b68d8c75503f222298f",
+      "installed_before_sha256": "d4d51f33bcbd1f53a4b8c159ed1df07a8f1145f629ab287bad16c71cf518e84d",
+      "recognized_installed_commit": "c9c0494a3853f31c4d4fd0093a19a3c2ac8ff045"
+    },
+    {
+      "path": "Cockpit/Scripts/PMFD_CENTER/radar_format.lua",
+      "relative": "PMFD_CENTER/radar_format.lua",
+      "source_sha256": "eed75a93f1c7b02140329c3a5581ad4b56a015abe46e7b3a360ceef780b5f39c",
+      "installed_before_sha256": "3e95742f505b465737b85b498f34ab6a820be449cc2e94e093220273da00d377",
+      "recognized_installed_commit": "f257496d5cb879fd4535db1213cdd204d09295c6"
+    },
+    {
+      "path": "Cockpit/Scripts/PMFD_CENTER/ag_radar_format.lua",
+      "relative": "PMFD_CENTER/ag_radar_format.lua",
+      "source_sha256": "04dacc7c2ef0b6ddde545a6fedc7f1c156df52f7af05f8d801099be3eb2280f9",
+      "installed_before_sha256": "6d3b764ddcac69d1b2d2ae1472f7b25e1f61cfcaff1b7531c3293397e7fa54c5",
+      "recognized_installed_commit": "8044d59a60b4633e7db528384a00e8ada1b50f31"
+    },
+    {
+      "path": "Cockpit/Scripts/HUD/engagement.lua",
+      "relative": "HUD/engagement.lua",
+      "source_sha256": "1ab66f090a679337b75f25184a66a7f512c4372ee2327612dc916e2deea2c17a",
+      "installed_before_sha256": "32eec6839feb520a46d10a1cda9c997cdae24a756b5f3067af78797e676b48ee",
+      "recognized_installed_commit": "f175ef22a4d2bec89783175244660fb32fb7c8f8"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/RWR_Computer.lua",
+      "relative": "Systems/RWR_Computer.lua",
+      "source_sha256": "87cf113a13724868402efdd40eb3af607fbb9b6b6110216df12da3ca0756ad66",
+      "installed_before_sha256": "99812709a7c2c54636113ab1114ae036ac43031fab68e79be7b2e61d5dbbe9b2",
+      "recognized_installed_commit": "b9db395e35f8a6e565b3cc891b00dc2de30daefc"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/RWR_Audio.lua",
+      "relative": "Systems/RWR_Audio.lua",
+      "source_sha256": "5aef53e92b75547852ee0d2dcb23650ffa6a035ef509dcde23508ff8fe41eedb",
+      "installed_before_sha256": "00e5780e57a61b34cf82658f0896ae0a32f268a23111ee4c999a49db66a47fd3",
+      "recognized_installed_commit": "b9db395e35f8a6e565b3cc891b00dc2de30daefc"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/RWR_System.lua",
+      "relative": "Systems/RWR_System.lua",
+      "source_sha256": "212cc54706949bed759e7bd07650b45a49f5a013350d209353285b41cd74cea3",
+      "installed_before_sha256": "224c65718260d11e951a6da51a74d1846d9aa825d98b6edf9ffa3a2395190629",
+      "recognized_installed_commit": "f782a8d1bdb49fba9c84c00948f07442a9c40ea0"
+    },
+    {
+      "path": "Cockpit/Scripts/Systems/EW_Indicator.lua",
+      "relative": "Systems/EW_Indicator.lua",
+      "source_sha256": "2fb5e9ee2ed167ddf713fe4cf616d504982310807099ba2555a1ae19fb1a3934",
+      "installed_before_sha256": "38f600fb3d43fa71491b6ca07cee1ccda92e182aa59e12b41cd3ebadab957395",
+      "recognized_installed_commit": "64c6d99005b1d84fc78cfc822a1486b96dd83a9f"
+    }
+  ],
+  "tests": {
+    "source_cases": 23,
+    "new_requirement_cases": 11,
+    "proposed_installed_cases": 20,
+    "proposed_installed_dependency_files": 54,
+    "legacy_acceptance_executed": false
+  },
+  "policy": {
+    "lock_pulse_hz": 1,
+    "launch_and_optical_pulse_hz": 2,
+    "visible_fraction": 0.6,
+    "pulse_source": "User-requested mod policy; exact Hornet/ALR-94 flash rates not recovered",
+    "lock_audio": "existing recording once on new/escalated fresh lock",
+    "launch_audio": "existing distinct recording repeats while native warning remains fresh",
+    "active_radar_missile": "Native general_type4 maps to M; no fabricated optical evidence",
+    "continuous_sweep_and_lost_source_tones": "not used"
+  },
+  "external_evidence": {
+    "directory": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\chat1-20261028\\threat-warning",
+    "tests_sha256": "4a93f863ea59dee2168423be6dd9719b210bf4f0785127940e2b2a407359ff80",
+    "quality_sha256": "cc1ce2645702e82cf3c2138e63d75702b70a045577498fb3c98563c5bf05dfed",
+    "candidate_package_sha256": "2684fe130165df2d87fa61ffb634148f95d71042f2d95979670796aef187a03a",
+    "installation_plan_sha256": "5c73f010bc0443c2f9753dac895419d269fc97b304fec8635dff47364331409c"
+  },
+  "installation": "awaiting exclusive runtime coordination; no DLL/assets/bindings/hooks changed",
+  "protected_files": 75,
+  "unexecuted": [
+    "Actual DCS warning symbology and audible discrimination",
+    "VR legibility",
+    "Multiplayer authority/classification and rejoin"
+  ],
+  "scope_limit": "RF emitter state and optical detections only. No omniscient weapon-release or range authority."
+}

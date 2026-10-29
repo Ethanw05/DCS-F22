@@ -4,6 +4,14 @@ local M = { lifetime = 12, search_coast = 6, warning_coast = 3.5 }
 function M.coasting(c)
 	return c.age > (c.signal > 1 and M.warning_coast or M.search_coast)
 end
+-- Pilot-requested mod attention cues: 1 Hz lock, 2 Hz launch/optical warning.
+-- These rates are display policies, not recovered Hornet or ALR-94 timings.
+function M.pulse(now, signal)
+    if signal < 2 then return 1 end
+    if type(now) ~= 'number' or now ~= now or math.abs(now) >= 1e12 then return 0 end
+    local period = signal == 2 and 1 or .5
+    return now % period < period * .6 and 1 or 0
+end
 M.symbols = { "U", "M", "M2", "E3", "P", "EWR", "SAM", "AAA" }
 function M.label_code(label)
 	local number = tonumber(label)

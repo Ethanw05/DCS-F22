@@ -25,13 +25,14 @@ return function(api, cx, cy, scale, parent, compact)
 		local name = parent .. "_EMITTER_" .. i
 		group(
 			name,
-			{ p .. "X", p .. "Y", p .. "VALID", "F22_RWR_POWER", "F22_RWR_READY" },
+			{ p .. "X", p .. "Y", p .. "VALID", "F22_RWR_POWER", "F22_RWR_READY", "F22_DEF_OV_CURRENT" },
 			{
 				{ "move_left_right_using_parameter", 0, scale },
 				{ "move_up_down_using_parameter", 1, scale },
 				{ "parameter_in_range", 2, 0.9, 1.1 },
 				{ "parameter_in_range", 3, 0.9, 1.1 },
 				{ "parameter_in_range", 4, 0.9, 1.1 },
+				{ "parameter_in_range", 5, 0.9, 1.1 },
 			},
 			parent,
 			cx,
@@ -41,7 +42,9 @@ return function(api, cx, cy, scale, parent, compact)
             {{'rotate_using_parameter',0,1},{'parameter_in_range',1,-.1,.1}})
 		for signal, color in ipairs({ "yellow", "red", "red" }) do
 			local sym = name .. "_STATE_" .. signal
-			group(sym, { p .. "SIGNAL" }, { { "parameter_in_range", 0, signal - 0.1, signal + 0.1 } }, name)
+			group(sym, { p .. "SIGNAL", p .. "PULSE" },
+                { { "parameter_in_range", 0, signal - 0.1, signal + 0.1 },
+                  { "parameter_in_range", 1, .9, 1.1 } }, name)
 			local sz = compact and 0.0027 or 0.0057
 			-- Numeric-only formatter ABI. Empty param handles start as numbers;
 			-- passing those to a %s format can crash DCS's native text controller.
