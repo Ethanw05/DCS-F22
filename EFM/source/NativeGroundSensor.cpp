@@ -3,6 +3,7 @@
 // No mission/export truth, global enumeration, or FA18C runtime dependency.
 #include "NativeGroundSensor.h"
 #include "GroundMovingTargets.h"
+#include "GroundSensorHostProfile.h"
 #include <Cockpit/CockpitAPI_Declare.h>
 #include <Windows.h>
 #include <atomic>
@@ -26,19 +27,44 @@ bool readable(std::uintptr_t a,std::size_t n) {
     !(m.Protect&(PAGE_GUARD|PAGE_NOACCESS))&&n<=m.RegionSize&&a>=reinterpret_cast<std::uintptr_t>(m.BaseAddress)&&
     a-reinterpret_cast<std::uintptr_t>(m.BaseAddress)<=m.RegionSize-n;
 }
-template<class F> F method(void *object,unsigned index) {
-  const auto p=reinterpret_cast<std::uintptr_t>(object);
-  if(!readable(p,8))return nullptr;
-  auto table=*reinterpret_cast<std::uintptr_t*>(p);
-  if(!readable(table+index*8,8))return nullptr;
-  return reinterpret_cast<F>(*reinterpret_cast<std::uintptr_t*>(table+index*8));
+bool executable(std::uintptr_t address) {
+  MEMORY_BASIC_INFORMATION region{};
+  if (!address || !VirtualQuery(reinterpret_cast<void*>(address),&region,sizeof(region))
+      || region.State != MEM_COMMIT || (region.Protect & (PAGE_GUARD | PAGE_NOACCESS))) return false;
+  constexpr DWORD access=PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY;
+  return (region.Protect & access) != 0;
 }
-bool profile(HMODULE m,DWORD stamp,DWORD size) {
-  if(!m)return false;auto b=reinterpret_cast<const std::byte*>(m);
-  const auto dos=reinterpret_cast<const IMAGE_DOS_HEADER*>(b);
-  if(dos->e_magic!=IMAGE_DOS_SIGNATURE||dos->e_lfanew<0)return false;
-  const auto pe=reinterpret_cast<const IMAGE_NT_HEADERS64*>(b+dos->e_lfanew);
-  return pe->Signature==IMAGE_NT_SIGNATURE&&pe->FileHeader.TimeDateStamp==stamp&&pe->OptionalHeader.SizeOfImage==size;
+template<class F> F method(void *object,unsigned index) {
+  const auto address=reinterpret_cast<std::uintptr_t>(object);
+  if (!readable(address,sizeof(void*))) return nullptr;
+  const auto table=*reinterpret_cast<const std::uintptr_t*>(address);
+  if (index > 128 || table > std::numeric_limits<std::uintptr_t>::max() - index*sizeof(void*)) return nullptr;
+  const auto slot=table + index*sizeof(void*);
+  if (!readable(slot,sizeof(void*))) return nullptr;
+  const auto function=*reinterpret_cast<const std::uintptr_t*>(slot);
+  return executable(function) ? reinterpret_cast<F>(function) : nullptr;
+}
+bool module_profile(HMODULE module,AesaHostProfile::Image& image) {
+  image={};
+  const auto address=reinterpret_cast<std::uintptr_t>(module);
+  if (!readable(address,sizeof(IMAGE_DOS_HEADER))) return false;
+  const auto dos=reinterpret_cast<const IMAGE_DOS_HEADER*>(module);
+  if (dos->e_magic != IMAGE_DOS_SIGNATURE || dos->e_lfanew < 0 || dos->e_lfanew > 1048576) return false;
+  const auto header=address + static_cast<std::uintptr_t>(dos->e_lfanew);
+  if (!readable(header,sizeof(IMAGE_NT_HEADERS64))) return false;
+  const auto pe=reinterpret_cast<const IMAGE_NT_HEADERS64*>(header);
+  if (pe->Signature != IMAGE_NT_SIGNATURE || pe->FileHeader.Machine != IMAGE_FILE_MACHINE_AMD64
+      || pe->OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR64_MAGIC) return false;
+  image={pe->FileHeader.TimeDateStamp,pe->OptionalHeader.SizeOfImage};
+  return true;
+}
+const GroundSensorHostProfile::Profile* qualified_profile(HMODULE common,HMODULE objects,
+                                                         HMODULE world,HMODULE general,HMODULE graphics) {
+  GroundSensorHostProfile::Modules modules{};
+  if (!module_profile(common,modules.scene.cockpit) || !module_profile(objects,modules.scene.objects)
+      || !module_profile(world,modules.scene.world) || !module_profile(general,modules.scene.general)
+      || !module_profile(graphics,modules.graphics)) return nullptr;
+  return GroundSensorHostProfile::select(modules);
 }
 struct Api {
   using Clock=double(__cdecl*)();using Aircraft=void*(__cdecl*)();
@@ -54,14 +80,15 @@ struct Api {
   Clock clock{};Aircraft aircraft{};Point point{};Type type{};Dead dead{};Flag flag{};Position position{};Intersect intersect{};Camera camera{};Clip clip{};
   void **manager{},**land{};
   std::atomic<bool> ready{};int reason=1;
+  bool exports_ready() const {
+    return clock&&aircraft&&point&&type&&dead&&flag&&position&&manager&&land&&intersect&&camera&&clip;
+  }
   void initialize() {
     if(ready||reason==2)return;
     auto common=GetModuleHandleW(L"CockpitBase.dll"),objects=GetModuleHandleW(L"edObjects.dll"),
       world=GetModuleHandleW(L"World.dll"),general=GetModuleHandleW(L"WorldGeneral.dll"),graphics=GetModuleHandleW(L"GraphicsVista.dll");
     if(!common||!objects||!world||!general||!graphics)return;
-    if(!profile(common,0x6ac12468,0x59a000)||!profile(objects,0x6aae1e0e,0x46000)||
-       !profile(general,0x6ac122f4,0x125b000)||!profile(world,0x6aae1d9b,0x14000)||
-       !profile(graphics,0x6aae1df2,0x62000)){reason=2;return;}
+    if (!qualified_profile(common,objects,world,general,graphics)) {reason=2;return;}
     clock=reinterpret_cast<Clock>(GetProcAddress(world,"?GetModelTime@wTime@@SANXZ"));
     aircraft=reinterpret_cast<Aircraft>(GetProcAddress(common,"?c_LA@cockpit@@YAPEAVIwoLA@@XZ"));
     point=reinterpret_cast<Point>(GetProcAddress(general,"?GetPoint@MovingObject@@UEAA?AVVec3d@osg@@XZ"));
@@ -74,7 +101,7 @@ struct Api {
     manager=reinterpret_cast<void**>(GetProcAddress(objects,"?instance@viObjectManager@@2PEAV1@EA"));
     land=reinterpret_cast<void**>(GetProcAddress(general,"?globalLand@@3PEAVwTerrain@@EA"));
     intersect=reinterpret_cast<Intersect>(GetProcAddress(objects,"?intersectSegment@@YAPEBDAEBVISceneObject@@AEBVVec3d@osg@@1AEAV23@AEAN2@Z"));
-    const bool ok=clock&&aircraft&&point&&type&&dead&&flag&&position&&manager&&land&&intersect&&camera&&clip;
+    const bool ok=exports_ready();
     reason=ok?0:3;ready.store(ok,std::memory_order_release);
   }
 } api;
@@ -567,6 +594,11 @@ Controls read_controls(EDPARAM& p,double now) {
   if(c.source_epoch!=epoch.load())return {};
   return c;
 }
+int publication_reason(bool fresh,const Output& result) {
+  if (fresh) return 0;
+  if (!api.ready.load(std::memory_order_acquire) && api.reason >= 1 && api.reason <= 3) return api.reason;
+  return result.reason ? result.reason : 4;
+}
 }
 void update(EDPARAM &p) {
   if(!p.publicationReady()) {
@@ -591,7 +623,7 @@ void update(EDPARAM &p) {
   publication.put("F22_AG_AGR_VALID",fresh&&c.active&&result.agr_valid&&std::isfinite(result.agr_stamp)&&now>=result.agr_stamp&&now-result.agr_stamp<=.5?1:0);
   publication.put("F22_AG_AGR_RANGE_FT",result.agr_range*3.280839895);publication.put("F22_AG_AGR_VELOCITY_KT",result.agr_rate*1.94384449);
   publication.put("F22_AG_AGR_TIME",result.agr_stamp);
-  publication.put("F22_AG_GMT_READY",fresh?1:0);publication.put("F22_AG_GMT_REASON",fresh?0:result.reason?result.reason:api.reason?api.reason:4);
+  publication.put("F22_AG_GMT_READY",fresh?1:0);publication.put("F22_AG_GMT_REASON",publication_reason(fresh,result));
   const bool search_current=result.map==c.map&&result.sea==c.sea;
   publication.put("F22_AG_GMT_LAST_TIME",result.stamp);publication.put("F22_AG_GMT_COUNT",fresh&&c.active&&search_current?static_cast<double>(result.contacts.size()):0);
   publication.put("F22_AG_GMT_QUERY_COUNT",result.queries);publication.put("F22_AG_GMT_CANDIDATES",result.candidates);

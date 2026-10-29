@@ -1,0 +1,462 @@
+diff --git a/EFM/source/NativeGroundVideo.cpp b/EFM/source/NativeGroundVideo.cpp
+index b2d923a..2bf3dc1 100644
+--- a/EFM/source/NativeGroundVideo.cpp
++++ b/EFM/source/NativeGroundVideo.cpp
+@@ -140,6 +140,10 @@ struct RenderFrame {
+   void *owner{};
+ };
+ thread_local RenderFrame render;
++void withdraw_callbacks() {
++  guard.verify(false);
++  epoch.fetch_add(1);
++}
+ void restore(void *object) {
+   auto p=reinterpret_cast<std::uintptr_t>(object); std::uintptr_t actual{};
+   if (object && load(p,actual) && actual==reinterpret_cast<std::uintptr_t>(clone.data()+1) && writable(p,sizeof(void *)))
+@@ -147,10 +151,12 @@ void restore(void *object) {
+   void *expected=object; owned.compare_exchange_strong(expected,nullptr);
+ }
+ void __fastcall release(void *object) {
++  withdraw_callbacks();
+   restore(object);
+   if (original_release) original_release(object);
+ }
+ void *__fastcall destroy(void *object,unsigned flags) {
++  withdraw_callbacks();
+   restore(object);
+   return original_destroy?original_destroy(object,flags):object;
+ }
+@@ -218,9 +224,11 @@ void *__fastcall point(void *object,void *out) {
+   if (out) std::memcpy(out,p.data(),sizeof(p));
+   return out;
+ }
+-bool submit_parameters(std::array<GroundVideoView::Param,18>& params,std::uintptr_t data,bool& refresh) {
++bool submit_parameters(void* object,std::array<GroundVideoView::Param,18>& params,std::uintptr_t data,bool& refresh) {
+   std::lock_guard<std::mutex> lock(view_mutex);
+-  if (image_state.generation!=render.generation || image_state.serial!=render.image_serial) return false;
++  if (!guard.available() || object!=owned.load() || object!=render.owner
++      || render.generation!=epoch.load() || image_state.generation!=render.generation
++      || image_state.serial!=render.image_serial) return false;
+   refresh=image_state.refresh;
+   params[0].number=static_cast<float>(render.direction);
+   params[5].bits=refresh&&render.current.expansion>0?1:0;
+@@ -243,7 +251,7 @@ void __fastcall parameters(void *object,void *buffer) {
+   bool refresh{};
+   // DynamicParam5 requests DBS work. MAP cache renewal uses parameter0;
+   // retain one captured camera/point/parameter set for the entire pipeline.
+-  if (!submit_parameters(params,data,refresh)) {++parameter_rejected;return;}
++  if (!submit_parameters(object,params,data,refresh)) {++parameter_rejected;return;}
+   if(params[5].bits)++dbs_requests;
+   if(refresh && render.current.expansion==0)++rbm_restarts;
+   render.preset_key=key;
+@@ -338,7 +346,7 @@ bool source_epoch_valid(double value) {
+ bool source_recent(double now,double stamp) {
+   return std::isfinite(now) && std::isfinite(stamp) && now>=stamp && now-stamp<=.5;
+ }
+-struct Tracking { bool current{}, active{};double source_epoch{},stamp{}; };
++struct Tracking { bool current{}, active{};double source_epoch{},stamp{},sequence{}; };
+ Tracking tracking(EDPARAM& p,double now) {
+   const auto context=p.epoch();
+   const double sequence=get(p,"F22_AG_NATIVE_SEQUENCE");
+@@ -350,33 +358,99 @@ Tracking tracking(EDPARAM& p,double now) {
+   const bool ready=flag(p,"F22_AG_GMT_READY",valid);
+   const bool selected=flag(p,"F22_AG_NATIVE_TRACK_VALID",valid);
+   const bool acquiring=flag(p,"F22_AG_NATIVE_TRACK_ACQUIRING",valid);
+-  if (!valid || schema!=1 || !source_epoch_valid(source_epoch) || !source_recent(now,stamp)) return {};
++  if (schema!=1 || !source_epoch_valid(source_epoch) || !source_recent(now,stamp)) return {};
+   if (source_epoch!=get(p,"F22_AG_NATIVE_SOURCE_EPOCH")
+       || sequence!=get(p,"F22_AG_NATIVE_SEQUENCE") || context!=p.epoch()) return {};
+-  return {ready,ready && (selected || acquiring),source_epoch,stamp};
++  // A coherent unavailable source still identifies its epoch. Track flag
++  // conversion failure withdraws tracking, not independent scene imagery.
++  return {valid && ready,valid && ready && (selected || acquiring),source_epoch,stamp,sequence};
++}
++struct ControlHeader {
++  double sequence{},schema{},source_epoch{},stamp{};
++  std::uint64_t context{};
++};
++const EDPARAM* control_owner{};
++std::uint64_t control_context{},control_source_epoch{};
++void retire_image_locked() {
++  epoch.fetch_add(1);
++  view={};map_reference={};reference_generation=0;image_state={};
++}
++void observe_control_context(EDPARAM& p) {
++  std::lock_guard<std::mutex> lock(view_mutex);
++  if (control_owner==&p && control_context==p.epoch()) return;
++  retire_image_locked();
++  control_owner=&p;control_context=p.epoch();control_source_epoch=0;
+ }
+-bool apply_probe(EDPARAM& p,View& next) {
++void observe_source_epoch(double source_epoch) {
++  if (!source_epoch_valid(source_epoch)) return;
++  const auto source=static_cast<std::uint64_t>(source_epoch);
++  std::lock_guard<std::mutex> lock(view_mutex);
++  if (control_source_epoch && control_source_epoch!=source) retire_image_locked();
++  control_source_epoch=source;
++}
++ControlHeader control_header(EDPARAM& p,double now) {
++  ControlHeader header;
++  header.context=p.epoch();
++  header.sequence=get(p,"F22_AG_NATIVE_CONTROL_SEQUENCE");
++  if (!committed(header.sequence)) return {};
++  header.schema=get(p,"F22_AG_NATIVE_CONTROL_SCHEMA");
++  header.source_epoch=get(p,"F22_AG_NATIVE_CONTROL_EPOCH");
++  header.stamp=get(p,"F22_AG_NATIVE_CONTROL_TIME");
++  if (header.schema!=1 || !source_epoch_valid(header.source_epoch)
++      || !source_recent(now,header.stamp)) return {};
++  return header;
++}
++bool control_current(EDPARAM& p,const ControlHeader& header,const Tracking& observed) {
++  const double sequence=get(p,"F22_AG_NATIVE_CONTROL_SEQUENCE");
++  const double schema=get(p,"F22_AG_NATIVE_CONTROL_SCHEMA");
++  const double source_epoch=get(p,"F22_AG_NATIVE_CONTROL_EPOCH");
++  const double stamp=get(p,"F22_AG_NATIVE_CONTROL_TIME");
++  const double source_present=get(p,source_marker);
++  const double native_sequence=get(p,"F22_AG_NATIVE_SEQUENCE");
++  const double native_epoch=get(p,"F22_AG_NATIVE_SOURCE_EPOCH");
++  return header.sequence==sequence && header.schema==schema
++      && header.source_epoch==source_epoch && header.stamp==stamp
++      && observed.source_epoch==header.source_epoch && observed.sequence==native_sequence
++      && observed.source_epoch==native_epoch && source_present==1 && header.context==p.epoch();
++}
++bool read_probe(EDPARAM& p,std::array<double,3>& probe) {
++  probe={get(p,"F22_AG_VIDEO_PROBE_FORWARD_M"),get(p,"F22_AG_VIDEO_PROBE_RIGHT_M"),get(p,"F22_AG_VIDEO_PROBE_UP_M")};
++  for (double value:probe) if (!std::isfinite(value) || std::abs(value)>100) return false;
++  return true;
++}
++void apply_probe(const std::array<double,3>& probe,View& next) {
+   // Controlled self-occlusion experiment. These default-zero diagnostic
+   // offsets affect only this renderer view, never ownship or sensor truth.
+-  std::array<double,3> probe{get(p,"F22_AG_VIDEO_PROBE_FORWARD_M"),get(p,"F22_AG_VIDEO_PROBE_RIGHT_M"),get(p,"F22_AG_VIDEO_PROBE_UP_M")};
+-  bool probe_valid=true;
+-  for(auto &v:probe) if(!std::isfinite(v)||std::abs(v)>100) { probe_valid=false;v=0; }
+-  if(probe!=previous_probe){previous_probe=probe;++probe_erase;}
++  const double erase=probe_erase+(probe!=previous_probe?1:0);
+   next.probe_forward=probe[0];next.probe_right=probe[1];next.probe_up=probe[2];
+   next.north+=std::cos(next.heading)*probe[0]-std::sin(next.heading)*probe[1];
+   next.east+=std::sin(next.heading)*probe[0]+std::cos(next.heading)*probe[1];
+-  next.altitude+=probe[2];next.erase_sequence+=probe_erase*1000000;
+-  return probe_valid;
++  next.altitude+=probe[2];next.erase_sequence+=erase*1000000;
++}
++void finish_probe(View& next,double now,const std::array<double,3>& probe,bool valid_probe) {
++  if (valid_probe) apply_probe(probe,next);
++  if (GroundVideoView::prepare(next,now).accepted && probe!=previous_probe) {
++    previous_probe=probe;++probe_erase;
++  }
+ }
+ bool video_requested(EDPARAM& p,bool ready,bool& valid) {
++  const bool source_present=flag(p,source_marker,valid);
+   const bool enabled=flag(p,"F22_AG_VIDEO_ENABLE",valid);
+   const bool supply=flag(p,"MAIN_POWER",valid);
+   const bool radar_power=flag(p,"RADAR_PWR",valid);
+   const double master_mode=get(p,"HUD_MODE");
+   if (!std::isfinite(master_mode)) valid=false;
+-  return ready && enabled && master_mode==7 && supply && radar_power;
++  return ready && source_present && enabled && master_mode==7 && supply && radar_power;
+ }
+ View read_view(EDPARAM& p,bool ready,bool& malformed) {
++  malformed=true;
++  observe_control_context(p);
++  const double now=api.clock?api.clock():-1;
++  const auto header=control_header(p,now);
++  if (!committed(header.sequence)) {
++    observe_control_context(p);
++    return {};
++  }
+   View next;
+   bool geometry_flags_valid=true;
+   next.enabled=video_requested(p,ready,geometry_flags_valid);
+@@ -401,12 +475,19 @@ View read_view(EDPARAM& p,bool ready,bool& malformed) {
+   next.stabilized=flag(p,"F22_AG_VIDEO_STABILIZED",geometry_flags_valid);
+   next.patch_n=get(p,"F22_AG_VIDEO_PATCH_N");next.patch_u=get(p,"F22_AG_VIDEO_PATCH_U");next.patch_e=get(p,"F22_AG_VIDEO_PATCH_E");
+   next.patch_az=get(p,"F22_AG_VIDEO_PATCH_AZ");next.patch_distance=get(p,"F22_AG_VIDEO_PATCH_DISTANCE");next.interleave=flag(p,"F22_AG_INTERLEAVE",geometry_flags_valid);
+-  const auto observed=tracking(p,api.clock?api.clock():-1);
++  const auto observed=tracking(p,now);
++  observe_source_epoch(observed.source_epoch);
+   next.tracking=observed.current && observed.active;
+   next.scan_center=get(p,"F22_AG_RADAR_SCAN_CENTER_AZ_DEG")*GroundVideoView::pi/180;
+-  const bool probe_valid=apply_probe(p,next);
++  std::array<double,3> probe{};
++  const bool probe_valid=read_probe(p,probe);
++  if (!control_current(p,header,observed)) {
++    observe_control_context(p);
++    return {};
++  }
+   malformed=!mode_valid || !expansion_valid || !geometry_flags_valid || !probe_valid;
+   next.enabled=next.enabled && !malformed;
++  finish_probe(next,now,probe,probe_valid);
+   return next;
+ }
+ void publish_reference(EDPARAM& p,bool frame_available) {
+@@ -431,11 +512,13 @@ int availability_reason(bool ready,bool malformed,bool enabled,bool frame_availa
+ }
+ }
+ void reset() {
++  withdraw_callbacks();
+   timing_enabled=false;
+   gpu_probe_enabled=false;
+   previous_probe={};probe_erase=0;
+-  {std::lock_guard<std::mutex> lock(view_mutex);view={};map_reference={};reference_generation=0;aircraft={};image_state={};}
+-  restore(owned.load());handles.clear();frames=0;guard.reset();epoch.fetch_add(1);
++  {std::lock_guard<std::mutex> lock(view_mutex);view={};map_reference={};reference_generation=0;aircraft={};image_state={};
++    control_owner=nullptr;control_context=0;control_source_epoch=0;}
++  restore(owned.load());handles.clear();frames=0;guard.reset();
+   clock_checks=0;future_rejects=0;stale_rejects=0;last_clock_delta_ms=0;max_clock_lead_ms=0;
+   condition_calls=0;condition_accepted=0;camera_calls=0;camera_accepted=0;parameter_calls=0;parameter_rejected=0;erase_calls=0;preset_calls=0;
+   image_captures=0;rbm_restarts=0;dbs_requests=0;
+diff --git a/tests/native/radar_camera_admission.cpp b/tests/native/radar_camera_admission.cpp
+index 552a443..a392728 100644
+--- a/tests/native/radar_camera_admission.cpp
++++ b/tests/native/radar_camera_admission.cpp
+@@ -8,6 +8,8 @@ struct Field { double value{};bool converts=true, resolves=true; };
+ std::map<std::string,Field> bus;
+ unsigned checks{},failures{},reads{},constructors{},lookups{};
+ int replace_at=-1;
++void (*read_action)(){};
++EDPARAM* changing_context{};
+ double clock_value=10.2;
+ void require(bool condition,const char* description) {
+   ++checks;
+@@ -30,7 +32,10 @@ void ground_packet(bool newer=false) {
+   bus["F22_AG_NATIVE_TRACK_ACQUIRING"].value=0;
+ }
+ bool number(const void* handle,double& value,bool) {
+-  if (static_cast<int>(reads++)==replace_at) ground_packet(true);
++  if (static_cast<int>(reads++)==replace_at) {
++    if (read_action) read_action();
++    else ground_packet(true);
++  }
+   const auto& field=*static_cast<const Field*>(handle);
+   value=field.value;
+   return field.converts;
+@@ -62,7 +67,13 @@ void seed(EDPARAM& p) {
+       {"F22_AG_VIDEO_PROBE_FORWARD_M",0},{"F22_AG_VIDEO_PROBE_RIGHT_M",0},{"F22_AG_VIDEO_PROBE_UP_M",0},
+       {"F22_AG_VIDEO_PROBE_TEXTURE",0}};
+   for (const auto& field : fields) bus[field.first].value=field.second;
+-  ground_packet();replace_at=-1;reads=0;
++  bus["F22_AG_NATIVE_CONTROL_SEQUENCE"].value=2;
++  bus["F22_AG_NATIVE_CONTROL_SCHEMA"].value=1;
++  bus["F22_AG_NATIVE_CONTROL_EPOCH"].value=1;
++  bus["F22_AG_NATIVE_CONTROL_TIME"].value=10;
++  bus["F22_AG_VIDEO_SOURCE_PRESENT"].value=1;
++  NativeGroundVideo::previous_probe={};NativeGroundVideo::probe_erase=0;
++  ground_packet();replace_at=-1;reads=0;read_action=nullptr;
+ }
+ bool accepted(EDPARAM& p) {
+   bool malformed=false;
+@@ -138,7 +149,10 @@ void protected_tracking(EDPARAM& p) {
+       "F22_AG_GMT_READY","F22_AG_NATIVE_TRACK_VALID","F22_AG_NATIVE_TRACK_ACQUIRING","F22_AG_NATIVE_SEQUENCE"}) {
+     seed(p);bus[name].converts=false;
+     require(!NativeGroundVideo::tracking(p,10.2).current,"failed protected read withdraws tracking semantics");
+-    require(accepted(p),"unavailable tracking does not invalidate independent imagery");
++    const bool flag_only=std::string(name)=="F22_AG_GMT_READY"
++        || std::string(name)=="F22_AG_NATIVE_TRACK_VALID"
++        || std::string(name)=="F22_AG_NATIVE_TRACK_ACQUIRING";
++    require(accepted(p)==flag_only,"native identity failure withdraws imagery; tracking flag failure grants no tracking authority");
+   }
+   seed(p);bus["F22_AG_NATIVE_SEQUENCE"].value=3;
+   require(!NativeGroundVideo::tracking(p,10.2).current,"odd ground output is unavailable");
+@@ -154,6 +168,107 @@ void protected_tracking(EDPARAM& p) {
+   bus["F22_AG_NATIVE_SEQUENCE"].value=2;bus["F22_AG_NATIVE_SOURCE_EPOCH"].value=16777216;
+   require(!NativeGroundVideo::tracking(p,10.2).current,"ground epoch beyond exact schema bound is unavailable");
+ }
++void new_control_packet() {
++  bus["F22_AG_NATIVE_CONTROL_SEQUENCE"].value=4;
++  bus["F22_AG_NATIVE_CONTROL_TIME"].value=10.1;
++  bus["F22_AG_VIDEO_TIME"].value=10.1;
++  bus["F22_AG_VIDEO_NORTH"].value=3000;
++  bus["F22_AG_VIDEO_EAST"].value=4000;
++  bus["F22_AG_VIDEO_COLLECTION"].value=2;
++  bus["F22_AG_VIDEO_PROBE_FORWARD_M"].value=1;
++}
++void replace_context() { changing_context->invalidate(); }
++void change_schema() { bus["F22_AG_NATIVE_CONTROL_SCHEMA"].value=2; }
++void change_control_time() { bus["F22_AG_NATIVE_CONTROL_TIME"].value=10.1; }
++void change_control_epoch() { bus["F22_AG_NATIVE_CONTROL_EPOCH"].value=2; }
++void withdraw_source() { bus["F22_AG_VIDEO_SOURCE_PRESENT"].value=0; }
++void control_capture_boundaries(EDPARAM& p) {
++  seed(p);require(accepted(p),"healthy control packet establishes read-boundary count");
++  const unsigned boundaries=reads;
++  require(boundaries<128,"control capture has bounded numeric reads");
++  for (unsigned boundary=0;boundary<=boundaries;++boundary) {
++    seed(p);replace_at=static_cast<int>(boundary);read_action=new_control_packet;
++    bool malformed=false;
++    const auto view=NativeGroundVideo::read_view(p,true,malformed);
++    const bool current=GroundVideoView::prepare(view,clock_value).accepted;
++    const bool old=view.north==1000 && view.east==2000 && view.collection==1 && view.stamp==10;
++    const bool newer=view.north==3001 && view.east==4000 && view.collection==2 && view.stamp==10.1;
++    require(!current || old || newer,"every payload boundary admits one whole control packet or unavailable");
++    require(current || (NativeGroundVideo::probe_erase==0
++        && NativeGroundVideo::previous_probe==std::array<double,3>{}),
++        "rejected torn packet cannot advance probe erase/history");
++    seed(p);changing_context=&p;replace_at=static_cast<int>(boundary);read_action=replace_context;
++    const bool context_current=accepted(p);
++    require(boundary==boundaries || !context_current,
++        "parameter context replacement at every used read withdraws the capture");
++    seed(p);replace_at=static_cast<int>(boundary);
++    const bool source_current=accepted(p);
++    require(boundary==boundaries || !source_current,
++        "native generation replacement at every read cannot authenticate an old control echo");
++  }
++  for (auto action:{change_schema,change_control_time,change_control_epoch,withdraw_source}) {
++    seed(p);read_action=action;replace_at=8;
++    require(!accepted(p),"post-payload schema/time/epoch/source recheck detects change without a sequence advance");
++  }
++  seed(p);require(accepted(p),"fresh complete capture recovers after adversarial context changes");
++}
++void control_header_failures(EDPARAM& p) {
++  const char* fields[]={"F22_AG_NATIVE_CONTROL_SEQUENCE","F22_AG_NATIVE_CONTROL_SCHEMA",
++      "F22_AG_NATIVE_CONTROL_EPOCH","F22_AG_NATIVE_CONTROL_TIME","F22_AG_VIDEO_SOURCE_PRESENT"};
++  for (const auto name:fields) {
++    for (double bad:{NAN,INFINITY,-INFINITY}) {
++      seed(p);bus[name].value=bad;
++      require(!accepted(p),"nonfinite control identity/lease cannot authorize imagery");
++    }
++    seed(p);bus[name].converts=false;
++    require(!accepted(p),"failed control header conversion cannot authorize retained payload");
++    seed(p);bus[name].resolves=false;
++    require(!accepted(p),"missing control header handle cannot authorize imagery");
++  }
++  for (double sequence:{0.,1.,3.,16777216.}) {
++    seed(p);bus["F22_AG_NATIVE_CONTROL_SEQUENCE"].value=sequence;
++    require(!accepted(p),"only committed bounded even sequence is admitted");
++  }
++  for (double source_epoch:{0.,1.5,16777216.}) {
++    seed(p);bus["F22_AG_NATIVE_CONTROL_EPOCH"].value=source_epoch;
++    require(!accepted(p),"control source epoch is an exact positive bounded integer");
++  }
++  for (double time:{9.699,10.201}) {
++    seed(p);bus["F22_AG_NATIVE_CONTROL_TIME"].value=time;
++    require(!accepted(p),"stale/future original command heartbeat is rejected");
++  }
++  seed(p);bus["F22_AG_NATIVE_CONTROL_TIME"].value=9.7;
++  require(accepted(p),"control lease inclusive half-second boundary is accepted");
++  seed(p);bus["F22_AG_NATIVE_CONTROL_TIME"].value=10.1;
++  require(accepted(p),"command heartbeat may differ from still-current original video time");
++  bus["F22_AG_VIDEO_TIME"].value=9.6;
++  require(!accepted(p),"fresh command cannot renew old video time");
++  seed(p);bus["F22_AG_NATIVE_CONTROL_SCHEMA"].value=2;
++  require(!accepted(p),"unknown control schema is unavailable");
++  seed(p);bus["F22_AG_VIDEO_SOURCE_PRESENT"].value=0;
++  require(!accepted(p),"absent dedicated source cannot enable video");
++  seed(p);bus["F22_AG_NATIVE_CONTROL_SEQUENCE"].value=16777214;
++  require(accepted(p),"last bounded even control commit remains usable");
++}
++void control_source_identity(EDPARAM& p) {
++  seed(p);bus["F22_AG_GMT_READY"].value=0;
++  const auto unavailable=NativeGroundVideo::tracking(p,clock_value);
++  require(!unavailable.current && unavailable.source_epoch==1 && accepted(p),
++      "coherent unavailable GMT heartbeat identifies source without denying independent imagery");
++  bus["F22_AG_NATIVE_TRACK_VALID"].value=1;
++  require(!NativeGroundVideo::tracking(p,clock_value).active,
++      "unavailable GMT cannot grant tracking through a retained selected flag");
++  bus["F22_AG_NATIVE_SOURCE_EPOCH"].value=2;
++  require(!accepted(p),"old control echo cannot cross native source generation");
++  bus["F22_AG_NATIVE_CONTROL_EPOCH"].value=2;
++  require(accepted(p),"new coherent source consent restores independent imagery");
++  seed(p);clock_value=9.9;
++  require(!accepted(p),"backwards native time withdraws future control and source packets");
++  clock_value=20;
++  require(!accepted(p),"large native time jump cannot replay old control and imagery");
++  clock_value=10.2;seed(p);
++  require(accepted(p),"reset clock plus fresh packets recovers checked capture");
++}
+ void derived_geometry() {
+   GroundVideoView::View v;v.enabled=true;v.stamp=10;
+   require(GroundVideoView::prepare(v,10).accepted,"valid zero camera geometry");
+@@ -231,10 +346,92 @@ void captured_camera(EDPARAM& p) {
+       && NativeGroundVideo::image_state.cycle.available(),"fresh owner/collection epoch recovers after reset");
+   NativeGroundVideo::reset();
+ }
++void begin_frame(EDPARAM& p,void* object) {
++  seed(p);bool malformed=false;
++  const auto source=NativeGroundVideo::read_view(p,true,malformed);
++  NativeGroundVideo::owned=object;NativeGroundVideo::guard.verify(true);
++  NativeGroundVideo::api.camera=camera_constructor;
++  NativeGroundVideo::view=source;
++  AesaRadar::Pose aircraft;aircraft.position={1000,5000,2000};
++  NativeGroundVideo::set_aircraft(&aircraft,clock_value);
++  NativeGroundVideo::camera(object);
++  require(NativeGroundVideo::render.valid,"fresh actual owner creates an accepted captured frame");
++}
++void rejected_frame_outputs(void* object) {
++  std::array<double,3> point{1,1,1};
++  NativeGroundVideo::point(object,point.data());
++  require(point==std::array<double,3>{},"retired captured frame cannot publish a stale world point");
++  std::array<GroundVideoView::Param,18> params{};params[0].bits=0x123456;
++  struct Buffer {std::uintptr_t data;int count,capacity;} buffer{
++      reinterpret_cast<std::uintptr_t>(params.data()),18,18};
++  NativeGroundVideo::parameters(object,&buffer);
++  require(params[0].bits==0x123456 && buffer.count==18 && buffer.capacity==18,
++      "retired frame leaves native parameter data and borrowed header untouched");
++  bool refresh=false;
++  require(!NativeGroundVideo::submit_parameters(object,params,buffer.data,refresh)
++      && params[0].bits==0x123456,
++      "locked final submission rechecks withdrawal after any earlier callback precheck");
++}
++void reset_between_callbacks(EDPARAM& p) {
++  std::array<std::uintptr_t,2> object{};
++  begin_frame(p,object.data());
++  const auto before=NativeGroundVideo::epoch.load();
++  const unsigned camera_constructors=constructors;
++  NativeGroundVideo::reset();
++  require(NativeGroundVideo::epoch.load()!=before && !NativeGroundVideo::guard.available()
++      && !NativeGroundVideo::image_state.cycle.available(),"reset withdraws generation and image before further submission");
++  rejected_frame_outputs(object.data());
++  begin_frame(p,object.data());
++  require(constructors==camera_constructors,"reset preserves the already-constructed thread-local native value object");
++  NativeGroundVideo::reset();
++}
++void source_between_callbacks(EDPARAM& p) {
++  std::array<std::uintptr_t,2> object{};
++  begin_frame(p,object.data());
++  const auto before=NativeGroundVideo::epoch.load();
++  bus["F22_AG_NATIVE_SOURCE_EPOCH"].value=2;
++  bool malformed=false;
++  const auto rejected=NativeGroundVideo::read_view(p,true,malformed);
++  require(!rejected.enabled && NativeGroundVideo::epoch.load()!=before
++      && !NativeGroundVideo::image_state.cycle.available() && !NativeGroundVideo::map_reference.enabled,
++      "coherent new native source retires image/reference before accepting any old-echo control");
++  rejected_frame_outputs(object.data());
++  bus["F22_AG_NATIVE_CONTROL_EPOCH"].value=2;
++  NativeGroundVideo::view=NativeGroundVideo::read_view(p,true,malformed);
++  NativeGroundVideo::camera(object.data());
++  require(NativeGroundVideo::render.valid && NativeGroundVideo::image_state.cycle.available(),
++      "matching new source consent admits a fresh image after retirement");
++  const auto recovered=NativeGroundVideo::epoch.load();
++  NativeGroundVideo::read_view(p,true,malformed);
++  require(NativeGroundVideo::epoch.load()==recovered,"unchanged source identity does not retire every update");
++  NativeGroundVideo::reset();
++}
++void context_between_callbacks(EDPARAM& p) {
++  std::array<std::uintptr_t,2> object{};
++  begin_frame(p,object.data());
++  const auto before=NativeGroundVideo::epoch.load();
++  p.invalidate();bool malformed=false;
++  const auto unbound=NativeGroundVideo::read_view(p,true,malformed);
++  require(!unbound.enabled && NativeGroundVideo::epoch.load()!=before
++      && !NativeGroundVideo::image_state.cycle.available(),
++      "unbound replacement context retires captured image before any fresh parameter ports exist");
++  rejected_frame_outputs(object.data());
++  p.ed_param_api.pfn_ed_cockpit_get_parameter_handle=resolve;
++  p.ed_param_api.pfn_ed_cockpit_parameter_value_to_number=number;
++  p.ed_param_api.pfn_ed_cockpit_update_parameter_with_number=store;
++  const auto replacement=NativeGroundVideo::read_view(p,true,malformed);
++  require(replacement.enabled && !NativeGroundVideo::image_state.cycle.available(),
++      "fresh checked replacement context still requires capture with identical numeric controls");
++  NativeGroundVideo::view=replacement;NativeGroundVideo::camera(object.data());
++  require(NativeGroundVideo::render.valid,"new context recovers by capturing through the actual camera owner");
++  NativeGroundVideo::reset();
++}
+ }
+ int main() {
+   EDPARAM port;
+-  scalar_admission(port);protected_tracking(port);derived_geometry();captured_camera(port);
++  scalar_admission(port);protected_tracking(port);control_capture_boundaries(port);
++  control_header_failures(port);control_source_identity(port);derived_geometry();captured_camera(port);
++  reset_between_callbacks(port);source_between_callbacks(port);context_between_callbacks(port);
+   std::cout<<"radar camera checks="<<checks<<" failures="<<failures<<'\n';
+   return failures?1:0;
+ }

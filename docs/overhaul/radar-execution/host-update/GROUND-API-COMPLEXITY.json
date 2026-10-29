@@ -1,0 +1,37 @@
+[
+  {
+    "name": "NativeGroundSensor::executable",
+    "cc": 5,
+    "nloc": 7
+  },
+  {
+    "name": "NativeGroundSensor::method",
+    "cc": 6,
+    "nloc": 10
+  },
+  {
+    "name": "NativeGroundSensor::module_profile",
+    "cc": 9,
+    "nloc": 14
+  },
+  {
+    "name": "NativeGroundSensor::qualified_profile",
+    "cc": 6,
+    "nloc": 8
+  },
+  {
+    "name": "NativeGroundSensor::Api::exports_ready",
+    "cc": 12,
+    "nloc": 3
+  },
+  {
+    "name": "NativeGroundSensor::Api::initialize",
+    "cc": 10,
+    "nloc": 21
+  },
+  {
+    "name": "NativeGroundSensor::publication_reason",
+    "cc": 6,
+    "nloc": 5
+  }
+]

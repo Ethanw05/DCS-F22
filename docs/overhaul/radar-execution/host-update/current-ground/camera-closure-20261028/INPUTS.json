@@ -1,0 +1,57 @@
+{
+  "head": "140fa7e42626cfc5fe1e4d76a0ab73ff4a04c1bd",
+  "tools": {
+    "python": "3.12.10",
+    "pefile": "2024.8.26",
+    "capstone": "5.0.7"
+  },
+  "inputs": {
+    "CockpitBase": {
+      "path": "D:\\DCS\\bin\\CockpitBase.dll",
+      "sha256": "fb0a09be70627c7790dea1527cedfee43082bb8b112484d5c85be1d99d33de95",
+      "stamp": "0x6adbad09",
+      "image_size": "0x68e000"
+    },
+    "World": {
+      "path": "D:\\DCS\\bin\\World.dll",
+      "sha256": "80f5bb2f83db6c5023727ff5097ca98a4069ddc767a1881638fc81353b310793",
+      "stamp": "0x6acb804e",
+      "image_size": "0x14000"
+    },
+    "GraphicsVista": {
+      "path": "D:\\DCS\\bin\\GraphicsVista.dll",
+      "sha256": "2c33440947bed14e3eadc1e3fbe9b686b9c6d522c88fe27e68d82965a5722591",
+      "stamp": "0x6acb8063",
+      "image_size": "0x62000"
+    },
+    "Visualizer": {
+      "path": "D:\\DCS\\bin\\Visualizer.dll",
+      "sha256": "5d30a277d955ab1beceb61aaada61adb74737a52a9ad35346d6df22f1e2ea689",
+      "stamp": "0x6ad87745",
+      "image_size": "0x340000"
+    },
+    "SceneRenderer": {
+      "path": "D:\\DCS\\bin\\SceneRenderer.dll",
+      "sha256": "f1c79790c8b6f6a23b4d2baf8c174bba2bff8a8af9852a34b1e55d9d52222272",
+      "stamp": "0x6acb811a",
+      "image_size": "0x70000"
+    },
+    "enlight": {
+      "path": "D:\\DCS\\bin\\enlight.dll",
+      "sha256": "54b2aeb87ea942bf520ed9d3055cbc0121cce7002f268b2a92790bec82d93c2c",
+      "stamp": "0x6acb8107",
+      "image_size": "0xa9000"
+    }
+  },
+  "source_sha256": {
+    "EFM/source/NativeGroundVideo.cpp": "92d6e8fad152ee715bee104be3a49c0d54fe2e40f84753974798f1b9550cb5e6",
+    "EFM/source/GroundVideoView.h": "3c12487f3ababec965d60bc3b2ca5d99e0c20fd18c3560c71bc6e9f56b35850e",
+    "EFM/source/NativeGroundRadar.cpp": "2d6b65d727b2ed354fd9cbe3928e64a07db0809159c073972d9adf70c8d8843b",
+    "EFM/source/NativeAesaRadar.cpp": "da8cf42ffeee7ba37b4437d7fc9d9c771e755a212df1746ef5fdb5756c204e5e",
+    "EFM/source/RAPTOR.cpp": "f3ebc9795e61696dc867bb8f1a266bcfc7ecb31d71adfbfdb21ad0138b699cdb",
+    "Cockpit/Scripts/Systems/AG_Radar_System.lua": "f9df21dcaf5bc0b0fd56f9abc21842ecfdc199e2678a44332aaefe43bd9c0496",
+    "Cockpit/Scripts/Systems/AG_Radar_Protocol.lua": "672ba42ebfef8a70f2daf6ee6e71efaec7a8293c0e6d7dddb98b32df5c4d9e38",
+    "tests/native/radar_camera_admission.cpp": "a402f384993095b4375670f507e8d569d17744e51bed61eab2c133f80c0fa6d6"
+  },
+  "method": "Read-only PE file disassembly; no DLL loading, game process access, installation or production edits"
+}

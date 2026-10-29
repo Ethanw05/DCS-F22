@@ -68,6 +68,6 @@ function M.point(view,x,y,terrain)
  local n=view.north+f*math.cos(view.heading)-r*math.sin(view.heading)
  local e=view.east+f*math.sin(view.heading)+r*math.cos(view.heading)
  local ok,u=pcall(terrain.GetHeight,n,e)
- if ok and type(u)=='number'and u==u then return {north=n,altitude=u,east=e}end
+ if ok and type(u)=='number'and u==u and math.abs(u)<1e8 then return {north=n,altitude=u,east=e}end
 end
 return M

@@ -3,11 +3,24 @@ local Model = dofile(LockOn_Options.script_path .. "Systems/AG_Radar_Computer.lu
 local Display = dofile(LockOn_Options.script_path .. "Systems/Radar_Display.lua")
 local Modes=dofile(LockOn_Options.script_path .. "Systems/AG_Radar_Modes.lua")
 local Collection=dofile(LockOn_Options.script_path .. "Systems/AG_Radar_Collection.lua")
+local Protocol=dofile(LockOn_Options.script_path .. "Systems/AG_Radar_Protocol.lua")
+local TargetSnapshot=dofile(LockOn_Options.script_path .. "Systems/AG_Target_Snapshot.lua")
 local M = {}
+local function search_family(mode)
+ if mode==1 then return 1 end
+ if Modes.sea(mode) then return 4 end
+ return Modes.search(mode) and 2 or 0
+end
+local function matches_family(family,get)
+ local map,sea=get("F22_AG_NATIVE_MAP")==1,get("F22_AG_NATIVE_SEA")==1
+ if family==1 then return map and not sea end
+ if family==4 then return sea and not map end
+ return family==2 and not map and not sea
+end
 local native_prefix="F22_AG_NATIVE_TRACK_"
 local function track_identity(get,now)
     local id,kind,stamp=get(native_prefix.."ID"),get(native_prefix.."TYPE"),get(native_prefix.."TIME")
-    if not Model.finite(id) or id<0 or id%1~=0 or not Model.fresh(now,stamp,5.25) then return end
+    if not Model.finite(id) or id<0 or id%1~=0 or not Model.fresh(now,stamp,5.25) or now<stamp then return end
     if not ((kind==3 and id==0) or ((kind==1 or kind==2) and id>0)) then return end
     return id,kind,stamp
 end
@@ -26,17 +39,22 @@ local function native_track(get,now)
     local age=math.max(0,now-stamp)
     local display={north=n,altitude=u,east=e}
     if motion then display.north=n+vn*age;display.altitude=u+vu*age;display.east=e+ve*age end
+    local associated=kind==3 or get(native_prefix.."ASSOCIATION_VALID")==1
+    motion=motion and associated and kind~=3
     return {id=id,kind=kind,stamp=stamp,measurement={north=n,altitude=u,east=e},display=display,
-        motion_valid=motion,speed=motion and math.sqrt(vn*vn+ve*ve)*1.943844492440605 or 0,
+        association_valid=associated,motion_valid=motion,speed=motion and math.sqrt(vn*vn+ve*ve)*1.943844492440605 or 0,
         heading=motion and math.atan2(ve,vn) or 0,age=age}
 end
 function M.new(get, put, native_command)
 	local ok, terrain = pcall(require, "terrain")
+	local protocol=Protocol.new(get,put)
 	put("F22_AG_MODE",1);put("F22_AG_MAP_VIDEO_SHOW",0);put("F22_AG_INTERLEAVE",0)
 	put("F22_AG_CURSOR_PREVIEW",0);put("F22_AG_VIDEO_HOLD",0);put("F22_AG_FIXED_TRACK",0)
 	put("F22_AG_TRACK_VALID",0);put("F22_AG_TRACK_REQUEST_ID",0)
 	put("F22_AG_TRACK_TYPE",0);put("F22_AG_TRACK_MOTION_VALID",0)
 	put("F22_AG_TRACK_REQUEST_ACTIVE",0);put("F22_AG_TRACK_REQUEST_SEQUENCE",0)
+	put("F22_AG_DESIGNATION_VALID",0);put("F22_AG_DESIGNATION_SEQUENCE",0)
+	put("F22_AG_DESIGNATION_LIVE",0)
  for _,n in ipairs({'VIDEO_FAN','VIDEO_FROZEN','SILENT','ACTIVE','ACTIVE_AVAILABLE','EXPANSION','EXP_PENDING','DATA','DECLUTTER',
   'PLOT_SHOW','EXP1_AVAILABLE','BEAM_AVAILABLE','CURSOR_SHOW','OPTIONS_AVAILABLE','RANGE_AVAILABLE','INTL_AVAILABLE','FAST_AVAILABLE','CORRAL_SHOW','FAST','VIDEO_EXPANSION','VIDEO_CENTER_M',
   'VIDEO_SPAN_M','VIDEO_ANTENNA_DEG','VIDEO_EPOCH','VIDEO_STABILIZED','VIDEO_PATCH_N','VIDEO_PATCH_U','VIDEO_PATCH_E',
@@ -49,7 +67,7 @@ function M.new(get, put, native_command)
 		for _,key in ipairs({"VALID","X","Y","ALPHA"})do put(prefix..key,0)end
 	end
 	return setmetatable(
-		{ get = get, put = put, native_command = native_command, model = Model.new(), terrain = ok and terrain or nil,
+		{ get = protocol.get, put = put, protocol = protocol, native_command = native_command, model = Model.new(), terrain = ok and terrain or nil,
 		  operating = false, video_gain = .5, video_erase = 1, interleave = false,
           sweep_phase=0, sweep_direction=1, track_sequence=0, controls=Modes.new(), collection=Collection.new(get) },
 		{ __index = M }
@@ -58,7 +76,7 @@ end
 function M:cancel_track()
 	if self.model.mode==3 then self.model.mode=2 elseif self.model.mode==5 then self.model.mode=4 end
 	self.selected_id=nil;self.track_requested=false;self.last_track_point=nil;self.last_track_designation=nil
-	self.track_sequence=self.track_sequence+1
+	self.track_sequence=self.track_sequence%16777215+1
 	self.put("F22_AG_TRACK_REQUEST_ACTIVE",0);self.put("F22_AG_TRACK_REQUEST_ID",0)
 	self.put("F22_AG_TRACK_REQUEST_SEQUENCE",self.track_sequence)
 end
@@ -163,6 +181,7 @@ function M:command(name, value, powered, now)
 	if name == "recenter" then
 		m.cursor_az = 0
 		m.cursor_fraction = 0.5
+		m.exp_x, m.exp_y = 0, 0
 	end
 	if m.exp_view and ({cursor_left=true,cursor_right=true,cursor_up=true,cursor_down=true})[name]then
 		m.exp_x=math.max(-.8,math.min(.8,(m.exp_x or 0)+(name=="cursor_right"and .04 or name=="cursor_left"and -.04 or 0)))
@@ -204,7 +223,7 @@ function M:command(name, value, powered, now)
 		self.pending_autorange=nil;self:cancel_preview();self.controls.pending=0;self.controls.expansion=0;self.controls.patch=nil;m.exp_view=nil
 		self:cancel_track();if m.mode==3 then m.mode=2 elseif m.mode==5 then m.mode=4 end
 		self.put("F22_AG_DESIGNATION_VALID", 0)
-		m.sequence = m.sequence + 1
+		m.sequence = m.sequence%16777215 + 1
 		self.put("F22_AG_DESIGNATION_SEQUENCE", m.sequence)
 		if log and log.write then
 			log.write("F22_AG_UNDESIGNATE",log.INFO,string.format(
@@ -237,12 +256,7 @@ function M:command(name, value, powered, now)
 			if self.video_frozen then self.pending_autorange=candidate else self:autorange(candidate)end
 		elseif self.controls.expansion==1 then self.controls.patch=candidate;self.controls.stabilized=true end
 		self.put("F22_AG_RADAR_CANDIDATE", 1)
-		self.put("F22_AG_DESIGNATION_NORTH", candidate.north)
-		self.put("F22_AG_DESIGNATION_ALTITUDE", candidate.altitude)
-		self.put("F22_AG_DESIGNATION_EAST", candidate.east)
-		self.put("F22_AG_DESIGNATION_VALID", 1)
-		m.sequence = m.sequence + 1
-		self.put("F22_AG_DESIGNATION_SEQUENCE", m.sequence)
+		self:designate_point(candidate,now,3)
 		-- This is a completed coordinate designation. Hornet 49FEE0 begins a
 		-- temporary TDC preview; 4A2B80 clears that hold on release/handoff.
 		-- Do not turn a completed designation into the separate FRZ function.
@@ -253,12 +267,19 @@ function M:command(name, value, powered, now)
 		end
 	end
 end
-function M:designate_point(p,now)
+function M:designate_point(p,now,kind)
 	local put,m=self.put,self.model
+	if not Model.finite(now) or now<0 or not Model.finite(p.north) or not Model.finite(p.altitude)
+		or not Model.finite(p.east) or self.protocol.epoch<1 then return false end
 	put("F22_AG_DESIGNATION_NORTH",p.north);put("F22_AG_DESIGNATION_ALTITUDE",p.altitude);put("F22_AG_DESIGNATION_EAST",p.east)
-	put("F22_AG_DESIGNATION_VALID",1);m.sequence=m.sequence+1;put("F22_AG_DESIGNATION_SEQUENCE",m.sequence)
+	put("F22_AG_DESIGNATION_SCHEMA",1);put("F22_AG_DESIGNATION_TIME",now)
+	put("F22_AG_DESIGNATION_EPOCH",self.protocol.epoch)
+	put("F22_AG_DESIGNATION_REQUEST",self.track_sequence);put("F22_AG_DESIGNATION_TYPE",kind or 3)
+	put("F22_AG_DESIGNATION_LIVE",kind and kind~=3 and 1 or 0)
+	put("F22_AG_DESIGNATION_VALID",1);m.sequence=m.sequence%16777215+1;put("F22_AG_DESIGNATION_SEQUENCE",m.sequence)
 	self.last_track_designation=now
 	self.last_track_point={north=p.north,altitude=p.altitude,east=p.east}
+	return true
 end
 function M:update(pose, now, dt, powered, ready)
 	local get, put, m = self.get, self.put, self.model
@@ -291,7 +312,7 @@ function M:update(pose, now, dt, powered, ready)
 	put("F22_AG_RADAR_RANGE_NM", m.range_nm)
 	put("F22_AG_RADAR_WIDTH_DEG", m.width)
 	put("F22_AG_MODE",m.mode);put("F22_AG_INTERLEAVE",self.interleave and 1 or 0)
-	local operating = powered and ready and get("F22_AG_RADAR_NATIVE_READY") > 0.5 and pose ~= nil
+	local operating = powered and ready and self.protocol.ready and get("F22_AG_RADAR_NATIVE_READY") > 0.5 and pose ~= nil
 	self.operating = operating
 	if not operating then
 		self.controls.active=false;self.controls.active_end=nil;self.controls.pending=0
@@ -324,15 +345,18 @@ function M:update(pose, now, dt, powered, ready)
 		(get("F22_AG_VIDEO_READY") > .5 and get("F22_AG_VIDEO_GEOMETRY_QUALIFIED") > .5))
 	put("F22_AG_RADAR_CANDIDATE", operating and image_selectable and map_pose and m:point(map_pose,self.terrain) and 1 or 0)
 	local movers={}
-	if operating and get("F22_AG_GMT_READY")>.5 then
+	local family=search_family(m.mode)
+	self.search_family=family
+	if operating and get("F22_AG_GMT_READY")>.5 and matches_family(family,get) then
 		for i=1,math.min(64,get("F22_AG_GMT_COUNT"))do
 			local p="F22_AG_GMT_"..i.."_"
 			movers[#movers+1]={id=get(p.."ID"),north=get(p.."N"),altitude=get(p.."U"),east=get(p.."E"),
-				vn=get(p.."VN"),vu=get(p.."VU"),ve=get(p.."VE"),stamp=get(p.."TIME"),az=get(p.."AZ"),range=get(p.."RANGE")}
+				vn=get(p.."VN"),vu=get(p.."VU"),ve=get(p.."VE"),stamp=get(p.."TIME"),az=get(p.."AZ"),range=get(p.."RANGE"),
+				association_valid=get(p.."ASSOCIATION_VALID")==1}
 		end
 	end
 	local mover
- if self.controls.silent and not self.controls.active and self.video_frozen then
+ if self.controls.silent and not self.controls.active and self.video_frozen and self.frozen_family==family then
   m.movers=self.frozen_movers or {}
  else mover=map_pose and m:observe_movers(movers,map_pose,now)end
 	local selected
@@ -375,18 +399,18 @@ function M:update(pose, now, dt, powered, ready)
 		put("F22_AG_TRACK_SPEED",selected.speed);put("F22_AG_TRACK_HEADING",math.deg(selected.heading)%360)
 		put("F22_AG_TRACK_VECTOR_ROT",-get("F22_AG_NATIVE_TRACK_ASPECT"))
 		put("F22_AG_TRACK_COAST",get("F22_AG_NATIVE_TRACK_MEMORY"))
-		local last=self.last_track_point
-		local moved=not last or (selected.measurement.north-last.north)^2+(selected.measurement.east-last.east)^2>4
-			or math.abs(selected.measurement.altitude-last.altitude)>.5
-		if get("F22_AG_NATIVE_TRACK_MEMORY")<.5 and moved and (not self.last_track_designation or selected.stamp-self.last_track_designation>=.2) then
-			self:designate_point(selected.measurement,selected.stamp)
+		if selected.association_valid and get("F22_AG_NATIVE_TRACK_MEMORY")<.5
+			and (not self.last_track_designation or selected.stamp-self.last_track_designation>=.2) then
+			self:designate_point(selected.measurement,selected.stamp,selected.kind)
 		end
 	elseif self.selected_id and not acquiring then
 		self:cancel_track();if m.mode==3 then m.mode=2 elseif m.mode==5 then m.mode=4 end
-		put("F22_AG_DESIGNATION_VALID",0);m.sequence=m.sequence+1;put("F22_AG_DESIGNATION_SEQUENCE",m.sequence)
+		put("F22_AG_DESIGNATION_VALID",0);m.sequence=m.sequence%16777215+1;put("F22_AG_DESIGNATION_SEQUENCE",m.sequence)
 	elseif self.track_requested and not acquiring then
 		self:cancel_track()
 	end
+	put("F22_AG_DESIGNATION_LIVE",selected and selected.kind~=3 and selected.association_valid
+		and get("F22_AG_NATIVE_TRACK_MEMORY")==0 and 1 or 0)
 	if Modes.search(m.mode)then put("F22_AG_RADAR_CANDIDATE",operating and map_pose and 1 or 0)end
 	local cursor = map_pose and m:point(map_pose, self.terrain)
 	local scan = m:scan_plan(0)
@@ -433,7 +457,7 @@ function M:update(pose, now, dt, powered, ready)
 		if operating then
 			local c=self.controls
 			if Modes.advance(c,not c.silent or c.active,credit)then
-			 c.active=false;c.active_end=nil;self.video_frozen=true;self.frozen_pose=map_pose;self.frozen_view=m.exp_view;self.frozen_movers=m.movers;hold=true
+			 c.active=false;c.active_end=nil;self.video_frozen=true;self.frozen_pose=map_pose;self.frozen_view=m.exp_view;self.frozen_movers=m.movers;self.frozen_family=family;hold=true
 			end
 			self.sweep_phase=c.sweep;self.sweep_direction=c.direction
 		end
@@ -471,16 +495,6 @@ function M:update(pose, now, dt, powered, ready)
 	put("F22_AG_VIDEO_HOLD",hold and 1 or 0)
 	put("F22_AG_VIDEO_ERASE_SEQUENCE", self.video_erase)
 	put("F22_AG_MODE",m.mode)
-	local valid = get("HUD_AG_TARGET_VALID") > 0.5 and pose ~= nil
-	put("F22_AG_MAP_TARGET_VALID", valid and 1 or 0)
-	if valid then
-		local x, y = m:project({ north = get("HUD_AG_MARK_NORTH"), east = get("HUD_AG_MARK_EAST") }, map_pose)
-		put("F22_AG_MAP_TARGET_X", x)
-		put("F22_AG_MAP_TARGET_Y", y)
-		if math.abs(x) > 0.83 or y < -0.76 or y > 0.76 then
-			put("F22_AG_MAP_TARGET_VALID", 0)
-		end
-	end
 	-- Persist production inputs and native/GPU measurements in every A/G flight.
 	-- A parameter callback is deliberately not named a successful scan.
 	if log and log.write and (not self.next_diagnostic or now >= self.next_diagnostic or now < self.next_diagnostic - 2) then
@@ -525,6 +539,7 @@ function M:emitting()return not self.controls.silent or self.controls.active end
 function M:hold_image(value)
  self.video_frozen=value;self.frozen_pose=value and copy(self.pose)or nil
  self.frozen_movers=value and self.model.movers or nil
+ self.frozen_family=value and self.search_family or nil
  if not value and self.pending_autorange then self:autorange(self.pending_autorange);self.pending_autorange=nil end
  self.frozen_view=value and self.model.exp_view or nil
 end
@@ -683,6 +698,73 @@ function M:publish_controls(operating,view,hold)
    if q then local x,y=m:project(q,self.pose);put('F22_AG_CORRAL_'..i..'_X',x);put('F22_AG_CORRAL_'..i..'_Y',y)end
   end
  end
+end
+
+function M:source_transition()
+ if not self.protocol.coherent or self.native_epoch==self.protocol.epoch then return end
+ local changed=self.native_epoch~=nil
+ self.native_epoch=self.protocol.epoch
+ if not changed then return end
+ self:cancel_track();self:cancel_preview()
+ self.model.movers={};self.frozen_movers=nil;self.frozen_family=nil;self.pending_autorange=nil
+ self.controls.active=false;self.controls.active_end=nil;self.controls.pending=0
+ self.collection.generation=nil
+ self.put("F22_AG_DESIGNATION_VALID",0)
+ self.put("F22_AG_DESIGNATION_LIVE",0)
+ self.model.sequence=self.model.sequence%16777215+1
+ self.put("F22_AG_DESIGNATION_SEQUENCE",self.model.sequence)
+ self.put("F22_AG_TRACK_VALID",0);self.put("F22_AG_TRACK_ACQUIRING",0)
+end
+
+local command_body,update_body,preview_body=M.command,M.update,M.cancel_preview
+local function run_packet(self,operation,now,...)
+ self.protocol:read(now)
+ self:source_transition()
+ return operation(self,...)
+end
+local function invoke(self,operation,now,...)
+ if not self.protocol:begin(now)then return false end
+ local valid=Protocol.finite(now)and now>=0
+ local ok,reason=false,"invalid source clock"
+ if valid then ok,reason=pcall(run_packet,self,operation,now,...)end
+ if not ok then
+  self.model.slew_x,self.model.slew_y=0,0
+  self.track_requested=false;self.selected_id=nil
+  self.preview_pose,self.preview_view,self.preview_kind=nil,nil,nil
+  self.controls.active=false;self.controls.active_end=nil
+  if not self.reported_protocol_failure and log and log.write then
+   log.write("F22_AG_PACKET",log.ERROR or log.INFO,tostring(reason))
+   self.reported_protocol_failure=true
+  end
+ end
+ self.protocol:finish(ok)
+ return ok
+end
+function M:command(name,value,powered,now)
+ if now==nil and type(get_model_time)=="function"then
+  local ok,time=pcall(get_model_time);if ok then now=time end
+ end
+ return invoke(self,command_body,now,name,value,powered,now)
+end
+function M:publish_mark(now,healthy)
+ local target=healthy and TargetSnapshot.read(self.get,now)
+ local x,y
+ if target and self.pose then x,y=self.model:project({north=target.n,east=target.e},self.pose)end
+ local valid=Model.finite(x)and Model.finite(y)and math.abs(x)<=.83 and y>=-.76 and y<=.76
+ self.put("F22_AG_MAP_TARGET_X",valid and x or 0)
+ self.put("F22_AG_MAP_TARGET_Y",valid and y or 0)
+ self.put("F22_AG_MAP_TARGET_VALID",valid and 1 or 0)
+end
+function M:update(pose,now,dt,powered,ready)
+ local healthy=invoke(self,update_body,now,pose,now,dt,powered,ready)
+ self:publish_mark(now,healthy)
+ return healthy
+end
+function M:cancel_preview()
+ if self.protocol.depth>0 then return preview_body(self)end
+ local now=self.update_time
+ if type(get_model_time)=="function"then local ok,time=pcall(get_model_time);if ok then now=time end end
+ return invoke(self,preview_body,now)
 end
 
 return M

@@ -1,0 +1,79 @@
+{
+  "project_files": [
+    {
+      "path": "EFM/include/Cockpit/CockpitAPI_Declare.h",
+      "sha256": "98bed221a28ca55cbb6d35d6bd10db703093ccbb5e77fec002d2db91579828e6"
+    },
+    {
+      "path": "EFM/include/Cockpit/ccParametersAPI.h",
+      "sha256": "cf8d79a785ec67e97c60f216c6bb25ef626c5fcd5c463b6ed07e7cfc24301419"
+    },
+    {
+      "path": "EFM/source/AesaAssociation.h",
+      "sha256": "2a6f1cda3bd8fd9cd5ea6de4188d0cb1ea50aa8fac61f908811acca67ae9959e"
+    },
+    {
+      "path": "EFM/source/AesaHostProfile.h",
+      "sha256": "13cce4c26eb11e7145b9b04cc6cc0384efc918c92793ecd3d6870aaa6364ab1e"
+    },
+    {
+      "path": "EFM/source/AesaRadar.h",
+      "sha256": "2f5ff1f49d66241c43a8025f37025dcbec568a1ca4a5dd74288984f5a413327f"
+    },
+    {
+      "path": "EFM/source/AesaTrackFilter.h",
+      "sha256": "6b9c8e7a3ce7147aaad1410074392581a508a3039381ba34c2485a3b7bf59d60"
+    },
+    {
+      "path": "EFM/source/GroundMovingTargets.h",
+      "sha256": "01ac9fad9283eab3ea357f95808fe058308fbd0bd706e6829adaaa5bd60cac0d"
+    },
+    {
+      "path": "EFM/source/GroundSensorHostProfile.h",
+      "sha256": "7db5bc622e4fc0e2963336b43614d3dd3d6833ecfacd1e092a8dec4c0d52f128"
+    },
+    {
+      "path": "EFM/source/NativeGroundSensor.cpp",
+      "sha256": "845f3ad1d0813435e63586b6b493196c16b74a430ef725d6b0f8b2a245654e2c"
+    },
+    {
+      "path": "EFM/source/NativeGroundSensor.h",
+      "sha256": "815df712ffec23c36c9c44480b18299b8437aa631c41aa0e7c58690478c48904"
+    },
+    {
+      "path": "tests/native/radar_ground_host.cmake",
+      "sha256": "43232572b0b12a71300f2a738f018f0f6e4ab79a394d39848e2595c0c417ff92"
+    },
+    {
+      "path": "tests/native/radar_ground_host_profile.cpp",
+      "sha256": "4aa2db1181062b9ec91d893d35069de41dc8101625fd475dc89c0935e615f953"
+    }
+  ],
+  "external_headers": [
+    "CockpitBase.h",
+    "NativeGroundSensor-current.cpp",
+    "Windows.h",
+    "algorithm",
+    "array",
+    "atomic",
+    "cinttypes",
+    "cmath",
+    "cstddef",
+    "cstdint",
+    "cstdio",
+    "cstdlib",
+    "cstring",
+    "cwchar",
+    "functional",
+    "limits",
+    "map",
+    "mutex",
+    "span",
+    "string",
+    "string_view",
+    "utility",
+    "vector",
+    "windows.h"
+  ],
+  "candidate_sha256": "510007f7e350a39579e19779ddb4df711632b6a59cb6b9e9f0d283ec7990f034"
+}

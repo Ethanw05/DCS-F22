@@ -1,0 +1,64 @@
+{
+  "primary_source_sha256": "845f3ad1d0813435e63586b6b493196c16b74a430ef725d6b0f8b2a245654e2c",
+  "source_changed": false,
+  "shared_air_reference": "AIR-SEAM-PROOF.json; exact same current four modules/snapshot",
+  "graphics": {
+    "path": "D:/DCS/bin/GraphicsVista.dll",
+    "sha256": "2c33440947bed14e3eadc1e3fbe9b686b9c6d522c88fe27e68d82965a5722591",
+    "stamp": "0x6acb8063",
+    "image_size": "0x62000"
+  },
+  "interfaces": [
+    {
+      "seam": "point/type/dead/presence/position/velocity38/own40",
+      "proof": "Bounded current air proof applies to same exact current modules. MovingObject ISSceneObject RTTI offset120 also validates own+120 ID view."
+    },
+    {
+      "seam": "scene6/Registered7/ID1",
+      "proof": "Current actual MovingObject/viObjectShape and edObjects bridges preserve pointer/uint32 returns; values copied, no scene pointer retained."
+    },
+    {
+      "seam": "query19/segment24",
+      "proof": "Current manager factoryae20/ctor92a0/table2a940:19=c290 ClipVolume,mask,64byte owned Query;24=c9d0 two double24byte endpoints,mask,fifth owned Query. Existing committed20374a8 by-value/int/std::move code exactly preserved."
+    },
+    {
+      "seam": "terrain ray13",
+      "proof": "CurrentCB32043c/320535/32062e and427b4a loadglobalLand and pass RDX/R8 twoVec3f refs, XMM3floatmaximum, fifthhitVec3f pointer, boolALreturn. Existing normalizedray/185200m/500m tolerance policy unchanged.",
+      "artifacts": [
+        "F22-Build/aesa-host-2931-20261028/land-xref-32040e-asm.txt",
+        "F22-Build/aesa-host-2931-20261028/land-xref-427b1a-asm.txt"
+      ]
+    },
+    {
+      "seam": "response59/RCS6",
+      "proof": "CurrentWG11832c calls MovingObject59(getDetectable),11833f zeroXMM1,118342/11834b Vec3f{1,0,0},118353/11835a calls response6, floatXMM0 result. wDetectable table1ef5b0[6]=80120 matches named getRCS(float,constVec3f&) export. Null/zero/nonfinite response still fails acquisition.",
+      "artifacts": [
+        "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\ground-host-2931-20261028\\RCS-current-client.txt",
+        "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\ground-host-2931-20261028\\RCS-current-secondary-client.txt"
+      ]
+    },
+    {
+      "seam": "Camera",
+      "proof": "Surface positive closure establishes784bytes/no external retained allocation/inlineclip-box and transform560/projection688/dirty776. Sensor camera code unchanged.",
+      "reference": "current-ground/camera-closure-20261028/README.md"
+    },
+    {
+      "seam": "method admission",
+      "proof": "Old method accepts readabledata as callable. New guard requires committed executable non-guard/non-noaccess target and checks index/slot arithmetic before cast. Actual fixture tests readabledata rejection without executing it."
+    },
+    {
+      "seam": "reason priority",
+      "proof": "Actual publisher reproduces default snapshot4 masking unavailableApi2. Candidate prioritizesfresh0, unavailableApi1/2/3, then snapshotreason/fallback4; tests also preserve original LAST_TIME and packet evencommit."
+    }
+  ],
+  "preservation": {
+    "all_existing_source_after_controls_unchanged_except": "new publication_reason helper and its one diagnostic expression",
+    "comparison_passed": true,
+    "query_controls_physics_filters_geometry_publication_reset": "unchanged outside stated diagnostic"
+  },
+  "limits": [
+    "Later flight must observe actual scene/terrain/renderer effects and supported callback lifetimes; inert fixtures establish software admission only",
+    "Pair Surface-owned current Camera/Video control/identity guard work and matching Lua with this source candidate",
+    "No existing production source, simulator, process, installation or DCS native export modified/invoked by this owner"
+  ]
+}

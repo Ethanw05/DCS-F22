@@ -1,0 +1,30 @@
+{
+  "head_at_build": "140fa7e42626cfc5fe1e4d76a0ab73ff4a04c1bd",
+  "before_sha256": {
+    "EFM/source/NativeGroundVideo.cpp": "92d6e8fad152ee715bee104be3a49c0d54fe2e40f84753974798f1b9550cb5e6",
+    "tests/native/radar_camera_admission.cpp": "a402f384993095b4375670f507e8d569d17744e51bed61eab2c133f80c0fa6d6"
+  },
+  "source_closure_sha256": {
+    "EFM/source/NativeGroundVideo.cpp": "ae814aae9804c4fb57b5edd13c3f6454204de34e2dc32fa884e5a4f639fc6d43",
+    "EFM/source/NativeGroundVideo.h": "b58ad2fb0058e4c9a4a9825231df9acc67d1ca8fad02cae89ebadbfd87b2fb62",
+    "EFM/source/GroundVideoView.h": "3c12487f3ababec965d60bc3b2ca5d99e0c20fd18c3560c71bc6e9f56b35850e",
+    "EFM/source/GroundVideoProbe.h": "ab86b5993e0ca569d15cf94c4e7d9d7f25a96810ae51e4b0a7ea0c4e7e99a2e1",
+    "EFM/source/AesaRadar.h": "2f5ff1f49d66241c43a8025f37025dcbec568a1ca4a5dd74288984f5a413327f",
+    "EFM/include/Cockpit/CockpitAPI_Declare.h": "98bed221a28ca55cbb6d35d6bd10db703093ccbb5e77fec002d2db91579828e6",
+    "EFM/include/Cockpit/ccParametersAPI.h": "cf8d79a785ec67e97c60f216c6bb25ef626c5fcd5c463b6ed07e7cfc24301419",
+    "tests/native/radar_camera_admission.cpp": "159a92780bacfb36270f590d372180e21e3a54ddc08f73387bffcc46b162418c"
+  },
+  "build": "MSVC14.51.36231 /std:c++latest /EHsc /W4 /WX /analyze /DNOMINMAX /D_USE_MATH_DEFINES",
+  "output_directory": "C:\\Users\\Ethans Desktop 2.0\\Documents\\ChatGPT\\F22 MOD\\out\\radar-camera-control-140fa7e",
+  "final_compile_exit": 0,
+  "final_test_exit": 0,
+  "checks": 601,
+  "failures": 0,
+  "diagnostics": 0,
+  "first_run": {
+    "checks": 600,
+    "failures": 2,
+    "finding": "New context fixture incorrectly assumed EDPARAM.invalidate retained conversion ports. Actual contract clears ports; fixture now exercises unavailable retirement before explicit rebinding and fresh capture. No source workaround."
+  },
+  "runtime_claim": "Software fixture only; no current game DLL execution, renderer pixels, VR, install or process control performed."
+}

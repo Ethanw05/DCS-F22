@@ -4,16 +4,18 @@
 #include "NativeGroundVideo.h"
 #include "GroundVideoView.h"
 #include "AesaRadar.h"
+#include "GroundVideoHostProfile.h"
 #include "GroundVideoProbe.h"
 #include <Cockpit/CockpitAPI_Declare.h>
 #include <Windows.h>
 #include <atomic>
+#include <array>
 #include <cstring>
 #include <map>
 #include <limits>
 #include <mutex>
 #include <string>
-#include <tuple>
+#include <string_view>
 namespace NativeGroundVideo {
 namespace {
 using View = GroundVideoView::View;
@@ -35,12 +37,22 @@ bool writable(std::uintptr_t address, std::size_t bytes) {
   return readable(address,bytes) && VirtualQuery(reinterpret_cast<void *>(address), &m, sizeof(m)) &&
       (m.Protect & (PAGE_READWRITE|PAGE_WRITECOPY|PAGE_EXECUTE_READWRITE|PAGE_EXECUTE_WRITECOPY));
 }
-bool version(HMODULE module, DWORD stamp, DWORD size) {
+bool module_image(HMODULE module, GroundVideoHostProfile::Image& image) {
+  image={};
   IMAGE_DOS_HEADER dos{}; IMAGE_NT_HEADERS64 pe{};
   auto b = reinterpret_cast<std::uintptr_t>(module);
-  return module && load(b,dos) && dos.e_magic == IMAGE_DOS_SIGNATURE && dos.e_lfanew >= 0 &&
-      load(b+dos.e_lfanew,pe) && pe.Signature == IMAGE_NT_SIGNATURE &&
-      pe.FileHeader.TimeDateStamp == stamp && pe.OptionalHeader.SizeOfImage == size;
+  if (!module || !load(b,dos) || dos.e_magic!=IMAGE_DOS_SIGNATURE || dos.e_lfanew<0
+      || dos.e_lfanew>1048576 || !load(b+dos.e_lfanew,pe) || pe.Signature!=IMAGE_NT_SIGNATURE
+      || pe.FileHeader.Machine!=IMAGE_FILE_MACHINE_AMD64
+      || pe.OptionalHeader.Magic!=IMAGE_NT_OPTIONAL_HDR64_MAGIC) return false;
+  image={pe.FileHeader.TimeDateStamp,pe.OptionalHeader.SizeOfImage};
+  return true;
+}
+bool supported_images(const std::array<HMODULE,6>& modules) {
+  GroundVideoHostProfile::Modules images{};
+  return module_image(modules[0],images.cockpit) && module_image(modules[1],images.visualizer)
+      && module_image(modules[2],images.renderer) && module_image(modules[3],images.enlight)
+      && module_image(modules[4],images.graphics) && GroundVideoHostProfile::select(images);
 }
 struct Api {
   using Context = void *(__cdecl *)();
@@ -53,22 +65,17 @@ struct Api {
   std::uintptr_t targets{}, table{};
   bool ready{}, incompatible{};
   int reason = 1;
+  bool exports_ready() const {
+    return context && device && indicator_context && controller && clock && camera && targets && table;
+  }
   void initialize() {
     if (ready || incompatible) return;
-    auto common=GetModuleHandleW(L"CockpitBase.dll"), world=GetModuleHandleW(L"World.dll"),
-        graphics=GetModuleHandleW(L"GraphicsVista.dll");
-    if (!common || !world || !graphics) return;
-    for (const auto &v : {std::tuple{L"CockpitBase.dll",0x6ac12468u,0x59a000u},
-                         std::tuple{L"Visualizer.dll",0x6ac12454u,0x312000u},
-                         std::tuple{L"SceneRenderer.dll",0x6aae1e3eu,0x70000u},
-                         std::tuple{L"enlight.dll",0x6aae1e38u,0xa9000u},
-                         std::tuple{L"GraphicsVista.dll",0x6aae1df2u,0x62000u}}) {
-      auto m=GetModuleHandleW(std::get<0>(v));
-      if (!m) return;
-      if (!version(m,std::get<1>(v),std::get<2>(v))) {
-        incompatible=true; reason=2; return;
-      }
-    }
+    const std::array<HMODULE,6> modules{GetModuleHandleW(L"CockpitBase.dll"),GetModuleHandleW(L"Visualizer.dll"),
+      GetModuleHandleW(L"SceneRenderer.dll"),GetModuleHandleW(L"enlight.dll"),
+      GetModuleHandleW(L"GraphicsVista.dll"),GetModuleHandleW(L"World.dll")};
+    for (const auto module:modules) if (!module) {reason=1;return;}
+    if (!supported_images(modules)) {incompatible=true;reason=2;return;}
+    const auto common=modules[0],graphics=modules[4],world=modules[5];
     context=reinterpret_cast<Context>(GetProcAddress(common,"?binding_context@cockpit@@YAPEAVccCockpitContext@1@XZ"));
     device=reinterpret_cast<Device>(GetProcAddress(common,"?get_wide_device@ccCockpitContext@cockpit@@QEAAPEAVavDevice@2@I@Z"));
     indicator_context=reinterpret_cast<Getter>(GetProcAddress(common,"?get_context@ccContextRelatedObject@cockpit@@QEBAPEAVccCockpitContext@2@XZ"));
@@ -77,7 +84,7 @@ struct Api {
     camera=reinterpret_cast<Camera>(GetProcAddress(graphics,"??0Camera@Graphics@@QEAA@W4Type@01@@Z"));
     targets=reinterpret_cast<std::uintptr_t>(GetProcAddress(common,"?render_targets@ccDrawable@cockpit@@2V?$vector@PEAVccDrawable@cockpit@@V?$allocator@PEAVccDrawable@cockpit@@@ed@@@ed@@A"));
     table=reinterpret_cast<std::uintptr_t>(GetProcAddress(common,"??_7ccIndicator@cockpit@@6BccContextRelatedObject@1@@"));
-    ready=context && device && indicator_context && controller && clock && camera && targets && table;
+    ready=exports_ready();
     reason=ready?0:3;
   }
 } api;
@@ -140,6 +147,10 @@ struct RenderFrame {
   void *owner{};
 };
 thread_local RenderFrame render;
+void withdraw_callbacks() {
+  guard.verify(false);
+  epoch.fetch_add(1);
+}
 void restore(void *object) {
   auto p=reinterpret_cast<std::uintptr_t>(object); std::uintptr_t actual{};
   if (object && load(p,actual) && actual==reinterpret_cast<std::uintptr_t>(clone.data()+1) && writable(p,sizeof(void *)))
@@ -147,10 +158,12 @@ void restore(void *object) {
   void *expected=object; owned.compare_exchange_strong(expected,nullptr);
 }
 void __fastcall release(void *object) {
+  if (object==owned.load()) withdraw_callbacks();
   restore(object);
   if (original_release) original_release(object);
 }
 void *__fastcall destroy(void *object,unsigned flags) {
+  if (object==owned.load()) withdraw_callbacks();
   restore(object);
   return original_destroy?original_destroy(object,flags):object;
 }
@@ -218,9 +231,11 @@ void *__fastcall point(void *object,void *out) {
   if (out) std::memcpy(out,p.data(),sizeof(p));
   return out;
 }
-bool submit_parameters(std::array<GroundVideoView::Param,18>& params,std::uintptr_t data,bool& refresh) {
+bool submit_parameters(void* object,std::array<GroundVideoView::Param,18>& params,std::uintptr_t data,bool& refresh) {
   std::lock_guard<std::mutex> lock(view_mutex);
-  if (image_state.generation!=render.generation || image_state.serial!=render.image_serial) return false;
+  if (!guard.available() || object!=owned.load() || object!=render.owner
+      || render.generation!=epoch.load() || image_state.generation!=render.generation
+      || image_state.serial!=render.image_serial) return false;
   refresh=image_state.refresh;
   params[0].number=static_cast<float>(render.direction);
   params[5].bits=refresh&&render.current.expansion>0?1:0;
@@ -243,7 +258,7 @@ void __fastcall parameters(void *object,void *buffer) {
   bool refresh{};
   // DynamicParam5 requests DBS work. MAP cache renewal uses parameter0;
   // retain one captured camera/point/parameter set for the entire pipeline.
-  if (!submit_parameters(params,data,refresh)) {++parameter_rejected;return;}
+  if (!submit_parameters(object,params,data,refresh)) {++parameter_rejected;return;}
   if(params[5].bits)++dbs_requests;
   if(refresh && render.current.expansion==0)++rbm_restarts;
   render.preset_key=key;
@@ -297,18 +312,20 @@ bool install(void *context) {
   epoch.fetch_add(1);
   api.reason=0;return true;
 }
-std::map<std::string,void *> handles;
+std::map<std::string,void *,std::less<>> handles;
 const EDPARAM* parameter_owner{};
 std::uint64_t parameter_epoch{};
-void* parameter(EDPARAM& p,const std::string& name) {
+void* parameter(EDPARAM& p,std::string_view name) {
   if (parameter_owner != &p || parameter_epoch != p.epoch()) {
     handles.clear();parameter_owner=&p;parameter_epoch=p.epoch();
   }
-  auto& handle=handles[name];
-  if (!handle) handle=p.getParamHandle(name.c_str());
+  auto found=handles.find(name);
+  if (found==handles.end()) found=handles.try_emplace(std::string(name),nullptr).first;
+  auto& handle=found->second;
+  if (!handle) handle=p.getParamHandle(found->first.c_str());
   return handle;
 }
-double get(EDPARAM &p,const std::string &name) {
+double get(EDPARAM &p,std::string_view name) {
   double value = std::numeric_limits<double>::quiet_NaN();
   if (!p.getParamNumber(parameter(p,name),value)) return std::numeric_limits<double>::quiet_NaN();
   return value;
@@ -338,7 +355,7 @@ bool source_epoch_valid(double value) {
 bool source_recent(double now,double stamp) {
   return std::isfinite(now) && std::isfinite(stamp) && now>=stamp && now-stamp<=.5;
 }
-struct Tracking { bool current{}, active{};double source_epoch{},stamp{}; };
+struct Tracking { bool current{}, active{};double source_epoch{},stamp{},sequence{}; };
 Tracking tracking(EDPARAM& p,double now) {
   const auto context=p.epoch();
   const double sequence=get(p,"F22_AG_NATIVE_SEQUENCE");
@@ -350,33 +367,99 @@ Tracking tracking(EDPARAM& p,double now) {
   const bool ready=flag(p,"F22_AG_GMT_READY",valid);
   const bool selected=flag(p,"F22_AG_NATIVE_TRACK_VALID",valid);
   const bool acquiring=flag(p,"F22_AG_NATIVE_TRACK_ACQUIRING",valid);
-  if (!valid || schema!=1 || !source_epoch_valid(source_epoch) || !source_recent(now,stamp)) return {};
+  if (schema!=1 || !source_epoch_valid(source_epoch) || !source_recent(now,stamp)) return {};
   if (source_epoch!=get(p,"F22_AG_NATIVE_SOURCE_EPOCH")
       || sequence!=get(p,"F22_AG_NATIVE_SEQUENCE") || context!=p.epoch()) return {};
-  return {ready,ready && (selected || acquiring),source_epoch,stamp};
+  // A coherent unavailable source still identifies its epoch. Track flag
+  // conversion failure withdraws tracking, not independent scene imagery.
+  return {valid && ready,valid && ready && (selected || acquiring),source_epoch,stamp,sequence};
 }
-bool apply_probe(EDPARAM& p,View& next) {
+struct ControlHeader {
+  double sequence{},schema{},source_epoch{},stamp{};
+  std::uint64_t context{};
+};
+const EDPARAM* control_owner{};
+std::uint64_t control_context{},control_source_epoch{};
+void retire_image_locked() {
+  epoch.fetch_add(1);
+  view={};map_reference={};reference_generation=0;image_state={};
+}
+void observe_control_context(EDPARAM& p) {
+  std::lock_guard<std::mutex> lock(view_mutex);
+  if (control_owner==&p && control_context==p.epoch()) return;
+  retire_image_locked();
+  control_owner=&p;control_context=p.epoch();control_source_epoch=0;
+}
+void observe_source_epoch(double source_epoch) {
+  if (!source_epoch_valid(source_epoch)) return;
+  const auto source=static_cast<std::uint64_t>(source_epoch);
+  std::lock_guard<std::mutex> lock(view_mutex);
+  if (control_source_epoch && control_source_epoch!=source) retire_image_locked();
+  control_source_epoch=source;
+}
+ControlHeader control_header(EDPARAM& p,double now) {
+  ControlHeader header;
+  header.context=p.epoch();
+  header.sequence=get(p,"F22_AG_NATIVE_CONTROL_SEQUENCE");
+  if (!committed(header.sequence)) return {};
+  header.schema=get(p,"F22_AG_NATIVE_CONTROL_SCHEMA");
+  header.source_epoch=get(p,"F22_AG_NATIVE_CONTROL_EPOCH");
+  header.stamp=get(p,"F22_AG_NATIVE_CONTROL_TIME");
+  if (header.schema!=1 || !source_epoch_valid(header.source_epoch)
+      || !source_recent(now,header.stamp)) return {};
+  return header;
+}
+bool control_current(EDPARAM& p,const ControlHeader& header,const Tracking& observed) {
+  const double sequence=get(p,"F22_AG_NATIVE_CONTROL_SEQUENCE");
+  const double schema=get(p,"F22_AG_NATIVE_CONTROL_SCHEMA");
+  const double source_epoch=get(p,"F22_AG_NATIVE_CONTROL_EPOCH");
+  const double stamp=get(p,"F22_AG_NATIVE_CONTROL_TIME");
+  const double source_present=get(p,source_marker);
+  const double native_sequence=get(p,"F22_AG_NATIVE_SEQUENCE");
+  const double native_epoch=get(p,"F22_AG_NATIVE_SOURCE_EPOCH");
+  return header.sequence==sequence && header.schema==schema
+      && header.source_epoch==source_epoch && header.stamp==stamp
+      && observed.source_epoch==header.source_epoch && observed.sequence==native_sequence
+      && observed.source_epoch==native_epoch && source_present==1 && header.context==p.epoch();
+}
+bool read_probe(EDPARAM& p,std::array<double,3>& probe) {
+  probe={get(p,"F22_AG_VIDEO_PROBE_FORWARD_M"),get(p,"F22_AG_VIDEO_PROBE_RIGHT_M"),get(p,"F22_AG_VIDEO_PROBE_UP_M")};
+  for (double value:probe) if (!std::isfinite(value) || std::abs(value)>100) return false;
+  return true;
+}
+void apply_probe(const std::array<double,3>& probe,View& next) {
   // Controlled self-occlusion experiment. These default-zero diagnostic
   // offsets affect only this renderer view, never ownship or sensor truth.
-  std::array<double,3> probe{get(p,"F22_AG_VIDEO_PROBE_FORWARD_M"),get(p,"F22_AG_VIDEO_PROBE_RIGHT_M"),get(p,"F22_AG_VIDEO_PROBE_UP_M")};
-  bool probe_valid=true;
-  for(auto &v:probe) if(!std::isfinite(v)||std::abs(v)>100) { probe_valid=false;v=0; }
-  if(probe!=previous_probe){previous_probe=probe;++probe_erase;}
+  const double erase=probe_erase+(probe!=previous_probe?1:0);
   next.probe_forward=probe[0];next.probe_right=probe[1];next.probe_up=probe[2];
   next.north+=std::cos(next.heading)*probe[0]-std::sin(next.heading)*probe[1];
   next.east+=std::sin(next.heading)*probe[0]+std::cos(next.heading)*probe[1];
-  next.altitude+=probe[2];next.erase_sequence+=probe_erase*1000000;
-  return probe_valid;
+  next.altitude+=probe[2];next.erase_sequence+=erase*1000000;
+}
+void finish_probe(View& next,double now,const std::array<double,3>& probe,bool valid_probe) {
+  if (valid_probe) apply_probe(probe,next);
+  if (GroundVideoView::prepare(next,now).accepted && probe!=previous_probe) {
+    previous_probe=probe;++probe_erase;
+  }
 }
 bool video_requested(EDPARAM& p,bool ready,bool& valid) {
+  const bool source_present=flag(p,source_marker,valid);
   const bool enabled=flag(p,"F22_AG_VIDEO_ENABLE",valid);
   const bool supply=flag(p,"MAIN_POWER",valid);
   const bool radar_power=flag(p,"RADAR_PWR",valid);
   const double master_mode=get(p,"HUD_MODE");
   if (!std::isfinite(master_mode)) valid=false;
-  return ready && enabled && master_mode==7 && supply && radar_power;
+  return ready && source_present && enabled && master_mode==7 && supply && radar_power;
 }
 View read_view(EDPARAM& p,bool ready,bool& malformed) {
+  malformed=true;
+  observe_control_context(p);
+  const double now=api.clock?api.clock():-1;
+  const auto header=control_header(p,now);
+  if (!committed(header.sequence)) {
+    observe_control_context(p);
+    return {};
+  }
   View next;
   bool geometry_flags_valid=true;
   next.enabled=video_requested(p,ready,geometry_flags_valid);
@@ -401,12 +484,19 @@ View read_view(EDPARAM& p,bool ready,bool& malformed) {
   next.stabilized=flag(p,"F22_AG_VIDEO_STABILIZED",geometry_flags_valid);
   next.patch_n=get(p,"F22_AG_VIDEO_PATCH_N");next.patch_u=get(p,"F22_AG_VIDEO_PATCH_U");next.patch_e=get(p,"F22_AG_VIDEO_PATCH_E");
   next.patch_az=get(p,"F22_AG_VIDEO_PATCH_AZ");next.patch_distance=get(p,"F22_AG_VIDEO_PATCH_DISTANCE");next.interleave=flag(p,"F22_AG_INTERLEAVE",geometry_flags_valid);
-  const auto observed=tracking(p,api.clock?api.clock():-1);
+  const auto observed=tracking(p,now);
+  observe_source_epoch(observed.source_epoch);
   next.tracking=observed.current && observed.active;
   next.scan_center=get(p,"F22_AG_RADAR_SCAN_CENTER_AZ_DEG")*GroundVideoView::pi/180;
-  const bool probe_valid=apply_probe(p,next);
+  std::array<double,3> probe{};
+  const bool probe_valid=read_probe(p,probe);
+  if (!control_current(p,header,observed)) {
+    observe_control_context(p);
+    return {};
+  }
   malformed=!mode_valid || !expansion_valid || !geometry_flags_valid || !probe_valid;
   next.enabled=next.enabled && !malformed;
+  finish_probe(next,now,probe,probe_valid);
   return next;
 }
 void publish_reference(EDPARAM& p,bool frame_available) {
@@ -431,11 +521,13 @@ int availability_reason(bool ready,bool malformed,bool enabled,bool frame_availa
 }
 }
 void reset() {
+  withdraw_callbacks();
   timing_enabled=false;
   gpu_probe_enabled=false;
   previous_probe={};probe_erase=0;
-  {std::lock_guard<std::mutex> lock(view_mutex);view={};map_reference={};reference_generation=0;aircraft={};image_state={};}
-  restore(owned.load());handles.clear();frames=0;guard.reset();epoch.fetch_add(1);
+  {std::lock_guard<std::mutex> lock(view_mutex);view={};map_reference={};reference_generation=0;aircraft={};image_state={};
+    control_owner=nullptr;control_context=0;control_source_epoch=0;}
+  restore(owned.load());handles.clear();frames=0;guard.reset();
   clock_checks=0;future_rejects=0;stale_rejects=0;last_clock_delta_ms=0;max_clock_lead_ms=0;
   condition_calls=0;condition_accepted=0;camera_calls=0;camera_accepted=0;parameter_calls=0;parameter_rejected=0;erase_calls=0;preset_calls=0;
   image_captures=0;rbm_restarts=0;dbs_requests=0;

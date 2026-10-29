@@ -1,0 +1,587 @@
+{
+  "tool": "Lizard1.17.31",
+  "functions": [
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::readable",
+      "line": 22,
+      "cc": 7,
+      "nloc": 7,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::load",
+      "line": 29,
+      "cc": 2,
+      "nloc": 4,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::writable",
+      "line": 33,
+      "cc": 3,
+      "nloc": 5,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::version",
+      "line": 38,
+      "cc": 8,
+      "nloc": 7,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::Api::initialize",
+      "line": 56,
+      "cc": 17,
+      "nloc": 27,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::snapshot",
+      "line": 114,
+      "cc": 1,
+      "nloc": 1,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::live",
+      "line": 115,
+      "cc": 10,
+      "nloc": 16,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::withdraw_callbacks",
+      "line": 143,
+      "cc": 1,
+      "nloc": 4,
+      "owned_or_changed": true
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::restore",
+      "line": 147,
+      "cc": 5,
+      "nloc": 6,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::release",
+      "line": 153,
+      "cc": 2,
+      "nloc": 5,
+      "owned_or_changed": true
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::destroy",
+      "line": 158,
+      "cc": 2,
+      "nloc": 5,
+      "owned_or_changed": true
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::condition",
+      "line": 163,
+      "cc": 5,
+      "nloc": 6,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::always",
+      "line": 169,
+      "cc": 1,
+      "nloc": 1,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::capture_image",
+      "line": 170,
+      "cc": 14,
+      "nloc": 26,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::camera",
+      "line": 200,
+      "cc": 6,
+      "nloc": 18,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::point",
+      "line": 218,
+      "cc": 8,
+      "nloc": 7,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::submit_parameters",
+      "line": 227,
+      "cc": 9,
+      "nloc": 13,
+      "owned_or_changed": true
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::parameters",
+      "line": 240,
+      "cc": 22,
+      "nloc": 27,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::install",
+      "line": 271,
+      "cc": 18,
+      "nloc": 37,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::parameter",
+      "line": 311,
+      "cc": 4,
+      "nloc": 8,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::get",
+      "line": 319,
+      "cc": 2,
+      "nloc": 5,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::put",
+      "line": 324,
+      "cc": 1,
+      "nloc": 4,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::integer",
+      "line": 328,
+      "cc": 5,
+      "nloc": 5,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::flag",
+      "line": 333,
+      "cc": 3,
+      "nloc": 5,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::committed",
+      "line": 338,
+      "cc": 4,
+      "nloc": 4,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::source_epoch_valid",
+      "line": 342,
+      "cc": 4,
+      "nloc": 4,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::source_recent",
+      "line": 346,
+      "cc": 4,
+      "nloc": 3,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::tracking",
+      "line": 350,
+      "cc": 12,
+      "nloc": 16,
+      "owned_or_changed": true
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::retire_image_locked",
+      "line": 374,
+      "cc": 1,
+      "nloc": 4,
+      "owned_or_changed": true
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::observe_control_context",
+      "line": 378,
+      "cc": 3,
+      "nloc": 6,
+      "owned_or_changed": true
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::observe_source_epoch",
+      "line": 384,
+      "cc": 4,
+      "nloc": 7,
+      "owned_or_changed": true
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::control_header",
+      "line": 391,
+      "cc": 5,
+      "nloc": 12,
+      "owned_or_changed": true
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::control_current",
+      "line": 403,
+      "cc": 9,
+      "nloc": 13,
+      "owned_or_changed": true
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::read_probe",
+      "line": 416,
+      "cc": 4,
+      "nloc": 5,
+      "owned_or_changed": true
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::apply_probe",
+      "line": 421,
+      "cc": 2,
+      "nloc": 7,
+      "owned_or_changed": true
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::finish_probe",
+      "line": 430,
+      "cc": 4,
+      "nloc": 6,
+      "owned_or_changed": true
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::video_requested",
+      "line": 436,
+      "cc": 7,
+      "nloc": 9,
+      "owned_or_changed": true
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::read_view",
+      "line": 445,
+      "cc": 15,
+      "nloc": 48,
+      "owned_or_changed": true
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::publish_reference",
+      "line": 493,
+      "cc": 4,
+      "nloc": 14,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::availability_reason",
+      "line": 507,
+      "cc": 7,
+      "nloc": 6,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::reset",
+      "line": 514,
+      "cc": 1,
+      "nloc": 12,
+      "owned_or_changed": true
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::set_aircraft",
+      "line": 526,
+      "cc": 7,
+      "nloc": 13,
+      "owned_or_changed": false
+    },
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "function": "NativeGroundVideo::update",
+      "line": 539,
+      "cc": 11,
+      "nloc": 64,
+      "owned_or_changed": false
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "void( * read_action)",
+      "line": 11,
+      "cc": 1,
+      "nloc": 1,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "require",
+      "line": 14,
+      "cc": 2,
+      "nloc": 4,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "world_clock",
+      "line": 18,
+      "cc": 1,
+      "nloc": 1,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "resolve",
+      "line": 19,
+      "cc": 2,
+      "nloc": 5,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "store",
+      "line": 24,
+      "cc": 1,
+      "nloc": 1,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "ground_packet",
+      "line": 25,
+      "cc": 5,
+      "nloc": 9,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "number",
+      "line": 34,
+      "cc": 3,
+      "nloc": 9,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "camera_constructor",
+      "line": 43,
+      "cc": 1,
+      "nloc": 5,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "seed",
+      "line": 48,
+      "cc": 2,
+      "nloc": 30,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "accepted",
+      "line": 78,
+      "cc": 1,
+      "nloc": 5,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "scalar_admission",
+      "line": 83,
+      "cc": 11,
+      "nloc": 52,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "protected_tracking",
+      "line": 135,
+      "cc": 11,
+      "nloc": 35,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "new_control_packet",
+      "line": 171,
+      "cc": 1,
+      "nloc": 9,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "replace_context",
+      "line": 180,
+      "cc": 1,
+      "nloc": 1,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "change_schema",
+      "line": 181,
+      "cc": 1,
+      "nloc": 1,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "change_control_time",
+      "line": 182,
+      "cc": 1,
+      "nloc": 1,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "change_control_epoch",
+      "line": 183,
+      "cc": 1,
+      "nloc": 1,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "withdraw_source",
+      "line": 184,
+      "cc": 1,
+      "nloc": 1,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "control_capture_boundaries",
+      "line": 185,
+      "cc": 15,
+      "nloc": 30,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "control_header_failures",
+      "line": 215,
+      "cc": 6,
+      "nloc": 38,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "control_source_identity",
+      "line": 253,
+      "cc": 3,
+      "nloc": 19,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "derived_geometry",
+      "line": 272,
+      "cc": 7,
+      "nloc": 22,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "captured_camera",
+      "line": 294,
+      "cc": 12,
+      "nloc": 55,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "begin_frame",
+      "line": 349,
+      "cc": 1,
+      "nloc": 11,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "rejected_frame_outputs",
+      "line": 360,
+      "cc": 4,
+      "nloc": 15,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "reset_between_callbacks",
+      "line": 375,
+      "cc": 3,
+      "nloc": 13,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "source_between_callbacks",
+      "line": 388,
+      "cc": 5,
+      "nloc": 21,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "context_between_callbacks",
+      "line": 409,
+      "cc": 4,
+      "nloc": 20,
+      "owned_or_changed": true
+    },
+    {
+      "path": "tests/native/radar_camera_admission.cpp",
+      "function": "main",
+      "line": 430,
+      "cc": 2,
+      "nloc": 8,
+      "owned_or_changed": true
+    }
+  ],
+  "changed_owned_max_cc": 15,
+  "retained_legacy": {
+    "NativeGroundVideo::Api::initialize": 17,
+    "NativeGroundVideo::parameters": 22,
+    "NativeGroundVideo::install": 18
+  }
+}

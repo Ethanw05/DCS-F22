@@ -1,0 +1,79 @@
+{
+  "head": "140fa7e42626cfc5fe1e4d76a0ab73ff4a04c1bd",
+  "primary_source_unchanged": true,
+  "primary_source_sha256": "845f3ad1d0813435e63586b6b493196c16b74a430ef725d6b0f8b2a245654e2c",
+  "source_closure_files": 12,
+  "source_stable_during_verification": true,
+  "source_manifest_sha256": "6487e50350a4155eb73fb7abfd59a1856e699c8f15f9c3c0961fd10cdb84b82d",
+  "actual_baseline": {
+    "result": "ground host checks=230 failures=23 (inert PE modules; no DCS export invoked)",
+    "interpretation": "Diagnostic previous-only/missingguard/reason failures; not acceptance"
+  },
+  "candidate": {
+    "result": "ground host checks=230 failures=0 (inert PE modules; no DCS export invoked)",
+    "flags": "/std:c++latest /EHsc /MD /W4 /WX /analyze /DNOMINMAX",
+    "checks": 230,
+    "failures": 0
+  },
+  "proposal": {
+    "applied": false,
+    "path": "EFM/source/NativeGroundSensor.cpp",
+    "baseline_sha256": "845f3ad1d0813435e63586b6b493196c16b74a430ef725d6b0f8b2a245654e2c",
+    "patch_sha256": "87e95d2dbc792aabd8f8f12ec17e4ee0ff6e9e2f155a0d7f401e98fb9ff23f97",
+    "proposed_text_sha256": "510007f7e350a39579e19779ddb4df711632b6a59cb6b9e9f0d283ec7990f034",
+    "scope": "CheckedPE64/coherent five-module selection; executable virtual-method admission; diagnostic API reason priority only",
+    "preserves": "All committed by-value query ownership, camera geometry, sensor/control/publication/filter/target behavior and reset logic untouched",
+    "requires": "Paired Surface-owned Camera contract and common caller review before activation",
+    "primary_source_unchanged": true
+  },
+  "coverage": "32coherent/mixed five-module combinations,malformedPE64,12required exports,missingmodule/retry,borrowedmotion/terrain/RCS,executabletarget and actual protectedpublisher reason/time cases; no measured branch percentage",
+  "registration": "tests/native/radar_ground_host.cmake; requires integrator inclusion and F22_RADAR_CURRENT_GROUND_HOST_REVIEWED after pairedsource/Camera review; unregistered is not passed",
+  "production_mutations": [],
+  "artifacts": [
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\ground-host-2931-20261028\\actual-build.log",
+      "sha256": "8cb76534aa2d8b9815df9d894af475499d5925328440ca0667e4bc04e8011c62"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\ground-host-2931-20261028\\candidate-build.log",
+      "sha256": "8cb76534aa2d8b9815df9d894af475499d5925328440ca0667e4bc04e8011c62"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\ground-host-2931-20261028\\actual-results.txt",
+      "sha256": "fed4169770493c21bf6d2fbb61d04145be9f148ee2dad666e6d68dc09b077fb0"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\ground-host-2931-20261028\\candidate-results.txt",
+      "sha256": "2672ced548dc898086dad1622b87f0e83f160f11d3a6de5cc344a405e63cde21"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\ground-host-2931-20261028\\actual_ground_host.exe",
+      "sha256": "fb8df04fe88ce2e71f396725708d94bb661e50aec34a4d5da0f35caa0b4a1f43"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\ground-host-2931-20261028\\candidate_ground_host.exe",
+      "sha256": "4d4d46fd8122365a142f834518ff06883013cfb3d6234c2b82c7907530eba039"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\ground-host-2931-20261028\\verify_ground.cmd",
+      "sha256": "a7807f58306a4ccb7e95f61835b7d95a5a3c52101771a091c46b592b62997114"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\ground-host-2931-20261028\\NativeGroundSensor-current.cpp",
+      "sha256": "510007f7e350a39579e19779ddb4df711632b6a59cb6b9e9f0d283ec7990f034"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\ground-host-2931-20261028\\source-before.json",
+      "sha256": "6487e50350a4155eb73fb7abfd59a1856e699c8f15f9c3c0961fd10cdb84b82d"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\ground-host-2931-20261028\\source-after.json",
+      "sha256": "6487e50350a4155eb73fb7abfd59a1856e699c8f15f9c3c0961fd10cdb84b82d"
+    }
+  ],
+  "limits": [
+    "Later flight must observe actual scene/terrain/renderer effects and supported callback lifetimes; inert fixtures establish software admission only",
+    "Pair Surface-owned current Camera/Video control/identity guard work and matching Lua with this source candidate",
+    "No existing production source, simulator, process, installation or DCS native export modified/invoked by this owner"
+  ]
+}

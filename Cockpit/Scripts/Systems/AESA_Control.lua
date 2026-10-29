@@ -29,6 +29,13 @@ function M:command(command, computer, now)
         if t and t.native_id then self.acquiring, self.started = t.native_id, now end
     end
 end
+function M:accept_generation(generation, payload_present)
+    self.generation_changed = self.generation ~= nil and self.generation ~= generation
+    if self.generation_changed and not payload_present then
+        for i = 1, math.min(64, #self.samples) do self.samples[i].observed = nil end
+    end
+    self.generation = generation
+end
 function M:read(now, pose, display)
     local get, out = self.get, self.observations
     self.ready = false
@@ -36,9 +43,15 @@ function M:read(now, pose, display)
     for i = 1, #out do out[i] = nil end
     local sequence, stamp = get("F22_AESA_SEQUENCE"), get("F22_AESA_TIME")
     local generation = get("F22_AESA_GENERATION")
-    if not finite(now) or get("F22_AESA_READY") ~= 1 or not finite(sequence) or sequence < 2 or sequence % 2 ~= 0
+    if not finite(now) or not finite(sequence) or sequence < 2 or sequence % 2 ~= 0
         or not finite(stamp) or now-stamp < -.01 or now-stamp > .5
         or not finite(generation) or generation < 1 or generation % 1 ~= 0 then return out end
+    if get("F22_AESA_READY") ~= 1 then
+        if sequence == get("F22_AESA_SEQUENCE") and generation == get("F22_AESA_GENERATION") then
+            self:accept_generation(generation, false)
+        end
+        return out -- A coherent new unavailable source retires old reports, never promotes data.
+    end
     local count = 0
     for i = 1, 64 do
         local p = prefixes[i]
@@ -69,8 +82,7 @@ function M:read(now, pose, display)
         for i = 1, #out do self.samples[i].observed = nil; out[i] = nil end
     else
         self.ready = true
-        self.generation_changed = self.generation ~= nil and self.generation ~= generation
-        self.generation = generation
+        self:accept_generation(generation, true)
     end
     return out
 end
@@ -142,7 +154,7 @@ function M:publish(now, computer, resource, powered, surface, plan)
     put("F22_RADAR_SERVICE_DROPPED",self.get("F22_AESA_DROPS"))
     put("F22_RADAR_SERVICE_ACCEPTED",self.get("F22_AESA_DETECTIONS"))
     put("F22_RADAR_NATIVE_RESTRICTED",0)
-    local ready = powered and self.ready == true
+    local ready = powered and self.emitting and self.ready == true
     put("F22_RADAR_BACKGROUND_AVAILABLE",ready and 1 or 0)
     put("F22_RADAR_AIR_SURFACE_CONCURRENT",ready and surface and 1 or 0)
 end

@@ -1,0 +1,18 @@
+[
+  {
+    "thunk_rva": "0x3d662",
+    "iat_rva": "0x402a0",
+    "import": [
+      "api-ms-win-crt-math-l1-1-0.dll",
+      "tan"
+    ]
+  },
+  {
+    "thunk_rva": "0x3d674",
+    "iat_rva": "0x402d0",
+    "import": [
+      "api-ms-win-crt-math-l1-1-0.dll",
+      "sqrt"
+    ]
+  }
+]

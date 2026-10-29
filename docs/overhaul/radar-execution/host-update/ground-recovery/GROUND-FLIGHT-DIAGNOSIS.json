@@ -1,0 +1,1010 @@
+{
+  "schema": 1,
+  "kind": "Derived read-only ground radar flight diagnosis",
+  "created_utc": "2026-10-29T01:19:21.404945+00:00",
+  "log": {
+    "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Logs\\dcs.log",
+    "bytes_at_read_start": 5642876,
+    "bytes_read": 5642876,
+    "sha256_of_exact_bytes_read": "e8f9d4e4f6e48e6abb05c7f12990f51ff8ca33c74f1b93d0a239177521c15905",
+    "complete_line_bytes_parsed": 5642876,
+    "bytes_at_read_end": 5642876,
+    "last_write_utc_at_read_end": "2026-10-29T01:16:18.360367+00:00",
+    "first_line_utc": "=== Log opened UTC 2026",
+    "last_line_utc": "2026-10-29 01:16:18.300",
+    "may_grow": "Read is a prefix snapshot, not an immutable final-flight log; partial final line excluded. Original log was not copied or changed."
+  },
+  "clock_note": "dcs.log wall timestamps treated as UTC, consistent with machine UTC file time and DCS logging; Denver local time is UTC-06 on this date. Telemetry model time resets per startup; four independent segment markers all report local segment0, so derived indices0..3 prevent cross-flight blending.",
+  "csv_parse": {
+    "types": {
+      "v1,segment": 4,
+      "v1,schema": 4,
+      "v1,avionics_schema": 4,
+      "v1,missile_schema": 4,
+      "v1,service_schema": 4,
+      "v2,aesa_schema": 4,
+      "v1,sample": 6795,
+      "v1,avionics_sample": 1700,
+      "v1,service": 1700,
+      "v1,emitter": 1959,
+      "v2,aesa": 195
+    },
+    "field_counts": {
+      "sample": 106,
+      "avionics_sample": 83,
+      "missile": 17,
+      "service": 81,
+      "aesa": 63
+    },
+    "versions": {
+      "sample": "v1",
+      "avionics_sample": "v1",
+      "missile": "v1",
+      "service": "v1",
+      "aesa": "v2"
+    },
+    "malformed_row_counts": {},
+    "headers_found_in_log": true,
+    "installed_schema_read": "Radar_Telemetry.lua inspected and hashed; no invented header fallback required"
+  },
+  "sources_read": [
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Cockpit\\Scripts\\Systems\\Radar_Telemetry.lua",
+      "sha256": "36da6e7d05a7c335b870451593e49c59e344ed15ddffd1c186569cb565cd2b28"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Cockpit\\Scripts\\Systems\\Radar_System.lua",
+      "sha256": "19919b82af741a8f47dc10334cec1b0ce7ac547a16f66872c6d64b9e670b458c"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Cockpit\\Scripts\\Systems\\AG_Radar_System.lua",
+      "sha256": "c19decf39d36370b1b1d3f6f55e86493770c7373f270912b54f27bc5ae5ce828"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A\\Cockpit\\Scripts\\Systems\\AG_Radar_Modes.lua",
+      "sha256": "470adbbf65f8607fbdfba09e721202b48ea6d482ac039d9d01408929dc8ba20c"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\EFM\\source\\NativeGroundVideo.cpp",
+      "sha256": "92d6e8fad152ee715bee104be3a49c0d54fe2e40f84753974798f1b9550cb5e6"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\EFM\\source\\NativeGroundSensor.cpp",
+      "sha256": "845f3ad1d0813435e63586b6b493196c16b74a430ef725d6b0f8b2a245654e2c"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\EFM\\source\\NativeGroundRadar.cpp",
+      "sha256": "2d6b65d727b2ed354fd9cbe3928e64a07db0809159c073972d9adf70c8d8843b"
+    },
+    {
+      "path": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\DCS-F22\\EFM\\source\\GroundVideoView.h",
+      "sha256": "3c12487f3ababec965d60bc3b2ca5d99e0c20fd18c3560c71bc6e9f56b35850e"
+    }
+  ],
+  "segments": [
+    {
+      "index": 0,
+      "start_line": 992,
+      "start_wall_utc": "2026-10-29 01:07:06.198",
+      "end_wall_utc": "2026-10-29 01:08:05.493",
+      "reported_segment": [
+        "0"
+      ],
+      "stream_rows": {
+        "sample": 1098,
+        "avionics_sample": 275,
+        "service": 275,
+        "aesa": 106
+      },
+      "ground_diagnostic_rows": 0,
+      "model_s": {
+        "first": 0.0,
+        "last": 55.947
+      },
+      "aa": {
+        "RADAR_PWR": [1098, 1.0, 1.0, 1.0, 1098],
+        "MAIN_POWER": [1098, 1.0, 1.0, 1.0, 1098],
+        "F22_RADAR_BACKEND_READY": [1098, 0.0, 1.0, 1.0, 1097],
+        "F22_RADAR_NATIVE_CONFIGURED": [1098, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_NATIVE_CONFIG_REASON": [1098, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_STT_VALID": [1098, 0.0, 1.0, 0.0, 385],
+        "F22N_RADAR_STT_RANGE": [1098, 0.0, 2253.65193, 0.0, 385],
+        "F22N_RADAR_MODE": [1098, 0.0, 3.0, 1.0, 1097],
+        "HUD_MODE": [1098, 1.0, 5.0, 1.0, 1098]
+      },
+      "service": {
+        "F22_AESA_CUE_REQUEST": [275, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_CUE_TIME": [275, -100.0, 8.08, 8.08, 274],
+        "F22_AESA_CUE_DWELLS": [275, 0.0, 17.0, 17.0, 269],
+        "F22_AESA_FC_TARGET": [275, 0.0, 2.0, 0.0, 97],
+        "F22_AESA_FC_REVISIT_S": [275, 0.0, 0.025, 0.0, 97],
+        "F22_AESA_FC_LAST_LOOK": [275, -100.0, 34.435, -100.0, 274],
+        "F22_AESA_DEADLINE_MISSES": [275, 0.0, 49.0, 49.0, 117],
+        "F22_AESA_DRIVER_READY": [275, 0.0, 1.0, 1.0, 274],
+        "F22_AESA_READY": [275, 0.0, 1.0, 1.0, 274],
+        "F22_AESA_REASON": [275, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_TIME": [275, 0.0, 55.88, 55.88, 274],
+        "F22_AESA_SEQUENCE": [275, 0.0, 5592.0, 5592.0, 274],
+        "F22_AESA_COUNT": [275, 0.0, 1.0, 0.0, 174],
+        "F22_AESA_DWELLS": [275, 0.0, 3199.0, 3199.0, 274],
+        "F22_AESA_SEARCH_DWELLS": [275, 0.0, 2418.0, 2418.0, 274],
+        "F22_AESA_TRACK_DWELLS": [275, 0.0, 781.0, 781.0, 269],
+        "F22_AESA_DETECTIONS": [275, 0.0, 779.0, 779.0, 269],
+        "F22_AESA_PENDING": [275, 0.0, 1.0, 0.0, 59],
+        "F22_AESA_BEAM_AZ": [275, -1.01108729, 1.01108729, 0.0722205208, 268],
+        "F22_AESA_BEAM_EL": [275, -0.521733629, 0.13962634, 0.0698131701, 230],
+        "F22_AESA_SURFACE_SERVICE": [275, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_AZ": [275, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_EL": [275, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_HALF": [275, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_RANGE": [275, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_TIME": [275, -100.0, 0.0, -100.0, 274],
+        "F22_AESA_SURFACE_SEARCH": [275, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_CELLS": [275, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_ASSOCIATION_AMBIGUOUS": [275, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_ASSOCIATION_DROPPED": [275, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_INTERFERENCE_VALID": [275, 0.0, 1.0, 1.0, 274],
+        "F22_AESA_INTERFERENCE_JNR": [275, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_INTERFERENCE_TIME": [275, 0.0, 55.875, 55.875, 274],
+        "F22_AESA_INTERFERENCE_SOURCES": [275, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_DISCOVERY_SEQUENCE": [275, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_DISCOVERY_WORK": [275, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_REQUEST": [275, 0.0, 1.0, 1.0, 274],
+        "F22_AESA_CONTROL_EMIT": [275, 0.0, 1.0, 1.0, 274],
+        "F22_AESA_CONTROL_SURFACE": [275, 0.0, 0.0, 0.0, 0],
+        "F22_AG_VIDEO_COLLECTION": [275, 0.0, 0.0, 0.0, 0],
+        "F22_AG_VIDEO_REFERENCE_TIME": [275, 0.0, 0.0, 0.0, 0],
+        "F22_AG_VIDEO_FROZEN": [275, 0.0, 0.0, 0.0, 0],
+        "F22_AG_VIDEO_HOLD": [275, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_GENERATION": [275, 0.0, 2.0, 2.0, 274],
+        "F22_RADAR_SERVICE_ENABLED": [275, 1.0, 1.0, 1.0, 275],
+        "F22_RADAR_SERVICE_STATE": [275, 0.0, 1.0, 1.0, 274],
+        "F22_RADAR_SERVICE_RESOURCE": [275, 0.0, 1.0, 1.0, 274],
+        "F22_RADAR_SERVICE_HEALTH_KNOWN": [275, 0.0, 1.0, 1.0, 274],
+        "F22_RADAR_SERVICE_PENDING": [275, 0.0, 1.0, 0.0, 59],
+        "F22_RADAR_SERVICE_DROPPED": [275, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_SERVICE_ACCEPTED": [275, 0.0, 779.0, 779.0, 269],
+        "F22_RADAR_SERVICE_WORK_S": [275, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_SERVICE_PROCESSING_S": [275, 0.0, 0.012, 0.012, 274],
+        "F22_RADAR_NATIVE_RESTRICTED": [275, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_BACKGROUND_AVAILABLE": [275, 0.0, 1.0, 1.0, 274],
+        "F22_RADAR_AIR_SURFACE_CONCURRENT": [275, 0.0, 0.0, 0.0, 0]
+      },
+      "valid_stt_samples": 385,
+      "valid_stt_range_m": [385, 201.363002, 2253.65193, 207.186702, 385],
+      "hud_mode_periods": [
+        {
+          "value": 1.0,
+          "first_observed_model_s": 0.0,
+          "last_observed_model_s": 14.535,
+          "first_wall_utc": "2026-10-29 01:07:06.198",
+          "last_wall_utc": "2026-10-29 01:07:24.089",
+          "samples": 286
+        },
+        {
+          "value": 5.0,
+          "first_observed_model_s": 14.586,
+          "last_observed_model_s": 36.822,
+          "first_wall_utc": "2026-10-29 01:07:24.145",
+          "last_wall_utc": "2026-10-29 01:07:46.380",
+          "samples": 437
+        },
+        {
+          "value": 3.0,
+          "first_observed_model_s": 36.873,
+          "last_observed_model_s": 42.84,
+          "first_wall_utc": "2026-10-29 01:07:46.421",
+          "last_wall_utc": "2026-10-29 01:07:52.393",
+          "samples": 118
+        },
+        {
+          "value": 5.0,
+          "first_observed_model_s": 42.891,
+          "last_observed_model_s": 43.656,
+          "first_wall_utc": "2026-10-29 01:07:52.446",
+          "last_wall_utc": "2026-10-29 01:07:53.212",
+          "samples": 16
+        },
+        {
+          "value": 1.0,
+          "first_observed_model_s": 43.707,
+          "last_observed_model_s": 55.947,
+          "first_wall_utc": "2026-10-29 01:07:53.266",
+          "last_wall_utc": "2026-10-29 01:08:05.493",
+          "samples": 241
+        }
+      ],
+      "aesa_surface_control_periods": [
+        {
+          "value": 0.0,
+          "first_observed_model_s": 0.0,
+          "last_observed_model_s": 55.896,
+          "first_wall_utc": "2026-10-29 01:07:06.198",
+          "last_wall_utc": "2026-10-29 01:08:05.442",
+          "samples": 275
+        }
+      ],
+      "ag_ground_mode_periods": [],
+      "surface_service_intervals": {
+        "state_periods": 1,
+        "positive_periods": 0,
+        "first_positive_period": null,
+        "last_positive_period": null,
+        "note": "Aggregate counts are in service.F22_AESA_SURFACE_SERVICE; repeated pulse-scale on/off intervals omitted."
+      }
+    },
+    {
+      "index": 1,
+      "start_line": 3776,
+      "start_wall_utc": "2026-10-29 01:08:11.368",
+      "end_wall_utc": "2026-10-29 01:09:02.869",
+      "reported_segment": [
+        "0"
+      ],
+      "stream_rows": {
+        "sample": 953,
+        "avionics_sample": 239,
+        "service": 239,
+        "aesa": 89
+      },
+      "ground_diagnostic_rows": 0,
+      "model_s": {
+        "first": 0.0,
+        "last": 48.552
+      },
+      "aa": {
+        "RADAR_PWR": [953, 1.0, 1.0, 1.0, 953],
+        "MAIN_POWER": [953, 1.0, 1.0, 1.0, 953],
+        "F22_RADAR_BACKEND_READY": [953, 0.0, 1.0, 1.0, 952],
+        "F22_RADAR_NATIVE_CONFIGURED": [953, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_NATIVE_CONFIG_REASON": [953, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_STT_VALID": [953, 0.0, 1.0, 0.0, 300],
+        "F22N_RADAR_STT_RANGE": [953, 0.0, 2591.73572, 0.0, 311],
+        "F22N_RADAR_MODE": [953, 0.0, 3.0, 1.0, 952],
+        "HUD_MODE": [953, 1.0, 5.0, 2.0, 953]
+      },
+      "service": {
+        "F22_AESA_CUE_REQUEST": [239, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_CUE_TIME": [239, -100.0, 7.445, 7.445, 238],
+        "F22_AESA_CUE_DWELLS": [239, 0.0, 54.0, 54.0, 233],
+        "F22_AESA_FC_TARGET": [239, 0.0, 5.0, 0.0, 77],
+        "F22_AESA_FC_REVISIT_S": [239, 0.0, 0.05, 0.0, 77],
+        "F22_AESA_FC_LAST_LOOK": [239, -100.0, 41.895, -100.0, 238],
+        "F22_AESA_DEADLINE_MISSES": [239, 0.0, 115.0, 115.0, 167],
+        "F22_AESA_DRIVER_READY": [239, 0.0, 1.0, 1.0, 238],
+        "F22_AESA_READY": [239, 0.0, 1.0, 1.0, 238],
+        "F22_AESA_REASON": [239, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_TIME": [239, 0.0, 48.54, 48.54, 238],
+        "F22_AESA_SEQUENCE": [239, 0.0, 10454.0, 10454.0, 238],
+        "F22_AESA_COUNT": [239, 0.0, 1.0, 0.0, 185],
+        "F22_AESA_DWELLS": [239, 0.0, 2624.0, 2624.0, 238],
+        "F22_AESA_SEARCH_DWELLS": [239, 0.0, 2185.0, 2185.0, 238],
+        "F22_AESA_TRACK_DWELLS": [239, 0.0, 439.0, 439.0, 233],
+        "F22_AESA_DETECTIONS": [239, 0.0, 442.0, 442.0, 233],
+        "F22_AESA_PENDING": [239, 0.0, 1.0, 0.0, 30],
+        "F22_AESA_BEAM_AZ": [239, -1.01108729, 1.01108729, -0.361102604, 228],
+        "F22_AESA_BEAM_EL": [239, -0.247091508, 0.768526647, 0.0, 197],
+        "F22_AESA_SURFACE_SERVICE": [239, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_AZ": [239, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_EL": [239, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_HALF": [239, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_RANGE": [239, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_TIME": [239, -100.0, 0.0, -100.0, 238],
+        "F22_AESA_SURFACE_SEARCH": [239, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_CELLS": [239, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_ASSOCIATION_AMBIGUOUS": [239, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_ASSOCIATION_DROPPED": [239, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_INTERFERENCE_VALID": [239, 0.0, 1.0, 1.0, 238],
+        "F22_AESA_INTERFERENCE_JNR": [239, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_INTERFERENCE_TIME": [239, 0.0, 48.53, 48.53, 238],
+        "F22_AESA_INTERFERENCE_SOURCES": [239, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_DISCOVERY_SEQUENCE": [239, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_DISCOVERY_WORK": [239, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_REQUEST": [239, 0.0, 1.0, 1.0, 238],
+        "F22_AESA_CONTROL_EMIT": [239, 0.0, 1.0, 1.0, 238],
+        "F22_AESA_CONTROL_SURFACE": [239, 0.0, 0.0, 0.0, 0],
+        "F22_AG_VIDEO_COLLECTION": [239, 0.0, 0.0, 0.0, 0],
+        "F22_AG_VIDEO_REFERENCE_TIME": [239, 0.0, 0.0, 0.0, 0],
+        "F22_AG_VIDEO_FROZEN": [239, 0.0, 0.0, 0.0, 0],
+        "F22_AG_VIDEO_HOLD": [239, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_GENERATION": [239, 0.0, 5.0, 5.0, 238],
+        "F22_RADAR_SERVICE_ENABLED": [239, 1.0, 1.0, 1.0, 239],
+        "F22_RADAR_SERVICE_STATE": [239, 0.0, 1.0, 1.0, 238],
+        "F22_RADAR_SERVICE_RESOURCE": [239, 0.0, 1.0, 1.0, 238],
+        "F22_RADAR_SERVICE_HEALTH_KNOWN": [239, 0.0, 1.0, 1.0, 238],
+        "F22_RADAR_SERVICE_PENDING": [239, 0.0, 1.0, 0.0, 30],
+        "F22_RADAR_SERVICE_DROPPED": [239, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_SERVICE_ACCEPTED": [239, 0.0, 442.0, 442.0, 233],
+        "F22_RADAR_SERVICE_WORK_S": [239, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_SERVICE_PROCESSING_S": [239, 0.0, 0.012, 0.012, 238],
+        "F22_RADAR_NATIVE_RESTRICTED": [239, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_BACKGROUND_AVAILABLE": [239, 0.0, 1.0, 1.0, 238],
+        "F22_RADAR_AIR_SURFACE_CONCURRENT": [239, 0.0, 0.0, 0.0, 0]
+      },
+      "valid_stt_samples": 300,
+      "valid_stt_range_m": [300, 52.0398622, 2591.73572, 63.9906334, 300],
+      "hud_mode_periods": [
+        {
+          "value": 1.0,
+          "first_observed_model_s": 0.0,
+          "last_observed_model_s": 1.479,
+          "first_wall_utc": "2026-10-29 01:08:11.369",
+          "last_wall_utc": "2026-10-29 01:08:15.791",
+          "samples": 30
+        },
+        {
+          "value": 2.0,
+          "first_observed_model_s": 1.53,
+          "last_observed_model_s": 7.395,
+          "first_wall_utc": "2026-10-29 01:08:15.834",
+          "last_wall_utc": "2026-10-29 01:08:21.694",
+          "samples": 116
+        },
+        {
+          "value": 5.0,
+          "first_observed_model_s": 7.446,
+          "last_observed_model_s": 19.38,
+          "first_wall_utc": "2026-10-29 01:08:21.762",
+          "last_wall_utc": "2026-10-29 01:08:33.691",
+          "samples": 235
+        },
+        {
+          "value": 2.0,
+          "first_observed_model_s": 19.431,
+          "last_observed_model_s": 21.93,
+          "first_wall_utc": "2026-10-29 01:08:33.735",
+          "last_wall_utc": "2026-10-29 01:08:36.243",
+          "samples": 50
+        },
+        {
+          "value": 3.0,
+          "first_observed_model_s": 21.981,
+          "last_observed_model_s": 23.103,
+          "first_wall_utc": "2026-10-29 01:08:36.296",
+          "last_wall_utc": "2026-10-29 01:08:37.420",
+          "samples": 23
+        },
+        {
+          "value": 2.0,
+          "first_observed_model_s": 23.154,
+          "last_observed_model_s": 34.068,
+          "first_wall_utc": "2026-10-29 01:08:37.473",
+          "last_wall_utc": "2026-10-29 01:08:48.382",
+          "samples": 215
+        },
+        {
+          "value": 5.0,
+          "first_observed_model_s": 34.119,
+          "last_observed_model_s": 35.853,
+          "first_wall_utc": "2026-10-29 01:08:48.434",
+          "last_wall_utc": "2026-10-29 01:08:50.162",
+          "samples": 35
+        },
+        {
+          "value": 3.0,
+          "first_observed_model_s": 35.904,
+          "last_observed_model_s": 37.842,
+          "first_wall_utc": "2026-10-29 01:08:50.217",
+          "last_wall_utc": "2026-10-29 01:08:52.159",
+          "samples": 39
+        },
+        {
+          "value": 2.0,
+          "first_observed_model_s": 37.893,
+          "last_observed_model_s": 48.552,
+          "first_wall_utc": "2026-10-29 01:08:52.203",
+          "last_wall_utc": "2026-10-29 01:09:02.868",
+          "samples": 210
+        }
+      ],
+      "aesa_surface_control_periods": [
+        {
+          "value": 0.0,
+          "first_observed_model_s": 0.0,
+          "last_observed_model_s": 48.552,
+          "first_wall_utc": "2026-10-29 01:08:11.369",
+          "last_wall_utc": "2026-10-29 01:09:02.869",
+          "samples": 239
+        }
+      ],
+      "ag_ground_mode_periods": [],
+      "surface_service_intervals": {
+        "state_periods": 1,
+        "positive_periods": 0,
+        "first_positive_period": null,
+        "last_positive_period": null,
+        "note": "Aggregate counts are in service.F22_AESA_SURFACE_SERVICE; repeated pulse-scale on/off intervals omitted."
+      }
+    },
+    {
+      "index": 2,
+      "start_line": 6290,
+      "start_wall_utc": "2026-10-29 01:09:20.000",
+      "end_wall_utc": "2026-10-29 01:11:06.615",
+      "reported_segment": [
+        "0"
+      ],
+      "stream_rows": {
+        "sample": 2020,
+        "avionics_sample": 505,
+        "service": 505
+      },
+      "ground_diagnostic_rows": 93,
+      "model_s": {
+        "first": 0.0,
+        "last": 102.969
+      },
+      "aa": {
+        "RADAR_PWR": [2020, 1.0, 1.0, 1.0, 2020],
+        "MAIN_POWER": [2020, 1.0, 1.0, 1.0, 2020],
+        "F22_RADAR_BACKEND_READY": [2020, 0.0, 1.0, 1.0, 2019],
+        "F22_RADAR_NATIVE_CONFIGURED": [2020, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_NATIVE_CONFIG_REASON": [2020, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_STT_VALID": [2020, 0.0, 0.0, 0.0, 0],
+        "F22N_RADAR_STT_RANGE": [2020, 0.0, 0.0, 0.0, 0],
+        "F22N_RADAR_MODE": [2020, 0.0, 1.0, 1.0, 2019],
+        "HUD_MODE": [2020, 1.0, 7.0, 7.0, 2020]
+      },
+      "service": {
+        "F22_AESA_CUE_REQUEST": [505, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_CUE_TIME": [505, -100.0, 0.0, -100.0, 504],
+        "F22_AESA_CUE_DWELLS": [505, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_FC_TARGET": [505, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_FC_REVISIT_S": [505, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_FC_LAST_LOOK": [505, -100.0, 0.0, -100.0, 504],
+        "F22_AESA_DEADLINE_MISSES": [505, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_DRIVER_READY": [505, 0.0, 1.0, 1.0, 504],
+        "F22_AESA_READY": [505, 0.0, 1.0, 1.0, 504],
+        "F22_AESA_REASON": [505, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_TIME": [505, 0.0, 95.8, 95.8, 504],
+        "F22_AESA_SEQUENCE": [505, 0.0, 20040.0, 20040.0, 504],
+        "F22_AESA_COUNT": [505, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_DWELLS": [505, 0.0, 4545.0, 4545.0, 504],
+        "F22_AESA_SEARCH_DWELLS": [505, 0.0, 1839.0, 1839.0, 504],
+        "F22_AESA_TRACK_DWELLS": [505, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_DETECTIONS": [505, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_PENDING": [505, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_BEAM_AZ": [505, -1.01108729, 1.01108729, -0.0120787283, 486],
+        "F22_AESA_BEAM_EL": [505, -1.01639128, 0.555422884, -0.635446158, 465],
+        "F22_AESA_SURFACE_SERVICE": [505, 0.0, 1.0, 0.0, 113],
+        "F22_AESA_SURFACE_AZ": [505, -0.750154002, 0.751088023, 0.03581417, 456],
+        "F22_AESA_SURFACE_EL": [505, -0.99359101, 0.0, -0.415139029, 456],
+        "F22_AESA_SURFACE_HALF": [505, 0.0, 0.0523598776, 0.0523598776, 456],
+        "F22_AESA_SURFACE_RANGE": [505, 0.0, 148160.0, 148160.0, 456],
+        "F22_AESA_SURFACE_TIME": [505, -100.0, 95.78, 95.78, 504],
+        "F22_AESA_SURFACE_SEARCH": [505, 0.0, 1.0, 1.0, 456],
+        "F22_AESA_SURFACE_CELLS": [505, 0.0, 308.0, 308.0, 456],
+        "F22_AESA_ASSOCIATION_AMBIGUOUS": [505, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_ASSOCIATION_DROPPED": [505, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_INTERFERENCE_VALID": [505, 0.0, 1.0, 1.0, 504],
+        "F22_AESA_INTERFERENCE_JNR": [505, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_INTERFERENCE_TIME": [505, 0.0, 95.8, 95.8, 504],
+        "F22_AESA_INTERFERENCE_SOURCES": [505, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_DISCOVERY_SEQUENCE": [505, 0.0, 2706.0, 2706.0, 456],
+        "F22_AESA_SURFACE_DISCOVERY_WORK": [505, 0.0, 8.78571429, 8.78571429, 456],
+        "F22_AESA_REQUEST": [505, 0.0, 1.0, 1.0, 504],
+        "F22_AESA_CONTROL_EMIT": [505, 0.0, 1.0, 1.0, 504],
+        "F22_AESA_CONTROL_SURFACE": [505, 0.0, 1.0, 1.0, 456],
+        "F22_AG_VIDEO_COLLECTION": [505, 0.0, 0.0, 0.0, 0],
+        "F22_AG_VIDEO_REFERENCE_TIME": [505, 0.0, 0.0, 0.0, 0],
+        "F22_AG_VIDEO_FROZEN": [505, 0.0, 0.0, 0.0, 0],
+        "F22_AG_VIDEO_HOLD": [505, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_GENERATION": [505, 0.0, 8.0, 8.0, 504],
+        "F22_RADAR_SERVICE_ENABLED": [505, 1.0, 1.0, 1.0, 505],
+        "F22_RADAR_SERVICE_STATE": [505, 0.0, 1.0, 1.0, 504],
+        "F22_RADAR_SERVICE_RESOURCE": [505, 0.0, 1.0, 1.0, 504],
+        "F22_RADAR_SERVICE_HEALTH_KNOWN": [505, 0.0, 1.0, 1.0, 504],
+        "F22_RADAR_SERVICE_PENDING": [505, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_SERVICE_DROPPED": [505, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_SERVICE_ACCEPTED": [505, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_SERVICE_WORK_S": [505, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_SERVICE_PROCESSING_S": [505, 0.0, 0.012, 0.012, 504],
+        "F22_RADAR_NATIVE_RESTRICTED": [505, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_BACKGROUND_AVAILABLE": [505, 0.0, 1.0, 0.0, 472],
+        "F22_RADAR_AIR_SURFACE_CONCURRENT": [505, 0.0, 1.0, 0.0, 424]
+      },
+      "valid_stt_samples": 0,
+      "valid_stt_range_m": null,
+      "hud_mode_periods": [
+        {
+          "value": 1.0,
+          "first_observed_model_s": 0.0,
+          "last_observed_model_s": 9.894,
+          "first_wall_utc": "2026-10-29 01:09:20.000",
+          "last_wall_utc": "2026-10-29 01:09:32.025",
+          "samples": 195
+        },
+        {
+          "value": 7.0,
+          "first_observed_model_s": 9.945,
+          "last_observed_model_s": 102.969,
+          "first_wall_utc": "2026-10-29 01:09:32.078",
+          "last_wall_utc": "2026-10-29 01:11:06.615",
+          "samples": 1825
+        }
+      ],
+      "aesa_surface_control_periods": [
+        {
+          "value": 0.0,
+          "first_observed_model_s": 0.0,
+          "last_observed_model_s": 9.792,
+          "first_wall_utc": "2026-10-29 01:09:20.000",
+          "last_wall_utc": "2026-10-29 01:09:31.915",
+          "samples": 49
+        },
+        {
+          "value": 1.0,
+          "first_observed_model_s": 9.996,
+          "last_observed_model_s": 102.816,
+          "first_wall_utc": "2026-10-29 01:09:32.120",
+          "last_wall_utc": "2026-10-29 01:11:06.462",
+          "samples": 456
+        }
+      ],
+      "ag_ground_mode_periods": [
+        {
+          "value": 1.0,
+          "first_observed_model_s": 9.911,
+          "last_observed_model_s": 10.914,
+          "first_wall_utc": "2026-10-29 01:09:32.046",
+          "last_wall_utc": "2026-10-29 01:09:33.045",
+          "samples": 2
+        },
+        {
+          "value": 2.0,
+          "first_observed_model_s": 11.917,
+          "last_observed_model_s": 12.92,
+          "first_wall_utc": "2026-10-29 01:09:34.047",
+          "last_wall_utc": "2026-10-29 01:09:35.050",
+          "samples": 2
+        },
+        {
+          "value": 1.0,
+          "first_observed_model_s": 13.923,
+          "last_observed_model_s": 13.923,
+          "first_wall_utc": "2026-10-29 01:09:36.046",
+          "last_wall_utc": "2026-10-29 01:09:36.046",
+          "samples": 1
+        },
+        {
+          "value": 2.0,
+          "first_observed_model_s": 14.926,
+          "last_observed_model_s": 15.929,
+          "first_wall_utc": "2026-10-29 01:09:37.057",
+          "last_wall_utc": "2026-10-29 01:09:38.056",
+          "samples": 2
+        },
+        {
+          "value": 1.0,
+          "first_observed_model_s": 16.932,
+          "last_observed_model_s": 16.932,
+          "first_wall_utc": "2026-10-29 01:09:39.061",
+          "last_wall_utc": "2026-10-29 01:09:39.061",
+          "samples": 1
+        },
+        {
+          "value": 2.0,
+          "first_observed_model_s": 17.935,
+          "last_observed_model_s": 18.938,
+          "first_wall_utc": "2026-10-29 01:09:40.060",
+          "last_wall_utc": "2026-10-29 01:09:41.067",
+          "samples": 2
+        },
+        {
+          "value": 1.0,
+          "first_observed_model_s": 19.941,
+          "last_observed_model_s": 19.941,
+          "first_wall_utc": "2026-10-29 01:09:42.070",
+          "last_wall_utc": "2026-10-29 01:09:42.070",
+          "samples": 1
+        },
+        {
+          "value": 2.0,
+          "first_observed_model_s": 20.944,
+          "last_observed_model_s": 24.956,
+          "first_wall_utc": "2026-10-29 01:09:43.069",
+          "last_wall_utc": "2026-10-29 01:09:47.079",
+          "samples": 5
+        },
+        {
+          "value": 1.0,
+          "first_observed_model_s": 25.959,
+          "last_observed_model_s": 102.187,
+          "first_wall_utc": "2026-10-29 01:09:48.091",
+          "last_wall_utc": "2026-10-29 01:11:05.824",
+          "samples": 77
+        }
+      ],
+      "surface_service_intervals": {
+        "state_periods": 165,
+        "positive_periods": 82,
+        "first_positive_period": {
+          "value": 1.0,
+          "first_observed_model_s": 33.048,
+          "last_observed_model_s": 33.048,
+          "first_wall_utc": "2026-10-29 01:09:55.177",
+          "last_wall_utc": "2026-10-29 01:09:55.177",
+          "samples": 1
+        },
+        "last_positive_period": {
+          "value": 1.0,
+          "first_observed_model_s": 95.472,
+          "last_observed_model_s": 95.676,
+          "first_wall_utc": "2026-10-29 01:10:57.596",
+          "last_wall_utc": "2026-10-29 01:10:57.803",
+          "samples": 2
+        },
+        "note": "Aggregate counts are in service.F22_AESA_SURFACE_SERVICE; repeated pulse-scale on/off intervals omitted."
+      }
+    },
+    {
+      "index": 3,
+      "start_line": 11685,
+      "start_wall_utc": "2026-10-29 01:11:12.985",
+      "end_wall_utc": "2026-10-29 01:13:33.861",
+      "reported_segment": [
+        "0"
+      ],
+      "stream_rows": {
+        "sample": 2724,
+        "avionics_sample": 681,
+        "service": 681
+      },
+      "ground_diagnostic_rows": 0,
+      "model_s": {
+        "first": 0.0,
+        "last": 138.873
+      },
+      "aa": {
+        "RADAR_PWR": [2724, 1.0, 1.0, 1.0, 2724],
+        "MAIN_POWER": [2724, 1.0, 1.0, 1.0, 2724],
+        "F22_RADAR_BACKEND_READY": [2724, 0.0, 1.0, 1.0, 2723],
+        "F22_RADAR_NATIVE_CONFIGURED": [2724, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_NATIVE_CONFIG_REASON": [2724, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_STT_VALID": [2724, 0.0, 0.0, 0.0, 0],
+        "F22N_RADAR_STT_RANGE": [2724, 0.0, 0.0, 0.0, 0],
+        "F22N_RADAR_MODE": [2724, 0.0, 1.0, 1.0, 2723],
+        "HUD_MODE": [2724, 1.0, 5.0, 5.0, 2724]
+      },
+      "service": {
+        "F22_AESA_CUE_REQUEST": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_CUE_TIME": [681, -100.0, 0.0, -100.0, 680],
+        "F22_AESA_CUE_DWELLS": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_FC_TARGET": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_FC_REVISIT_S": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_FC_LAST_LOOK": [681, -100.0, 0.0, -100.0, 680],
+        "F22_AESA_DEADLINE_MISSES": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_DRIVER_READY": [681, 0.0, 1.0, 1.0, 680],
+        "F22_AESA_READY": [681, 0.0, 1.0, 1.0, 680],
+        "F22_AESA_REASON": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_TIME": [681, 0.0, 138.7, 138.7, 680],
+        "F22_AESA_SEQUENCE": [681, 0.0, 33912.0, 33912.0, 680],
+        "F22_AESA_COUNT": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_DWELLS": [681, 0.0, 6427.0, 6427.0, 680],
+        "F22_AESA_SEARCH_DWELLS": [681, 0.0, 6427.0, 6427.0, 680],
+        "F22_AESA_TRACK_DWELLS": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_DETECTIONS": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_PENDING": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_BEAM_AZ": [681, -1.01108729, 1.01108729, -0.0327249235, 675],
+        "F22_AESA_BEAM_EL": [681, -0.13962634, 0.13962634, 0.0698131701, 546],
+        "F22_AESA_SURFACE_SERVICE": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_AZ": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_EL": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_HALF": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_RANGE": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_TIME": [681, -100.0, 0.0, -100.0, 680],
+        "F22_AESA_SURFACE_SEARCH": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_CELLS": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_ASSOCIATION_AMBIGUOUS": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_ASSOCIATION_DROPPED": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_INTERFERENCE_VALID": [681, 0.0, 1.0, 1.0, 680],
+        "F22_AESA_INTERFERENCE_JNR": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_INTERFERENCE_TIME": [681, 0.0, 138.665, 138.665, 680],
+        "F22_AESA_INTERFERENCE_SOURCES": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_DISCOVERY_SEQUENCE": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_SURFACE_DISCOVERY_WORK": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_REQUEST": [681, 0.0, 1.0, 1.0, 680],
+        "F22_AESA_CONTROL_EMIT": [681, 0.0, 1.0, 1.0, 680],
+        "F22_AESA_CONTROL_SURFACE": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AG_VIDEO_COLLECTION": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AG_VIDEO_REFERENCE_TIME": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AG_VIDEO_FROZEN": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AG_VIDEO_HOLD": [681, 0.0, 0.0, 0.0, 0],
+        "F22_AESA_GENERATION": [681, 0.0, 12.0, 12.0, 680],
+        "F22_RADAR_SERVICE_ENABLED": [681, 1.0, 1.0, 1.0, 681],
+        "F22_RADAR_SERVICE_STATE": [681, 0.0, 2.0, 2.0, 680],
+        "F22_RADAR_SERVICE_RESOURCE": [681, 0.0, 1.0, 0.231249988, 680],
+        "F22_RADAR_SERVICE_HEALTH_KNOWN": [681, 0.0, 1.0, 1.0, 680],
+        "F22_RADAR_SERVICE_PENDING": [681, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_SERVICE_DROPPED": [681, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_SERVICE_ACCEPTED": [681, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_SERVICE_WORK_S": [681, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_SERVICE_PROCESSING_S": [681, 0.0, 0.0518918946, 0.0518918946, 680],
+        "F22_RADAR_NATIVE_RESTRICTED": [681, 0.0, 0.0, 0.0, 0],
+        "F22_RADAR_BACKGROUND_AVAILABLE": [681, 0.0, 1.0, 1.0, 680],
+        "F22_RADAR_AIR_SURFACE_CONCURRENT": [681, 0.0, 0.0, 0.0, 0]
+      },
+      "valid_stt_samples": 0,
+      "valid_stt_range_m": null,
+      "hud_mode_periods": [
+        {
+          "value": 1.0,
+          "first_observed_model_s": 0.0,
+          "last_observed_model_s": 16.881,
+          "first_wall_utc": "2026-10-29 01:11:12.985",
+          "last_wall_utc": "2026-10-29 01:11:31.869",
+          "samples": 332
+        },
+        {
+          "value": 3.0,
+          "first_observed_model_s": 16.932,
+          "last_observed_model_s": 19.023,
+          "first_wall_utc": "2026-10-29 01:11:31.926",
+          "last_wall_utc": "2026-10-29 01:11:34.022",
+          "samples": 42
+        },
+        {
+          "value": 5.0,
+          "first_observed_model_s": 19.074,
+          "last_observed_model_s": 19.737,
+          "first_wall_utc": "2026-10-29 01:11:34.066",
+          "last_wall_utc": "2026-10-29 01:11:34.731",
+          "samples": 14
+        },
+        {
+          "value": 2.0,
+          "first_observed_model_s": 19.788,
+          "last_observed_model_s": 20.247,
+          "first_wall_utc": "2026-10-29 01:11:34.784",
+          "last_wall_utc": "2026-10-29 01:11:35.246",
+          "samples": 10
+        },
+        {
+          "value": 5.0,
+          "first_observed_model_s": 20.298,
+          "last_observed_model_s": 138.873,
+          "first_wall_utc": "2026-10-29 01:11:35.299",
+          "last_wall_utc": "2026-10-29 01:13:33.861",
+          "samples": 2326
+        }
+      ],
+      "aesa_surface_control_periods": [
+        {
+          "value": 0.0,
+          "first_observed_model_s": 0.0,
+          "last_observed_model_s": 138.72,
+          "first_wall_utc": "2026-10-29 01:11:12.985",
+          "last_wall_utc": "2026-10-29 01:13:33.709",
+          "samples": 681
+        }
+      ],
+      "ag_ground_mode_periods": [],
+      "surface_service_intervals": {
+        "state_periods": 1,
+        "positive_periods": 0,
+        "first_positive_period": null,
+        "last_positive_period": null,
+        "note": "Aggregate counts are in service.F22_AESA_SURFACE_SERVICE; repeated pulse-scale on/off intervals omitted."
+      }
+    }
+  ],
+  "ground_diagnostics": {
+    "segments_with_rows": [
+      2
+    ],
+    "rows": 93,
+    "first_model_s": 9.911,
+    "last_model_s": 102.187,
+    "first_wall_utc": "2026-10-29 01:09:32.046",
+    "last_wall_utc": "2026-10-29 01:11:05.824",
+    "first_line": 6788,
+    "last_line": 11480,
+    "constant_numeric_fields": {
+      "CURSOR_PREVIEW": 0.0,
+      "DESIGNATION_VALID": 0.0,
+      "EXPANSION": 0.0,
+      "FAST": 0.0,
+      "FIXED_TRACK": 0.0,
+      "GMT_ACTIVITY_DT": 0.0,
+      "GMT_CANDIDATES": 0.0,
+      "GMT_COUNT": 0.0,
+      "GMT_FAST_REJECTS": 0.0,
+      "GMT_GROUND_CANDIDATES": 0.0,
+      "GMT_LAST_TIME": 0.0,
+      "GMT_MOTION_UNAVAILABLE": 0.0,
+      "GMT_OBJECT_REJECTS": 0.0,
+      "GMT_QUERY_COUNT": 0.0,
+      "GMT_RCS_REJECTS": 0.0,
+      "GMT_READY": 0.0,
+      "GMT_REASON": 4.0,
+      "GMT_SLOW_REJECTS": 0.0,
+      "GMT_SPEED_REJECTS": 0.0,
+      "GMT_TERRAIN_REJECTS": 0.0,
+      "GMT_TRUNCATED": 0.0,
+      "NATIVE_TRACK_ACQUIRING": 0.0,
+      "NATIVE_TRACK_ID": 0.0,
+      "NATIVE_TRACK_MEMORY": 0.0,
+      "NATIVE_TRACK_REQUEST_SEQUENCE": -1.0,
+      "NATIVE_TRACK_TIME": 0.0,
+      "NATIVE_TRACK_TYPE": 0.0,
+      "NATIVE_TRACK_VALID": 0.0,
+      "RADAR_CANDIDATE": 0.0,
+      "RADAR_NATIVE_READY": 0.0,
+      "RADAR_NATIVE_REASON": 4.0,
+      "TRACK_ID": 0.0,
+      "TRACK_REQUEST_ACTIVE": 0.0,
+      "TRACK_VALID": 0.0,
+      "VIDEO_CAMERA_ACCEPTED": 0.0,
+      "VIDEO_CAMERA_CALLS": 0.0,
+      "VIDEO_CENTER_M": 0.0,
+      "VIDEO_CLOCK_CHECKS": 0.0,
+      "VIDEO_CLOCK_DELTA_MS": 0.0,
+      "VIDEO_CONDITION_ACCEPTED": 0.0,
+      "VIDEO_CONDITION_CALLS": 0.0,
+      "VIDEO_DBS_REQUESTS": 0.0,
+      "VIDEO_ENABLE": 0.0,
+      "VIDEO_ERASE_CALLS": 0.0,
+      "VIDEO_FOV_DEG": 90.0,
+      "VIDEO_FROZEN": 0.0,
+      "VIDEO_FUTURE_REJECTS": 0.0,
+      "VIDEO_GPU_B_MEAN": 0.0,
+      "VIDEO_GPU_B_NONZERO": 0.0,
+      "VIDEO_GPU_CAPTURE_TIME": 0.0,
+      "VIDEO_GPU_CHANGES": 0.0,
+      "VIDEO_GPU_FORMAT": 0.0,
+      "VIDEO_GPU_G_MEAN": 0.0,
+      "VIDEO_GPU_G_NONZERO": 0.0,
+      "VIDEO_GPU_HEIGHT": 0.0,
+      "VIDEO_GPU_MAX": 0.0,
+      "VIDEO_GPU_MEAN": 0.0,
+      "VIDEO_GPU_MIN": 0.0,
+      "VIDEO_GPU_NONZERO": 0.0,
+      "VIDEO_GPU_OBSERVATIONS": 0.0,
+      "VIDEO_GPU_RENDER_THREAD": 0.0,
+      "VIDEO_GPU_R_MEAN": 0.0,
+      "VIDEO_GPU_R_NONZERO": 0.0,
+      "VIDEO_GPU_SAMPLES": 0.0,
+      "VIDEO_GPU_STATUS": 0.0,
+      "VIDEO_GPU_TARGET": 0.0,
+      "VIDEO_GPU_VARIANCE": 0.0,
+      "VIDEO_GPU_WIDTH": 0.0,
+      "VIDEO_HOLD": 0.0,
+      "VIDEO_IMAGE_CAPTURES": 0.0,
+      "VIDEO_MOTION_AGE_MS": 0.0,
+      "VIDEO_PARAMETER_CALLS": 0.0,
+      "VIDEO_PARAMETER_REJECTED": 0.0,
+      "VIDEO_PRESET_CALLS": 0.0,
+      "VIDEO_PROBE_EPOCH": 0.0,
+      "VIDEO_PROBE_FORWARD_M": 0.0,
+      "VIDEO_PROBE_RIGHT_M": 0.0,
+      "VIDEO_PROBE_UP_M": 0.0,
+      "VIDEO_QUALIFIED": 1.0,
+      "VIDEO_RBM_RESTARTS": 0.0,
+      "VIDEO_READY": 0.0,
+      "VIDEO_REASON": 2.0,
+      "VIDEO_RENDER_ALTITUDE": 0.0,
+      "VIDEO_RENDER_EAST": 0.0,
+      "VIDEO_RENDER_HEADING": 0.0,
+      "VIDEO_RENDER_NORTH": 0.0,
+      "VIDEO_SCAN_DIRECTION": 1.0,
+      "VIDEO_SPAN_M": 0.0,
+      "VIDEO_STALE_REJECTS": 0.0,
+      "gain": 0.5,
+      "operating": 0.0,
+      "range": 20.0,
+      "width": 90.0
+    },
+    "varying_numeric_fields": {
+      "DESIGNATION_SEQUENCE": [93, 0.0, 2.0, 2.0, 66],
+      "MODE": [93, 1.0, 2.0, 1.0, 93],
+      "TRACK_REQUEST_SEQUENCE": [93, 0.0, 2.0, 2.0, 66],
+      "VIDEO_ALTITUDE": [93, 399.06853982399, 4093.3269672171, 399.06853982399, 93],
+      "VIDEO_EAST": [93, 592474.78380629, 619122.60029659, 619122.60029659, 93],
+      "VIDEO_HEADING": [93, 0.094345871602194, 1.2209690252887, 0.094345871602194, 93],
+      "VIDEO_NORTH": [93, -314034.11306556, -296166.69907599, -296166.69907599, 93],
+      "VIDEO_SCAN_FRACTION": [93, 0.022711951314358, 0.9772906678304, 0.52280000875358, 93],
+      "VIDEO_TIME": [93, 9.911, 102.187, 102.187, 93],
+      "erase": [93, 2.0, 11.0, 11.0, 93],
+      "t": [93, 9.911, 102.187, 102.187, 93]
+    },
+    "numeric_fields_count": 104,
+    "constant_numeric_sample_count": 93
+  },
+  "confirmed": [
+    "A/A worked in segments0/1: STT valid385/300 high-rate samples, track countmax1, cumulative detections779/442. This corroborates the user report; it is not evidence of every radar mode.",
+    "Only segment2 contains A/G scan diagnostics: all93 rows VIDEO_REASON2, VIDEO_READY0, operating0, VIDEO_ENABLE0; camera/condition/parameter/image and GMT query/candidate counters never advance.",
+    "Ground coordinator and GMT both report ready0/reason4 in all93 rows. GMT reason2 is NOT observed and must not be substituted for logged4.",
+    "The air driver/AESA ready bits become1 after each initial sample, and AESA_REASON remains0. Segment2 has surface-control1 in456/505 service samples and surface-service1 in113/505, so some surface RF scheduling occurred.",
+    "Captured NativeGroundVideo source maps profile mismatch to reason2 before indicator installation; guard sticky parameter faults use7. This is consistent with current VIDEO_REASON2 and zero render callback counters. Exact loaded binary-to-source identity remains the integrator manifest responsibility."
+  ],
+  "source_reason_anchors": [
+    {
+      "path": "EFM/source/NativeGroundVideo.cpp",
+      "line": 69,
+      "meaning": "Failed exact guarded module profile sets incompatible=true/reason2."
+    },
+    {
+      "path": "EFM/source/NativeGroundSensor.cpp",
+      "line": 594,
+      "meaning": "When not fresh, default/result.reason4 takes precedence over api.reason2, so the exported GMT_REASON cannot expose actual failed module identity."
+    }
+  ],
+  "unproven": [
+    "No logged per-module ground binder result identifies which of the five video or five sensor profile requirements failed.",
+    "Reason4 and zero ground queries do not by themselves distinguish profile refusal, absent sampler callback, invalid control packet or unavailable fresh result.",
+    "Zero geometry/render outputs under unavailable video do not prove terrain/camera projection, target geometry, stock renderer overwrite, VR eye or GPU failures.",
+    "VIDEO_QUALIFIED1 is Lua view geometry policy, not native profile/readiness qualification.",
+    "This log does not prove user settings are wrong, does not establish actual image contents, and does not authorize accepting an unknown layout."
+  ],
+  "missing_native_consumer_observability": {
+    "NativeGroundVideo.cpp": {
+      "literal_consumed_ground_fields": 44,
+      "missing_from_all_logged_schemas_and_AG_SCAN": [
+        "F22_AG_INTERLEAVE",
+        "F22_AG_NATIVE_SCHEMA",
+        "F22_AG_NATIVE_SEQUENCE",
+        "F22_AG_NATIVE_SOURCE_EPOCH",
+        "F22_AG_RADAR_SCAN_CENTER_AZ_DEG",
+        "F22_AG_VIDEO_ANTENNA_DEG",
+        "F22_AG_VIDEO_EPOCH",
+        "F22_AG_VIDEO_EXPANSION",
+        "F22_AG_VIDEO_FAN",
+        "F22_AG_VIDEO_GPU_DIAGNOSTIC",
+        "F22_AG_VIDEO_PATCH_AZ",
+        "F22_AG_VIDEO_PATCH_DISTANCE",
+        "F22_AG_VIDEO_PATCH_E",
+        "F22_AG_VIDEO_PATCH_N",
+        "F22_AG_VIDEO_PATCH_U",
+        "F22_AG_VIDEO_PROBE_TEXTURE",
+        "F22_AG_VIDEO_STABILIZED",
+        "F22_AG_VIDEO_TIMING_DIAGNOSTIC"
+      ]
+    },
+    "NativeGroundSensor.cpp": {
+      "literal_consumed_ground_fields": 16,
+      "missing_from_all_logged_schemas_and_AG_SCAN": [
+        "F22_AG_ACTIVE",
+        "F22_AG_NATIVE_CONTROL_EPOCH",
+        "F22_AG_NATIVE_CONTROL_SCHEMA",
+        "F22_AG_NATIVE_CONTROL_SEQUENCE",
+        "F22_AG_NATIVE_CONTROL_TIME",
+        "F22_AG_SILENT",
+        "F22_AG_TRACK_REQUEST_ALTITUDE",
+        "F22_AG_TRACK_REQUEST_EAST",
+        "F22_AG_TRACK_REQUEST_NORTH",
+        "F22_AG_VIDEO_ANTENNA_DEG",
+        "F22_AG_VIDEO_FAN"
+      ]
+    }
+  },
+  "additional_missing_publications": [
+    "F22_AG_VIDEO_FRAMES",
+    "F22_AG_VIDEO_MAX_LEAD_MS",
+    "F22_AG_VIDEO_REFERENCE_VALID",
+    "F22_AG_VIDEO_REFERENCE_SCHEMA",
+    "F22_AG_VIDEO_REFERENCE_EPOCH",
+    "F22_AG_NATIVE_SEQUENCE",
+    "F22_AG_NATIVE_SCHEMA",
+    "F22_AG_NATIVE_SOURCE_EPOCH"
+  ],
+  "minimal_next_diagnostic_fields": [
+    "Per-capability selected profile ID, first failed module identity/export/layout requirement, and raw surface api.reason separate from result.reason",
+    "Native video enabled/complete/admitted view flags and frames; source marker F22_AG_VIDEO_SOURCE_PRESENT",
+    "Ground source/control schema, sequence, original time, source epoch and acceptance/failure gate",
+    "Ground MAIN_POWER/RADAR_PWR, operating/silent/active, native mode/fan/antenna/interleave and completed surface work sampled coherently"
+  ],
+  "next_work": "Owners verify current ground profile/query/camera/renderer interfaces; parent checks Lua readiness/control bootstrap independently. Reproduce only after matched owner integration and explicit supported-host qualification. This artifact makes no source changes or game/process operations.",
+  "validation": {
+    "derived_segment_count": 4,
+    "all_csv_rows_match_headers": true,
+    "sources_hash_stable": true,
+    "log_unchanged_size_during_read": true
+  },
+  "numeric_stat_columns": [
+    "n",
+    "min",
+    "max",
+    "last",
+    "nonzero_n"
+  ]
+}
