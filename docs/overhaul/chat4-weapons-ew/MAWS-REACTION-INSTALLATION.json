@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "status": "INSTALLED_HASH_VERIFIED_HOST_FLIGHT_PENDING",
+  "source_commit": "8b7d77acf589c67d963ff423173f57c10bcf475a",
+  "installed_utc": "2026-10-29T05:33:38.183330+00:00",
+  "mod_path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Mods\\aircraft\\F-22A",
+  "change": "Confirmed closing missiles no longer require a near-zero straight-line projected miss distance. Native confirmation, outgoing rejection and60s horizon retained.",
+  "audio": "Existing radar launch tone does not block MAWS; actual owner tests confirm MAWS preemption and RWR resumption. Critical pilot voice can hold audio only.",
+  "flight_log": {
+    "path": "C:\\Users\\Ethans Desktop 2.0\\Saved Games\\DCS\\Logs\\dcs.log",
+    "sha256": "4bc804eaae429dfd6c02e3d95b6cccb87e87e8f70f9ed71dd2f52bf41d56b32a",
+    "sample_count": 2961,
+    "native_contact_samples": 74,
+    "voice_priorities_during_contacts": {
+      "0": 74
+    },
+    "interpretation": "Optical contacts occur with voice priority0; log lacks motion/target-intent detail needed to identify the exact old rejected condition."
+  },
+  "build_directory": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\maws-reaction-2.9.31.29434",
+  "baseline_dll_sha256": "9f6515fa51fadcdce04985c19049673c77a602c30b14436a2954806c98c8c539",
+  "built_dll_sha256": "974ce548c19d85655d925fe2f2db62a74ade140598f52cd6f88ee23d88e172c9",
+  "installed_dll_sha256": "974ce548c19d85655d925fe2f2db62a74ade140598f52cd6f88ee23d88e172c9",
+  "primary_bin_sha256": "974ce548c19d85655d925fe2f2db62a74ade140598f52cd6f88ee23d88e172c9",
+  "native_identity": "F22_NATIVE_V1|source=bd0d883e88177543a2c9cd6e0b331d79da5ad127f47afb2c08090edbb57add34|cache=91b784ed848cfcdfc8504b62d998446911a0f7b16b731d09724977b9bbce740e|compiler=MSVC-19.51.36252.0|config=Release|cxx=23",
+  "native_mws_source_sha256": "2a71a03132c023ed97ad4241177ac84535b359f7d16738b3dfbd98ac7e5720fa",
+  "mws_lua_before_sha256": "86f48faa0f27316a34036eacd20ad0d030ca6aa1967fb016fa172ee007d47042",
+  "mws_lua_installed_sha256": "530c0231dcd7698e8c3f21c76ee315f8c9602696418ca67cd1424fda706e831d",
+  "composition": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\maws-reaction-2.9.31.29434\\composition.json",
+  "composition_sha256": "0e06f0c8edef0e523cee4d91ec89f45317a1e3cb6c2d08ca843ae7d49a102744",
+  "preserved_object_count": 16,
+  "method": "NativeMWS incremental translation-unit rebuild and link with all other objects from the exact installed aircraft DLL build including IRST and ground-radar fixes; no source restore/copy/worktree",
+  "other_pending_native_changes_excluded": [
+    "EFM/source/AesaRadar.cpp"
+  ],
+  "build_log": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\maws-reaction-2.9.31.29434\\build.log",
+  "build_log_sha256": "b86aaaabc4604598df4f045c9ab0361ecf5f6c6a66df5d27b0dfe941836d40e5",
+  "checks": {
+    "native_before": "Lofting-closing case fails in old actual ApproachFilter",
+    "native_after": "Actual owner cases pass: direct/lofted/outgoing/stationary/horizon/stale/rewind/invalid",
+    "actual_Lua_owner_cases": 4,
+    "Lua51_compile": true,
+    "luacheck_1_2_0_new_diagnostics": 0,
+    "MSVC_19_51": "/std:c++23 /W4 /WX /analyze;0diagnostics",
+    "DLL_exports_preserved": 41,
+    "import_libraries": "unchanged; Windows/MSVC runtime only",
+    "approach_function_complexity_max": 6
+  },
+  "protected_installed_file_count": 362,
+  "protected_manifest": "C:\\Users\\Ethans Desktop 2.0\\Desktop\\DCS MODDING\\F22-Build\\maws-reaction-2.9.31.29434\\protected-files.json",
+  "protected_manifest_sha256": "7ae68548b13752ed2a3ef7f9251867f5ed33461a5aee326c2fec1b1806c49543",
+  "DCS_absent_at_copy": true,
+  "DCS_launched_or_controlled": false,
+  "backups_created": false,
+  "limits": [
+    "Next user flight must establish actual sensor-to-warning timing and loaded identity.",
+    "A confirmed closing missile may warn even when it will miss or is aimed elsewhere; the optical warning does not establish target intent.",
+    "Legacy native MWS lifecycle/container orchestration remains outside this focused change."
+  ]
+}

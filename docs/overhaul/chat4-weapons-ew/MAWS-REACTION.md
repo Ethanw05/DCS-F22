@@ -66,8 +66,9 @@ bounded by the existing512-contact map admission. The native callback/lifetime
 architecture is unchanged; this is not completion of that broader audit.
 
 The installed DLL is updated by compiling NativeMWS and the generated identity,
-then linking the other16 exact object files from the previously installed IRST
-build. No source is restored or copied into a separate checkout. This preserves
+then linking the other16 exact object files from the latest installed aircraft
+build, including IRST and the ground-radar fixes. No source is restored or copied
+into a separate checkout. This preserves
 the existing aircraft implementations and excludes unrelated pending native
 ground-radar edits. The composite source/old-object identities, exports,
 compiler/configuration and matched normal-mod installation are recorded in
